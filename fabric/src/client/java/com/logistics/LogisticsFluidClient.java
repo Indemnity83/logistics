@@ -2,11 +2,16 @@ package com.logistics;
 
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
+import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.fabric.fluids.FabricFluids;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
 import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
+import java.util.HashMap;
+import java.util.Map;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.material.FluidState;
@@ -31,6 +36,8 @@ public final class LogisticsFluidClient {
         BlockEntityRenderers.register(
                 LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY, FluidPumpBlockEntityRenderer::new);
 
+        registerFluidRenderers();
+
         // Resolve fluid still sprite + tint through Fabric's fluid render handlers (1.21.x has no unified
         // vanilla fluid model). Shared fluid pipe/tank renderers call this via FluidSpriteLookup.
         FluidSpriteLookup.register((fluid, level, pos) -> {
@@ -44,6 +51,23 @@ public final class LogisticsFluidClient {
                 return null;
             }
             return new FluidBoxRenderer.Appearance(sprites[0], handler.getFluidColor(level, pos, fluidState));
+        });
+    }
+
+    /** Registers each custom fluid's still/flow sprites with a flat per-fluid tint. */
+    private static void registerFluidRenderers() {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+
+        FabricFluids.sources().forEach((name, source) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            SimpleFluidRenderHandler handler = new SimpleFluidRenderHandler(
+                    ResourceId.parse(def.still()).toIdentifier(),
+                    ResourceId.parse(def.flow()).toIdentifier(),
+                    def.tint());
+            FluidRenderHandlerRegistry.INSTANCE.register(source, source.getFlowing(), handler);
         });
     }
 }

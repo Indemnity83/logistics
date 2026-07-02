@@ -224,8 +224,18 @@ public class GlassTankBlock extends BaseEntityBlock {
         long perMb = Math.max(1, PlatformService.INSTANCE.fluidUnitsPerMillibucket());
         long amountMb = column.total() / perMb;
         long capacityMb = column.capacity() / perMb;
-        Component name = shared.getFluid().defaultFluidState().createLegacyBlock().getBlock().getName();
-        return Component.translatable("tooltip.logistics.fluid.tank_contents", name, amountMb, capacityMb);
+        return Component.translatable(
+                "tooltip.logistics.fluid.tank_contents", fluidName(shared.getFluid()), amountMb, capacityMb);
+    }
+
+    /** A fluid's display name: its world block's name, or an id-derived key for block-less fluids. */
+    private static Component fluidName(net.minecraft.world.level.material.Fluid fluid) {
+        var block = fluid.defaultFluidState().createLegacyBlock().getBlock();
+        if (block != net.minecraft.world.level.block.Blocks.AIR) {
+            return block.getName();
+        }
+        return Component.translatable(
+                net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(fluid).toLanguageKey("fluid"));
     }
 
     // ==================== Stacking ====================

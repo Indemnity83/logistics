@@ -37,11 +37,17 @@ import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.screen.StirlingEngineScreen;
+import com.logistics.neoforge.fluids.NeoForgeFluids;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -56,9 +62,40 @@ public final class NeoForgeClientSetup {
         NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
-        modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerItemColors);
+        modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
+    }
+
+    /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
+    private static void registerFluidExtensions(RegisterClientExtensionsEvent event) {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+        NeoForgeFluids.types().forEach((name, type) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            event.registerFluidType(new IClientFluidTypeExtensions() {
+                @Override
+                public ResourceLocation getStillTexture() { // raw-id-ok
+                    return textureId(def.still());
+                }
+
+                @Override
+                public ResourceLocation getFlowingTexture() { // raw-id-ok
+                    return textureId(def.flow());
+                }
+
+                @Override
+                public int getTintColor() {
+                    return def.tint();
+                }
+            }, type);
+        });
+    }
+
+    private static ResourceLocation textureId(String texture) { // raw-id-ok
+        return ResourceId.parse(texture).toIdentifier();
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {

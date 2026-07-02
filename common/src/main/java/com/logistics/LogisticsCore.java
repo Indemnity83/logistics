@@ -11,6 +11,7 @@ import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
+import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -41,6 +42,29 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         return INSTANCE.domainModelResource(name);
     }
 
+    /**
+     * A custom fluid produced by the Magma Crucible. Registered per loader under
+     * {@code logistics:core/<name>} (source) + {@code logistics:core/flowing_<name>}; rendered from its own
+     * baked {@code still}/{@code flow} sprites (color + per-fluid alpha pre-applied in the texture), so the
+     * {@code tint} stays {@code 0xFFFFFFFF} (untinted). {@code overlay} may be null.
+     */
+    public record FluidDef(String name, int tint, String still, String flow, String overlay) {
+
+        /** A fluid rendered from its baked textures under {@code block/core/fluid/}, untinted. */
+        public static FluidDef core(String name) {
+            String base = "logistics:block/core/fluid/" + name;
+            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null);
+        }
+    }
+
+    /** The custom fluids — tank/pipe/bucket contents only (no world block). */
+    public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
+        FluidDef.core("liquid_redstone"),
+        FluidDef.core("liquid_ender"),
+        FluidDef.core("liquid_glowstone"),
+        FluidDef.core("crude_oil"),
+        FluidDef.core("liquid_biomass"));
+
     @Override
     public int order() {
         return -100;
@@ -55,6 +79,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         BLOCK.register();
         ITEM.register();
+        BUCKET.register();
         ENTITY.register();
         WORLDGEN.register();
         CREATIVE.register();
@@ -71,6 +96,31 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
                 new BogPatchFeature(BogPatchConfiguration.CODEC));
+        }
+    }
+
+    /** A filled bucket per custom fluid ({@code logistics:core/<name>}), keyed by fluid name. */
+    public static final class BUCKET {
+        private static final java.util.Map<String, Item> BY_FLUID = new java.util.LinkedHashMap<>();
+
+        private BUCKET() {}
+
+        static void register() {
+            for (FluidDef def : CUSTOM_FLUIDS) {
+                Item bucket = INSTANCE.registerItem(def.name(),
+                    props -> new com.logistics.core.item.LogisticsBucketItem(def.name(), props.stacksTo(1)));
+                BY_FLUID.put(def.name(), bucket);
+            }
+        }
+
+        /** The filled-bucket item for a fluid name, or null. */
+        public static Item forFluid(String name) {
+            return BY_FLUID.get(name);
+        }
+
+        /** Fluid name → filled bucket item, in {@link #CUSTOM_FLUIDS} order. */
+        public static java.util.Map<String, Item> all() {
+            return java.util.Collections.unmodifiableMap(BY_FLUID);
         }
     }
 
@@ -329,6 +379,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.WRENCH);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
             TAB.add(BLOCK.MARKER);
+            BUCKET.all().values().forEach(TAB::add);
 
             // Register the tab — populate() is lazy, so other domains can still add items after this
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);

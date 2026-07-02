@@ -23,6 +23,7 @@ public final class LogisticsNeoForge {
 
     public LogisticsNeoForge(IEventBus modBus) {
         modBus.addListener(this::onRegister);
+        com.logistics.neoforge.fluids.NeoForgeFluids.register(modBus);
         registerEnergyServices();
         NeoForgeCapabilityRegistration.register(modBus);
         NeoForgePacketRegistration.register(modBus);
