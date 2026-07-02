@@ -227,12 +227,7 @@ public class GlassTankBlock extends BaseEntityBlock {
 
     /** A fluid's display name: its world block's name, or an id-derived key for block-less fluids. */
     private static Component fluidName(net.minecraft.world.level.material.Fluid fluid) {
-        var block = fluid.defaultFluidState().createLegacyBlock().getBlock();
-        if (block != net.minecraft.world.level.block.Blocks.AIR) {
-            return block.getName();
-        }
-        return Component.translatable(
-                net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(fluid).toLanguageKey("fluid"));
+        return com.logistics.core.lib.fluids.FluidDisplay.name(fluid);
     }
 
     // ==================== Stacking ====================

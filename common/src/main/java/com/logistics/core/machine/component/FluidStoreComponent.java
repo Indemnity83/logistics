@@ -2,6 +2,7 @@ package com.logistics.core.machine.component;
 
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.IFluidStorage;
+import com.logistics.core.lib.fluids.OutputOnlyFluidStorage;
 import com.logistics.core.machine.MachineComponent;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -10,6 +11,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Single-variant fluid tank component wrapping the {@link FluidTankComponent} holder.
+ *
+ * <p>When {@code outputOnly}, the externally exposed view ({@link #fluid}) rejects insertion so pipes can
+ * only drain the tank — the machine fills it internally via {@link #tank()}.
  */
 public final class FluidStoreComponent implements MachineComponent, MachineComponent.FluidAccess {
 
@@ -17,10 +21,16 @@ public final class FluidStoreComponent implements MachineComponent, MachineCompo
 
     private final String id;
     private final FluidTankComponent tank;
+    private final IFluidStorage exposed;
 
     public FluidStoreComponent(String id, long capacity, Runnable onChanged) {
+        this(id, capacity, onChanged, false);
+    }
+
+    public FluidStoreComponent(String id, long capacity, Runnable onChanged, boolean outputOnly) {
         this.id = id;
         this.tank = new FluidTankComponent(capacity, onChanged);
+        this.exposed = outputOnly ? new OutputOnlyFluidStorage(tank) : tank;
     }
 
     @Override
@@ -36,7 +46,7 @@ public final class FluidStoreComponent implements MachineComponent, MachineCompo
     @Override
     @Nullable
     public IFluidStorage fluid(@Nullable Direction side) {
-        return tank;
+        return exposed;
     }
 
     @Override

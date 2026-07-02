@@ -6,6 +6,12 @@ import com.logistics.automation.alloysmelter.AlloySmelterRecipe;
 import com.logistics.automation.alloysmelter.AlloySmelterRecipeDisplay;
 import com.logistics.automation.alloysmelter.AlloySmelterRecipeSerializer;
 import com.logistics.automation.alloysmelter.AlloySmelterScreenHandler;
+import com.logistics.automation.crucible.CrucibleBlock;
+import com.logistics.automation.crucible.CrucibleBlockEntity;
+import com.logistics.automation.crucible.CrucibleRecipe;
+import com.logistics.automation.crucible.CrucibleRecipeDisplay;
+import com.logistics.automation.crucible.CrucibleRecipeSerializer;
+import com.logistics.automation.crucible.CrucibleScreenHandler;
 import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.kiln.KilnBlockEntity;
 import com.logistics.automation.kiln.KilnScreenHandler;
@@ -85,6 +91,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block MACERATOR;
         public static Block SAWMILL;
         public static Block ALLOY_SMELTER;
+        public static Block CRUCIBLE;
 
         static void register() {
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
@@ -103,6 +110,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             ALLOY_SMELTER = INSTANCE.registerBlockWithItem("alloy_smelter",
                 props -> new AlloySmelterBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(AlloySmelterBlock.LIT) ? 13 : 0)));
+            CRUCIBLE = INSTANCE.registerBlockWithItem("crucible",
+                props -> new CrucibleBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(CrucibleBlock.LIT) ? 13 : 0)));
         }
     }
 
@@ -114,6 +124,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<MaceratorBlockEntity> MACERATOR_BLOCK_ENTITY;
         public static BlockEntityType<SawmillBlockEntity> SAWMILL_BLOCK_ENTITY;
         public static BlockEntityType<AlloySmelterBlockEntity> ALLOY_SMELTER_BLOCK_ENTITY;
+        public static BlockEntityType<CrucibleBlockEntity> CRUCIBLE_BLOCK_ENTITY;
 
         static void register() {
             LASER_QUARRY_BLOCK_ENTITY =
@@ -126,6 +137,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("sawmill", SawmillBlockEntity::new, BLOCK.SAWMILL);
             ALLOY_SMELTER_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("alloy_smelter", AlloySmelterBlockEntity::new, BLOCK.ALLOY_SMELTER);
+            CRUCIBLE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("crucible", CrucibleBlockEntity::new, BLOCK.CRUCIBLE);
         }
     }
 
@@ -136,12 +149,14 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static MenuType<MaceratorScreenHandler> MACERATOR;
         public static MenuType<SawmillScreenHandler> SAWMILL;
         public static MenuType<AlloySmelterScreenHandler> ALLOY_SMELTER;
+        public static MenuType<CrucibleScreenHandler> CRUCIBLE;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
             MACERATOR = INSTANCE.registerMenuType("macerator", MaceratorScreenHandler::new);
             SAWMILL = INSTANCE.registerMenuType("sawmill", SawmillScreenHandler::new);
             ALLOY_SMELTER = INSTANCE.registerMenuType("alloy_smelter", AlloySmelterScreenHandler::new);
+            CRUCIBLE = INSTANCE.registerMenuType("crucible", CrucibleScreenHandler::new);
         }
     }
 
@@ -160,6 +175,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static RecipeSerializer<AlloySmelterRecipe> ALLOY_SMELTER_RECIPE_SERIALIZER;
         public static RecipeBookCategory ALLOY_SMELTER_CATEGORY;
         public static RecipeDisplay.Type<AlloySmelterRecipeDisplay> ALLOY_SMELTER_DISPLAY_TYPE;
+        public static RecipeType<CrucibleRecipe> CRUCIBLE_RECIPE_TYPE;
+        public static RecipeSerializer<CrucibleRecipe> CRUCIBLE_RECIPE_SERIALIZER;
+        public static RecipeBookCategory CRUCIBLE_CATEGORY;
+        public static RecipeDisplay.Type<CrucibleRecipeDisplay> CRUCIBLE_DISPLAY_TYPE;
 
         static void register() {
             MACERATOR_RECIPE_TYPE = Registry.register(
@@ -237,6 +256,31 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 LogisticsMod.modId("alloy_smelter").toIdentifier(),
                 AlloySmelterRecipeDisplay.TYPE
             );
+            CRUCIBLE_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("crucible").toIdentifier(),
+                new RecipeType<CrucibleRecipe>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:crucible";
+                    }
+                }
+            );
+            CRUCIBLE_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("crucible").toIdentifier(),
+                CrucibleRecipeSerializer.INSTANCE
+            );
+            CRUCIBLE_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("crucible").toIdentifier(),
+                new RecipeBookCategory()
+            );
+            CRUCIBLE_DISPLAY_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_DISPLAY,
+                LogisticsMod.modId("crucible").toIdentifier(),
+                CrucibleRecipeDisplay.TYPE
+            );
         }
     }
 
@@ -258,6 +302,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             TAB.add(BLOCK.MACERATOR);
             TAB.add(BLOCK.SAWMILL);
             TAB.add(BLOCK.ALLOY_SMELTER);
+            TAB.add(BLOCK.CRUCIBLE);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
