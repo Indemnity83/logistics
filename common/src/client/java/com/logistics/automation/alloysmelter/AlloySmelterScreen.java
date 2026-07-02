@@ -2,7 +2,7 @@ package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -39,7 +39,7 @@ public class AlloySmelterScreen extends AbstractRecipeBookScreen<AlloySmelterScr
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),

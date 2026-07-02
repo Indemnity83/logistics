@@ -37,10 +37,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.world.level.material.FluidState;
+import com.logistics.neoforge.fluids.NeoForgeFluids;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.HashMap;
+import java.util.Map;
+import net.minecraft.resources.Identifier; // raw-id-ok
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -53,6 +59,35 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
+        modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
+    }
+
+    /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
+    private static void registerFluidExtensions(RegisterClientExtensionsEvent event) {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+        NeoForgeFluids.types().forEach((name, type) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            event.registerFluidType(new IClientFluidTypeExtensions() {
+                public Identifier getStillTexture() { // raw-id-ok
+                    return textureId(def.still());
+                }
+
+                public Identifier getFlowingTexture() { // raw-id-ok
+                    return textureId(def.flow());
+                }
+
+                public int getTintColor() {
+                    return def.tint();
+                }
+            }, type);
+        });
+    }
+
+    private static Identifier textureId(String texture) { // raw-id-ok
+        return ResourceId.parse(texture).toIdentifier();
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {

@@ -15,7 +15,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.registry.FuelValueEvents;
+import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -28,7 +28,9 @@ public final class LogisticsFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         LogisticsMod.LOGGER.info("Initializing {}", LogisticsMod.MOD_ID);
+        com.logistics.fabric.fluids.FabricFluids.register();
         COMMON_BOOTSTRAP.initialize();
+        com.logistics.fabric.fluids.FabricFluids.registerBucketStorage();
 
         registerEnergyServices();
         FabricCapabilityRegistration.register();
@@ -42,7 +44,7 @@ public final class LogisticsFabric implements ModInitializer {
         FabricBiomeModifications.register();
 
         // Peat burns long enough to smelt 10 items; works in furnaces and the Stirling Engine.
-        FuelValueEvents.BUILD.register((builder, context) -> builder.add(LogisticsCore.ITEM.PEAT, 2000));
+        FuelRegistryEvents.BUILD.register((builder, context) -> builder.add(LogisticsCore.ITEM.PEAT, 2000));
 
         FabricLoader.getInstance().getModContainer(LogisticsMod.MOD_ID).ifPresent(container ->
             ResourceManagerHelper.registerBuiltinResourcePack(

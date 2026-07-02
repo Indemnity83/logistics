@@ -2,11 +2,16 @@ package com.logistics;
 
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
+import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.fabric.fluids.FabricFluids;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
 import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
+import java.util.HashMap;
+import java.util.Map;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -38,6 +43,8 @@ public final class LogisticsFluidClient {
         // render_type directly). The pipe cores are opaque, so they render fine on the default layer.
         BlockRenderLayerMap.putBlock(LogisticsFluid.BLOCK.GLASS_TANK, ChunkSectionLayer.TRANSLUCENT);
 
+        registerFluidRenderers();
+
         // Resolve fluid still sprite + tint through Fabric's fluid render handlers (1.21.x has no unified
         // vanilla fluid model). Shared fluid pipe/tank renderers call this via FluidSpriteLookup.
         FluidSpriteLookup.register((fluid, level, pos) -> {
@@ -51,6 +58,30 @@ public final class LogisticsFluidClient {
                 return null;
             }
             return new FluidBoxRenderer.Appearance(sprites[0], handler.getFluidColor(level, pos, fluidState));
+        });
+    }
+
+    /** Renders each custom fluid from its own still/flow sprites with a flat per-fluid tint. */
+    private static void registerFluidRenderers() {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+
+        FabricFluids.sources().forEach((name, source) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            int tint = def.tint() & 0xFFFFFF;
+            SimpleFluidRenderHandler handler = def.overlay() != null
+                    ? new SimpleFluidRenderHandler(
+                            ResourceId.parse(def.still()).toIdentifier(),
+                            ResourceId.parse(def.flow()).toIdentifier(),
+                            ResourceId.parse(def.overlay()).toIdentifier(),
+                            tint)
+                    : new SimpleFluidRenderHandler(
+                            ResourceId.parse(def.still()).toIdentifier(),
+                            ResourceId.parse(def.flow()).toIdentifier(),
+                            tint);
+            FluidRenderHandlerRegistry.INSTANCE.register(source, source.getFlowing(), handler);
         });
     }
 }

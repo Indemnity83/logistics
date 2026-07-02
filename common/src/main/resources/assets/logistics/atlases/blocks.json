@@ -1,0 +1,5 @@
+{
+  "sources": [
+    { "type": "minecraft:directory", "source": "block/core/fluid", "prefix": "block/core/fluid/" }
+  ]
+}

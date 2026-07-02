@@ -4,6 +4,7 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.recipe.MachineResult;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
@@ -147,7 +148,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull DualRecipeInput input) {
+    public @NotNull ItemStack assemble(@NotNull DualRecipeInput input, HolderLookup.@NotNull Provider provider) {
         return result.toStack();
     }
 
