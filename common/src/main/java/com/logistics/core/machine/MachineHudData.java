@@ -6,8 +6,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * Server-side capture of a processing machine's progress into the tag a look-at HUD (Jade) syncs to the
- * client. Works off the {@link ProcessingMachine} contract, so it covers the macerator, kiln, and any
- * future machine without depending on a specific domain. Read back by the client-side {@code MachineHudLines}.
+ * client. Works off the {@link ProcessingMachine} contract, so it covers the macerator, kiln, crucible,
+ * and any future machine without depending on a specific domain. Read back by the client-side
+ * {@code MachineHudLines}. (Tank contents are left to Jade's built-in fluid element.)
  */
 public final class MachineHudData {
 

@@ -28,6 +28,21 @@ public final class FluidBoxRenderer {
         return FluidSpriteLookup.resolve(fluid, level, pos);
     }
 
+    /**
+     * Resolve a fluid's still sprite and tint for GUI rendering, where no world is passed. 1.21.x resolves
+     * the sprite/tint through {@link FluidSpriteLookup}, which needs a level, so use the client level +
+     * player position; returns {@code null} when not in a world.
+     */
+    @Nullable
+    public static Appearance resolveForGui(Fluid fluid) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.level == null) {
+            return null;
+        }
+        BlockPos pos = mc.player != null ? mc.player.blockPosition() : BlockPos.ZERO;
+        return resolve(fluid, mc.level, pos);
+    }
+
     /** Forces an ARGB colour opaque (some tint sources omit alpha). */
     public static int opaque(int color) {
         return (color & 0xFF000000) == 0 ? color | 0xFF000000 : color;
@@ -59,6 +74,18 @@ public final class FluidBoxRenderer {
         quad(entry, buffer, sprite, color, light, 0, 0, 1, x1, y0, z1, x0, y0, z1, x0, y1, z1, x1, y1, z1);
         quad(entry, buffer, sprite, color, light, -1, 0, 0, x0, y0, z1, x0, y0, z0, x0, y1, z0, x0, y1, z1);
         quad(entry, buffer, sprite, color, light, 1, 0, 0, x1, y0, z0, x1, y0, z1, x1, y1, z1, x1, y1, z0);
+    }
+
+    /**
+     * Render a single flat quad on the {@code -Z} (north) plane at depth {@code z}, spanning
+     * {@code [x0,x1] × [y0,y1]} — a fluid gauge sitting flush on a block face (front + back, so it shows
+     * from both sides), with the same position-based UV as {@link #renderBox}. Rotate the matrix to place
+     * it on another face.
+     */
+    public static void renderFaceQuad(
+            PoseStack.Pose entry, VertexConsumer buffer, TextureAtlasSprite sprite, int color, int light,
+            float x0, float y0, float x1, float y1, float z) {
+        quad(entry, buffer, sprite, color, light, 0, 0, -1, x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z);
     }
 
     private static void quad(

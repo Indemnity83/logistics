@@ -9,6 +9,7 @@ import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
 import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
+import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
@@ -134,6 +135,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
         event.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
         event.register(LogisticsAutomation.MENU.ALLOY_SMELTER, AlloySmelterScreen::new);
+        event.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -167,6 +169,9 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY,
                 FluidPumpBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY,
+                com.logistics.automation.crucible.CrucibleBlockEntityRenderer::new);
     }
 
 
