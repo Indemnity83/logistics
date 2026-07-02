@@ -49,17 +49,22 @@ public class OilSandsFeature extends Feature<OilSandsConfiguration> {
                     if (level.isEmptyBlock(pos) || !level.getFluidState(pos).isEmpty()) {
                         continue;
                     }
-                    switch (biome) {
-                        case "badlands", "wooded_badlands", "eroded_badlands" ->
-                            level.setBlock(pos, mix(random, LogisticsCore.BLOCK.OIL_RED_SAND, Blocks.RED_SAND, 3, 2), 2);
-                        default ->
-                            level.setBlock(pos, mix(random, LogisticsCore.BLOCK.OIL_SAND, Blocks.SAND, 3, 2), 2);
-                    }
+                    level.setBlock(pos, bankBlock(biome, random), 2);
                     placed = true;
                 }
             }
         }
         return placed;
+    }
+
+    /** The speckled bank block for a biome: badlands variants use red sand, everything else plain sand. */
+    private static BlockState bankBlock(String biome, RandomSource random) {
+        return switch (biome) {
+            case "badlands", "wooded_badlands", "eroded_badlands" ->
+                mix(random, LogisticsCore.BLOCK.OIL_RED_SAND, Blocks.RED_SAND, 3, 2);
+            default ->
+                mix(random, LogisticsCore.BLOCK.OIL_SAND, Blocks.SAND, 3, 2);
+        };
     }
 
     /** Picks the first block against the second at the given weight ratio — a per-block speckle. */
@@ -68,4 +73,5 @@ public class OilSandsFeature extends Feature<OilSandsConfiguration> {
                 ? first.defaultBlockState()
                 : second.defaultBlockState();
     }
+
 }
