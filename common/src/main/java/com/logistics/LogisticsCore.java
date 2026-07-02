@@ -11,10 +11,17 @@ import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
+import com.logistics.core.worldgen.OilSeepFeature;
+import com.logistics.core.worldgen.OilSandsConfiguration;
+import com.logistics.core.worldgen.OilSandsFeature;
+import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -22,9 +29,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
+import com.logistics.core.lib.fluids.LogisticsLiquidBlock;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.PushReaction;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsCore INSTANCE = new LogisticsCore();
@@ -48,21 +60,36 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
      * baked {@code still}/{@code flow} sprites (color + per-fluid alpha pre-applied in the texture), so the
      * {@code tint} stays {@code 0xFFFFFFFF} (untinted). {@code overlay} may be null.
      */
-    public record FluidDef(String name, int tint, String still, String flow, String overlay) {
+    public record FluidDef(String name, int tint, String still, String flow, String overlay, WorldFlow world) {
+
+        /** Flow tuning for a {@link #world()} fluid — a placeable {@code LiquidBlock} that spreads. */
+        public record WorldFlow(int slopeFindDistance, int dropOff, int tickDelay) {}
 
         /** A fluid rendered from its baked textures under {@code block/core/fluid/}, untinted. */
         public static FluidDef core(String name) {
             String base = "logistics:block/core/fluid/" + name;
-            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null);
+            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null, null);
+        }
+
+        /** A {@link #core} fluid that also has a world block, spreading with the given flow tuning. */
+        public static FluidDef world(String name, int slopeFindDistance, int dropOff, int tickDelay) {
+            String base = "logistics:block/core/fluid/" + name;
+            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null,
+                new WorldFlow(slopeFindDistance, dropOff, tickDelay));
+        }
+
+        /** Whether this fluid can be placed in the world (has a {@code LiquidBlock}). */
+        public boolean placeable() {
+            return world != null;
         }
     }
 
-    /** The custom fluids — tank/pipe/bucket contents only (no world block). */
+    /** The custom fluids. Most are tank/pipe/bucket contents only; crude oil also flows in the world. */
     public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
         FluidDef.core("liquid_redstone"),
         FluidDef.core("liquid_ender"),
         FluidDef.core("liquid_glowstone"),
-        FluidDef.core("crude_oil"),
+        FluidDef.world("crude_oil", 2, 2, 15),
         FluidDef.core("liquid_biomass"));
 
     @Override
@@ -88,6 +115,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     public static final class WORLDGEN {
         public static Feature<BogPatchConfiguration> BOG_PATCH;
+        public static Feature<LakeFeature.Configuration> OIL_SEEP;
+        public static Feature<OilSandsConfiguration> OIL_SANDS;
 
         private WORLDGEN() {}
 
@@ -96,6 +125,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
                 new BogPatchFeature(BogPatchConfiguration.CODEC));
+            OIL_SEEP = Registry.register(
+                BuiltInRegistries.FEATURE,
+                LogisticsMod.modId("oil_seep").toIdentifier(),
+                new OilSeepFeature());
+            OIL_SANDS = Registry.register(
+                BuiltInRegistries.FEATURE,
+                LogisticsMod.modId("oil_sands").toIdentifier(),
+                new OilSandsFeature(OilSandsConfiguration.CODEC));
         }
     }
 
@@ -107,21 +144,53 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         static void register() {
             for (FluidDef def : CUSTOM_FLUIDS) {
+                if (def.placeable()) {
+                    continue; // placeable fluids get a vanilla placing bucket, registered per loader
+                }
                 Item bucket = INSTANCE.registerItem(def.name(),
                     props -> new com.logistics.core.item.LogisticsBucketItem(def.name(), props.stacksTo(1)));
                 BY_FLUID.put(def.name(), bucket);
             }
         }
 
-        /** The filled-bucket item for a fluid name, or null. */
+        /** The filled-bucket item for a fluid name; placeable fluids resolve through the item registry. */
         public static Item forFluid(String name) {
-            return BY_FLUID.get(name);
+            Item bucket = BY_FLUID.get(name);
+            return bucket != null ? bucket : BuiltInRegistries.ITEM.getValue(resource(name).toIdentifier());
         }
 
-        /** Fluid name → filled bucket item, in {@link #CUSTOM_FLUIDS} order. */
+        /** Fluid name → filled bucket item, for the tank-only fluids. */
         public static java.util.Map<String, Item> all() {
             return java.util.Collections.unmodifiableMap(BY_FLUID);
         }
+    }
+
+    /**
+     * Registers a placeable fluid's {@code LiquidBlock} (water-like block properties). Called by each
+     * loader's fluid registration once the source fluid exists, so ordering is never a concern.
+     */
+    public static LiquidBlock registerFluidBlock(String name, FlowingFluid source) {
+        ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, resource(name).toIdentifier());
+        LiquidBlock block = new LogisticsLiquidBlock(source, BlockBehaviour.Properties.of()
+                .setId(key)
+                .replaceable()
+                .noCollision()
+                .strength(100.0f)
+                .pushReaction(PushReaction.DESTROY)
+                .noLootTable()
+                .liquid()
+                .sound(SoundType.EMPTY));
+        return Registry.register(BuiltInRegistries.BLOCK, key, block);
+    }
+
+    /** Registers a placeable fluid's vanilla {@link BucketItem} (places, picks up, and fills tanks). */
+    public static BucketItem registerFluidBucket(String name, FlowingFluid source) {
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, resource(name).toIdentifier());
+        BucketItem bucket = new BucketItem(source, new Item.Properties()
+                .setId(key)
+                .stacksTo(1)
+                .craftRemainder(Items.BUCKET));
+        return Registry.register(BuiltInRegistries.ITEM, key, bucket);
     }
 
     public static final class BLOCK {
@@ -135,6 +204,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block QUARTZ_CRYSTAL;
         public static Block MARKER;
         public static Block BOG_EARTH;
+        public static Block OIL_SAND;
+        public static Block OIL_RED_SAND;
+        public static Block OIL_SHALE;
 
         private BLOCK() {}
 
@@ -167,6 +239,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Bog Earth — dirt-like soil that generates at swamp water edges; smelts into peat
             BOG_EARTH = INSTANCE.registerBlockWithItem("bog_earth",
                 props -> new Block(props.strength(0.5f).sound(SoundType.MUD)));
+
+            // Oil-bearing deposits — macerate into bitumen
+            OIL_SAND = INSTANCE.registerBlockWithItem("oil_sand",
+                props -> new Block(props.strength(0.5f).sound(SoundType.SAND)));
+            OIL_RED_SAND = INSTANCE.registerBlockWithItem("oil_red_sand",
+                props -> new Block(props.strength(0.5f).sound(SoundType.SAND)));
+            OIL_SHALE = INSTANCE.registerBlockWithItem("oil_shale",
+                props -> new Block(props.strength(0.6f).sound(SoundType.GRAVEL)));
         }
     }
 
@@ -219,6 +299,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item PULPED_BIOMASS;
         public static Item SLAG;
         public static Item RICH_SLAG;
+        public static Item BITUMEN;
+        public static Item TAR;
 
         // Chips — logic components for pipe modules
         public static Item CARBON_CHIP;
@@ -317,6 +399,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             PULPED_BIOMASS = INSTANCE.registerItem("pulped_biomass", Item::new);
             SLAG = INSTANCE.registerItem("slag", Item::new);
             RICH_SLAG = INSTANCE.registerItem("rich_slag", Item::new);
+            BITUMEN = INSTANCE.registerItem("bitumen", Item::new);
+            TAR = INSTANCE.registerItem("tar", Item::new);
 
             // Chips
             CARBON_CHIP = INSTANCE.registerItem("carbon_chip", Item::new);
@@ -380,6 +464,17 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
             TAB.add(BLOCK.MARKER);
             BUCKET.all().values().forEach(TAB::add);
+            // Placeable fluids' buckets register per loader; add them lazily so they resolve at populate time.
+            TAB.add(out -> {
+                for (FluidDef def : CUSTOM_FLUIDS) {
+                    if (def.placeable()) {
+                        Item bucket = BUCKET.forFluid(def.name());
+                        if (bucket != null) {
+                            out.accept(bucket);
+                        }
+                    }
+                }
+            });
 
             // Register the tab — populate() is lazy, so other domains can still add items after this
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
@@ -391,9 +486,13 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
             });
 
-            // Bog earth sits with the other soils
-            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries ->
-                entries.insertAfter(Items.MUD, BLOCK.BOG_EARTH));
+            // Bog earth and the oil deposits sit with the other natural soils and sands
+            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries -> {
+                entries.insertAfter(Items.MUD, BLOCK.BOG_EARTH);
+                entries.insertAfter(Items.SAND, BLOCK.OIL_SAND);
+                entries.insertAfter(Items.RED_SAND, BLOCK.OIL_RED_SAND);
+                entries.insertAfter(Items.GRAVEL, BLOCK.OIL_SHALE);
+            });
 
             // Add materials to Ingredients tab — all in one callback so each insertAfter/insertBefore
             // sees the items placed by earlier calls in the same invocation
@@ -449,7 +548,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST, ITEM.SULFUR_DUST, ITEM.QUICKSILVER, ITEM.NITER,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PULPED_BIOMASS,
-                    ITEM.SLAG, ITEM.RICH_SLAG,
+                    ITEM.SLAG, ITEM.RICH_SLAG, ITEM.BITUMEN, ITEM.TAR,
                     ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
                     ITEM.WOODEN_CORE,
                     ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
