@@ -11,9 +11,9 @@ import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
-import com.logistics.core.worldgen.CrudeOilLakeFeature;
-import com.logistics.core.worldgen.OilDepositConfiguration;
-import com.logistics.core.worldgen.OilDepositFeature;
+import com.logistics.core.worldgen.OilSeepFeature;
+import com.logistics.core.worldgen.OilSandsConfiguration;
+import com.logistics.core.worldgen.OilSandsFeature;
 import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import java.util.List;
 import net.minecraft.core.Registry;
@@ -115,8 +115,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     public static final class WORLDGEN {
         public static Feature<BogPatchConfiguration> BOG_PATCH;
-        public static Feature<LakeFeature.Configuration> CRUDE_OIL_LAKE;
-        public static Feature<OilDepositConfiguration> OIL_DEPOSIT;
+        public static Feature<LakeFeature.Configuration> OIL_SEEP;
+        public static Feature<OilSandsConfiguration> OIL_SANDS;
 
         private WORLDGEN() {}
 
@@ -125,14 +125,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
                 new BogPatchFeature(BogPatchConfiguration.CODEC));
-            CRUDE_OIL_LAKE = Registry.register(
+            OIL_SEEP = Registry.register(
                 BuiltInRegistries.FEATURE,
-                LogisticsMod.modId("crude_oil_lake").toIdentifier(),
-                new CrudeOilLakeFeature());
-            OIL_DEPOSIT = Registry.register(
+                LogisticsMod.modId("oil_seep").toIdentifier(),
+                new OilSeepFeature());
+            OIL_SANDS = Registry.register(
                 BuiltInRegistries.FEATURE,
-                LogisticsMod.modId("oil_deposit").toIdentifier(),
-                new OilDepositFeature(OilDepositConfiguration.CODEC));
+                LogisticsMod.modId("oil_sands").toIdentifier(),
+                new OilSandsFeature(OilSandsConfiguration.CODEC));
         }
     }
 

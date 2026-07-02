@@ -1,5 +1,5 @@
 {
-  "feature": "logistics:oil_deposit",
+  "feature": "logistics:oil_sands",
   "placement": [
     { "type": "minecraft:rarity_filter", "chance": 150 },
     { "type": "minecraft:in_square" },

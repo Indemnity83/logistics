@@ -16,15 +16,15 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
  * solid oil-ore barrier and then {@link #speckle} it — re-rolling each placed ore block through the bank
  * so the banks read as oil-soaked patches rather than a full casing.
  */
-public class CrudeOilLakeFeature extends LakeFeature {
+public class OilSeepFeature extends LakeFeature {
 
-    public CrudeOilLakeFeature() {
+    public OilSeepFeature() {
         super(LakeFeature.Configuration.CODEC);
     }
 
     @Override
     public boolean place(FeaturePlaceContext<LakeFeature.Configuration> context) {
-        OilBanks.Bank bank = OilBanks.forBiome(context.level(), context.origin());
+        OilBanks.Bank bank = OilBanks.lakeBank(context.level(), context.origin());
         LakeFeature.Configuration base = context.config();
         LakeFeature.Configuration withOreBarrier = new LakeFeature.Configuration(
                 base.fluid(),

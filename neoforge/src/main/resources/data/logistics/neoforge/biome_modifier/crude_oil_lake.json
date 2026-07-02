@@ -1,1 +1,0 @@
-{ "type": "neoforge:add_features", "biomes": "#minecraft:is_overworld", "features": "logistics:crude_oil_lake", "step": "lakes" }

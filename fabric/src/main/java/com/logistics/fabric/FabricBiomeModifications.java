@@ -54,12 +54,12 @@ public final class FabricBiomeModifications {
         BiomeModifications.addFeature(
             BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.LAKES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("crude_oil_lake").toIdentifier())
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isSandy),
             GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_deposit").toIdentifier())
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_sands").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)).or(BiomeSelectors.tag(isSavanna)),

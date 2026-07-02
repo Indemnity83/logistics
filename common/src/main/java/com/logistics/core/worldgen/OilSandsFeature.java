@@ -8,24 +8,24 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 /**
- * A standalone oil-ore deposit: a sphere of a semi-random radius centred on the placement point, filling
+ * A standalone oil-sands deposit: a sphere of a semi-random radius centred on the placement point, filling
  * solid ground (air and fluids are skipped, so it follows the terrain rather than floating) with the
- * biome's speckled oil-ore/natural bank (see {@link OilBanks}). Reuses the same bank mix as the crude oil
- * lake banks so the two read as the same material.
+ * biome's speckled oil-ore/natural bank ({@link OilBanks#sandsBank}). Uses the same ore/natural blocks as
+ * the crude oil lake banks but its own, ore-heavier mix.
  */
-public class OilDepositFeature extends Feature<OilDepositConfiguration> {
+public class OilSandsFeature extends Feature<OilSandsConfiguration> {
 
-    public OilDepositFeature(Codec<OilDepositConfiguration> codec) {
+    public OilSandsFeature(Codec<OilSandsConfiguration> codec) {
         super(codec);
     }
 
     @Override
-    public boolean place(FeaturePlaceContext<OilDepositConfiguration> context) {
+    public boolean place(FeaturePlaceContext<OilSandsConfiguration> context) {
         WorldGenLevel level = context.level();
         RandomSource random = context.random();
-        OilDepositConfiguration config = context.config();
+        OilSandsConfiguration config = context.config();
         BlockPos origin = context.origin();
-        OilBanks.Bank bank = OilBanks.forBiome(level, origin);
+        OilBanks.Bank bank = OilBanks.sandsBank(level, origin);
 
         int min = Math.min(config.minRadius(), config.maxRadius());
         int max = Math.max(config.minRadius(), config.maxRadius());

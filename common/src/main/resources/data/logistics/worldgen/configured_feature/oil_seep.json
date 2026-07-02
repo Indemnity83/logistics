@@ -1,5 +1,5 @@
 {
-  "type": "logistics:crude_oil_lake",
+  "type": "logistics:oil_seep",
   "config": {
     "fluid": { "type": "minecraft:simple_state_provider", "state": { "Name": "logistics:core/crude_oil" } },
     "barrier": { "type": "minecraft:simple_state_provider", "state": { "Name": "logistics:core/oil_shale" } },

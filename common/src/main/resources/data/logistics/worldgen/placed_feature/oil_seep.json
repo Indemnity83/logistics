@@ -1,5 +1,5 @@
 {
-  "feature": "logistics:crude_oil_lake",
+  "feature": "logistics:oil_seep",
   "placement": [
     { "type": "minecraft:rarity_filter", "chance": 200 },
     { "type": "minecraft:in_square" },

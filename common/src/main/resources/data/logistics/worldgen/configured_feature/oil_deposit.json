@@ -1,1 +1,0 @@
-{ "type": "logistics:oil_deposit", "config": { "min_radius": 10, "max_radius": 30 } }
