@@ -1,0 +1,1 @@
+{ "type": "neoforge:add_features", "biomes": "#c:is_sandy", "features": "logistics:oil_sands", "step": "underground_ores" }

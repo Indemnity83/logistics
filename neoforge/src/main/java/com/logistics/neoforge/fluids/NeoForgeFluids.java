@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
@@ -22,6 +23,7 @@ public final class NeoForgeFluids {
     private static final Map<String, FluidType> TYPES = new LinkedHashMap<>();
     private static final Map<String, FlowingFluid> SOURCES = new LinkedHashMap<>();
     private static final Map<String, FlowingFluid> FLOWINGS = new LinkedHashMap<>();
+    private static final Map<String, LiquidBlock> BLOCKS = new LinkedHashMap<>();
 
     private NeoForgeFluids() {}
 
@@ -44,12 +46,26 @@ public final class NeoForgeFluids {
                 BaseFlowingFluid.Properties props = new BaseFlowingFluid.Properties(
                         () -> TYPES.get(name), () -> SOURCES.get(name), () -> FLOWINGS.get(name))
                         .bucket(() -> LogisticsCore.BUCKET.forFluid(name));
+                LogisticsCore.FluidDef.WorldFlow flow = def.world();
+                if (flow != null) {
+                    props.block(() -> BLOCKS.get(name))
+                            .slopeFindDistance(flow.slopeFindDistance())
+                            .levelDecreasePerBlock(flow.dropOff())
+                            .tickRate(flow.tickDelay());
+                }
                 BaseFlowingFluid.Source source = new BaseFlowingFluid.Source(props);
                 BaseFlowingFluid.Flowing flowing = new BaseFlowingFluid.Flowing(props);
                 SOURCES.put(name, source);
                 FLOWINGS.put(name, flowing);
                 helper.register(LogisticsCore.resource(name).toIdentifier(), source);
                 helper.register(LogisticsCore.resource("flowing_" + name).toIdentifier(), flowing);
+
+                // Registries are all unfrozen during RegisterEvent, so register the block/bucket now that
+                // the source exists (mirrors the Fabric path).
+                if (def.placeable()) {
+                    BLOCKS.put(name, LogisticsCore.registerFluidBlock(name, source));
+                    LogisticsCore.registerFluidBucket(name, source);
+                }
             }
         });
     }

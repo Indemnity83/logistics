@@ -1,6 +1,9 @@
 {
   "replace": false,
   "values": [
-    "logistics:core/bog_earth"
+    "logistics:core/bog_earth",
+    "logistics:core/oil_sand",
+    "logistics:core/oil_red_sand",
+    "logistics:core/oil_shale"
   ]
 }
