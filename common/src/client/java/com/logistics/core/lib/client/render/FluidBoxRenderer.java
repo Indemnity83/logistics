@@ -29,20 +29,30 @@ public final class FluidBoxRenderer {
     /** The still sprite and ARGB tint for a fluid; {@code tint} is opaque white when untinted. */
     public record Appearance(TextureAtlasSprite sprite, int tint) {}
 
-    /** Resolve a fluid's still sprite and world tint, or {@code null} if it has no model. */
+    /** A fluid's still sprite plus the model + state needed to compute its tint. */
+    private record Resolved(FluidState fluidState, FluidModel model, TextureAtlasSprite sprite) {}
+
+    /** Look up the still sprite + model for a fluid, or {@code null} if it has no still sprite. */
     @Nullable
-    public static Appearance resolve(Fluid fluid, @Nullable Level level, BlockPos pos) {
+    private static Resolved resolveModel(Fluid fluid) {
         FluidState fluidState = fluid.defaultFluidState();
         FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        if (sprite == null) {
+        return sprite == null ? null : new Resolved(fluidState, model, sprite);
+    }
+
+    /** Resolve a fluid's still sprite and world tint, or {@code null} if it has no model. */
+    @Nullable
+    public static Appearance resolve(Fluid fluid, @Nullable Level level, BlockPos pos) {
+        Resolved resolved = resolveModel(fluid);
+        if (resolved == null) {
             return null;
         }
-        var tintSource = model.tintSource();
+        var tintSource = resolved.model().tintSource();
         int tint = tintSource != null && level instanceof BlockAndTintGetter tintGetter
-                ? tintSource.colorInWorld(fluidState.createLegacyBlock(), tintGetter, pos)
+                ? tintSource.colorInWorld(resolved.fluidState().createLegacyBlock(), tintGetter, pos)
                 : 0xFFFFFFFF;
-        return new Appearance(sprite, tint);
+        return new Appearance(resolved.sprite(), tint);
     }
 
     /**
@@ -53,21 +63,19 @@ public final class FluidBoxRenderer {
      */
     @Nullable
     public static Appearance resolveForGui(Fluid fluid) {
-        FluidState fluidState = fluid.defaultFluidState();
-        FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
-        TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        if (sprite == null) {
+        Resolved resolved = resolveModel(fluid);
+        if (resolved == null) {
             return null;
         }
         // Water is biome-tinted in-world, but there's no biome here (and NeoForge's world-independent
         // tint is neutral), so use the vanilla default water colour — reads blue on both loaders. Other
         // fluids fall back to their model tint (our custom fluids are untinted).
         if (fluid == Fluids.WATER || fluid == Fluids.FLOWING_WATER) {
-            return new Appearance(sprite, DEFAULT_WATER_TINT);
+            return new Appearance(resolved.sprite(), DEFAULT_WATER_TINT);
         }
-        var tintSource = model.tintSource();
-        int tint = tintSource != null ? opaque(tintSource.color(fluidState.createLegacyBlock())) : 0xFFFFFFFF;
-        return new Appearance(sprite, tint);
+        var tintSource = resolved.model().tintSource();
+        int tint = tintSource != null ? opaque(tintSource.color(resolved.fluidState().createLegacyBlock())) : 0xFFFFFFFF;
+        return new Appearance(resolved.sprite(), tint);
     }
 
     /** Forces an ARGB colour opaque (some tint sources omit alpha). */

@@ -1,6 +1,7 @@
 package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
@@ -116,7 +117,7 @@ public class CrucibleBlockEntity extends MachineEntity {
     }
 
     /** The output tank holder, for the block-entity renderer's face gauge. */
-    public com.logistics.core.lib.fluids.FluidTankComponent tank() {
+    public FluidTankComponent tank() {
         return fluidStore.tank();
     }
 

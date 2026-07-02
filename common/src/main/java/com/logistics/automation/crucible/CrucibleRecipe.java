@@ -43,6 +43,9 @@ public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
         if (ingredientCount < 1) {
             throw new IllegalArgumentException("ingredientCount must be positive, got " + ingredientCount);
         }
+        if (experience < 0) {
+            throw new IllegalArgumentException("experience must not be negative, got " + experience);
+        }
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;

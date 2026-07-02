@@ -82,6 +82,8 @@ public final class NeoForgeCapabilityRegistration {
         registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.ALLOY_SMELTER_BLOCK_ENTITY);
+        // Crucible input inventory, so item pipes can insert the melt input.
+        registerItems(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
 
         // Fluid pipes expose their buffer tank as a fluid handler on every enabled side.
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);

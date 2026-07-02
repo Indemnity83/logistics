@@ -157,14 +157,9 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     void runsFluidOnlyRecipeWithNoOutputSlot() {
         // A crucible-style machine: input-only inventory, no output slot, empty item result.
         Runnable noop = () -> {};
-        ItemStoreComponent items = new ItemStoreComponent(
-                "items",
-                new SlotRole[] {SlotRole.INPUT},
-                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
-                noop);
-        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
-        energy.energy(null).insert(100_000, false);
-        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+        InputRig rig = fluidInputRig(noop);
+        ItemStoreComponent items = rig.items();
+        EnergyStorageComponent energy = rig.energy();
 
         RecipePlan plan = new RecipePlan(20, new int[] {1}, ItemStack.EMPTY, List.of(), 0f);
         RecipeProcessorComponent processor = new RecipeProcessorComponent(
@@ -181,14 +176,9 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     @Test
     void depositsFluidIntoTankWhenThereIsRoom() {
         Runnable noop = () -> {};
-        ItemStoreComponent items = new ItemStoreComponent(
-                "items",
-                new SlotRole[] {SlotRole.INPUT},
-                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
-                noop);
-        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
-        energy.energy(null).insert(100_000, false);
-        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+        InputRig rig = fluidInputRig(noop);
+        ItemStoreComponent items = rig.items();
+        EnergyStorageComponent energy = rig.energy();
 
         FluidStoreComponent fluids = new FluidStoreComponent("tank", FluidUnits.mb(100), noop);
         RecipePlan plan = new RecipePlan(20, 1, new FluidResult(Fluids.WATER, 50), 0f);
@@ -206,14 +196,9 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     @Test
     void doesNotRunWhenTankCannotHoldFullFluidOutput() {
         Runnable noop = () -> {};
-        ItemStoreComponent items = new ItemStoreComponent(
-                "items",
-                new SlotRole[] {SlotRole.INPUT},
-                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
-                noop);
-        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
-        energy.energy(null).insert(100_000, false);
-        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+        InputRig rig = fluidInputRig(noop);
+        ItemStoreComponent items = rig.items();
+        EnergyStorageComponent energy = rig.energy();
 
         // Tank holds 80 of 100 mB; the recipe would add 50 mB but only 20 fits, so it must not run.
         FluidStoreComponent fluids = new FluidStoreComponent("tank", FluidUnits.mb(100), noop);
@@ -426,6 +411,22 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
                 new SlotRole[] {SlotRole.INPUT, SlotRole.INPUT, SlotRole.OUTPUT, SlotRole.OUTPUT},
                 SidedLayout.bottomOut(new int[] {0, 1}, new int[] {2, 3}, stack -> true),
                 onChanged);
+    }
+
+    /** An input-only inventory (one redstone queued) plus a full energy buffer — the shared setup for the
+     * fluid-output recipe tests. */
+    private record InputRig(ItemStoreComponent items, EnergyStorageComponent energy) {}
+
+    private static InputRig fluidInputRig(Runnable onChanged) {
+        ItemStoreComponent items = new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.INPUT},
+                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
+                onChanged);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, onChanged);
+        energy.energy(null).insert(100_000, false);
+        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+        return new InputRig(items, energy);
     }
 
     @Test

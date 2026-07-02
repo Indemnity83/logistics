@@ -122,7 +122,9 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
     public float getTankFillFraction() {
         int amount = data.get(CrucibleBlockEntity.DATA_FLUID_AMOUNT);
         long capacity = CrucibleBlockEntity.TANK_CAPACITY_MB;
-        if (amount <= 0 || capacity <= 0) return 0f;
+        if (amount <= 0 || capacity <= 0) {
+            return 0f;
+        }
         return Math.min(1f, amount / (float) capacity);
     }
 

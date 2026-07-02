@@ -11,6 +11,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 /**
  * Version-agnostic fluid output of a custom-recipe machine: a fluid plus an author-facing millibucket
@@ -18,6 +19,15 @@ import net.minecraft.world.level.material.Fluid;
  * is deposited, so recipes stay loader-independent. Analog to {@link MachineResult} for the item result.
  */
 public record FluidResult(Fluid fluid, int millibuckets) {
+
+    public FluidResult {
+        if (fluid == Fluids.EMPTY) {
+            throw new IllegalArgumentException("fluid must not be empty");
+        }
+        if (millibuckets <= 0) {
+            throw new IllegalArgumentException("millibuckets must be positive, got " + millibuckets);
+        }
+    }
 
     /** Codec for a recipe fluid output ({@code {"fluid": "namespace:id", "amount": <mB>}}). */
     public static final Codec<FluidResult> CODEC = RecordCodecBuilder.create(instance -> instance.group(
