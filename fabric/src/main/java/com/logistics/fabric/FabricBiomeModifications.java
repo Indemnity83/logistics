@@ -50,16 +50,18 @@ public final class FabricBiomeModifications {
         var isDesert = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_desert").toIdentifier());
         var isBadlands = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_badlands").toIdentifier());
         var isSavanna = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_savanna").toIdentifier());
-        BiomeModifications.addFeature(
-            BiomeSelectors.tag(isDesert),
-            GenerationStep.Decoration.LAKES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_desert").toIdentifier())
-        );
-        BiomeModifications.addFeature(
-            BiomeSelectors.tag(isBadlands),
-            GenerationStep.Decoration.LAKES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_badlands").toIdentifier())
-        );
+        for (String size : new String[] {"small", "large", "huge"}) {
+            BiomeModifications.addFeature(
+                BiomeSelectors.tag(isDesert),
+                GenerationStep.Decoration.LAKES,
+                ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_" + size + "_desert").toIdentifier())
+            );
+            BiomeModifications.addFeature(
+                BiomeSelectors.tag(isBadlands),
+                GenerationStep.Decoration.LAKES,
+                ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_" + size + "_badlands").toIdentifier())
+            );
+        }
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)).or(BiomeSelectors.tag(isSavanna)),
             GenerationStep.Decoration.UNDERGROUND_ORES,

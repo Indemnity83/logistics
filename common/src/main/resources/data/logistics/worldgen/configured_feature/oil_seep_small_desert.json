@@ -1,0 +1,10 @@
+{
+  "type": "logistics:oil_seep",
+  "config": {
+    "fluid": { "Name": "logistics:core/crude_oil" },
+    "shell": { "Name": "logistics:core/oil_sand" },
+    "radius": 4,
+    "depth": 3,
+    "tendril_chance": 0.5
+  }
+}

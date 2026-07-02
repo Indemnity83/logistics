@@ -3,8 +3,8 @@
   "config": {
     "fluid": { "Name": "logistics:core/crude_oil" },
     "shell": { "Name": "logistics:core/oil_red_sand" },
-    "radius": 4,
-    "depth": 3,
-    "tendril_chance": 0.6
+    "radius": 15,
+    "depth": 6,
+    "tendril_chance": 0.7
   }
 }
