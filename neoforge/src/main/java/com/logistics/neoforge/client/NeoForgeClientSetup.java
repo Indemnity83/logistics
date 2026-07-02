@@ -32,13 +32,24 @@ import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
+import com.logistics.neoforge.fluids.NeoForgeFluids;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockTintSources;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.resources.Identifier; // raw-id-ok
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -51,6 +62,62 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
+        modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
+        modBus.addListener(NeoForgeClientSetup::registerFluidModels);
+    }
+
+    /**
+     * Registers each custom fluid's model (still/flow sprites + flat tint) into the vanilla fluid model set
+     * — this is what the tank/pipe {@code FluidBoxRenderer} reads on 26.2. Mirrors Fabric's
+     * {@code FluidRenderingRegistry} call; {@link #registerFluidExtensions} only covers item-container tint.
+     */
+    private static void registerFluidModels(RegisterFluidModelsEvent event) {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+        var flowings = NeoForgeFluids.flowings();
+        NeoForgeFluids.sources().forEach((name, source) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            Material overlay = def.overlay() != null ? material(def.overlay()) : null;
+            FluidModel.Unbaked model = new FluidModel.Unbaked(
+                    material(def.still()), material(def.flow()), overlay,
+                    BlockTintSources.constant(def.tint() & 0xFFFFFF));
+            event.register(model, source, flowings.get(name));
+        });
+    }
+
+    /** Builds a sprite material from a {@code "namespace:path"} texture id. */
+    private static Material material(String texture) {
+        return new Material(textureId(texture));
+    }
+
+    /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
+    private static void registerFluidExtensions(RegisterClientExtensionsEvent event) {
+        Map<String, LogisticsCore.FluidDef> defs = new HashMap<>();
+        for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
+            defs.put(def.name(), def);
+        }
+        NeoForgeFluids.types().forEach((name, type) -> {
+            LogisticsCore.FluidDef def = defs.get(name);
+            event.registerFluidType(new IClientFluidTypeExtensions() {
+                public Identifier getStillTexture() { // raw-id-ok
+                    return textureId(def.still());
+                }
+
+                public Identifier getFlowingTexture() { // raw-id-ok
+                    return textureId(def.flow());
+                }
+
+                public int getTintColor() {
+                    return def.tint();
+                }
+            }, type);
+        });
+    }
+
+    private static Identifier textureId(String texture) { // raw-id-ok
+        return ResourceId.parse(texture).toIdentifier();
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {

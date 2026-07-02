@@ -1,6 +1,7 @@
 package com.logistics.neoforge;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -16,6 +17,7 @@ import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.tank.TankCell;
 import com.logistics.core.lib.tank.TankCellLookup;
 import com.logistics.neoforge.energy.NeoForgeEnergyStorage;
+import com.logistics.neoforge.fluids.LogisticsBucketFluidHandler;
 import com.logistics.neoforge.fluids.NeoForgeFluidStorage;
 import com.logistics.neoforge.storage.NeoForgeItemKey;
 import com.logistics.neoforge.storage.NeoForgeItemStorage;
@@ -85,6 +87,14 @@ public final class NeoForgeCapabilityRegistration {
         // Glass tanks expose their whole vertical column as a fluid handler.
         registerFluids(event, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY);
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+
+        // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
+        // FullItemFluidStorage). Empty-bucket -> filled is handled by vanilla BucketResourceHandler via the
+        // fluid's getBucket().
+        event.registerItem(
+                Capabilities.Fluid.ITEM,
+                (stack, itemAccess) -> new LogisticsBucketFluidHandler(itemAccess),
+                LogisticsCore.BUCKET.all().values().toArray(new net.minecraft.world.item.Item[0]));
     }
 
     private static <BE extends BlockEntity & HasEnergyStorage> void registerEnergy(
