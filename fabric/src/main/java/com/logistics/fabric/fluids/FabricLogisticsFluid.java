@@ -83,6 +83,11 @@ public class FabricLogisticsFluid extends FlowingFluid {
     }
 
     @Override
+    public boolean isSame(Fluid fluid) {
+        return fluid == getSource() || fluid == getFlowing();
+    }
+
+    @Override
     protected boolean canConvertToSource(ServerLevel level) {
         return false;
     }

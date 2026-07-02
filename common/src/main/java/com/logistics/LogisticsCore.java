@@ -87,9 +87,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         FluidDef.core("liquid_redstone"),
         FluidDef.core("liquid_ender"),
         FluidDef.core("liquid_glowstone"),
-        // TEMP diagnostic: exact water flow (slope 4, dropOff 1, tick 5) to isolate whether the flicker is
-        // tuning or a structural bug. Re-tune to viscous once stable. No infinite sources regardless.
-        FluidDef.world("crude_oil", 4, 1, 5),
+        FluidDef.world("crude_oil", 2, 2, 15),
         FluidDef.core("liquid_biomass"));
 
     @Override
