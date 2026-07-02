@@ -1,9 +1,0 @@
-{
-  "type": "logistics:oil_pond",
-  "config": {
-    "target": { "type": "minecraft:matching_blocks", "blocks": ["minecraft:sand", "minecraft:sandstone"] },
-    "result": { "Name": "logistics:core/oil_sand" },
-    "radius": 7,
-    "depth": 13
-  }
-}

@@ -44,21 +44,21 @@ public final class FabricBiomeModifications {
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("bog_earth").toIdentifier())
         );
 
-        // Oil deposits (matches the NeoForge biome modifiers): oil sand in the surface sand of deserts +
-        // ponds in deserts (oil_sand) and badlands (oil_red_sand); oil shale in underground gravel across
-        // the dry biomes. Each disk/vein only converts its host material, so the biome tags gate placement.
+        // Crude oil seeps (matches the NeoForge biome modifiers): surface pools with an ore shell +
+        // tendrils, in deserts (oil_sand) and badlands (oil_red_sand). Oil shale stays underground gravel
+        // veins across the dry biomes.
         var isDesert = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_desert").toIdentifier());
         var isBadlands = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_badlands").toIdentifier());
         var isSavanna = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_savanna").toIdentifier());
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isDesert),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_sand").toIdentifier())
+            GenerationStep.Decoration.LAKES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_desert").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isBadlands),
-            GenerationStep.Decoration.UNDERGROUND_ORES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_red_sand").toIdentifier())
+            GenerationStep.Decoration.LAKES,
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_badlands").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)).or(BiomeSelectors.tag(isSavanna)),
