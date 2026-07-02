@@ -10,13 +10,20 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 
 /**
  * Vanilla {@link LakeFeature} (crude oil as the fluid) with the bank material chosen by biome (see
- * {@link OilBanks}). Extending the lake feature inherits all of its placement/carve/containment validation
+ * {@link OilOreMix}). Extending the lake feature inherits all of its placement/carve/containment validation
  * (why it never hangs off cliffs or spawns mid-water) rather than re-implementing it. The lake samples its
  * barrier provider only once per lake, so a weighted provider can't give a per-block mix; instead we lay a
- * solid oil-ore barrier and then {@link #speckle} it — re-rolling each placed ore block through the bank
- * so the banks read as oil-soaked patches rather than a full casing.
+ * solid oil-ore barrier and then {@link #speckle} it — re-rolling each placed ore block through the mix so
+ * the banks read as oil-soaked patches rather than a full casing.
+ *
+ * <p>The configured feature's own {@code barrier} is ignored at runtime: {@link #place} replaces it with
+ * the biome's oil ore before delegating to the lake feature.
  */
 public class OilSeepFeature extends LakeFeature {
+
+    // Lake banks are mostly natural — a thin oil crust.
+    private static final int ORE_WEIGHT = 1;
+    private static final int NATURAL_WEIGHT = 3;
 
     public OilSeepFeature() {
         super(LakeFeature.Configuration.CODEC);
@@ -24,11 +31,11 @@ public class OilSeepFeature extends LakeFeature {
 
     @Override
     public boolean place(FeaturePlaceContext<LakeFeature.Configuration> context) {
-        OilBanks.Bank bank = OilBanks.lakeBank(context.level(), context.origin());
+        OilOreMix mix = OilOreMix.forBiome(context.level(), context.origin());
         LakeFeature.Configuration base = context.config();
         LakeFeature.Configuration withOreBarrier = new LakeFeature.Configuration(
                 base.fluid(),
-                BlockStateProvider.simple(bank.ore().get()),
+                BlockStateProvider.simple(mix.ore().get()),
                 base.canPlaceFeature(),
                 base.canReplaceWithAirOrFluid(),
                 base.canReplaceWithBarrier());
@@ -37,7 +44,7 @@ public class OilSeepFeature extends LakeFeature {
                 context.random(), context.origin(), withOreBarrier);
         boolean placed = super.place(withBarrier);
         if (placed) {
-            speckle(context.level(), context.random(), context.origin(), bank);
+            speckle(context.level(), context.random(), context.origin(), mix);
         }
         return placed;
     }
@@ -45,17 +52,17 @@ public class OilSeepFeature extends LakeFeature {
     /**
      * Break up the solid ore barrier: the lake carves a 16x16x8 volume anchored at {@code origin} - (8,4,8)
      * with the barrier a block beyond, so scan that neighbourhood and re-roll each of our ore blocks through
-     * the bank, giving a speckled bank rather than a full casing.
+     * the mix, giving a speckled bank rather than a full casing.
      */
-    private static void speckle(WorldGenLevel level, RandomSource random, BlockPos origin, OilBanks.Bank bank) {
-        Block ore = bank.ore().get();
+    private static void speckle(WorldGenLevel level, RandomSource random, BlockPos origin, OilOreMix mix) {
+        Block ore = mix.ore().get();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int dx = -9; dx <= 8; dx++) {
             for (int dy = -5; dy <= 4; dy++) {
                 for (int dz = -9; dz <= 8; dz++) {
                     pos.set(origin.getX() + dx, origin.getY() + dy, origin.getZ() + dz);
                     if (level.getBlockState(pos).is(ore)) {
-                        level.setBlock(pos, bank.roll(random), 2);
+                        level.setBlock(pos, mix.roll(random, ORE_WEIGHT, NATURAL_WEIGHT), 2);
                     }
                 }
             }
