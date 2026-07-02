@@ -40,6 +40,9 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
         int depth = Math.max(1, config.depth() + random.nextInt(3) - 1);
 
         BlockPos origin = context.origin();
+        if (unsuitable(level, origin, radius, depth)) {
+            return false;
+        }
         int surfaceY = origin.getY() - 1;
 
         double phase1 = random.nextDouble() * Math.PI * 2.0;
@@ -133,6 +136,35 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
                 fz += Math.sin(outward);
             }
         }
+    }
+
+    /**
+     * Rejects spots a lake wouldn't sit in — the same intent as {@code LakeFeature}'s checks: the ground
+     * under the pool and out to its rim must be solid, dry, and roughly level, or the pool ends up hanging
+     * over a cliff or sitting in the middle of a water body.
+     */
+    private static boolean unsuitable(WorldGenLevel level, BlockPos origin, int radius, int depth) {
+        int fromY = origin.getY() + 3;
+        int toY = origin.getY() - depth - 6;
+        int centerY = surfaceOf(level, origin.getX(), origin.getZ(), fromY, toY);
+        if (centerY == Integer.MIN_VALUE || flooded(level, origin.getX(), centerY, origin.getZ())) {
+            return true;
+        }
+        for (int i = 0; i < 8; i++) {
+            double a = i * Math.PI / 4.0;
+            int x = origin.getX() + (int) Math.round(Math.cos(a) * radius);
+            int z = origin.getZ() + (int) Math.round(Math.sin(a) * radius);
+            int gy = surfaceOf(level, x, z, fromY, toY);
+            if (gy == Integer.MIN_VALUE || Math.abs(gy - centerY) > 4 || flooded(level, x, gy, z)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Whether the block just above the ground at this column is a fluid (i.e. the ground is underwater). */
+    private static boolean flooded(WorldGenLevel level, int x, int groundY, int z) {
+        return !level.getFluidState(new BlockPos(x, groundY + 1, z)).isEmpty();
     }
 
     private static long column(int x, int z) {
