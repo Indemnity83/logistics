@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " H ",
+    "NMN",
+    "GCG"
+  ],
+  "key": {
+    "H": {
+      "item": "minecraft:magma_block"
+    },
+    "N": {
+      "item": "minecraft:nether_bricks"
+    },
+    "M": {
+      "item": "logistics:core/machine_core"
+    },
+    "G": {
+      "item": "logistics:core/copper_gear"
+    },
+    "C": {
+      "item": "logistics:core/redstone_reception_coil"
+    }
+  },
+  "result": {
+    "id": "logistics:automation/crucible",
+    "count": 1
+  }
+}

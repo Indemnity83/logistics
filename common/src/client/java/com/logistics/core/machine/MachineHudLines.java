@@ -9,7 +9,8 @@ import net.minecraft.network.chat.Component;
 
 /**
  * Builds the machine HUD lines from the synced tag written by {@code MachineHudData}. Only a progress line
- * while the machine is actively processing — item slots and energy are already shown by Jade's built-ins.
+ * while the machine is actively processing — item slots, energy, and tank contents are already shown by
+ * Jade's built-ins.
  */
 public final class MachineHudLines {
 

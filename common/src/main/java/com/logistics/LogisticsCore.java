@@ -43,7 +43,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     /**
-     * A custom fluid produced by the Magma Crucible. Registered per loader under
+     * A custom fluid produced by the Crucible. Registered per loader under
      * {@code logistics:core/<name>} (source) + {@code logistics:core/flowing_<name>}; rendered from its own
      * baked {@code still}/{@code flow} sprites (color + per-fluid alpha pre-applied in the texture), so the
      * {@code tint} stays {@code 0xFFFFFFFF} (untinted). {@code overlay} may be null.

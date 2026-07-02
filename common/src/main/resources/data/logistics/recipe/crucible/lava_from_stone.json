@@ -1,0 +1,46 @@
+{
+  "type": "logistics:crucible",
+  "ingredient": [
+    {
+      "item": "minecraft:cobblestone"
+    },
+    {
+      "item": "minecraft:stone"
+    },
+    {
+      "item": "minecraft:granite"
+    },
+    {
+      "item": "minecraft:diorite"
+    },
+    {
+      "item": "minecraft:andesite"
+    },
+    {
+      "item": "minecraft:deepslate"
+    },
+    {
+      "item": "minecraft:cobbled_deepslate"
+    },
+    {
+      "item": "minecraft:tuff"
+    },
+    {
+      "item": "minecraft:blackstone"
+    },
+    {
+      "item": "minecraft:basalt"
+    },
+    {
+      "item": "minecraft:smooth_basalt"
+    },
+    {
+      "item": "minecraft:obsidian"
+    }
+  ],
+  "result": {
+    "fluid": "minecraft:lava",
+    "amount": 1000
+  },
+  "energyrequired": 300000
+}

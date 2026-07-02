@@ -2,11 +2,15 @@ package com.logistics.core.machine.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.logistics.core.lib.fluids.FluidUnits;
+import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.machine.FakeMachineContext;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.Test;
 
 class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
@@ -17,8 +21,10 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
         boolean hasInput = true;
         int inputCount = 1;
         boolean outputAccepts = true;
+        boolean fluidAccepts = true;
         int inputsConsumed;
         int outputsProduced;
+        FluidResult producedFluid;
 
         @Override
         public ItemStack input() {
@@ -49,6 +55,16 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
         public void produceOutputs(ItemStack result, List<ItemStack> rolledByproducts) {
             outputsProduced++;
             outputsProduced += (int) rolledByproducts.stream().filter(s -> !s.isEmpty()).count();
+        }
+
+        @Override
+        public boolean canAcceptFluid(FluidResult fluid) {
+            return fluidAccepts;
+        }
+
+        @Override
+        public void produceFluid(FluidResult fluid) {
+            producedFluid = fluid;
         }
     }
 
@@ -103,6 +119,102 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
 
         assertThat(processor.energySpent()).isZero();
         assertThat(io.energy).isEqualTo(1_000);
+    }
+
+    @Test
+    void depositsFluidResultOnCompletion() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        FluidResult fluid = new FluidResult(Fluids.WATER, 250);
+        RecipeProcessorComponent processor = processor(io, new RecipePlan(30, 1, fluid, 0f), 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx); // 10 spent
+        processor.serverTick(ctx); // 20 spent
+        assertThat(io.producedFluid).isNull();
+
+        processor.serverTick(ctx); // 30 spent -> complete
+        assertThat(io.producedFluid).isSameAs(fluid);
+        assertThat(io.inputsConsumed).isEqualTo(1);
+    }
+
+    @Test
+    void doesNotProcessWhenFluidOutputFull() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        io.fluidAccepts = false;
+        FluidResult fluid = new FluidResult(Fluids.WATER, 250);
+        RecipeProcessorComponent processor = processor(io, new RecipePlan(30, 1, fluid, 0f), 10);
+
+        processor.serverTick(new FakeMachineContext());
+
+        assertThat(processor.energySpent()).isZero();
+        assertThat(io.energy).isEqualTo(1_000);
+        assertThat(io.producedFluid).isNull();
+    }
+
+    @Test
+    void runsFluidOnlyRecipeWithNoOutputSlot() {
+        // A crucible-style machine: input-only inventory, no output slot, empty item result.
+        Runnable noop = () -> {};
+        InputRig rig = fluidInputRig(noop);
+        ItemStoreComponent items = rig.items();
+        EnergyStorageComponent energy = rig.energy();
+
+        RecipePlan plan = new RecipePlan(20, new int[] {1}, ItemStack.EMPTY, List.of(), 0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> io.input().isEmpty() ? null : plan, 10, items, energy, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete
+
+        // Input consumed proves the recipe ran despite having no output slot to accept an item result.
+        assertThat(items.input().isEmpty()).isTrue();
+    }
+
+    @Test
+    void depositsFluidIntoTankWhenThereIsRoom() {
+        Runnable noop = () -> {};
+        InputRig rig = fluidInputRig(noop);
+        ItemStoreComponent items = rig.items();
+        EnergyStorageComponent energy = rig.energy();
+
+        FluidStoreComponent fluids = new FluidStoreComponent("tank", FluidUnits.mb(100), noop);
+        RecipePlan plan = new RecipePlan(20, 1, new FluidResult(Fluids.WATER, 50), 0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> io.input().isEmpty() ? null : plan, 10, items, energy, fluids, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete
+
+        assertThat(items.input().isEmpty()).isTrue();
+        assertThat(FluidUnits.toMillibuckets(fluids.tank().getAmount())).isEqualTo(50);
+    }
+
+    @Test
+    void doesNotRunWhenTankCannotHoldFullFluidOutput() {
+        Runnable noop = () -> {};
+        InputRig rig = fluidInputRig(noop);
+        ItemStoreComponent items = rig.items();
+        EnergyStorageComponent energy = rig.energy();
+
+        // Tank holds 80 of 100 mB; the recipe would add 50 mB but only 20 fits, so it must not run.
+        FluidStoreComponent fluids = new FluidStoreComponent("tank", FluidUnits.mb(100), noop);
+        fluids.tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(80), false);
+
+        RecipePlan plan = new RecipePlan(20, 1, new FluidResult(Fluids.WATER, 50), 0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> io.input().isEmpty() ? null : plan, 10, items, energy, fluids, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        for (int i = 0; i < 5; i++) {
+            processor.serverTick(ctx); // 50 RF spent >> 20 required: would complete if the tank had room
+        }
+
+        assertThat(items.input().getCount()).isEqualTo(1); // input untouched -> the recipe never ran
+        assertThat(FluidUnits.toMillibuckets(fluids.tank().getAmount())).isEqualTo(80); // tank unchanged
     }
 
     @Test
@@ -299,6 +411,22 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
                 new SlotRole[] {SlotRole.INPUT, SlotRole.INPUT, SlotRole.OUTPUT, SlotRole.OUTPUT},
                 SidedLayout.bottomOut(new int[] {0, 1}, new int[] {2, 3}, stack -> true),
                 onChanged);
+    }
+
+    /** An input-only inventory (one redstone queued) plus a full energy buffer — the shared setup for the
+     * fluid-output recipe tests. */
+    private record InputRig(ItemStoreComponent items, EnergyStorageComponent energy) {}
+
+    private static InputRig fluidInputRig(Runnable onChanged) {
+        ItemStoreComponent items = new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.INPUT},
+                SidedLayout.furnace(new int[] {0}, new int[] {}, stack -> true),
+                onChanged);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, onChanged);
+        energy.energy(null).insert(100_000, false);
+        items.container().setItem(0, new ItemStack(Items.REDSTONE, 1));
+        return new InputRig(items, energy);
     }
 
     @Test
