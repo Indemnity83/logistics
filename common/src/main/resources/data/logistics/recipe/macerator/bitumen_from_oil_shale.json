@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/oil_shale",
+  "result": {
+    "id": "logistics:core/bitumen",
+    "count": 3
+  },
+  "energyrequired": 4000,
+  "byproduct": {
+    "id": "minecraft:flint",
+    "chance": 0.5
+  }
+}
