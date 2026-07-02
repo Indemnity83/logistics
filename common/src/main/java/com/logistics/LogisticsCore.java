@@ -299,6 +299,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item PULPED_BIOMASS;
         public static Item SLAG;
         public static Item RICH_SLAG;
+        public static Item BITUMEN;
+        public static Item TAR;
 
         // Chips — logic components for pipe modules
         public static Item CARBON_CHIP;
@@ -397,6 +399,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             PULPED_BIOMASS = INSTANCE.registerItem("pulped_biomass", Item::new);
             SLAG = INSTANCE.registerItem("slag", Item::new);
             RICH_SLAG = INSTANCE.registerItem("rich_slag", Item::new);
+            BITUMEN = INSTANCE.registerItem("bitumen", Item::new);
+            TAR = INSTANCE.registerItem("tar", Item::new);
 
             // Chips
             CARBON_CHIP = INSTANCE.registerItem("carbon_chip", Item::new);
@@ -544,7 +548,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST, ITEM.SULFUR_DUST, ITEM.QUICKSILVER, ITEM.NITER,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PULPED_BIOMASS,
-                    ITEM.SLAG, ITEM.RICH_SLAG,
+                    ITEM.SLAG, ITEM.RICH_SLAG, ITEM.BITUMEN, ITEM.TAR,
                     ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
                     ITEM.WOODEN_CORE,
                     ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
