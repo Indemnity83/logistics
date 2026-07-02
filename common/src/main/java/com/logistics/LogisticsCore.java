@@ -87,7 +87,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         FluidDef.core("liquid_redstone"),
         FluidDef.core("liquid_ender"),
         FluidDef.core("liquid_glowstone"),
-        FluidDef.world("crude_oil", 3, 2, 15),
+        // Viscous overworld crude: slope-find 2 + dropOff 2 match lava (it searches no further than it can
+        // spread, so it pools instead of flailing exploratory arms); tick delay 15 creeps between water and
+        // lava. No infinite sources (canConvertToSource stays false).
+        FluidDef.world("crude_oil", 2, 2, 15),
         FluidDef.core("liquid_biomass"));
 
     @Override
