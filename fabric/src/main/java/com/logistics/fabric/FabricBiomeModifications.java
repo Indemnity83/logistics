@@ -44,21 +44,21 @@ public final class FabricBiomeModifications {
             ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("bog_earth").toIdentifier())
         );
 
-        // Crude oil seeps (matches the NeoForge biome modifiers): surface pools with an ore shell +
-        // tendrils, in deserts (oil_sand) and badlands (oil_red_sand). Oil shale stays underground gravel
-        // veins across the dry biomes.
+        // Crude oil seeps (matches the NeoForge biome modifiers): surface pools that pick their ore shell
+        // by biome. One roll across the overworld (like lava lakes), plus a bonus roll in arid biomes so
+        // deserts + badlands are a bit oilier. Oil shale stays underground gravel veins in the dry biomes.
         var isDesert = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_desert").toIdentifier());
         var isBadlands = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_badlands").toIdentifier());
         var isSavanna = TagKey.create(Registries.BIOME, ResourceId.in("c", "is_savanna").toIdentifier());
         BiomeModifications.addFeature(
-            BiomeSelectors.tag(isDesert),
+            BiomeSelectors.foundInOverworld(),
             GenerationStep.Decoration.LAKES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_desert").toIdentifier())
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep").toIdentifier())
         );
         BiomeModifications.addFeature(
-            BiomeSelectors.tag(isBadlands),
+            BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)),
             GenerationStep.Decoration.LAKES,
-            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_badlands").toIdentifier())
+            ResourceKey.create(Registries.PLACED_FEATURE, LogisticsMod.modId("oil_seep_arid").toIdentifier())
         );
         BiomeModifications.addFeature(
             BiomeSelectors.tag(isDesert).or(BiomeSelectors.tag(isBadlands)).or(BiomeSelectors.tag(isSavanna)),

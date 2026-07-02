@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:random_selector",
+  "config": {
+    "features": [
+      { "chance": 0.70, "feature": "logistics:oil_seep_small" },
+      { "chance": 0.70, "feature": "logistics:oil_seep_large" }
+    ],
+    "default": "logistics:oil_seep_huge"
+  }
+}

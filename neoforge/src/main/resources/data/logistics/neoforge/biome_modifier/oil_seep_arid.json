@@ -1,0 +1,1 @@
+{ "type": "neoforge:add_features", "biomes": "#logistics:oil_seep_arid_biomes", "features": "logistics:oil_seep_arid", "step": "lakes" }

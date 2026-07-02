@@ -1,1 +1,0 @@
-{ "type": "neoforge:add_features", "biomes": "#c:is_badlands", "features": "logistics:oil_seep_badlands", "step": "lakes" }

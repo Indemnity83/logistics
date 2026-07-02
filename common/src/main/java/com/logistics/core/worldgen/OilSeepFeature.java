@@ -1,29 +1,36 @@
 package com.logistics.core.worldgen;
 
+import com.logistics.LogisticsCore;
+import com.logistics.core.lib.resource.ResourceId;
 import com.mojang.serialization.Codec;
 import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 /**
- * A surface crude oil "seep": an organic bowl filled with crude oil, its floor and walls lined with the
- * biome's oil ore (so the pool is contained and reads as oil-soaked banks), plus ore tendrils. Each
- * column on the pool's perimeter has a small chance to seed a tendril, which then spreads outward — the
- * outward direction is recomputed from the pool centre every step, so tendrils always crawl away from the
- * lake with a small wiggle, fading on a per-step probability. Mirrors {@link OilPondFeature}'s lobed edge.
+ * A surface crude oil "seep": an organic bowl of crude oil whose basin is lined with the biome's oil ore
+ * (oil sand in deserts, oil red sand in badlands, oil shale elsewhere). Air-adjacent faces are always
+ * lined so the pool stays contained; each solid face becomes ore only at the config's {@code shellChance}
+ * so the banks look oil-soaked rather than fully cased. Rejects cliff/water spots the way a lake would.
  */
 public class OilSeepFeature extends Feature<OilSeepConfiguration> {
 
     private static final Direction[] WALL_DIRS = {
         Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST
     };
-    private static final int[][] CARDINALS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    private static final TagKey<Biome> IS_DESERT =
+        TagKey.create(Registries.BIOME, ResourceId.in("c", "is_desert").toIdentifier());
+    private static final TagKey<Biome> IS_BADLANDS =
+        TagKey.create(Registries.BIOME, ResourceId.in("c", "is_badlands").toIdentifier());
 
     public OilSeepFeature(Codec<OilSeepConfiguration> codec) {
         super(codec);
@@ -35,7 +42,6 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
         RandomSource random = context.random();
         OilSeepConfiguration config = context.config();
         BlockState fluid = config.fluid();
-        BlockState shell = config.shell();
         int radius = Math.max(2, config.radius() + random.nextInt(3) - 1);
         int depth = Math.max(1, config.depth() + random.nextInt(3) - 1);
 
@@ -43,6 +49,7 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
         if (unsuitable(level, origin, radius, depth)) {
             return false;
         }
+        BlockState shell = shellFor(level, origin);
         int surfaceY = origin.getY() - 1;
 
         double phase1 = random.nextDouble() * Math.PI * 2.0;
@@ -50,9 +57,8 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
         double amp1 = radius * 0.3;
         double amp2 = radius * 0.15;
 
-        // Fill an organic bowl (deep centre, shallow rim) with crude oil, tracking the filled columns.
+        // Fill an organic bowl (deep centre, shallow rim) with crude oil.
         Set<Long> oil = new HashSet<>();
-        Set<Long> columns = new HashSet<>();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
@@ -64,13 +70,10 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
                 if (dist > edge) {
                     continue;
                 }
-                int x = origin.getX() + dx;
-                int z = origin.getZ() + dz;
-                columns.add(column(x, z));
                 double nd = dist / Math.max(1.0, edge);
                 int columnDepth = Math.max(1, (int) Math.round(depth * (1.0 - nd * nd)));
                 for (int dy = 0; dy < columnDepth; dy++) {
-                    pos.set(x, surfaceY - dy, z);
+                    pos.set(origin.getX() + dx, surfaceY - dy, origin.getZ() + dz);
                     level.setBlock(pos, fluid, 2);
                     oil.add(pos.asLong());
                 }
@@ -80,68 +83,39 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
             return false;
         }
 
-        // Line the basin: every non-top face of an oil block that isn't oil becomes shell.
+        // Line the basin: air/fluid faces are always sealed (containment); solid faces turn to ore only
+        // at shellChance, leaving patches of the natural ground showing through.
         for (long packed : oil) {
             BlockPos oilPos = BlockPos.of(packed);
             for (Direction dir : WALL_DIRS) {
                 BlockPos wall = oilPos.relative(dir);
-                if (!oil.contains(wall.asLong())) {
+                if (oil.contains(wall.asLong())) {
+                    continue;
+                }
+                boolean leaky = level.isEmptyBlock(wall) || !level.getFluidState(wall).isEmpty();
+                if (leaky || random.nextFloat() < config.shellChance()) {
                     level.setBlock(wall, shell, 2);
                 }
             }
         }
-
-        placeTendrils(level, random, config, columns, origin, surfaceY, radius, depth, shell);
         return true;
     }
 
-    /** Seeds tendrils on perimeter columns and spreads each outward from the pool centre. */
-    private void placeTendrils(WorldGenLevel level, RandomSource random, OilSeepConfiguration config,
-            Set<Long> columns, BlockPos origin, int surfaceY, int radius, int depth, BlockState shell) {
-        double centerX = origin.getX() + 0.5;
-        double centerZ = origin.getZ() + 0.5;
-        int fromY = surfaceY + 3;
-        int toY = surfaceY - depth - 3;
-
-        // Perimeter = columns just outside the filled pool.
-        Set<Long> perimeter = new HashSet<>();
-        for (long packed : columns) {
-            int x = (int) (packed >> 32);
-            int z = (int) packed;
-            for (int[] d : CARDINALS) {
-                long neighbor = column(x + d[0], z + d[1]);
-                if (!columns.contains(neighbor)) {
-                    perimeter.add(neighbor);
-                }
-            }
+    /** The oil ore for this biome: oil sand in deserts, oil red sand in badlands, oil shale elsewhere. */
+    private static BlockState shellFor(WorldGenLevel level, BlockPos origin) {
+        var biome = level.getBiome(origin);
+        if (biome.is(IS_DESERT)) {
+            return LogisticsCore.BLOCK.OIL_SAND.defaultBlockState();
         }
-
-        for (long packed : perimeter) {
-            if (random.nextFloat() >= config.perimeterChance()) {
-                continue;
-            }
-            double fx = (int) (packed >> 32) + 0.5;
-            double fz = (int) packed + 0.5;
-            for (int step = 0; step <= radius; step++) {
-                int gy = surfaceOf(level, (int) Math.floor(fx), (int) Math.floor(fz), fromY, toY);
-                if (gy != Integer.MIN_VALUE) {
-                    level.setBlock(new BlockPos((int) Math.floor(fx), gy, (int) Math.floor(fz)), shell, 2);
-                }
-                if (step == radius || random.nextFloat() >= config.tendrilChance()) {
-                    break;
-                }
-                // Always step away from the pool centre, with a small wiggle for an organic curl.
-                double outward = Math.atan2(fz - centerZ, fx - centerX) + (random.nextFloat() - 0.5) * 0.9;
-                fx += Math.cos(outward);
-                fz += Math.sin(outward);
-            }
+        if (biome.is(IS_BADLANDS)) {
+            return LogisticsCore.BLOCK.OIL_RED_SAND.defaultBlockState();
         }
+        return LogisticsCore.BLOCK.OIL_SHALE.defaultBlockState();
     }
 
     /**
-     * Rejects spots a lake wouldn't sit in — the same intent as {@code LakeFeature}'s checks: the ground
-     * under the pool and out to its rim must be solid, dry, and roughly level, or the pool ends up hanging
-     * over a cliff or sitting in the middle of a water body.
+     * Rejects spots a lake wouldn't sit in: the ground under the pool and out to its rim must be solid,
+     * dry, and roughly level, or the pool hangs over a cliff or sits in a water body.
      */
     private static boolean unsuitable(WorldGenLevel level, BlockPos origin, int radius, int depth) {
         int fromY = origin.getY() + 3;
@@ -165,10 +139,6 @@ public class OilSeepFeature extends Feature<OilSeepConfiguration> {
     /** Whether the block just above the ground at this column is a fluid (i.e. the ground is underwater). */
     private static boolean flooded(WorldGenLevel level, int x, int groundY, int z) {
         return !level.getFluidState(new BlockPos(x, groundY + 1, z)).isEmpty();
-    }
-
-    private static long column(int x, int z) {
-        return ((long) x << 32) | (z & 0xFFFFFFFFL);
     }
 
     /** Top solid ground Y in a column between {@code fromY} (down) and {@code toY}, or MIN_VALUE if none. */

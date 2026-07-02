@@ -1,5 +1,5 @@
 {
-  "feature": "logistics:oil_seep_selector_desert",
+  "feature": "logistics:oil_seep_selector",
   "placement": [
     { "type": "minecraft:rarity_filter", "chance": 200 },
     { "type": "minecraft:in_square" },

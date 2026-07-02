@@ -6,22 +6,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 /**
- * Config for {@link OilSeepFeature}: a surface crude oil pool with an oil-ore shell and radiating
- * tendrils. {@code fluid} fills the bowl (crude oil), {@code shell} lines the basin and forms the
- * tendrils (the biome's oil sand / oil red sand). {@code radius} + {@code depth} size the bowl (jittered
- * per seep). Each block on the pool's perimeter has a {@code perimeterChance} of seeding a tendril, which
- * then spreads outward one block at a time, continuing at {@code tendrilChance} up to {@code radius} long.
+ * Config for {@link OilSeepFeature}: a surface crude oil pool. {@code fluid} fills an organic bowl of
+ * {@code radius}/{@code depth} (jittered per seep). The basin is lined with the biome's oil ore, which
+ * the feature picks itself (oil sand in deserts, oil red sand in badlands, oil shale elsewhere): every
+ * air-adjacent face is lined so the pool can't leak, while each solid face becomes ore only at
+ * {@code shellChance}, so the banks read as oil-soaked patches rather than a full casing.
  */
-public record OilSeepConfiguration(
-        BlockState fluid, BlockState shell, int radius, int depth, float tendrilChance, float perimeterChance)
+public record OilSeepConfiguration(BlockState fluid, int radius, int depth, float shellChance)
         implements FeatureConfiguration {
 
     public static final Codec<OilSeepConfiguration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BlockState.CODEC.fieldOf("fluid").forGetter(OilSeepConfiguration::fluid),
-            BlockState.CODEC.fieldOf("shell").forGetter(OilSeepConfiguration::shell),
             Codec.intRange(1, 16).fieldOf("radius").forGetter(OilSeepConfiguration::radius),
             Codec.intRange(1, 16).fieldOf("depth").forGetter(OilSeepConfiguration::depth),
-            Codec.floatRange(0.0f, 1.0f).fieldOf("tendril_chance").forGetter(OilSeepConfiguration::tendrilChance),
-            Codec.floatRange(0.0f, 1.0f).fieldOf("perimeter_chance").forGetter(OilSeepConfiguration::perimeterChance))
+            Codec.floatRange(0.0f, 1.0f).fieldOf("shell_chance").forGetter(OilSeepConfiguration::shellChance))
         .apply(instance, OilSeepConfiguration::new));
 }
