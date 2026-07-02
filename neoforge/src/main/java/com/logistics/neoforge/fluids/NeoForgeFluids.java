@@ -1,6 +1,7 @@
 package com.logistics.neoforge.fluids;
 
 import com.logistics.LogisticsCore;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.core.registries.Registries;
@@ -55,16 +56,16 @@ public final class NeoForgeFluids {
 
     /** Registered fluid types by name — for the client texture/tint extensions. */
     public static Map<String, FluidType> types() {
-        return TYPES;
+        return Collections.unmodifiableMap(TYPES);
     }
 
     /** Registered source fluids by name — for client fluid-model registration. */
     public static Map<String, FlowingFluid> sources() {
-        return SOURCES;
+        return Collections.unmodifiableMap(SOURCES);
     }
 
     /** Registered flowing fluids by name — for client fluid-model registration. */
     public static Map<String, FlowingFluid> flowings() {
-        return FLOWINGS;
+        return Collections.unmodifiableMap(FLOWINGS);
     }
 }

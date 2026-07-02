@@ -120,7 +120,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
         /** Fluid name → filled bucket item, in {@link #CUSTOM_FLUIDS} order. */
         public static java.util.Map<String, Item> all() {
-            return BY_FLUID;
+            return java.util.Collections.unmodifiableMap(BY_FLUID);
         }
     }
 

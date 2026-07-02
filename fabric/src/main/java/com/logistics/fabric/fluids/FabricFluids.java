@@ -13,7 +13,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.FlowingFluid;
 
 /**
- * Registers the custom fluids (source + flowing pair per {@link LogisticsFluid#CUSTOM_FLUIDS}) into
+ * Registers the custom fluids (source + flowing pair per {@link LogisticsCore#CUSTOM_FLUIDS}) into
  * {@code BuiltInRegistries.FLUID} on Fabric. Keeps the registered source fluids by name so the client
  * render handlers and bucket items can look them up.
  */

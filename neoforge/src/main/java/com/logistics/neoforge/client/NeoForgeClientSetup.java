@@ -89,9 +89,7 @@ public final class NeoForgeClientSetup {
 
     /** Builds a sprite material from a {@code "namespace:path"} texture id. */
     private static Material material(String texture) {
-        int colon = texture.indexOf(':');
-        return new Material(
-                ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier());
+        return new Material(textureId(texture));
     }
 
     /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
@@ -119,8 +117,7 @@ public final class NeoForgeClientSetup {
     }
 
     private static Identifier textureId(String texture) { // raw-id-ok
-        int colon = texture.indexOf(':');
-        return ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier();
+        return ResourceId.parse(texture).toIdentifier();
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {

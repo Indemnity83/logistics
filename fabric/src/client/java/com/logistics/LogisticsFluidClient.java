@@ -55,8 +55,6 @@ public final class LogisticsFluidClient {
 
     /** Builds a sprite material from a {@code "namespace:path"} texture id. */
     private static Material material(String texture) {
-        int colon = texture.indexOf(':');
-        return new Material(
-                ResourceId.in(texture.substring(0, colon), texture.substring(colon + 1)).toIdentifier());
+        return new Material(ResourceId.parse(texture).toIdentifier());
     }
 }
