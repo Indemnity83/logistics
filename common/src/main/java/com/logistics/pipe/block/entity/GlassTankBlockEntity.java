@@ -4,6 +4,7 @@ import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
+import com.logistics.core.lib.fluids.FluidLight;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
@@ -20,7 +21,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,14 +109,9 @@ public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidSto
 
     /** Emit the contained fluid's light through the block state so a glowing fluid lights the tank. */
     private void updateLightLevel(Level level) {
-        BlockState state = getBlockState();
-        if (!state.hasProperty(GlassTankBlock.LIGHT_LEVEL)) {
-            return;
-        }
-        int light = amount() > 0 ? LogisticsCore.fluidLuminance(fluid().getFluid()) : 0;
-        if (state.getValue(GlassTankBlock.LIGHT_LEVEL) != light) {
-            level.setBlock(getBlockPos(), state.setValue(GlassTankBlock.LIGHT_LEVEL, light), Block.UPDATE_CLIENTS);
-        }
+        FluidLight.update(
+                level, getBlockPos(), getBlockState(), GlassTankBlock.LIGHT_LEVEL,
+                fluid().getFluid(), amount(), LogisticsCore::fluidLuminance);
     }
 
     // ==================== Persistence ====================

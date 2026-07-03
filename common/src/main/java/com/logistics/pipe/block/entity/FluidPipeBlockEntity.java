@@ -10,6 +10,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.core.lib.fluids.FluidLight;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
@@ -45,7 +46,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -495,14 +495,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     /** Emit the contained fluid's light through the block state so a glowing fluid lights the pipe. */
     private void updateLightLevel(Level level) {
-        BlockState state = getBlockState();
-        if (!state.hasProperty(FluidPipeBlock.LIGHT_LEVEL)) {
-            return;
-        }
-        int light = totalMillibuckets() > 0 ? LogisticsCore.fluidLuminance(containedFluid().getFluid()) : 0;
-        if (state.getValue(FluidPipeBlock.LIGHT_LEVEL) != light) {
-            level.setBlock(getBlockPos(), state.setValue(FluidPipeBlock.LIGHT_LEVEL, light), Block.UPDATE_CLIENTS);
-        }
+        FluidLight.update(
+                level, getBlockPos(), getBlockState(), FluidPipeBlock.LIGHT_LEVEL,
+                containedFluid().getFluid(), totalMillibuckets(), LogisticsCore::fluidLuminance);
     }
 
     /** Extractor: pull fluid from the handler on the wrench-selected pull face into this pipe. */
