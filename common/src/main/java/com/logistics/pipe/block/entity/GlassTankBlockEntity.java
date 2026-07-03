@@ -1,5 +1,6 @@
 package com.logistics.pipe.block.entity;
 
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
@@ -10,6 +11,7 @@ import com.logistics.core.lib.tank.TankCell;
 import com.logistics.core.lib.tank.TankCellLookup;
 import com.logistics.core.lib.tank.TankColumn;
 import com.logistics.core.lib.tank.TankColumns;
+import com.logistics.pipe.block.GlassTankBlock;
 import com.logistics.pipe.tank.TankColumnStorage;
 import com.logistics.pipe.tank.TankTier;
 import java.util.List;
@@ -18,6 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -100,6 +103,19 @@ public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidSto
         // Only the bottom cell drives the rebalance, so each (possibly cross-mod) column settles once per tick.
         if (TankColumns.isColumnBottom(level, pos)) {
             TankColumns.columnAt(level, pos).rebalance();
+        }
+        be.updateLightLevel(level);
+    }
+
+    /** Emit the contained fluid's light through the block state so a glowing fluid lights the tank. */
+    private void updateLightLevel(Level level) {
+        BlockState state = getBlockState();
+        if (!state.hasProperty(GlassTankBlock.LIGHT_LEVEL)) {
+            return;
+        }
+        int light = amount() > 0 ? LogisticsCore.fluidLuminance(fluid().getFluid()) : 0;
+        if (state.getValue(GlassTankBlock.LIGHT_LEVEL) != light) {
+            level.setBlock(getBlockPos(), state.setValue(GlassTankBlock.LIGHT_LEVEL, light), Block.UPDATE_CLIENTS);
         }
     }
 

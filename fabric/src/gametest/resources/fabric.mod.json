@@ -24,6 +24,7 @@
 			"com.logistics.gametest.pipe.PipeFlowGameTest",
 			"com.logistics.gametest.pipe.FluidPumpGameTest",
 			"com.logistics.gametest.pipe.FluidConnectionGameTest",
+			"com.logistics.gametest.pipe.FluidLightGameTest",
 			"com.logistics.gametest.pipe.PowerJunctionGameTest",
 			"com.logistics.gametest.power.BatteryGameTest",
 			"com.logistics.gametest.power.CableGameTest",
