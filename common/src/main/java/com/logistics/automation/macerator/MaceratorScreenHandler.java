@@ -2,6 +2,7 @@ package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineResultSlot;
+import com.logistics.core.machine.MachineData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,14 +28,14 @@ public class MaceratorScreenHandler extends AbstractContainerMenu {
 
     /** Client-side constructor. */
     public MaceratorScreenHandler(int syncId, Inventory playerInventory) {
-        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT), new SimpleContainerData(MaceratorBlockEntity.DATA_COUNT));
+        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT), new SimpleContainerData(MachineData.COUNT));
     }
 
     /** Server-side constructor. */
     public MaceratorScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
         super(LogisticsAutomation.MENU.MACERATOR, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
-        checkContainerDataCount(data, MaceratorBlockEntity.DATA_COUNT);
+        checkContainerDataCount(data, MachineData.COUNT);
 
         this.inventory = inventory;
         this.data = data;
@@ -115,38 +116,14 @@ public class MaceratorScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    /** Progress in ticks (0 to processTotalTicks). */
-    public int getProcessProgress() {
-        return data.get(0);
-    }
-
-    /** Total ticks for the current recipe (0 if idle). */
-    public int getProcessTotalTicks() {
-        return data.get(1);
-    }
-
-    /** Current energy stored (RF). */
-    public int getEnergyStored() {
-        return data.get(2);
-    }
-
-    /** Max energy capacity (RF). */
-    public int getEnergyCapacity() {
-        return (int) MaceratorBlockEntity.ENERGY_CAPACITY;
-    }
-
-    /** Progress as a 0–25 pixel width for the arrow, or 0 if idle. */
+    /** Progress arrow width (0..24 px) from the synced progress fraction, or 0 if idle. */
     public int getProgressArrowWidth() {
-        int total = getProcessTotalTicks();
-        if (total <= 0) return 0;
-        return 24 * getProcessProgress() / total;
+        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
     }
 
-    /** Energy bar height in pixels (0–13). */
+    /** Energy bar height (0..30 px) from the synced energy fill fraction. */
     public int getEnergyBarHeight() {
-        int capacity = getEnergyCapacity();
-        if (capacity <= 0) return 0;
-        return 30 * getEnergyStored() / capacity;
+        return MachineData.barPixels(data, MachineData.ENERGY, 30);
     }
 
     /** Output slot — players may take but not insert. */

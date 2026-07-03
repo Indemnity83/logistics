@@ -2,6 +2,7 @@ package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineResultSlot;
+import com.logistics.core.machine.MachineData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,14 +28,14 @@ public class KilnScreenHandler extends AbstractContainerMenu {
 
     /** Client-side constructor. */
     public KilnScreenHandler(int syncId, Inventory playerInventory) {
-        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT), new SimpleContainerData(KilnBlockEntity.DATA_COUNT));
+        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT), new SimpleContainerData(MachineData.COUNT));
     }
 
     /** Server-side constructor. */
     public KilnScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
         super(LogisticsAutomation.MENU.KILN, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
-        checkContainerDataCount(data, KilnBlockEntity.DATA_COUNT);
+        checkContainerDataCount(data, MachineData.COUNT);
 
         this.inventory = inventory;
         this.data = data;
@@ -104,20 +105,13 @@ public class KilnScreenHandler extends AbstractContainerMenu {
         return this.inventory.stillValid(player);
     }
 
-    public int getProcessProgress() { return data.get(0); }
-    public int getProcessTotalTicks() { return data.get(1); }
-    public int getEnergyStored() { return data.get(2); }
-    public int getEnergyCapacity() { return (int) KilnBlockEntity.ENERGY_CAPACITY; }
-
+    /** Progress arrow width (0..24 px) from the synced progress fraction, or 0 if idle. */
     public int getProgressArrowWidth() {
-        int total = getProcessTotalTicks();
-        if (total <= 0) return 0;
-        return 24 * getProcessProgress() / total;
+        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
     }
 
+    /** Energy bar height (0..30 px) from the synced energy fill fraction. */
     public int getEnergyBarHeight() {
-        int capacity = getEnergyCapacity();
-        if (capacity <= 0) return 0;
-        return 30 * getEnergyStored() / capacity;
+        return MachineData.barPixels(data, MachineData.ENERGY, 30);
     }
 }

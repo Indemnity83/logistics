@@ -3,6 +3,7 @@ package com.logistics.automation.macerator;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
@@ -36,37 +37,9 @@ public class MaceratorBlockEntity extends MachineEntity {
     // Tuned so 1 coal in a Stirling Engine (16,000 RF) macerates 8 items (8 × 2,000 RF each).
     static final int ENERGY_PER_TICK = 10;
 
-    // ContainerData indices for GUI sync. Progress/total are RF-denominated under the RF-cost model.
-    // Package-visible so MaceratorScreenHandler reads the same layout instead of raw literals.
-    static final int DATA_PROGRESS = 0;
-    static final int DATA_TOTAL = 1;
-    static final int DATA_ENERGY = 2;
-    static final int DATA_COUNT = 3;
-
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
-
-    private final ContainerData containerData = new ContainerData() {
-        @Override
-        public int get(int index) {
-            return switch (index) {
-                case DATA_PROGRESS -> (int) Math.min(processor.energySpent(), Integer.MAX_VALUE);
-                case DATA_TOTAL -> (int) Math.min(processor.energyRequired(), Integer.MAX_VALUE);
-                case DATA_ENERGY -> (int) Math.min(energy.amount(), Integer.MAX_VALUE);
-                default -> 0;
-            };
-        }
-
-        @Override
-        public void set(int index, int value) {
-            // Server-side data source only; the client uses a SimpleContainerData populated by sync.
-        }
-
-        @Override
-        public int getCount() {
-            return DATA_COUNT;
-        }
-    };
+    private ContainerData containerData;
 
     public MaceratorBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY, pos, state);
@@ -91,6 +64,8 @@ public class MaceratorBlockEntity extends MachineEntity {
                 .energy(energy)
                 .lit(this::setLit)
                 .build();
+
+        containerData = MachineData.source(processor, energy, ENERGY_CAPACITY);
     }
 
     private void setLit(MachineContext ctx, boolean lit) {
