@@ -5,6 +5,7 @@ import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
@@ -39,15 +40,10 @@ public class CrucibleBlockEntity extends MachineEntity {
 
     static final long TANK_CAPACITY_MB = 10_000L;
 
-    // ContainerData syncs each value as a 16-bit short, so raw RF (recipes run to hundreds of thousands)
-    // would overflow. Progress and energy are synced as a 0..DATA_SCALE fraction instead.
-    static final int DATA_SCALE = 10_000;
-
-    static final int DATA_PROGRESS = 0;
-    static final int DATA_ENERGY = 1;
-    static final int DATA_FLUID_ID = 2;
-    static final int DATA_FLUID_AMOUNT = 3;
-    static final int DATA_COUNT = 4;
+    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the tank adds two more.
+    static final int DATA_FLUID_ID = MachineData.COUNT;
+    static final int DATA_FLUID_AMOUNT = MachineData.COUNT + 1;
+    static final int DATA_COUNT = MachineData.COUNT + 2;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -57,10 +53,8 @@ public class CrucibleBlockEntity extends MachineEntity {
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_PROGRESS -> Math.round(processor.progress() * DATA_SCALE);
-                case DATA_ENERGY -> ENERGY_CAPACITY <= 0
-                        ? 0
-                        : (int) (energy.amount() * DATA_SCALE / ENERGY_CAPACITY);
+                case MachineData.PROGRESS -> MachineData.progressFraction(processor);
+                case MachineData.ENERGY -> MachineData.energyFraction(energy, ENERGY_CAPACITY);
                 case DATA_FLUID_ID -> fluidStore.tank().isEmpty()
                         ? -1
                         : BuiltInRegistries.FLUID.getId(fluidStore.tank().getFluidKey().getFluid());

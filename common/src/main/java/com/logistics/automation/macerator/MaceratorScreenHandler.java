@@ -2,6 +2,7 @@ package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineResultSlot;
+import com.logistics.core.machine.MachineData;
 import net.minecraft.recipebook.ServerPlaceRecipe;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -35,14 +36,14 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
 
     /** Client-side constructor. */
     public MaceratorScreenHandler(int syncId, Inventory playerInventory) {
-        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT), new SimpleContainerData(MaceratorBlockEntity.DATA_COUNT));
+        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT), new SimpleContainerData(MachineData.COUNT));
     }
 
     /** Server-side constructor. */
     public MaceratorScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
         super(LogisticsAutomation.MENU.MACERATOR, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
-        checkContainerDataCount(data, MaceratorBlockEntity.DATA_COUNT);
+        checkContainerDataCount(data, MachineData.COUNT);
 
         this.inventory = inventory;
         this.data = data;
@@ -167,38 +168,14 @@ public class MaceratorScreenHandler extends RecipeBookMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    /** Energy spent so far toward the active recipe (RF). */
-    public int getEnergySpent() {
-        return data.get(MaceratorBlockEntity.DATA_PROGRESS);
-    }
-
-    /** Total energy the active recipe requires (RF), or 0 if idle. */
-    public int getEnergyRequired() {
-        return data.get(MaceratorBlockEntity.DATA_TOTAL);
-    }
-
-    /** Current energy stored (RF). */
-    public int getEnergyStored() {
-        return data.get(MaceratorBlockEntity.DATA_ENERGY);
-    }
-
-    /** Max energy capacity (RF). */
-    public int getEnergyCapacity() {
-        return (int) MaceratorBlockEntity.ENERGY_CAPACITY;
-    }
-
-    /** Processing progress as a 0–25 pixel width for the arrow (the sprite width), or 0 if idle. */
+    /** Progress arrow width (0..24 px) from the synced progress fraction, or 0 if idle. */
     public int getProgressArrowWidth() {
-        int required = getEnergyRequired();
-        if (required <= 0) return 0;
-        return 24 * getEnergySpent() / required;
+        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
     }
 
-    /** Energy bar height in pixels (0–13). */
+    /** Energy bar height (0..30 px) from the synced energy fill fraction. */
     public int getEnergyBarHeight() {
-        int capacity = getEnergyCapacity();
-        if (capacity <= 0) return 0;
-        return 30 * getEnergyStored() / capacity;
+        return MachineData.barPixels(data, MachineData.ENERGY, 30);
     }
 
     /** Output slot — players may take but not insert. */
