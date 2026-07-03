@@ -35,6 +35,10 @@ public final class FluidBoxRenderer {
     /** Look up the still sprite + model for a fluid, or {@code null} if it has no still sprite. */
     @Nullable
     private static Resolved resolveModel(Fluid fluid) {
+        // Empty fluid has no model; resolving it yields the missing-texture sprite, so skip it.
+        if (fluid == Fluids.EMPTY) {
+            return null;
+        }
         FluidState fluidState = fluid.defaultFluidState();
         FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
