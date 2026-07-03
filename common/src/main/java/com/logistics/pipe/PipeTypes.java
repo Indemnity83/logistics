@@ -152,9 +152,11 @@ public final class PipeTypes {
             new FluidMergerModule());
 
     // Fluid extractor - pulls fluid from an adjacent handler when powered.
+    // Like the item extractor, it must not chain into another extractor of its own kind.
     public static final FluidPipe FLUID_EXTRACTOR_PIPE = new FluidPipe(
             new FluidTransportModule(FlowRate.SLOW),
-            new FluidExtractorModule())
+            new FluidExtractorModule(),
+            new BlockConnectionModule(() -> PipeTypes.FLUID_EXTRACTOR_PIPE))
             .withEnergy();
 
     // Void fluid pipe - destroys fluid; connects to pipes only.
