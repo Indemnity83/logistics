@@ -15,7 +15,9 @@ import com.logistics.core.worldgen.OilSeepFeature;
 import com.logistics.core.worldgen.OilSandsConfiguration;
 import com.logistics.core.worldgen.OilSandsFeature;
 import net.minecraft.world.level.levelgen.feature.LakeFeature;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -36,6 +38,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
@@ -60,22 +64,28 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
      * baked {@code still}/{@code flow} sprites (color + per-fluid alpha pre-applied in the texture), so the
      * {@code tint} stays {@code 0xFFFFFFFF} (untinted). {@code overlay} may be null.
      */
-    public record FluidDef(String name, int tint, String still, String flow, String overlay, WorldFlow world) {
+    public record FluidDef(
+            String name, int tint, String still, String flow, String overlay, WorldFlow world, int luminance) {
 
         /** Flow tuning for a {@link #world()} fluid — a placeable {@code LiquidBlock} that spreads. */
         public record WorldFlow(int slopeFindDistance, int dropOff, int tickDelay) {}
 
-        /** A fluid rendered from its baked textures under {@code block/core/fluid/}, untinted. */
+        /** A fluid rendered from its baked textures under {@code block/core/fluid/}, untinted, dark. */
         public static FluidDef core(String name) {
+            return core(name, 0);
+        }
+
+        /** A {@link #core} fluid that emits {@code luminance} (0-15) when held in a pipe or tank. */
+        public static FluidDef core(String name, int luminance) {
             String base = "logistics:block/core/fluid/" + name;
-            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null, null);
+            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null, null, luminance);
         }
 
         /** A {@link #core} fluid that also has a world block, spreading with the given flow tuning. */
         public static FluidDef world(String name, int slopeFindDistance, int dropOff, int tickDelay) {
             String base = "logistics:block/core/fluid/" + name;
             return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null,
-                new WorldFlow(slopeFindDistance, dropOff, tickDelay));
+                new WorldFlow(slopeFindDistance, dropOff, tickDelay), 0);
         }
 
         /** Whether this fluid can be placed in the world (has a {@code LiquidBlock}). */
@@ -88,9 +98,45 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
         FluidDef.core("liquid_redstone"),
         FluidDef.core("liquid_ender"),
-        FluidDef.core("liquid_glowstone"),
+        FluidDef.core("liquid_glowstone", 15),
         FluidDef.world("crude_oil", 2, 2, 15),
         FluidDef.core("liquid_biomass"));
+
+    private static Map<Fluid, Integer> fluidLuminance;
+
+    /**
+     * Block light level (0-15) a pipe or tank should emit while holding {@code fluid}. Vanilla lava
+     * glows at 15; a custom fluid glows at its {@link FluidDef#luminance()}; everything else is dark.
+     */
+    public static int fluidLuminance(Fluid fluid) {
+        if (fluid == Fluids.LAVA || fluid == Fluids.FLOWING_LAVA) {
+            return 15;
+        }
+        if (fluidLuminance == null) {
+            fluidLuminance = buildFluidLuminance();
+        }
+        return fluidLuminance.getOrDefault(fluid, 0);
+    }
+
+    /** Map each glowing custom fluid (source + flowing) to its luminance, resolved after registration. */
+    private static Map<Fluid, Integer> buildFluidLuminance() {
+        Map<Fluid, Integer> map = new IdentityHashMap<>();
+        for (FluidDef def : CUSTOM_FLUIDS) {
+            if (def.luminance() <= 0) {
+                continue;
+            }
+            putIfRegistered(map, resource(def.name()), def.luminance());
+            putIfRegistered(map, resource("flowing_" + def.name()), def.luminance());
+        }
+        return map;
+    }
+
+    private static void putIfRegistered(Map<Fluid, Integer> map, ResourceId id, int luminance) {
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(id.toIdentifier());
+        if (fluid != Fluids.EMPTY) {
+            map.put(fluid, luminance);
+        }
+    }
 
     @Override
     public int order() {
