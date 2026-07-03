@@ -1,6 +1,7 @@
 package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.machine.MachineData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -103,14 +104,14 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    /** Progress arrow width (0..24 px) from the synced 0..{@code DATA_SCALE} progress fraction. */
+    /** Progress arrow width (0..24 px) from the synced progress fraction. */
     public int getProgressArrowWidth() {
-        return Math.min(24, 24 * data.get(CrucibleBlockEntity.DATA_PROGRESS) / CrucibleBlockEntity.DATA_SCALE);
+        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
     }
 
-    /** Energy bar height (0..30 px) from the synced 0..{@code DATA_SCALE} energy fill fraction. */
+    /** Energy bar height (0..30 px) from the synced energy fill fraction. */
     public int getEnergyBarHeight() {
-        return Math.min(30, 30 * data.get(CrucibleBlockEntity.DATA_ENERGY) / CrucibleBlockEntity.DATA_SCALE);
+        return MachineData.barPixels(data, MachineData.ENERGY, 30);
     }
 
     /** Registry id of the fluid in the tank, or {@code -1} when empty. */

@@ -1,6 +1,7 @@
 package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.machine.MachineData;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Holder;
@@ -36,14 +37,14 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
     /** Client-side constructor. */
     public AlloySmelterScreenHandler(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT),
-                new SimpleContainerData(AlloySmelterBlockEntity.DATA_COUNT));
+                new SimpleContainerData(MachineData.COUNT));
     }
 
     /** Server-side constructor. */
     public AlloySmelterScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
         super(LogisticsAutomation.MENU.ALLOY_SMELTER, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
-        checkContainerDataCount(data, AlloySmelterBlockEntity.DATA_COUNT);
+        checkContainerDataCount(data, MachineData.COUNT);
 
         this.inventory = inventory;
         this.data = data;
@@ -249,32 +250,14 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    public int getProcessProgress() {
-        return data.get(AlloySmelterBlockEntity.DATA_PROGRESS);
-    }
-
-    public int getProcessTotalTicks() {
-        return data.get(AlloySmelterBlockEntity.DATA_TOTAL);
-    }
-
-    public int getEnergyStored() {
-        return data.get(AlloySmelterBlockEntity.DATA_ENERGY);
-    }
-
-    public int getEnergyCapacity() {
-        return (int) AlloySmelterBlockEntity.ENERGY_CAPACITY;
-    }
-
+    /** Progress arrow width (0..24 px) from the synced progress fraction, or 0 if idle. */
     public int getProgressArrowWidth() {
-        int total = getProcessTotalTicks();
-        if (total <= 0) return 0;
-        return 24 * getProcessProgress() / total;
+        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
     }
 
+    /** Energy bar height (0..30 px) from the synced energy fill fraction. */
     public int getEnergyBarHeight() {
-        int capacity = getEnergyCapacity();
-        if (capacity <= 0) return 0;
-        return 30 * getEnergyStored() / capacity;
+        return MachineData.barPixels(data, MachineData.ENERGY, 30);
     }
 
     /** Output slot — players may take but not insert. */
