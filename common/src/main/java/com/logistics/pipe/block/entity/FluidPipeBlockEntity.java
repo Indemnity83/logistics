@@ -9,6 +9,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.core.lib.fluids.FluidLight;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
@@ -22,6 +23,7 @@ import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import com.logistics.core.lib.power.DirectEnergyReceiver;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.pipe.block.FluidConnection;
+import com.logistics.LogisticsCore;
 import com.logistics.pipe.block.FluidPipeBlock;
 import com.logistics.pipe.FluidPipe;
 import com.logistics.core.lib.pipe.FluidExtraction;
@@ -481,7 +483,15 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
 
         parcels.removeIf(parcel -> parcel.amount() <= 0);
+        updateLightLevel(level);
         syncIfChanged();
+    }
+
+    /** Emit the contained fluid's light through the block state so a glowing fluid lights the pipe. */
+    private void updateLightLevel(Level level) {
+        FluidLight.update(
+                level, getBlockPos(), getBlockState(), FluidPipeBlock.LIGHT_LEVEL,
+                containedFluid().getFluid(), totalMillibuckets(), LogisticsCore::fluidLuminance);
     }
 
     /** Extractor: pull fluid from the handler on the wrench-selected pull face into this pipe. */

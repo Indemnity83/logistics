@@ -36,6 +36,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
@@ -53,9 +54,12 @@ public class GlassTankBlock extends BaseEntityBlock {
     /** True when a tank sits directly below, so the seamless {@code side_stacked} texture is used. */
     public static final BooleanProperty JOINED_BELOW = BooleanProperty.create("joined_below");
 
+    /** Block light (0-15) emitted while the tank holds a light-emitting fluid; driven by the block entity. */
+    public static final IntegerProperty LIGHT_LEVEL = IntegerProperty.create("light_level", 0, 15);
+
     public GlassTankBlock(Properties properties) {
-        super(properties);
-        registerDefaultState(defaultBlockState().setValue(JOINED_BELOW, false));
+        super(properties.lightLevel(state -> state.getValue(LIGHT_LEVEL)));
+        registerDefaultState(defaultBlockState().setValue(JOINED_BELOW, false).setValue(LIGHT_LEVEL, 0));
     }
 
     @Override
@@ -65,7 +69,7 @@ public class GlassTankBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(JOINED_BELOW);
+        builder.add(JOINED_BELOW, LIGHT_LEVEL);
     }
 
     @Nullable
