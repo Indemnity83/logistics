@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -25,6 +26,10 @@ public final class FluidBoxRenderer {
     /** Resolve a fluid's still sprite and world tint, or {@code null} if it has no model. */
     @Nullable
     public static Appearance resolve(Fluid fluid, @Nullable Level level, BlockPos pos) {
+        // Empty fluid has no model; resolving it yields the missing-texture sprite, so skip it.
+        if (fluid == Fluids.EMPTY) {
+            return null;
+        }
         return FluidSpriteLookup.resolve(fluid, level, pos);
     }
 
