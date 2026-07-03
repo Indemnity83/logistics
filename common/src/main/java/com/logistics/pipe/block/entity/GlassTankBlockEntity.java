@@ -1,8 +1,10 @@
 package com.logistics.pipe.block.entity;
 
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsFluid;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
+import com.logistics.core.lib.fluids.FluidLight;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
@@ -10,6 +12,7 @@ import com.logistics.core.lib.tank.TankCell;
 import com.logistics.core.lib.tank.TankCellLookup;
 import com.logistics.core.lib.tank.TankColumn;
 import com.logistics.core.lib.tank.TankColumns;
+import com.logistics.pipe.block.GlassTankBlock;
 import com.logistics.pipe.tank.TankColumnStorage;
 import com.logistics.pipe.tank.TankTier;
 import java.util.List;
@@ -101,6 +104,14 @@ public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidSto
         if (TankColumns.isColumnBottom(level, pos)) {
             TankColumns.columnAt(level, pos).rebalance();
         }
+        be.updateLightLevel(level);
+    }
+
+    /** Emit the contained fluid's light through the block state so a glowing fluid lights the tank. */
+    private void updateLightLevel(Level level) {
+        FluidLight.update(
+                level, getBlockPos(), getBlockState(), GlassTankBlock.LIGHT_LEVEL,
+                fluid().getFluid(), amount(), LogisticsCore::fluidLuminance);
     }
 
     // ==================== Persistence ====================
