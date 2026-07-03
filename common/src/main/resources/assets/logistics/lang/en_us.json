@@ -280,6 +280,7 @@
   "config.jade.plugin_logistics.machine": "Logistics Machines",
   "config.jade.plugin_logistics.power_infra": "Logistics Power Infrastructure",
   "config.jade.plugin_logistics.pipe": "Logistics Pipes",
+  "config.jade.plugin_logistics.fluid_pipe": "Logistics Fluid Pipes",
   "config.jade.plugin_logistics.quarry": "Logistics Quarry",
   "jade.logistics.engine.stage": "Stage",
   "jade.logistics.engine.temperature": "Temperature",
