@@ -3,6 +3,7 @@ package com.logistics.automation.kiln;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
@@ -38,35 +39,9 @@ public class KilnBlockEntity extends MachineEntity {
 
     static final int ENERGY_PER_TICK = 20;
 
-    private static final int DATA_PROGRESS = 0;
-    private static final int DATA_TOTAL = 1;
-    private static final int DATA_ENERGY = 2;
-    static final int DATA_COUNT = 3;
-
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
-
-    private final ContainerData containerData = new ContainerData() {
-        @Override
-        public int get(int index) {
-            return switch (index) {
-                case DATA_PROGRESS -> (int) Math.min(processor.energySpent(), Integer.MAX_VALUE);
-                case DATA_TOTAL -> (int) Math.min(processor.energyRequired(), Integer.MAX_VALUE);
-                case DATA_ENERGY -> (int) Math.min(energy.amount(), Integer.MAX_VALUE);
-                default -> 0;
-            };
-        }
-
-        @Override
-        public void set(int index, int value) {
-            // Server-side data source only; the client uses a SimpleContainerData populated by sync.
-        }
-
-        @Override
-        public int getCount() {
-            return DATA_COUNT;
-        }
-    };
+    private ContainerData containerData;
 
     public KilnBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY, pos, state);
@@ -91,6 +66,8 @@ public class KilnBlockEntity extends MachineEntity {
                 .energy(energy)
                 .lit(this::setLit)
                 .build();
+
+        containerData = MachineData.source(processor, energy, ENERGY_CAPACITY);
     }
 
     private boolean canSmelt(ItemStack stack) {
