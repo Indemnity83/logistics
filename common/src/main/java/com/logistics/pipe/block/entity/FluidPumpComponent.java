@@ -65,6 +65,8 @@ public final class FluidPumpComponent implements MachineComponent {
     private boolean infiniteBody;
     @Nullable private Fluid queuedFluid;
     private int queuedY;
+    // Per-instance arm-speed override for tests; negative falls back to the config value.
+    private float armSpeedOverride = -1f;
 
     public FluidPumpComponent(String id, EnergyStorageComponent energy, FluidStoreComponent fluidStore, BlockPos pos) {
         this.id = id;
@@ -90,6 +92,11 @@ public final class FluidPumpComponent implements MachineComponent {
 
     float armY() {
         return armY;
+    }
+
+    // Test seam: override the arm speed for this pump instance; negative restores the config value.
+    void setArmSpeedOverride(float armSpeed) {
+        this.armSpeedOverride = armSpeed;
     }
 
     @Override
@@ -127,7 +134,7 @@ public final class FluidPumpComponent implements MachineComponent {
         BlockPos pos = ctx.pos();
         float target = targetY + 0.5f;
         boolean server = ctx.isServer();
-        float armSpeed = LogisticsConfig.get().fluidPump.armSpeed;
+        float armSpeed = armSpeedOverride >= 0f ? armSpeedOverride : LogisticsConfig.get().fluidPump.armSpeed;
         if (armY > target) {
             armY = Math.max(target, armY - armSpeed);
             if (server) {
