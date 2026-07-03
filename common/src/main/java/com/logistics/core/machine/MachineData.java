@@ -35,11 +35,12 @@ public final class MachineData {
     }
 
     /**
-     * {@code value} as a 0..{@link #SCALE} fraction of {@code max}. Bounded to {@link #SCALE} (which
-     * fits a 16-bit short) regardless of magnitude — this is what keeps raw RF from overflowing sync.
+     * {@code value} as a 0..{@link #SCALE} fraction of {@code max}. {@code value} is clamped to
+     * {@code 0..max}, so the result stays within {@code 0..}{@link #SCALE} (which fits a 16-bit short)
+     * regardless of magnitude — this is what keeps raw RF from overflowing sync.
      */
     public static int fraction(long value, long max) {
-        return max <= 0 ? 0 : (int) (Math.min(value, max) * SCALE / max);
+        return max <= 0 ? 0 : (int) (Math.max(0, Math.min(value, max)) * SCALE / max);
     }
 
     /**
@@ -72,6 +73,6 @@ public final class MachineData {
 
     /** Bar fill in pixels (0..{@code spritePx}, clamped) from the 0..{@link #SCALE} fraction at {@code index}. */
     public static int barPixels(ContainerData data, int index, int spritePx) {
-        return Math.min(spritePx, spritePx * data.get(index) / SCALE);
+        return Math.max(0, Math.min(spritePx, spritePx * data.get(index) / SCALE));
     }
 }
