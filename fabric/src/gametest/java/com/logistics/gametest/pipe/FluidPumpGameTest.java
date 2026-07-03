@@ -19,6 +19,14 @@ import net.minecraft.world.level.material.Fluids;
 
 public class FluidPumpGameTest {
 
+    // Tests set this as a per-instance arm-speed override so the pump reaches the floor within a small tick
+    // budget (the arm normally creeps down at 0.01 blocks/tick).
+    private static final float FAST_ARM_SPEED = 16f;
+
+    private static void fastArm(FluidPumpBlockEntity pump) {
+        pump.setArmSpeedOverride(FAST_ARM_SPEED);
+    }
+
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFluidPumpPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 2, 1);
@@ -68,7 +76,7 @@ public class FluidPumpGameTest {
             context.fail("Expected FluidPumpBlockEntity");
             return;
         }
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
         float startArmY = pump.armY();
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 2L, () -> {
@@ -98,7 +106,7 @@ public class FluidPumpGameTest {
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
 
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 2, () -> {
             if (!context.getBlockState(waterPos).isAir()) {
@@ -130,7 +138,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 4L, () -> {
             if (context.getBlockState(firstWater).getFluidState().isSource()
@@ -166,7 +174,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 6L, () -> {
             for (BlockPos water : pool) {
@@ -202,7 +210,7 @@ public class FluidPumpGameTest {
             return;
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 2L + 4, () -> {
             if (pump.tank().getAmount() < FluidUnits.mb(1_000)
@@ -235,7 +243,7 @@ public class FluidPumpGameTest {
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
 
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.succeedWhen(() -> context.assertTrue(
                 pipe.totalMillibuckets() > 0 && pipe.containedFluid().getFluid() == Fluids.WATER,
@@ -259,7 +267,7 @@ public class FluidPumpGameTest {
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
 
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.succeedWhen(() -> context.assertTrue(
                 pipe.totalMillibuckets() > 0 && pipe.containedFluid().getFluid() == Fluids.WATER,
@@ -284,7 +292,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 5L, () -> {
             if (!context.getBlockState(a).isAir()
@@ -316,7 +324,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 5L, () -> {
             if (!context.getBlockState(a).isAir() || !context.getBlockState(c).isAir()) {
@@ -353,7 +361,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         // Lava flows (UPDATE_ALL), so flowing remnants decay on vanilla's slow schedule; the pump's job
         // is to remove every source block in the pool.
@@ -388,7 +396,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         // The tank instantly empties the pump's buffer each pump; the pump must still finish the layer.
         // Water flows (UPDATE_ALL), so assert no sources remain rather than full air.
@@ -419,7 +427,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 3L, () -> {
             if (!context.getBlockState(water).isAir()) {
@@ -453,7 +461,7 @@ public class FluidPumpGameTest {
             return;
         }
         fillEnergy(pump);
-        LogisticsConfig.get().fluidPump.armSpeed = 16f;
+        fastArm(pump);
 
         // After the first pump the furthest source is gone but the one under the tube remains.
         context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 6L, () -> {
