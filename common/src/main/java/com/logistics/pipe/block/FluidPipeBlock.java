@@ -38,6 +38,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -56,6 +57,9 @@ public class FluidPipeBlock extends BaseEntityBlock
     public static final MapCodec<FluidPipeBlock> CODEC = simpleCodec(FluidPipeBlock::new);
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
+    /** Block light (0-15) emitted while the pipe holds a light-emitting fluid; driven by the block entity. */
+    public static final IntegerProperty LIGHT_LEVEL = IntegerProperty.create("light_level", 0, 15);
 
     private static final double PIPE_SIZE = 8.0;
     private static final VoxelShape CORE_SHAPE = Block.box(
@@ -89,12 +93,12 @@ public class FluidPipeBlock extends BaseEntityBlock
     }
 
     public FluidPipeBlock(BlockBehaviour.Properties settings, @Nullable FluidPipe fluidPipe) {
-        super(settings);
+        super(settings.lightLevel(state -> state.getValue(LIGHT_LEVEL)));
         this.fluidPipe = fluidPipe;
         if (fluidPipe != null) {
             fluidPipe.setPipeBlock(this);
         }
-        registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
+        registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false).setValue(LIGHT_LEVEL, 0));
     }
 
     /** The fluid pipe definition backing this block (its transport policy + cosmetic/connection modules). */
@@ -120,7 +124,7 @@ public class FluidPipeBlock extends BaseEntityBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(WATERLOGGED);
+        builder.add(WATERLOGGED, LIGHT_LEVEL);
     }
 
     @Override
