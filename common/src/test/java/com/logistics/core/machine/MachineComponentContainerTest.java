@@ -72,6 +72,18 @@ class MachineComponentContainerTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void forEachVisitsAllMatchingInRegistrationOrder() {
+        MachineComponentContainer container = new MachineComponentContainer();
+        container.add(new RecordingComponent("a", new ArrayList<>(), "A"));
+        container.add(new RecordingComponent("b", new ArrayList<>(), "B"));
+
+        List<String> visited = new ArrayList<>();
+        container.forEach(MachineComponent.class, c -> visited.add(c.id()));
+
+        assertThat(visited).containsExactly("a", "b");
+    }
+
+    @Test
     void duplicateIdRejected() {
         MachineComponentContainer container = new MachineComponentContainer();
         container.add(new RecordingComponent("energy", new ArrayList<>(), "Energy"));
