@@ -2,6 +2,7 @@ package com.logistics.automation.macerator;
 
 import com.logistics.core.lib.recipe.MachineRecipeSerializers;
 import com.logistics.core.lib.recipe.ItemResult;
+import com.logistics.core.lib.recipe.RecipeByproduct;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -27,7 +28,7 @@ public class MaceratorRecipeSerializer {
         ItemResult.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
         Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(MaceratorRecipeWrapper::energy),
         Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience),
-        MaceratorByproduct.CODEC.optionalFieldOf("byproduct").forGetter(MaceratorRecipeWrapper::byproduct)
+        RecipeByproduct.CODEC.optionalFieldOf("byproduct").forGetter(MaceratorRecipeWrapper::byproduct)
     ).apply(i, MaceratorRecipeWrapper::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MaceratorRecipeWrapper> STREAM_CODEC =
@@ -37,7 +38,7 @@ public class MaceratorRecipeSerializer {
             ItemResult.STREAM_CODEC, MaceratorRecipeWrapper::result,
             ByteBufCodecs.VAR_INT, MaceratorRecipeWrapper::energy,
             ByteBufCodecs.FLOAT, MaceratorRecipeWrapper::experience,
-            ByteBufCodecs.optional(MaceratorByproduct.STREAM_CODEC), MaceratorRecipeWrapper::byproduct,
+            ByteBufCodecs.optional(RecipeByproduct.STREAM_CODEC), MaceratorRecipeWrapper::byproduct,
             MaceratorRecipeWrapper::new
         );
 

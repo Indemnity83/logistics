@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.core.lib.recipe.ItemResult;
+import com.logistics.core.lib.recipe.RecipeByproduct;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.Optional;
 import net.minecraft.core.RegistryAccess;
@@ -113,7 +114,7 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
             AlloySmelterRecipe original = new AlloySmelterRecipe(
                     Ingredient.of(Items.COPPER_INGOT), 3, Ingredient.of(Items.GOLD_INGOT), 1,
                     ItemResult.of(Items.IRON_INGOT, 4), 4000, 0f,
-                    Optional.of(new AlloySmelterByproduct(Items.GOLD_NUGGET, 0.1f)));
+                    Optional.of(new RecipeByproduct(Items.GOLD_NUGGET, 0.1f)));
 
             AlloySmelterRecipe decoded = roundTrip(original);
 
@@ -125,9 +126,9 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
         @Test
         @DisplayName("rejects a non-finite or negative byproduct chance on decode")
         void rejectsInvalidByproductChance() {
-            assertThatThrownBy(() -> AlloySmelterByproduct.CODEC.parse(ops, byproductTag(-0.1f)))
+            assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(-0.1f)))
                     .isInstanceOf(IllegalArgumentException.class);
-            assertThatThrownBy(() -> AlloySmelterByproduct.CODEC.parse(ops, byproductTag(Float.NaN)))
+            assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(Float.NaN)))
                     .isInstanceOf(IllegalArgumentException.class);
         }
 
