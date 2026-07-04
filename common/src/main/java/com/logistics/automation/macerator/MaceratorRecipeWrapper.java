@@ -51,6 +51,9 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         if (ingredientCount < 1) {
             throw new IllegalArgumentException("ingredientCount must be positive, got " + ingredientCount);
         }
+        if (!Float.isFinite(experience) || experience < 0) {
+            throw new IllegalArgumentException("experience must be finite and non-negative, got " + experience);
+        }
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;

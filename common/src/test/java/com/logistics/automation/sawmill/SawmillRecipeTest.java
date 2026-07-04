@@ -110,11 +110,14 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("should reject a negative experience")
-    void rejectsNegativeExperience() {
-        assertThatThrownBy(() -> new SawmillRecipe(
-                        Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(), 2000, -0.1f))
-                .isInstanceOf(IllegalArgumentException.class);
+    @DisplayName("should reject a non-finite or negative experience")
+    void rejectsNonFiniteOrNegativeExperience() {
+        for (float experience : new float[] {-0.1f, Float.NaN, Float.POSITIVE_INFINITY}) {
+            assertThatThrownBy(() -> new SawmillRecipe(
+                            Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(),
+                            2000, experience))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
     }
 
     // ==================== serializer codec round-trip ====================
