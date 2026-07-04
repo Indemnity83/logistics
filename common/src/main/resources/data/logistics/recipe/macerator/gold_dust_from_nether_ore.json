@@ -5,7 +5,7 @@
     "id": "logistics:core/gold_dust",
     "count": 1
   },
-  "energyrequired": 2000,
+  "energy": 2000,
   "experience": 1.0,
   "byproduct": {
     "id": "logistics:core/quicksilver",

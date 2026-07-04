@@ -2,5 +2,5 @@
   "type": "logistics:crucible",
   "ingredient": "minecraft:magma_block",
   "result": { "fluid": "minecraft:lava", "amount": 1000 },
-  "energyrequired": 40000
+  "energy": 40000
 }

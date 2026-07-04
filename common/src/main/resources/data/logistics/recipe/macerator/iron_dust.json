@@ -5,7 +5,7 @@
     "id": "logistics:core/iron_dust",
     "count": 2
   },
-  "energyrequired": 2000,
+  "energy": 2000,
   "experience": 0.7,
   "byproduct": {
     "id": "logistics:core/tin_dust",
