@@ -45,6 +45,9 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
         if (countA < 1 || countB < 1) {
             throw new IllegalArgumentException("input counts must be positive, got " + countA + ", " + countB);
         }
+        if (!Float.isFinite(experience) || experience < 0) {
+            throw new IllegalArgumentException("experience must be finite and non-negative, got " + experience);
+        }
         this.inputA = inputA;
         this.countA = countA;
         this.inputB = inputB;

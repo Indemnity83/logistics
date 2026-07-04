@@ -117,6 +117,21 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("should reject a non-finite or negative experience")
+    void rejectsNonFiniteOrNegativeExperience() {
+        for (float experience : new float[] {-0.1f, Float.NaN, Float.POSITIVE_INFINITY}) {
+            assertThatThrownBy(() -> new MaceratorRecipeWrapper(
+                    Ingredient.of(Items.RAW_IRON),
+                    1,
+                    ItemResult.of(Items.IRON_INGOT, 2),
+                    MaceratorRecipeWrapper.DEFAULT_ENERGY,
+                    experience,
+                    Optional.empty()))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Test
     @DisplayName("ingredient count: defaults to 1, and matching requires at least that many")
     void ingredientCount() {
         MaceratorRecipeWrapper twoSlabs = new MaceratorRecipeWrapper(
