@@ -16,7 +16,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
  * Handles bare item ID strings ("minecraft:iron_ore"), tag strings ("#minecraft:logs"),
  * and standard ingredient objects via vanilla's {@link Ingredient#CODEC}.
  *
- * <p>Recipes are RF-cost based: {@code energyrequired} is the total energy the machine spends to
+ * <p>Recipes are RF-cost based: {@code energy} is the total energy the machine spends to
  * complete the recipe.
  */
 public class MaceratorRecipeSerializer {
@@ -25,7 +25,7 @@ public class MaceratorRecipeSerializer {
         Ingredient.CODEC.fieldOf("ingredient").forGetter(MaceratorRecipeWrapper::ingredient),
         Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", MaceratorRecipeWrapper.DEFAULT_INGREDIENT_COUNT).forGetter(MaceratorRecipeWrapper::ingredientCount),
         ItemResult.CODEC.fieldOf("result").forGetter(MaceratorRecipeWrapper::result),
-        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energyrequired").forGetter(MaceratorRecipeWrapper::energyRequired),
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(MaceratorRecipeWrapper::energyRequired),
         Codec.FLOAT.optionalFieldOf("experience", MaceratorRecipeWrapper.DEFAULT_EXPERIENCE).forGetter(MaceratorRecipeWrapper::experience),
         MaceratorByproduct.CODEC.optionalFieldOf("byproduct").forGetter(MaceratorRecipeWrapper::byproduct)
     ).apply(i, MaceratorRecipeWrapper::new));

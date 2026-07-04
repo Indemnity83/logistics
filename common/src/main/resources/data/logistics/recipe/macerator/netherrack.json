@@ -5,7 +5,7 @@
     "id": "minecraft:gravel",
     "count": 1
   },
-  "energyrequired": 4000,
+  "energy": 4000,
   "byproduct": {
     "id": "logistics:core/sulfur_dust",
     "chance": 0.15

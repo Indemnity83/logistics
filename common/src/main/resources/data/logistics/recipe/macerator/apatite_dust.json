@@ -5,6 +5,6 @@
     "id": "logistics:core/apatite_dust",
     "count": 6
   },
-  "energyrequired": 2000,
+  "energy": 2000,
   "experience": 1.0
 }
