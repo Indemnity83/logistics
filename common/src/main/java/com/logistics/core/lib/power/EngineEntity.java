@@ -8,6 +8,7 @@ import com.logistics.core.lib.power.component.EnginePistonCycleComponent;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineHudModel;
 import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
@@ -142,8 +143,10 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
         return components.find(EngineComponent.HeatState.class);
     }
 
-    // The look-at (Jade) HUD is captured on this branch by EngineHudData/EngineServerDataProvider,
-    // not the 26.x component-HUD-model path (MachineHudModel is unavailable on 1.21.1).
+    /** Assembles the look-at (Jade) HUD from every component that contributes one. */
+    public void contributeHud(MachineHudModel hud) {
+        components.forEach(MachineComponent.HudContributor.class, c -> c.contributeHud(hud));
+    }
 
     // ==================== MachineContext ====================
 

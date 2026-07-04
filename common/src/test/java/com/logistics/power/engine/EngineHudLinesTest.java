@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.logistics.automation.laserquarry.QuarryHudData;
 import com.logistics.automation.laserquarry.QuarryHudLines;
 import com.logistics.core.lib.pipe.TravelingItem;
-import com.logistics.core.machine.MachineHudData;
 import com.logistics.core.machine.MachineHudLines;
+import com.logistics.core.machine.MachineHudModel;
 import com.logistics.pipe.PipeHudLines;
 import com.logistics.power.PowerInfraHudData;
 import com.logistics.power.PowerInfraHudLines;
@@ -44,9 +44,10 @@ class EngineHudLinesTest extends MinecraftTestEnvironment {
         quarryData.putLong("powerIn", 120);
         assertLabelValueLines(QuarryHudLines.build(quarryData, true), "quarry", "120 RF/t");
 
+        MachineHudModel model = new MachineHudModel();
+        model.progress(0.42f);
         CompoundTag machineData = new CompoundTag();
-        machineData.putBoolean(MachineHudData.KEY_PROCESSING, true);
-        machineData.putFloat("progress", 0.42f);
+        model.save(machineData);
         assertLabelValueLines(MachineHudLines.build(machineData), "machine", "42%");
 
         TravelingItem traveling = new TravelingItem(new ItemStack(Items.STONE), Direction.NORTH, 0.5f);

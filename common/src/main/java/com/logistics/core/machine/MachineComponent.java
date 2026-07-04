@@ -76,6 +76,11 @@ public interface MachineComponent {
         boolean isProcessing();
     }
 
+    /** Contributes look-at (Jade) HUD entries; captured server-side into a portable {@link MachineHudModel}. */
+    interface HudContributor {
+        void contributeHud(MachineHudModel hud);
+    }
+
     /** Banks processing experience and releases it on demand (e.g. when the machine is broken). */
     interface ExperienceStore {
         int drainExperience(RandomSource random);

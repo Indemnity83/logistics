@@ -4,6 +4,7 @@ import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineHudModel;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.RecipeProcessPlan;
@@ -33,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  * recipe, and progress persist across saves.
  */
 public final class FabricatorProcessorComponent
-        implements MachineComponent, MachineComponent.ProcessState {
+        implements MachineComponent, MachineComponent.ProcessState, MachineComponent.HudContributor {
 
     /** Output state for the GUI: 0 = craftable (unselected), 1 = queued, 2 = active. */
     public static final int STATE_AVAILABLE = 0;
@@ -279,6 +280,13 @@ public final class FabricatorProcessorComponent
     @Override
     public boolean isProcessing() {
         return activeId != null;
+    }
+
+    @Override
+    public void contributeHud(MachineHudModel hud) {
+        if (isProcessing()) {
+            hud.progress(progress());
+        }
     }
 
     // ----- persistence -----
