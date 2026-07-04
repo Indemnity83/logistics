@@ -3,6 +3,7 @@ package com.logistics.power.cable;
 import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.IEnergyStorage;
+import java.util.function.Predicate;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import net.minecraft.core.BlockPos;
@@ -317,23 +318,22 @@ public class CableNetwork {
     }
 
     private List<DeviceConnection> filterSources(List<DeviceConnection> sources) {
-        List<DeviceConnection> validSources = new ArrayList<>();
-        for (DeviceConnection source : sources) {
-            if (source.storage().canExtract()) {
-                validSources.add(source);
-            }
-        }
-        return validSources;
+        return filterByStorage(sources, IEnergyStorage::canExtract);
     }
 
     private List<DeviceConnection> filterTargets(List<DeviceConnection> targets) {
-        List<DeviceConnection> validTargets = new ArrayList<>();
-        for (DeviceConnection target : targets) {
-            if (target.storage().canInsert()) {
-                validTargets.add(target);
+        return filterByStorage(targets, IEnergyStorage::canInsert);
+    }
+
+    private static List<DeviceConnection> filterByStorage(
+            List<DeviceConnection> connections, Predicate<IEnergyStorage> keep) {
+        List<DeviceConnection> result = new ArrayList<>();
+        for (DeviceConnection connection : connections) {
+            if (keep.test(connection.storage())) {
+                result.add(connection);
             }
         }
-        return validTargets;
+        return result;
     }
 
     private long availableSourceEnergy(List<DeviceConnection> sources, long maxAmount) {
