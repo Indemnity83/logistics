@@ -17,6 +17,13 @@ import net.minecraft.world.item.ItemStack;
  */
 public record SawmillByproduct(Item item, float chance) {
 
+    public SawmillByproduct {
+        // Mirror ChanceOutput's contract: finite and non-negative (>1 is allowed — guaranteed + bonus).
+        if (!Float.isFinite(chance) || chance < 0f) {
+            throw new IllegalArgumentException("chance must be finite and non-negative, got " + chance);
+        }
+    }
+
     public static final Codec<SawmillByproduct> CODEC = RecordCodecBuilder.create(i -> i.group(
         BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(SawmillByproduct::item),
         Codec.FLOAT.fieldOf("chance").forGetter(SawmillByproduct::chance)
