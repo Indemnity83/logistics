@@ -3,12 +3,11 @@ package com.logistics.pipe.block.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
-import com.logistics.test.MinecraftTestEnvironment;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("FluidPumpComponent.stepArm")
-class FluidPumpArmTest extends MinecraftTestEnvironment {
+class FluidPumpArmTest {
 
     private static final float TOL = 1e-4f;
 
