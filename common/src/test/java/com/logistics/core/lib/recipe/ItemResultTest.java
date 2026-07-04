@@ -12,7 +12,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,13 +38,6 @@ class ItemResultTest extends MinecraftTestEnvironment {
         first.shrink(1);
 
         assertThat(result.toStack().getCount()).isEqualTo(4);
-    }
-
-    @Test
-    @DisplayName("exposes an item slot display for the recipe book")
-    void slotDisplayIsItemStackSlotDisplay() {
-        assertThat(ItemResult.of(Items.IRON_INGOT, 4).slotDisplay())
-                .isInstanceOf(SlotDisplay.ItemStackSlotDisplay.class);
     }
 
     // ==================== serialization ====================

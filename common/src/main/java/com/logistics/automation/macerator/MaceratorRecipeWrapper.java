@@ -2,6 +2,7 @@ package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.recipe.ItemResult;
+import com.logistics.core.lib.recipe.RecipeByproduct;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -34,11 +35,11 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     private final ItemResult result;
     private final int energy;
     private final float experience;
-    private final Optional<MaceratorByproduct> byproduct;
+    private final Optional<RecipeByproduct> byproduct;
 
     public MaceratorRecipeWrapper(
             Ingredient ingredient, int ingredientCount, ItemResult result, int energy, float experience,
-            Optional<MaceratorByproduct> byproduct) {
+            Optional<RecipeByproduct> byproduct) {
         if (energy <= 0) {
             throw new IllegalArgumentException("energy must be positive, got " + energy);
         }
@@ -79,7 +80,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     }
 
     /** The chance-based byproduct, if this recipe has one (ore→dust recipes do). */
-    public Optional<MaceratorByproduct> byproduct() {
+    public Optional<RecipeByproduct> byproduct() {
         return byproduct;
     }
 
