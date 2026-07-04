@@ -135,13 +135,9 @@ public final class FluidPumpComponent implements MachineComponent {
         float target = targetY + 0.5f;
         boolean server = ctx.isServer();
         float armSpeed = armSpeedOverride >= 0f ? armSpeedOverride : LogisticsConfig.get().fluidPump.armSpeed;
-        if (armY > target) {
-            armY = Math.max(target, armY - armSpeed);
-            if (server) {
-                ctx.setChanged();
-            }
-        } else if (armY < target) {
-            armY = Math.min(target, armY + armSpeed);
+        float stepped = stepArm(armY, target, armSpeed);
+        if (stepped != armY) {
+            armY = stepped;
             if (server) {
                 ctx.setChanged();
             }
@@ -149,6 +145,17 @@ public final class FluidPumpComponent implements MachineComponent {
         if (targetY > pos.getY() - 1) {
             targetY = pos.getY() - 1;
         }
+    }
+
+    /** Steps {@code armY} one tick toward {@code target} at {@code armSpeed} without overshooting; unchanged at rest. */
+    static float stepArm(float armY, float target, float armSpeed) {
+        if (armY > target) {
+            return Math.max(target, armY - armSpeed);
+        }
+        if (armY < target) {
+            return Math.min(target, armY + armSpeed);
+        }
+        return armY;
     }
 
     private void pushOut(Level level, BlockPos pos) {
