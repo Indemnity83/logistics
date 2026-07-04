@@ -60,6 +60,15 @@ public class QuickSortModule implements Module, TickingModule {
         ILogisticsNetwork network = ctx.network();
         if (network == null) return;
 
+        routeOneItem(ctx, storage, network, inventoryDir);
+    }
+
+    /**
+     * Scans the attached inventory and routes the first stack that has a filtered sink and fits the
+     * pipe, clearing the stall flag on success; enters a stall when nothing routable is found.
+     */
+    private void routeOneItem(
+            PipeContext ctx, IItemStorage storage, ILogisticsNetwork network, Direction inventoryDir) {
         // Iterate contents() fresh each tick — slot indices from contents() are ephemeral
         // (the list only contains non-empty views and changes as items are extracted), so
         // we resolve the candidate by key each tick rather than persisting slot numbers.
@@ -98,11 +107,13 @@ public class QuickSortModule implements Module, TickingModule {
             }
         }
 
-        // Nothing routable found this cycle — stall
-        if (!anyNonEmpty) {
-            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (inventory empty)", ctx.pos());
-        } else {
-            if (ctx.getInt(this, STALLED, 0) == 0) NetDbg.out("[QuickSort @ {}] Entering stall (no routable items)", ctx.pos());
+        enterStall(ctx, anyNonEmpty ? "no routable items" : "inventory empty");
+    }
+
+    /** Sets the stall flag, logging the transition only on the edge into a stall. */
+    private void enterStall(PipeContext ctx, String reason) {
+        if (ctx.getInt(this, STALLED, 0) == 0) {
+            NetDbg.out("[QuickSort @ {}] Entering stall ({})", ctx.pos(), reason);
         }
         ctx.saveInt(this, STALLED, 1);
     }
