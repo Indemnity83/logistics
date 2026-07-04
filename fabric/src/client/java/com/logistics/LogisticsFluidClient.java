@@ -48,7 +48,7 @@ public final class LogisticsFluidClient {
             Material overlay = def.overlay() != null ? material(def.overlay()) : null;
             FluidModel.Unbaked model = new FluidModel.Unbaked(
                     material(def.still()), material(def.flow()), overlay,
-                    BlockTintSources.constant(def.tint() & 0xFFFFFF));
+                    BlockTintSources.constant(def.tint() | 0xFF000000));
             FluidRenderingRegistry.register(source, source.getFlowing(), model);
         });
     }
