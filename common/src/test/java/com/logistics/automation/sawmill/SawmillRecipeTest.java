@@ -2,7 +2,7 @@ package com.logistics.automation.sawmill;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.test.MinecraftTestEnvironment;
 import io.netty.buffer.Unpooled;
 import java.util.Optional;
@@ -29,7 +29,7 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
         return new SawmillRecipe(
                 Ingredient.of(Items.OAK_LOG),
                 1,
-                MachineResult.of(Items.OAK_PLANKS, 6),
+                ItemResult.of(Items.OAK_PLANKS, 6),
                 Optional.empty(),
                 2000);
     }
@@ -60,7 +60,7 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
         SawmillRecipe twoLogs = new SawmillRecipe(
                 Ingredient.of(Items.OAK_LOG),
                 2,
-                MachineResult.of(Items.OAK_PLANKS, 12),
+                ItemResult.of(Items.OAK_PLANKS, 12),
                 Optional.empty(),
                 2000);
 
@@ -121,7 +121,7 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
             SawmillRecipe original = new SawmillRecipe(
                     Ingredient.of(Items.OAK_LOG),
                     1,
-                    MachineResult.of(Items.OAK_PLANKS, 6),
+                    ItemResult.of(Items.OAK_PLANKS, 6),
                     Optional.of(new SawmillByproduct(Items.STICK, 0.5f)),
                     2000);
 
@@ -140,7 +140,7 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
             SawmillRecipe withByproduct = new SawmillRecipe(
                     Ingredient.of(Items.OAK_LOG),
                     1,
-                    MachineResult.of(Items.OAK_PLANKS, 6),
+                    ItemResult.of(Items.OAK_PLANKS, 6),
                     Optional.of(new SawmillByproduct(Items.STICK, 0.5f)),
                     2000);
 
@@ -158,7 +158,7 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
             SawmillRecipe original = new SawmillRecipe(
                     Ingredient.of(Items.OAK_LOG),
                     1,
-                    MachineResult.of(Items.OAK_PLANKS, 6),
+                    ItemResult.of(Items.OAK_PLANKS, 6),
                     Optional.empty(),
                     SawmillRecipe.DEFAULT_ENERGY);
 

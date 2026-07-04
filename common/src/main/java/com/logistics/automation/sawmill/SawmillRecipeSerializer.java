@@ -1,7 +1,7 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.core.lib.recipe.MachineRecipeSerializers;
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -22,7 +22,7 @@ public class SawmillRecipeSerializer {
         Codec.intRange(1, Integer.MAX_VALUE)
             .optionalFieldOf("count", SawmillRecipe.DEFAULT_INGREDIENT_COUNT)
             .forGetter(SawmillRecipe::ingredientCount),
-        MachineResult.CODEC.fieldOf("result").forGetter(SawmillRecipe::result),
+        ItemResult.CODEC.fieldOf("result").forGetter(SawmillRecipe::result),
         SawmillByproduct.CODEC.optionalFieldOf("byproduct").forGetter(SawmillRecipe::byproduct),
         Codec.intRange(0, Integer.MAX_VALUE)
             .optionalFieldOf("energy", SawmillRecipe.DEFAULT_ENERGY)
@@ -33,7 +33,7 @@ public class SawmillRecipeSerializer {
         StreamCodec.composite(
             Ingredient.CONTENTS_STREAM_CODEC, SawmillRecipe::ingredient,
             ByteBufCodecs.VAR_INT, SawmillRecipe::ingredientCount,
-            MachineResult.STREAM_CODEC, SawmillRecipe::result,
+            ItemResult.STREAM_CODEC, SawmillRecipe::result,
             ByteBufCodecs.optional(SawmillByproduct.STREAM_CODEC), SawmillRecipe::byproduct,
             ByteBufCodecs.VAR_INT, SawmillRecipe::energy,
             SawmillRecipe::new

@@ -16,7 +16,7 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * Version-agnostic fluid output of a custom-recipe machine: a fluid plus an author-facing millibucket
  * amount. The mB amount is converted to platform-native fluid units via {@link FluidUnits} only when it
- * is deposited, so recipes stay loader-independent. Analog to {@link MachineResult} for the item result.
+ * is deposited, so recipes stay loader-independent. Analog to {@link ItemResult} for the item result.
  */
 public record FluidResult(Fluid fluid, int millibuckets) {
 
