@@ -12,7 +12,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
- * Recipe serializer for crucible recipes (item → fluid). {@code energyrequired} is the total RF the
+ * Recipe serializer for crucible recipes (item → fluid). {@code energy} is the total RF the
  * machine spends; {@code result} is a {@link FluidResult} ({@code {"fluid": id, "amount": <mB>}}).
  */
 public class CrucibleRecipeSerializer {
@@ -21,7 +21,7 @@ public class CrucibleRecipeSerializer {
         Ingredient.CODEC.fieldOf("ingredient").forGetter(CrucibleRecipe::ingredient),
         Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", CrucibleRecipe.DEFAULT_INGREDIENT_COUNT).forGetter(CrucibleRecipe::ingredientCount),
         FluidResult.CODEC.fieldOf("result").forGetter(CrucibleRecipe::result),
-        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energyrequired").forGetter(CrucibleRecipe::energyRequired),
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(CrucibleRecipe::energyRequired),
         Codec.FLOAT.optionalFieldOf("experience", CrucibleRecipe.DEFAULT_EXPERIENCE).forGetter(CrucibleRecipe::experience)
     ).apply(i, CrucibleRecipe::new));
 

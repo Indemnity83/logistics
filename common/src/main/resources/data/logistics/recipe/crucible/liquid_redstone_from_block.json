@@ -2,5 +2,5 @@
   "type": "logistics:crucible",
   "ingredient": "minecraft:redstone_block",
   "result": { "fluid": "logistics:core/liquid_redstone", "amount": 900 },
-  "energyrequired": 72000
+  "energy": 72000
 }
