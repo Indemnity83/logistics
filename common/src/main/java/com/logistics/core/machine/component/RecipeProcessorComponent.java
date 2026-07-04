@@ -94,21 +94,10 @@ public final class RecipeProcessorComponent
             reset(ctx);
             return;
         }
-        if (activePlan == null) {
-            activePlan = plan;
-            energySpent = Math.min(energySpent, plan.energyRequired()); // keep progress restored from NBT
-        } else if (!sameRecipe(activePlan, plan)) {
-            activePlan = plan;
-            energySpent = 0;
-        }
+        syncActivePlan(plan);
 
-        FluidResult fluidResult = plan.fluidResult();
-        boolean canRun = hasInputs(plan)
-                && io.canAcceptOutputs(plan.result(), plan.byproducts())
-                && (fluidResult == null || io.canAcceptFluid(fluidResult));
-        RecipeProcessPlan.Result result =
-                RecipeProcessPlan.advance(energySpent, plan.energyRequired(), io.energyStored(), rfPerTick, canRun);
-
+        RecipeProcessPlan.Result result = RecipeProcessPlan.advance(
+                energySpent, plan.energyRequired(), io.energyStored(), rfPerTick, canRun(plan));
         if (!result.consumedEnergy()) {
             lit.setLit(ctx, false);
             return;
@@ -120,17 +109,42 @@ public final class RecipeProcessorComponent
         onChanged.run();
 
         if (result.complete()) {
-            consumeInputs(plan);
-            io.produceOutputs(plan.result(), rollByproducts(plan.byproducts(), ctx.random()));
-            if (fluidResult != null) {
-                io.produceFluid(fluidResult);
-            }
-            if (plan.experience() > 0) {
-                storedExperience += plan.experience();
-            }
-            energySpent = 0;
-            activePlan = null;
+            completeRun(plan, ctx);
         }
+    }
+
+    /** Adopts the resolved plan, restoring NBT progress on first sight and resetting it on a recipe change. */
+    private void syncActivePlan(RecipePlan plan) {
+        if (activePlan == null) {
+            activePlan = plan;
+            energySpent = Math.min(energySpent, plan.energyRequired()); // keep progress restored from NBT
+        } else if (!sameRecipe(activePlan, plan)) {
+            activePlan = plan;
+            energySpent = 0;
+        }
+    }
+
+    /** Whether inputs are present and there's room for every item and fluid output the plan will emit. */
+    private boolean canRun(RecipePlan plan) {
+        FluidResult fluidResult = plan.fluidResult();
+        return hasInputs(plan)
+                && io.canAcceptOutputs(plan.result(), plan.byproducts())
+                && (fluidResult == null || io.canAcceptFluid(fluidResult));
+    }
+
+    /** Consumes inputs, emits outputs/byproducts/fluid, banks experience, and clears the active run. */
+    private void completeRun(RecipePlan plan, MachineContext ctx) {
+        consumeInputs(plan);
+        io.produceOutputs(plan.result(), rollByproducts(plan.byproducts(), ctx.random()));
+        FluidResult fluidResult = plan.fluidResult();
+        if (fluidResult != null) {
+            io.produceFluid(fluidResult);
+        }
+        if (plan.experience() > 0) {
+            storedExperience += plan.experience();
+        }
+        energySpent = 0;
+        activePlan = null;
     }
 
     /** Whether every input slot holds at least the count the plan consumes from it. */
