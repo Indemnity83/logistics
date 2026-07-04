@@ -104,11 +104,13 @@ class CrucibleRecipeTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("should reject a negative experience")
-    void rejectsNegativeExperience() {
-        assertThatThrownBy(() -> new CrucibleRecipe(
-                        Ingredient.of(Items.COAL), 1, new FluidResult(Fluids.LAVA, 250), 2000, -0.1f))
-                .isInstanceOf(IllegalArgumentException.class);
+    @DisplayName("should reject a non-finite or negative experience")
+    void rejectsNonFiniteOrNegativeExperience() {
+        for (float experience : new float[] {-0.1f, Float.NaN, Float.POSITIVE_INFINITY}) {
+            assertThatThrownBy(() -> new CrucibleRecipe(
+                            Ingredient.of(Items.COAL), 1, new FluidResult(Fluids.LAVA, 250), 2000, experience))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
     }
 
     // ==================== serializer codec round-trip ====================
