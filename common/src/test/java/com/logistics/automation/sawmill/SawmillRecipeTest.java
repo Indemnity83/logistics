@@ -32,7 +32,8 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
                 1,
                 ItemResult.of(Items.OAK_PLANKS, 6),
                 Optional.empty(),
-                2000);
+                2000,
+                SawmillRecipe.DEFAULT_EXPERIENCE);
     }
 
     // ==================== matches ====================
@@ -63,7 +64,8 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
                 2,
                 ItemResult.of(Items.OAK_PLANKS, 12),
                 Optional.empty(),
-                2000);
+                2000,
+                SawmillRecipe.DEFAULT_EXPERIENCE);
 
         assertThat(twoLogs.ingredientCount()).isEqualTo(2);
         assertThat(oakLogRecipe().ingredientCount()).isEqualTo(1);
@@ -93,9 +95,26 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
     void rejectsNonPositiveEnergy() {
         for (int energy : new int[] {0, -1}) {
             assertThatThrownBy(() -> new SawmillRecipe(
-                            Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(), energy))
+                            Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(),
+                            energy, SawmillRecipe.DEFAULT_EXPERIENCE))
                     .isInstanceOf(IllegalArgumentException.class);
         }
+    }
+
+    @Test
+    @DisplayName("should preserve non-default experience")
+    void experience() {
+        SawmillRecipe recipe = new SawmillRecipe(
+                Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(), 2000, 0.7f);
+        assertThat(recipe.experience()).isEqualTo(0.7f);
+    }
+
+    @Test
+    @DisplayName("should reject a negative experience")
+    void rejectsNegativeExperience() {
+        assertThatThrownBy(() -> new SawmillRecipe(
+                        Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(), 2000, -0.1f))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     // ==================== serializer codec round-trip ====================
@@ -127,6 +146,18 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
         }
 
         @Test
+        @DisplayName("round-trips a non-default experience, and omits it when default")
+        void roundTripPreservesExperience() {
+            SawmillRecipe original = new SawmillRecipe(
+                    Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(), 2000, 0.7f);
+
+            assertThat(roundTrip(original).experience()).isEqualTo(0.7f);
+
+            Tag plain = SawmillRecipeSerializer.CODEC.codec().encodeStart(ops, oakLogRecipe()).getOrThrow();
+            assertThat(((CompoundTag) plain).contains("experience")).isFalse();
+        }
+
+        @Test
         @DisplayName("round-trips a chance byproduct, and omits it when absent")
         void roundTripPreservesByproduct() {
             SawmillRecipe original = new SawmillRecipe(
@@ -134,7 +165,8 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
                     1,
                     ItemResult.of(Items.OAK_PLANKS, 6),
                     Optional.of(new SawmillByproduct(Items.STICK, 0.5f)),
-                    2000);
+                    2000,
+                    SawmillRecipe.DEFAULT_EXPERIENCE);
 
             SawmillRecipe decoded = roundTrip(original);
             assertThat(decoded.byproduct()).isPresent();
@@ -153,7 +185,8 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
                     1,
                     ItemResult.of(Items.OAK_PLANKS, 6),
                     Optional.of(new SawmillByproduct(Items.STICK, 0.5f)),
-                    2000);
+                    2000,
+                    SawmillRecipe.DEFAULT_EXPERIENCE);
 
             SawmillRecipe decoded = streamRoundTrip(withByproduct);
             assertThat(decoded.byproduct()).isPresent();

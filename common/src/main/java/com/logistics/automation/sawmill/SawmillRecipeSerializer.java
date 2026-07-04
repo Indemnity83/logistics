@@ -24,7 +24,8 @@ public class SawmillRecipeSerializer {
             .forGetter(SawmillRecipe::ingredientCount),
         ItemResult.CODEC.fieldOf("result").forGetter(SawmillRecipe::result),
         SawmillByproduct.CODEC.optionalFieldOf("byproduct").forGetter(SawmillRecipe::byproduct),
-        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(SawmillRecipe::energy)
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(SawmillRecipe::energy),
+        Codec.FLOAT.optionalFieldOf("experience", SawmillRecipe.DEFAULT_EXPERIENCE).forGetter(SawmillRecipe::experience)
     ).apply(i, SawmillRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SawmillRecipe> STREAM_CODEC =
@@ -34,6 +35,7 @@ public class SawmillRecipeSerializer {
             ItemResult.STREAM_CODEC, SawmillRecipe::result,
             ByteBufCodecs.optional(SawmillByproduct.STREAM_CODEC), SawmillRecipe::byproduct,
             ByteBufCodecs.VAR_INT, SawmillRecipe::energy,
+            ByteBufCodecs.FLOAT, SawmillRecipe::experience,
             SawmillRecipe::new
         );
 
