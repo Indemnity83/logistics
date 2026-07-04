@@ -34,7 +34,7 @@ public final class CrucibleRecipeResolver implements RecipeResolver {
                 .map(holder -> {
                     CrucibleRecipe recipe = holder.value();
                     return new RecipePlan(
-                            recipe.energyRequired(), recipe.ingredientCount(), recipe.result(), recipe.experience());
+                            recipe.energy(), recipe.ingredientCount(), recipe.result(), recipe.experience());
                 })
                 .orElse(null);
     }

@@ -16,7 +16,7 @@ public record CrucibleRecipeDisplay(
     SlotDisplay ingredient,
     SlotDisplay result,
     SlotDisplay craftingStation,
-    int energyRequired,
+    int energy,
     float experience
 ) implements RecipeDisplay {
 
@@ -24,7 +24,7 @@ public record CrucibleRecipeDisplay(
         SlotDisplay.CODEC.fieldOf("ingredient").forGetter(CrucibleRecipeDisplay::ingredient),
         SlotDisplay.CODEC.fieldOf("result").forGetter(CrucibleRecipeDisplay::result),
         SlotDisplay.CODEC.fieldOf("crafting_station").forGetter(CrucibleRecipeDisplay::craftingStation),
-        Codec.INT.fieldOf("energy").forGetter(CrucibleRecipeDisplay::energyRequired),
+        Codec.INT.fieldOf("energy").forGetter(CrucibleRecipeDisplay::energy),
         Codec.FLOAT.fieldOf("experience").forGetter(CrucibleRecipeDisplay::experience)
     ).apply(i, CrucibleRecipeDisplay::new));
 
@@ -33,7 +33,7 @@ public record CrucibleRecipeDisplay(
             SlotDisplay.STREAM_CODEC, CrucibleRecipeDisplay::ingredient,
             SlotDisplay.STREAM_CODEC, CrucibleRecipeDisplay::result,
             SlotDisplay.STREAM_CODEC, CrucibleRecipeDisplay::craftingStation,
-            ByteBufCodecs.VAR_INT, CrucibleRecipeDisplay::energyRequired,
+            ByteBufCodecs.VAR_INT, CrucibleRecipeDisplay::energy,
             ByteBufCodecs.FLOAT, CrucibleRecipeDisplay::experience,
             CrucibleRecipeDisplay::new
         );

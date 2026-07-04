@@ -31,14 +31,14 @@ public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
     private final Ingredient ingredient;
     private final int ingredientCount;
     private final FluidResult result;
-    private final int energyRequired;
+    private final int energy;
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
     public CrucibleRecipe(
-            Ingredient ingredient, int ingredientCount, FluidResult result, int energyRequired, float experience) {
-        if (energyRequired <= 0) {
-            throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
+            Ingredient ingredient, int ingredientCount, FluidResult result, int energy, float experience) {
+        if (energy <= 0) {
+            throw new IllegalArgumentException("energy must be positive, got " + energy);
         }
         if (ingredientCount < 1) {
             throw new IllegalArgumentException("ingredientCount must be positive, got " + ingredientCount);
@@ -49,7 +49,7 @@ public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;
-        this.energyRequired = energyRequired;
+        this.energy = energy;
         this.experience = experience;
     }
 
@@ -68,8 +68,8 @@ public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
     }
 
     /** Total energy (RF) the machine must spend to complete this recipe. */
-    public int energyRequired() {
-        return energyRequired;
+    public int energy() {
+        return energy;
     }
 
     public float experience() {
@@ -136,7 +136,7 @@ public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
             ingredient.display(),
             new SlotDisplay.ItemSlotDisplay(result.fluid().getBucket()),
             new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.CRUCIBLE.asItem()),
-            energyRequired,
+            energy,
             experience
         ));
     }
