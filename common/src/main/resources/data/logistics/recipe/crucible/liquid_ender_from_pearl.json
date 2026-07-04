@@ -7,5 +7,5 @@
     "fluid": "logistics:core/liquid_ender",
     "amount": 250
   },
-  "energyrequired": 20000
+  "energy": 20000
 }

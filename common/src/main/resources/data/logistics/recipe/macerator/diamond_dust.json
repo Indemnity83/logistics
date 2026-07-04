@@ -7,6 +7,6 @@
     "id": "logistics:core/diamond_dust",
     "count": 2
   },
-  "energyrequired": 2000,
+  "energy": 2000,
   "experience": 1.0
 }

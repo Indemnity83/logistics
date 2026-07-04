@@ -7,7 +7,7 @@
     "id": "logistics:core/quartz_dust",
     "count": 2
   },
-  "energyrequired": 2000,
+  "energy": 2000,
   "experience": 0.2,
   "byproduct": {
     "id": "logistics:core/sulfur_dust",

@@ -7,7 +7,7 @@
     "id": "logistics:core/bitumen",
     "count": 3
   },
-  "energyrequired": 4000,
+  "energy": 4000,
   "byproduct": {
     "id": "logistics:core/tar",
     "chance": 0.5

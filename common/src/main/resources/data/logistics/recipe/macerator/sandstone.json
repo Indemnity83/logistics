@@ -7,7 +7,7 @@
     "id": "minecraft:sand",
     "count": 2
   },
-  "energyrequired": 3000,
+  "energy": 3000,
   "byproduct": {
     "id": "logistics:core/niter",
     "chance": 0.4

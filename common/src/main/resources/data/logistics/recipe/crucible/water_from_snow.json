@@ -7,5 +7,5 @@
     "fluid": "minecraft:water",
     "amount": 500
   },
-  "energyrequired": 800
+  "energy": 800
 }

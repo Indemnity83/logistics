@@ -7,5 +7,5 @@
     "fluid": "logistics:core/crude_oil",
     "amount": 1000
   },
-  "energyrequired": 4000
+  "energy": 4000
 }

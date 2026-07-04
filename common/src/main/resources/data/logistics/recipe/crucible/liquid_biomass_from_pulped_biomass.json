@@ -7,5 +7,5 @@
     "fluid": "logistics:core/liquid_biomass",
     "amount": 100
   },
-  "energyrequired": 4000
+  "energy": 4000
 }

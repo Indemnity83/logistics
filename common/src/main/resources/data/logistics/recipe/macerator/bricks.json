@@ -7,5 +7,5 @@
     "id": "minecraft:brick",
     "count": 4
   },
-  "energyrequired": 3000
+  "energy": 3000
 }

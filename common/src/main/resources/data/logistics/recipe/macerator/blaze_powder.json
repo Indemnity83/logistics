@@ -7,7 +7,7 @@
     "id": "minecraft:blaze_powder",
     "count": 4
   },
-  "energyrequired": 2000,
+  "energy": 2000,
   "byproduct": {
     "id": "logistics:core/sulfur_dust",
     "chance": 0.5
