@@ -44,9 +44,7 @@ public class FluidTankComponent implements IFluidStorage {
         if (maxAmount <= 0 || key.isBlank()) return 0;
 
         boolean isEmpty = fluid == Fluids.EMPTY;
-        boolean matches = !isEmpty && fluid == key.getFluid() && components.equals(key.getComponents());
-
-        if (!isEmpty && !matches) return 0;
+        if (!isEmpty && !matchesStored(key)) return 0;
 
         long accepted = Math.min(maxAmount, capacity - amount);
         if (accepted <= 0) return 0;
@@ -65,7 +63,7 @@ public class FluidTankComponent implements IFluidStorage {
     @Override
     public long extract(IFluidKey key, long maxAmount, boolean simulate) {
         if (maxAmount <= 0 || key.isBlank()) return 0;
-        if (fluid != key.getFluid() || !components.equals(key.getComponents())) return 0;
+        if (!matchesStored(key)) return 0;
 
         long extracted = Math.min(maxAmount, amount);
         if (extracted <= 0) return 0;
@@ -178,6 +176,11 @@ public class FluidTankComponent implements IFluidStorage {
     }
 
     // ==================== Internals ====================
+
+    /** Whether {@code key} identifies the fluid currently stored (same fluid and components). */
+    private boolean matchesStored(IFluidKey key) {
+        return fluid == key.getFluid() && components.equals(key.getComponents());
+    }
 
     private IFluidKey currentKey() {
         Fluid f = fluid;
