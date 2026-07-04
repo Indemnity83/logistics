@@ -1,4 +1,4 @@
-package com.logistics.automation.sawmill;
+package com.logistics.core.lib.recipe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -15,8 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Byproduct chance validation matches its Macerator/Alloy Smelter siblings. */
-class SawmillByproductTest extends MinecraftTestEnvironment {
+/** The shared chance-byproduct record round-trips and validates its chance. */
+class RecipeByproductTest extends MinecraftTestEnvironment {
 
     private RegistryOps<Tag> ops;
 
@@ -29,7 +29,7 @@ class SawmillByproductTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("round-trips a valid chance byproduct")
     void roundTripPreservesByproduct() {
-        SawmillByproduct decoded = SawmillByproduct.CODEC.parse(ops, byproductTag(0.5f)).getOrThrow();
+        RecipeByproduct decoded = RecipeByproduct.CODEC.parse(ops, byproductTag(0.5f)).getOrThrow();
 
         assertThat(decoded.item()).isEqualTo(Items.GOLD_NUGGET);
         assertThat(decoded.chance()).isEqualTo(0.5f);
@@ -38,9 +38,9 @@ class SawmillByproductTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("rejects a non-finite or negative byproduct chance on decode")
     void rejectsInvalidByproductChance() {
-        assertThatThrownBy(() -> SawmillByproduct.CODEC.parse(ops, byproductTag(-0.1f)))
+        assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(-0.1f)))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> SawmillByproduct.CODEC.parse(ops, byproductTag(Float.NaN)))
+        assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(Float.NaN)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 

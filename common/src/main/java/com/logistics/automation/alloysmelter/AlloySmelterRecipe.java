@@ -2,6 +2,7 @@ package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.recipe.ItemResult;
+import com.logistics.core.lib.recipe.RecipeByproduct;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderLookup;
@@ -39,12 +40,12 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
     private final ItemResult result;
     private final int energy;
     private final float experience;
-    private final Optional<AlloySmelterByproduct> byproduct;
+    private final Optional<RecipeByproduct> byproduct;
     @Nullable private PlacementInfo placementInfo;
 
     public AlloySmelterRecipe(
             Ingredient inputA, int countA, Ingredient inputB, int countB,
-            ItemResult result, int energy, float experience, Optional<AlloySmelterByproduct> byproduct) {
+            ItemResult result, int energy, float experience, Optional<RecipeByproduct> byproduct) {
         if (energy <= 0) {
             throw new IllegalArgumentException("energy must be positive, got " + energy);
         }
@@ -67,7 +68,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
     /** Builds a recipe from the unordered {@code ingredients} pair (slot order is irrelevant to matching). */
     static AlloySmelterRecipe fromIngredients(
             List<CountedIngredient> ingredients, ItemResult result, int energy, float experience,
-            Optional<AlloySmelterByproduct> byproduct) {
+            Optional<RecipeByproduct> byproduct) {
         CountedIngredient a = ingredients.get(0);
         CountedIngredient b = ingredients.get(1);
         return new AlloySmelterRecipe(
@@ -108,7 +109,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
         return experience;
     }
 
-    public Optional<AlloySmelterByproduct> byproduct() {
+    public Optional<RecipeByproduct> byproduct() {
         return byproduct;
     }
 

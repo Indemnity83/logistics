@@ -2,6 +2,7 @@ package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.recipe.ItemResult;
+import com.logistics.core.lib.recipe.RecipeByproduct;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderLookup;
@@ -31,13 +32,13 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
     private final Ingredient ingredient;
     private final int ingredientCount;
     private final ItemResult result;
-    private final Optional<SawmillByproduct> byproduct;
+    private final Optional<RecipeByproduct> byproduct;
     private final int energy;
     private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
     public SawmillRecipe(
-            Ingredient ingredient, int ingredientCount, ItemResult result, Optional<SawmillByproduct> byproduct,
+            Ingredient ingredient, int ingredientCount, ItemResult result, Optional<RecipeByproduct> byproduct,
             int energy, float experience) {
         if (energy <= 0) {
             throw new IllegalArgumentException("energy must be positive, got " + energy);
@@ -66,7 +67,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
         return result;
     }
 
-    public Optional<SawmillByproduct> byproduct() {
+    public Optional<RecipeByproduct> byproduct() {
         return byproduct;
     }
 
