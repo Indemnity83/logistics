@@ -479,11 +479,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
 
         BlockPos requester = parseBlockPos(NbtCompat.getString(entry, ENTRY_REQ, ""));
         if (requester == null) {
-            // Cancel reserved orders before removing entry
-            ILogisticsNetwork network = ctx.network();
-            if (network != null) cancelEntryOrders(network, entry);
-            queue.remove(0);
-            saveQueue(ctx, queue);
+            cancelAndDropEntry(ctx, queue, entry);
             return;
         }
 
@@ -495,11 +491,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         int outputCount = NbtCompat.getInt(entry, ENTRY_OUTPUT_COUNT, 0);
 
         if (outputItem.isEmpty() || outputCount <= 0) {
-            // Cancel reserved orders before removing entry
-            ILogisticsNetwork network = ctx.network();
-            if (network != null) cancelEntryOrders(network, entry);
-            queue.remove(0);
-            saveQueue(ctx, queue);
+            cancelAndDropEntry(ctx, queue, entry);
             return;
         }
 
@@ -514,10 +506,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
         ItemStack outStack = resolveItem(outputItem);
         if (outStack.isEmpty()) {
             // Item ID in snapshot can no longer be resolved (e.g. mod removed); cancel and drop entry
-            ILogisticsNetwork network = ctx.network();
-            if (network != null) cancelEntryOrders(network, entry);
-            queue.remove(0);
-            saveQueue(ctx, queue);
+            cancelAndDropEntry(ctx, queue, entry);
             return;
         }
         long alreadyExtracted = NbtCompat.getLong(entry, ENTRY_EXTR_SLOT, 0);
@@ -552,6 +541,14 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
             queue.set(0, entry);
             saveQueue(ctx, queue);
         }
+    }
+
+    /** Cancels the entry's outstanding orders (when networked) and drops it from the head of the queue. */
+    private void cancelAndDropEntry(PipeContext ctx, ListTag queue, CompoundTag entry) {
+        ILogisticsNetwork network = ctx.network();
+        if (network != null) cancelEntryOrders(network, entry);
+        queue.remove(0);
+        saveQueue(ctx, queue);
     }
 
     private long extractAndRoute(PipeContext ctx, IItemKey key, long needed, BlockPos requester, long toRequester) {
