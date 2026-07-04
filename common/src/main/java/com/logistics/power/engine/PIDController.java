@@ -133,15 +133,12 @@ public class PIDController {
             output = minOutput;
         }
 
-        // Conditional integration anti-windup:
-        // If we saturated and the error would push further into saturation, do NOT accept the integral update.
+        // Conditional integration anti-windup: accept the integral update unless we're saturated
+        // and the error would push the output further into saturation (which would wind up the integral).
         boolean saturatedHigh = output >= maxOutput && unclamped > maxOutput;
         boolean saturatedLow = output <= minOutput && unclamped < minOutput;
-
-        if ((saturatedHigh && error > 0.0) || (saturatedLow && error < 0.0)) {
-            // Reject the integral update to avoid windup.
-            // Keep the previous integral.
-        } else {
+        boolean deepensSaturation = (saturatedHigh && error > 0.0) || (saturatedLow && error < 0.0);
+        if (!deepensSaturation) {
             integral = proposedIntegral;
         }
 
