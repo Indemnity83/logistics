@@ -84,11 +84,15 @@ public final class EnergyComponent implements IEnergyStorage {
 
     /** Sets the stored amount directly (e.g., client-side sync). Does not fire change notification. */
     public void setAmount(long amount) {
-        this.amount = Math.max(0, Math.min(amount, getCapacity()));
+        this.amount = clampToCapacity(amount);
     }
 
     public void readNbt(CompoundTag nbt, String key) {
-        this.amount = Math.max(0, Math.min(NbtCompat.getLong(nbt, key, 0L), getCapacity()));
+        this.amount = clampToCapacity(NbtCompat.getLong(nbt, key, 0L));
+    }
+
+    private long clampToCapacity(long value) {
+        return Math.max(0, Math.min(value, getCapacity()));
     }
 
     public void writeNbt(CompoundTag nbt, String key) {
