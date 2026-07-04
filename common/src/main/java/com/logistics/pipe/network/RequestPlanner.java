@@ -62,48 +62,59 @@ public class RequestPlanner {
             List<PlanningView.SupplyPoint> supply = view.getSupply(item);
             if (supply.isEmpty()) return 0;
 
-            long planned = 0;
-
-            // Consume real stock first
-            long effective = ctx.effectiveRealStock(item, supply);
-            if (effective > 0) {
-                long fromStock = Math.min(effective, needed);
-                ctx.claimed.merge(item, fromStock, Long::sum);
-                for (PlanningView.SupplyPoint sp : supply) {
-                    if (sp.available() > 0) {
-                        out.add(new PlanNode.ExtractNode(sp.provider(), item, fromStock));
-                        break;
-                    }
-                }
-                planned += fromStock;
-            }
-
-            // Try crafters for any remainder
+            long planned = planFromStock(item, needed, supply, ctx, out);
             long remaining = needed - planned;
             if (remaining > 0) {
-                CraftBatchingService batcher = new CraftBatchingService();
-                for (PlanningView.SupplyPoint sp : supply) {
-                    if (sp.available() != 0) continue; // skip real-stock entries
-                    if (view.getCrafterCheck(sp.provider()) == null) continue; // no check registered
-                    CrafterSnapshot snapshot = view.getCrafterSnapshot(sp.provider());
-                    if (snapshot != null) {
-                        // Cap to what the crafter's buffer can currently absorb
-                        long batches = batcher.safeBatchCount(remaining, snapshot.outputCount(), snapshot.buffer());
-                        if (batches <= 0) continue; // crafter buffer is full — try next
-                        out.add(new PlanNode.CraftNode(sp.provider(), item, batches, List.of()));
-                        planned += batches * snapshot.outputCount();
-                    } else {
-                        // No snapshot yet (first scan not complete): treat as unlimited capacity
-                        out.add(new PlanNode.CraftNode(sp.provider(), item, remaining, List.of()));
-                        planned += remaining;
-                    }
-                    break; // use first valid crafter
-                }
+                planned += planFromCrafters(item, remaining, supply, view, out);
             }
-
             return planned;
         } finally {
             ctx.visited.remove(item); // allow item to be revisited in sibling branches
         }
+    }
+
+    /** Claims real stock (providers with {@code available > 0}) toward {@code needed}, up to what's on hand. */
+    private long planFromStock(
+            IItemKey item,
+            long needed,
+            List<PlanningView.SupplyPoint> supply,
+            PlanningContext ctx,
+            List<PlanNode> out) {
+        long effective = ctx.effectiveRealStock(item, supply);
+        if (effective <= 0) return 0;
+
+        long fromStock = Math.min(effective, needed);
+        ctx.claimed.merge(item, fromStock, Long::sum);
+        for (PlanningView.SupplyPoint sp : supply) {
+            if (sp.available() > 0) {
+                out.add(new PlanNode.ExtractNode(sp.provider(), item, fromStock));
+                break;
+            }
+        }
+        return fromStock;
+    }
+
+    /** Sources {@code remaining} units from the first valid crafter, capped by its buffer. */
+    private long planFromCrafters(
+            IItemKey item, long remaining, List<PlanningView.SupplyPoint> supply, PlanningView view, List<PlanNode> out) {
+        CraftBatchingService batcher = new CraftBatchingService();
+        for (PlanningView.SupplyPoint sp : supply) {
+            if (sp.available() != 0) continue; // skip real-stock entries
+            if (view.getCrafterCheck(sp.provider()) == null) continue; // no check registered
+
+            CrafterSnapshot snapshot = view.getCrafterSnapshot(sp.provider());
+            if (snapshot == null) {
+                // No snapshot yet (first scan not complete): treat as unlimited capacity
+                out.add(new PlanNode.CraftNode(sp.provider(), item, remaining, List.of()));
+                return remaining;
+            }
+
+            // Cap to what the crafter's buffer can currently absorb
+            long batches = batcher.safeBatchCount(remaining, snapshot.outputCount(), snapshot.buffer());
+            if (batches <= 0) continue; // crafter buffer is full — try next
+            out.add(new PlanNode.CraftNode(sp.provider(), item, batches, List.of()));
+            return batches * snapshot.outputCount();
+        }
+        return 0;
     }
 }
