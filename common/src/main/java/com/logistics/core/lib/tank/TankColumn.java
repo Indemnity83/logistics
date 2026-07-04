@@ -112,7 +112,7 @@ public final class TankColumn {
         if (isPotion(current) || isPotion(resource)) {
             return 0; // sealed: potions are deposited only via depositBottle
         }
-        if (!current.isBlank() && !keysEqual(current, resource)) {
+        if (!accepts(current, resource)) {
             return 0;
         }
         long take = Math.min(max, room());
@@ -137,7 +137,7 @@ public final class TankColumn {
         if (isPotion(current)) {
             return 0; // sealed: potions are drawn only via extractBottle
         }
-        if (current.isBlank() || !keysEqual(current, resource)) {
+        if (!holds(current, resource)) {
             return 0;
         }
         long take = Math.min(max, total());
@@ -156,7 +156,7 @@ public final class TankColumn {
             return false;
         }
         IFluidKey current = shared();
-        if (!current.isBlank() && !keysEqual(current, resource)) {
+        if (!accepts(current, resource)) {
             return false;
         }
         if (room() < bottleAmount) {
@@ -172,7 +172,7 @@ public final class TankColumn {
             return false;
         }
         IFluidKey current = shared();
-        if (current.isBlank() || !keysEqual(current, resource)) {
+        if (!holds(current, resource)) {
             return false;
         }
         if (total() < bottleAmount) {
@@ -220,6 +220,16 @@ public final class TankColumn {
             capacities[i] = cells.get(i).capacity();
         }
         return FluidColumn.settle(capacities, total, isGas.test(fluid));
+    }
+
+    /** Whether {@code resource} may be added to a column currently holding {@code current} (empty or same fluid). */
+    private static boolean accepts(IFluidKey current, IFluidKey resource) {
+        return current.isBlank() || keysEqual(current, resource);
+    }
+
+    /** Whether the column currently holds exactly {@code resource} (non-blank, same fluid). */
+    private static boolean holds(IFluidKey current, IFluidKey resource) {
+        return !current.isBlank() && keysEqual(current, resource);
     }
 
     private static boolean keysEqual(IFluidKey a, IFluidKey b) {
