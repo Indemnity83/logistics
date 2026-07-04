@@ -24,15 +24,18 @@ public record ChanceOutput(ItemStack template, float chance) {
 
     /** The most a single {@link #roll} can yield: the guaranteed count plus the possible fractional bonus. */
     public int maxCount() {
-        int guaranteed = (int) chance;
-        return guaranteed + (chance - guaranteed > 0f ? 1 : 0);
+        return guaranteedCount() + (fractionalBonus() > 0f ? 1 : 0);
     }
 
     /** Rolls this output's yield: the guaranteed count plus the fractional bonus. */
     public int roll(RandomSource random) {
-        int guaranteed = (int) chance;
-        float bonus = chance - guaranteed;
-        return guaranteed + (bonus > 0f && random.nextFloat() < bonus ? 1 : 0);
+        float bonus = fractionalBonus();
+        return guaranteedCount() + (bonus > 0f && random.nextFloat() < bonus ? 1 : 0);
+    }
+
+    /** The fractional part of the chance — the probability of one extra item beyond the guaranteed count. */
+    private float fractionalBonus() {
+        return chance - guaranteedCount();
     }
 
     /** A copy of the template with the given count. */
