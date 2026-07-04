@@ -6,13 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.logistics.pipe.modules.SupplierModule.SupplyMode;
-import com.logistics.test.MinecraftTestEnvironment;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("SupplySlotState")
-class SupplySlotStateTest extends MinecraftTestEnvironment {
+class SupplySlotStateTest {
 
     private static SupplierModeConfig partial() {
         return SupplierModeConfig.forMode(SupplyMode.PARTIAL, 64);

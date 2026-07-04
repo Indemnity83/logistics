@@ -6,6 +6,7 @@ import com.logistics.automation.laserquarry.entity.QuarryEnergyPolicy;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.MachineModifiers;
 import com.logistics.test.MinecraftTestEnvironment;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("QuarryEnergyPolicy")
 class QuarryEnergyPolicyTest extends MinecraftTestEnvironment {
 
-    private final int[] consumeCalls = {0};
+    private final AtomicInteger consumeCalls = new AtomicInteger();
 
     private EnergyStorageComponent chargedBuffer(long amount) {
         EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 100_000, () -> {});
@@ -22,7 +23,7 @@ class QuarryEnergyPolicyTest extends MinecraftTestEnvironment {
     }
 
     private QuarryEnergyPolicy policy(EnergyStorageComponent energy) {
-        return new QuarryEnergyPolicy(energy, MachineModifiers.identity(), () -> consumeCalls[0]++);
+        return new QuarryEnergyPolicy(energy, MachineModifiers.identity(), consumeCalls::incrementAndGet);
     }
 
     @Nested
@@ -39,7 +40,7 @@ class QuarryEnergyPolicyTest extends MinecraftTestEnvironment {
 
             assertThat(energy.amount()).isEqualTo(300);
             assertThat(policy.consumedThisTick()).isTrue();
-            assertThat(consumeCalls[0]).isEqualTo(1);
+            assertThat(consumeCalls.get()).isEqualTo(1);
         }
 
         @Test
@@ -52,7 +53,7 @@ class QuarryEnergyPolicyTest extends MinecraftTestEnvironment {
 
             assertThat(energy.amount()).isEqualTo(150);
             assertThat(policy.consumedThisTick()).isFalse();
-            assertThat(consumeCalls[0]).isZero();
+            assertThat(consumeCalls.get()).isZero();
         }
 
         @Test
@@ -119,7 +120,7 @@ class QuarryEnergyPolicyTest extends MinecraftTestEnvironment {
 
             assertThat(energy.amount()).isEqualTo(300);
             assertThat(policy.consumedThisTick()).isFalse();
-            assertThat(consumeCalls[0]).isEqualTo(1);
+            assertThat(consumeCalls.get()).isEqualTo(1);
         }
 
         @Test
@@ -142,7 +143,7 @@ class QuarryEnergyPolicyTest extends MinecraftTestEnvironment {
             policy.drainIdle(100);
 
             assertThat(energy.amount()).isZero();
-            assertThat(consumeCalls[0]).isZero();
+            assertThat(consumeCalls.get()).isZero();
         }
     }
 
