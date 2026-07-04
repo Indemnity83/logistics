@@ -4,6 +4,7 @@ import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineHudModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +23,10 @@ import org.jetbrains.annotations.Nullable;
  * class wires it to sibling item/energy components and toggles the machine's "lit" state.
  */
 public final class RecipeProcessorComponent
-        implements MachineComponent, MachineComponent.ProcessState, MachineComponent.ExperienceStore {
+        implements MachineComponent,
+                MachineComponent.ProcessState,
+                MachineComponent.ExperienceStore,
+                MachineComponent.HudContributor {
 
     /** Toggles the machine's working/lit block state. */
     @FunctionalInterface
@@ -239,6 +243,15 @@ public final class RecipeProcessorComponent
     @Override
     public boolean isProcessing() {
         return activePlan != null;
+    }
+
+    // ----- HudContributor -----
+
+    @Override
+    public void contributeHud(MachineHudModel hud) {
+        if (isProcessing()) {
+            hud.progress(progress());
+        }
     }
 
     /** Energy spent toward the active recipe; drives the menu progress bar. */

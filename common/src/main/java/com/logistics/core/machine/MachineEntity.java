@@ -105,6 +105,11 @@ public abstract class MachineEntity extends BaseBlockEntity
         return components.find(MachineComponent.ProcessState.class).map(MachineComponent.ProcessState::isProcessing).orElse(false);
     }
 
+    /** Assembles the look-at (Jade) HUD from every component that contributes one. */
+    public void contributeHud(MachineHudModel hud) {
+        components.forEach(MachineComponent.HudContributor.class, c -> c.contributeHud(hud));
+    }
+
     private java.util.Optional<MachineComponent.SidedItems> sidedItems() {
         return components.find(MachineComponent.SidedItems.class);
     }

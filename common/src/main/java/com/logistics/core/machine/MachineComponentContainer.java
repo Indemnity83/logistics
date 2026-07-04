@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
@@ -42,6 +43,15 @@ public final class MachineComponentContainer {
             }
         }
         return Optional.empty();
+    }
+
+    /** Applies {@code action} to every registered component assignable to {@code type}, in registration order. */
+    public <T> void forEach(Class<T> type, Consumer<T> action) {
+        for (MachineComponent c : ordered) {
+            if (type.isInstance(c)) {
+                action.accept(type.cast(c));
+            }
+        }
     }
 
     public void onLoad(MachineContext ctx) {
