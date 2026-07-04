@@ -1,7 +1,7 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import java.util.Optional;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
@@ -24,11 +24,11 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     private final Ingredient ingredient;
     private final int ingredientCount;
-    private final MachineResult result;
+    private final ItemResult result;
     private final Optional<SawmillByproduct> byproduct;
     private final int energy;
 
-    public SawmillRecipe(Ingredient ingredient, int ingredientCount, MachineResult result, Optional<SawmillByproduct> byproduct, int energy) {
+    public SawmillRecipe(Ingredient ingredient, int ingredientCount, ItemResult result, Optional<SawmillByproduct> byproduct, int energy) {
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;
@@ -45,7 +45,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
         return ingredientCount;
     }
 
-    public MachineResult result() {
+    public ItemResult result() {
         return result;
     }
 
