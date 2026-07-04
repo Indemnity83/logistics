@@ -135,10 +135,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
                 UUID newOrderId = controller.placeOrder(
                         job.item(), newPlan.plannedAmount(), job.destination(), job.fulfillmentMode());
                 orderToJob.remove(orderId);
-                orderToJob.put(newOrderId, job.id());
-                jobToOrder.put(job.id(), newOrderId);
-                job.transitionTo(JobState.REPLANNING);
-                job.transitionTo(JobState.ACTIVE); // back to active after successful replan
+                adoptReplacementOrder(job, newOrderId);
                 NetDbg.out("[Jobs] Replanned job {} | {} items from new sources",
                         job.id().toString().substring(0, 8), newPlan.plannedAmount());
             } else {
@@ -181,10 +178,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         NetworkJob job = jobs.get(jobId);
         if (job == null || job.state().isTerminal()) return;
 
-        orderToJob.put(replacementOrderId, jobId);
-        jobToOrder.put(jobId, replacementOrderId);
-        job.transitionTo(JobState.REPLANNING);
-        job.transitionTo(JobState.ACTIVE);
+        adoptReplacementOrder(job, replacementOrderId);
         NetDbg.out("[Jobs] Delivery failed for job {} | retry order {}",
                 job.id().toString().substring(0, 8),
                 replacementOrderId.toString().substring(0, 8));
@@ -206,6 +200,14 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         NetDbg.out("[Jobs] Job {} FAILED | {}x {} | missing: {}",
                 job.id().toString().substring(0, 8), amount,
                 item.toStack(1).getItem(), missing);
+    }
+
+    /** Points the job/order cross-indexes at {@code newOrderId} and cycles the job REPLANNING→ACTIVE to resume it. */
+    private void adoptReplacementOrder(NetworkJob job, UUID newOrderId) {
+        orderToJob.put(newOrderId, job.id());
+        jobToOrder.put(job.id(), newOrderId);
+        job.transitionTo(JobState.REPLANNING);
+        job.transitionTo(JobState.ACTIVE);
     }
 
     // ===== Queries =====
