@@ -1,7 +1,7 @@
 package com.logistics.automation.alloysmelter;
 
 import com.logistics.core.lib.recipe.MachineRecipeSerializers;
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -29,7 +29,7 @@ public class AlloySmelterRecipeSerializer {
                 Function.identity())
             .fieldOf("ingredients")
             .forGetter(AlloySmelterRecipe::ingredientList),
-        MachineResult.CODEC.fieldOf("result").forGetter(AlloySmelterRecipe::result),
+        ItemResult.CODEC.fieldOf("result").forGetter(AlloySmelterRecipe::result),
         Codec.intRange(1, Integer.MAX_VALUE)
             .optionalFieldOf("energy", AlloySmelterRecipe.DEFAULT_ENERGY)
             .forGetter(AlloySmelterRecipe::energy),
@@ -45,7 +45,7 @@ public class AlloySmelterRecipeSerializer {
             ByteBufCodecs.VAR_INT, AlloySmelterRecipe::countA,
             Ingredient.CONTENTS_STREAM_CODEC, AlloySmelterRecipe::inputB,
             ByteBufCodecs.VAR_INT, AlloySmelterRecipe::countB,
-            MachineResult.STREAM_CODEC, AlloySmelterRecipe::result,
+            ItemResult.STREAM_CODEC, AlloySmelterRecipe::result,
             ByteBufCodecs.VAR_INT, AlloySmelterRecipe::energy,
             ByteBufCodecs.FLOAT, AlloySmelterRecipe::experience,
             ByteBufCodecs.optional(AlloySmelterByproduct.STREAM_CODEC), AlloySmelterRecipe::byproduct,
