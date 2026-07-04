@@ -70,7 +70,7 @@ public final class LogisticsFluidClient {
 
         FabricFluids.sources().forEach((name, source) -> {
             LogisticsCore.FluidDef def = defs.get(name);
-            int tint = def.tint() & 0xFFFFFF;
+            int tint = def.tint() | 0xFF000000;
             SimpleFluidRenderHandler handler = def.overlay() != null
                     ? new SimpleFluidRenderHandler(
                             ResourceId.parse(def.still()).toIdentifier(),
