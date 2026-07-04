@@ -1,6 +1,7 @@
 package com.logistics.automation.macerator;
 
 import com.logistics.core.lib.recipe.ItemResult;
+import com.logistics.core.lib.recipe.RecipeByproduct;
 import com.logistics.test.MinecraftTestEnvironment;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
@@ -198,7 +199,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
                 ItemResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
-                Optional.of(new MaceratorByproduct(Items.GOLD_NUGGET, 0.1f))
+                Optional.of(new RecipeByproduct(Items.GOLD_NUGGET, 0.1f))
             );
 
             Tag encoded = MaceratorRecipeSerializer.CODEC.codec().encodeStart(ops, original).getOrThrow();
@@ -222,7 +223,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
                 ItemResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
-                Optional.of(new MaceratorByproduct(Items.GOLD_NUGGET, 0.1f))
+                Optional.of(new RecipeByproduct(Items.GOLD_NUGGET, 0.1f))
             );
             MaceratorRecipeWrapper decoded = streamRoundTrip(withByproduct);
             assertThat(decoded.byproduct()).isPresent();
