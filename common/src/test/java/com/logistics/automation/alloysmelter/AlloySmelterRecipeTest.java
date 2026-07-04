@@ -54,6 +54,17 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("should reject a non-finite or negative experience")
+    void rejectsNonFiniteOrNegativeExperience() {
+        for (float experience : new float[] {-0.1f, Float.NaN, Float.POSITIVE_INFINITY}) {
+            assertThatThrownBy(() -> new AlloySmelterRecipe(
+                            Ingredient.of(Items.COPPER_INGOT), 3, Ingredient.of(Items.GOLD_INGOT), 1,
+                            ItemResult.of(Items.IRON_INGOT, 4), 4000, experience, Optional.empty()))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Test
     void requiresBothInputsPresentAndSufficient() {
         AlloySmelterRecipe recipe = recipe();
 
