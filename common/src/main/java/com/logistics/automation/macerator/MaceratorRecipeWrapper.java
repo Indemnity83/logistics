@@ -29,23 +29,23 @@ import java.util.Optional;
  */
 public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
-    public static final int DEFAULT_ENERGY_REQUIRED = 2000;
+    public static final int DEFAULT_ENERGY = 2000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
     public static final int DEFAULT_INGREDIENT_COUNT = 1;
 
     private final Ingredient ingredient;
     private final int ingredientCount;
     private final ItemResult result;
-    private final int energyRequired;
+    private final int energy;
     private final float experience;
     private final Optional<MaceratorByproduct> byproduct;
     @Nullable private PlacementInfo placementInfo;
 
     public MaceratorRecipeWrapper(
-            Ingredient ingredient, int ingredientCount, ItemResult result, int energyRequired, float experience,
+            Ingredient ingredient, int ingredientCount, ItemResult result, int energy, float experience,
             Optional<MaceratorByproduct> byproduct) {
-        if (energyRequired <= 0) {
-            throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
+        if (energy <= 0) {
+            throw new IllegalArgumentException("energy must be positive, got " + energy);
         }
         if (ingredientCount < 1) {
             throw new IllegalArgumentException("ingredientCount must be positive, got " + ingredientCount);
@@ -53,7 +53,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;
-        this.energyRequired = energyRequired;
+        this.energy = energy;
         this.experience = experience;
         this.byproduct = byproduct;
     }
@@ -72,8 +72,8 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     }
 
     /** Total energy (RF) the machine must spend to complete this recipe. */
-    public int energyRequired() {
-        return energyRequired;
+    public int energy() {
+        return energy;
     }
 
     public float experience() {
@@ -149,7 +149,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
             ingredient.display(),
             result.slotDisplay(),
             new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.MACERATOR.asItem()),
-            energyRequired,
+            energy,
             experience
         ));
     }

@@ -21,7 +21,7 @@ public class CrucibleRecipeSerializer {
         Ingredient.CODEC.fieldOf("ingredient").forGetter(CrucibleRecipe::ingredient),
         Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", CrucibleRecipe.DEFAULT_INGREDIENT_COUNT).forGetter(CrucibleRecipe::ingredientCount),
         FluidResult.CODEC.fieldOf("result").forGetter(CrucibleRecipe::result),
-        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(CrucibleRecipe::energyRequired),
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(CrucibleRecipe::energy),
         Codec.FLOAT.optionalFieldOf("experience", CrucibleRecipe.DEFAULT_EXPERIENCE).forGetter(CrucibleRecipe::experience)
     ).apply(i, CrucibleRecipe::new));
 
@@ -30,7 +30,7 @@ public class CrucibleRecipeSerializer {
             Ingredient.CONTENTS_STREAM_CODEC, CrucibleRecipe::ingredient,
             ByteBufCodecs.VAR_INT, CrucibleRecipe::ingredientCount,
             FluidResult.STREAM_CODEC, CrucibleRecipe::result,
-            ByteBufCodecs.VAR_INT, CrucibleRecipe::energyRequired,
+            ByteBufCodecs.VAR_INT, CrucibleRecipe::energy,
             ByteBufCodecs.FLOAT, CrucibleRecipe::experience,
             CrucibleRecipe::new
         );

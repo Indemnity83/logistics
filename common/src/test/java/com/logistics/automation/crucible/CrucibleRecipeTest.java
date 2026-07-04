@@ -82,7 +82,7 @@ class CrucibleRecipeTest extends MinecraftTestEnvironment {
         CrucibleRecipe recipe = bitumenRecipe();
         assertThat(recipe.result().fluid()).isEqualTo(Fluids.LAVA);
         assertThat(recipe.result().millibuckets()).isEqualTo(250);
-        assertThat(recipe.energyRequired()).isEqualTo(2000);
+        assertThat(recipe.energy()).isEqualTo(2000);
     }
 
     @Test
@@ -138,7 +138,7 @@ class CrucibleRecipeTest extends MinecraftTestEnvironment {
             assertThat(decoded.matches(new ItemStack(Items.IRON_INGOT))).isFalse();
             assertThat(decoded.result().fluid()).isEqualTo(Fluids.LAVA);
             assertThat(decoded.result().millibuckets()).isEqualTo(250);
-            assertThat(decoded.energyRequired()).isEqualTo(2000);
+            assertThat(decoded.energy()).isEqualTo(2000);
             assertThat(decoded.experience()).isEqualTo(0.7f);
         }
 
@@ -149,7 +149,7 @@ class CrucibleRecipeTest extends MinecraftTestEnvironment {
 
             assertThat(decoded.result().fluid()).isEqualTo(Fluids.LAVA);
             assertThat(decoded.result().millibuckets()).isEqualTo(250);
-            assertThat(decoded.energyRequired()).isEqualTo(2000);
+            assertThat(decoded.energy()).isEqualTo(2000);
         }
 
         @Test

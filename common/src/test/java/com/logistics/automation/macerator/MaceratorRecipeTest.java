@@ -31,7 +31,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             Ingredient.of(Items.RAW_IRON),
             1,
             ItemResult.of(Items.IRON_INGOT, 2),
-            MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
+            MaceratorRecipeWrapper.DEFAULT_ENERGY,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
             Optional.empty()
         );
@@ -75,7 +75,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
 
     @Test
     @DisplayName("should preserve non-default energy required")
-    void energyRequired() {
+    void energy() {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
             1,
@@ -84,7 +84,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
             Optional.empty()
         );
-        assertThat(recipe.energyRequired()).isEqualTo(500);
+        assertThat(recipe.energy()).isEqualTo(500);
     }
 
     @Test
@@ -109,7 +109,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             Ingredient.of(Items.RAW_IRON),
             1,
             ItemResult.of(Items.IRON_INGOT, 2),
-            MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
+            MaceratorRecipeWrapper.DEFAULT_ENERGY,
             0.7f,
             Optional.empty()
         );
@@ -123,7 +123,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             Ingredient.of(Items.SMOOTH_STONE_SLAB),
             2,
             ItemResult.of(Items.IRON_INGOT, 1),
-            MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
+            MaceratorRecipeWrapper.DEFAULT_ENERGY,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
             Optional.empty()
         );
@@ -169,7 +169,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             assertThat(decoded.matches(new ItemStack(Items.COAL))).isFalse();
             assertThat(decoded.getResultItem().is(Items.IRON_INGOT)).isTrue();
             assertThat(decoded.getResultItem().getCount()).isEqualTo(2);
-            assertThat(decoded.energyRequired()).isEqualTo(2000);
+            assertThat(decoded.energy()).isEqualTo(2000);
             assertThat(decoded.experience()).isEqualTo(0.7f);
             assertThat(decoded.byproduct()).isEmpty();
         }
