@@ -1,6 +1,6 @@
 package com.logistics.automation.macerator;
 
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.test.MinecraftTestEnvironment;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
@@ -30,7 +30,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         return new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
             1,
-            MachineResult.of(Items.IRON_INGOT, 2),
+            ItemResult.of(Items.IRON_INGOT, 2),
             MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
             Optional.empty()
@@ -79,7 +79,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
             1,
-            MachineResult.of(Items.IRON_INGOT, 2),
+            ItemResult.of(Items.IRON_INGOT, 2),
             500,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
             Optional.empty()
@@ -94,7 +94,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             assertThatThrownBy(() -> new MaceratorRecipeWrapper(
                     Ingredient.of(Items.RAW_IRON),
                     1,
-                    MachineResult.of(Items.IRON_INGOT, 2),
+                    ItemResult.of(Items.IRON_INGOT, 2),
                     energy,
                     MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
                     Optional.empty()))
@@ -108,7 +108,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         MaceratorRecipeWrapper recipe = new MaceratorRecipeWrapper(
             Ingredient.of(Items.RAW_IRON),
             1,
-            MachineResult.of(Items.IRON_INGOT, 2),
+            ItemResult.of(Items.IRON_INGOT, 2),
             MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             0.7f,
             Optional.empty()
@@ -122,7 +122,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
         MaceratorRecipeWrapper twoSlabs = new MaceratorRecipeWrapper(
             Ingredient.of(Items.SMOOTH_STONE_SLAB),
             2,
-            MachineResult.of(Items.IRON_INGOT, 1),
+            ItemResult.of(Items.IRON_INGOT, 1),
             MaceratorRecipeWrapper.DEFAULT_ENERGY_REQUIRED,
             MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
             Optional.empty()
@@ -156,7 +156,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
                 1,
-                MachineResult.of(Items.IRON_INGOT, 2),
+                ItemResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
                 Optional.empty()
@@ -180,7 +180,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
                 1,
-                MachineResult.of(Items.IRON_INGOT, 2),
+                ItemResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
                 Optional.of(new MaceratorByproduct(Items.GOLD_NUGGET, 0.1f))
@@ -204,7 +204,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             MaceratorRecipeWrapper withByproduct = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
                 1,
-                MachineResult.of(Items.IRON_INGOT, 2),
+                ItemResult.of(Items.IRON_INGOT, 2),
                 2000,
                 0.7f,
                 Optional.of(new MaceratorByproduct(Items.GOLD_NUGGET, 0.1f))
@@ -230,7 +230,7 @@ class MaceratorRecipeTest extends MinecraftTestEnvironment {
             MaceratorRecipeWrapper original = new MaceratorRecipeWrapper(
                 Ingredient.of(Items.IRON_ORE),
                 1,
-                MachineResult.of(Items.IRON_INGOT, 1),
+                ItemResult.of(Items.IRON_INGOT, 1),
                 200,
                 MaceratorRecipeWrapper.DEFAULT_EXPERIENCE,
                 Optional.empty()

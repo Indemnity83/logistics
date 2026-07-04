@@ -1,7 +1,7 @@
 package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderLookup;
@@ -37,7 +37,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
     private final int countA;
     private final Ingredient inputB;
     private final int countB;
-    private final MachineResult result;
+    private final ItemResult result;
     private final int energy;
     private final float experience;
     private final Optional<AlloySmelterByproduct> byproduct;
@@ -45,7 +45,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
 
     public AlloySmelterRecipe(
             Ingredient inputA, int countA, Ingredient inputB, int countB,
-            MachineResult result, int energy, float experience, Optional<AlloySmelterByproduct> byproduct) {
+            ItemResult result, int energy, float experience, Optional<AlloySmelterByproduct> byproduct) {
         if (energy <= 0) {
             throw new IllegalArgumentException("energy must be positive, got " + energy);
         }
@@ -64,7 +64,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
 
     /** Builds a recipe from the unordered {@code ingredients} pair (slot order is irrelevant to matching). */
     static AlloySmelterRecipe fromIngredients(
-            List<CountedIngredient> ingredients, MachineResult result, int energy, float experience,
+            List<CountedIngredient> ingredients, ItemResult result, int energy, float experience,
             Optional<AlloySmelterByproduct> byproduct) {
         CountedIngredient a = ingredients.get(0);
         CountedIngredient b = ingredients.get(1);
@@ -93,7 +93,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
         return countB;
     }
 
-    public MachineResult result() {
+    public ItemResult result() {
         return result;
     }
 
