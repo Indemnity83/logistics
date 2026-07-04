@@ -141,19 +141,11 @@ public final class FrameLayout {
         }
 
         if (y == rect.bottomY() || y == rect.topY()) {
-            if (z == rect.startZ()) {
+            if (z == rect.startZ() || z == rect.endZ()) {
                 if (x > rect.startX()) west = true;
                 if (x < rect.endX()) east = true;
             }
-            if (z == rect.endZ()) {
-                if (x > rect.startX()) west = true;
-                if (x < rect.endX()) east = true;
-            }
-            if (x == rect.startX()) {
-                if (z > rect.startZ()) north = true;
-                if (z < rect.endZ()) south = true;
-            }
-            if (x == rect.endX()) {
+            if (x == rect.startX() || x == rect.endX()) {
                 if (z > rect.startZ()) north = true;
                 if (z < rect.endZ()) south = true;
             }
