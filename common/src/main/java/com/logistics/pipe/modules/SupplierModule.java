@@ -212,7 +212,6 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
             SupplierModeConfig modeConfig = SupplierModeConfig.forMode(mode, stack.getMaxStackSize());
-            boolean shouldRequest = false;
             long toRequest = 0;
 
             if (modeConfig.isWindowBounded()) {
@@ -220,12 +219,8 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
                 // Request = min(maxStack, roomForItem - inTransit), so we keep filling
                 // available space even while items are already in transit.
                 long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
-                long toFill = Math.min(modeConfig.maxOpenRequestWindow(),
+                toRequest = Math.min(modeConfig.maxOpenRequestWindow(),
                         Math.max(0, availableSpace - pendingAmount));
-                if (toFill > 0) {
-                    toRequest = toFill;
-                    shouldRequest = true;
-                }
             } else if (needed > 0 && modeConfig.isTriggerMet(currentAmount, config.amount())) {
                 if (modeConfig.fulfillmentMode() == FulfillmentMode.FULL) {
                     // All-or-nothing: only request when full amount is available (chest)
@@ -234,17 +229,15 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
                     long available = network.getAvailableAmount(stack);
                     if (available >= needed) {
                         toRequest = needed;
-                        shouldRequest = true;
                     }
                 } else {
                     // PARTIAL: request needed regardless of availability;
                     // dispatch validation handles fulfillability (same as RequesterModule).
                     toRequest = needed;
-                    shouldRequest = true;
                 }
             }
 
-            if (shouldRequest) {
+            if (toRequest > 0) {
                 network.placeOrder(ItemStorageLookup.of(stack), toRequest, ctx.pos(), modeConfig.fulfillmentMode());
             }
         }
