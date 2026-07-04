@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.List;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.Test;
 
@@ -39,5 +41,24 @@ class MachineHudModelTest extends MinecraftTestEnvironment {
         assertThat(fluid.fluidId()).isEqualTo(BuiltInRegistries.FLUID.getKey(Fluids.LAVA).toString());
         assertThat(fluid.amountMb()).isEqualTo(500L);
         assertThat(fluid.capacityMb()).isEqualTo(10_000L);
+        assertThat(fluid.components()).isEqualTo(DataComponentPatch.EMPTY);
+    }
+
+    @Test
+    void preservesFluidComponentsThroughRoundTrip() {
+        DataComponentPatch components = DataComponentPatch.builder()
+                .set(DataComponents.CUSTOM_NAME, Component.literal("Molten Steel"))
+                .build();
+
+        MachineHudModel model = new MachineHudModel();
+        model.fluid(Fluids.LAVA, components, 500L, 10_000L);
+
+        CompoundTag data = new CompoundTag();
+        model.save(data);
+        List<MachineHudModel.Entry> entries = MachineHudModel.entries(data);
+
+        assertThat(entries).hasSize(1);
+        MachineHudModel.FluidEntry fluid = (MachineHudModel.FluidEntry) entries.get(0);
+        assertThat(fluid.components()).isEqualTo(components);
     }
 }

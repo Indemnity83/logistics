@@ -24,7 +24,12 @@ import snownee.jade.api.view.ProgressView;
  * Client half of the machine Jade integration: renders the HUD model synced by
  * {@link MachineServerDataProvider}. Progress text is shared in {@link MachineHudLines}; fluid tanks are
  * drawn here as a capacity-relative bar (the built-in Jade fluid element is stripped so they don't
- * double up), because the Jade element API is version-specific.
+ * double up).
+ *
+ * <p>{@code renderFluidBar} is duplicated in the Fabric provider rather than shared: Jade is a
+ * per-loader compile-only dependency (absent from the common client classpath), so Jade-touching code
+ * cannot live in {@code common/src/client}. The whole {@code compat.jade} package follows this pattern.
+ * The Jade API itself matches across loaders, so keep the two copies identical.
  */
 public final class MachineComponentProvider implements IBlockComponentProvider {
     public static final MachineComponentProvider INSTANCE = new MachineComponentProvider();
