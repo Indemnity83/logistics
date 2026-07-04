@@ -1,6 +1,5 @@
 package com.logistics.core.machine;
 
-import com.logistics.core.lib.compat.NbtCompat;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
@@ -8,9 +7,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
 /**
- * Builds the machine HUD lines from the synced tag written by {@code MachineHudData}. Only a progress line
- * while the machine is actively processing — item slots, energy, and tank contents are already shown by
- * Jade's built-ins.
+ * Builds the text portion of the machine HUD from the model synced by {@code MachineHudData}: a progress
+ * line while the machine is processing. Graphical entries (fluid tanks) are drawn by the loader-specific
+ * Jade provider, since their element API is version-specific.
  */
 public final class MachineHudLines {
 
@@ -18,11 +17,13 @@ public final class MachineHudLines {
 
     public static List<Component> build(CompoundTag data) {
         List<Component> lines = new ArrayList<>();
-        if (NbtCompat.getBoolean(data, MachineHudData.KEY_PROCESSING, false)) {
-            float progress = NbtCompat.getFloat(data, "progress", 0);
-            lines.add(Component.translatable("jade.logistics.machine.progress")
-                    .append(Component.literal(": "))
-                    .append(Component.literal(String.format("%.0f%%", progress * 100)).withStyle(ChatFormatting.GREEN)));
+        for (MachineHudModel.Entry entry : MachineHudModel.entries(data)) {
+            if (entry instanceof MachineHudModel.ProgressEntry progress) {
+                lines.add(Component.translatable("jade.logistics.machine.progress")
+                        .append(Component.literal(": "))
+                        .append(Component.literal(String.format("%.0f%%", progress.fraction() * 100))
+                                .withStyle(ChatFormatting.GREEN)));
+            }
         }
         return lines;
     }
