@@ -178,6 +178,7 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
         NetworkJob job = jobs.get(jobId);
         if (job == null || job.state().isTerminal()) return;
 
+        orderToJob.remove(failedOrderId);
         adoptReplacementOrder(job, replacementOrderId);
         NetDbg.out("[Jobs] Delivery failed for job {} | retry order {}",
                 job.id().toString().substring(0, 8),
