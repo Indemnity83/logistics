@@ -55,6 +55,11 @@ class SinkResolver {
     }
 
     void unregisterSinkInterests(BlockPos pos) {
+        removeFromSpecificInterests(pos);
+    }
+
+    /** Removes {@code pos} from every specific-interest bucket, pruning buckets left empty. */
+    private void removeFromSpecificInterests(BlockPos pos) {
         specificInterests.values().removeIf(set -> {
             set.remove(pos);
             return set.isEmpty();
@@ -83,10 +88,7 @@ class SinkResolver {
      */
     private void clearSinkState(BlockPos pos) {
         sinkRegistry.remove(pos);
-        specificInterests.values().removeIf(set -> {
-            set.remove(pos);
-            return set.isEmpty();
-        });
+        removeFromSpecificInterests(pos);
         genericInterests.remove(pos);
     }
 
