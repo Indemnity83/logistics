@@ -3,7 +3,7 @@ package com.logistics.automation.alloysmelter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.Optional;
 import net.minecraft.core.RegistryAccess;
@@ -28,7 +28,7 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
         return new AlloySmelterRecipe(
                 Ingredient.of(Items.COPPER_INGOT), 3,
                 Ingredient.of(Items.GOLD_INGOT), 1,
-                MachineResult.of(Items.IRON_INGOT, 4), 4000, 0f, Optional.empty());
+                ItemResult.of(Items.IRON_INGOT, 4), 4000, 0f, Optional.empty());
     }
 
     @Test
@@ -101,7 +101,7 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
         void roundTripPreservesByproduct() {
             AlloySmelterRecipe original = new AlloySmelterRecipe(
                     Ingredient.of(Items.COPPER_INGOT), 3, Ingredient.of(Items.GOLD_INGOT), 1,
-                    MachineResult.of(Items.IRON_INGOT, 4), 4000, 0f,
+                    ItemResult.of(Items.IRON_INGOT, 4), 4000, 0f,
                     Optional.of(new AlloySmelterByproduct(Items.GOLD_NUGGET, 0.1f)));
 
             AlloySmelterRecipe decoded = roundTrip(original);

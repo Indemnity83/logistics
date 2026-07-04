@@ -1,7 +1,7 @@
 package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.lib.recipe.MachineResult;
+import com.logistics.core.lib.recipe.ItemResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
@@ -35,14 +35,14 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
 
     private final Ingredient ingredient;
     private final int ingredientCount;
-    private final MachineResult result;
+    private final ItemResult result;
     private final int energyRequired;
     private final float experience;
     private final Optional<MaceratorByproduct> byproduct;
     @Nullable private PlacementInfo placementInfo;
 
     public MaceratorRecipeWrapper(
-            Ingredient ingredient, int ingredientCount, MachineResult result, int energyRequired, float experience,
+            Ingredient ingredient, int ingredientCount, ItemResult result, int energyRequired, float experience,
             Optional<MaceratorByproduct> byproduct) {
         if (energyRequired <= 0) {
             throw new IllegalArgumentException("energyRequired must be positive, got " + energyRequired);
@@ -67,7 +67,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
         return ingredientCount;
     }
 
-    public MachineResult result() {
+    public ItemResult result() {
         return result;
     }
 
