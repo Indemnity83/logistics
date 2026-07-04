@@ -1,6 +1,7 @@
 package com.logistics.automation.sawmill;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.test.MinecraftTestEnvironment;
@@ -87,6 +88,16 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
         assertThat(oakLogRecipe().energy()).isEqualTo(2000);
     }
 
+    @Test
+    @DisplayName("should reject non-positive energy")
+    void rejectsNonPositiveEnergy() {
+        for (int energy : new int[] {0, -1}) {
+            assertThatThrownBy(() -> new SawmillRecipe(
+                            Ingredient.of(Items.OAK_LOG), 1, ItemResult.of(Items.OAK_PLANKS, 6), Optional.empty(), energy))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
     // ==================== serializer codec round-trip ====================
 
     @Nested
@@ -150,23 +161,6 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
             assertThat(decoded.byproduct().get().chance()).isEqualTo(0.5f);
 
             assertThat(streamRoundTrip(oakLogRecipe()).byproduct()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("omits energy when default and decodes it back to the default")
-        void defaultEnergyIsOptional() {
-            SawmillRecipe original = new SawmillRecipe(
-                    Ingredient.of(Items.OAK_LOG),
-                    1,
-                    ItemResult.of(Items.OAK_PLANKS, 6),
-                    Optional.empty(),
-                    SawmillRecipe.DEFAULT_ENERGY);
-
-            Tag encoded = SawmillRecipeSerializer.CODEC.codec().encodeStart(ops, original).getOrThrow();
-            assertThat(((CompoundTag) encoded).contains("energy")).isFalse();
-
-            SawmillRecipe decoded = SawmillRecipeSerializer.CODEC.codec().parse(ops, encoded).getOrThrow();
-            assertThat(decoded.energy()).isEqualTo(SawmillRecipe.DEFAULT_ENERGY);
         }
 
         private SawmillRecipe roundTrip(SawmillRecipe recipe) {

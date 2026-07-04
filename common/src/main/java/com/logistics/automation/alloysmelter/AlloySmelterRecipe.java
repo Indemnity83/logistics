@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
 
-    public static final int DEFAULT_ENERGY = 4000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
 
     private final Ingredient inputA;
