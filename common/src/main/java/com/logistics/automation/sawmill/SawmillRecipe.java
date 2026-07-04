@@ -26,23 +26,31 @@ import org.jetbrains.annotations.Nullable;
 public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
     public static final int DEFAULT_INGREDIENT_COUNT = 1;
+    public static final float DEFAULT_EXPERIENCE = 0.0f;
 
     private final Ingredient ingredient;
     private final int ingredientCount;
     private final ItemResult result;
     private final Optional<SawmillByproduct> byproduct;
     private final int energy;
+    private final float experience;
     @Nullable private PlacementInfo placementInfo;
 
-    public SawmillRecipe(Ingredient ingredient, int ingredientCount, ItemResult result, Optional<SawmillByproduct> byproduct, int energy) {
+    public SawmillRecipe(
+            Ingredient ingredient, int ingredientCount, ItemResult result, Optional<SawmillByproduct> byproduct,
+            int energy, float experience) {
         if (energy <= 0) {
             throw new IllegalArgumentException("energy must be positive, got " + energy);
+        }
+        if (experience < 0) {
+            throw new IllegalArgumentException("experience must not be negative, got " + experience);
         }
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;
         this.byproduct = byproduct;
         this.energy = energy;
+        this.experience = experience;
     }
 
     public Ingredient ingredient() {
@@ -65,6 +73,10 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
     /** Total RF this cut consumes; the machine drains it at a fixed RF/t. */
     public int energy() {
         return energy;
+    }
+
+    public float experience() {
+        return experience;
     }
 
     /** The primary product as a fresh stack. */
@@ -126,7 +138,8 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
             ingredient.display(),
             result.slotDisplay(),
             new SlotDisplay.ItemSlotDisplay(LogisticsAutomation.BLOCK.SAWMILL.asItem()),
-            energy
+            energy,
+            experience
         ));
     }
 }
