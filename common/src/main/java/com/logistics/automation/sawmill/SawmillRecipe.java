@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class SawmillRecipe implements Recipe<SingleRecipeInput> {
 
-    public static final int DEFAULT_ENERGY = 200;
     public static final int DEFAULT_INGREDIENT_COUNT = 1;
 
     private final Ingredient ingredient;
@@ -29,6 +28,9 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
     private final int energy;
 
     public SawmillRecipe(Ingredient ingredient, int ingredientCount, ItemResult result, Optional<SawmillByproduct> byproduct, int energy) {
+        if (energy <= 0) {
+            throw new IllegalArgumentException("energy must be positive, got " + energy);
+        }
         this.ingredient = ingredient;
         this.ingredientCount = ingredientCount;
         this.result = result;

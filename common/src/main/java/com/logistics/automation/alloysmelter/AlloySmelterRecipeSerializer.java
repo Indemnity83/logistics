@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 /**
  * Serializer for alloy-smelter recipes. The two inputs are an unordered {@code ingredients} array of
  * exactly two entries (each a bare ingredient or a {@code {"id":…, "count":N}} object); {@code energy}
- * and {@code experience} are optional, and {@code byproduct} (with its own chance) is optional.
+ * is required, and {@code experience} and {@code byproduct} (with its own chance) are optional.
  */
 public class AlloySmelterRecipeSerializer {
 
@@ -29,9 +29,7 @@ public class AlloySmelterRecipeSerializer {
             .fieldOf("ingredients")
             .forGetter(AlloySmelterRecipe::ingredientList),
         ItemResult.CODEC.fieldOf("result").forGetter(AlloySmelterRecipe::result),
-        Codec.intRange(1, Integer.MAX_VALUE)
-            .optionalFieldOf("energy", AlloySmelterRecipe.DEFAULT_ENERGY)
-            .forGetter(AlloySmelterRecipe::energy),
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(AlloySmelterRecipe::energy),
         Codec.FLOAT
             .optionalFieldOf("experience", AlloySmelterRecipe.DEFAULT_EXPERIENCE)
             .forGetter(AlloySmelterRecipe::experience),
