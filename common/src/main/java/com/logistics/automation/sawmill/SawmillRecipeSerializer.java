@@ -13,7 +13,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
  * Serializer for sawmill recipes. Accepts item-id strings, tag strings ("#minecraft:oak_logs"),
- * or ingredient objects. {@code energy} is optional; {@code byproduct} carries its own chance.
+ * or ingredient objects. {@code energy} is required; {@code byproduct} carries its own chance.
  */
 public class SawmillRecipeSerializer {
 
@@ -24,9 +24,7 @@ public class SawmillRecipeSerializer {
             .forGetter(SawmillRecipe::ingredientCount),
         ItemResult.CODEC.fieldOf("result").forGetter(SawmillRecipe::result),
         SawmillByproduct.CODEC.optionalFieldOf("byproduct").forGetter(SawmillRecipe::byproduct),
-        Codec.intRange(0, Integer.MAX_VALUE)
-            .optionalFieldOf("energy", SawmillRecipe.DEFAULT_ENERGY)
-            .forGetter(SawmillRecipe::energy)
+        Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(SawmillRecipe::energy)
     ).apply(i, SawmillRecipe::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SawmillRecipe> STREAM_CODEC =
