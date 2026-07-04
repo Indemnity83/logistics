@@ -81,6 +81,14 @@ class CrafterSnapshotTest extends MinecraftTestEnvironment {
         }
 
         @Test
+        @DisplayName("rejects a null ingredient list")
+        void rejectsNullIngredients() {
+            assertThatThrownBy(() ->
+                            new CrafterSnapshot(BlockPos.ZERO, key(), 4, null, new CrafterBufferState(1, 1)))
+                    .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
         @DisplayName("rejects a non-positive output count")
         void rejectsNonPositiveOutputCount() {
             assertThatThrownBy(() ->
