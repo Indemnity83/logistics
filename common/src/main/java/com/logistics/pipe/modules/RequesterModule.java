@@ -290,15 +290,12 @@ public class RequesterModule implements Module, TickingModule {
         if (available == 0) {
             // Nothing can produce this item
             NetDbg.out("[Requester @ {}] No supply found for {} (need={})", ctx.pos(), stack.getItem(), amount);
-            sendAlert(ctx, Component.literal(
-                    "[Logistics] Cannot fill order for " + itemName + " \u2014 not available in network"));
+            sendOrderFailure(ctx, itemName, "not available in network");
             return;
         }
         if (available != Long.MAX_VALUE && available < amount) {
             // Directly stocked item with insufficient quantity (not craftable)
-            sendAlert(ctx, Component.literal(
-                    "[Logistics] Cannot fill order for " + itemName + " \u2014 only "
-                            + available + " available, need " + amount));
+            sendOrderFailure(ctx, itemName, "only " + available + " available, need " + amount);
             return;
         }
 
@@ -311,14 +308,17 @@ public class RequesterModule implements Module, TickingModule {
                 String missingNames = missing.stream()
                         .map(k -> k.toStack(1).getHoverName().getString())
                         .collect(Collectors.joining(", "));
-                sendAlert(ctx, Component.literal(
-                        "[Logistics] Cannot fill order for " + itemName
-                                + " \u2014 missing ingredients: " + missingNames));
+                sendOrderFailure(ctx, itemName, "missing ingredients: " + missingNames);
                 return;
             }
         }
 
         network.placeOrder(key, amount, ctx.pos(), FulfillmentMode.FULL);
+    }
+
+    /** Alerts nearby players that an order for {@code itemName} could not be filled, with the given reason. */
+    private void sendOrderFailure(PipeContext ctx, String itemName, String reason) {
+        sendAlert(ctx, Component.literal("[Logistics] Cannot fill order for " + itemName + " — " + reason));
     }
 
     private void sendAlert(PipeContext ctx, Component msg) {
