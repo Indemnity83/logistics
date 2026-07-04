@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -177,6 +178,26 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
         assertNotNull(retry, "Failed remainder should create a replacement order");
         assertEquals(replacementOrderId, retry.orderId());
         assertEquals(20, retry.amount());
+    }
+
+    @Test
+    void testOnDeliveryFailed_dropsStaleOrderIndex_soLateFailureOfOldOrderIsIgnored() {
+        controller.registerSupply(PROVIDER, Map.of(diamond(), 64L), 1);
+        NetworkJob job = coordinator.submit(partialRequest(diamond(), 16, DESTINATION));
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 16);
+        UUID replacementOrderId = controller.notifyDeliveryFailed(cmd.orderId(), DESTINATION, diamond(), 16);
+        coordinator.onDeliveryFailed(cmd.orderId(), replacementOrderId);
+        assertEquals(JobState.ACTIVE, job.state());
+
+        // A late failure callback for the superseded order must not touch a job that is actively
+        // retrying — onDeliveryFailed drops the old order's index entry, so this resolves to no job.
+        coordinator.onOrderFailed(cmd.orderId(), DESTINATION, diamond(), 16, List.of());
+
+        assertEquals(JobState.ACTIVE, job.state());
+        assertTrue(coordinator.activeJobs().contains(job));
     }
 
     @Test
