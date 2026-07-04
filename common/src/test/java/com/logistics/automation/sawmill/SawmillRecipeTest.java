@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.core.lib.recipe.ItemResult;
+import com.logistics.core.lib.recipe.RecipeByproduct;
 import com.logistics.test.MinecraftTestEnvironment;
 import io.netty.buffer.Unpooled;
 import java.util.Optional;
@@ -167,7 +168,7 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
                     Ingredient.of(Items.OAK_LOG),
                     1,
                     ItemResult.of(Items.OAK_PLANKS, 6),
-                    Optional.of(new SawmillByproduct(Items.STICK, 0.5f)),
+                    Optional.of(new RecipeByproduct(Items.STICK, 0.5f)),
                     2000,
                     SawmillRecipe.DEFAULT_EXPERIENCE);
 
@@ -187,7 +188,7 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
                     Ingredient.of(Items.OAK_LOG),
                     1,
                     ItemResult.of(Items.OAK_PLANKS, 6),
-                    Optional.of(new SawmillByproduct(Items.STICK, 0.5f)),
+                    Optional.of(new RecipeByproduct(Items.STICK, 0.5f)),
                     2000,
                     SawmillRecipe.DEFAULT_EXPERIENCE);
 
