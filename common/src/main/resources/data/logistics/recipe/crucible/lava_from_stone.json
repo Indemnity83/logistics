@@ -15,5 +15,5 @@
     "minecraft:obsidian"
   ],
   "result": { "fluid": "minecraft:lava", "amount": 1000 },
-  "energyrequired": 300000
+  "energy": 300000
 }

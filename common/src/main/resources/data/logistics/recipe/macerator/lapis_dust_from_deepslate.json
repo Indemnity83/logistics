@@ -5,7 +5,7 @@
     "id": "logistics:core/lapis_dust",
     "count": 8
   },
-  "energyrequired": 2000,
+  "energy": 2000,
   "experience": 0.2,
   "byproduct": {
     "id": "logistics:core/sulfur_dust",
