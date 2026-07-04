@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.8.2](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.1...mc26.2-v0.8.2) (2026-07-04)
+
+
+### Added
+
+* **automation:** add pulped biomass from the sawmill ([#660](https://github.com/Indemnity83/logistics/issues/660)) ([6a83220](https://github.com/Indemnity83/logistics/commit/6a83220185f68f8298543e7745b90191f4f7f457))
+* **automation:** add the alloy smelter ([#656](https://github.com/Indemnity83/logistics/issues/656)) ([3ee3325](https://github.com/Indemnity83/logistics/commit/3ee33250f5673033c29f7a014080db2ab0b38c20))
+* **automation:** add the crucible ([#679](https://github.com/Indemnity83/logistics/issues/679)) ([e3eff42](https://github.com/Indemnity83/logistics/commit/e3eff42eacf4d61240bde8d738d5bd2f40a26833))
+* **fluids:** add custom fluids and buckets for the Magma Crucible ([6b988d6](https://github.com/Indemnity83/logistics/commit/6b988d63216ce054919f434a2381b82b24ff0e6c))
+* **fluids:** light-emitting fluids glow in pipes and tanks ([#695](https://github.com/Indemnity83/logistics/issues/695)) ([c713692](https://github.com/Indemnity83/logistics/commit/c7136928281c87322ceaa65792e926a5b6d72710))
+* **fluids:** show machine fluid tanks in the Jade HUD ([#703](https://github.com/Indemnity83/logistics/issues/703)) ([ad8c057](https://github.com/Indemnity83/logistics/commit/ad8c057ac461210ad27f2b652a2fa522fc8dcce6))
+* **worldgen:** add bog earth and peat fuel ([#658](https://github.com/Indemnity83/logistics/issues/658)) ([f6b9b17](https://github.com/Indemnity83/logistics/commit/f6b9b17bf83ed83876ab769cf9203dcba65f07f4))
+* **worldgen:** add crude oil and the oil chain ([#690](https://github.com/Indemnity83/logistics/issues/690)) ([f89aa1a](https://github.com/Indemnity83/logistics/commit/f89aa1aa2afe648bb3f567f41cf4cc6bf826843e))
+
+
+### Fixed
+
+* **automation:** reject non-finite recipe experience values ([bca2ef4](https://github.com/Indemnity83/logistics/commit/bca2ef498309e59391dc1d753fb6d056ab5ea35a))
+* **automation:** sync machine progress and energy so bars can't overflow ([#694](https://github.com/Indemnity83/logistics/issues/694)) ([e5a8991](https://github.com/Indemnity83/logistics/commit/e5a89911407b58ad620275c574c63b47db39c6a2))
+* **ci:** stop Sentry release failing on cross-branch set-commits ([#683](https://github.com/Indemnity83/logistics/issues/683)) ([f175426](https://github.com/Indemnity83/logistics/commit/f17542687d2da52251ae5288797db7ca2f9019f4))
+* **ci:** unblock release publishing broken by Sentry set-commits ([#678](https://github.com/Indemnity83/logistics/issues/678)) ([849df6b](https://github.com/Indemnity83/logistics/commit/849df6b88fe6abc79695f643c195da69f5c155d3))
+* **compat:** add missing Jade fluid-pipe config translation ([#701](https://github.com/Indemnity83/logistics/issues/701)) ([fc7575d](https://github.com/Indemnity83/logistics/commit/fc7575d9116172214ee8afda1b59ffe9232221c7))
+* **fluids:** render custom fluids in the look-at HUD ([#706](https://github.com/Indemnity83/logistics/issues/706)) ([4cb29af](https://github.com/Indemnity83/logistics/commit/4cb29af5423e98d48d42589a90f066b7584464a3))
+* **fluids:** stop drained pipes rendering a checkerboard ([#696](https://github.com/Indemnity83/logistics/issues/696)) ([ceece30](https://github.com/Indemnity83/logistics/commit/ceece3008c47c4569894610d7f40c5886e1d7c43))
+* **fluids:** stop fluid extractor pipes from connecting to each other ([#692](https://github.com/Indemnity83/logistics/issues/692)) ([97b68df](https://github.com/Indemnity83/logistics/commit/97b68dfaa35104a4fbc5a771bfa5f77ceb530b06))
+* **neoforge:** stop the creative menu crashing on duplicate items ([#702](https://github.com/Indemnity83/logistics/issues/702)) ([ed04eb7](https://github.com/Indemnity83/logistics/commit/ed04eb7cc0ad9093bbbfe24755ef85ce3da88fd5))
+* **pump:** make the pump tank output-only ([#693](https://github.com/Indemnity83/logistics/issues/693)) ([b9a814f](https://github.com/Indemnity83/logistics/commit/b9a814f1e98010648bdf446713c393795a0ef54c))
+* **routing:** drop the failed order's index entry on delivery retry ([482c223](https://github.com/Indemnity83/logistics/commit/482c223f8c35093880c60977f5eedcef4d0487f6))
+
 ## [0.8.1](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.0...mc26.2-v0.8.1) (2026-06-30)
 
 
