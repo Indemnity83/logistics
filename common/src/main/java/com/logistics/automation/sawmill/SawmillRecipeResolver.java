@@ -44,7 +44,7 @@ public final class SawmillRecipeResolver implements RecipeResolver {
                             recipe.ingredientCount(),
                             recipe.getResultItem(),
                             byproducts,
-                            0f);
+                            recipe.experience());
                 })
                 .orElse(null);
     }

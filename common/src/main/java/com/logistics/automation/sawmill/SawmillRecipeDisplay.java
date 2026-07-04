@@ -14,14 +14,16 @@ public record SawmillRecipeDisplay(
     SlotDisplay ingredient,
     SlotDisplay result,
     SlotDisplay craftingStation,
-    int energy
+    int energy,
+    float experience
 ) implements RecipeDisplay {
 
     public static final MapCodec<SawmillRecipeDisplay> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         SlotDisplay.CODEC.fieldOf("ingredient").forGetter(SawmillRecipeDisplay::ingredient),
         SlotDisplay.CODEC.fieldOf("result").forGetter(SawmillRecipeDisplay::result),
         SlotDisplay.CODEC.fieldOf("crafting_station").forGetter(SawmillRecipeDisplay::craftingStation),
-        Codec.INT.fieldOf("energy").forGetter(SawmillRecipeDisplay::energy)
+        Codec.INT.fieldOf("energy").forGetter(SawmillRecipeDisplay::energy),
+        Codec.FLOAT.fieldOf("experience").forGetter(SawmillRecipeDisplay::experience)
     ).apply(i, SawmillRecipeDisplay::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SawmillRecipeDisplay> STREAM_CODEC =
@@ -30,6 +32,7 @@ public record SawmillRecipeDisplay(
             SlotDisplay.STREAM_CODEC, SawmillRecipeDisplay::result,
             SlotDisplay.STREAM_CODEC, SawmillRecipeDisplay::craftingStation,
             ByteBufCodecs.VAR_INT, SawmillRecipeDisplay::energy,
+            ByteBufCodecs.FLOAT, SawmillRecipeDisplay::experience,
             SawmillRecipeDisplay::new
         );
 
