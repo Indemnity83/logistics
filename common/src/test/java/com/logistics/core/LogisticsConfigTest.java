@@ -288,4 +288,30 @@ class LogisticsConfigTest {
         assertThat(loaded.engine.redstoneOutput).isEqualTo(42L);
         assertThat(loaded.crashReporting.enabled).isTrue();
     }
+
+    @Test
+    @DisplayName("self-storing builder entries store, validate, reset, and enforce cross-field rules")
+    void selfStoringBuilderEntries() {
+        LogisticsConfig.ConfigEntry<Double> max =
+                LogisticsConfig.regDouble("test_max", "test ceiling").defaultsTo(10.0).min(0.0).register();
+        LogisticsConfig.ConfigEntry<Double> min =
+                LogisticsConfig.regDouble("test_min", "test floor").defaultsTo(2.0).min(0.0).max(() -> max).register();
+
+        // Holds its own value.
+        min.setFromString("3.0");
+        assertThat(min.get()).isEqualTo(3.0);
+
+        // Single-field rule.
+        assertThatThrownBy(() -> max.setFromString("-1")).isInstanceOf(IllegalArgumentException.class);
+
+        // Cross-field rule: min must stay <= max.
+        assertThatThrownBy(() -> min.setFromString("11"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("test_max");
+
+        // Sanitize resets an out-of-range value to the default.
+        min.loadFromString("-5");
+        min.sanitize();
+        assertThat(min.get()).isEqualTo(2.0);
+    }
 }

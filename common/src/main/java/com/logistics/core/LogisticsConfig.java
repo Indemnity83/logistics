@@ -14,8 +14,10 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -249,7 +251,7 @@ public final class LogisticsConfig {
     static JsonObject serialize() {
         JsonObject root = new JsonObject();
         for (ConfigEntry<?> entry : ENTRIES.values()) {
-            root.add(entry.key(), toJson(entry.getter().get()));
+            root.add(entry.key(), toJson(entry.get()));
         }
         root.add("crash_reporting", GSON.toJsonTree(INSTANCE.crashReporting));
         return root;
@@ -450,17 +452,48 @@ public final class LogisticsConfig {
 
     // ==================== ConfigEntry ====================
 
-    public record ConfigEntry<T>(
-            String key,
-            String description,
-            Supplier<T> getter,
-            Consumer<T> setter,
-            Function<String, T> parser,
-            Consumer<T> validator,
-            Supplier<T> defaultValue,
-            Consumer<T> crossFieldValidator) {
+    /**
+     * A single config value. Two flavors: a <em>bridge</em> entry reads/writes an external field via
+     * getter/setter (legacy path); a <em>self-storing</em> entry (built via {@link #regInt} etc.) holds
+     * its own value. Both expose the same {@link #get()}/{@link #setFromString}/{@link #sanitize} surface.
+     */
+    public static final class ConfigEntry<T> {
+        private final String key;
+        private final String description;
+        private final Function<String, T> parser;
+        private final Consumer<T> validator;
+        private final Consumer<T> crossFieldValidator;
 
-        /** Entry with no cross-field constraint. */
+        private final boolean selfStoring;
+        private final Supplier<T> getter;
+        private final Consumer<T> setter;
+        private final Supplier<T> defaultSupplier;
+        private final T defaultConstant;
+        private volatile T value;
+
+        /** Bridge entry backed by an external field. */
+        public ConfigEntry(
+                String key,
+                String description,
+                Supplier<T> getter,
+                Consumer<T> setter,
+                Function<String, T> parser,
+                Consumer<T> validator,
+                Supplier<T> defaultValue,
+                Consumer<T> crossFieldValidator) {
+            this.key = key;
+            this.description = description;
+            this.parser = parser;
+            this.validator = validator;
+            this.crossFieldValidator = crossFieldValidator;
+            this.selfStoring = false;
+            this.getter = getter;
+            this.setter = setter;
+            this.defaultSupplier = defaultValue;
+            this.defaultConstant = null;
+        }
+
+        /** Bridge entry with no cross-field constraint. */
         public ConfigEntry(
                 String key,
                 String description,
@@ -472,40 +505,310 @@ public final class LogisticsConfig {
             this(key, description, getter, setter, parser, validator, defaultValue, v -> {});
         }
 
+        /** Self-storing entry that holds its own value. */
+        ConfigEntry(
+                String key,
+                String description,
+                Function<String, T> parser,
+                Consumer<T> validator,
+                Consumer<T> crossFieldValidator,
+                T defaultValue) {
+            this.key = key;
+            this.description = description;
+            this.parser = parser;
+            this.validator = validator;
+            this.crossFieldValidator = crossFieldValidator;
+            this.selfStoring = true;
+            this.getter = null;
+            this.setter = null;
+            this.defaultSupplier = null;
+            this.defaultConstant = defaultValue;
+            this.value = defaultValue;
+        }
+
+        public String key() {
+            return key;
+        }
+
+        public String description() {
+            return description;
+        }
+
+        /** The current value. */
+        public T get() {
+            return selfStoring ? value : getter.get();
+        }
+
+        private void set(T v) {
+            if (selfStoring) {
+                value = v;
+            } else {
+                setter.accept(v);
+            }
+        }
+
+        private T defaultValue() {
+            return selfStoring ? defaultConstant : defaultSupplier.get();
+        }
+
         /** Returns the current value as a string. */
         public String getAsString() {
-            return String.valueOf(getter.get());
+            return String.valueOf(get());
         }
 
         /** Parse {@code raw} and set it WITHOUT validation. Load path — {@link LogisticsConfig#sanitize} repairs after. */
         public void loadFromString(String raw) {
-            setter.accept(parser.apply(raw));
+            set(parser.apply(raw));
         }
 
         /** Validate the current value; on failure reset it to the default and log a warning. */
         public void sanitize() {
-            T value = getter.get();
+            T current = get();
             try {
-                validator.accept(value);
+                validator.accept(current);
             } catch (IllegalArgumentException e) {
-                T replacement = defaultValue.get();
-                setter.accept(replacement);
+                T replacement = defaultValue();
+                set(replacement);
                 LOGGER.warn(
                         "Invalid logistics config value {}={}: {}; using default {}",
-                        key, value, e.getMessage(), replacement);
+                        key, current, e.getMessage(), replacement);
             }
         }
 
         /**
-         * Parse {@code value} and apply it. Throws if parsing fails.
+         * Parse {@code value} and apply it. Throws if parsing or validation fails.
          * Callers should call {@link LogisticsConfig#save()} afterward.
          */
-        @SuppressWarnings("unchecked")
         public void setFromString(String value) {
             T parsed = parser.apply(value);
             validator.accept(parsed);
             crossFieldValidator.accept(parsed);
-            ((Consumer<T>) setter).accept(parsed);
+            set(parsed);
+        }
+    }
+
+    // ==================== Fluent entry builders (self-storing) ====================
+
+    public static IntEntryBuilder regInt(String key, String description) {
+        return new IntEntryBuilder(key, description);
+    }
+
+    public static LongEntryBuilder regLong(String key, String description) {
+        return new LongEntryBuilder(key, description);
+    }
+
+    public static FloatEntryBuilder regFloat(String key, String description) {
+        return new FloatEntryBuilder(key, description);
+    }
+
+    public static DoubleEntryBuilder regDouble(String key, String description) {
+        return new DoubleEntryBuilder(key, description);
+    }
+
+    public static BoolEntryBuilder regBool(String key, String description) {
+        return new BoolEntryBuilder(key, description);
+    }
+
+    private static <T> Consumer<T> composeRules(List<Consumer<T>> rules) {
+        return value -> rules.forEach(rule -> rule.accept(value));
+    }
+
+    public static final class IntEntryBuilder {
+        private final String key;
+        private final String description;
+        private final List<Consumer<Integer>> rules = new ArrayList<>();
+        private Consumer<Integer> crossField = v -> {};
+        private Integer defaultValue;
+
+        IntEntryBuilder(String key, String description) {
+            this.key = key;
+            this.description = description;
+        }
+
+        public IntEntryBuilder defaultsTo(int value) {
+            this.defaultValue = value;
+            return this;
+        }
+
+        public IntEntryBuilder min(int min) {
+            rules.add(v -> requireCondition(v >= min, "must be greater than or equal to " + min));
+            return this;
+        }
+
+        public IntEntryBuilder max(int max) {
+            rules.add(v -> requireCondition(v <= max, "must be less than or equal to " + max));
+            return this;
+        }
+
+        public ConfigEntry<Integer> register() {
+            ConfigEntry<Integer> entry = new ConfigEntry<>(
+                    key, description, Integer::parseInt, composeRules(rules), crossField, defaultValue);
+            LogisticsConfig.register(entry);
+            return entry;
+        }
+    }
+
+    public static final class LongEntryBuilder {
+        private final String key;
+        private final String description;
+        private final List<Consumer<Long>> rules = new ArrayList<>();
+        private Consumer<Long> crossField = v -> {};
+        private Long defaultValue;
+
+        LongEntryBuilder(String key, String description) {
+            this.key = key;
+            this.description = description;
+        }
+
+        public LongEntryBuilder defaultsTo(long value) {
+            this.defaultValue = value;
+            return this;
+        }
+
+        public LongEntryBuilder min(long min) {
+            rules.add(v -> requireCondition(v >= min, "must be greater than or equal to " + min));
+            return this;
+        }
+
+        public LongEntryBuilder max(long max) {
+            rules.add(v -> requireCondition(v <= max, "must be less than or equal to " + max));
+            return this;
+        }
+
+        public ConfigEntry<Long> register() {
+            ConfigEntry<Long> entry = new ConfigEntry<>(
+                    key, description, Long::parseLong, composeRules(rules), crossField, defaultValue);
+            LogisticsConfig.register(entry);
+            return entry;
+        }
+    }
+
+    public static final class FloatEntryBuilder {
+        private final String key;
+        private final String description;
+        private final List<Consumer<Float>> rules = new ArrayList<>();
+        private Consumer<Float> crossField = v -> {};
+        private Float defaultValue;
+
+        FloatEntryBuilder(String key, String description) {
+            this.key = key;
+            this.description = description;
+            rules.add(v -> requireCondition(Float.isFinite(v), "must be a finite number"));
+        }
+
+        public FloatEntryBuilder defaultsTo(float value) {
+            this.defaultValue = value;
+            return this;
+        }
+
+        public FloatEntryBuilder min(float min) {
+            rules.add(v -> requireCondition(v >= min, "must be greater than or equal to " + min));
+            return this;
+        }
+
+        public FloatEntryBuilder max(float max) {
+            rules.add(v -> requireCondition(v <= max, "must be less than or equal to " + max));
+            return this;
+        }
+
+        public FloatEntryBuilder greaterThan(float minExclusive) {
+            rules.add(v -> requireCondition(v > minExclusive, "must be greater than " + minExclusive));
+            return this;
+        }
+
+        public FloatEntryBuilder min(Supplier<ConfigEntry<Float>> other) {
+            crossField = v -> requireCondition(
+                    v >= other.get().get(), "must be greater than or equal to " + other.get().key());
+            return this;
+        }
+
+        public FloatEntryBuilder max(Supplier<ConfigEntry<Float>> other) {
+            crossField = v -> requireCondition(
+                    v <= other.get().get(), "must be less than or equal to " + other.get().key());
+            return this;
+        }
+
+        public ConfigEntry<Float> register() {
+            ConfigEntry<Float> entry = new ConfigEntry<>(
+                    key, description, Float::parseFloat, composeRules(rules), crossField, defaultValue);
+            LogisticsConfig.register(entry);
+            return entry;
+        }
+    }
+
+    public static final class DoubleEntryBuilder {
+        private final String key;
+        private final String description;
+        private final List<Consumer<Double>> rules = new ArrayList<>();
+        private Consumer<Double> crossField = v -> {};
+        private Double defaultValue;
+
+        DoubleEntryBuilder(String key, String description) {
+            this.key = key;
+            this.description = description;
+            rules.add(v -> requireCondition(Double.isFinite(v), "must be a finite number"));
+        }
+
+        public DoubleEntryBuilder defaultsTo(double value) {
+            this.defaultValue = value;
+            return this;
+        }
+
+        public DoubleEntryBuilder min(double min) {
+            rules.add(v -> requireCondition(v >= min, "must be greater than or equal to " + min));
+            return this;
+        }
+
+        public DoubleEntryBuilder max(double max) {
+            rules.add(v -> requireCondition(v <= max, "must be less than or equal to " + max));
+            return this;
+        }
+
+        public DoubleEntryBuilder greaterThan(double minExclusive) {
+            rules.add(v -> requireCondition(v > minExclusive, "must be greater than " + minExclusive));
+            return this;
+        }
+
+        public DoubleEntryBuilder min(Supplier<ConfigEntry<Double>> other) {
+            crossField = v -> requireCondition(
+                    v >= other.get().get(), "must be greater than or equal to " + other.get().key());
+            return this;
+        }
+
+        public DoubleEntryBuilder max(Supplier<ConfigEntry<Double>> other) {
+            crossField = v -> requireCondition(
+                    v <= other.get().get(), "must be less than or equal to " + other.get().key());
+            return this;
+        }
+
+        public ConfigEntry<Double> register() {
+            ConfigEntry<Double> entry = new ConfigEntry<>(
+                    key, description, Double::parseDouble, composeRules(rules), crossField, defaultValue);
+            LogisticsConfig.register(entry);
+            return entry;
+        }
+    }
+
+    public static final class BoolEntryBuilder {
+        private final String key;
+        private final String description;
+        private Boolean defaultValue;
+
+        BoolEntryBuilder(String key, String description) {
+            this.key = key;
+            this.description = description;
+        }
+
+        public BoolEntryBuilder defaultsTo(boolean value) {
+            this.defaultValue = value;
+            return this;
+        }
+
+        public ConfigEntry<Boolean> register() {
+            ConfigEntry<Boolean> entry = new ConfigEntry<>(
+                    key, description, LogisticsConfig::parseBooleanStrict, v -> {}, v -> {}, defaultValue);
+            LogisticsConfig.register(entry);
+            return entry;
         }
     }
 }
