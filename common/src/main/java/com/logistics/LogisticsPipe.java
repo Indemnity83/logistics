@@ -38,6 +38,9 @@ import java.util.Map;
 public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsPipe INSTANCE = new LogisticsPipe();
 
+    /** Largest pump search radius whose square still fits in an int ({@code 46340^2 < Integer.MAX_VALUE}). */
+    private static final long MAX_PUMP_SEARCH_RADIUS = 46_340L;
+
     @Override
     protected String domain() {
         return "pipe";
@@ -89,6 +92,96 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 Double::parseDouble,
                 v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
                 () -> (double) defaults.pipe.injectSpeed);
+
+        // Fluid pipes
+        LogisticsConfig.reg("fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
+                () -> (long) LogisticsConfig.get().fluidPipe.baseTransferRate,
+                v -> LogisticsConfig.get().fluidPipe.baseTransferRate = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireRange(
+                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
+                () -> (long) defaults.fluidPipe.baseTransferRate);
+        LogisticsConfig.reg("fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)",
+                () -> (long) LogisticsConfig.get().fluidPipe.baseCapacity,
+                v -> LogisticsConfig.get().fluidPipe.baseCapacity = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireRange(
+                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
+                () -> (long) defaults.fluidPipe.baseCapacity);
+        LogisticsConfig.reg("fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
+                () -> LogisticsConfig.get().fluidPipe.woodenRequiresEngine,
+                v -> LogisticsConfig.get().fluidPipe.woodenRequiresEngine = v,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {},
+                () -> defaults.fluidPipe.woodenRequiresEngine);
+        LogisticsConfig.reg("fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
+                () -> LogisticsConfig.get().fluidPipe.activeExtraction,
+                v -> LogisticsConfig.get().fluidPipe.activeExtraction = v,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {},
+                () -> defaults.fluidPipe.activeExtraction);
+
+        // Fluid pump
+        LogisticsConfig.reg("fluid_pump_tank_capacity_mb", "Fluid Pump tank capacity (mB)",
+                () -> (long) LogisticsConfig.get().fluidPump.tankCapacityMb,
+                v -> LogisticsConfig.get().fluidPump.tankCapacityMb = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireRange(
+                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
+                () -> (long) defaults.fluidPump.tankCapacityMb);
+        LogisticsConfig.reg("fluid_pump_energy_capacity", "Fluid Pump energy buffer capacity (RF)",
+                () -> LogisticsConfig.get().fluidPump.energyCapacity,
+                v -> LogisticsConfig.get().fluidPump.energyCapacity = v,
+                Long::parseLong,
+                v -> LogisticsConfig.requireMin(v, 1L, "must be greater than or equal to 1"),
+                () -> defaults.fluidPump.energyCapacity);
+        LogisticsConfig.reg("fluid_pump_max_energy_input", "Fluid Pump max energy input (RF/t)",
+                () -> LogisticsConfig.get().fluidPump.maxEnergyInput,
+                v -> LogisticsConfig.get().fluidPump.maxEnergyInput = v,
+                Long::parseLong,
+                v -> LogisticsConfig.requireMin(v, 1L, "must be greater than or equal to 1"),
+                () -> defaults.fluidPump.maxEnergyInput);
+        LogisticsConfig.reg("fluid_pump_energy_per_source", "RF consumed per source block pumped",
+                () -> LogisticsConfig.get().fluidPump.energyPerSource,
+                v -> LogisticsConfig.get().fluidPump.energyPerSource = v,
+                Long::parseLong,
+                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
+                () -> defaults.fluidPump.energyPerSource);
+        LogisticsConfig.reg("fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)",
+                () -> (long) LogisticsConfig.get().fluidPump.pushRateMb,
+                v -> LogisticsConfig.get().fluidPump.pushRateMb = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireRange(
+                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
+                () -> (long) defaults.fluidPump.pushRateMb);
+        LogisticsConfig.reg("fluid_pump_interval_ticks", "Fluid Pump source pickup interval (ticks)",
+                () -> (long) LogisticsConfig.get().fluidPump.pumpIntervalTicks,
+                v -> LogisticsConfig.get().fluidPump.pumpIntervalTicks = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireRange(
+                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
+                () -> (long) defaults.fluidPump.pumpIntervalTicks);
+        LogisticsConfig.reg("fluid_pump_search_radius", "Fluid Pump connected source search radius",
+                () -> (long) LogisticsConfig.get().fluidPump.searchRadius,
+                v -> LogisticsConfig.get().fluidPump.searchRadius = v.intValue(),
+                Long::parseLong,
+                // Capped so the radius can be squared as an int downstream without overflowing.
+                v -> LogisticsConfig.requireRange(
+                        v, 1L, MAX_PUMP_SEARCH_RADIUS, "must be between 1 and " + MAX_PUMP_SEARCH_RADIUS),
+                () -> (long) defaults.fluidPump.searchRadius);
+        LogisticsConfig.reg("fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)",
+                () -> (double) LogisticsConfig.get().fluidPump.armSpeed,
+                v -> LogisticsConfig.get().fluidPump.armSpeed = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
+                () -> (double) defaults.fluidPump.armSpeed);
+        LogisticsConfig.reg("fluid_pump_infinite_source_threshold",
+                "Connected water sources at or above which the pump treats the body as infinite and pumps without consuming blocks (0 = always consume)",
+                () -> (long) LogisticsConfig.get().fluidPump.infiniteSourceThreshold,
+                v -> LogisticsConfig.get().fluidPump.infiniteSourceThreshold = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
+                () -> (long) defaults.fluidPump.infiniteSourceThreshold);
     }
 
     @Override

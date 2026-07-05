@@ -124,9 +124,6 @@ public final class LogisticsConfig {
 
     // ==================== Config Entry Registry (for commands) ====================
 
-    /** Largest pump search radius whose square still fits in an int ({@code 46340^2 < Integer.MAX_VALUE}). */
-    private static final long MAX_PUMP_SEARCH_RADIUS = 46_340L;
-
     private static final Map<String, ConfigEntry<?>> ENTRIES_MAP = new LinkedHashMap<>();
     private static boolean frozen = false;
 
@@ -144,94 +141,6 @@ public final class LogisticsConfig {
     /** Close registration. Called once after every domain has registered, before {@link #load()}. */
     public static void freeze() {
         frozen = true;
-    }
-
-    static {
-        LogisticsConfig defaults = new LogisticsConfig();
-
-        // Fluid pipes
-        reg("fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
-                () -> (long) INSTANCE.fluidPipe.baseTransferRate,
-                v -> INSTANCE.fluidPipe.baseTransferRate = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPipe.baseTransferRate);
-        reg("fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)",
-                () -> (long) INSTANCE.fluidPipe.baseCapacity,
-                v -> INSTANCE.fluidPipe.baseCapacity = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPipe.baseCapacity);
-        reg("fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
-                () -> INSTANCE.fluidPipe.woodenRequiresEngine,
-                v -> INSTANCE.fluidPipe.woodenRequiresEngine = v,
-                LogisticsConfig::parseBooleanStrict,
-                v -> {},
-                () -> defaults.fluidPipe.woodenRequiresEngine);
-        reg("fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
-                () -> INSTANCE.fluidPipe.activeExtraction,
-                v -> INSTANCE.fluidPipe.activeExtraction = v,
-                LogisticsConfig::parseBooleanStrict,
-                v -> {},
-                () -> defaults.fluidPipe.activeExtraction);
-
-        // Fluid pump
-        reg("fluid_pump_tank_capacity_mb", "Fluid Pump tank capacity (mB)",
-                () -> (long) INSTANCE.fluidPump.tankCapacityMb,
-                v -> INSTANCE.fluidPump.tankCapacityMb = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPump.tankCapacityMb);
-        reg("fluid_pump_energy_capacity", "Fluid Pump energy buffer capacity (RF)",
-                () -> INSTANCE.fluidPump.energyCapacity,
-                v -> INSTANCE.fluidPump.energyCapacity = v,
-                Long::parseLong,
-                v -> requireMin(v, 1L, "must be greater than or equal to 1"),
-                () -> defaults.fluidPump.energyCapacity);
-        reg("fluid_pump_max_energy_input", "Fluid Pump max energy input (RF/t)",
-                () -> INSTANCE.fluidPump.maxEnergyInput,
-                v -> INSTANCE.fluidPump.maxEnergyInput = v,
-                Long::parseLong,
-                v -> requireMin(v, 1L, "must be greater than or equal to 1"),
-                () -> defaults.fluidPump.maxEnergyInput);
-        reg("fluid_pump_energy_per_source", "RF consumed per source block pumped",
-                () -> INSTANCE.fluidPump.energyPerSource,
-                v -> INSTANCE.fluidPump.energyPerSource = v,
-                Long::parseLong,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.fluidPump.energyPerSource);
-        reg("fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)",
-                () -> (long) INSTANCE.fluidPump.pushRateMb,
-                v -> INSTANCE.fluidPump.pushRateMb = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPump.pushRateMb);
-        reg("fluid_pump_interval_ticks", "Fluid Pump source pickup interval (ticks)",
-                () -> (long) INSTANCE.fluidPump.pumpIntervalTicks,
-                v -> INSTANCE.fluidPump.pumpIntervalTicks = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPump.pumpIntervalTicks);
-        reg("fluid_pump_search_radius", "Fluid Pump connected source search radius",
-                () -> (long) INSTANCE.fluidPump.searchRadius,
-                v -> INSTANCE.fluidPump.searchRadius = v.intValue(),
-                Long::parseLong,
-                // Capped so the radius can be squared as an int downstream without overflowing.
-                v -> requireRange(v, 1L, MAX_PUMP_SEARCH_RADIUS, "must be between 1 and " + MAX_PUMP_SEARCH_RADIUS),
-                () -> (long) defaults.fluidPump.searchRadius);
-        reg("fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)",
-                () -> (double) INSTANCE.fluidPump.armSpeed,
-                v -> INSTANCE.fluidPump.armSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.fluidPump.armSpeed);
-        reg("fluid_pump_infinite_source_threshold",
-                "Connected water sources at or above which the pump treats the body as infinite and pumps without consuming blocks (0 = always consume)",
-                () -> (long) INSTANCE.fluidPump.infiniteSourceThreshold,
-                v -> INSTANCE.fluidPump.infiniteSourceThreshold = v.intValue(),
-                Long::parseLong,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> (long) defaults.fluidPump.infiniteSourceThreshold);
     }
 
     /** Strict boolean parse — rejects anything but {@code true}/{@code false} (unlike {@link Boolean#parseBoolean}). */
