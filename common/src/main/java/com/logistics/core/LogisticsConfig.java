@@ -125,62 +125,69 @@ public final class LogisticsConfig {
     /** Largest pump search radius whose square still fits in an int ({@code 46340^2 < Integer.MAX_VALUE}). */
     private static final long MAX_PUMP_SEARCH_RADIUS = 46_340L;
 
-    public static final Map<String, ConfigEntry<?>> ENTRIES;
+    private static final Map<String, ConfigEntry<?>> ENTRIES_MAP = new LinkedHashMap<>();
+
+    /** Read-only view of the registered entries, in registration order. */
+    public static final Map<String, ConfigEntry<?>> ENTRIES = Collections.unmodifiableMap(ENTRIES_MAP);
+
+    /** Register a config entry. Domains call this during bootstrap; core registers its own below. */
+    public static void register(ConfigEntry<?> entry) {
+        ENTRIES_MAP.put(entry.key(), entry);
+    }
 
     static {
-        Map<String, ConfigEntry<?>> map = new LinkedHashMap<>();
         LogisticsConfig defaults = new LogisticsConfig();
 
         // Quarry
-        reg(map, "quarry_area", "Quarry mining area side length (NxN blocks)",
+        reg("quarry_area", "Quarry mining area side length (NxN blocks)",
                 () -> (long) INSTANCE.quarry.area,
                 v -> INSTANCE.quarry.area = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 3L, (long) Integer.MAX_VALUE, "must be between 3 and " + Integer.MAX_VALUE),
                 () -> (long) defaults.quarry.area);
-        reg(map, "quarry_energy_per_block", "RF cost per block mined",
+        reg("quarry_energy_per_block", "RF cost per block mined",
                 () -> INSTANCE.quarry.energyPerBlock,
                 v -> INSTANCE.quarry.energyPerBlock = v,
                 Long::parseLong,
                 v -> requireMin(v, 0L, "must be greater than or equal to 0"),
                 () -> defaults.quarry.energyPerBlock);
-        reg(map, "quarry_energy_multiplier", "Global energy cost multiplier",
+        reg("quarry_energy_multiplier", "Global energy cost multiplier",
                 () -> INSTANCE.quarry.energyMultiplier,
                 v -> INSTANCE.quarry.energyMultiplier = v,
                 Double::parseDouble,
                 v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
                 () -> defaults.quarry.energyMultiplier);
-        reg(map, "quarry_arm_speed", "Arm movement speed (blocks/tick)",
+        reg("quarry_arm_speed", "Arm movement speed (blocks/tick)",
                 () -> (double) INSTANCE.quarry.armSpeed,
                 v -> INSTANCE.quarry.armSpeed = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
                 () -> (double) defaults.quarry.armSpeed);
-        reg(map, "quarry_arm_speed_scaling", "Energy-to-speed scaling constant",
+        reg("quarry_arm_speed_scaling", "Energy-to-speed scaling constant",
                 () -> (double) INSTANCE.quarry.armSpeedScaling,
                 v -> INSTANCE.quarry.armSpeedScaling = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
                 () -> (double) defaults.quarry.armSpeedScaling);
-        reg(map, "quarry_arm_energy", "RF/tick cost for arm movement",
+        reg("quarry_arm_energy", "RF/tick cost for arm movement",
                 () -> INSTANCE.quarry.armEnergy,
                 v -> INSTANCE.quarry.armEnergy = v,
                 Long::parseLong,
                 v -> requireMin(v, 0L, "must be greater than or equal to 0"),
                 () -> defaults.quarry.armEnergy);
-        reg(map, "quarry_rain_penalty", "Speed multiplier when raining (0.0-1.0)",
+        reg("quarry_rain_penalty", "Speed multiplier when raining (0.0-1.0)",
                 () -> (double) INSTANCE.quarry.rainPenalty,
                 v -> INSTANCE.quarry.rainPenalty = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
                 () -> (double) defaults.quarry.rainPenalty);
-        reg(map, "quarry_scan_rate", "Max blocks scanned per tick when searching",
+        reg("quarry_scan_rate", "Max blocks scanned per tick when searching",
                 () -> (long) INSTANCE.quarry.scanRate,
                 v -> INSTANCE.quarry.scanRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
                 () -> (long) defaults.quarry.scanRate);
-        reg(map, "quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running",
+        reg("quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running",
                 () -> INSTANCE.quarry.loadChunks,
                 mode -> INSTANCE.quarry.loadChunks = mode,
                 LogisticsConfig::parseBooleanStrict,
@@ -188,33 +195,33 @@ public final class LogisticsConfig {
                 () -> defaults.quarry.loadChunks);
 
         // Pipe
-        regCrossField(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
+        regCrossField("pipe_max_speed", "Item speed ceiling (blocks/tick)",
                 () -> (double) INSTANCE.pipe.maxSpeed,
                 v -> INSTANCE.pipe.maxSpeed = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
                 () -> (double) defaults.pipe.maxSpeed,
                 v -> requireCondition(v >= INSTANCE.pipe.minSpeed, "must be greater than or equal to pipe_min_speed"));
-        regCrossField(map, "pipe_min_speed", "Item speed floor (blocks/tick)",
+        regCrossField("pipe_min_speed", "Item speed floor (blocks/tick)",
                 () -> (double) INSTANCE.pipe.minSpeed,
                 v -> INSTANCE.pipe.minSpeed = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
                 () -> (double) defaults.pipe.minSpeed,
                 v -> requireCondition(v <= INSTANCE.pipe.maxSpeed, "must be less than or equal to pipe_max_speed"));
-        reg(map, "pipe_acceleration", "Speed gain per tick when accelerating",
+        reg("pipe_acceleration", "Speed gain per tick when accelerating",
                 () -> (double) INSTANCE.pipe.acceleration,
                 v -> INSTANCE.pipe.acceleration = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
                 () -> (double) defaults.pipe.acceleration);
-        reg(map, "pipe_drag", "Speed decay fraction per tick",
+        reg("pipe_drag", "Speed decay fraction per tick",
                 () -> (double) INSTANCE.pipe.drag,
                 v -> INSTANCE.pipe.drag = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
                 () -> (double) defaults.pipe.drag);
-        reg(map, "pipe_inject_speed", "Item speed when injected by network routing (blocks/tick)",
+        reg("pipe_inject_speed", "Item speed when injected by network routing (blocks/tick)",
                 () -> (double) INSTANCE.pipe.injectSpeed,
                 v -> INSTANCE.pipe.injectSpeed = v.floatValue(),
                 Double::parseDouble,
@@ -222,13 +229,13 @@ public final class LogisticsConfig {
                 () -> (double) defaults.pipe.injectSpeed);
 
         // Engine
-        reg(map, "redstone_engine_output", "RF generated per 16-tick interval",
+        reg("redstone_engine_output", "RF generated per 16-tick interval",
                 () -> INSTANCE.engine.redstoneOutput,
                 v -> INSTANCE.engine.redstoneOutput = v,
                 Long::parseLong,
                 v -> requireMin(v, 0L, "must be greater than or equal to 0"),
                 () -> defaults.engine.redstoneOutput);
-        regCrossField(map, "stirling_engine_min_output", "Stirling engine minimum RF/t output",
+        regCrossField("stirling_engine_min_output", "Stirling engine minimum RF/t output",
                 () -> INSTANCE.engine.stirlingMinOutput,
                 v -> INSTANCE.engine.stirlingMinOutput = v,
                 Double::parseDouble,
@@ -237,7 +244,7 @@ public final class LogisticsConfig {
                 v -> requireCondition(
                         v <= INSTANCE.engine.stirlingMaxOutput,
                         "must be less than or equal to stirling_engine_max_output"));
-        regCrossField(map, "stirling_engine_max_output", "Stirling engine maximum RF/t output",
+        regCrossField("stirling_engine_max_output", "Stirling engine maximum RF/t output",
                 () -> INSTANCE.engine.stirlingMaxOutput,
                 v -> INSTANCE.engine.stirlingMaxOutput = v,
                 Double::parseDouble,
@@ -248,25 +255,25 @@ public final class LogisticsConfig {
                         "must be greater than or equal to stirling_engine_min_output"));
 
         // Fluid pipes
-        reg(map, "fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
+        reg("fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
                 () -> (long) INSTANCE.fluidPipe.baseTransferRate,
                 v -> INSTANCE.fluidPipe.baseTransferRate = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
                 () -> (long) defaults.fluidPipe.baseTransferRate);
-        reg(map, "fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)",
+        reg("fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)",
                 () -> (long) INSTANCE.fluidPipe.baseCapacity,
                 v -> INSTANCE.fluidPipe.baseCapacity = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
                 () -> (long) defaults.fluidPipe.baseCapacity);
-        reg(map, "fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
+        reg("fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
                 () -> INSTANCE.fluidPipe.woodenRequiresEngine,
                 v -> INSTANCE.fluidPipe.woodenRequiresEngine = v,
                 LogisticsConfig::parseBooleanStrict,
                 v -> {},
                 () -> defaults.fluidPipe.woodenRequiresEngine);
-        reg(map, "fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
+        reg("fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
                 () -> INSTANCE.fluidPipe.activeExtraction,
                 v -> INSTANCE.fluidPipe.activeExtraction = v,
                 LogisticsConfig::parseBooleanStrict,
@@ -274,64 +281,62 @@ public final class LogisticsConfig {
                 () -> defaults.fluidPipe.activeExtraction);
 
         // Fluid pump
-        reg(map, "fluid_pump_tank_capacity_mb", "Fluid Pump tank capacity (mB)",
+        reg("fluid_pump_tank_capacity_mb", "Fluid Pump tank capacity (mB)",
                 () -> (long) INSTANCE.fluidPump.tankCapacityMb,
                 v -> INSTANCE.fluidPump.tankCapacityMb = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
                 () -> (long) defaults.fluidPump.tankCapacityMb);
-        reg(map, "fluid_pump_energy_capacity", "Fluid Pump energy buffer capacity (RF)",
+        reg("fluid_pump_energy_capacity", "Fluid Pump energy buffer capacity (RF)",
                 () -> INSTANCE.fluidPump.energyCapacity,
                 v -> INSTANCE.fluidPump.energyCapacity = v,
                 Long::parseLong,
                 v -> requireMin(v, 1L, "must be greater than or equal to 1"),
                 () -> defaults.fluidPump.energyCapacity);
-        reg(map, "fluid_pump_max_energy_input", "Fluid Pump max energy input (RF/t)",
+        reg("fluid_pump_max_energy_input", "Fluid Pump max energy input (RF/t)",
                 () -> INSTANCE.fluidPump.maxEnergyInput,
                 v -> INSTANCE.fluidPump.maxEnergyInput = v,
                 Long::parseLong,
                 v -> requireMin(v, 1L, "must be greater than or equal to 1"),
                 () -> defaults.fluidPump.maxEnergyInput);
-        reg(map, "fluid_pump_energy_per_source", "RF consumed per source block pumped",
+        reg("fluid_pump_energy_per_source", "RF consumed per source block pumped",
                 () -> INSTANCE.fluidPump.energyPerSource,
                 v -> INSTANCE.fluidPump.energyPerSource = v,
                 Long::parseLong,
                 v -> requireMin(v, 0L, "must be greater than or equal to 0"),
                 () -> defaults.fluidPump.energyPerSource);
-        reg(map, "fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)",
+        reg("fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)",
                 () -> (long) INSTANCE.fluidPump.pushRateMb,
                 v -> INSTANCE.fluidPump.pushRateMb = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
                 () -> (long) defaults.fluidPump.pushRateMb);
-        reg(map, "fluid_pump_interval_ticks", "Fluid Pump source pickup interval (ticks)",
+        reg("fluid_pump_interval_ticks", "Fluid Pump source pickup interval (ticks)",
                 () -> (long) INSTANCE.fluidPump.pumpIntervalTicks,
                 v -> INSTANCE.fluidPump.pumpIntervalTicks = v.intValue(),
                 Long::parseLong,
                 v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
                 () -> (long) defaults.fluidPump.pumpIntervalTicks);
-        reg(map, "fluid_pump_search_radius", "Fluid Pump connected source search radius",
+        reg("fluid_pump_search_radius", "Fluid Pump connected source search radius",
                 () -> (long) INSTANCE.fluidPump.searchRadius,
                 v -> INSTANCE.fluidPump.searchRadius = v.intValue(),
                 Long::parseLong,
                 // Capped so the radius can be squared as an int downstream without overflowing.
                 v -> requireRange(v, 1L, MAX_PUMP_SEARCH_RADIUS, "must be between 1 and " + MAX_PUMP_SEARCH_RADIUS),
                 () -> (long) defaults.fluidPump.searchRadius);
-        reg(map, "fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)",
+        reg("fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)",
                 () -> (double) INSTANCE.fluidPump.armSpeed,
                 v -> INSTANCE.fluidPump.armSpeed = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
                 () -> (double) defaults.fluidPump.armSpeed);
-        reg(map, "fluid_pump_infinite_source_threshold",
+        reg("fluid_pump_infinite_source_threshold",
                 "Connected water sources at or above which the pump treats the body as infinite and pumps without consuming blocks (0 = always consume)",
                 () -> (long) INSTANCE.fluidPump.infiniteSourceThreshold,
                 v -> INSTANCE.fluidPump.infiniteSourceThreshold = v.intValue(),
                 Long::parseLong,
                 v -> requireMin(v, 0L, "must be greater than or equal to 0"),
                 () -> (long) defaults.fluidPump.infiniteSourceThreshold);
-
-        ENTRIES = Collections.unmodifiableMap(map);
     }
 
     /** Strict boolean parse — rejects anything but {@code true}/{@code false} (unlike {@link Boolean#parseBoolean}). */
@@ -346,7 +351,6 @@ public final class LogisticsConfig {
     }
 
     private static <T> void reg(
-            Map<String, ConfigEntry<?>> map,
             String key,
             String description,
             Supplier<T> getter,
@@ -354,11 +358,10 @@ public final class LogisticsConfig {
             Function<String, T> parser,
             Consumer<T> validator,
             Supplier<T> defaultValue) {
-        map.put(key, new ConfigEntry<>(key, description, getter, setter, parser, validator, defaultValue));
+        register(new ConfigEntry<>(key, description, getter, setter, parser, validator, defaultValue));
     }
 
     private static <T> void regCrossField(
-            Map<String, ConfigEntry<?>> map,
             String key,
             String description,
             Supplier<T> getter,
@@ -367,7 +370,7 @@ public final class LogisticsConfig {
             Consumer<T> validator,
             Supplier<T> defaultValue,
             Consumer<T> crossFieldValidator) {
-        map.put(key, new ConfigEntry<>(
+        register(new ConfigEntry<>(
                 key, description, getter, setter, parser, validator, defaultValue, crossFieldValidator));
     }
 
