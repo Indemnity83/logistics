@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -126,13 +125,6 @@ public final class LogisticsConfig {
     /** Largest pump search radius whose square still fits in an int ({@code 46340^2 < Integer.MAX_VALUE}). */
     private static final long MAX_PUMP_SEARCH_RADIUS = 46_340L;
 
-    /**
-     * Keys whose registry validator compares against a sibling key. The generic sanitize loop skips
-     * them; each is repaired single-field first, then reconciled by a dedicated min/max range pass.
-     */
-    private static final Set<String> CROSS_FIELD_KEYS =
-            Set.of("pipe_min_speed", "pipe_max_speed", "stirling_engine_min_output", "stirling_engine_max_output");
-
     public static final Map<String, ConfigEntry<?>> ENTRIES;
 
     static {
@@ -196,24 +188,20 @@ public final class LogisticsConfig {
                 () -> defaults.quarry.loadChunks);
 
         // Pipe
-        reg(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
+        regCrossField(map, "pipe_max_speed", "Item speed ceiling (blocks/tick)",
                 () -> (double) INSTANCE.pipe.maxSpeed,
                 v -> INSTANCE.pipe.maxSpeed = v.floatValue(),
                 Double::parseDouble,
-                v -> {
-                    requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0");
-                    requireCondition(v >= INSTANCE.pipe.minSpeed, "must be greater than or equal to pipe_min_speed");
-                },
-                () -> (double) defaults.pipe.maxSpeed);
-        reg(map, "pipe_min_speed", "Item speed floor (blocks/tick)",
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
+                () -> (double) defaults.pipe.maxSpeed,
+                v -> requireCondition(v >= INSTANCE.pipe.minSpeed, "must be greater than or equal to pipe_min_speed"));
+        regCrossField(map, "pipe_min_speed", "Item speed floor (blocks/tick)",
                 () -> (double) INSTANCE.pipe.minSpeed,
                 v -> INSTANCE.pipe.minSpeed = v.floatValue(),
                 Double::parseDouble,
-                v -> {
-                    requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0");
-                    requireCondition(v <= INSTANCE.pipe.maxSpeed, "must be less than or equal to pipe_max_speed");
-                },
-                () -> (double) defaults.pipe.minSpeed);
+                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
+                () -> (double) defaults.pipe.minSpeed,
+                v -> requireCondition(v <= INSTANCE.pipe.maxSpeed, "must be less than or equal to pipe_max_speed"));
         reg(map, "pipe_acceleration", "Speed gain per tick when accelerating",
                 () -> (double) INSTANCE.pipe.acceleration,
                 v -> INSTANCE.pipe.acceleration = v.floatValue(),
@@ -240,28 +228,24 @@ public final class LogisticsConfig {
                 Long::parseLong,
                 v -> requireMin(v, 0L, "must be greater than or equal to 0"),
                 () -> defaults.engine.redstoneOutput);
-        reg(map, "stirling_engine_min_output", "Stirling engine minimum RF/t output",
+        regCrossField(map, "stirling_engine_min_output", "Stirling engine minimum RF/t output",
                 () -> INSTANCE.engine.stirlingMinOutput,
                 v -> INSTANCE.engine.stirlingMinOutput = v,
                 Double::parseDouble,
-                v -> {
-                    requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0");
-                    requireCondition(
-                            v <= INSTANCE.engine.stirlingMaxOutput,
-                            "must be less than or equal to stirling_engine_max_output");
-                },
-                () -> defaults.engine.stirlingMinOutput);
-        reg(map, "stirling_engine_max_output", "Stirling engine maximum RF/t output",
+                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
+                () -> defaults.engine.stirlingMinOutput,
+                v -> requireCondition(
+                        v <= INSTANCE.engine.stirlingMaxOutput,
+                        "must be less than or equal to stirling_engine_max_output"));
+        regCrossField(map, "stirling_engine_max_output", "Stirling engine maximum RF/t output",
                 () -> INSTANCE.engine.stirlingMaxOutput,
                 v -> INSTANCE.engine.stirlingMaxOutput = v,
                 Double::parseDouble,
-                v -> {
-                    requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0");
-                    requireCondition(
-                            v >= INSTANCE.engine.stirlingMinOutput,
-                            "must be greater than or equal to stirling_engine_min_output");
-                },
-                () -> defaults.engine.stirlingMaxOutput);
+                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
+                () -> defaults.engine.stirlingMaxOutput,
+                v -> requireCondition(
+                        v >= INSTANCE.engine.stirlingMinOutput,
+                        "must be greater than or equal to stirling_engine_min_output"));
 
         // Fluid pipes
         reg(map, "fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
@@ -373,6 +357,20 @@ public final class LogisticsConfig {
         map.put(key, new ConfigEntry<>(key, description, getter, setter, parser, validator, defaultValue));
     }
 
+    private static <T> void regCrossField(
+            Map<String, ConfigEntry<?>> map,
+            String key,
+            String description,
+            Supplier<T> getter,
+            Consumer<T> setter,
+            Function<String, T> parser,
+            Consumer<T> validator,
+            Supplier<T> defaultValue,
+            Consumer<T> crossFieldValidator) {
+        map.put(key, new ConfigEntry<>(
+                key, description, getter, setter, parser, validator, defaultValue, crossFieldValidator));
+    }
+
     // ==================== API ====================
 
     public static LogisticsConfig get() {
@@ -470,36 +468,21 @@ public final class LogisticsConfig {
             config.crashReporting.dsnOverride = defaults.crashReporting.dsnOverride;
         }
 
-        // Repair each independent value against its registry entry. The registry getters/setters
-        // read and write INSTANCE, so point it at the config under repair for the duration (load
-        // and reload both run single-threaded, and callers reassign INSTANCE to the result anyway).
+        // Repair each value against its registry entry (single-field validation only). The registry
+        // getters/setters read and write INSTANCE, so point it at the config under repair for the
+        // duration (load and reload both run single-threaded, and callers reassign INSTANCE anyway).
         LogisticsConfig previous = INSTANCE;
         INSTANCE = config;
         try {
             for (ConfigEntry<?> entry : ENTRIES.values()) {
-                if (!CROSS_FIELD_KEYS.contains(entry.key())) {
-                    entry.sanitize();
-                }
+                entry.sanitize();
             }
         } finally {
             INSTANCE = previous;
         }
 
-        // Cross-field keys: repair each single-field first, then reconcile the min/max ordering.
-        sanitizeFloat("pipe_min_speed", () -> (double) config.pipe.minSpeed,
-                v -> config.pipe.minSpeed = v.floatValue(), () -> (double) defaults.pipe.minSpeed,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
-        sanitizeFloat("pipe_max_speed", () -> (double) config.pipe.maxSpeed,
-                v -> config.pipe.maxSpeed = v.floatValue(), () -> (double) defaults.pipe.maxSpeed,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
+        // Cross-field constraints can't be repaired per-entry; reconcile the min/max ordering here.
         sanitizePipeSpeedRange(config, defaults);
-
-        sanitizeDouble("stirling_engine_min_output", () -> config.engine.stirlingMinOutput,
-                v -> config.engine.stirlingMinOutput = v, () -> defaults.engine.stirlingMinOutput,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
-        sanitizeDouble("stirling_engine_max_output", () -> config.engine.stirlingMaxOutput,
-                v -> config.engine.stirlingMaxOutput = v, () -> defaults.engine.stirlingMaxOutput,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
         sanitizeStirlingOutputRange(config, defaults);
 
         return config;
@@ -507,40 +490,6 @@ public final class LogisticsConfig {
 
     static void useForTests(LogisticsConfig config) {
         INSTANCE = sanitize(config);
-    }
-
-    private static void sanitizeFloat(
-            String key,
-            Supplier<Double> getter,
-            Consumer<Double> setter,
-            Supplier<Double> defaultValue,
-            Consumer<Double> validator) {
-        sanitizeValue(key, getter, setter, defaultValue, validator);
-    }
-
-    private static void sanitizeDouble(
-            String key,
-            Supplier<Double> getter,
-            Consumer<Double> setter,
-            Supplier<Double> defaultValue,
-            Consumer<Double> validator) {
-        sanitizeValue(key, getter, setter, defaultValue, validator);
-    }
-
-    private static <T> void sanitizeValue(
-            String key,
-            Supplier<T> getter,
-            Consumer<T> setter,
-            Supplier<T> defaultValue,
-            Consumer<T> validator) {
-        T value = getter.get();
-        try {
-            validator.accept(value);
-        } catch (IllegalArgumentException e) {
-            T replacement = defaultValue.get();
-            setter.accept(replacement);
-            LOGGER.warn("Invalid logistics config value {}={}: {}; using default {}", key, value, e.getMessage(), replacement);
-        }
     }
 
     private static void sanitizePipeSpeedRange(LogisticsConfig config, LogisticsConfig defaults) {
@@ -638,7 +587,20 @@ public final class LogisticsConfig {
             Consumer<T> setter,
             Function<String, T> parser,
             Consumer<T> validator,
-            Supplier<T> defaultValue) {
+            Supplier<T> defaultValue,
+            Consumer<T> crossFieldValidator) {
+
+        /** Entry with no cross-field constraint. */
+        public ConfigEntry(
+                String key,
+                String description,
+                Supplier<T> getter,
+                Consumer<T> setter,
+                Function<String, T> parser,
+                Consumer<T> validator,
+                Supplier<T> defaultValue) {
+            this(key, description, getter, setter, parser, validator, defaultValue, v -> {});
+        }
 
         /** Returns the current value as a string. */
         public String getAsString() {
@@ -667,6 +629,7 @@ public final class LogisticsConfig {
         public void setFromString(String value) {
             T parsed = parser.apply(value);
             validator.accept(parsed);
+            crossFieldValidator.accept(parsed);
             ((Consumer<T>) setter).accept(parsed);
         }
     }
