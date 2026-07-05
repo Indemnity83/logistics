@@ -1,5 +1,7 @@
 package com.logistics.core;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -247,5 +249,43 @@ class LogisticsConfigTest {
         assertThat(sanitized.crashReporting.enabled).isTrue();
         assertThat(sanitized.crashReporting.notifyOperators).isFalse();
         assertThat(sanitized.crashReporting.dsnOverride).isEqualTo("https://key@example.invalid/1");
+    }
+
+    @Test
+    @DisplayName("should round-trip through the flat-key format")
+    void roundTripsFlatFormat() {
+        LogisticsConfig.ENTRIES.get("quarry_energy_per_block").setFromString("123");
+        LogisticsConfig.ENTRIES.get("pipe_max_speed").setFromString("0.16");
+        LogisticsConfig.ENTRIES.get("fluid_pipe_active_extraction").setFromString("false");
+        LogisticsConfig.get().crashReporting.enabled = true;
+
+        JsonObject json = LogisticsConfig.serialize();
+        assertThat(json.get("quarry_energy_per_block").getAsLong()).isEqualTo(123L);
+        // Float-backed values serialize short, not widened (0.16, not 0.16000000238…).
+        assertThat(json.get("pipe_max_speed").getAsString()).isEqualTo("0.16");
+        assertThat(json.get("fluid_pipe_active_extraction").getAsBoolean()).isFalse();
+
+        LogisticsConfig restored = LogisticsConfig.deserialize(json);
+        assertThat(restored.quarry.energyPerBlock).isEqualTo(123L);
+        assertThat(restored.pipe.maxSpeed).isCloseTo(0.16f, within(TOLERANCE));
+        assertThat(restored.fluidPipe.activeExtraction).isFalse();
+        assertThat(restored.crashReporting.enabled).isTrue();
+    }
+
+    @Test
+    @DisplayName("should read the legacy nested layout and preserve its values")
+    void readsLegacyNestedLayout() {
+        JsonObject legacy = JsonParser.parseString(
+                        "{\"quarry\":{\"energyPerBlock\":77,\"area\":24},"
+                                + "\"engine\":{\"redstoneOutput\":42},"
+                                + "\"crashReporting\":{\"enabled\":true}}")
+                .getAsJsonObject();
+
+        LogisticsConfig loaded = LogisticsConfig.deserialize(legacy);
+
+        assertThat(loaded.quarry.energyPerBlock).isEqualTo(77L);
+        assertThat(loaded.quarry.area).isEqualTo(24);
+        assertThat(loaded.engine.redstoneOutput).isEqualTo(42L);
+        assertThat(loaded.crashReporting.enabled).isTrue();
     }
 }

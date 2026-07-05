@@ -2,6 +2,10 @@ package com.logistics.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.logistics.core.lib.platform.PlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,16 +199,14 @@ public final class LogisticsConfig {
         boolean loaded = false;
         if (Files.exists(configPath)) {
             try (Reader reader = Files.newBufferedReader(configPath)) {
-                LogisticsConfig parsed = GSON.fromJson(reader, LogisticsConfig.class);
-                if (parsed != null) {
-                    INSTANCE = sanitize(parsed);
-                    loaded = true;
-                }
+                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+                INSTANCE = sanitize(deserialize(json));
+                loaded = true;
             } catch (Exception e) {
                 LOGGER.error("Failed to load logistics.json, using defaults: {}", e.getMessage());
             }
         }
-        // Always write back so new fields added in future versions are persisted
+        // Always write back so new keys are persisted (and any legacy nested file is migrated to flat).
         save();
         if (loaded) {
             LOGGER.info("Loaded logistics config from {}", configPath);
@@ -213,11 +215,11 @@ public final class LogisticsConfig {
         }
     }
 
-    /** Persist the current config to disk. */
+    /** Persist the current config to disk in the flat-key format. */
     public static void save() {
         if (configPath == null) return;
         try (Writer writer = Files.newBufferedWriter(configPath)) {
-            GSON.toJson(INSTANCE, writer);
+            GSON.toJson(serialize(), writer);
         } catch (Exception e) {
             LOGGER.error("Failed to save logistics.json: {}", e.getMessage());
         }
@@ -234,15 +236,76 @@ public final class LogisticsConfig {
             return;
         }
         try (Reader reader = Files.newBufferedReader(configPath)) {
-            LogisticsConfig loaded = GSON.fromJson(reader, LogisticsConfig.class);
-            if (loaded != null) {
-                INSTANCE = sanitize(loaded);
-            }
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            INSTANCE = sanitize(deserialize(json));
         } catch (Exception e) {
             LOGGER.error("Failed to reload logistics.json: {}", e.getMessage());
             return;
         }
         LOGGER.info("Reloaded logistics config from {}", configPath);
+    }
+
+    /** Serialize the live config to the flat-key format: one key per registry entry, plus crash reporting. */
+    static JsonObject serialize() {
+        JsonObject root = new JsonObject();
+        for (ConfigEntry<?> entry : ENTRIES.values()) {
+            root.add(entry.key(), toJson(entry.getter().get()));
+        }
+        root.add("crash_reporting", GSON.toJsonTree(INSTANCE.crashReporting));
+        return root;
+    }
+
+    /**
+     * Read a config object into a {@link LogisticsConfig} (unsanitized). Accepts both the flat-key format
+     * and the legacy nested-group layout (read for one major per the backward-compat policy, then rewritten
+     * flat on save).
+     */
+    static LogisticsConfig deserialize(JsonObject json) {
+        if (isLegacyNested(json)) {
+            return GSON.fromJson(json, LogisticsConfig.class);
+        }
+        LogisticsConfig config = new LogisticsConfig();
+        LogisticsConfig previous = INSTANCE;
+        INSTANCE = config;
+        try {
+            for (ConfigEntry<?> entry : ENTRIES.values()) {
+                JsonElement value = json.get(entry.key());
+                if (value == null || !value.isJsonPrimitive()) {
+                    continue;
+                }
+                try {
+                    entry.loadFromString(value.getAsString());
+                } catch (RuntimeException e) {
+                    LOGGER.warn("Ignoring malformed config value {}={}: {}", entry.key(), value, e.getMessage());
+                }
+            }
+        } finally {
+            INSTANCE = previous;
+        }
+        if (json.has("crash_reporting") && json.get("crash_reporting").isJsonObject()) {
+            config.crashReporting = GSON.fromJson(json.get("crash_reporting"), CrashReportingConfig.class);
+        }
+        return config;
+    }
+
+    /** The pre-flat format stored each domain as a nested object; the flat format uses flat keys. */
+    private static boolean isLegacyNested(JsonObject json) {
+        return json.has("quarry") && json.get("quarry").isJsonObject();
+    }
+
+    /** Write float-backed values at float precision so they read as {@code 0.16}, not {@code 0.16000000238…}. */
+    private static JsonElement toJson(Object value) {
+        if (value instanceof Double d) {
+            float asFloat = d.floatValue();
+            return (double) asFloat == d ? new JsonPrimitive(asFloat) : new JsonPrimitive(d);
+        }
+        if (value instanceof Number number) {
+            return new JsonPrimitive(number);
+        }
+        if (value instanceof Boolean bool) {
+            return new JsonPrimitive(bool);
+        }
+        return new JsonPrimitive(String.valueOf(value));
     }
 
     static LogisticsConfig sanitize(LogisticsConfig config) {
@@ -412,6 +475,11 @@ public final class LogisticsConfig {
         /** Returns the current value as a string. */
         public String getAsString() {
             return String.valueOf(getter.get());
+        }
+
+        /** Parse {@code raw} and set it WITHOUT validation. Load path — {@link LogisticsConfig#sanitize} repairs after. */
+        public void loadFromString(String raw) {
+            setter.accept(parser.apply(raw));
         }
 
         /** Validate the current value; on failure reset it to the default and log a warning. */
