@@ -149,32 +149,6 @@ public final class LogisticsConfig {
     static {
         LogisticsConfig defaults = new LogisticsConfig();
 
-        // Engine
-        reg("redstone_engine_output", "RF generated per 16-tick interval",
-                () -> INSTANCE.engine.redstoneOutput,
-                v -> INSTANCE.engine.redstoneOutput = v,
-                Long::parseLong,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.engine.redstoneOutput);
-        regCrossField("stirling_engine_min_output", "Stirling engine minimum RF/t output",
-                () -> INSTANCE.engine.stirlingMinOutput,
-                v -> INSTANCE.engine.stirlingMinOutput = v,
-                Double::parseDouble,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> defaults.engine.stirlingMinOutput,
-                v -> requireCondition(
-                        v <= INSTANCE.engine.stirlingMaxOutput,
-                        "must be less than or equal to stirling_engine_max_output"));
-        regCrossField("stirling_engine_max_output", "Stirling engine maximum RF/t output",
-                () -> INSTANCE.engine.stirlingMaxOutput,
-                v -> INSTANCE.engine.stirlingMaxOutput = v,
-                Double::parseDouble,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> defaults.engine.stirlingMaxOutput,
-                v -> requireCondition(
-                        v >= INSTANCE.engine.stirlingMinOutput,
-                        "must be greater than or equal to stirling_engine_min_output"));
-
         // Fluid pipes
         reg("fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
                 () -> (long) INSTANCE.fluidPipe.baseTransferRate,

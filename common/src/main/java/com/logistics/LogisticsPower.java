@@ -1,5 +1,6 @@
 package com.logistics;
 
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.block.BatteryBlock;
@@ -45,6 +46,36 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     @Override
     public int order() {
         return 10;
+    }
+
+    @Override
+    public void registerConfig() {
+        LogisticsConfig defaults = new LogisticsConfig();
+
+        LogisticsConfig.reg("redstone_engine_output", "RF generated per 16-tick interval",
+                () -> LogisticsConfig.get().engine.redstoneOutput,
+                v -> LogisticsConfig.get().engine.redstoneOutput = v,
+                Long::parseLong,
+                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
+                () -> defaults.engine.redstoneOutput);
+        LogisticsConfig.regCrossField("stirling_engine_min_output", "Stirling engine minimum RF/t output",
+                () -> LogisticsConfig.get().engine.stirlingMinOutput,
+                v -> LogisticsConfig.get().engine.stirlingMinOutput = v,
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
+                () -> defaults.engine.stirlingMinOutput,
+                v -> LogisticsConfig.requireCondition(
+                        v <= LogisticsConfig.get().engine.stirlingMaxOutput,
+                        "must be less than or equal to stirling_engine_max_output"));
+        LogisticsConfig.regCrossField("stirling_engine_max_output", "Stirling engine maximum RF/t output",
+                () -> LogisticsConfig.get().engine.stirlingMaxOutput,
+                v -> LogisticsConfig.get().engine.stirlingMaxOutput = v,
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
+                () -> defaults.engine.stirlingMaxOutput,
+                v -> LogisticsConfig.requireCondition(
+                        v >= LogisticsConfig.get().engine.stirlingMinOutput,
+                        "must be greater than or equal to stirling_engine_min_output"));
     }
 
     @Override
