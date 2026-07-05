@@ -149,62 +149,6 @@ public final class LogisticsConfig {
     static {
         LogisticsConfig defaults = new LogisticsConfig();
 
-        // Quarry
-        reg("quarry_area", "Quarry mining area side length (NxN blocks)",
-                () -> (long) INSTANCE.quarry.area,
-                v -> INSTANCE.quarry.area = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 3L, (long) Integer.MAX_VALUE, "must be between 3 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.quarry.area);
-        reg("quarry_energy_per_block", "RF cost per block mined",
-                () -> INSTANCE.quarry.energyPerBlock,
-                v -> INSTANCE.quarry.energyPerBlock = v,
-                Long::parseLong,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.quarry.energyPerBlock);
-        reg("quarry_energy_multiplier", "Global energy cost multiplier",
-                () -> INSTANCE.quarry.energyMultiplier,
-                v -> INSTANCE.quarry.energyMultiplier = v,
-                Double::parseDouble,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> defaults.quarry.energyMultiplier);
-        reg("quarry_arm_speed", "Arm movement speed (blocks/tick)",
-                () -> (double) INSTANCE.quarry.armSpeed,
-                v -> INSTANCE.quarry.armSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> (double) defaults.quarry.armSpeed);
-        reg("quarry_arm_speed_scaling", "Energy-to-speed scaling constant",
-                () -> (double) INSTANCE.quarry.armSpeedScaling,
-                v -> INSTANCE.quarry.armSpeedScaling = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.quarry.armSpeedScaling);
-        reg("quarry_arm_energy", "RF/tick cost for arm movement",
-                () -> INSTANCE.quarry.armEnergy,
-                v -> INSTANCE.quarry.armEnergy = v,
-                Long::parseLong,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.quarry.armEnergy);
-        reg("quarry_rain_penalty", "Speed multiplier when raining (0.0-1.0)",
-                () -> (double) INSTANCE.quarry.rainPenalty,
-                v -> INSTANCE.quarry.rainPenalty = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
-                () -> (double) defaults.quarry.rainPenalty);
-        reg("quarry_scan_rate", "Max blocks scanned per tick when searching",
-                () -> (long) INSTANCE.quarry.scanRate,
-                v -> INSTANCE.quarry.scanRate = v.intValue(),
-                Long::parseLong,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.quarry.scanRate);
-        reg("quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running",
-                () -> INSTANCE.quarry.loadChunks,
-                mode -> INSTANCE.quarry.loadChunks = mode,
-                LogisticsConfig::parseBooleanStrict,
-                v -> {},
-                () -> defaults.quarry.loadChunks);
-
         // Pipe
         regCrossField("pipe_max_speed", "Item speed ceiling (blocks/tick)",
                 () -> (double) INSTANCE.pipe.maxSpeed,
@@ -351,7 +295,7 @@ public final class LogisticsConfig {
     }
 
     /** Strict boolean parse — rejects anything but {@code true}/{@code false} (unlike {@link Boolean#parseBoolean}). */
-    private static Boolean parseBooleanStrict(String value) {
+    public static Boolean parseBooleanStrict(String value) {
         if ("true".equalsIgnoreCase(value)) {
             return Boolean.TRUE;
         }
@@ -361,7 +305,7 @@ public final class LogisticsConfig {
         throw new IllegalArgumentException("must be 'true' or 'false'");
     }
 
-    private static <T> void reg(
+    public static <T> void reg(
             String key,
             String description,
             Supplier<T> getter,
@@ -372,7 +316,7 @@ public final class LogisticsConfig {
         register(new ConfigEntry<>(key, description, getter, setter, parser, validator, defaultValue));
     }
 
-    private static <T> void regCrossField(
+    public static <T> void regCrossField(
             String key,
             String description,
             Supplier<T> getter,
@@ -556,28 +500,28 @@ public final class LogisticsConfig {
                 config.engine.stirlingMinOutput);
     }
 
-    private static void requireMin(long value, long min, String message) {
+    public static void requireMin(long value, long min, String message) {
         requireCondition(value >= min, message);
     }
 
-    private static void requireRange(long value, long min, long max, String message) {
+    public static void requireRange(long value, long min, long max, String message) {
         requireCondition(value >= min && value <= max, message);
     }
 
-    private static void requireFiniteMin(double value, double min, String message) {
+    public static void requireFiniteMin(double value, double min, String message) {
         requireCondition(Double.isFinite(value) && value >= min, message);
     }
 
-    private static void requireFiniteRange(double value, double min, double max, String message) {
+    public static void requireFiniteRange(double value, double min, double max, String message) {
         requireCondition(Double.isFinite(value) && value >= min && value <= max, message);
     }
 
-    private static void requireFiniteFloatMin(double value, double min, String message) {
+    public static void requireFiniteFloatMin(double value, double min, String message) {
         requireFiniteFloat(value, message);
         requireCondition(value >= min, message);
     }
 
-    private static void requireFiniteFloatGreaterThan(double value, double minExclusive, String message) {
+    public static void requireFiniteFloatGreaterThan(double value, double minExclusive, String message) {
         requireFiniteFloat(value, message);
         requireCondition(value > minExclusive, message);
     }
@@ -586,7 +530,7 @@ public final class LogisticsConfig {
         requireCondition(Double.isFinite(value) && Math.abs(value) <= Float.MAX_VALUE, message);
     }
 
-    private static void requireCondition(boolean condition, String message) {
+    public static void requireCondition(boolean condition, String message) {
         if (!condition) {
             throw new IllegalArgumentException(message);
         }

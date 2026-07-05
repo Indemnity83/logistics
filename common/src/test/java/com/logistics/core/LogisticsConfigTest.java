@@ -1,6 +1,8 @@
 package com.logistics.core;
 
+import com.logistics.LogisticsAutomation;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +13,12 @@ import static org.assertj.core.api.Assertions.within;
 @DisplayName("LogisticsConfig")
 class LogisticsConfigTest {
     private static final float TOLERANCE = 0.0001f;
+
+    /** Entries now live in their owning domains; register them so {@code ENTRIES} is populated. */
+    @BeforeAll
+    static void registerDomainConfig() {
+        new LogisticsAutomation().registerConfig();
+    }
 
     @AfterEach
     void resetConfig() {

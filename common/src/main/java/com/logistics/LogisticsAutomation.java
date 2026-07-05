@@ -30,6 +30,7 @@ import com.logistics.automation.sawmill.SawmillRecipe;
 import com.logistics.automation.sawmill.SawmillRecipeDisplay;
 import com.logistics.automation.sawmill.SawmillRecipeSerializer;
 import com.logistics.automation.sawmill.SawmillScreenHandler;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -67,6 +68,68 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     @Override
     public int order() {
         return 20;
+    }
+
+    @Override
+    public void registerConfig() {
+        LogisticsConfig defaults = new LogisticsConfig();
+
+        LogisticsConfig.reg("quarry_area", "Quarry mining area side length (NxN blocks)",
+                () -> (long) LogisticsConfig.get().quarry.area,
+                v -> LogisticsConfig.get().quarry.area = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireRange(
+                        v, 3L, (long) Integer.MAX_VALUE, "must be between 3 and " + Integer.MAX_VALUE),
+                () -> (long) defaults.quarry.area);
+        LogisticsConfig.reg("quarry_energy_per_block", "RF cost per block mined",
+                () -> LogisticsConfig.get().quarry.energyPerBlock,
+                v -> LogisticsConfig.get().quarry.energyPerBlock = v,
+                Long::parseLong,
+                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
+                () -> defaults.quarry.energyPerBlock);
+        LogisticsConfig.reg("quarry_energy_multiplier", "Global energy cost multiplier",
+                () -> LogisticsConfig.get().quarry.energyMultiplier,
+                v -> LogisticsConfig.get().quarry.energyMultiplier = v,
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
+                () -> defaults.quarry.energyMultiplier);
+        LogisticsConfig.reg("quarry_arm_speed", "Arm movement speed (blocks/tick)",
+                () -> (double) LogisticsConfig.get().quarry.armSpeed,
+                v -> LogisticsConfig.get().quarry.armSpeed = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
+                () -> (double) defaults.quarry.armSpeed);
+        LogisticsConfig.reg("quarry_arm_speed_scaling", "Energy-to-speed scaling constant",
+                () -> (double) LogisticsConfig.get().quarry.armSpeedScaling,
+                v -> LogisticsConfig.get().quarry.armSpeedScaling = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
+                () -> (double) defaults.quarry.armSpeedScaling);
+        LogisticsConfig.reg("quarry_arm_energy", "RF/tick cost for arm movement",
+                () -> LogisticsConfig.get().quarry.armEnergy,
+                v -> LogisticsConfig.get().quarry.armEnergy = v,
+                Long::parseLong,
+                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
+                () -> defaults.quarry.armEnergy);
+        LogisticsConfig.reg("quarry_rain_penalty", "Speed multiplier when raining (0.0-1.0)",
+                () -> (double) LogisticsConfig.get().quarry.rainPenalty,
+                v -> LogisticsConfig.get().quarry.rainPenalty = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
+                () -> (double) defaults.quarry.rainPenalty);
+        LogisticsConfig.reg("quarry_scan_rate", "Max blocks scanned per tick when searching",
+                () -> (long) LogisticsConfig.get().quarry.scanRate,
+                v -> LogisticsConfig.get().quarry.scanRate = v.intValue(),
+                Long::parseLong,
+                v -> LogisticsConfig.requireRange(
+                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
+                () -> (long) defaults.quarry.scanRate);
+        LogisticsConfig.reg("quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running",
+                () -> LogisticsConfig.get().quarry.loadChunks,
+                mode -> LogisticsConfig.get().quarry.loadChunks = mode,
+                LogisticsConfig::parseBooleanStrict,
+                v -> {},
+                () -> defaults.quarry.loadChunks);
     }
 
     @Override
