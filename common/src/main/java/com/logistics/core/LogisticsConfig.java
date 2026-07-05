@@ -20,8 +20,10 @@ import java.util.function.Supplier;
 /**
  * Central config for Logistics. Backed by config/logistics.json (Gson).
  *
- * <p>{@code LogisticsConfig.load()} is called during LogisticsCore.initCommon() and reads
- * {@code config/logistics.json}, writing defaults if the file is missing.
+ * <p>Lifecycle (driven by {@code LogisticsCommonBootstrap}): every domain's {@code registerConfig()}
+ * declares its entries, {@link #freeze()} closes registration, then {@link #load()} reads
+ * {@code config/logistics.json} (writing defaults if the file is missing) — all before any
+ * {@code initCommon()} body reads config.
  *
  * <p>Runtime access: {@code LogisticsConfig.get().quarry.energyPerBlock}
  * <p>Command access: {@code /logistics config list|get|set|reload}
@@ -126,13 +128,22 @@ public final class LogisticsConfig {
     private static final long MAX_PUMP_SEARCH_RADIUS = 46_340L;
 
     private static final Map<String, ConfigEntry<?>> ENTRIES_MAP = new LinkedHashMap<>();
+    private static boolean frozen = false;
 
     /** Read-only view of the registered entries, in registration order. */
     public static final Map<String, ConfigEntry<?>> ENTRIES = Collections.unmodifiableMap(ENTRIES_MAP);
 
     /** Register a config entry. Domains call this during bootstrap; core registers its own below. */
     public static void register(ConfigEntry<?> entry) {
+        if (frozen) {
+            throw new IllegalStateException("Config registration is frozen; cannot register " + entry.key());
+        }
         ENTRIES_MAP.put(entry.key(), entry);
+    }
+
+    /** Close registration. Called once after every domain has registered, before {@link #load()}. */
+    public static void freeze() {
+        frozen = true;
     }
 
     static {
