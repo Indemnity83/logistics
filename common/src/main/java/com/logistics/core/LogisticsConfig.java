@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -124,6 +125,13 @@ public final class LogisticsConfig {
 
     /** Largest pump search radius whose square still fits in an int ({@code 46340^2 < Integer.MAX_VALUE}). */
     private static final long MAX_PUMP_SEARCH_RADIUS = 46_340L;
+
+    /**
+     * Keys whose registry validator compares against a sibling key. The generic sanitize loop skips
+     * them; each is repaired single-field first, then reconciled by a dedicated min/max range pass.
+     */
+    private static final Set<String> CROSS_FIELD_KEYS =
+            Set.of("pipe_min_speed", "pipe_max_speed", "stirling_engine_min_output", "stirling_engine_max_output");
 
     public static final Map<String, ConfigEntry<?>> ENTRIES;
 
@@ -462,31 +470,22 @@ public final class LogisticsConfig {
             config.crashReporting.dsnOverride = defaults.crashReporting.dsnOverride;
         }
 
-        sanitizeInt("quarry_area", () -> (long) config.quarry.area, v -> config.quarry.area = v.intValue(),
-                () -> (long) defaults.quarry.area, v -> requireRange(
-                        v, 3L, (long) Integer.MAX_VALUE, "must be between 3 and " + Integer.MAX_VALUE));
-        sanitizeLong("quarry_energy_per_block", () -> config.quarry.energyPerBlock,
-                v -> config.quarry.energyPerBlock = v, () -> defaults.quarry.energyPerBlock,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
-        sanitizeDouble("quarry_energy_multiplier", () -> config.quarry.energyMultiplier,
-                v -> config.quarry.energyMultiplier = v, () -> defaults.quarry.energyMultiplier,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
-        sanitizeFloat("quarry_arm_speed", () -> (double) config.quarry.armSpeed,
-                v -> config.quarry.armSpeed = v.floatValue(), () -> (double) defaults.quarry.armSpeed,
-                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"));
-        sanitizeFloat("quarry_arm_speed_scaling", () -> (double) config.quarry.armSpeedScaling,
-                v -> config.quarry.armSpeedScaling = v.floatValue(), () -> (double) defaults.quarry.armSpeedScaling,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
-        sanitizeLong("quarry_arm_energy", () -> config.quarry.armEnergy,
-                v -> config.quarry.armEnergy = v, () -> defaults.quarry.armEnergy,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
-        sanitizeFloat("quarry_rain_penalty", () -> (double) config.quarry.rainPenalty,
-                v -> config.quarry.rainPenalty = v.floatValue(), () -> (double) defaults.quarry.rainPenalty,
-                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"));
-        sanitizeInt("quarry_scan_rate", () -> (long) config.quarry.scanRate, v -> config.quarry.scanRate = v.intValue(),
-                () -> (long) defaults.quarry.scanRate, v -> requireRange(
-                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
+        // Repair each independent value against its registry entry. The registry getters/setters
+        // read and write INSTANCE, so point it at the config under repair for the duration (load
+        // and reload both run single-threaded, and callers reassign INSTANCE to the result anyway).
+        LogisticsConfig previous = INSTANCE;
+        INSTANCE = config;
+        try {
+            for (ConfigEntry<?> entry : ENTRIES.values()) {
+                if (!CROSS_FIELD_KEYS.contains(entry.key())) {
+                    entry.sanitize();
+                }
+            }
+        } finally {
+            INSTANCE = previous;
+        }
 
+        // Cross-field keys: repair each single-field first, then reconcile the min/max ordering.
         sanitizeFloat("pipe_min_speed", () -> (double) config.pipe.minSpeed,
                 v -> config.pipe.minSpeed = v.floatValue(), () -> (double) defaults.pipe.minSpeed,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
@@ -494,19 +493,7 @@ public final class LogisticsConfig {
                 v -> config.pipe.maxSpeed = v.floatValue(), () -> (double) defaults.pipe.maxSpeed,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
         sanitizePipeSpeedRange(config, defaults);
-        sanitizeFloat("pipe_acceleration", () -> (double) config.pipe.acceleration,
-                v -> config.pipe.acceleration = v.floatValue(), () -> (double) defaults.pipe.acceleration,
-                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"));
-        sanitizeFloat("pipe_drag", () -> (double) config.pipe.drag,
-                v -> config.pipe.drag = v.floatValue(), () -> (double) defaults.pipe.drag,
-                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"));
-        sanitizeFloat("pipe_inject_speed", () -> (double) config.pipe.injectSpeed,
-                v -> config.pipe.injectSpeed = v.floatValue(), () -> (double) defaults.pipe.injectSpeed,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
 
-        sanitizeLong("redstone_engine_output", () -> config.engine.redstoneOutput,
-                v -> config.engine.redstoneOutput = v, () -> defaults.engine.redstoneOutput,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
         sanitizeDouble("stirling_engine_min_output", () -> config.engine.stirlingMinOutput,
                 v -> config.engine.stirlingMinOutput = v, () -> defaults.engine.stirlingMinOutput,
                 v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
@@ -515,66 +502,11 @@ public final class LogisticsConfig {
                 v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
         sanitizeStirlingOutputRange(config, defaults);
 
-        sanitizeInt("fluid_pipe_base_transfer_rate", () -> (long) config.fluidPipe.baseTransferRate,
-                v -> config.fluidPipe.baseTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.baseTransferRate,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeInt("fluid_pipe_base_capacity", () -> (long) config.fluidPipe.baseCapacity,
-                v -> config.fluidPipe.baseCapacity = v.intValue(), () -> (long) defaults.fluidPipe.baseCapacity,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-
-        sanitizeInt("fluid_pump_tank_capacity_mb", () -> (long) config.fluidPump.tankCapacityMb,
-                v -> config.fluidPump.tankCapacityMb = v.intValue(), () -> (long) defaults.fluidPump.tankCapacityMb,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeLong("fluid_pump_energy_capacity", () -> config.fluidPump.energyCapacity,
-                v -> config.fluidPump.energyCapacity = v, () -> defaults.fluidPump.energyCapacity,
-                v -> requireMin(v, 1L, "must be greater than or equal to 1"));
-        sanitizeLong("fluid_pump_max_energy_input", () -> config.fluidPump.maxEnergyInput,
-                v -> config.fluidPump.maxEnergyInput = v, () -> defaults.fluidPump.maxEnergyInput,
-                v -> requireMin(v, 1L, "must be greater than or equal to 1"));
-        sanitizeLong("fluid_pump_energy_per_source", () -> config.fluidPump.energyPerSource,
-                v -> config.fluidPump.energyPerSource = v, () -> defaults.fluidPump.energyPerSource,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
-        sanitizeInt("fluid_pump_push_rate_mb", () -> (long) config.fluidPump.pushRateMb,
-                v -> config.fluidPump.pushRateMb = v.intValue(), () -> (long) defaults.fluidPump.pushRateMb,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeInt("fluid_pump_interval_ticks", () -> (long) config.fluidPump.pumpIntervalTicks,
-                v -> config.fluidPump.pumpIntervalTicks = v.intValue(), () -> (long) defaults.fluidPump.pumpIntervalTicks,
-                v -> requireRange(v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE));
-        sanitizeInt("fluid_pump_search_radius", () -> (long) config.fluidPump.searchRadius,
-                v -> config.fluidPump.searchRadius = v.intValue(), () -> (long) defaults.fluidPump.searchRadius,
-                // Same cap as the command path so a hand-edited config can't reach the downstream squaring.
-                v -> requireRange(v, 1L, MAX_PUMP_SEARCH_RADIUS, "must be between 1 and " + MAX_PUMP_SEARCH_RADIUS));
-        sanitizeFloat("fluid_pump_arm_speed", () -> (double) config.fluidPump.armSpeed,
-                v -> config.fluidPump.armSpeed = v.floatValue(), () -> (double) defaults.fluidPump.armSpeed,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
-        sanitizeInt("fluid_pump_infinite_source_threshold", () -> (long) config.fluidPump.infiniteSourceThreshold,
-                v -> config.fluidPump.infiniteSourceThreshold = v.intValue(),
-                () -> (long) defaults.fluidPump.infiniteSourceThreshold,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
-
         return config;
     }
 
     static void useForTests(LogisticsConfig config) {
         INSTANCE = sanitize(config);
-    }
-
-    private static void sanitizeInt(
-            String key,
-            Supplier<Long> getter,
-            Consumer<Long> setter,
-            Supplier<Long> defaultValue,
-            Consumer<Long> validator) {
-        sanitizeLong(key, getter, setter, defaultValue, validator);
-    }
-
-    private static void sanitizeLong(
-            String key,
-            Supplier<Long> getter,
-            Consumer<Long> setter,
-            Supplier<Long> defaultValue,
-            Consumer<Long> validator) {
-        sanitizeValue(key, getter, setter, defaultValue, validator);
     }
 
     private static void sanitizeFloat(
@@ -711,6 +643,20 @@ public final class LogisticsConfig {
         /** Returns the current value as a string. */
         public String getAsString() {
             return String.valueOf(getter.get());
+        }
+
+        /** Validate the current value; on failure reset it to the default and log a warning. */
+        public void sanitize() {
+            T value = getter.get();
+            try {
+                validator.accept(value);
+            } catch (IllegalArgumentException e) {
+                T replacement = defaultValue.get();
+                setter.accept(replacement);
+                LOGGER.warn(
+                        "Invalid logistics config value {}={}: {}; using default {}",
+                        key, value, e.getMessage(), replacement);
+            }
         }
 
         /**
