@@ -149,40 +149,6 @@ public final class LogisticsConfig {
     static {
         LogisticsConfig defaults = new LogisticsConfig();
 
-        // Pipe
-        regCrossField("pipe_max_speed", "Item speed ceiling (blocks/tick)",
-                () -> (double) INSTANCE.pipe.maxSpeed,
-                v -> INSTANCE.pipe.maxSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.pipe.maxSpeed,
-                v -> requireCondition(v >= INSTANCE.pipe.minSpeed, "must be greater than or equal to pipe_min_speed"));
-        regCrossField("pipe_min_speed", "Item speed floor (blocks/tick)",
-                () -> (double) INSTANCE.pipe.minSpeed,
-                v -> INSTANCE.pipe.minSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.pipe.minSpeed,
-                v -> requireCondition(v <= INSTANCE.pipe.maxSpeed, "must be less than or equal to pipe_max_speed"));
-        reg("pipe_acceleration", "Speed gain per tick when accelerating",
-                () -> (double) INSTANCE.pipe.acceleration,
-                v -> INSTANCE.pipe.acceleration = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> (double) defaults.pipe.acceleration);
-        reg("pipe_drag", "Speed decay fraction per tick",
-                () -> (double) INSTANCE.pipe.drag,
-                v -> INSTANCE.pipe.drag = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
-                () -> (double) defaults.pipe.drag);
-        reg("pipe_inject_speed", "Item speed when injected by network routing (blocks/tick)",
-                () -> (double) INSTANCE.pipe.injectSpeed,
-                v -> INSTANCE.pipe.injectSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.pipe.injectSpeed);
-
         // Engine
         reg("redstone_engine_output", "RF generated per 16-tick interval",
                 () -> INSTANCE.engine.redstoneOutput,

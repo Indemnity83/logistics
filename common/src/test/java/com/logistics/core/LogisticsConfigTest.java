@@ -1,6 +1,7 @@
 package com.logistics.core;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPipe;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ class LogisticsConfigTest {
     @BeforeAll
     static void registerDomainConfig() {
         new LogisticsAutomation().registerConfig();
+        new LogisticsPipe().registerConfig();
     }
 
     @AfterEach

@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.api.LogisticsApi;
+import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.*;
@@ -48,6 +49,46 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     public static ResourceId model(String name) {
         return INSTANCE.domainModelResource(name);
+    }
+
+    @Override
+    public void registerConfig() {
+        LogisticsConfig defaults = new LogisticsConfig();
+
+        LogisticsConfig.regCrossField("pipe_max_speed", "Item speed ceiling (blocks/tick)",
+                () -> (double) LogisticsConfig.get().pipe.maxSpeed,
+                v -> LogisticsConfig.get().pipe.maxSpeed = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
+                () -> (double) defaults.pipe.maxSpeed,
+                v -> LogisticsConfig.requireCondition(
+                        v >= LogisticsConfig.get().pipe.minSpeed, "must be greater than or equal to pipe_min_speed"));
+        LogisticsConfig.regCrossField("pipe_min_speed", "Item speed floor (blocks/tick)",
+                () -> (double) LogisticsConfig.get().pipe.minSpeed,
+                v -> LogisticsConfig.get().pipe.minSpeed = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
+                () -> (double) defaults.pipe.minSpeed,
+                v -> LogisticsConfig.requireCondition(
+                        v <= LogisticsConfig.get().pipe.maxSpeed, "must be less than or equal to pipe_max_speed"));
+        LogisticsConfig.reg("pipe_acceleration", "Speed gain per tick when accelerating",
+                () -> (double) LogisticsConfig.get().pipe.acceleration,
+                v -> LogisticsConfig.get().pipe.acceleration = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
+                () -> (double) defaults.pipe.acceleration);
+        LogisticsConfig.reg("pipe_drag", "Speed decay fraction per tick",
+                () -> (double) LogisticsConfig.get().pipe.drag,
+                v -> LogisticsConfig.get().pipe.drag = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
+                () -> (double) defaults.pipe.drag);
+        LogisticsConfig.reg("pipe_inject_speed", "Item speed when injected by network routing (blocks/tick)",
+                () -> (double) LogisticsConfig.get().pipe.injectSpeed,
+                v -> LogisticsConfig.get().pipe.injectSpeed = v.floatValue(),
+                Double::parseDouble,
+                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
+                () -> (double) defaults.pipe.injectSpeed);
     }
 
     @Override
