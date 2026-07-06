@@ -2,6 +2,7 @@ package com.logistics;
 
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.LogisticsConfig;
+import com.logistics.core.LogisticsConfig.ConfigEntry;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.*;
@@ -54,134 +55,143 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         return INSTANCE.domainModelResource(name);
     }
 
+    /** Item speed ceiling (blocks/tick). */
+    public static ConfigEntry<Float> PIPE_MAX_SPEED;
+    /** Item speed floor (blocks/tick). */
+    public static ConfigEntry<Float> PIPE_MIN_SPEED;
+    /** Speed gain per tick when accelerating. */
+    public static ConfigEntry<Float> PIPE_ACCELERATION;
+    /** Speed decay fraction per tick. */
+    public static ConfigEntry<Float> PIPE_DRAG;
+    /** Item speed when injected by network routing (blocks/tick). */
+    public static ConfigEntry<Float> PIPE_INJECT_SPEED;
+    /** Base Fluid Pipe transfer rate (mB/tick), scaled per tier. */
+    public static ConfigEntry<Integer> FLUID_PIPE_BASE_TRANSFER_RATE;
+    /** Fluid Pipe buffer capacity (mB). */
+    public static ConfigEntry<Integer> FLUID_PIPE_BASE_CAPACITY;
+    /** Fluid Extractor Pipe requires engine power. */
+    public static ConfigEntry<Boolean> FLUID_PIPE_WOODEN_REQUIRES_ENGINE;
+    /** Debug: extractor pulling enabled. */
+    public static ConfigEntry<Boolean> FLUID_PIPE_ACTIVE_EXTRACTION;
+    /** Fluid Pump tank capacity (mB). */
+    public static ConfigEntry<Integer> FLUID_PUMP_TANK_CAPACITY_MB;
+    /** Fluid Pump energy buffer capacity (RF). */
+    public static ConfigEntry<Long> FLUID_PUMP_ENERGY_CAPACITY;
+    /** Fluid Pump max energy input (RF/t). */
+    public static ConfigEntry<Long> FLUID_PUMP_MAX_ENERGY_INPUT;
+    /** RF consumed per source block pumped. */
+    public static ConfigEntry<Long> FLUID_PUMP_ENERGY_PER_SOURCE;
+    /** Fluid Pump output rate (mB/tick). */
+    public static ConfigEntry<Integer> FLUID_PUMP_PUSH_RATE_MB;
+    /** Fluid Pump source pickup interval (ticks). */
+    public static ConfigEntry<Integer> FLUID_PUMP_INTERVAL_TICKS;
+    /** Fluid Pump connected source search radius. */
+    public static ConfigEntry<Integer> FLUID_PUMP_SEARCH_RADIUS;
+    /** Fluid Pump arm movement speed (blocks/tick). */
+    public static ConfigEntry<Float> FLUID_PUMP_ARM_SPEED;
+    /** Water sources at/above which the pump treats the body as infinite (0 = always consume). */
+    public static ConfigEntry<Integer> FLUID_PUMP_INFINITE_SOURCE_THRESHOLD;
+
     @Override
     public void registerConfig() {
-        LogisticsConfig defaults = new LogisticsConfig();
+        PIPE_MAX_SPEED = LogisticsConfig.regFloat("pipe_max_speed", "Item speed ceiling (blocks/tick)")
+                .defaultsTo(0.16f)
+                .greaterThan(0f)
+                .min(() -> PIPE_MIN_SPEED)
+                .register();
+        PIPE_MIN_SPEED = LogisticsConfig.regFloat("pipe_min_speed", "Item speed floor (blocks/tick)")
+                .defaultsTo(0.02f)
+                .greaterThan(0f)
+                .max(() -> PIPE_MAX_SPEED)
+                .register();
+        PIPE_ACCELERATION = LogisticsConfig.regFloat("pipe_acceleration", "Speed gain per tick when accelerating")
+                .defaultsTo(1.0f / 200.0f)
+                .min(0f)
+                .register();
+        PIPE_DRAG = LogisticsConfig.regFloat("pipe_drag", "Speed decay fraction per tick")
+                .defaultsTo(0.005f)
+                .min(0f)
+                .max(1f)
+                .register();
+        PIPE_INJECT_SPEED =
+                LogisticsConfig.regFloat("pipe_inject_speed", "Item speed when injected by network routing (blocks/tick)")
+                        .defaultsTo(0.2f)
+                        .greaterThan(0f)
+                        .register();
 
-        LogisticsConfig.regCrossField("pipe_max_speed", "Item speed ceiling (blocks/tick)",
-                () -> (double) LogisticsConfig.get().pipe.maxSpeed,
-                v -> LogisticsConfig.get().pipe.maxSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.pipe.maxSpeed,
-                v -> LogisticsConfig.requireCondition(
-                        v >= LogisticsConfig.get().pipe.minSpeed, "must be greater than or equal to pipe_min_speed"));
-        LogisticsConfig.regCrossField("pipe_min_speed", "Item speed floor (blocks/tick)",
-                () -> (double) LogisticsConfig.get().pipe.minSpeed,
-                v -> LogisticsConfig.get().pipe.minSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.pipe.minSpeed,
-                v -> LogisticsConfig.requireCondition(
-                        v <= LogisticsConfig.get().pipe.maxSpeed, "must be less than or equal to pipe_max_speed"));
-        LogisticsConfig.reg("pipe_acceleration", "Speed gain per tick when accelerating",
-                () -> (double) LogisticsConfig.get().pipe.acceleration,
-                v -> LogisticsConfig.get().pipe.acceleration = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> (double) defaults.pipe.acceleration);
-        LogisticsConfig.reg("pipe_drag", "Speed decay fraction per tick",
-                () -> (double) LogisticsConfig.get().pipe.drag,
-                v -> LogisticsConfig.get().pipe.drag = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
-                () -> (double) defaults.pipe.drag);
-        LogisticsConfig.reg("pipe_inject_speed", "Item speed when injected by network routing (blocks/tick)",
-                () -> (double) LogisticsConfig.get().pipe.injectSpeed,
-                v -> LogisticsConfig.get().pipe.injectSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.pipe.injectSpeed);
+        FLUID_PIPE_BASE_TRANSFER_RATE = LogisticsConfig.regInt(
+                        "fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier")
+                .defaultsTo(10)
+                .min(1)
+                .max(Integer.MAX_VALUE)
+                .register();
+        FLUID_PIPE_BASE_CAPACITY = LogisticsConfig.regInt("fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)")
+                .defaultsTo(250)
+                .min(1)
+                .max(Integer.MAX_VALUE)
+                .register();
+        FLUID_PIPE_WOODEN_REQUIRES_ENGINE = LogisticsConfig.regBool(
+                        "fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power")
+                .defaultsTo(true)
+                .register();
+        FLUID_PIPE_ACTIVE_EXTRACTION =
+                LogisticsConfig.regBool("fluid_pipe_active_extraction", "Debug: extractor pulling enabled")
+                        .defaultsTo(true)
+                        .register();
 
-        // Fluid pipes
-        LogisticsConfig.reg("fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
-                () -> (long) LogisticsConfig.get().fluidPipe.baseTransferRate,
-                v -> LogisticsConfig.get().fluidPipe.baseTransferRate = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireRange(
-                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPipe.baseTransferRate);
-        LogisticsConfig.reg("fluid_pipe_base_capacity", "Fluid Pipe buffer capacity (mB)",
-                () -> (long) LogisticsConfig.get().fluidPipe.baseCapacity,
-                v -> LogisticsConfig.get().fluidPipe.baseCapacity = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireRange(
-                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPipe.baseCapacity);
-        LogisticsConfig.reg("fluid_pipe_wooden_requires_engine", "Fluid Extractor Pipe requires engine power",
-                () -> LogisticsConfig.get().fluidPipe.woodenRequiresEngine,
-                v -> LogisticsConfig.get().fluidPipe.woodenRequiresEngine = v,
-                LogisticsConfig::parseBooleanStrict,
-                v -> {},
-                () -> defaults.fluidPipe.woodenRequiresEngine);
-        LogisticsConfig.reg("fluid_pipe_active_extraction", "Debug: extractor pulling enabled",
-                () -> LogisticsConfig.get().fluidPipe.activeExtraction,
-                v -> LogisticsConfig.get().fluidPipe.activeExtraction = v,
-                LogisticsConfig::parseBooleanStrict,
-                v -> {},
-                () -> defaults.fluidPipe.activeExtraction);
+        FLUID_PUMP_TANK_CAPACITY_MB =
+                LogisticsConfig.regInt("fluid_pump_tank_capacity_mb", "Fluid Pump tank capacity (mB)")
+                        .defaultsTo(16_000)
+                        .min(1)
+                        .max(Integer.MAX_VALUE)
+                        .register();
+        FLUID_PUMP_ENERGY_CAPACITY =
+                LogisticsConfig.regLong("fluid_pump_energy_capacity", "Fluid Pump energy buffer capacity (RF)")
+                        .defaultsTo(1_000L)
+                        .min(1L)
+                        .register();
+        FLUID_PUMP_MAX_ENERGY_INPUT =
+                LogisticsConfig.regLong("fluid_pump_max_energy_input", "Fluid Pump max energy input (RF/t)")
+                        .defaultsTo(150L)
+                        .min(1L)
+                        .register();
+        FLUID_PUMP_ENERGY_PER_SOURCE =
+                LogisticsConfig.regLong("fluid_pump_energy_per_source", "RF consumed per source block pumped")
+                        .defaultsTo(100L)
+                        .min(0L)
+                        .register();
+        FLUID_PUMP_PUSH_RATE_MB = LogisticsConfig.regInt("fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)")
+                .defaultsTo(400)
+                .min(1)
+                .max(Integer.MAX_VALUE)
+                .register();
+        FLUID_PUMP_INTERVAL_TICKS =
+                LogisticsConfig.regInt("fluid_pump_interval_ticks", "Fluid Pump source pickup interval (ticks)")
+                        .defaultsTo(16)
+                        .min(1)
+                        .max(Integer.MAX_VALUE)
+                        .register();
+        // Capped so the radius can be squared as an int downstream without overflowing.
+        FLUID_PUMP_SEARCH_RADIUS =
+                LogisticsConfig.regInt("fluid_pump_search_radius", "Fluid Pump connected source search radius")
+                        .defaultsTo(64)
+                        .min(1)
+                        .max((int) MAX_PUMP_SEARCH_RADIUS)
+                        .register();
+        FLUID_PUMP_ARM_SPEED =
+                LogisticsConfig.regFloat("fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)")
+                        .defaultsTo(0.01f)
+                        .greaterThan(0f)
+                        .register();
+        FLUID_PUMP_INFINITE_SOURCE_THRESHOLD = LogisticsConfig.regInt(
+                        "fluid_pump_infinite_source_threshold",
+                        "Connected water sources at or above which the pump treats the body as infinite and pumps"
+                                + " without consuming blocks (0 = always consume)")
+                .defaultsTo(9)
+                .min(0)
+                .register();
 
-        // Fluid pump
-        LogisticsConfig.reg("fluid_pump_tank_capacity_mb", "Fluid Pump tank capacity (mB)",
-                () -> (long) LogisticsConfig.get().fluidPump.tankCapacityMb,
-                v -> LogisticsConfig.get().fluidPump.tankCapacityMb = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireRange(
-                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPump.tankCapacityMb);
-        LogisticsConfig.reg("fluid_pump_energy_capacity", "Fluid Pump energy buffer capacity (RF)",
-                () -> LogisticsConfig.get().fluidPump.energyCapacity,
-                v -> LogisticsConfig.get().fluidPump.energyCapacity = v,
-                Long::parseLong,
-                v -> LogisticsConfig.requireMin(v, 1L, "must be greater than or equal to 1"),
-                () -> defaults.fluidPump.energyCapacity);
-        LogisticsConfig.reg("fluid_pump_max_energy_input", "Fluid Pump max energy input (RF/t)",
-                () -> LogisticsConfig.get().fluidPump.maxEnergyInput,
-                v -> LogisticsConfig.get().fluidPump.maxEnergyInput = v,
-                Long::parseLong,
-                v -> LogisticsConfig.requireMin(v, 1L, "must be greater than or equal to 1"),
-                () -> defaults.fluidPump.maxEnergyInput);
-        LogisticsConfig.reg("fluid_pump_energy_per_source", "RF consumed per source block pumped",
-                () -> LogisticsConfig.get().fluidPump.energyPerSource,
-                v -> LogisticsConfig.get().fluidPump.energyPerSource = v,
-                Long::parseLong,
-                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.fluidPump.energyPerSource);
-        LogisticsConfig.reg("fluid_pump_push_rate_mb", "Fluid Pump output rate (mB/tick)",
-                () -> (long) LogisticsConfig.get().fluidPump.pushRateMb,
-                v -> LogisticsConfig.get().fluidPump.pushRateMb = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireRange(
-                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPump.pushRateMb);
-        LogisticsConfig.reg("fluid_pump_interval_ticks", "Fluid Pump source pickup interval (ticks)",
-                () -> (long) LogisticsConfig.get().fluidPump.pumpIntervalTicks,
-                v -> LogisticsConfig.get().fluidPump.pumpIntervalTicks = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireRange(
-                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.fluidPump.pumpIntervalTicks);
-        LogisticsConfig.reg("fluid_pump_search_radius", "Fluid Pump connected source search radius",
-                () -> (long) LogisticsConfig.get().fluidPump.searchRadius,
-                v -> LogisticsConfig.get().fluidPump.searchRadius = v.intValue(),
-                Long::parseLong,
-                // Capped so the radius can be squared as an int downstream without overflowing.
-                v -> LogisticsConfig.requireRange(
-                        v, 1L, MAX_PUMP_SEARCH_RADIUS, "must be between 1 and " + MAX_PUMP_SEARCH_RADIUS),
-                () -> (long) defaults.fluidPump.searchRadius);
-        LogisticsConfig.reg("fluid_pump_arm_speed", "Fluid Pump arm movement speed (blocks/tick)",
-                () -> (double) LogisticsConfig.get().fluidPump.armSpeed,
-                v -> LogisticsConfig.get().fluidPump.armSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.fluidPump.armSpeed);
-        LogisticsConfig.reg("fluid_pump_infinite_source_threshold",
-                "Connected water sources at or above which the pump treats the body as infinite and pumps without consuming blocks (0 = always consume)",
-                () -> (long) LogisticsConfig.get().fluidPump.infiniteSourceThreshold,
-                v -> LogisticsConfig.get().fluidPump.infiniteSourceThreshold = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> (long) defaults.fluidPump.infiniteSourceThreshold);
+        LogisticsConfig.registerSanitizeHook(() -> LogisticsConfig.repairMinMax(PIPE_MIN_SPEED, PIPE_MAX_SPEED));
     }
 
     @Override

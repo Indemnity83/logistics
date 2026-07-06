@@ -1,7 +1,7 @@
 package com.logistics.pipe;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.*;
 import com.logistics.core.lib.pipe.Module;
@@ -453,7 +453,7 @@ public class ChassisPipe extends ItemPipe {
             float drag = module.getDrag(ctx);
             if (drag > 0f) return drag;
         }
-        return LogisticsConfig.get().pipe.drag;
+        return LogisticsPipe.PIPE_DRAG.get();
     }
 
     @Override
@@ -466,7 +466,7 @@ public class ChassisPipe extends ItemPipe {
             float max = module.getMaxSpeed(ctx);
             if (max > 0f) return max;
         }
-        return LogisticsConfig.get().pipe.maxSpeed;
+        return LogisticsPipe.PIPE_MAX_SPEED.get();
     }
 
     @Override

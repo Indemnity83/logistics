@@ -1,6 +1,6 @@
 package com.logistics.pipe.render;
+import com.logistics.LogisticsPipe;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.DebugLog;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.client.render.VanillaQuadBaker;
@@ -120,9 +120,9 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
         {
 
             // Get pipe properties for speed calculations
-            float maxSpeed = LogisticsConfig.get().pipe.maxSpeed;
+            float maxSpeed = LogisticsPipe.PIPE_MAX_SPEED.get();
             float accelerationRate = 0f;
-            float dragCoefficient = LogisticsConfig.get().pipe.drag;
+            float dragCoefficient = LogisticsPipe.PIPE_DRAG.get();
 
             if (blockState.getBlock() instanceof PipeBlock pipeBlock) {
                 if (pipeBlock.getPipe() != null && entity.getLevel() != null) {
@@ -274,7 +274,7 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
             }
 
             // Speed at the end of this partial tick
-            float minSpeed = LogisticsConfig.get().pipe.minSpeed;
+            float minSpeed = LogisticsPipe.PIPE_MIN_SPEED.get();
             float interpolatedSpeed = itemState.currentSpeed + speedChange;
             if (interpolatedSpeed < minSpeed) {
                 interpolatedSpeed = minSpeed;

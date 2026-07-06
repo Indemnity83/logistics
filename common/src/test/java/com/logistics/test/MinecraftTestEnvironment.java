@@ -97,6 +97,9 @@ public abstract class MinecraftTestEnvironment {
                 // without a loader-specific implementation (Fabric/NeoForge).
                 ItemStorageLookup.registerKeyFactory(TestItemKey::of);
 
+                // Register domain config entries so LogisticsConfig entry constants resolve in tests.
+                TestConfig.registerDomains();
+
                 bootstrapped = true;
             } catch (Exception e) {
                 throw new RuntimeException("Failed to bootstrap Minecraft test environment", e);

@@ -1,6 +1,6 @@
 package com.logistics.pipe.runtime;
+import com.logistics.LogisticsPipe;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.network.NetDbg;
@@ -42,9 +42,9 @@ public final class PipeRuntime {
             float dragCoefficient) {
 
         static TickContext create(Level world, BlockPos pos, BlockState state, PipeBlockEntity blockEntity) {
-            float maxSpeed = LogisticsConfig.get().pipe.maxSpeed;
+            float maxSpeed = LogisticsPipe.PIPE_MAX_SPEED.get();
             float accelerationRate = 0f;
-            float dragCoefficient = LogisticsConfig.get().pipe.drag;
+            float dragCoefficient = LogisticsPipe.PIPE_DRAG.get();
             ItemPipe pipe = null;
             PipeContext pipeContext = null;
 

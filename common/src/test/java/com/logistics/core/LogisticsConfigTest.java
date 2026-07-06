@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
+import com.logistics.test.TestConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -21,9 +22,7 @@ class LogisticsConfigTest {
     /** Entries now live in their owning domains; register them so {@code ENTRIES} is populated. */
     @BeforeAll
     static void registerDomainConfig() {
-        new LogisticsAutomation().registerConfig();
-        new LogisticsPipe().registerConfig();
-        new LogisticsPower().registerConfig();
+        TestConfig.registerDomains();
     }
 
     @AfterEach
@@ -36,13 +35,13 @@ class LogisticsConfigTest {
     void rejectsInvalidCommandValuesWithoutMutation() {
         LogisticsConfig.useForTests(new LogisticsConfig());
         LogisticsConfig.ConfigEntry<?> entry = LogisticsConfig.ENTRIES.get("pipe_min_speed");
-        float original = LogisticsConfig.get().pipe.minSpeed;
+        float original = LogisticsPipe.PIPE_MIN_SPEED.get();
 
         assertThatThrownBy(() -> entry.setFromString("-0.1"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("greater than 0");
 
-        assertThat(LogisticsConfig.get().pipe.minSpeed).isCloseTo(original, within(TOLERANCE));
+        assertThat(LogisticsPipe.PIPE_MIN_SPEED.get()).isCloseTo(original, within(TOLERANCE));
     }
 
     @Test
@@ -75,7 +74,7 @@ class LogisticsConfigTest {
         assertThat(LogisticsAutomation.QUARRY_AREA.get()).isEqualTo(3);
         assertThat(LogisticsAutomation.QUARRY_SCAN_RATE.get()).isEqualTo(1);
         assertThat(LogisticsAutomation.QUARRY_RAIN_PENALTY.get()).isCloseTo(0.0f, within(TOLERANCE));
-        assertThat(LogisticsConfig.get().pipe.drag).isCloseTo(1.0f, within(TOLERANCE));
+        assertThat(LogisticsPipe.PIPE_DRAG.get()).isCloseTo(1.0f, within(TOLERANCE));
         assertThat(LogisticsPower.REDSTONE_OUTPUT.get()).isEqualTo(0L);
     }
 
@@ -86,17 +85,16 @@ class LogisticsConfigTest {
 
         // 46340^2 fits in an int; one more overflows it once the pump squares the radius.
         LogisticsConfig.ENTRIES.get("fluid_pump_search_radius").setFromString("46340");
-        assertThat(LogisticsConfig.get().fluidPump.searchRadius).isEqualTo(46340);
+        assertThat(LogisticsPipe.FLUID_PUMP_SEARCH_RADIUS.get()).isEqualTo(46340);
 
         assertThatThrownBy(() -> LogisticsConfig.ENTRIES.get("fluid_pump_search_radius").setFromString("46341"))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThat(LogisticsConfig.get().fluidPump.searchRadius).isEqualTo(46340); // rejected, unchanged
+        assertThat(LogisticsPipe.FLUID_PUMP_SEARCH_RADIUS.get()).isEqualTo(46340); // rejected, unchanged
 
         // A hand-edited config that exceeds the cap is reset to the default on load.
-        LogisticsConfig parsed = new LogisticsConfig();
-        parsed.fluidPump.searchRadius = 46341;
-        assertThat(LogisticsConfig.sanitize(parsed).fluidPump.searchRadius)
-                .isEqualTo(new LogisticsConfig().fluidPump.searchRadius);
+        LogisticsPipe.FLUID_PUMP_SEARCH_RADIUS.loadFromString("46341");
+        LogisticsConfig.sanitize(new LogisticsConfig());
+        assertThat(LogisticsPipe.FLUID_PUMP_SEARCH_RADIUS.get()).isEqualTo(64);
     }
 
     @Test
@@ -111,8 +109,8 @@ class LogisticsConfigTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("pipe_max_speed");
 
-        assertThat(LogisticsConfig.get().pipe.minSpeed).isCloseTo(0.02f, within(TOLERANCE));
-        assertThat(LogisticsConfig.get().pipe.maxSpeed).isCloseTo(0.16f, within(TOLERANCE));
+        assertThat(LogisticsPipe.PIPE_MIN_SPEED.get()).isCloseTo(0.02f, within(TOLERANCE));
+        assertThat(LogisticsPipe.PIPE_MAX_SPEED.get()).isCloseTo(0.16f, within(TOLERANCE));
     }
 
     @Test
@@ -132,18 +130,18 @@ class LogisticsConfigTest {
     }
 
     @Test
-    @DisplayName("should sanitize invalid loaded fields to defaults while preserving valid fields")
-    void sanitizesInvalidLoadedFields() {
-        LogisticsConfig parsed = new LogisticsConfig();
-        parsed.pipe.minSpeed = 0.04f;
-        parsed.pipe.maxSpeed = 0.03f;
-        parsed.pipe.injectSpeed = Float.POSITIVE_INFINITY;
+    @DisplayName("should sanitize invalid pipe entries and repair an inverted speed range")
+    void sanitizesInvalidPipeEntries() {
+        LogisticsPipe.PIPE_MIN_SPEED.loadFromString("0.04");
+        LogisticsPipe.PIPE_MAX_SPEED.loadFromString("0.03");
+        LogisticsPipe.PIPE_INJECT_SPEED.loadFromString("Infinity");
 
-        LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
+        LogisticsConfig.sanitize(new LogisticsConfig());
 
-        assertThat(sanitized.pipe.minSpeed).isCloseTo(0.04f, within(TOLERANCE));
-        assertThat(sanitized.pipe.maxSpeed).isCloseTo(new LogisticsConfig().pipe.maxSpeed, within(TOLERANCE));
-        assertThat(sanitized.pipe.injectSpeed).isCloseTo(new LogisticsConfig().pipe.injectSpeed, within(TOLERANCE));
+        // min stays (still valid), max resets to default since the range inverted, inject resets (non-finite).
+        assertThat(LogisticsPipe.PIPE_MIN_SPEED.get()).isCloseTo(0.04f, within(TOLERANCE));
+        assertThat(LogisticsPipe.PIPE_MAX_SPEED.get()).isCloseTo(0.16f, within(TOLERANCE));
+        assertThat(LogisticsPipe.PIPE_INJECT_SPEED.get()).isCloseTo(0.2f, within(TOLERANCE));
     }
 
     @Test
@@ -174,18 +172,6 @@ class LogisticsConfigTest {
         assertThat(LogisticsPower.REDSTONE_OUTPUT.get()).isEqualTo(10L);
         assertThat(LogisticsPower.STIRLING_MIN_OUTPUT.get()).isEqualTo(3.0);
         assertThat(LogisticsPower.STIRLING_MAX_OUTPUT.get()).isEqualTo(10.0);
-    }
-
-    @Test
-    @DisplayName("should replace null loaded config groups with defaults")
-    void sanitizesNullLoadedGroups() {
-        LogisticsConfig parsed = new LogisticsConfig();
-        parsed.pipe = null;
-
-        LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
-
-        assertThat(sanitized.pipe).isNotNull();
-        assertThat(sanitized.pipe.minSpeed).isCloseTo(new LogisticsConfig().pipe.minSpeed, within(TOLERANCE));
     }
 
     @Test
@@ -261,8 +247,8 @@ class LogisticsConfigTest {
 
         LogisticsConfig restored = LogisticsConfig.deserialize(json);
         assertThat(LogisticsAutomation.QUARRY_ENERGY_PER_BLOCK.get()).isEqualTo(123L);
-        assertThat(restored.pipe.maxSpeed).isCloseTo(0.16f, within(TOLERANCE));
-        assertThat(restored.fluidPipe.activeExtraction).isFalse();
+        assertThat(LogisticsPipe.PIPE_MAX_SPEED.get()).isCloseTo(0.16f, within(TOLERANCE));
+        assertThat(LogisticsPipe.FLUID_PIPE_ACTIVE_EXTRACTION.get()).isFalse();
         assertThat(restored.crashReporting.enabled).isTrue();
     }
 

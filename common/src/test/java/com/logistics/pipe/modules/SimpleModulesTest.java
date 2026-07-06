@@ -1,6 +1,6 @@
 package com.logistics.pipe.modules;
+import com.logistics.LogisticsPipe;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
@@ -118,6 +118,6 @@ class SimpleModulesTest extends MinecraftTestEnvironment {
     @DisplayName("NetworkRouterModule.getMaxSpeed returns pipe.injectSpeed from config")
     void networkRouterModule_getMaxSpeed_returnsNetworkSpeed() {
         NetworkRouterModule module = new NetworkRouterModule();
-        assertThat(module.getMaxSpeed(ctx)).isEqualTo(LogisticsConfig.get().pipe.injectSpeed);
+        assertThat(module.getMaxSpeed(ctx)).isEqualTo(LogisticsPipe.PIPE_INJECT_SPEED.get());
     }
 }

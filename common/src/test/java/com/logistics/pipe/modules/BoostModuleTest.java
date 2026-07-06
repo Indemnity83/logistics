@@ -1,9 +1,11 @@
 package com.logistics.pipe.modules;
+import com.logistics.LogisticsPipe;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.test.FakePipeAccess;
+import com.logistics.test.TestConfig;
 import net.minecraft.core.BlockPos;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,11 @@ class BoostModuleTest {
     private BoostModule module;
     private FakePipeAccess access;
     private PipeContext ctx;
+
+    @BeforeAll
+    static void registerConfig() {
+        TestConfig.registerDomains();
+    }
 
     @BeforeEach
     void setUp() {
@@ -60,7 +67,7 @@ class BoostModuleTest {
     @Test
     @DisplayName("getMaxSpeed returns PIPE_MAX_SPEED * 4")
     void getMaxSpeed_returnsFourTimesBaseSpeed() {
-        float expected = LogisticsConfig.get().pipe.maxSpeed * 4.0f;
+        float expected = LogisticsPipe.PIPE_MAX_SPEED.get() * 4.0f;
         assertThat(module.getMaxSpeed(ctx)).isEqualTo(expected);
     }
 

@@ -43,44 +43,7 @@ public final class LogisticsConfig {
 
     // ==================== Config Groups ====================
 
-    public PipeConfig pipe = new PipeConfig();
-    public FluidPipeConfig fluidPipe = new FluidPipeConfig();
-    public FluidPumpConfig fluidPump = new FluidPumpConfig();
     public CrashReportingConfig crashReporting = new CrashReportingConfig();
-
-    public static final class PipeConfig {
-        public float acceleration = 1.0f / 200.0f;
-        public float drag = 0.005f;
-        public float minSpeed = 0.02f;
-        public float maxSpeed = 0.16f;
-        public float injectSpeed = 0.2f;
-    }
-
-    public static final class FluidPipeConfig {
-        /**
-         * Base fluid pipe transfer rate, in mB/tick. Each pipe tier scales this by a fixed multiplier
-         * (stone/extractor/void 1×, copper/bypass 2×, merger 3×, gold 4×), so this one knob moves them all.
-         */
-        public int baseTransferRate = 10;
-        /** Fluid pipe internal buffer, in mB (shared by every pipe kind). */
-        public int baseCapacity = 250;
-        /** Whether the Fluid Extractor Pipe requires engine power to extract. */
-        public boolean woodenRequiresEngine = true;
-        /** Debug toggle: when false, extractors stop pulling fluid into the network. */
-        public boolean activeExtraction = true;
-    }
-
-    public static final class FluidPumpConfig {
-        public int tankCapacityMb = 16_000;
-        public long energyCapacity = 1_000L;
-        public long maxEnergyInput = 150L;
-        public long energyPerSource = 100L;
-        public int pushRateMb = 400;
-        public int pumpIntervalTicks = 16;
-        public int searchRadius = 64;
-        public float armSpeed = 0.01f;
-        public int infiniteSourceThreshold = 9;
-    }
 
     /**
      * Opt-in sanitized crash reporting (Sentry). Disabled by default; an operator opts in via
@@ -283,6 +246,27 @@ public final class LogisticsConfig {
                 "rainPenalty", "quarry_rain_penalty",
                 "scanRate", "quarry_scan_rate",
                 "loadChunks", "quarry_load_chunks");
+        applyLegacyGroup(json, "pipe",
+                "maxSpeed", "pipe_max_speed",
+                "minSpeed", "pipe_min_speed",
+                "acceleration", "pipe_acceleration",
+                "drag", "pipe_drag",
+                "injectSpeed", "pipe_inject_speed");
+        applyLegacyGroup(json, "fluidPipe",
+                "baseTransferRate", "fluid_pipe_base_transfer_rate",
+                "baseCapacity", "fluid_pipe_base_capacity",
+                "woodenRequiresEngine", "fluid_pipe_wooden_requires_engine",
+                "activeExtraction", "fluid_pipe_active_extraction");
+        applyLegacyGroup(json, "fluidPump",
+                "tankCapacityMb", "fluid_pump_tank_capacity_mb",
+                "energyCapacity", "fluid_pump_energy_capacity",
+                "maxEnergyInput", "fluid_pump_max_energy_input",
+                "energyPerSource", "fluid_pump_energy_per_source",
+                "pushRateMb", "fluid_pump_push_rate_mb",
+                "pumpIntervalTicks", "fluid_pump_interval_ticks",
+                "searchRadius", "fluid_pump_search_radius",
+                "armSpeed", "fluid_pump_arm_speed",
+                "infiniteSourceThreshold", "fluid_pump_infinite_source_threshold");
         return config;
     }
 
@@ -328,18 +312,6 @@ public final class LogisticsConfig {
 
     static LogisticsConfig sanitize(LogisticsConfig config) {
         LogisticsConfig defaults = new LogisticsConfig();
-        if (config.pipe == null) {
-            LOGGER.warn("Invalid logistics config group pipe: missing; using defaults");
-            config.pipe = defaults.pipe;
-        }
-        if (config.fluidPipe == null) {
-            LOGGER.warn("Invalid logistics config group fluidPipe: missing; using defaults");
-            config.fluidPipe = defaults.fluidPipe;
-        }
-        if (config.fluidPump == null) {
-            LOGGER.warn("Invalid logistics config group fluidPump: missing; using defaults");
-            config.fluidPump = defaults.fluidPump;
-        }
         if (config.crashReporting == null) {
             LOGGER.warn("Invalid logistics config group crashReporting: missing; using defaults");
             config.crashReporting = defaults.crashReporting;
@@ -361,9 +333,8 @@ public final class LogisticsConfig {
             INSTANCE = previous;
         }
 
-        // Cross-field constraints can't be repaired per-entry; reconcile them here (in-core structs)
-        // and via hooks registered by domains that own self-storing entries.
-        sanitizePipeSpeedRange(config, defaults);
+        // Cross-field constraints can't be repaired per-entry; domains that own a min/max pair register
+        // a hook (see repairMinMax).
         SANITIZE_HOOKS.forEach(Runnable::run);
 
         return config;
@@ -375,31 +346,6 @@ public final class LogisticsConfig {
         for (ConfigEntry<?> entry : ENTRIES.values()) {
             entry.resetToDefault();
         }
-    }
-
-    private static void sanitizePipeSpeedRange(LogisticsConfig config, LogisticsConfig defaults) {
-        if (config.pipe.maxSpeed >= config.pipe.minSpeed) {
-            return;
-        }
-        float originalMax = config.pipe.maxSpeed;
-        if (defaults.pipe.maxSpeed >= config.pipe.minSpeed) {
-            config.pipe.maxSpeed = defaults.pipe.maxSpeed;
-            LOGGER.warn(
-                    "Invalid logistics config value pipe_max_speed={}: must be greater than or equal to pipe_min_speed; using default {}",
-                    originalMax,
-                    config.pipe.maxSpeed);
-            return;
-        }
-
-        float originalMin = config.pipe.minSpeed;
-        config.pipe.minSpeed = defaults.pipe.minSpeed;
-        if (config.pipe.maxSpeed < config.pipe.minSpeed) {
-            config.pipe.maxSpeed = defaults.pipe.maxSpeed;
-        }
-        LOGGER.warn(
-                "Invalid logistics config value pipe_min_speed={}: must be less than or equal to pipe_max_speed; using default {}",
-                originalMin,
-                config.pipe.minSpeed);
     }
 
     /**

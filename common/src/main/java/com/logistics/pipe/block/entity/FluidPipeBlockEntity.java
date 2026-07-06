@@ -1,7 +1,7 @@
 package com.logistics.pipe.block.entity;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.LogisticsFluid;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
@@ -115,8 +115,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         for (int i = 0; i < 6; i++) {
             connections[i] = FluidConnection.NONE;
         }
-        LogisticsConfig.FluidPipeConfig cfg = LogisticsConfig.get().fluidPipe;
-        this.capacityMb = def != null ? def.capacity(cfg) : cfg.baseCapacity;
+        this.capacityMb = def != null ? def.capacity() : LogisticsPipe.FLUID_PIPE_BASE_CAPACITY.get();
         this.energy = (def != null && def.isExtractor())
                 ? new EnergyComponent(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, this::setChanged)
                 : null;
@@ -150,8 +149,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     }
 
     /** This pipe's transfer rate in mB/tick, from its definition (falls back to the base rate if unbound). */
-    private long transferRate(LogisticsConfig.FluidPipeConfig cfg) {
-        return def != null ? def.transferRate(cfg) : cfg.baseTransferRate;
+    private long transferRate() {
+        return def != null ? def.transferRate() : LogisticsPipe.FLUID_PIPE_BASE_TRANSFER_RATE.get();
     }
 
     // ==================== Contents (for rendering + capability) ====================
@@ -473,9 +472,8 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     private void serverTick(Level level) {
         refreshConnections(level, getBlockPos());
 
-        LogisticsConfig.FluidPipeConfig cfg = LogisticsConfig.get().fluidPipe;
-        if (isExtractor() && energy != null && cfg.activeExtraction) {
-            extract(level, cfg);
+        if (isExtractor() && energy != null && LogisticsPipe.FLUID_PIPE_ACTIVE_EXTRACTION.get()) {
+            extract(level);
         }
 
         for (TravelingFluid parcel : parcels) {
@@ -483,9 +481,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
 
         if (isVoid()) {
-            destroyReady(transferRate(cfg));
+            destroyReady(transferRate());
         } else {
-            moveReadyFluid(level, transferRate(cfg));
+            moveReadyFluid(level, transferRate());
         }
 
         parcels.removeIf(parcel -> parcel.amount() <= 0);
@@ -501,7 +499,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     }
 
     /** Extractor: pull fluid from the handler on the wrench-selected pull face into this pipe. */
-    private void extract(Level level, LogisticsConfig.FluidPipeConfig cfg) {
+    private void extract(Level level) {
         long room = capacityMb - totalMillibuckets();
         Direction side = featureDirection;
         if (room <= 0 || side == null || connection(side) != FluidConnection.HANDLER) {
@@ -517,10 +515,10 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         if (fluid == null || (!contained.isBlank() && !contained.equals(fluid))) {
             return;
         }
-        long budget = Math.min(scaledExtractionRate(transferRate(cfg), fluid), room);
+        long budget = Math.min(scaledExtractionRate(transferRate(), fluid), room);
         FluidBuffer<IFluidKey> pulled = new FluidBuffer<>();
         FluidExtraction.Result result = FluidExtraction.tick(
-                pulled, provider, energy.getAmount(), budget, cfg.woodenRequiresEngine, extractionCarryMb);
+                pulled, provider, energy.getAmount(), budget, LogisticsPipe.FLUID_PIPE_WOODEN_REQUIRES_ENGINE.get(), extractionCarryMb);
         if (pulled.amount() > 0) {
             energy.consume(result.energyToConsume());
             extractionCarryMb = result.carryMb();
