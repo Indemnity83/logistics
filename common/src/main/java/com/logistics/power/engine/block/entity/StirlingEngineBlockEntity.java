@@ -1,6 +1,6 @@
 package com.logistics.power.engine.block.entity;
+import com.logistics.LogisticsConfigHost;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.items.ItemInventoryComponent;
@@ -210,8 +210,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         return generationPlanner.outputPower(
                 getTemperature(),
                 getTemperatureFloor(),
-                LogisticsConfig.get().engine.stirlingMinOutput,
-                LogisticsConfig.get().engine.stirlingMaxOutput);
+                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT),
+                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT));
     }
 
     @Override
@@ -283,8 +283,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 getTemperature(),
                 getEnergy(),
                 getEnergyBufferCapacity(),
-                LogisticsConfig.get().engine.stirlingMinOutput,
-                LogisticsConfig.get().engine.stirlingMaxOutput);
+                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT),
+                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT));
 
         if (toAdd > 0) {
             addEnergy(toAdd);

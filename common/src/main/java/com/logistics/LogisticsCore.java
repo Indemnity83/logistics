@@ -148,6 +148,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         LOGGER.info("Registering {}", domain());
 
         LogisticsConfig.load();
+        LogisticsConfigHost.bootstrap();
         CrashReporting.bootstrap();
 
         BLOCK.register();

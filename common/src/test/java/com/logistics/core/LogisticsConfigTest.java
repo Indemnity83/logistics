@@ -56,13 +56,11 @@ class LogisticsConfigTest {
         LogisticsConfig.ENTRIES.get("quarry_scan_rate").setFromString("1");
         LogisticsConfig.ENTRIES.get("quarry_rain_penalty").setFromString("0.0");
         LogisticsConfig.ENTRIES.get("pipe_drag").setFromString("1.0");
-        LogisticsConfig.ENTRIES.get("redstone_engine_output").setFromString("0");
 
         assertThat(LogisticsConfig.get().quarry.area).isEqualTo(3);
         assertThat(LogisticsConfig.get().quarry.scanRate).isEqualTo(1);
         assertThat(LogisticsConfig.get().quarry.rainPenalty).isCloseTo(0.0f, within(TOLERANCE));
         assertThat(LogisticsConfig.get().pipe.drag).isCloseTo(1.0f, within(TOLERANCE));
-        assertThat(LogisticsConfig.get().engine.redstoneOutput).isZero();
     }
 
     @Test
@@ -102,22 +100,6 @@ class LogisticsConfigTest {
     }
 
     @Test
-    @DisplayName("should reject stirling output ranges that invert min and max")
-    void rejectsInvertedStirlingOutputs() {
-        LogisticsConfig.useForTests(new LogisticsConfig());
-
-        assertThatThrownBy(() -> LogisticsConfig.ENTRIES.get("stirling_engine_max_output").setFromString("2.0"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("stirling_engine_min_output");
-        assertThatThrownBy(() -> LogisticsConfig.ENTRIES.get("stirling_engine_min_output").setFromString("12.0"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("stirling_engine_max_output");
-
-        assertThat(LogisticsConfig.get().engine.stirlingMinOutput).isEqualTo(3.0);
-        assertThat(LogisticsConfig.get().engine.stirlingMaxOutput).isEqualTo(10.0);
-    }
-
-    @Test
     @DisplayName("should sanitize invalid loaded fields to defaults while preserving valid fields")
     void sanitizesInvalidLoadedFields() {
         LogisticsConfig parsed = new LogisticsConfig();
@@ -128,9 +110,6 @@ class LogisticsConfigTest {
         parsed.pipe.minSpeed = 0.04f;
         parsed.pipe.maxSpeed = 0.03f;
         parsed.pipe.injectSpeed = Float.POSITIVE_INFINITY;
-        parsed.engine.redstoneOutput = -1L;
-        parsed.engine.stirlingMinOutput = 12.0;
-        parsed.engine.stirlingMaxOutput = 10.0;
 
         LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
 
@@ -141,9 +120,6 @@ class LogisticsConfigTest {
         assertThat(sanitized.pipe.minSpeed).isCloseTo(0.04f, within(TOLERANCE));
         assertThat(sanitized.pipe.maxSpeed).isCloseTo(new LogisticsConfig().pipe.maxSpeed, within(TOLERANCE));
         assertThat(sanitized.pipe.injectSpeed).isCloseTo(new LogisticsConfig().pipe.injectSpeed, within(TOLERANCE));
-        assertThat(sanitized.engine.redstoneOutput).isEqualTo(new LogisticsConfig().engine.redstoneOutput);
-        assertThat(sanitized.engine.stirlingMinOutput).isEqualTo(new LogisticsConfig().engine.stirlingMinOutput);
-        assertThat(sanitized.engine.stirlingMaxOutput).isEqualTo(new LogisticsConfig().engine.stirlingMaxOutput);
     }
 
     @Test
@@ -152,16 +128,13 @@ class LogisticsConfigTest {
         LogisticsConfig parsed = new LogisticsConfig();
         parsed.quarry = null;
         parsed.pipe = null;
-        parsed.engine = null;
 
         LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
 
         assertThat(sanitized.quarry).isNotNull();
         assertThat(sanitized.pipe).isNotNull();
-        assertThat(sanitized.engine).isNotNull();
         assertThat(sanitized.quarry.area).isEqualTo(new LogisticsConfig().quarry.area);
         assertThat(sanitized.pipe.minSpeed).isCloseTo(new LogisticsConfig().pipe.minSpeed, within(TOLERANCE));
-        assertThat(sanitized.engine.redstoneOutput).isEqualTo(new LogisticsConfig().engine.redstoneOutput);
     }
 
     @Test

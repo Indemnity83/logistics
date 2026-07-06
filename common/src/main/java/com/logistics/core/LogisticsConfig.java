@@ -37,7 +37,6 @@ public final class LogisticsConfig {
 
     public QuarryConfig quarry = new QuarryConfig();
     public PipeConfig pipe = new PipeConfig();
-    public EngineConfig engine = new EngineConfig();
     public FluidPipeConfig fluidPipe = new FluidPipeConfig();
     public FluidPumpConfig fluidPump = new FluidPumpConfig();
     public CrashReportingConfig crashReporting = new CrashReportingConfig();
@@ -74,12 +73,6 @@ public final class LogisticsConfig {
         public float minSpeed = 0.02f;
         public float maxSpeed = 0.16f;
         public float injectSpeed = 0.2f;
-    }
-
-    public static final class EngineConfig {
-        public long redstoneOutput = 10L;
-        public double stirlingMinOutput = 3.0;
-        public double stirlingMaxOutput = 10.0;
     }
 
     public static final class FluidPipeConfig {
@@ -209,33 +202,6 @@ public final class LogisticsConfig {
                 v -> INSTANCE.pipe.injectSpeed = v.floatValue(),
                 Double::parseDouble,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
-
-        // Engine
-        reg(map, "redstone_engine_output", "RF generated per 16-tick interval",
-                () -> INSTANCE.engine.redstoneOutput,
-                v -> INSTANCE.engine.redstoneOutput = v,
-                Long::parseLong,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
-        reg(map, "stirling_engine_min_output", "Stirling engine minimum RF/t output",
-                () -> INSTANCE.engine.stirlingMinOutput,
-                v -> INSTANCE.engine.stirlingMinOutput = v,
-                Double::parseDouble,
-                v -> {
-                    requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0");
-                    requireCondition(
-                            v <= INSTANCE.engine.stirlingMaxOutput,
-                            "must be less than or equal to stirling_engine_max_output");
-                });
-        reg(map, "stirling_engine_max_output", "Stirling engine maximum RF/t output",
-                () -> INSTANCE.engine.stirlingMaxOutput,
-                v -> INSTANCE.engine.stirlingMaxOutput = v,
-                Double::parseDouble,
-                v -> {
-                    requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0");
-                    requireCondition(
-                            v >= INSTANCE.engine.stirlingMinOutput,
-                            "must be greater than or equal to stirling_engine_min_output");
-                });
 
         // Fluid pipes
         reg(map, "fluid_pipe_base_transfer_rate", "Base Fluid Pipe transfer rate (mB/tick), scaled per tier",
@@ -410,10 +376,6 @@ public final class LogisticsConfig {
             LOGGER.warn("Invalid logistics config group pipe: missing; using defaults");
             config.pipe = defaults.pipe;
         }
-        if (config.engine == null) {
-            LOGGER.warn("Invalid logistics config group engine: missing; using defaults");
-            config.engine = defaults.engine;
-        }
         if (config.fluidPipe == null) {
             LOGGER.warn("Invalid logistics config group fluidPipe: missing; using defaults");
             config.fluidPipe = defaults.fluidPipe;
@@ -471,17 +433,6 @@ public final class LogisticsConfig {
         sanitizeFloat("pipe_inject_speed", () -> (double) config.pipe.injectSpeed,
                 v -> config.pipe.injectSpeed = v.floatValue(), () -> (double) defaults.pipe.injectSpeed,
                 v -> requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"));
-
-        sanitizeLong("redstone_engine_output", () -> config.engine.redstoneOutput,
-                v -> config.engine.redstoneOutput = v, () -> defaults.engine.redstoneOutput,
-                v -> requireMin(v, 0L, "must be greater than or equal to 0"));
-        sanitizeDouble("stirling_engine_min_output", () -> config.engine.stirlingMinOutput,
-                v -> config.engine.stirlingMinOutput = v, () -> defaults.engine.stirlingMinOutput,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
-        sanitizeDouble("stirling_engine_max_output", () -> config.engine.stirlingMaxOutput,
-                v -> config.engine.stirlingMaxOutput = v, () -> defaults.engine.stirlingMaxOutput,
-                v -> requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"));
-        sanitizeStirlingOutputRange(config, defaults);
 
         sanitizeInt("fluid_pipe_base_transfer_rate", () -> (long) config.fluidPipe.baseTransferRate,
                 v -> config.fluidPipe.baseTransferRate = v.intValue(), () -> (long) defaults.fluidPipe.baseTransferRate,
@@ -602,31 +553,6 @@ public final class LogisticsConfig {
                 "Invalid logistics config value pipe_min_speed={}: must be less than or equal to pipe_max_speed; using default {}",
                 originalMin,
                 config.pipe.minSpeed);
-    }
-
-    private static void sanitizeStirlingOutputRange(LogisticsConfig config, LogisticsConfig defaults) {
-        if (config.engine.stirlingMaxOutput >= config.engine.stirlingMinOutput) {
-            return;
-        }
-        double originalMax = config.engine.stirlingMaxOutput;
-        if (defaults.engine.stirlingMaxOutput >= config.engine.stirlingMinOutput) {
-            config.engine.stirlingMaxOutput = defaults.engine.stirlingMaxOutput;
-            LOGGER.warn(
-                    "Invalid logistics config value stirling_engine_max_output={}: must be greater than or equal to stirling_engine_min_output; using default {}",
-                    originalMax,
-                    config.engine.stirlingMaxOutput);
-            return;
-        }
-
-        double originalMin = config.engine.stirlingMinOutput;
-        config.engine.stirlingMinOutput = defaults.engine.stirlingMinOutput;
-        if (config.engine.stirlingMaxOutput < config.engine.stirlingMinOutput) {
-            config.engine.stirlingMaxOutput = defaults.engine.stirlingMaxOutput;
-        }
-        LOGGER.warn(
-                "Invalid logistics config value stirling_engine_min_output={}: must be less than or equal to stirling_engine_max_output; using default {}",
-                originalMin,
-                config.engine.stirlingMinOutput);
     }
 
     private static void requireMin(long value, long min, String message) {

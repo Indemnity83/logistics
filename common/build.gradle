@@ -19,6 +19,7 @@ plugins {
 repositories {
     maven { url = "https://maven.terraformersmc.com/releases/" }
     maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
+    mavenLocal()  // configory (POC): published locally until it lands in a public maven repo
 }
 
 loom {
@@ -41,6 +42,10 @@ dependencies {
     // Sentry SDK for opt-in crash reporting (pure Java, no transitive deps). Bundled per loader
     // via include (Fabric) / jarJar (NeoForge); here it compiles common and runs the unit tests.
     implementation("io.sentry:sentry:${rootProject.sentry_version}")
+
+    // Configory config library (pure Java; only transitive dep is Gson, already on the MC classpath).
+    // Bundled per loader via include (Fabric) / jarJar (NeoForge).
+    implementation("com.indemnity83:configory:${rootProject.configory_version}")
 
     // JEI — compile only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
