@@ -96,30 +96,6 @@ public final class LogisticsConfig {
         throw new IllegalArgumentException("must be 'true' or 'false'");
     }
 
-    public static <T> void reg(
-            String key,
-            String description,
-            Supplier<T> getter,
-            Consumer<T> setter,
-            Function<String, T> parser,
-            Consumer<T> validator,
-            Supplier<T> defaultValue) {
-        register(new ConfigEntry<>(key, description, getter, setter, parser, validator, defaultValue));
-    }
-
-    public static <T> void regCrossField(
-            String key,
-            String description,
-            Supplier<T> getter,
-            Consumer<T> setter,
-            Function<String, T> parser,
-            Consumer<T> validator,
-            Supplier<T> defaultValue,
-            Consumer<T> crossFieldValidator) {
-        register(new ConfigEntry<>(
-                key, description, getter, setter, parser, validator, defaultValue, crossFieldValidator));
-    }
-
     // ==================== API ====================
 
     public static LogisticsConfig get() {
@@ -203,22 +179,16 @@ public final class LogisticsConfig {
             return deserializeLegacy(json);
         }
         LogisticsConfig config = new LogisticsConfig();
-        LogisticsConfig previous = INSTANCE;
-        INSTANCE = config;
-        try {
-            for (ConfigEntry<?> entry : ENTRIES.values()) {
-                JsonElement value = json.get(entry.key());
-                if (value == null || !value.isJsonPrimitive()) {
-                    continue;
-                }
-                try {
-                    entry.loadFromString(value.getAsString());
-                } catch (RuntimeException e) {
-                    LOGGER.warn("Ignoring malformed config value {}={}: {}", entry.key(), value, e.getMessage());
-                }
+        for (ConfigEntry<?> entry : ENTRIES.values()) {
+            JsonElement value = json.get(entry.key());
+            if (value == null || !value.isJsonPrimitive()) {
+                continue;
             }
-        } finally {
-            INSTANCE = previous;
+            try {
+                entry.loadFromString(value.getAsString());
+            } catch (RuntimeException e) {
+                LOGGER.warn("Ignoring malformed config value {}={}: {}", entry.key(), value, e.getMessage());
+            }
         }
         if (json.has("crash_reporting") && json.get("crash_reporting").isJsonObject()) {
             config.crashReporting = GSON.fromJson(json.get("crash_reporting"), CrashReportingConfig.class);
@@ -320,17 +290,9 @@ public final class LogisticsConfig {
             config.crashReporting.dsnOverride = defaults.crashReporting.dsnOverride;
         }
 
-        // Repair each value against its registry entry (single-field validation only). The registry
-        // getters/setters read and write INSTANCE, so point it at the config under repair for the
-        // duration (load and reload both run single-threaded, and callers reassign INSTANCE anyway).
-        LogisticsConfig previous = INSTANCE;
-        INSTANCE = config;
-        try {
-            for (ConfigEntry<?> entry : ENTRIES.values()) {
-                entry.sanitize();
-            }
-        } finally {
-            INSTANCE = previous;
+        // Repair each self-storing entry against its own validator (single-field only).
+        for (ConfigEntry<?> entry : ENTRIES.values()) {
+            entry.sanitize();
         }
 
         // Cross-field constraints can't be repaired per-entry; domains that own a min/max pair register
@@ -378,37 +340,7 @@ public final class LogisticsConfig {
                 minEntry.key(), min, maxEntry.key(), defaultMin);
     }
 
-    public static void requireMin(long value, long min, String message) {
-        requireCondition(value >= min, message);
-    }
-
-    public static void requireRange(long value, long min, long max, String message) {
-        requireCondition(value >= min && value <= max, message);
-    }
-
-    public static void requireFiniteMin(double value, double min, String message) {
-        requireCondition(Double.isFinite(value) && value >= min, message);
-    }
-
-    public static void requireFiniteRange(double value, double min, double max, String message) {
-        requireCondition(Double.isFinite(value) && value >= min && value <= max, message);
-    }
-
-    public static void requireFiniteFloatMin(double value, double min, String message) {
-        requireFiniteFloat(value, message);
-        requireCondition(value >= min, message);
-    }
-
-    public static void requireFiniteFloatGreaterThan(double value, double minExclusive, String message) {
-        requireFiniteFloat(value, message);
-        requireCondition(value > minExclusive, message);
-    }
-
-    private static void requireFiniteFloat(double value, String message) {
-        requireCondition(Double.isFinite(value) && Math.abs(value) <= Float.MAX_VALUE, message);
-    }
-
-    public static void requireCondition(boolean condition, String message) {
+    private static void requireCondition(boolean condition, String message) {
         if (!condition) {
             throw new IllegalArgumentException(message);
         }
@@ -417,9 +349,7 @@ public final class LogisticsConfig {
     // ==================== ConfigEntry ====================
 
     /**
-     * A single config value. Two flavors: a <em>bridge</em> entry reads/writes an external field via
-     * getter/setter (legacy path); a <em>self-storing</em> entry (built via {@link #regInt} etc.) holds
-     * its own value. Both expose the same {@link #get()}/{@link #setFromString}/{@link #sanitize} surface.
+     * A single config value that holds its own state. Built via {@link #regInt} etc.; read with {@link #get()}.
      */
     public static final class ConfigEntry<T> {
         private final String key;
@@ -427,49 +357,9 @@ public final class LogisticsConfig {
         private final Function<String, T> parser;
         private final Consumer<T> validator;
         private final Consumer<T> crossFieldValidator;
-
-        private final boolean selfStoring;
-        private final Supplier<T> getter;
-        private final Consumer<T> setter;
-        private final Supplier<T> defaultSupplier;
         private final T defaultConstant;
         private volatile T value;
 
-        /** Bridge entry backed by an external field. */
-        public ConfigEntry(
-                String key,
-                String description,
-                Supplier<T> getter,
-                Consumer<T> setter,
-                Function<String, T> parser,
-                Consumer<T> validator,
-                Supplier<T> defaultValue,
-                Consumer<T> crossFieldValidator) {
-            this.key = key;
-            this.description = description;
-            this.parser = parser;
-            this.validator = validator;
-            this.crossFieldValidator = crossFieldValidator;
-            this.selfStoring = false;
-            this.getter = getter;
-            this.setter = setter;
-            this.defaultSupplier = defaultValue;
-            this.defaultConstant = null;
-        }
-
-        /** Bridge entry with no cross-field constraint. */
-        public ConfigEntry(
-                String key,
-                String description,
-                Supplier<T> getter,
-                Consumer<T> setter,
-                Function<String, T> parser,
-                Consumer<T> validator,
-                Supplier<T> defaultValue) {
-            this(key, description, getter, setter, parser, validator, defaultValue, v -> {});
-        }
-
-        /** Self-storing entry that holds its own value. */
         ConfigEntry(
                 String key,
                 String description,
@@ -482,10 +372,6 @@ public final class LogisticsConfig {
             this.parser = parser;
             this.validator = validator;
             this.crossFieldValidator = crossFieldValidator;
-            this.selfStoring = true;
-            this.getter = null;
-            this.setter = null;
-            this.defaultSupplier = null;
             this.defaultConstant = defaultValue;
             this.value = defaultValue;
         }
@@ -500,28 +386,22 @@ public final class LogisticsConfig {
 
         /** The current value. */
         public T get() {
-            return selfStoring ? value : getter.get();
+            return value;
         }
 
         /** Set the value directly, without parsing or validation (used by cross-field repair). */
         public void set(T v) {
-            if (selfStoring) {
-                value = v;
-            } else {
-                setter.accept(v);
-            }
+            value = v;
         }
 
         /** The configured default. */
         public T defaultValue() {
-            return selfStoring ? defaultConstant : defaultSupplier.get();
+            return defaultConstant;
         }
 
-        /** Reset a self-storing entry to its default; bridge entries follow their backing field. */
+        /** Reset to the default. */
         void resetToDefault() {
-            if (selfStoring) {
-                value = defaultConstant;
-            }
+            value = defaultConstant;
         }
 
         /** Returns the current value as a string. */
