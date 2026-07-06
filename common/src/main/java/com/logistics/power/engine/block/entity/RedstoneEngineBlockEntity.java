@@ -1,6 +1,5 @@
 package com.logistics.power.engine.block.entity;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.power.LowTierEnergySource;
 import com.logistics.power.engine.block.RedstoneEngineBlock;
@@ -36,7 +35,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
 
     @Override
     protected long getOutputPower() {
-        return LogisticsConfig.get().engine.redstoneOutput;
+        return LogisticsPower.REDSTONE_OUTPUT.get();
     }
 
     @Override
@@ -79,7 +78,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
         }
 
         if (level.getGameTime() % ENERGY_TICK_INTERVAL == 0) {
-            addEnergy(LogisticsConfig.get().engine.redstoneOutput);
+            addEnergy(LogisticsPower.REDSTONE_OUTPUT.get());
         }
     }
 }

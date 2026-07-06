@@ -45,7 +45,6 @@ public final class LogisticsConfig {
 
     public QuarryConfig quarry = new QuarryConfig();
     public PipeConfig pipe = new PipeConfig();
-    public EngineConfig engine = new EngineConfig();
     public FluidPipeConfig fluidPipe = new FluidPipeConfig();
     public FluidPumpConfig fluidPump = new FluidPumpConfig();
     public CrashReportingConfig crashReporting = new CrashReportingConfig();
@@ -82,12 +81,6 @@ public final class LogisticsConfig {
         public float minSpeed = 0.02f;
         public float maxSpeed = 0.16f;
         public float injectSpeed = 0.2f;
-    }
-
-    public static final class EngineConfig {
-        public long redstoneOutput = 10L;
-        public double stirlingMinOutput = 3.0;
-        public double stirlingMaxOutput = 10.0;
     }
 
     public static final class FluidPipeConfig {
@@ -147,6 +140,13 @@ public final class LogisticsConfig {
     /** Close registration. Called once after every domain has registered, before {@link #load()}. */
     public static void freeze() {
         frozen = true;
+    }
+
+    private static final List<Runnable> SANITIZE_HOOKS = new ArrayList<>();
+
+    /** Register a cross-field repair to run after per-entry sanitize (e.g. {@link #repairMinMax}). */
+    public static void registerSanitizeHook(Runnable hook) {
+        SANITIZE_HOOKS.add(hook);
     }
 
     /** Strict boolean parse — rejects anything but {@code true}/{@code false} (unlike {@link Boolean#parseBoolean}). */
@@ -264,7 +264,7 @@ public final class LogisticsConfig {
      */
     static LogisticsConfig deserialize(JsonObject json) {
         if (isLegacyNested(json)) {
-            return GSON.fromJson(json, LogisticsConfig.class);
+            return deserializeLegacy(json);
         }
         LogisticsConfig config = new LogisticsConfig();
         LogisticsConfig previous = INSTANCE;
@@ -288,6 +288,39 @@ public final class LogisticsConfig {
             config.crashReporting = GSON.fromJson(json.get("crash_reporting"), CrashReportingConfig.class);
         }
         return config;
+    }
+
+    /**
+     * Read the legacy nested layout. Domains still backed by structs deserialize straight into the POJO;
+     * domains that have moved to self-storing entries pull their values from their old nested group.
+     */
+    private static LogisticsConfig deserializeLegacy(JsonObject json) {
+        LogisticsConfig config = GSON.fromJson(json, LogisticsConfig.class);
+        applyLegacyGroup(json, "engine",
+                "redstoneOutput", "redstone_engine_output",
+                "stirlingMinOutput", "stirling_engine_min_output",
+                "stirlingMaxOutput", "stirling_engine_max_output");
+        return config;
+    }
+
+    /** Map a legacy nested group's fields ({@code field, flatKey} pairs) onto their self-storing entries. */
+    private static void applyLegacyGroup(JsonObject json, String group, String... fieldKeyPairs) {
+        if (!json.has(group) || !json.get(group).isJsonObject()) {
+            return;
+        }
+        JsonObject obj = json.getAsJsonObject(group);
+        for (int i = 0; i < fieldKeyPairs.length; i += 2) {
+            ConfigEntry<?> entry = ENTRIES.get(fieldKeyPairs[i + 1]);
+            JsonElement value = obj.get(fieldKeyPairs[i]);
+            if (entry == null || value == null || !value.isJsonPrimitive()) {
+                continue;
+            }
+            try {
+                entry.loadFromString(value.getAsString());
+            } catch (RuntimeException e) {
+                LOGGER.warn("Ignoring malformed legacy config {}.{}: {}", group, fieldKeyPairs[i], e.getMessage());
+            }
+        }
     }
 
     /** The pre-flat format stored each domain as a nested object; the flat format uses flat keys. */
@@ -320,10 +353,6 @@ public final class LogisticsConfig {
             LOGGER.warn("Invalid logistics config group pipe: missing; using defaults");
             config.pipe = defaults.pipe;
         }
-        if (config.engine == null) {
-            LOGGER.warn("Invalid logistics config group engine: missing; using defaults");
-            config.engine = defaults.engine;
-        }
         if (config.fluidPipe == null) {
             LOGGER.warn("Invalid logistics config group fluidPipe: missing; using defaults");
             config.fluidPipe = defaults.fluidPipe;
@@ -353,15 +382,20 @@ public final class LogisticsConfig {
             INSTANCE = previous;
         }
 
-        // Cross-field constraints can't be repaired per-entry; reconcile the min/max ordering here.
+        // Cross-field constraints can't be repaired per-entry; reconcile them here (in-core structs)
+        // and via hooks registered by domains that own self-storing entries.
         sanitizePipeSpeedRange(config, defaults);
-        sanitizeStirlingOutputRange(config, defaults);
+        SANITIZE_HOOKS.forEach(Runnable::run);
 
         return config;
     }
 
     static void useForTests(LogisticsConfig config) {
         INSTANCE = sanitize(config);
+        // Self-storing entries live outside the struct-based `config`; reset them so tests start clean.
+        for (ConfigEntry<?> entry : ENTRIES.values()) {
+            entry.resetToDefault();
+        }
     }
 
     private static void sanitizePipeSpeedRange(LogisticsConfig config, LogisticsConfig defaults) {
@@ -389,29 +423,34 @@ public final class LogisticsConfig {
                 config.pipe.minSpeed);
     }
 
-    private static void sanitizeStirlingOutputRange(LogisticsConfig config, LogisticsConfig defaults) {
-        if (config.engine.stirlingMaxOutput >= config.engine.stirlingMinOutput) {
+    /**
+     * Reconcile a min/max entry pair after per-entry sanitize: if {@code max < min}, reset whichever is
+     * needed to its default, preferring to keep the other. Domains with a cross-field pair register a
+     * {@link #registerSanitizeHook hook} that calls this.
+     */
+    public static <T extends Number> void repairMinMax(ConfigEntry<T> minEntry, ConfigEntry<T> maxEntry) {
+        double min = minEntry.get().doubleValue();
+        double max = maxEntry.get().doubleValue();
+        if (max >= min) {
             return;
         }
-        double originalMax = config.engine.stirlingMaxOutput;
-        if (defaults.engine.stirlingMaxOutput >= config.engine.stirlingMinOutput) {
-            config.engine.stirlingMaxOutput = defaults.engine.stirlingMaxOutput;
+        T defaultMax = maxEntry.defaultValue();
+        if (defaultMax.doubleValue() >= min) {
+            maxEntry.set(defaultMax);
             LOGGER.warn(
-                    "Invalid logistics config value stirling_engine_max_output={}: must be greater than or equal to stirling_engine_min_output; using default {}",
-                    originalMax,
-                    config.engine.stirlingMaxOutput);
+                    "Invalid logistics config value {}={}: must be greater than or equal to {}; using default {}",
+                    maxEntry.key(), max, minEntry.key(), defaultMax);
             return;
         }
 
-        double originalMin = config.engine.stirlingMinOutput;
-        config.engine.stirlingMinOutput = defaults.engine.stirlingMinOutput;
-        if (config.engine.stirlingMaxOutput < config.engine.stirlingMinOutput) {
-            config.engine.stirlingMaxOutput = defaults.engine.stirlingMaxOutput;
+        T defaultMin = minEntry.defaultValue();
+        minEntry.set(defaultMin);
+        if (maxEntry.get().doubleValue() < defaultMin.doubleValue()) {
+            maxEntry.set(defaultMax);
         }
         LOGGER.warn(
-                "Invalid logistics config value stirling_engine_min_output={}: must be less than or equal to stirling_engine_max_output; using default {}",
-                originalMin,
-                config.engine.stirlingMinOutput);
+                "Invalid logistics config value {}={}: must be less than or equal to {}; using default {}",
+                minEntry.key(), min, maxEntry.key(), defaultMin);
     }
 
     public static void requireMin(long value, long min, String message) {
@@ -539,7 +578,8 @@ public final class LogisticsConfig {
             return selfStoring ? value : getter.get();
         }
 
-        private void set(T v) {
+        /** Set the value directly, without parsing or validation (used by cross-field repair). */
+        public void set(T v) {
             if (selfStoring) {
                 value = v;
             } else {
@@ -547,8 +587,16 @@ public final class LogisticsConfig {
             }
         }
 
-        private T defaultValue() {
+        /** The configured default. */
+        public T defaultValue() {
             return selfStoring ? defaultConstant : defaultSupplier.get();
+        }
+
+        /** Reset a self-storing entry to its default; bridge entries follow their backing field. */
+        void resetToDefault() {
+            if (selfStoring) {
+                value = defaultConstant;
+            }
         }
 
         /** Returns the current value as a string. */

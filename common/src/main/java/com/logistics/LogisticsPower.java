@@ -1,6 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.LogisticsConfig;
+import com.logistics.core.LogisticsConfig.ConfigEntry;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.block.BatteryBlock;
@@ -48,34 +49,28 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         return 10;
     }
 
+    /** RF the Redstone Engine generates per 16-tick interval. */
+    public static ConfigEntry<Long> REDSTONE_OUTPUT;
+    /** Stirling engine minimum RF/t output. */
+    public static ConfigEntry<Double> STIRLING_MIN_OUTPUT;
+    /** Stirling engine maximum RF/t output. */
+    public static ConfigEntry<Double> STIRLING_MAX_OUTPUT;
+
     @Override
     public void registerConfig() {
-        LogisticsConfig defaults = new LogisticsConfig();
-
-        LogisticsConfig.reg("redstone_engine_output", "RF generated per 16-tick interval",
-                () -> LogisticsConfig.get().engine.redstoneOutput,
-                v -> LogisticsConfig.get().engine.redstoneOutput = v,
-                Long::parseLong,
-                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.engine.redstoneOutput);
-        LogisticsConfig.regCrossField("stirling_engine_min_output", "Stirling engine minimum RF/t output",
-                () -> LogisticsConfig.get().engine.stirlingMinOutput,
-                v -> LogisticsConfig.get().engine.stirlingMinOutput = v,
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> defaults.engine.stirlingMinOutput,
-                v -> LogisticsConfig.requireCondition(
-                        v <= LogisticsConfig.get().engine.stirlingMaxOutput,
-                        "must be less than or equal to stirling_engine_max_output"));
-        LogisticsConfig.regCrossField("stirling_engine_max_output", "Stirling engine maximum RF/t output",
-                () -> LogisticsConfig.get().engine.stirlingMaxOutput,
-                v -> LogisticsConfig.get().engine.stirlingMaxOutput = v,
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> defaults.engine.stirlingMaxOutput,
-                v -> LogisticsConfig.requireCondition(
-                        v >= LogisticsConfig.get().engine.stirlingMinOutput,
-                        "must be greater than or equal to stirling_engine_min_output"));
+        REDSTONE_OUTPUT = LogisticsConfig.regLong("redstone_engine_output", "RF generated per 16-tick interval")
+                .defaultsTo(10L).min(0L).register();
+        STIRLING_MIN_OUTPUT = LogisticsConfig.regDouble("stirling_engine_min_output", "Stirling engine minimum RF/t output")
+                .defaultsTo(3.0)
+                .min(0.0)
+                .max(() -> STIRLING_MAX_OUTPUT)
+                .register();
+        STIRLING_MAX_OUTPUT = LogisticsConfig.regDouble("stirling_engine_max_output", "Stirling engine maximum RF/t output")
+                .defaultsTo(10.0)
+                .min(0.0)
+                .min(() -> STIRLING_MIN_OUTPUT)
+                .register();
+        LogisticsConfig.registerSanitizeHook(() -> LogisticsConfig.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
     }
 
     @Override
