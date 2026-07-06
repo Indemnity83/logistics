@@ -1,7 +1,7 @@
 package com.logistics.automation.laserquarry.entity;
+import com.logistics.LogisticsAutomation;
 
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -104,7 +104,7 @@ public final class QuarryPhaseRunner {
 
         BlockPos target = null;
         BlockState targetState = null;
-        for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
+        for (int skipped = 0; skipped < LogisticsAutomation.QUARRY_SCAN_RATE.get(); skipped++) {
             target = clearingTargetPos(q);
             if (target == null) {
                 transitionFromClearingToBuildingFrame(q);
@@ -159,7 +159,7 @@ public final class QuarryPhaseRunner {
                 LaserQuarryBlock.getMiningDirection(q.quarryState()),
                 q.pos(),
                 q.bounds(),
-                LogisticsConfig.get().quarry.area,
+                LogisticsAutomation.QUARRY_AREA.get(),
                 frameBuildIndex);
         if (framePos == null) {
             // Frame built — transition to mining.
@@ -185,7 +185,7 @@ public final class QuarryPhaseRunner {
                     q.pos(),
                     framePos,
                     q.bounds(),
-                    LogisticsConfig.get().quarry.area);
+                    LogisticsAutomation.QUARRY_AREA.get());
             q.level().setBlockAndUpdate(framePos, frameState);
         }
 
@@ -198,7 +198,7 @@ public final class QuarryPhaseRunner {
 
         BlockPos target = null;
         boolean skippedAny = false;
-        for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
+        for (int skipped = 0; skipped < LogisticsAutomation.QUARRY_SCAN_RATE.get(); skipped++) {
             target = miningTargetPos(q);
             if (target == null) {
                 if (currentTarget != null) {
@@ -267,7 +267,7 @@ public final class QuarryPhaseRunner {
             if (!target.equals(currentTarget) || currentBreakTime < 0) {
                 currentTarget = target;
                 float hardness = targetState.getDestroySpeed(q.level(), target);
-                currentBreakTime = (float) (LogisticsConfig.get().quarry.energyPerBlockMultiplier() * (hardness + 1));
+                currentBreakTime = (float) (LogisticsAutomation.energyPerBlockMultiplier() * (hardness + 1));
                 breakProgress = 0;
             }
 
@@ -315,7 +315,7 @@ public final class QuarryPhaseRunner {
                 LaserQuarryBlock.getMiningDirection(q.quarryState()),
                 q.pos(),
                 q.bounds(),
-                LogisticsConfig.get().quarry.area,
+                LogisticsAutomation.QUARRY_AREA.get(),
                 miningX,
                 miningY,
                 miningZ);
@@ -326,7 +326,7 @@ public final class QuarryPhaseRunner {
                 LaserQuarryBlock.getMiningDirection(q.quarryState()),
                 q.pos(),
                 q.bounds(),
-                LogisticsConfig.get().quarry.area,
+                LogisticsAutomation.QUARRY_AREA.get(),
                 q.levelMinY(),
                 miningX,
                 miningY,
@@ -337,10 +337,10 @@ public final class QuarryPhaseRunner {
         miningX++;
         int maxX = q.bounds().isCustom()
                 ? (q.bounds().getMaxX() - q.bounds().getMinX() + 1)
-                : LogisticsConfig.get().quarry.area;
+                : LogisticsAutomation.QUARRY_AREA.get();
         int maxZ = q.bounds().isCustom()
                 ? (q.bounds().getMaxZ() - q.bounds().getMinZ() + 1)
-                : LogisticsConfig.get().quarry.area;
+                : LogisticsAutomation.QUARRY_AREA.get();
 
         if (miningX >= maxX) {
             miningX = 0;
@@ -369,8 +369,8 @@ public final class QuarryPhaseRunner {
             innerSizeX = bounds.getMaxX() - bounds.getMinX() - 1;
             innerSizeZ = bounds.getMaxZ() - bounds.getMinZ() - 1;
         } else {
-            innerSizeX = LogisticsConfig.get().quarry.area - 2;
-            innerSizeZ = LogisticsConfig.get().quarry.area - 2;
+            innerSizeX = LogisticsAutomation.QUARRY_AREA.get() - 2;
+            innerSizeZ = LogisticsAutomation.QUARRY_AREA.get() - 2;
         }
         if (innerSizeX <= 0 || innerSizeZ <= 0) {
             return;
@@ -389,7 +389,7 @@ public final class QuarryPhaseRunner {
     }
 
     private void skipToNextSolidBlock(QuarryContext q) {
-        for (int skipped = 0; skipped < LogisticsConfig.get().quarry.scanRate; skipped++) {
+        for (int skipped = 0; skipped < LogisticsAutomation.QUARRY_SCAN_RATE.get(); skipped++) {
             BlockPos target = miningTargetPos(q);
             if (target == null) {
                 finished = true;

@@ -31,6 +31,7 @@ import com.logistics.automation.sawmill.SawmillRecipeDisplay;
 import com.logistics.automation.sawmill.SawmillRecipeSerializer;
 import com.logistics.automation.sawmill.SawmillScreenHandler;
 import com.logistics.core.LogisticsConfig;
+import com.logistics.core.LogisticsConfig.ConfigEntry;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -70,66 +71,93 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         return 20;
     }
 
+    /** Quarry mining area side length (NxN blocks). */
+    public static ConfigEntry<Integer> QUARRY_AREA;
+    /** RF cost per block mined. */
+    public static ConfigEntry<Long> QUARRY_ENERGY_PER_BLOCK;
+    /** Global energy cost multiplier. */
+    public static ConfigEntry<Double> QUARRY_ENERGY_MULTIPLIER;
+    /** Arm movement speed (blocks/tick). */
+    public static ConfigEntry<Float> QUARRY_ARM_SPEED;
+    /** Energy-to-speed scaling constant. */
+    public static ConfigEntry<Float> QUARRY_ARM_SPEED_SCALING;
+    /** RF/tick cost for arm movement. */
+    public static ConfigEntry<Long> QUARRY_ARM_ENERGY;
+    /** Speed multiplier when raining (0.0-1.0). */
+    public static ConfigEntry<Float> QUARRY_RAIN_PENALTY;
+    /** Max blocks scanned per tick when searching. */
+    public static ConfigEntry<Integer> QUARRY_SCAN_RATE;
+    /** Keep the quarry and its work area chunk-loaded while running. */
+    public static ConfigEntry<Boolean> QUARRY_LOAD_CHUNKS;
+
     @Override
     public void registerConfig() {
-        LogisticsConfig defaults = new LogisticsConfig();
+        QUARRY_AREA = LogisticsConfig.regInt("quarry_area", "Quarry mining area side length (NxN blocks)")
+                .defaultsTo(16)
+                .min(3)
+                .max(Integer.MAX_VALUE)
+                .register();
+        QUARRY_ENERGY_PER_BLOCK = LogisticsConfig.regLong("quarry_energy_per_block", "RF cost per block mined")
+                .defaultsTo(60L)
+                .min(0L)
+                .register();
+        QUARRY_ENERGY_MULTIPLIER = LogisticsConfig.regDouble("quarry_energy_multiplier", "Global energy cost multiplier")
+                .defaultsTo(1.0)
+                .min(0.0)
+                .register();
+        QUARRY_ARM_SPEED = LogisticsConfig.regFloat("quarry_arm_speed", "Arm movement speed (blocks/tick)")
+                .defaultsTo(0.1f)
+                .min(0f)
+                .register();
+        QUARRY_ARM_SPEED_SCALING =
+                LogisticsConfig.regFloat("quarry_arm_speed_scaling", "Energy-to-speed scaling constant")
+                        .defaultsTo(2000f)
+                        .greaterThan(0f)
+                        .register();
+        QUARRY_ARM_ENERGY = LogisticsConfig.regLong("quarry_arm_energy", "RF/tick cost for arm movement")
+                .defaultsTo(20L)
+                .min(0L)
+                .register();
+        QUARRY_RAIN_PENALTY = LogisticsConfig.regFloat("quarry_rain_penalty", "Speed multiplier when raining (0.0-1.0)")
+                .defaultsTo(0.7f)
+                .min(0f)
+                .max(1f)
+                .register();
+        QUARRY_SCAN_RATE = LogisticsConfig.regInt("quarry_scan_rate", "Max blocks scanned per tick when searching")
+                .defaultsTo(256)
+                .min(1)
+                .max(Integer.MAX_VALUE)
+                .register();
+        QUARRY_LOAD_CHUNKS =
+                LogisticsConfig.regBool("quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running")
+                        .defaultsTo(false)
+                        .register();
+    }
 
-        LogisticsConfig.reg("quarry_area", "Quarry mining area side length (NxN blocks)",
-                () -> (long) LogisticsConfig.get().quarry.area,
-                v -> LogisticsConfig.get().quarry.area = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireRange(
-                        v, 3L, (long) Integer.MAX_VALUE, "must be between 3 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.quarry.area);
-        LogisticsConfig.reg("quarry_energy_per_block", "RF cost per block mined",
-                () -> LogisticsConfig.get().quarry.energyPerBlock,
-                v -> LogisticsConfig.get().quarry.energyPerBlock = v,
-                Long::parseLong,
-                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.quarry.energyPerBlock);
-        LogisticsConfig.reg("quarry_energy_multiplier", "Global energy cost multiplier",
-                () -> LogisticsConfig.get().quarry.energyMultiplier,
-                v -> LogisticsConfig.get().quarry.energyMultiplier = v,
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> defaults.quarry.energyMultiplier);
-        LogisticsConfig.reg("quarry_arm_speed", "Arm movement speed (blocks/tick)",
-                () -> (double) LogisticsConfig.get().quarry.armSpeed,
-                v -> LogisticsConfig.get().quarry.armSpeed = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteFloatMin(v, 0.0, "must be finite and greater than or equal to 0"),
-                () -> (double) defaults.quarry.armSpeed);
-        LogisticsConfig.reg("quarry_arm_speed_scaling", "Energy-to-speed scaling constant",
-                () -> (double) LogisticsConfig.get().quarry.armSpeedScaling,
-                v -> LogisticsConfig.get().quarry.armSpeedScaling = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteFloatGreaterThan(v, 0.0, "must be finite and greater than 0"),
-                () -> (double) defaults.quarry.armSpeedScaling);
-        LogisticsConfig.reg("quarry_arm_energy", "RF/tick cost for arm movement",
-                () -> LogisticsConfig.get().quarry.armEnergy,
-                v -> LogisticsConfig.get().quarry.armEnergy = v,
-                Long::parseLong,
-                v -> LogisticsConfig.requireMin(v, 0L, "must be greater than or equal to 0"),
-                () -> defaults.quarry.armEnergy);
-        LogisticsConfig.reg("quarry_rain_penalty", "Speed multiplier when raining (0.0-1.0)",
-                () -> (double) LogisticsConfig.get().quarry.rainPenalty,
-                v -> LogisticsConfig.get().quarry.rainPenalty = v.floatValue(),
-                Double::parseDouble,
-                v -> LogisticsConfig.requireFiniteRange(v, 0.0, 1.0, "must be finite and between 0.0 and 1.0"),
-                () -> (double) defaults.quarry.rainPenalty);
-        LogisticsConfig.reg("quarry_scan_rate", "Max blocks scanned per tick when searching",
-                () -> (long) LogisticsConfig.get().quarry.scanRate,
-                v -> LogisticsConfig.get().quarry.scanRate = v.intValue(),
-                Long::parseLong,
-                v -> LogisticsConfig.requireRange(
-                        v, 1L, (long) Integer.MAX_VALUE, "must be between 1 and " + Integer.MAX_VALUE),
-                () -> (long) defaults.quarry.scanRate);
-        LogisticsConfig.reg("quarry_load_chunks", "Keep the quarry and its work area chunk-loaded while running",
-                () -> LogisticsConfig.get().quarry.loadChunks,
-                mode -> LogisticsConfig.get().quarry.loadChunks = mode,
-                LogisticsConfig::parseBooleanStrict,
-                v -> {},
-                () -> defaults.quarry.loadChunks);
+    /** RF cost baseline per block, scaled by the energy multiplier (0 if the config is non-finite). */
+    public static double energyPerBlockMultiplier() {
+        return nonNegativeFiniteOrZero(QUARRY_ENERGY_PER_BLOCK.get() * QUARRY_ENERGY_MULTIPLIER.get() * 2);
+    }
+
+    /** Quarry energy buffer capacity. */
+    public static long energyCapacity() {
+        return nonNegativeLongOrZero(128.0 * QUARRY_ENERGY_PER_BLOCK.get() * QUARRY_ENERGY_MULTIPLIER.get());
+    }
+
+    /** Quarry max energy input per tick. */
+    public static long maxEnergyInput() {
+        return nonNegativeLongOrZero(1_000L * QUARRY_ENERGY_MULTIPLIER.get());
+    }
+
+    private static double nonNegativeFiniteOrZero(double value) {
+        return Double.isFinite(value) ? Math.max(0.0, value) : 0.0;
+    }
+
+    private static long nonNegativeLongOrZero(double value) {
+        if (!Double.isFinite(value)) {
+            return 0L;
+        }
+        return Math.max(0L, (long) value);
     }
 
     @Override

@@ -3,7 +3,7 @@ plugins {
     id 'jacoco'
 }
 
-version = System.getenv("MOD_VERSION") ?: "dev"
+    version = System.getenv("MOD_VERSION") ?: "dev"
 group = project.maven_group
 
 repositories {

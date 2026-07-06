@@ -1,7 +1,7 @@
 package com.logistics.automation.laserquarry;
+import com.logistics.LogisticsAutomation;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.core.LogisticsConfig;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -173,12 +173,12 @@ public class LaserQuarryFrameBlock extends Block {
             endZ = quarry.getCustomMaxZ();
         } else {
             // Calculate default bounds from facing direction
-            int half = LogisticsConfig.get().quarry.area / 2;
+            int half = LogisticsAutomation.QUARRY_AREA.get() / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
+                    startZ = quarryPos.getZ() - LogisticsAutomation.QUARRY_AREA.get();
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - half;
@@ -189,14 +189,14 @@ public class LaserQuarryFrameBlock extends Block {
                     startZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
+                    startX = quarryPos.getX() - LogisticsAutomation.QUARRY_AREA.get();
                     startZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return false;
             }
-            endX = startX + LogisticsConfig.get().quarry.area - 1;
-            endZ = startZ + LogisticsConfig.get().quarry.area - 1;
+            endX = startX + LogisticsAutomation.QUARRY_AREA.get() - 1;
+            endZ = startZ + LogisticsAutomation.QUARRY_AREA.get() - 1;
         }
 
         int bottomY = quarryPos.getY();

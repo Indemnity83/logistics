@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * {@code config/logistics.json} (writing defaults if the file is missing) — all before any
  * {@code initCommon()} body reads config.
  *
- * <p>Runtime access: {@code LogisticsConfig.get().quarry.energyPerBlock}
+ * <p>Runtime access: via typed entry constants, e.g. {@code LogisticsAutomation.QUARRY_ENERGY_PER_BLOCK.get()}
  * <p>Command access: {@code /logistics config list|get|set|reload}
  */
 public final class LogisticsConfig {
@@ -43,37 +43,10 @@ public final class LogisticsConfig {
 
     // ==================== Config Groups ====================
 
-    public QuarryConfig quarry = new QuarryConfig();
     public PipeConfig pipe = new PipeConfig();
     public FluidPipeConfig fluidPipe = new FluidPipeConfig();
     public FluidPumpConfig fluidPump = new FluidPumpConfig();
     public CrashReportingConfig crashReporting = new CrashReportingConfig();
-
-    public static final class QuarryConfig {
-        public int area = 16;
-        public long energyPerBlock = 60L;
-        public double energyMultiplier = 1.0;
-        public float armSpeed = 0.1f;
-        public float armSpeedScaling = 2000f;
-        public long armEnergy = 20L;
-        public float rainPenalty = 0.7f;
-        public int scanRate = 256;
-        public boolean loadChunks = false;
-
-        // Derived values — computed from the fields above.
-        public double energyPerBlockMultiplier() { return nonNegativeFiniteOrZero(energyPerBlock * energyMultiplier * 2); }
-        public long energyCapacity()          { return nonNegativeLongOrZero(128.0 * energyPerBlock * energyMultiplier); }
-        public long maxEnergyInput()          { return nonNegativeLongOrZero(1_000L * energyMultiplier); }
-
-        private static double nonNegativeFiniteOrZero(double value) {
-            return Double.isFinite(value) ? Math.max(0.0, value) : 0.0;
-        }
-
-        private static long nonNegativeLongOrZero(double value) {
-            if (!Double.isFinite(value)) return 0L;
-            return Math.max(0L, (long) value);
-        }
-    }
 
     public static final class PipeConfig {
         public float acceleration = 1.0f / 200.0f;
@@ -300,6 +273,16 @@ public final class LogisticsConfig {
                 "redstoneOutput", "redstone_engine_output",
                 "stirlingMinOutput", "stirling_engine_min_output",
                 "stirlingMaxOutput", "stirling_engine_max_output");
+        applyLegacyGroup(json, "quarry",
+                "area", "quarry_area",
+                "energyPerBlock", "quarry_energy_per_block",
+                "energyMultiplier", "quarry_energy_multiplier",
+                "armSpeed", "quarry_arm_speed",
+                "armSpeedScaling", "quarry_arm_speed_scaling",
+                "armEnergy", "quarry_arm_energy",
+                "rainPenalty", "quarry_rain_penalty",
+                "scanRate", "quarry_scan_rate",
+                "loadChunks", "quarry_load_chunks");
         return config;
     }
 
@@ -345,10 +328,6 @@ public final class LogisticsConfig {
 
     static LogisticsConfig sanitize(LogisticsConfig config) {
         LogisticsConfig defaults = new LogisticsConfig();
-        if (config.quarry == null) {
-            LOGGER.warn("Invalid logistics config group quarry: missing; using defaults");
-            config.quarry = defaults.quarry;
-        }
         if (config.pipe == null) {
             LOGGER.warn("Invalid logistics config group pipe: missing; using defaults");
             config.pipe = defaults.pipe;

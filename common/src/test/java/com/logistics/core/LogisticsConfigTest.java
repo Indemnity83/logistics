@@ -72,9 +72,9 @@ class LogisticsConfigTest {
         LogisticsConfig.ENTRIES.get("pipe_drag").setFromString("1.0");
         LogisticsConfig.ENTRIES.get("redstone_engine_output").setFromString("0");
 
-        assertThat(LogisticsConfig.get().quarry.area).isEqualTo(3);
-        assertThat(LogisticsConfig.get().quarry.scanRate).isEqualTo(1);
-        assertThat(LogisticsConfig.get().quarry.rainPenalty).isCloseTo(0.0f, within(TOLERANCE));
+        assertThat(LogisticsAutomation.QUARRY_AREA.get()).isEqualTo(3);
+        assertThat(LogisticsAutomation.QUARRY_SCAN_RATE.get()).isEqualTo(1);
+        assertThat(LogisticsAutomation.QUARRY_RAIN_PENALTY.get()).isCloseTo(0.0f, within(TOLERANCE));
         assertThat(LogisticsConfig.get().pipe.drag).isCloseTo(1.0f, within(TOLERANCE));
         assertThat(LogisticsPower.REDSTONE_OUTPUT.get()).isEqualTo(0L);
     }
@@ -135,23 +135,31 @@ class LogisticsConfigTest {
     @DisplayName("should sanitize invalid loaded fields to defaults while preserving valid fields")
     void sanitizesInvalidLoadedFields() {
         LogisticsConfig parsed = new LogisticsConfig();
-        parsed.quarry.area = 2;
-        parsed.quarry.energyPerBlock = 120L;
-        parsed.quarry.energyMultiplier = Double.NaN;
-        parsed.quarry.scanRate = 0;
         parsed.pipe.minSpeed = 0.04f;
         parsed.pipe.maxSpeed = 0.03f;
         parsed.pipe.injectSpeed = Float.POSITIVE_INFINITY;
 
         LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
 
-        assertThat(sanitized.quarry.area).isEqualTo(new LogisticsConfig().quarry.area);
-        assertThat(sanitized.quarry.energyPerBlock).isEqualTo(120L);
-        assertThat(sanitized.quarry.energyMultiplier).isEqualTo(new LogisticsConfig().quarry.energyMultiplier);
-        assertThat(sanitized.quarry.scanRate).isEqualTo(new LogisticsConfig().quarry.scanRate);
         assertThat(sanitized.pipe.minSpeed).isCloseTo(0.04f, within(TOLERANCE));
         assertThat(sanitized.pipe.maxSpeed).isCloseTo(new LogisticsConfig().pipe.maxSpeed, within(TOLERANCE));
         assertThat(sanitized.pipe.injectSpeed).isCloseTo(new LogisticsConfig().pipe.injectSpeed, within(TOLERANCE));
+    }
+
+    @Test
+    @DisplayName("should sanitize invalid quarry entries to defaults while preserving valid ones")
+    void sanitizesInvalidQuarryEntries() {
+        LogisticsAutomation.QUARRY_AREA.loadFromString("2");
+        LogisticsAutomation.QUARRY_ENERGY_PER_BLOCK.loadFromString("120");
+        LogisticsAutomation.QUARRY_ENERGY_MULTIPLIER.loadFromString("NaN");
+        LogisticsAutomation.QUARRY_SCAN_RATE.loadFromString("0");
+
+        LogisticsConfig.sanitize(new LogisticsConfig());
+
+        assertThat(LogisticsAutomation.QUARRY_AREA.get()).isEqualTo(16);
+        assertThat(LogisticsAutomation.QUARRY_ENERGY_PER_BLOCK.get()).isEqualTo(120L);
+        assertThat(LogisticsAutomation.QUARRY_ENERGY_MULTIPLIER.get()).isEqualTo(1.0);
+        assertThat(LogisticsAutomation.QUARRY_SCAN_RATE.get()).isEqualTo(256);
     }
 
     @Test
@@ -172,45 +180,26 @@ class LogisticsConfigTest {
     @DisplayName("should replace null loaded config groups with defaults")
     void sanitizesNullLoadedGroups() {
         LogisticsConfig parsed = new LogisticsConfig();
-        parsed.quarry = null;
         parsed.pipe = null;
 
         LogisticsConfig sanitized = LogisticsConfig.sanitize(parsed);
 
-        assertThat(sanitized.quarry).isNotNull();
         assertThat(sanitized.pipe).isNotNull();
-        assertThat(sanitized.quarry.area).isEqualTo(new LogisticsConfig().quarry.area);
         assertThat(sanitized.pipe.minSpeed).isCloseTo(new LogisticsConfig().pipe.minSpeed, within(TOLERANCE));
     }
 
     @Test
     @DisplayName("should clamp quarry derived energy values to non-negative")
     void quarryDerivedEnergyValuesAreNonNegative() {
-        LogisticsConfig.QuarryConfig quarry = new LogisticsConfig.QuarryConfig();
-        quarry.energyPerBlock = 60L;
-        quarry.energyMultiplier = -1.0;
+        LogisticsAutomation.QUARRY_ENERGY_PER_BLOCK.set(60L);
 
-        assertThat(quarry.energyPerBlockMultiplier()).isZero();
-        assertThat(quarry.energyCapacity()).isZero();
-        assertThat(quarry.maxEnergyInput()).isZero();
-
-        quarry.energyMultiplier = Double.NaN;
-
-        assertThat(quarry.energyPerBlockMultiplier()).isZero();
-        assertThat(quarry.energyCapacity()).isZero();
-        assertThat(quarry.maxEnergyInput()).isZero();
-
-        quarry.energyMultiplier = Double.POSITIVE_INFINITY;
-
-        assertThat(quarry.energyPerBlockMultiplier()).isZero();
-        assertThat(quarry.energyCapacity()).isZero();
-        assertThat(quarry.maxEnergyInput()).isZero();
-
-        quarry.energyMultiplier = Double.NEGATIVE_INFINITY;
-
-        assertThat(quarry.energyPerBlockMultiplier()).isZero();
-        assertThat(quarry.energyCapacity()).isZero();
-        assertThat(quarry.maxEnergyInput()).isZero();
+        for (double invalidMultiplier :
+                new double[] {-1.0, Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            LogisticsAutomation.QUARRY_ENERGY_MULTIPLIER.set(invalidMultiplier);
+            assertThat(LogisticsAutomation.energyPerBlockMultiplier()).isZero();
+            assertThat(LogisticsAutomation.energyCapacity()).isZero();
+            assertThat(LogisticsAutomation.maxEnergyInput()).isZero();
+        }
     }
 
     @Test
@@ -271,7 +260,7 @@ class LogisticsConfigTest {
         assertThat(json.get("fluid_pipe_active_extraction").getAsBoolean()).isFalse();
 
         LogisticsConfig restored = LogisticsConfig.deserialize(json);
-        assertThat(restored.quarry.energyPerBlock).isEqualTo(123L);
+        assertThat(LogisticsAutomation.QUARRY_ENERGY_PER_BLOCK.get()).isEqualTo(123L);
         assertThat(restored.pipe.maxSpeed).isCloseTo(0.16f, within(TOLERANCE));
         assertThat(restored.fluidPipe.activeExtraction).isFalse();
         assertThat(restored.crashReporting.enabled).isTrue();
@@ -288,9 +277,9 @@ class LogisticsConfigTest {
 
         LogisticsConfig loaded = LogisticsConfig.deserialize(legacy);
 
-        assertThat(loaded.quarry.energyPerBlock).isEqualTo(77L);
-        assertThat(loaded.quarry.area).isEqualTo(24);
-        // engine moved to a self-storing entry; the legacy group is applied there.
+        // quarry and engine moved to self-storing entries; the legacy groups are applied there.
+        assertThat(LogisticsAutomation.QUARRY_ENERGY_PER_BLOCK.get()).isEqualTo(77L);
+        assertThat(LogisticsAutomation.QUARRY_AREA.get()).isEqualTo(24);
         assertThat(LogisticsPower.REDSTONE_OUTPUT.get()).isEqualTo(42L);
         assertThat(loaded.crashReporting.enabled).isTrue();
     }
