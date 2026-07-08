@@ -1,8 +1,6 @@
 package com.logistics;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.bootstrap.DomainBootstrap;
-import com.logistics.core.crash.CrashReporting;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
@@ -147,9 +145,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
-        LogisticsConfig.load();
         LogisticsConfigHost.bootstrap();
-        CrashReporting.bootstrap();
 
         BLOCK.register();
         ITEM.register();

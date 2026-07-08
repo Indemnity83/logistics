@@ -1,12 +1,14 @@
 package com.logistics.core.crash;
 
-import com.logistics.core.LogisticsConfig;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigRegistry;
+import com.logistics.LogisticsConfigHost.Configs;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 @DisplayName("CrashReporting")
 class CrashReportingTest {
@@ -15,13 +17,18 @@ class CrashReportingTest {
     // any queued event just fails to connect and is dropped on a background thread.
     private static final String LOCAL_DSN = "http://examplekey@localhost/1";
 
+    /** The shared reporting config the crash keys live on. */
+    private static Config reporting() {
+        return ConfigRegistry.config(Configs.CRASH_REPORTING_ENABLED.configId());
+    }
+
     @AfterEach
     void cleanup() {
         CrashReporting.disable();
-        LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
-        cfg.enabled = false;
-        cfg.notifyOperators = true;
-        cfg.dsnOverride = "";
+        Config reporting = reporting();
+        reporting.set(Configs.CRASH_REPORTING_ENABLED, false);
+        reporting.set(Configs.CRASH_REPORTING_NOTIFY_OPERATORS, true);
+        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, "");
     }
 
     @Test
@@ -95,60 +102,47 @@ class CrashReportingTest {
     }
 
     @Test
-    @DisplayName("enable/disable toggles the live client and persists the actual state")
-    void enableDisableLifecycle() {
-        LogisticsConfig.get().crashReporting.dsnOverride = LOCAL_DSN;
+    @DisplayName("reconcile brings the live client in line with the enabled config key")
+    void reconcileTogglesLiveClient() {
+        Config reporting = reporting();
+        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, LOCAL_DSN);
+        reporting.set(Configs.CRASH_REPORTING_ENABLED, true);
 
-        assertThat(CrashReporting.enableReporting()).isTrue();
+        CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isTrue();
-        // Config is persisted only to reflect the real active state.
-        assertThat(LogisticsConfig.get().crashReporting.enabled).isTrue();
 
         // Capturing on an active client is accepted without throwing (sent async to the dead DSN).
-        assertThatCode(() -> CrashReporting.capture(new RuntimeException("test")))
-                .doesNotThrowAnyException();
+        assertThatCode(() -> CrashReporting.capture(new RuntimeException("test"))).doesNotThrowAnyException();
 
-        CrashReporting.disableReporting();
+        reporting.set(Configs.CRASH_REPORTING_ENABLED, false);
+        CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isFalse();
-        assertThat(LogisticsConfig.get().crashReporting.enabled).isFalse();
     }
 
     @Test
-    @DisplayName("enable failure leaves reporting off and persists the disabled state")
-    void enableFailureIsSafe() {
-        // A malformed DSN makes the Sentry client constructor throw inside enable().
-        LogisticsConfig.get().crashReporting.dsnOverride = "https://localhost";
+    @DisplayName("reconcile with a malformed DSN leaves reporting off without throwing")
+    void reconcileFailureIsSafe() {
+        Config reporting = reporting();
+        // A malformed DSN makes the Sentry client constructor throw inside enable(); reconcile must contain it.
+        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, "https://localhost");
+        reporting.set(Configs.CRASH_REPORTING_ENABLED, true);
 
-        boolean active = CrashReporting.enableReporting();
-
-        assertThat(active).isFalse();
+        assertThatCode(CrashReporting::reconcile).doesNotThrowAnyException();
         assertThat(CrashReporting.isActive()).isFalse();
-        assertThat(LogisticsConfig.get().crashReporting.enabled).isFalse();
     }
 
     @Test
-    @DisplayName("bootstrap enables only when the config opted in")
-    void bootstrapHonorsConfig() {
-        LogisticsConfig.get().crashReporting.enabled = false;
-        CrashReporting.bootstrap();
+    @DisplayName("reconcile enables only when the config opted in")
+    void reconcileHonorsConfig() {
+        Config reporting = reporting();
+        reporting.set(Configs.CRASH_REPORTING_ENABLED, false);
+        CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isFalse();
 
-        LogisticsConfig.get().crashReporting.enabled = true;
-        LogisticsConfig.get().crashReporting.dsnOverride = LOCAL_DSN;
-        CrashReporting.bootstrap();
+        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, LOCAL_DSN);
+        reporting.set(Configs.CRASH_REPORTING_ENABLED, true);
+        CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isTrue();
-    }
-
-    @Test
-    @DisplayName("join-notice and status actions update and report config")
-    void joinNoticeAndStatusActions() {
-        assertThat(CrashReporting.setJoinNotice(false)).contains("off");
-        assertThat(LogisticsConfig.get().crashReporting.notifyOperators).isFalse();
-
-        assertThat(CrashReporting.setJoinNotice(true)).contains("ON");
-        assertThat(LogisticsConfig.get().crashReporting.notifyOperators).isTrue();
-
-        assertThat(CrashReporting.statusText()).contains("Sanitized crash reporting");
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.logistics.core.crash;
 
-import com.logistics.core.LogisticsConfig;
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsConfigHost.Configs;
 import com.logistics.core.lib.platform.PlatformService;
 import io.sentry.JsonSerializer;
 import io.sentry.SentryClient;
@@ -37,15 +38,16 @@ import java.util.regex.Pattern;
  *       never intentionally send player names, UUIDs, IPs, server addresses, chat, or world data.</li>
  * </ul>
  *
- * <p>Toggled by the {@code /logistics diagnostics} commands, which persist {@link LogisticsConfig}
- * and call {@link #enable()}/{@link #disable()} so stored and live state stay in sync.
+ * <p>State lives in the configory {@code reporting} config ({@code crash_reporting_*} keys, settable via
+ * {@code /logistics config}). {@link #reconcile()} is registered as that config's sanitize hook, so the live
+ * client is brought in line with the persisted value on every load and {@code /logistics reload-configs}.
  */
 public final class CrashReporting {
     private static final Logger LOGGER = LoggerFactory.getLogger("logistics/crash");
 
     /**
      * Public Sentry ingest key (DSN). NOT a secret — DSNs are designed to be embedded in shipped
-     * clients. Overridable per-install via {@code crashReporting.dsnOverride} in logistics.json.
+     * clients. Overridable per-install via the {@code crash_reporting_dsn_override} config key.
      */
     private static final String DEFAULT_DSN =
             "https://677897aaa1709d6e63d47ebbed033218@o148290.ingest.us.sentry.io/4511488473169920";
@@ -60,33 +62,22 @@ public final class CrashReporting {
 
     private CrashReporting() {}
 
-    /** Called once after config load. Enables reporting only if the operator opted in previously. */
-    public static void bootstrap() {
-        if (!LogisticsConfig.get().crashReporting.enabled) {
+    /**
+     * Bring the live client in line with the persisted config. Registered as the {@code reporting} config's
+     * sanitize hook, so it runs on startup load and every {@code /logistics reload-configs}: rebuilds when
+     * enabled so a changed DSN takes effect, tears down when disabled. Must never throw out of a config load,
+     * so every failure path is contained.
+     */
+    public static synchronized void reconcile() {
+        disable();
+        if (!LogisticsConfigHost.get(Configs.CRASH_REPORTING_ENABLED)) {
             return;
         }
-        // Crash reporting is non-critical: a bad persisted DSN must never abort domain startup.
+        // Crash reporting is non-critical: a bad persisted DSN must never abort config load or domain startup.
         try {
             enable();
         } catch (Exception e) {
             LOGGER.error("Failed to start crash reporting; continuing without it", e);
-        }
-    }
-
-    /**
-     * Bring the live client in line with the persisted config, e.g. after {@code /logistics config
-     * reload} edits {@code crashReporting} on disk. Rebuilds when enabled so a changed DSN takes
-     * effect; tears down when disabled.
-     */
-    public static synchronized void reconcile() {
-        disable();
-        if (!LogisticsConfig.get().crashReporting.enabled) {
-            return;
-        }
-        try {
-            enable();
-        } catch (Exception e) {
-            LOGGER.error("Failed to restart crash reporting after config reload", e);
         }
     }
 
@@ -196,52 +187,6 @@ public final class CrashReporting {
         return ACTIVE.get();
     }
 
-    // ==================== Command actions ====================
-    // These back the /logistics diagnostics subcommands. Kept here (not inline in the Brigadier
-    // tree) so the persist-and-toggle logic is unit-testable without a command source.
-
-    /**
-     * Turn reporting on, then persist {@code enabled} to match whether it actually activated.
-     * Returns true if reporting is now active. If activation fails (e.g. no DSN, or init throws
-     * before this returns), the persisted config is left disabled rather than claiming an active
-     * state — so the saved value never lies about a client that isn't running.
-     */
-    public static boolean enableReporting() {
-        try {
-            enable();
-        } catch (Exception e) {
-            LOGGER.error("Failed to start crash reporting", e);
-            LogisticsConfig.get().crashReporting.enabled = false;
-            LogisticsConfig.save();
-            return false;
-        }
-        boolean active = isActive();
-        LogisticsConfig.get().crashReporting.enabled = active;
-        LogisticsConfig.save();
-        return active;
-    }
-
-    /** Turn reporting off and persist the disabled state. */
-    public static void disableReporting() {
-        disable();
-        LogisticsConfig.get().crashReporting.enabled = false;
-        LogisticsConfig.save();
-    }
-
-    /** Persist whether the join invitation is shown. Returns operator feedback. */
-    public static String setJoinNotice(boolean show) {
-        LogisticsConfig.get().crashReporting.notifyOperators = show;
-        LogisticsConfig.save();
-        return "Crash reporting join notice: " + (show ? "ON" : "off");
-    }
-
-    /** Human-readable current state for the status command. */
-    public static String statusText() {
-        LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
-        return "Sanitized crash reporting: " + (cfg.enabled ? "ON" : "off")
-                + "\n  join notice: " + (cfg.notifyOperators ? "on" : "off");
-    }
-
     /** Report a throwable when active; a no-op otherwise. */
     public static void capture(Throwable throwable) {
         if (throwable == null || !ACTIVE.get()) {
@@ -326,7 +271,7 @@ public final class CrashReporting {
     }
 
     private static String resolveDsn() {
-        String override = LogisticsConfig.get().crashReporting.dsnOverride;
+        String override = LogisticsConfigHost.get(Configs.CRASH_REPORTING_DSN_OVERRIDE);
         return override != null && !override.isBlank() ? override.trim() : DEFAULT_DSN;
     }
 

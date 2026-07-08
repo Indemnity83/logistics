@@ -9,7 +9,6 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -56,68 +55,6 @@ public final class LogisticsCommandTree {
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
-        LiteralArgumentBuilder<CommandSourceStack> diagnostics = Commands.literal("diagnostics")
-            .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Component.literal(CrashReporting.statusText()), false);
-                return 1;
-            })
-            .then(Commands.literal("enable")
-                .executes(ctx -> {
-                    if (!CrashReporting.enableReporting()) {
-                        ctx.getSource().sendFailure(Component.literal(
-                            "Could not start crash reporting — no DSN configured or initialization failed. "
-                            + "See the log for details."));
-                        return 0;
-                    }
-                    ctx.getSource().sendSuccess(
-                        () -> Component.literal(
-                            "Sanitized crash reporting enabled. Thank you for helping improve Logistics!"),
-                        true);
-                    return 1;
-                }))
-            .then(Commands.literal("disable")
-                .executes(ctx -> {
-                    CrashReporting.disableReporting();
-                    ctx.getSource().sendSuccess(
-                        () -> Component.literal("Crash reporting disabled."), true);
-                    return 1;
-                }))
-            .then(Commands.literal("preview")
-                .executes(ctx -> {
-                    CrashReporting.logPreviewReport();
-                    ctx.getSource().sendSuccess(LogisticsCommandTree::diagnosticsPreviewSummary, false);
-                    return 1;
-                }))
-            .then(Commands.literal("notify")
-                .then(Commands.literal("on")
-                    .executes(ctx -> {
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal(CrashReporting.setJoinNotice(true)), true);
-                        return 1;
-                    }))
-                .then(Commands.literal("off")
-                    .executes(ctx -> {
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal(CrashReporting.setJoinNotice(false)), true);
-                        return 1;
-                    })));
-
-        // Dev-only: send a temporary test crash report to verify the Sentry pipeline.
-        if (inDevelopmentEnvironment()) {
-            diagnostics.then(Commands.literal("test")
-                .executes(ctx -> {
-                    if (!CrashReporting.captureTestReport()) {
-                        ctx.getSource().sendFailure(Component.literal(
-                            "Crash reporting is not active. Run /logistics diagnostics enable first."));
-                        return 0;
-                    }
-                    ctx.getSource().sendSuccess(
-                        () -> Component.literal("Sent a temporary test crash report to Sentry."),
-                        false);
-                    return 1;
-                }));
-        }
-
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("logistics")
             .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
             .then(Commands.literal("debug")
@@ -159,12 +96,34 @@ public final class LogisticsCommandTree {
                         })
                     )
                 )
-            )
-            .then(diagnostics);
+            );
 
-        // Configory attaches `config` + `reload-configs` (gamerule-style) built from the engine keys; both
-        // inherit this literal's operator gate. Legacy LogisticsConfig keys rejoin them once migrated to configory.
-        ConfigCommands.builder(CONFIG_FEEDBACK).add(LogisticsConfigHost.engines()).buildInto(root);
+        // Dev-only: send a temporary test crash report to verify the Sentry pipeline.
+        if (inDevelopmentEnvironment()) {
+            root.then(Commands.literal("diagnostics")
+                .then(Commands.literal("test")
+                    .executes(ctx -> {
+                        if (!CrashReporting.captureTestReport()) {
+                            ctx.getSource().sendFailure(Component.literal(
+                                "Crash reporting is not active. Set /logistics config crash_reporting_enabled"
+                                + " true, then /logistics reload-configs."));
+                            return 0;
+                        }
+                        ctx.getSource().sendSuccess(
+                            () -> Component.literal("Sent a temporary test crash report to Sentry."), false);
+                        return 1;
+                    })));
+        }
+
+        // Configory generates the flat /logistics config surface + reload-configs from every domain config;
+        // all inherit this literal's operator gate.
+        ConfigCommands.builder(CONFIG_FEEDBACK)
+                .add(LogisticsConfigHost.engines())
+                .add(LogisticsConfigHost.machines())
+                .add(LogisticsConfigHost.pipes())
+                .add(LogisticsConfigHost.fluids())
+                .add(LogisticsConfigHost.reporting())
+                .buildInto(root);
         return root;
     }
 
@@ -179,18 +138,5 @@ public final class LogisticsCommandTree {
             LOGGER.warn("Could not determine development environment; treating as production", t);
             return false;
         }
-    }
-
-    /** Chat confirmation for {@code /logistics diagnostics preview} — the full report goes to the log. */
-    private static Component diagnosticsPreviewSummary() {
-        return Component.empty()
-            .append(Component.literal("Wrote an example sanitized crash report to the log.\n")
-                .withStyle(ChatFormatting.GRAY))
-            .append(Component.literal("Includes: ").withStyle(ChatFormatting.GRAY))
-            .append(Component.literal("mod/Minecraft/loader/Java/OS versions and a Logistics stack trace.\n")
-                .withStyle(ChatFormatting.WHITE))
-            .append(Component.literal("Never includes: ").withStyle(ChatFormatting.GRAY))
-            .append(Component.literal("names, UUIDs, IPs, server addresses, chat, or world data.")
-                .withStyle(ChatFormatting.WHITE));
     }
 }

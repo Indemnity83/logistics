@@ -12,21 +12,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LogisticsCommandTreeTest extends MinecraftTestEnvironment {
 
     @Test
-    @DisplayName("builds /logistics with the diagnostics subcommands")
-    void buildsDiagnosticsSubtree() {
+    @DisplayName("builds /logistics with debug and the configory-generated config surface")
+    void buildsConfigSurface() {
         CommandNode<CommandSourceStack> root = LogisticsCommandTree.build().build();
         assertThat(root.getName()).isEqualTo("logistics");
+        assertThat(root.getChild("debug")).isNotNull();
 
-        CommandNode<CommandSourceStack> diagnostics = root.getChild("diagnostics");
-        assertThat(diagnostics).isNotNull();
-        assertThat(diagnostics.getChild("enable")).isNotNull();
-        assertThat(diagnostics.getChild("disable")).isNotNull();
-        assertThat(diagnostics.getChild("preview")).isNotNull();
-
-        CommandNode<CommandSourceStack> notify = diagnostics.getChild("notify");
-        assertThat(notify).isNotNull();
-        assertThat(notify.getChild("on")).isNotNull();
-        assertThat(notify.getChild("off")).isNotNull();
+        // Configory generates a flat `config <key>` node per domain key, plus a sibling `reload-configs`.
+        CommandNode<CommandSourceStack> config = root.getChild("config");
+        assertThat(config).isNotNull();
+        assertThat(config.getChild("quarry_area")).isNotNull();
+        assertThat(config.getChild("pipe_max_speed")).isNotNull();
+        assertThat(config.getChild("crash_reporting_enabled")).isNotNull();
+        assertThat(root.getChild("reload-configs")).isNotNull();
     }
 
     @Test
