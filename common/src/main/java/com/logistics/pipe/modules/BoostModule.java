@@ -1,7 +1,9 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsConfigHost.Configs;
+
 import com.logistics.LogisticsPipe;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -22,7 +24,7 @@ public class BoostModule implements Module {
 
     @Override
     public float getMaxSpeed(PipeContext ctx) {
-        return LogisticsConfig.get().pipe.maxSpeed * 4.0f;
+        return LogisticsConfigHost.get(Configs.PIPE_MAX_SPEED) * 4.0f;
     }
 
     @Override
