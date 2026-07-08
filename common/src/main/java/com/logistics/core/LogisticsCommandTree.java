@@ -1,7 +1,8 @@
 package com.logistics.core;
 
+import com.indemnity83.configory.command.CommandFeedback;
+import com.indemnity83.configory.command.ConfigCommands;
 import com.logistics.LogisticsConfigHost;
-
 import com.logistics.core.crash.CrashReporting;
 import com.logistics.core.lib.platform.PlatformService;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -44,15 +45,9 @@ public final class LogisticsCommandTree {
     private static final SuggestionProvider<CommandSourceStack> DOMAIN_SUGGESTIONS =
         (ctx, builder) -> SharedSuggestionProvider.suggest(sortedDomains(), builder);
 
-    private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
-        (ctx, builder) -> SharedSuggestionProvider.suggest(configKeys(), builder);
-
-    /** All settable config keys: legacy {@code LogisticsConfig} keys plus the configory-backed keys. */
-    private static List<String> configKeys() {
-        List<String> keys = new ArrayList<>(LogisticsConfig.ENTRIES.keySet());
-        keys.addAll(LogisticsConfigHost.keys());
-        return keys;
-    }
+    /** Delivers configory's generated-command output (list/get/set results) to the command source. */
+    private static final CommandFeedback<CommandSourceStack> CONFIG_FEEDBACK =
+        (source, message) -> source.sendSuccess(() -> Component.literal(message), false);
 
     private static List<String> sortedDomains() {
         List<String> domains = new ArrayList<>(DebugLog.getRegisteredDomains());
@@ -165,90 +160,9 @@ public final class LogisticsCommandTree {
                     )
                 )
             )
-            .then(Commands.literal("config")
-                .then(Commands.literal("list")
-                    .executes(ctx -> {
-                        StringBuilder sb = new StringBuilder("Logistics config:");
-                        for (LogisticsConfig.ConfigEntry<?> entry : LogisticsConfig.ENTRIES.values()) {
-                            sb.append("\n  ").append(entry.key())
-                              .append(" = ").append(entry.getAsString())
-                              .append("  \u00a77(").append(entry.description()).append(")\u00a7r");
-                        }
-                        for (String key : LogisticsConfigHost.keys()) {
-                            sb.append("\n  ").append(key)
-                              .append(" = ").append(LogisticsConfigHost.valueString(key))
-                              .append("  \u00a77(").append(LogisticsConfigHost.describe(key)).append(")\u00a7r");
-                        }
-                        String msg = sb.toString();
-                        ctx.getSource().sendSuccess(() -> Component.literal(msg), false);
-                        return 1;
-                    }))
-                .then(Commands.literal("get")
-                    .then(Commands.argument("key", StringArgumentType.word())
-                        .suggests(CONFIG_KEY_SUGGESTIONS)
-                        .executes(ctx -> {
-                            String key = StringArgumentType.getString(ctx, "key");
-                            LogisticsConfig.ConfigEntry<?> entry = LogisticsConfig.ENTRIES.get(key);
-                            if (entry == null && LogisticsConfigHost.has(key)) {
-                                ctx.getSource().sendSuccess(
-                                    () -> Component.literal(key + " = " + LogisticsConfigHost.valueString(key)), false);
-                                return 1;
-                            }
-                            if (entry == null) {
-                                ctx.getSource().sendFailure(Component.literal(
-                                    "Unknown config key: " + key));
-                                return 0;
-                            }
-                            ctx.getSource().sendSuccess(
-                                () -> Component.literal(key + " = " + entry.getAsString()), false);
-                            return 1;
-                        })))
-                .then(Commands.literal("set")
-                    .then(Commands.argument("key", StringArgumentType.word())
-                        .suggests(CONFIG_KEY_SUGGESTIONS)
-                        .then(Commands.argument("value", StringArgumentType.greedyString())
-                            .executes(ctx -> {
-                                String key = StringArgumentType.getString(ctx, "key");
-                                String value = StringArgumentType.getString(ctx, "value");
-                                LogisticsConfig.ConfigEntry<?> entry = LogisticsConfig.ENTRIES.get(key);
-                                if (entry == null && LogisticsConfigHost.has(key)) {
-                                    if (!LogisticsConfigHost.trySet(key, value)) {
-                                        ctx.getSource().sendFailure(Component.literal(
-                                            "Invalid value for " + key + ": " + value));
-                                        return 0;
-                                    }
-                                    ctx.getSource().sendSuccess(
-                                        () -> Component.literal("Set " + key + " = " + LogisticsConfigHost.valueString(key)),
-                                        true);
-                                    return 1;
-                                }
-                                if (entry == null) {
-                                    ctx.getSource().sendFailure(Component.literal(
-                                        "Unknown config key: " + key));
-                                    return 0;
-                                }
-                                try {
-                                    entry.setFromString(value);
-                                } catch (Exception e) {
-                                    ctx.getSource().sendFailure(Component.literal(
-                                        "Invalid value for " + key + ": " + e.getMessage()));
-                                    return 0;
-                                }
-                                LogisticsConfig.save();
-                                ctx.getSource().sendSuccess(
-                                    () -> Component.literal("Set " + key + " = " + entry.getAsString()),
-                                    true);
-                                return 1;
-                            }))))
-                .then(Commands.literal("reload")
-                    .executes(ctx -> {
-                        LogisticsConfig.reload();
-                        LogisticsConfigHost.reload();
-                        CrashReporting.reconcile();
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal("Reloaded logistics config from disk"), true);
-                        return 1;
-                    })))
+            // Configory generates the `config` node (list/get/set/reload) from the engine keys. It inherits
+            // this literal's operator gate. Legacy LogisticsConfig keys will rejoin it once migrated to configory.
+            .then(ConfigCommands.configNode(LogisticsConfigHost.engines(), CONFIG_FEEDBACK))
             .then(diagnostics);
     }
 

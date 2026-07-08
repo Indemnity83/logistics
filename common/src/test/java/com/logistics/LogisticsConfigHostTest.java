@@ -41,6 +41,28 @@ class LogisticsConfigHostTest {
     }
 
     @Test
+    @DisplayName("repairMinMax heals an inverted range even with cross-field validators (#52)")
+    void repairMinMaxHealsInvertedRange() {
+        Config engines = engines();
+
+        // Raw path set forces an inverted state (bypasses validation).
+        engines.set("stirling.min_output", 12.0);
+        engines.set("stirling.max_output", 10.0);
+
+        // Before #52 this threw (repairMinMax read through the validating get(), which the inverted state fails).
+        engines.repairMinMax(
+                LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT, LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT);
+
+        double min = LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT);
+        double max = LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT);
+        assertThat(min).isLessThanOrEqualTo(max);
+
+        // Restore defaults so the shared registry config doesn't leak into other tests.
+        engines.set("stirling.min_output", 3.0);
+        engines.set("stirling.max_output", 10.0);
+    }
+
+    @Test
     @DisplayName("save writes a JSON file with the defined values")
     void savesFileAsJson(@TempDir Path dir) throws IOException {
         // Storage injection (#41) keeps this isolated on a temp dir instead of the CWD-relative default.
