@@ -1,5 +1,6 @@
 package com.logistics;
 
+import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -146,6 +147,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         LOGGER.info("Registering {}", domain());
 
         LogisticsConfigHost.bootstrap();
+        LogisticsConfigMigrator.migrateIfNeeded();
 
         BLOCK.register();
         ITEM.register();
