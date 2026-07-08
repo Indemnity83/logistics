@@ -65,7 +65,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     private static final double PID_KD = 0.3;
     private static final double TARGET_TEMPERATURE = 150;
 
-    // Output range defaults — actual range read from LogisticsConfig at runtime
+    // Output range defaults — actual range read from the configory engines config at runtime
     private static final double DEFAULT_MIN_GENERATION = 3.0;
 
     // Property delegate indices for GUI

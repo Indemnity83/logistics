@@ -58,8 +58,19 @@ class LogisticsConfigHostTest {
         assertThat(min).isLessThanOrEqualTo(max);
 
         // Restore defaults so the shared registry config doesn't leak into other tests.
-        engines.set("stirling.min_output", 3.0);
-        engines.set("stirling.max_output", 10.0);
+        engines.set(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT, 3.0);
+        engines.set(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT, 10.0);
+    }
+
+    @Test
+    @DisplayName("fluid pump search radius is capped so radius squared fits in an int")
+    void pumpSearchRadiusCap() {
+        Config fluids = ConfigRegistry.config(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS.configId());
+
+        assertThat(fluids.trySet(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS, 46_340)).isTrue();
+        assertThat(fluids.trySet(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS, 46_341)).isFalse();
+
+        fluids.set(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS, 64); // restore default
     }
 
     @Test

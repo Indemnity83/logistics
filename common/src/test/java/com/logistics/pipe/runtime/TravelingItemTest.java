@@ -1,7 +1,8 @@
 package com.logistics.pipe.runtime;
 
 import com.logistics.core.lib.pipe.TravelingItem;
-import com.logistics.core.LogisticsConfig;
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsConfigHost.Configs;
 
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.Direction;
@@ -134,7 +135,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
 
         item.tick(0f, dragCoefficient, 0.15f);
 
-        assertThat(item.getSpeed()).isCloseTo(LogisticsConfig.get().pipe.minSpeed, within(TOLERANCE));
+        assertThat(item.getSpeed()).isCloseTo(LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED), within(TOLERANCE));
     }
 
     @Test
@@ -144,7 +145,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
 
         item.tick(-0.02f, 0f, 0.15f);
 
-        assertThat(item.getSpeed()).isCloseTo(LogisticsConfig.get().pipe.minSpeed, within(TOLERANCE));
+        assertThat(item.getSpeed()).isCloseTo(LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED), within(TOLERANCE));
     }
 
     // ==================== Progress Tracking Tests ====================
@@ -286,7 +287,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         item.tick(0f, 0f, 0.0f);
 
         // When maxSpeed is 0 and current speed > 0, uses deceleration mode
-        // Speed will decelerate toward 0 but get clamped to LogisticsConfig.get().pipe.minSpeed
-        assertThat(item.getSpeed()).isGreaterThanOrEqualTo(LogisticsConfig.get().pipe.minSpeed);
+        // Speed will decelerate toward 0 but get clamped to LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED)
+        assertThat(item.getSpeed()).isGreaterThanOrEqualTo(LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED));
     }
 }
