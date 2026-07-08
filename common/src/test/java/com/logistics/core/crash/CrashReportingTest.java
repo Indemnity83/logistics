@@ -27,7 +27,7 @@ class CrashReportingTest {
         CrashReporting.disable();
         Config reporting = reporting();
         reporting.set(Configs.CRASH_REPORTING_ENABLED, false);
-        reporting.set(Configs.CRASH_REPORTING_NOTIFY_OPERATORS, true);
+        reporting.set(Configs.CRASH_REPORTING_SHOW_NOTIFICATION, true);
         reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, "");
     }
 

@@ -95,7 +95,7 @@ public final class LogisticsConfigMigrator {
 
         // Crash reporting → reporting
         migrate(root, "crashReporting", "enabled", Configs.CRASH_REPORTING_ENABLED);
-        migrate(root, "crashReporting", "notifyOperators", Configs.CRASH_REPORTING_NOTIFY_OPERATORS);
+        migrate(root, "crashReporting", "notifyOperators", Configs.CRASH_REPORTING_SHOW_NOTIFICATION);
         migrate(root, "crashReporting", "dsnOverride", Configs.CRASH_REPORTING_DSN_OVERRIDE);
 
         // Engines → engines. Released 0.8.x files carry an `engine` group; POC-era files don't.

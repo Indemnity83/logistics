@@ -32,10 +32,10 @@ import java.util.Set;
  * /logistics debug &lt;domain&gt; true    — enable debug logging for a named domain
  * /logistics debug &lt;domain&gt; false   — disable debug logging for a named domain
  *
- * <p>/logistics config                 — list every config key and its value (configory-generated)
- * /logistics config &lt;key&gt;            — show one value
- * /logistics config &lt;key&gt; &lt;value&gt;   — set it (parsed + validated)
- * /logistics reload-configs           — reload configory-backed config from disk
+ * <p>/logistics config &lt;domain&gt;               — list a domain's keys (engines/machines/pipes/fluids/reporting)
+ * /logistics config &lt;domain&gt; &lt;key&gt;         — show one value
+ * /logistics config &lt;domain&gt; &lt;key&gt; &lt;value&gt; — set it (parsed + validated)
+ * /logistics reload-configs                — reload configory-backed config from disk
  */
 public final class LogisticsCommandTree {
     private LogisticsCommandTree() {}
@@ -124,14 +124,15 @@ public final class LogisticsCommandTree {
         }
         root.then(diagnostics);
 
-        // Configory generates the flat /logistics config surface + reload-configs from every domain config;
-        // all inherit this literal's operator gate.
+        // Configory generates the /logistics config <domain> <key> surface + reload-configs; each domain is a
+        // group (named by its config id) so keys stay short (e.g. `config pipes max_speed`). All inherit this
+        // literal's operator gate.
         ConfigCommands.builder(CONFIG_FEEDBACK)
-                .add(LogisticsConfigHost.engines())
-                .add(LogisticsConfigHost.machines())
-                .add(LogisticsConfigHost.pipes())
-                .add(LogisticsConfigHost.fluids())
-                .add(LogisticsConfigHost.reporting())
+                .group(LogisticsConfigHost.engines())
+                .group(LogisticsConfigHost.machines())
+                .group(LogisticsConfigHost.pipes())
+                .group(LogisticsConfigHost.fluids())
+                .group(LogisticsConfigHost.reporting())
                 .buildInto(root);
         return root;
     }

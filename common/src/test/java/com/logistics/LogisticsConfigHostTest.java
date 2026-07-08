@@ -46,8 +46,8 @@ class LogisticsConfigHostTest {
         Config engines = engines();
 
         // Raw path set forces an inverted state (bypasses validation).
-        engines.set("stirling_engine_min_output", 12.0);
-        engines.set("stirling_engine_max_output", 10.0);
+        engines.set("stirling_min_output", 12.0);
+        engines.set("stirling_max_output", 10.0);
 
         // Before #52 this threw (repairMinMax read through the validating get(), which the inverted state fails).
         engines.repairMinMax(

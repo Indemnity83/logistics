@@ -11,10 +11,11 @@ import com.logistics.core.crash.CrashReporting;
  * Configory-backed configuration for Logistics.
  *
  * <p>Config is split into per-domain child configs — {@code configFor(MOD_ID, "<domain>")} → {@code
- * config/logistics/<domain>.json}. Keys are flat within each file (they carry a domain prefix, e.g.
- * {@code quarry_area}), so the generated {@code /logistics config <key>} surface stays flat. The main
- * {@code logistics} config declares no keys, so bootstrap writes no {@code config/logistics.json}
- * (that name belongs to the pre-migration legacy config and its {@code .bak}).
+ * config/logistics/<domain>.json}. Each domain is a command group, so keys are short within their file
+ * ({@code max_speed} under {@code pipes}, {@code pump_search_radius} under {@code fluids}) and the generated
+ * surface reads {@code /logistics config <domain> <key>}. The main {@code logistics} config declares no keys,
+ * so bootstrap writes no {@code config/logistics.json} (that name belongs to the legacy config and its
+ * {@code .bak}).
  */
 public final class LogisticsConfigHost implements ConfigHost {
     public static final String MOD_ID = "logistics";
@@ -71,18 +72,18 @@ public final class LogisticsConfigHost implements ConfigHost {
 
         // ==================== engines ====================
 
-        public static final ConfigKey<Long> REDSTONE_OUTPUT = engines.defineLong("redstone_engine_output", 10L)
+        public static final ConfigKey<Long> REDSTONE_OUTPUT = engines.defineLong("redstone_output", 10L)
                 .min(0L)
                 .describe("RF generated per 16-tick interval.")
                 .register();
 
-        public static final ConfigKey<Double> STIRLING_MIN_OUTPUT = engines.defineDouble("stirling_engine_min_output", 3.0)
+        public static final ConfigKey<Double> STIRLING_MIN_OUTPUT = engines.defineDouble("stirling_min_output", 3.0)
                 .min(0.0)
                 .maxValueOf(() -> Configs.STIRLING_MAX_OUTPUT)
                 .describe("Stirling engine minimum RF/t output.")
                 .register();
 
-        public static final ConfigKey<Double> STIRLING_MAX_OUTPUT = engines.defineDouble("stirling_engine_max_output", 10.0)
+        public static final ConfigKey<Double> STIRLING_MAX_OUTPUT = engines.defineDouble("stirling_max_output", 10.0)
                 .min(0.0)
                 .minValueOf(() -> Configs.STIRLING_MIN_OUTPUT)
                 .describe("Stirling engine maximum RF/t output.")
@@ -140,33 +141,33 @@ public final class LogisticsConfigHost implements ConfigHost {
 
         // ==================== pipes (item transport) ====================
 
-        public static final ConfigKey<Float> PIPE_MAX_SPEED = pipes.defineFloat("pipe_max_speed", 0.16f)
+        public static final ConfigKey<Float> PIPE_MAX_SPEED = pipes.defineFloat("max_speed", 0.16f)
                 .finite()
                 .greaterThan(0.0f)
                 .minValueOf(() -> Configs.PIPE_MIN_SPEED)
                 .describe("Item speed ceiling (blocks/tick)")
                 .register();
 
-        public static final ConfigKey<Float> PIPE_MIN_SPEED = pipes.defineFloat("pipe_min_speed", 0.02f)
+        public static final ConfigKey<Float> PIPE_MIN_SPEED = pipes.defineFloat("min_speed", 0.02f)
                 .finite()
                 .greaterThan(0.0f)
                 .maxValueOf(() -> Configs.PIPE_MAX_SPEED)
                 .describe("Item speed floor (blocks/tick)")
                 .register();
 
-        public static final ConfigKey<Float> PIPE_ACCELERATION = pipes.defineFloat("pipe_acceleration", 1.0f / 200.0f)
+        public static final ConfigKey<Float> PIPE_ACCELERATION = pipes.defineFloat("acceleration", 1.0f / 200.0f)
                 .finite()
                 .min(0.0f)
                 .describe("Speed gain per tick when accelerating")
                 .register();
 
-        public static final ConfigKey<Float> PIPE_DRAG = pipes.defineFloat("pipe_drag", 0.005f)
+        public static final ConfigKey<Float> PIPE_DRAG = pipes.defineFloat("drag", 0.005f)
                 .finite()
                 .range(0.0f, 1.0f)
                 .describe("Speed decay fraction per tick")
                 .register();
 
-        public static final ConfigKey<Float> PIPE_INJECT_SPEED = pipes.defineFloat("pipe_inject_speed", 0.2f)
+        public static final ConfigKey<Float> PIPE_INJECT_SPEED = pipes.defineFloat("inject_speed", 0.2f)
                 .finite()
                 .greaterThan(0.0f)
                 .describe("Item speed when injected by network routing (blocks/tick)")
@@ -175,71 +176,71 @@ public final class LogisticsConfigHost implements ConfigHost {
         // ==================== fluids (fluid pipe + fluid pump) ====================
 
         public static final ConfigKey<Integer> FLUID_PIPE_BASE_TRANSFER_RATE =
-                fluids.defineInt("fluid_pipe_base_transfer_rate", 10)
+                fluids.defineInt("pipe_base_transfer_rate", 10)
                         .min(1)
                         .describe("Base Fluid Pipe transfer rate (mB/tick), scaled per tier")
                         .register();
 
-        public static final ConfigKey<Integer> FLUID_PIPE_BASE_CAPACITY = fluids.defineInt("fluid_pipe_base_capacity", 250)
+        public static final ConfigKey<Integer> FLUID_PIPE_BASE_CAPACITY = fluids.defineInt("pipe_base_capacity", 250)
                 .min(1)
                 .describe("Fluid Pipe buffer capacity (mB)")
                 .register();
 
         public static final ConfigKey<Boolean> FLUID_PIPE_WOODEN_REQUIRES_ENGINE =
-                fluids.defineBoolean("fluid_pipe_wooden_requires_engine", true)
+                fluids.defineBoolean("pipe_wooden_requires_engine", true)
                         .describe("Fluid Extractor Pipe requires engine power")
                         .register();
 
         public static final ConfigKey<Boolean> FLUID_PIPE_ACTIVE_EXTRACTION =
-                fluids.defineBoolean("fluid_pipe_active_extraction", true)
+                fluids.defineBoolean("pipe_active_extraction", true)
                         .describe("Debug: extractor pulling enabled")
                         .register();
 
         public static final ConfigKey<Integer> FLUID_PUMP_TANK_CAPACITY_MB =
-                fluids.defineInt("fluid_pump_tank_capacity_mb", 16_000)
+                fluids.defineInt("pump_tank_capacity_mb", 16_000)
                         .min(1)
                         .describe("Fluid Pump tank capacity (mB)")
                         .register();
 
-        public static final ConfigKey<Long> FLUID_PUMP_ENERGY_CAPACITY = fluids.defineLong("fluid_pump_energy_capacity", 1_000L)
+        public static final ConfigKey<Long> FLUID_PUMP_ENERGY_CAPACITY = fluids.defineLong("pump_energy_capacity", 1_000L)
                 .min(1L)
                 .describe("Fluid Pump energy buffer capacity (RF)")
                 .register();
 
-        public static final ConfigKey<Long> FLUID_PUMP_MAX_ENERGY_INPUT = fluids.defineLong("fluid_pump_max_energy_input", 150L)
+        public static final ConfigKey<Long> FLUID_PUMP_MAX_ENERGY_INPUT = fluids.defineLong("pump_max_energy_input", 150L)
                 .min(1L)
                 .describe("Fluid Pump max energy input (RF/t)")
                 .register();
 
-        public static final ConfigKey<Long> FLUID_PUMP_ENERGY_PER_SOURCE = fluids.defineLong("fluid_pump_energy_per_source", 100L)
+        public static final ConfigKey<Long> FLUID_PUMP_ENERGY_PER_SOURCE = fluids.defineLong("pump_energy_per_source", 100L)
                 .min(0L)
                 .describe("RF consumed per source block pumped")
                 .register();
 
-        public static final ConfigKey<Integer> FLUID_PUMP_PUSH_RATE_MB = fluids.defineInt("fluid_pump_push_rate_mb", 400)
+        public static final ConfigKey<Integer> FLUID_PUMP_PUSH_RATE_MB = fluids.defineInt("pump_push_rate_mb", 400)
                 .min(1)
                 .describe("Fluid Pump output rate (mB/tick)")
                 .register();
 
-        public static final ConfigKey<Integer> FLUID_PUMP_INTERVAL_TICKS = fluids.defineInt("fluid_pump_interval_ticks", 16)
+        public static final ConfigKey<Integer> FLUID_PUMP_INTERVAL_TICKS = fluids.defineInt("pump_interval_ticks", 16)
                 .min(1)
                 .describe("Fluid Pump source pickup interval (ticks)")
                 .register();
 
         // Capped at 46340 so the radius can be squared as an int downstream without overflowing.
-        public static final ConfigKey<Integer> FLUID_PUMP_SEARCH_RADIUS = fluids.defineInt("fluid_pump_search_radius", 64)
+        public static final ConfigKey<Integer> FLUID_PUMP_SEARCH_RADIUS = fluids.defineInt("pump_search_radius", 64)
                 .range(1, 46_340)
                 .describe("Fluid Pump connected source search radius")
                 .register();
 
-        public static final ConfigKey<Float> FLUID_PUMP_ARM_SPEED = fluids.defineFloat("fluid_pump_arm_speed", 0.01f)
+        public static final ConfigKey<Float> FLUID_PUMP_ARM_SPEED = fluids.defineFloat("pump_arm_speed", 0.01f)
                 .finite()
                 .greaterThan(0.0f)
                 .describe("Fluid Pump arm movement speed (blocks/tick)")
                 .register();
 
         public static final ConfigKey<Integer> FLUID_PUMP_INFINITE_SOURCE_THRESHOLD =
-                fluids.defineInt("fluid_pump_infinite_source_threshold", 9)
+                fluids.defineInt("pump_infinite_source_threshold", 9)
                         .min(0)
                         .describe("Connected water sources at or above which the pump treats the body as infinite and"
                                 + " pumps without consuming blocks (0 = always consume)")
@@ -247,17 +248,17 @@ public final class LogisticsConfigHost implements ConfigHost {
 
         // ==================== reporting (crash reporting) ====================
 
-        public static final ConfigKey<Boolean> CRASH_REPORTING_ENABLED = reporting.defineBoolean("crash_reporting_enabled", false)
+        public static final ConfigKey<Boolean> CRASH_REPORTING_ENABLED = reporting.defineBoolean("enabled", false)
                 .describe("Opt-in sanitized crash reporting via Sentry")
                 .register();
 
-        public static final ConfigKey<Boolean> CRASH_REPORTING_NOTIFY_OPERATORS =
-                reporting.defineBoolean("crash_reporting_notify_operators", true)
+        public static final ConfigKey<Boolean> CRASH_REPORTING_SHOW_NOTIFICATION =
+                reporting.defineBoolean("show_notification", true)
                         .describe("Notify operators on join while crash reporting is active")
                         .register();
 
         public static final ConfigKey<String> CRASH_REPORTING_DSN_OVERRIDE =
-                reporting.defineString("crash_reporting_dsn_override", "")
+                reporting.defineString("dsn_override", "")
                         .describe("Override the Sentry DSN (blank = built-in default)")
                         .register();
 
