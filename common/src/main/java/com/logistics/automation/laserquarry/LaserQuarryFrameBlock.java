@@ -1,7 +1,9 @@
 package com.logistics.automation.laserquarry;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsConfigHost.Configs;
+
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
-import com.logistics.core.LogisticsConfig;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -173,12 +175,12 @@ public class LaserQuarryFrameBlock extends Block {
             endZ = quarry.getCustomMaxZ();
         } else {
             // Calculate default bounds from facing direction
-            int half = LogisticsConfig.get().quarry.area / 2;
+            int half = LogisticsConfigHost.get(Configs.QUARRY_AREA) / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() - LogisticsConfig.get().quarry.area;
+                    startZ = quarryPos.getZ() - LogisticsConfigHost.get(Configs.QUARRY_AREA);
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - half;
@@ -189,14 +191,14 @@ public class LaserQuarryFrameBlock extends Block {
                     startZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LogisticsConfig.get().quarry.area;
+                    startX = quarryPos.getX() - LogisticsConfigHost.get(Configs.QUARRY_AREA);
                     startZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return false;
             }
-            endX = startX + LogisticsConfig.get().quarry.area - 1;
-            endZ = startZ + LogisticsConfig.get().quarry.area - 1;
+            endX = startX + LogisticsConfigHost.get(Configs.QUARRY_AREA) - 1;
+            endZ = startZ + LogisticsConfigHost.get(Configs.QUARRY_AREA) - 1;
         }
 
         int bottomY = quarryPos.getY();

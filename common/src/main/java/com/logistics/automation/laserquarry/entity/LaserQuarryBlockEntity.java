@@ -2,7 +2,6 @@ package com.logistics.automation.laserquarry.entity;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.render.ClientRenderCacheHooks;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.machine.MachineBuilder;
@@ -38,13 +37,12 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
 
     @Override
     protected void configure(MachineBuilder machine) {
-        var cfg = LogisticsConfig.get().quarry;
         // Order is load-bearing: energy resets its received-counter before the quarry consumes; the
         // chunk loader ticks after the quarry so a freshly-finished quarry stops loading the same tick.
         UpgradeComponent upgrades = machine.upgrades("upgrades");
         energy = machine.energy("energy")
-                .capacity(cfg.energyCapacity())
-                .maxInput(cfg.maxEnergyInput())
+                .capacity(QuarryEnergy.energyCapacity())
+                .maxInput(QuarryEnergy.maxEnergyInput())
                 .build();
         quarry = machine.add(new QuarryComponent("quarry", getBlockPos(), energy, upgrades.modifiers()));
         machine.chunkLoader("chunks")
@@ -75,7 +73,7 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
     // ==================== Energy diagnostics ====================
 
     public double getEnergyLevel() {
-        return (double) energy.amount() / LogisticsConfig.get().quarry.energyCapacity();
+        return (double) energy.amount() / QuarryEnergy.energyCapacity();
     }
 
     public long getEnergyReceivedLastTick() {
