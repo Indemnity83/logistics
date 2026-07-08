@@ -32,10 +32,10 @@ import java.util.Set;
  * /logistics debug &lt;domain&gt; true    — enable debug logging for a named domain
  * /logistics debug &lt;domain&gt; false   — disable debug logging for a named domain
  *
- * <p>/logistics config list            — list all config keys, values, and descriptions
- * /logistics config get &lt;key&gt;        — show current value for a config key
- * /logistics config set &lt;key&gt; &lt;val&gt; — set a config value and save to disk
- * /logistics config reload            — reload config from disk
+ * <p>/logistics config                 — list every config key and its value (configory-generated)
+ * /logistics config &lt;key&gt;            — show one value
+ * /logistics config &lt;key&gt; &lt;value&gt;   — set it (parsed + validated)
+ * /logistics reload-configs           — reload configory-backed config from disk
  */
 public final class LogisticsCommandTree {
     private LogisticsCommandTree() {}
@@ -118,7 +118,7 @@ public final class LogisticsCommandTree {
                 }));
         }
 
-        return Commands.literal("logistics")
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("logistics")
             .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
             .then(Commands.literal("debug")
                 .executes(ctx -> {
@@ -160,10 +160,12 @@ public final class LogisticsCommandTree {
                     )
                 )
             )
-            // Configory generates the `config` node (list/get/set/reload) from the engine keys. It inherits
-            // this literal's operator gate. Legacy LogisticsConfig keys will rejoin it once migrated to configory.
-            .then(ConfigCommands.configNode(LogisticsConfigHost.engines(), CONFIG_FEEDBACK))
             .then(diagnostics);
+
+        // Configory attaches `config` + `reload-configs` (gamerule-style) built from the engine keys; both
+        // inherit this literal's operator gate. Legacy LogisticsConfig keys rejoin them once migrated to configory.
+        ConfigCommands.builder(CONFIG_FEEDBACK).add(LogisticsConfigHost.engines()).buildInto(root);
+        return root;
     }
 
     /**
