@@ -18,40 +18,45 @@ import org.junit.jupiter.api.io.TempDir;
 @DisplayName("LogisticsConfigHost (configory)")
 class LogisticsConfigHostTest {
 
-    /** The shared engines child config the {@code Configs} constants are registered on. */
-    private static Config engines() {
+    /** The per-engine child configs the power {@code CONFIG} keys are registered on. */
+    private static Config redstone() {
         return ConfigRegistry.config(LogisticsPower.CONFIG.REDSTONE_OUTPUT.configId());
+    }
+
+    private static Config stirling() {
+        return ConfigRegistry.config(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT.configId());
     }
 
     @Test
     @DisplayName("engine keys expose defaults and reject invalid single- and cross-field values")
     void engineKeysDefaultsAndValidation() {
-        Config engines = engines();
+        Config redstone = redstone();
+        Config stirling = stirling();
 
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT)).isEqualTo(10.0);
 
         // Single-field: redstone output must be >= 0 (a rejected trySet leaves the value unchanged).
-        assertThat(engines.trySet(LogisticsPower.CONFIG.REDSTONE_OUTPUT, -1L)).isFalse();
+        assertThat(redstone.trySet(LogisticsPower.CONFIG.REDSTONE_OUTPUT, -1L)).isFalse();
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
 
         // Cross-field (recursion fixed in configory): min must not exceed max (default max 10).
-        assertThat(engines.trySet(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 12.0)).isFalse();
+        assertThat(stirling.trySet(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 12.0)).isFalse();
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
     }
 
     @Test
     @DisplayName("repairMinMax heals an inverted range even with cross-field validators")
     void repairMinMaxHealsInvertedRange() {
-        Config engines = engines();
+        Config stirling = stirling();
 
         // Raw path set forces an inverted state (bypasses validation).
-        engines.set("stirling_min_output", 12.0);
-        engines.set("stirling_max_output", 10.0);
+        stirling.set("min_output", 12.0);
+        stirling.set("max_output", 10.0);
 
         // repairMinMax bypasses the validating get(), so it can heal a state the validators reject.
-        engines.repairMinMax(
+        stirling.repairMinMax(
                 LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT);
 
         double min = LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT);
@@ -59,8 +64,8 @@ class LogisticsConfigHostTest {
         assertThat(min).isLessThanOrEqualTo(max);
 
         // Restore defaults so the shared registry config doesn't leak into other tests.
-        engines.set(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 3.0);
-        engines.set(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT, 10.0);
+        stirling.set(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 3.0);
+        stirling.set(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT, 10.0);
     }
 
     @Test
@@ -87,8 +92,12 @@ class LogisticsConfigHostTest {
         assertThat(ignored).isNotEmpty();
 
         List<String> ids = LogisticsConfigHost.domainConfigs().stream().map(Config::id).toList();
+        // Each domain declares one child config per unit (engines/machines/power) plus the flat pipe/fluid/reporting files.
         assertThat(ids).contains(
-                "logistics.engines", "logistics.machines", "logistics.pipes", "logistics.fluids", "logistics.reporting");
+                "logistics.engines.redstone", "logistics.engines.stirling",
+                "logistics.machines.macerator", "logistics.machines.quarry",
+                "logistics.power.battery", "logistics.power.cables",
+                "logistics.pipes", "logistics.fluids", "logistics.reporting");
     }
 
     @Test
