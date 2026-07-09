@@ -2,6 +2,8 @@
 -- slot and for recipes that accept more than one input, e.g. an ore or its deepslate variant).
 -- Clean-room. Stacks the item icons; the animation lives in [[Template:Grid Cycle/styles.css]].
 
+local itemlink = require('Module:ItemLink')
+
 local p = {}
 
 local function trim(s)
@@ -11,8 +13,10 @@ local function trim(s)
 	return s
 end
 
+-- Each cycled icon links like {{Grid}}: to a local page for a mod item, or to the Minecraft Wiki
+-- for a vanilla one (via [[Module:ItemLink]], a table lookup — no expensive parser functions).
 local function icon(it)
-	return '[[File:Grid ' .. it .. '.png|32px|link=|' .. it .. ']]'
+	return '[[File:Grid ' .. it .. '.png|32px|link=' .. itemlink.targetFor(it) .. '|' .. it .. ']]'
 end
 
 function p.render(frame)

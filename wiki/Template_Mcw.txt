@@ -1,0 +1,17 @@
+<includeonly>[[w:c:minecraft:{{{1}}}|{{{2|{{{1}}}}}}]]</includeonly><noinclude>
+Links to a page on the [https://minecraft.fandom.com/ Minecraft Wiki] (minecraft.fandom.com) — for
+the vanilla Minecraft items, blocks, and mechanics this wiki references but does not document
+itself. It uses Fandom's built-in <code>w:c:minecraft:</code> cross-wiki interwiki, so no special
+configuration is required. Routing every vanilla link through this one template also means the
+target can be changed in a single place if it ever moves.
+
+Usage:
+ {{Mcw|Snow Block}}         → Snow Block   (links to minecraft.fandom.com/wiki/Snow_Block)
+ {{Mcw|Snow Block|snow}}    → snow         (custom link text)
+
+Parameters:
+ 1  — the Minecraft Wiki page title (the vanilla item/block name)
+ 2  — optional display text (defaults to the page title)
+
+[[Category:Templates]]
+</noinclude>

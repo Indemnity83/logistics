@@ -1,15 +1,19 @@
-<includeonly>{{#ifexist:File:Grid {{{1}}}.png|[[File:Grid {{{1}}}.png|32px|link={{{1}}}|{{{1}}}]]|[[{{{1}}}]]}}{{#if:{{{2|}}}|&nbsp;<span style="font-weight:bold;">×{{{2}}}</span>}}</includeonly><noinclude>
-This template renders a single inventory item: its grid icon (linked to the item's page),
-with an optional count.
+<includeonly>{{#ifexist:File:Grid {{{1}}}.png|[[File:Grid {{{1}}}.png|32px|link={{#invoke:ItemLink|target|{{{1}}}}}|{{{1}}}]]|{{#invoke:ItemLink|link|{{{1}}}}}}}{{#if:{{{2|}}}|&nbsp;<span style="font-weight:bold;">×{{{2}}}</span>}}</includeonly><noinclude>
+This template renders a single inventory item: its grid icon, with an optional count.
+
+The icon links to the item's page via [[Module:ItemLink]]: mod items link to their local wiki
+page, while vanilla Minecraft items link out to the [https://minecraft.fandom.com/ Minecraft Wiki]
+(so a recipe's vanilla ingredients are still clickable). The mod/vanilla decision is a table lookup,
+not an {{#ifexist:}}, so it stays off the page's expensive-parser-function budget.
 
 Usage:
- {{Grid|Tin Ingot}}      -> icon linking to [[Tin Ingot]]
+ {{Grid|Tin Ingot}}      -> icon linking to [[Tin Ingot]] (a mod item)
+ {{Grid|Cobblestone}}    -> icon linking to the Minecraft Wiki (a vanilla item)
  {{Grid|Tin Ingot|8}}    -> icon + "×8"
 
 Image lookup: it looks for [[File:Grid <name>.png]]. If that image has not been
-uploaded yet, it falls back to a plain text link to the item's page, so the template
-degrades gracefully on a fresh wiki. See the ''ASSET_UPLOAD_MAP'' reference shipped with
-the wiki source for the upload naming convention.
+uploaded yet, it falls back to a plain text link (local or Minecraft Wiki, same rule),
+so the template degrades gracefully on a fresh wiki.
 
 [[Category:Templates]]
 </noinclude>
