@@ -30,7 +30,7 @@ Cables carry RF from an engine to a [[Battery]], [[Power Junction]], or machine.
 
 == Engines ==
 
-Every engine needs a redstone signal to run. They differ in output and fuel:
+Every engine needs a {{Mcw|Redstone|redstone}} signal to run. They differ in output and fuel:
 
 '''[[Redstone Engine]]'''
 * Small, steady output
@@ -39,7 +39,7 @@ Every engine needs a redstone signal to run. They differ in output and fuel:
 
 '''[[Stirling Engine]]'''
 * Substantial output
-* Powered by fuel (coal, charcoal, lava, etc.)
+* Powered by fuel ({{Mcw|Coal|coal}}, {{Mcw|Charcoal|charcoal}}, {{Mcw|Lava|lava}}, etc.)
 * Can overheat if run too long — good for high-power machines like quarries
 
 '''[[Creative Engine]]'''

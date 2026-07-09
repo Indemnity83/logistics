@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Emerald Dust''' is ground from emerald ore or an emerald in a [[Macerator]].
+'''Emerald Dust''' is ground from {{Mcw|Emerald Ore|emerald ore}} or an {{Mcw|Emerald|emerald}} in a [[Macerator]].
 
 == Obtaining ==
 

@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Obsidian Dust''' is ground from obsidian (or crying obsidian) in a [[Macerator]], and is used to craft the [[Obsidian Core]].
+'''Obsidian Dust''' is ground from {{Mcw|Obsidian|obsidian}} (or {{Mcw|Crying Obsidian|crying obsidian}}) in a [[Macerator]], and is used to craft the [[Obsidian Core]].
 
 == Obtaining ==
 

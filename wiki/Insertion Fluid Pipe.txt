@@ -15,7 +15,7 @@ The '''Insertion Fluid Pipe''' is a [[Fluid Pipes|fluid pipe]] that fills adjace
 
 === Crafting ===
 
-Combine the [[Item Insertion Pipe]] with a Slime Ball (shapeless):
+Combine the [[Item Insertion Pipe]] with a {{Mcw|Slime Ball}} (shapeless):
 
 {{Crafting
 |head=1

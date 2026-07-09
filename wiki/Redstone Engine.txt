@@ -9,7 +9,7 @@
 |added            = v0.1.0
 }}
 
-The '''Redstone Engine''' is a basic power generator that converts a redstone signal into a small, steady [[RF Energy|RF]] output. It is the simplest engine in Logistics and cannot overheat.
+The '''Redstone Engine''' is a basic power generator that converts a {{Mcw|Redstone|redstone}} signal into a small, steady [[RF Energy|RF]] output. It is the simplest engine in Logistics and cannot overheat.
 
 == Obtaining ==
 

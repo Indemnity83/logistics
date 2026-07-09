@@ -20,7 +20,7 @@ The '''Blank Module''' is the base crafting component for all [[Modules|modules]
 
 == Usage ==
 
-The Blank Module is consumed when crafting any other module type. Craft it in batches so you have a supply ready when building out your [[Chassis Logistics Pipe]] setup — each module type requires one, and a fully loaded chassis needs several. Paper is plentiful from sugar cane, and gold nuggets come from gold ingots (nine per ingot).
+The Blank Module is consumed when crafting any other module type. Craft it in batches so you have a supply ready when building out your [[Chassis Logistics Pipe]] setup — each module type requires one, and a fully loaded chassis needs several. {{Mcw|Paper}} is plentiful from sugar cane, and gold nuggets come from gold ingots (nine per ingot).
 
 == Data values ==
 

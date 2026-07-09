@@ -125,7 +125,7 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 == See also ==
 
 * [[Bronze]] - All bronze blocks and items
-* [[Tin Ingot]], Copper Ingot - Alloy components
+* [[Tin Ingot]], {{Mcw|Copper Ingot}} - Alloy components
 * [[Alloy Smelter]] - Alloys bronze from copper and tin
 * [[Machine Frame]] - Machine component
 * [[Bronze Gear]] - Crafting component

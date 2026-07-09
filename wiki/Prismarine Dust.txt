@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Prismarine Dust''' is ground from prismarine, prismarine bricks, or a prismarine shard in a [[Macerator]].
+'''Prismarine Dust''' is ground from {{Mcw|Prismarine|prismarine}}, {{Mcw|Prismarine Bricks|prismarine bricks}}, or a {{Mcw|Prismarine Shard|prismarine shard}} in a [[Macerator]].
 
 == Obtaining ==
 

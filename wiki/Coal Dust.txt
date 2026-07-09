@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Coal Dust''' is ground from coal ore, coal, or charcoal in a [[Macerator]].
+'''Coal Dust''' is ground from {{Mcw|Coal Ore|coal ore}}, {{Mcw|Coal|coal}}, or {{Mcw|Charcoal|charcoal}} in a [[Macerator]].
 
 == Obtaining ==
 

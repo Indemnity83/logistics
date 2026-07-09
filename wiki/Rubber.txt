@@ -5,7 +5,7 @@
 |added     = v0.6.0
 }}
 
-'''Rubber''' is a flexible crafting component used to insulate [[Cables|power cables]]. It is made in two steps: a '''Rubber Mix''' is crafted from a slime ball and [[Coal Dust]], then smelted to cure it into finished '''Rubber Chunks'''.
+'''Rubber''' is a flexible crafting component used to insulate [[Cables|power cables]]. It is made in two steps: a '''Rubber Mix''' is crafted from a {{Mcw|Slime Ball|slime ball}} and [[Coal Dust]], then smelted to cure it into finished '''Rubber Chunks'''.
 
 == Obtaining ==
 
@@ -41,7 +41,7 @@ Rubber Chunks insulate every [[Cables|power cable]] — six chunks wrapped aroun
 {{Crafting|foot=1
 |name=[[Cables|Ender Cable]] |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
 
-A single Rubber Mix smelts into two chunks, so a [[Macerator]] → [[Kiln]] line — grinding coal into [[Coal Dust]] — turns out rubber cheaply in bulk.
+A single Rubber Mix smelts into two chunks, so a [[Macerator]] → [[Kiln]] line — grinding {{Mcw|Coal|coal}} into [[Coal Dust]] — turns out rubber cheaply in bulk.
 
 == Data values ==
 

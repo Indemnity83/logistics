@@ -5,7 +5,7 @@
 |added     = v0.8.0
 }}
 
-'''Sulfur Dust''' is ground from sulfur in a [[Macerator]]. It is an ingredient for [[#Usage|crafting gunpowder]].
+'''Sulfur Dust''' is ground from {{Mcw|Sulfur|sulfur}} in a [[Macerator]]. It is an ingredient for [[#Usage|crafting gunpowder]].
 
 == Obtaining ==
 

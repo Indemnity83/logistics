@@ -6,7 +6,7 @@
 |added     = v0.2.0
 }}
 
-'''Quartz Dust''' is ground from nether quartz ore or nether quartz in a [[Macerator]].
+'''Quartz Dust''' is ground from {{Mcw|Nether Quartz Ore|nether quartz ore}} or {{Mcw|Nether Quartz|nether quartz}} in a [[Macerator]].
 
 == Obtaining ==
 

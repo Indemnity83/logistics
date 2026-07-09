@@ -9,7 +9,7 @@
 |added     = v0.8.2
 }}
 
-'''Crude Oil''' is a dark liquid found in surface seeps and locked inside oil-bearing blocks. Unlike the mod's other custom fluids it can be '''placed in the world''', picked up in a bucket, and pooled — it flows sluggishly, spreading a short distance before dropping off.
+'''Crude Oil''' is a dark liquid found in surface seeps and locked inside oil-bearing blocks. Unlike the mod's other custom fluids it can be '''placed in the world''', picked up in a {{Mcw|Bucket|bucket}}, and pooled — it flows sluggishly, spreading a short distance before dropping off.
 
 == Obtaining ==
 
@@ -30,7 +30,7 @@ Crude Oil has no processing use yet — it is collected, piped, and stored. Move
 
 === Bucket ===
 
-The '''Crude Oil Bucket''' places and picks up the fluid like a water or lava bucket, and empties back to an ordinary bucket when poured into a tank or machine.
+The '''Crude Oil Bucket''' places and picks up the fluid like a {{Mcw|Water|water}} or {{Mcw|Lava|lava}} bucket, and empties back to an ordinary bucket when poured into a tank or machine.
 
 == Data values ==
 

@@ -15,7 +15,7 @@ The '''Golden Transport Pipe''' is a [[Transport Pipes|transport pipe]] that acc
 
 === Crafting ===
 
-Crafted eight at a time from a pane of Glass flanked by its defining material:
+Crafted eight at a time from a pane of {{Mcw|Glass}} flanked by its defining material:
 
 {{Crafting
 |head=1

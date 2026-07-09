@@ -23,7 +23,7 @@ Liquid Biomass has no processing use yet — it is stored and piped like any oth
 
 === Bucket ===
 
-The '''Liquid Biomass Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary bucket.
+The '''Liquid Biomass Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary {{Mcw|Bucket|bucket}}.
 
 == Data values ==
 

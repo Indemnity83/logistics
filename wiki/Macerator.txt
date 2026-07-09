@@ -98,7 +98,7 @@ The Macerator also breaks worked blocks back down into raw materials, and recove
 
 ==== Oil blocks ====
 
-Oil-bearing blocks grind into [[Bitumen]], with a chance byproduct — [[Tar]] from the sands, flint from shale:
+Oil-bearing blocks grind into [[Bitumen]], with a chance byproduct — [[Tar]] from the sands, {{Mcw|Flint|flint}} from shale:
 
 {{Grinding|head=1 |Input=Oil Sand;Oil Red Sand |ingredients=[[Oil Sand]] or [[Oil Red Sand]] |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
 {{Grinding |foot=1 |Input=Oil Shale |Output=Bitumen,3 |Byproduct=Flint |ByproductChance=50%}}
@@ -122,7 +122,7 @@ The Macerator grinds wood and wooden tools into [[Sawdust]]. To cut logs into pl
 
 ==== Flowers → dyes ====
 
-Any flower can be ground into its corresponding dye color (Poppy → Red Dye, Dandelion → Yellow Dye, etc.). Supports all 16 vanilla flower variants including multi-block plants (Lilac, Sunflower, etc.).
+Any flower can be ground into its corresponding dye color (Poppy → {{Mcw|Red Dye}}, Dandelion → {{Mcw|Yellow Dye}}, etc.). Supports all 16 vanilla flower variants including multi-block plants (Lilac, Sunflower, etc.).
 
 === Common uses ===
 
@@ -143,7 +143,7 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 [Nether Quartz] → Macerator → [Quartz Dust] → Kiln → [Quartz Crystal]
 </pre>
 
-[[Sawdust]] from grinding wood feeds [[Cores|Wooden Cores]] and [[Extractor Module|Extractor Modules]], and Flour from wheat can be baked into bread and other food.
+[[Sawdust]] from grinding wood feeds [[Cores|Wooden Cores]] and [[Extractor Module|Extractor Modules]], and Flour from {{Mcw|Wheat|wheat}} can be baked into bread and other food.
 
 == Data values ==
 

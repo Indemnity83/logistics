@@ -15,7 +15,7 @@ The '''Golden Fluid Pipe''' is the fastest passive [[Fluid Pipes|fluid pipe]] â€
 
 === Crafting ===
 
-Combine the [[Golden Transport Pipe]] with a Slime Ball (shapeless):
+Combine the [[Golden Transport Pipe]] with a {{Mcw|Slime Ball}} (shapeless):
 
 {{Crafting
 |head=1

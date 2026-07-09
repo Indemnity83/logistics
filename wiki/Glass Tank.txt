@@ -32,11 +32,11 @@ The Glass Tank can be broken with any tool — it breaks almost instantly.
 |Output=Glass Tank
 }}
 
-Crafted from a ring of 8 Glass.
+Crafted from a ring of 8 {{Mcw|Glass}}.
 
 == Usage ==
 
-The Glass Tank stores '''16,000 mB (16 buckets)''' of one fluid type. It accepts insert and extract on all faces — connect a [[Fluid Pipes|fluid pipe]] to any side. A dynamic block-entity renderer shows the fluid's actual sprite and color at its current fill height through the glass. You can also fill or drain it by hand with a bucket (and other fluid-container items) by right-clicking.
+The Glass Tank stores '''16,000 mB (16 buckets)''' of one fluid type. It accepts insert and extract on all faces — connect a [[Fluid Pipes|fluid pipe]] to any side. A dynamic block-entity renderer shows the fluid's actual sprite and color at its current fill height through the glass. You can also fill or drain it by hand with a {{Mcw|Bucket|bucket}} (and other fluid-container items) by right-clicking.
 
 === Stacking ===
 

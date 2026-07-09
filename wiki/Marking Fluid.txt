@@ -14,7 +14,7 @@
 
 === Crafting ===
 
-Each colored marking fluid is crafted '''shapeless''' from a Water Bottle plus the matching dye — one recipe per color, all 16 Minecraft dye colors:
+Each colored marking fluid is crafted '''shapeless''' from a {{Mcw|Water Bottle}} plus the matching dye — one recipe per color, all 16 Minecraft dye colors:
 
 {{Crafting|head=1
 |name=White Marking Fluid      |A1=Water Bottle |B1=White Dye      |Output=White Marking Fluid}}

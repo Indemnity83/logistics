@@ -15,7 +15,7 @@ The '''Void Fluid Pipe''' is a [[Fluid Pipes|fluid pipe]] that destroys any flui
 
 === Crafting ===
 
-Combine the [[Item Void Pipe]] with a Slime Ball (shapeless):
+Combine the [[Item Void Pipe]] with a {{Mcw|Slime Ball}} (shapeless):
 
 {{Crafting
 |head=1

@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-'''Diamond Dust''' is ground from diamond ore or a diamond in a [[Macerator]].
+'''Diamond Dust''' is ground from {{Mcw|Diamond Ore|diamond ore}} or a {{Mcw|Diamond|diamond}} in a [[Macerator]].
 
 == Obtaining ==
 

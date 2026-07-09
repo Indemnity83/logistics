@@ -15,7 +15,7 @@ The '''Copper Fluid Pipe''' is the standard passive [[Fluid Pipes|fluid pipe]] â
 
 === Crafting ===
 
-Combine the [[Copper Transport Pipe]] with a Slime Ball (shapeless):
+Combine the [[Copper Transport Pipe]] with a {{Mcw|Slime Ball}} (shapeless):
 
 {{Crafting
 |head=1

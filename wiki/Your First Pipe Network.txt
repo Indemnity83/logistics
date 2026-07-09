@@ -15,12 +15,12 @@ This teaches the fundamentals: extraction, transport, and insertion.
 Craft these items first:
 
 '''Pipes:'''
-* 8× [[Copper Transport Pipe]] (copper ingot + glass)
+* 8× [[Copper Transport Pipe]] ({{Mcw|Copper Ingot|copper ingot}} + {{Mcw|Glass|glass}})
 * 8× [[Item Extractor Pipe]] (planks + glass)
 
 '''Power:'''
 * 1× [[Redstone Engine]]
-* 1× Redstone dust (to activate the engine)
+* 1× {{Mcw|Redstone}} dust (to activate the engine)
 
 '''Tool:'''
 * 1× [[Wrench]] (4× iron ingot)
