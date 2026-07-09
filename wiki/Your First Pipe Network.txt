@@ -4,7 +4,7 @@ Learn the basics by building a simple pipe network that extracts items from a ch
 
 A basic transport system:
 
-[[File:2026-07-09 12.12.17.png|none|thumb|500x500px]]
+[[File:Basic Transport System.png|none|thumb|500x500px]]
 
 This teaches the fundamentals: extraction, transport, and insertion.
 
