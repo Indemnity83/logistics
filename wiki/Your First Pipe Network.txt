@@ -4,9 +4,7 @@ Learn the basics by building a simple pipe network that extracts items from a ch
 
 A basic transport system:
 
-<pre>
-[Source Chest] → [Extractor] → [Copper Pipes] → [Destination Chest]
-</pre>
+[[File:2026-07-09 12.12.17.png|none|thumb|500x500px]]
 
 This teaches the fundamentals: extraction, transport, and insertion.
 
@@ -15,58 +13,54 @@ This teaches the fundamentals: extraction, transport, and insertion.
 Craft these items first:
 
 '''Pipes:'''
-* 8× [[Copper Transport Pipe]] ({{Mcw|Copper Ingot|copper ingot}} + {{Mcw|Glass|glass}})
-* 8× [[Item Extractor Pipe]] (planks + glass)
+* 1 or more [[Copper Transport Pipe]] ({{Mcw|Copper Ingot|copper ingot}} + {{Mcw|Glass|glass}})
+* 1× [[Item Extractor Pipe]] ({{Mcw|Planks|planks}} + glass)
 
 '''Power:'''
 * 1× [[Redstone Engine]]
-* 1× {{Mcw|Redstone}} dust (to activate the engine)
+* 1× {{Mcw|Lever}} (to switch the engine on)
 
 '''Tool:'''
-* 1× [[Wrench]] (4× iron ingot)
+* 1× [[Wrench]] (4× {{Mcw|Iron Ingot|iron ingot}})
 
 '''Test setup:'''
-* 2× Chest (source and destination)
+* 2× {{Mcw|Chest}} (source and destination)
 * Some items to transport
 
 ==Step-by-Step Build==
 
 ===1. Place Source Chest===
-Place a chest and fill it with some items (cobblestone, dirt, anything).
+Place a chest and fill it with some items ({{Mcw|Cobblestone|cobblestone}}, {{Mcw|Dirt|dirt}}, anything).
 
 ===2. Place Extractor Pipe===
 Place an [[Item Extractor Pipe]] directly next to the chest. You should see it connect automatically (opaque connector appears).
 
 ===3. Power the Extractor===
 
-The Item Extractor Pipe requires energy to run. Place a [[Redstone Engine]] directly adjacent to the extractor pipe, then place a redstone dust on top of (or next to) the engine to activate it. The engine's output face must touch the extractor pipe — use a [[Wrench]] to rotate it if needed.
+The Item Extractor Pipe requires energy to run. Place a [[Redstone Engine]] directly adjacent to the extractor pipe, then place a lever on the back of the engine to switch it on. The engine's output face must touch the extractor pipe — use a [[Wrench]] to rotate it if needed.
 
 ===4. Configure Extraction Face===
-# Take out your [[Wrench]]
-# Right-click the extractor pipe
-# Watch the opaque connector - it shows which face extracts
-# Keep right-clicking until the connector points toward the chest
-# Now the extractor will pull from that chest
+The [[Item Extractor Pipe|Extractor Pipe]] can only extract from one chest. If you place more than one chest adjacent to it, use a [[Wrench]] to toggle which chest it extracts from — you'll see the opaque arm of the pipe move between the chests.
 
 ===5. Build Transport Line===
 Place [[Copper Transport Pipe|Copper Transport Pipes]] extending from the extractor:
 
 * Connect to any free face of the extractor
-* Extend as far as you want (3-5 blocks for this example)
+* Extend as far as you want
 * Pipes connect automatically to each other
 
 ===6. Place Destination Chest===
 Place a second chest at the end of your copper pipe line. The pipe should automatically connect to it (you'll see a connector appear).
 
 ===7. Watch It Work===
-Items automatically extract from the source chest, travel through the pipes (you can see them moving!), and enter the destination chest.
+Flip the lever on the engine, and items automatically extract from the source chest, travel through the pipes (you can see them moving!), and enter the destination chest. With a [[Redstone Engine]], you'll get one item extracted for every pulse of the engine; as the engine warms up, it starts operating faster.
 
 '''If items aren't moving:'''
-* Check that a [[Redstone Engine]] is adjacent to the extractor with its output face touching it (use wrench to rotate)
-* Check the engine is powered (redstone signal on it)
-* Check extraction face points at source chest (use wrench on extractor)
+* Check that a [[Redstone Engine]] is adjacent to the extractor with its output face touching it (use the wrench to rotate)
+* Check the engine is switched on (the lever is flipped)
+* Check the extraction face points at the source chest (use the wrench on the extractor)
 * Verify pipes connect to both chests (connectors visible)
-* Ensure source chest has items
+* Ensure the source chest has items
 
 ==What You Learned==
 
@@ -76,7 +70,7 @@ Items automatically extract from the source chest, travel through the pipes (you
 
 '''Extraction:'''
 * [[Item Extractor Pipe|Item Extractor Pipes]] pull from inventories
-* Configure extraction face with [[Wrench]]
+* Configure the extraction face with a [[Wrench]]
 * Only one face extracts at a time
 
 '''Transport:'''
@@ -86,14 +80,16 @@ Items automatically extract from the source chest, travel through the pipes (you
 
 '''Insertion:'''
 * Items automatically try to enter adjacent inventories
-* Works with any inventory (chests, furnaces, hoppers, etc.)
+* Works with any inventory ({{Mcw|Chest|chests}}, {{Mcw|Furnace|furnaces}}, {{Mcw|Hopper|hoppers}}, etc.)
 
 ==Next Steps==
 
 ===Controlled Routing===
 Random routing is fine for single destinations, but what about multiple chests?
 
-Use [[Item Merger Pipe]] to guarantee direction:
+Use an [[Item Merger Pipe]] to guarantee direction. Its opaque arm marks the output direction and can be adjusted with the [[Wrench|wrench]]. Items can't enter a merger pipe through its output face — they'll be dropped on the ground instead.
+
+[[File:Merger Example.png|none|thumb|500x500px]]
 
 <pre>
 [Source A] ↘
@@ -104,16 +100,18 @@ Use [[Item Merger Pipe]] to guarantee direction:
 ===Sorting Items===
 Want specific items to go to specific chests?
 
-Use [[Item Filter Pipe]]:
+Use an [[Item Filter Pipe]]:
+
+[[File:Filter Pipe Demo.png|frameless|500x500px]]
 
 <pre>
-[Mixed items] → [Filter] → [Ores] → [Ore chest]
-                    ↓
-              [Everything else] → [General chest]
+              [Ore Chest]
+                   |
+[Mixed items] → [Filter] → [Everything else] → [General chest]
 </pre>
 
 ===Speed Up Transport===
-Use [[Golden Transport Pipe]] with redstone power to accelerate items.
+Use a [[Golden Transport Pipe]] with {{Mcw|Redstone|redstone}} power to accelerate items.
 
 ===Learn More===
 * [[Pipes]] - Browse all pipe families
@@ -126,12 +124,12 @@ Use [[Golden Transport Pipe]] with redstone power to accelerate items.
 '''Items drop instead of entering destination:'''
 * Destination chest might be full
 * Pipe might not be connected (no connector visible)
-* Use [[Item Insertion Pipe]] to prefer inventories
+* Use an [[Item Insertion Pipe]] to prefer inventories
 
 '''Extraction face pointing wrong way:'''
-* Right-click with wrench to cycle faces
-* Opaque connector shows active face
-* Should point directly at source chest
+* Right-click with the wrench to cycle faces
+* The opaque connector shows the active face
+* It should point directly at the source chest
 
 '''Pipes don't connect:'''
 * Must be adjacent (no gaps)
