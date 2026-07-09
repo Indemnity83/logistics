@@ -151,9 +151,9 @@ Gears, valves, ores, and crafting components.
 
 '''Active Development:''' Logistics is in active development. [[Transport Pipes]], [[Logistics Pipes]], [[Fluid Pipes|fluid pipes]], tanks, pumps, and the powered logistics network are implemented and functional.
 
-'''Minecraft:''' 26.1+
-'''Mod Loader:''' Fabric (Loader 0.18.6+ with Fabric API) or NeoForge
-'''Java:''' 25 or newer
+'''Minecraft:''' see the [[Installation]] page for supported versions
+'''Mod Loader:''' Fabric (with Fabric API) or NeoForge
+'''Java:''' the version your Minecraft release requires
 '''License:''' MIT
 
 [https://github.com/indemnity83/logistics GitHub Repository] | [https://github.com/indemnity83/logistics/issues Report Issues]
