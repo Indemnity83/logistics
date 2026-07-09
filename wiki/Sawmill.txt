@@ -9,7 +9,7 @@
 |added           = v0.8.0
 }}
 
-The '''Sawmill''' is an RF-powered machine that cuts logs and other wooden items into planks, yielding [[Sawdust]] as a byproduct.
+The '''Sawmill''' is an RF-powered machine that cuts logs and other wooden items into planks, yielding [[Sawdust]] as a byproduct. It also pulps loose plant matter into [[Pulped Biomass]].
 
 == Obtaining ==
 
@@ -43,12 +43,22 @@ The Sawmill runs on [[RF Energy|RF]]. It holds 10,000 RF and accepts up to 128 R
 
 === Recipes ===
 
+==== Wood → planks ====
+
 Every wood type works the same way; oak is shown as an example. Logs and bamboo blocks give the most planks and always drop [[Sawdust]]; processed items give fewer planks and a smaller sawdust chance.
 
 {{Milling|head=1 |Input=Oak Log |ingredients=Logs / Bamboo blocks (any type) |Output=Oak Planks,6 |Byproduct=Sawdust |ByproductChance=100%}}
 {{Milling |Input=Oak Boat |ingredients=Boats |Output=Oak Planks,4 |Byproduct=Sawdust |ByproductChance=125%}}
 {{Milling |Input=Oak Door |ingredients=Doors |Output=Oak Planks |Byproduct=Sawdust |ByproductChance=50%}}
 {{Milling |foot=1 |Input=Oak Stairs |ingredients=Stairs / Fences / Fence gates |Output=Oak Planks |Byproduct=Sawdust |ByproductChance=25%}}
+
+==== Plants → Pulped Biomass ====
+
+Loose plant matter pulps into [[Pulped Biomass]] — one per recipe, with denser plants taking more input:
+
+{{Milling|head=1 |Input=Oak Leaves |ingredients=Leaves, saplings, kelp, moss, seagrass (×8) |Output=Pulped Biomass}}
+{{Milling |Input=Sugar Cane |ingredients=Cactus, sugar cane, vines, tall grass (×6) |Output=Pulped Biomass}}
+{{Milling |foot=1 |Input=Wheat |ingredients=Crops, flowers, mushrooms, fern (×4) |Output=Pulped Biomass}}
 
 == Data values ==
 
@@ -58,11 +68,13 @@ Every wood type works the same way; oak is shown as an example. Logs and bamboo 
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.0|[[File:Grid Sawmill.png|32px]] Added '''Sawmill'''.}}
+{{History|head=1|v0.8.0|[[File:Grid Sawmill.png|32px]] Added '''Sawmill'''.}}
+{{History|foot=1|v0.8.2|Added pulping plant matter into [[Pulped Biomass]].}}
 
 == See also ==
 
 * [[Sawdust]] - Byproduct of every cut
+* [[Pulped Biomass]] - Pulped from plant matter
 * [[Macerator]] - Companion grinding machine
 * [[Machine Frame]] - Crafting component
 * [[Stirling Engine]] - Recommended power source

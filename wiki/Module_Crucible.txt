@@ -1,0 +1,102 @@
+-- Module:Crucible — builds Crucible recipe tables (Name / Ingredients / Crucible recipe).
+-- Clean-room implementation, structured like [[Module:Grinding]] but for a machine that melts a
+-- single solid input into a fluid: the Recipe cell reuses our own {{Grid Crucible Table}} widget
+-- (input → fluid, shown as the fluid's bucket icon with an mB amount, no byproduct or experience).
+-- head=1 opens the table + header, foot=1 closes it.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function truthy(v)
+	v = trim(v)
+	return v ~= nil and v ~= '0'
+end
+
+-- "Name,Amount" -> name, amount (also honours an explicit Amount)
+local function parseOutput(args)
+	local out = trim(args.Output) or trim(args.output) or ''
+	local amount = trim(args.Amount) or trim(args.amount)
+	local n, a = out:match('^(.-)%s*,%s*(%d+)$')
+	if n then
+		out = n
+		amount = amount or a
+	end
+	return out, amount
+end
+
+-- Ingredients column: explicit |ingredients=, else the input (linked if it has a wiki page).
+local function ingredientsCell(args)
+	local ing = trim(args.ingredients)
+	if ing then return ing end
+	local parts = {}
+	for part in (trim(args.Input) or trim(args.input) or ''):gmatch('[^;]+') do
+		local v = trim(part)
+		if v then
+			local t = mw.title.new(v)
+			parts[#parts + 1] = (t and t.exists) and ('[[' .. v .. ']]') or v
+		end
+	end
+	local out = {}
+	for i, item in ipairs(parts) do
+		out[#out + 1] = '<span class="logi-recipes-ingredient">' .. item .. ((i < #parts) and ' or' or '') .. '</span>'
+	end
+	return table.concat(out)
+end
+
+-- Recipe column: our crucible widget (input -> fluid + mB amount).
+local function recipeCell(frame, args, outName, amount)
+	local g = { Output = outName }
+	if amount then g.Amount = amount end
+	local input = trim(args.Input) or trim(args.input)
+	if input then g.Input = input end
+	local grid = frame:expandTemplate{ title = 'Grid Crucible Table', args = g }
+	grid = grid:gsub('<templatestyles.-/>', '')
+	return mw.text.trim(grid)
+end
+
+function p.crucible(frame)
+	local args = frame:getParent().args
+	local outName, amount = parseOutput(args)
+	local showName = trim(args.showname) ~= '0'
+	local head = truthy(args.head)
+	local foot = truthy(args.foot)
+
+	local out = {}
+
+	if head then
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Crafting/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Crafting Table/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Crucible Table/styles.css' } }
+		out[#out + 1] = '\n{| class="logi-recipes"'
+		out[#out + 1] = '\n|- class="logi-recipes-head"'
+		if showName then out[#out + 1] = '\n! Name' end
+		out[#out + 1] = '\n! Ingredients\n! Crucible recipe'
+	end
+
+	out[#out + 1] = '\n|-'
+	if showName then
+		local nm = trim(args.name) or ('[[' .. outName .. ']]')
+		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
+	end
+	local ingredients = ingredientsCell(args)
+	local notes = trim(args.notes)
+	if notes then
+		ingredients = ingredients .. '<div class="logi-recipes-note">' .. notes .. '</div>'
+	end
+	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredients
+	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, outName, amount)
+
+	if foot then
+		out[#out + 1] = '\n|}'
+	end
+
+	return table.concat(out)
+end
+
+return p

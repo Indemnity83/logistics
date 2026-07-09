@@ -1,0 +1,46 @@
+{{Item
+|image     = Fluid Liquid Glowstone.gif
+|image2    = Bucket of Liquid Glowstone.png
+|imagesize = 96
+|caption   = Liquid Glowstone
+|caption2  = Liquid Glowstone Bucket
+|type      = Fluid
+|renewable = No
+|added     = v0.8.2
+}}
+
+'''Liquid Glowstone''' is a molten fluid produced by melting glowstone in a [[Crucible]]. It '''glows''' — a [[Glass Tank]] or pipe filled with it emits a full light level 15.
+
+== Obtaining ==
+
+=== Crucible ===
+
+{{Crucible|head=1 |Input=Glowstone |Output=Liquid Glowstone |Amount=1000}}
+{{Crucible |foot=1 |Input=Glowstone Dust |Output=Liquid Glowstone |Amount=250}}
+
+== Usage ==
+
+Liquid Glowstone has no processing use yet, but it is the mod's brightest fluid: stored in a [[Glass Tank]] or run through [[Fluid Pipes]] it lights the area around it. Move and buffer it like any other fluid.
+
+=== Bucket ===
+
+The '''Liquid Glowstone Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary bucket.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/liquid_glowstone|fluid.logistics.core.liquid_glowstone|name=Liquid Glowstone}}
+{{ID|foot=1|logistics:core/liquid_glowstone|item.logistics.core.liquid_glowstone|name=Liquid Glowstone Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Liquid Glowstone.png|32px]] Added '''Liquid Glowstone''', which emits light in tanks and pipes.}}
+
+== See also ==
+
+* [[Crucible]] - Melts glowstone into Liquid Glowstone
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+[[Category:Fluids]]

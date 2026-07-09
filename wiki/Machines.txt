@@ -5,8 +5,10 @@
 
 ==Processing==
 * '''[[Macerator]]''' - Grinds items into dust; ores (with chance byproducts), recycling, and dyes
+* '''[[Alloy Smelter]]''' - Two-input machine; smelts alloys, doubles ores, and recycles metal items into ingots
+* '''[[Crucible]]''' - Melts blocks and items into [[Fluids|fluids]] — molten metals, [[Crude Oil]], lava, and water
 * '''[[Kiln]]''' - RF-powered electric furnace; smelts any vanilla smelting recipe (no fuel — uses RF), with recipe-book GUI
-* '''[[Sawmill]]''' - Cuts logs and wooden items into planks, yielding [[Sawdust]]
+* '''[[Sawmill]]''' - Cuts logs and wooden items into planks, and pulps plants into [[Pulped Biomass]]
 
 ==Power==
 * '''[[Power Junction]]''' - Feeds RF from cables or a [[Battery]] into a [[Logistics Pipes|logistics network]]

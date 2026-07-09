@@ -1,0 +1,106 @@
+{{Block
+|image           = Grid Alloy Smelter.png
+|type            = Block (Machine)
+|function        = Alloying / ore processing
+|stackable       = Yes (64)
+|tool            = Pickaxe
+|hardness        = 3.5
+|blastresistance = 3.5
+|added           = v0.8.2
+}}
+
+The '''Alloy Smelter''' is an RF-powered machine with '''two''' input slots. It combines an ore or metal with a flux to smelt alloys, double ore output, and recycle worked metal items back into ingots — producing [[Slag]] and [[Rich Slag]] as byproducts.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Alloy Smelter is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Alloy Smelter |icon1=Grid Alloy Smelter.png |hardness1=3.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Diamond Gear
+|A2=Sand |B2=Machine Frame |C2=Sand
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Alloy Smelter
+}}
+
+Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with a [[Diamond Gear]] and sand on top.
+
+== Usage ==
+
+Place two inputs in the top slots — typically an ore or metal plus a flux such as sand. The primary output is drawn from the bottom, and a second slot catches the [[Slag]] or [[Rich Slag]] byproduct. The two inputs are order-independent, and every recipe appears in the Just Enough Items (JEI) viewer.
+
+=== Power ===
+
+The Alloy Smelter runs on [[RF Energy|RF]]. It holds 10,000 RF and accepts up to 128 RF/t, spending 20 RF/t while working. Each recipe carries its own RF cost; connect a [[Stirling Engine]] or any RF source.
+
+=== Ore processing ===
+
+Smelting an ore with '''sand''' as flux yields two ingots and a chance of [[Rich Slag]]:
+
+{{Alloy Smelter|head=1 |Input=Iron Ore;Deepslate Iron Ore |Input2=Sand;Red Sand |Output=Iron Ingot |OutputCount=2 |Byproduct=Rich Slag |ByproductChance=5%}}
+{{Alloy Smelter |Input=Gold Ore;Deepslate Gold Ore |Input2=Sand;Red Sand |Output=Gold Ingot |OutputCount=2 |Byproduct=Rich Slag |ByproductChance=20%}}
+{{Alloy Smelter |Input=Copper Ore;Deepslate Copper Ore |Input2=Sand;Red Sand |Output=Copper Ingot |OutputCount=2 |Byproduct=Rich Slag |ByproductChance=5%}}
+{{Alloy Smelter |Input=Tin Ore;Deepslate Tin Ore |Input2=Sand;Red Sand |Output=Tin Ingot |OutputCount=2 |Byproduct=Rich Slag |ByproductChance=5%}}
+{{Alloy Smelter |Input=Lapis Lazuli Ore;Deepslate Lapis Lazuli Ore |Input2=Sand;Red Sand |Output=Lapis Lazuli |OutputCount=8 |Byproduct=Rich Slag |ByproductChance=50%}}
+{{Alloy Smelter |Input=Nether Quartz Ore |Input2=Sand;Red Sand |Output=Nether Quartz |OutputCount=4 |Byproduct=Rich Slag |ByproductChance=50%}}
+{{Alloy Smelter |foot=1 |Input=Redstone Ore;Deepslate Redstone Ore |Input2=Sand;Red Sand |Output=Redstone |OutputCount=8 |Byproduct=Rich Slag |ByproductChance=50%}}
+
+Feeding the ore alongside a richer flux gives a third ingot. [[Rich Slag]] pushes metal ores to three ingots (with a 75% chance of ordinary [[Slag]]), and [[Quicksilver]] does the same while returning a bonus metal — copper yields a gold ingot, tin yields an iron ingot:
+
+{{Alloy Smelter|head=1 |Input=Iron Ore;Deepslate Iron Ore |Input2=Rich Slag |Output=Iron Ingot |OutputCount=3 |Byproduct=Slag |ByproductChance=75%}}
+{{Alloy Smelter |Input=Gold Ore;Deepslate Gold Ore |Input2=Quicksilver |Output=Gold Ingot |OutputCount=3 |Byproduct=Rich Slag |ByproductChance=75%}}
+{{Alloy Smelter |Input=Copper Ore;Deepslate Copper Ore |Input2=Quicksilver |Output=Copper Ingot |OutputCount=3 |Byproduct=Gold Ingot |ByproductChance=100%}}
+{{Alloy Smelter |foot=1 |Input=Tin Ore;Deepslate Tin Ore |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
+
+Dusts from the [[Macerator]] also smelt here — one dust plus sand gives one ingot and a chance of [[Slag]].
+
+=== Alloying ===
+
+Bronze is smelted from three copper and one tin, in ingot or [[Dusts|dust]] form:
+
+{{Alloy Smelter|head=1|foot=1 |Input=Copper Ingot |InputCount=3 |Input2=Tin Ingot |Output=Bronze Ingot |OutputCount=4}}
+
+=== Building blocks ===
+
+{{Alloy Smelter|head=1 |Input=Cobblestone |InputCount=2 |Input2=Sand;Red Sand |Output=Stone Bricks |OutputCount=2 |Byproduct=Slag |ByproductChance=100%}}
+{{Alloy Smelter |foot=1 |Input=Netherrack |InputCount=2 |Input2=Soul Sand |Output=Nether Bricks |OutputCount=2 |Byproduct=Sulfur Dust |ByproductChance=25%}}
+
+=== Recycling ===
+
+Worked metal items smelt back into their base ingots (plus a chance of [[Slag]]), using sand as flux — anvils, cauldrons, hoppers, minecarts, rails, and full sets of iron and gold tools and armor:
+
+{{Alloy Smelter|head=1 |Input=Anvil |Input2=Sand;Red Sand |Output=Iron Ingot |OutputCount=31 |Byproduct=Slag |ByproductChance=50%}}
+{{Alloy Smelter |Input=Hopper |Input2=Sand;Red Sand |Output=Iron Ingot |OutputCount=5 |Byproduct=Slag |ByproductChance=25%}}
+{{Alloy Smelter |foot=1 |Input=Iron Pickaxe |ingredients=[[Iron Pickaxe]] (and other iron tools) + Sand |Input2=Sand;Red Sand |Output=Iron Ingot |Byproduct=Slag |ByproductChance=10%}}
+
+The full recycling list — every anvil tier, minecart, pressure plate, and iron or gold tool and armor piece — is browsable in JEI.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/alloy_smelter|block.logistics.automation.alloy_smelter}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Alloy Smelter.png|32px]] Added '''Alloy Smelter'''.}}
+
+== See also ==
+
+* [[Slag]], [[Rich Slag]] - Byproducts of processing
+* [[Bronze Ingot]] - Alloyed here from copper and tin
+* [[Quicksilver]] - A flux that returns a bonus metal
+* [[Crucible]] - Companion melting machine
+* [[Macerator]] - Grinds ores into dusts that smelt here
+* [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
+* [[Stirling Engine]] - Recommended power source
+
+[[Category:Machines]]

@@ -1,0 +1,47 @@
+{{Item
+|image     = Fluid Liquid Biomass.gif
+|image2    = Bucket of Liquid Biomass.png
+|imagesize = 96
+|caption   = Liquid Biomass
+|caption2  = Liquid Biomass Bucket
+|type      = Fluid
+|renewable = Yes
+|added     = v0.8.2
+}}
+
+'''Liquid Biomass''' is a molten fluid produced by melting [[Pulped Biomass]] in a [[Crucible]]. Because pulped biomass is made from renewable plant matter, Liquid Biomass is fully renewable.
+
+== Obtaining ==
+
+=== Crucible ===
+
+{{Crucible|head=1|foot=1 |Input=Pulped Biomass |Output=Liquid Biomass |Amount=100}}
+
+== Usage ==
+
+Liquid Biomass has no processing use yet — it is stored and piped like any other fluid. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+
+=== Bucket ===
+
+The '''Liquid Biomass Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary bucket.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/liquid_biomass|fluid.logistics.core.liquid_biomass|name=Liquid Biomass}}
+{{ID|foot=1|logistics:core/liquid_biomass|item.logistics.core.liquid_biomass|name=Liquid Biomass Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Liquid Biomass.png|32px]] Added '''Liquid Biomass'''.}}
+
+== See also ==
+
+* [[Pulped Biomass]] - Melted to make Liquid Biomass
+* [[Crucible]] - Melts pulped biomass into Liquid Biomass
+* [[Sawmill]] - Produces pulped biomass from plants
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+[[Category:Fluids]]

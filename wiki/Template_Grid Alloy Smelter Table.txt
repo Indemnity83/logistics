@@ -1,0 +1,43 @@
+<includeonly>{| class="logi-grid"
+|-
+| class="logi-grid-cell" |
+{| class="logi-alloy-grid"
+|-
+| class="logi-grid-slot" | {{#if:{{{InputCount|}}}|{{Grid|{{{Input}}}|{{{InputCount}}}}}|{{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}}}|&nbsp;}}}}
+| class="logi-grid-arrow" rowspan="2" | →
+| class="logi-grid-slot" | {{Grid|{{{Output}}}}}
+| class="logi-alloy-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
+|-
+| class="logi-grid-slot" | {{#if:{{{Input2Count|}}}|{{Grid|{{{Input2}}}|{{{Input2Count}}}}}|{{#if:{{{Input2|}}}|{{Grid Cycle|{{{Input2}}}}}|&nbsp;}}}}
+| class="logi-grid-slot" | {{#if:{{{Byproduct|}}}|{{Grid|{{{Byproduct}}}}}|&nbsp;}}
+| class="logi-alloy-chance" | {{#if:{{{Byproduct|}}}|{{{ByproductChance|}}}}}
+|}
+|}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Alloy Smelter Table/styles.css" /></includeonly><noinclude>
+Renders an [[Alloy Smelter]] recipe: two input slots stacked on the left, an arrow spanning both
+rows, the primary output top-right with its ×count, and an optional '''chance byproduct''' in a
+second slot below it with its drop chance — the way the machine takes two inputs and produces a
+primary and secondary output. The byproduct slot is always shown (empty when a recipe has none) so
+the machine's second output is clear. Styling reuses [[Template:Grid Crafting Table/styles.css]]
+for the panel, slots, and arrow, plus [[Template:Grid Alloy Smelter Table/styles.css]] for the
+count and chance.
+
+Usage:
+ {{Grid Alloy Smelter Table
+ |Input=Iron Ore |Input2=Sand |Output=Iron Ingot |OutputCount=2
+ |Byproduct=Rich Slag |ByproductChance=5%
+ }}
+
+Parameters:
+ Input           — first input (rendered via {{Grid Cycle}}; ";"-separated alternatives cycle)
+ InputCount      — count for the first input, e.g. "3" (optional; disables cycling for that slot)
+ Input2          — second input (the flux/catalyst; ";"-separated alternatives cycle)
+ Input2Count     — count for the second input (optional; disables cycling for that slot)
+ Output          — the primary output item
+ OutputCount     — quantity produced (optional)
+ Byproduct       — a secondary chance output (optional)
+ ByproductChance — its drop chance, e.g. "5%" (optional)
+
+Depends on [[Template:Grid]], [[Template:Grid Cycle]].
+
+[[Category:Templates]]
+</noinclude>

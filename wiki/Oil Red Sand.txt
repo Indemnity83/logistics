@@ -1,0 +1,62 @@
+{{Block
+|image           = Grid Oil Red Sand.png
+|type            = Block
+|tool            = Shovel
+|hardness        = 0.5
+|blastresistance = 0.5
+|drops           = Oil Red Sand
+|renewable       = No
+|stackable       = Yes (64)
+|added           = v0.8.2
+}}
+
+'''Oil Red Sand''' is the badlands variant of [[Oil Sand]] — an oil-soaked red sand block. Grind it for [[Bitumen]] or melt it down for [[Crude Oil]].
+
+== Obtaining ==
+
+=== Breaking ===
+
+Oil Red Sand breaks fastest with a shovel and always drops itself.
+
+{{Breaking
+|tool=shovel
+|tier=none
+|name1=Oil Red Sand |icon1=Grid Oil Red Sand.png |hardness1=0.5
+}}
+
+=== Natural generation ===
+
+Oil Red Sand generates in large surface blobs throughout '''badlands''' biomes, and rings the [[Crude Oil]] pools of oil seeps there.
+
+== Usage ==
+
+=== Crucible ===
+
+The [[Crucible]] melts Oil Red Sand into [[Crude Oil]]:
+
+{{Crucible|head=1|foot=1 |Input=Oil Red Sand |Output=Crude Oil |Amount=1000}}
+
+=== Grinding ===
+
+The [[Macerator]] grinds it into [[Bitumen]], with a chance of [[Tar]]:
+
+{{Grinding|head=1|foot=1 |Input=Oil Red Sand |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/oil_red_sand|block.logistics.core.oil_red_sand}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Oil Red Sand.png|32px]] Added '''Oil Red Sand'''.}}
+
+== See also ==
+
+* [[Oil Sand]], [[Oil Shale]] - Other oil-bearing blocks
+* [[Crude Oil]] - Melted form
+* [[Bitumen]], [[Tar]] - Ground products
+* [[Crucible]], [[Macerator]] - Process oil blocks
+
+[[Category:Materials]]

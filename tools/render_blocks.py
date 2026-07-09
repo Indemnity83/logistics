@@ -474,8 +474,8 @@ _REFPAT = (
     re.compile(r"Grid ([^\n|}\]=]+?)\.png"),                                   # literal File:Grid X.png
     re.compile(r"\{\{Grid\|([^}|]+)"),                                          # {{Grid|X}}
     # recipe blocks whose slot/Input/Output/Byproduct params name items:
-    re.compile(r"\{\{(?:Grid (?:Crafting|Grinding|Smelting) Table|Crafting|Grinding|Milling|Smelting)(.*?)\}\}", re.S),
-    re.compile(r"\|\s*(?:[ABC][123]|Output|Input|Byproduct)\s*=\s*([^|}\n]+)"),  # those params
+    re.compile(r"\{\{(?:Grid (?:Crafting|Grinding|Smelting|Crucible|Alloy Smelter) Table|Crafting|Grinding|Milling|Smelting|Crucible|Alloy Smelter)(.*?)\}\}", re.S),
+    re.compile(r"\|\s*(?:[ABC][123]|Output|Input2?|Byproduct)\s*=\s*([^|}\n]+)"),  # those params
 )
 
 

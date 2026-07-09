@@ -37,7 +37,7 @@ The Stirling Engine burns fuel (coal, charcoal, wood, lava buckets, etc.) to gen
 
 === Fuel ===
 
-Right-click the engine to open the fuel GUI and add burnable items — it accepts more fuel types than a vanilla furnace, including coal, charcoal, wood planks, and lava buckets (which provide a long burn time). Fuel burns while the engine is powered by redstone, so keep it stocked for continuous operation.
+Right-click the engine to open the fuel GUI and add burnable items — it accepts more fuel types than a vanilla furnace, including coal, charcoal, wood planks, and lava buckets (which provide a long burn time). The mod's own fuels burn here too: [[Peat]], [[Bitumen]], and [[Tar]]. Fuel burns while the engine is powered by redstone, so keep it stocked for continuous operation.
 
 === Temperature and overheating ===
 

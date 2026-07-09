@@ -1,0 +1,42 @@
+{{Item
+|image     = Grid Rich Slag.png
+|type      = Item (Material)
+|renewable = Yes
+|stackable = Yes (64)
+|added     = v0.8.2
+}}
+
+'''Rich Slag''' is the higher-grade byproduct of the [[Alloy Smelter]]. Unlike ordinary [[Slag]], it can be fed back in as a flux to squeeze a third ingot out of an ore.
+
+== Obtaining ==
+
+Rich Slag drops as a chance byproduct when the [[Alloy Smelter]] doubles ores with sand as flux, and from a few recycling recipes. Metal ores drop it at 5–20%; gem ores (lapis, quartz, redstone) at 50%.
+
+== Usage ==
+
+=== Ore processing ===
+
+Used as the flux instead of sand, Rich Slag turns an ore into '''three''' ingots — at the cost of leaving ordinary [[Slag]] behind most of the time:
+
+{{Alloy Smelter|head=1|foot=1 |Input=Iron Ore;Deepslate Iron Ore |Input2=Rich Slag |Output=Iron Ingot |OutputCount=3 |Byproduct=Slag |ByproductChance=75%}}
+
+The same works for gold, copper, and tin ores.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/rich_slag|item.logistics.core.rich_slag}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Rich Slag.png|32px]] Added '''Rich Slag'''.}}
+
+== See also ==
+
+* [[Alloy Smelter]] - Produces and consumes Rich Slag
+* [[Slag]] - The lower-grade byproduct
+* [[Quicksilver]] - Another flux that boosts ore yield
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

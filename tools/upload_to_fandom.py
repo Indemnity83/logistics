@@ -277,10 +277,14 @@ def parse_asset_map(map_path, icons_dir):
 
 GRID_LITERAL = re.compile(r"Grid ([^\n|}\]=]+?)\.png")
 GRID_TMPL = re.compile(r"\{\{Grid\|([^}|]+)")
+# any explicit [[File:<name>.(png|gif)|...]] reference (e.g. "Bucket of <Fluid>.png")
+FILE_LITERAL = re.compile(r"\[\[File:([^\]|]+?\.(?:png|gif))\s*[|\]]")
+# infobox image params carrying a bare filename (image=, image2=), png or gif
+INFOBOX_IMG = re.compile(r"\|\s*image2?\s*=\s*([^\n|}]+?\.(?:png|gif))")
 # recipe blocks whose slot / Input / Output / Byproduct params name items:
 RECIPE_TABLE = re.compile(
-    r"\{\{(?:Grid (?:Crafting|Grinding|Smelting) Table|Crafting|Grinding|Milling|Smelting)(.*?)\}\}", re.S)
-TABLE_PARAM = re.compile(r"\|\s*(?:A[123]|B[123]|C[123]|Output|Input|Byproduct)\s*=\s*([^|}\n]+)")
+    r"\{\{(?:Grid (?:Crafting|Grinding|Smelting|Crucible|Alloy Smelter) Table|Crafting|Grinding|Milling|Smelting|Crucible|Alloy Smelter)(.*?)\}\}", re.S)
+TABLE_PARAM = re.compile(r"\|\s*(?:A[123]|B[123]|C[123]|Output|Input2?|Byproduct)\s*=\s*([^|}\n]+)")
 
 
 def _icon_name(val):
@@ -302,6 +306,10 @@ def referenced_files(wiki_dir, only=None):
             needed.add(f"Grid {name.strip()}.png")
         for name in GRID_TMPL.findall(text):
             needed.add(f"Grid {name.strip()}.png")
+        for fn2 in FILE_LITERAL.findall(text):
+            needed.add(fn2.strip())
+        for fn2 in INFOBOX_IMG.findall(text):
+            needed.add(fn2.strip())
         for block in RECIPE_TABLE.findall(text):
             for val in TABLE_PARAM.findall(block):
                 for part in val.split(";"):   # Input accepts ";"-separated alternatives
@@ -421,7 +429,7 @@ def main():
             pairs = []
             if os.path.isdir(args.media_dir):
                 for fn in sorted(os.listdir(args.media_dir)):
-                    if fn.lower().endswith(".png"):
+                    if fn.lower().endswith((".png", ".gif")):
                         pairs.append((fn, os.path.join(args.media_dir, fn)))
             else:
                 print(f"  (no media dir at {args.media_dir})")

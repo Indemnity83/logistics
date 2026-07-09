@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Bitumen.png
+|type      = Item (Material)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.2
+}}
+
+'''Bitumen''' is a solid oil product ground out of oil-bearing blocks in a [[Macerator]]. It melts down into [[Crude Oil]] and burns as a long-lasting furnace fuel.
+
+== Obtaining ==
+
+=== Grinding ===
+
+The [[Macerator]] grinds the oil blocks into three Bitumen apiece, with a chance of a secondary drop — [[Tar]] from the sands, flint from shale:
+
+{{Grinding|head=1 |Input=Oil Sand;Oil Red Sand |ingredients=[[Oil Sand]] or [[Oil Red Sand]] |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
+{{Grinding |foot=1 |Input=Oil Shale |Output=Bitumen,3 |Byproduct=Flint |ByproductChance=50%}}
+
+== Usage ==
+
+=== Crucible ===
+
+The [[Crucible]] melts Bitumen into [[Crude Oil]]:
+
+{{Crucible|head=1|foot=1 |Input=Bitumen |Output=Crude Oil |Amount=250}}
+
+=== Fuel ===
+
+Bitumen is a furnace fuel and powers the [[Stirling Engine]]. Each piece burns for 3,200 ticks — twice as long as coal — smelting 16 items.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/bitumen|item.logistics.core.bitumen}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Bitumen.png|32px]] Added '''Bitumen'''.}}
+
+== See also ==
+
+* [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Ground into Bitumen
+* [[Tar]] - The other ground oil product
+* [[Crude Oil]] - Melted form
+* [[Macerator]] - Grinds oil blocks into Bitumen
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

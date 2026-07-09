@@ -1,0 +1,45 @@
+{{Item
+|image     = Grid Peat.png
+|type      = Item (Fuel)
+|renewable = Yes
+|stackable = Yes (64)
+|added     = v0.8.2
+}}
+
+'''Peat''' is a solid fuel dried from [[Bog Earth]] in a furnace. It burns longer than coal, and because bog earth regenerates in swamps it is a renewable fuel source.
+
+== Obtaining ==
+
+=== Smelting ===
+
+Smelt [[Bog Earth]] in a furnace, blast furnace, or a [[Kiln]] to dry it into Peat:
+
+{{Smelting|head=1|foot=1
+|name=Peat
+|Input=Bog Earth
+|Output=Peat}}
+
+== Usage ==
+
+=== Fuel ===
+
+Peat is a furnace fuel and powers the [[Stirling Engine]]. Each piece burns for 2,000 ticks — longer than coal's 1,600 — smelting 10 items.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/peat|item.logistics.core.peat}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Peat.png|32px]] Added '''Peat''' and [[Bog Earth]].}}
+
+== See also ==
+
+* [[Bog Earth]] - Smelted into Peat
+* [[Stirling Engine]] - Burns Peat for RF
+* [[Bitumen]], [[Tar]] - Other mod fuels
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

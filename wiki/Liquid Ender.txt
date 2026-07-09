@@ -1,0 +1,45 @@
+{{Item
+|image     = Fluid Liquid Ender.gif
+|image2    = Bucket of Liquid Ender.png
+|imagesize = 96
+|caption   = Liquid Ender
+|caption2  = Liquid Ender Bucket
+|type      = Fluid
+|renewable = No
+|added     = v0.8.2
+}}
+
+'''Liquid Ender''' is a molten fluid produced by melting ender pearls in a [[Crucible]].
+
+== Obtaining ==
+
+=== Crucible ===
+
+{{Crucible|head=1|foot=1 |Input=Ender Pearl |Output=Liquid Ender |Amount=250}}
+
+== Usage ==
+
+Liquid Ender has no processing use yet — it is stored and piped like any other fluid. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+
+=== Bucket ===
+
+The '''Liquid Ender Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary bucket.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/liquid_ender|fluid.logistics.core.liquid_ender|name=Liquid Ender}}
+{{ID|foot=1|logistics:core/liquid_ender|item.logistics.core.liquid_ender|name=Liquid Ender Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Liquid Ender.png|32px]] Added '''Liquid Ender'''.}}
+
+== See also ==
+
+* [[Crucible]] - Melts ender pearls into Liquid Ender
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+[[Category:Fluids]]

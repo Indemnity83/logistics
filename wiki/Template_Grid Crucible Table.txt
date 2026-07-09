@@ -1,0 +1,32 @@
+<includeonly>{| class="logi-grid"
+|-
+| class="logi-grid-cell" |
+{| class="logi-crucible-grid"
+|-
+| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}}}|&nbsp;}}
+| class="logi-grid-arrow" | →
+| class="logi-grid-slot" | {{#ifexist:File:Fluid {{{Output}}}.gif|[[File:Fluid {{{Output}}}.gif|32px|link={{{Output}}}|{{{Output}}}]]|{{Grid|{{{Output}}}}}}}
+| class="logi-crucible-amount" | {{#if:{{{Amount|}}}|{{{Amount}}}&nbsp;mB}}
+|}
+|}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Crucible Table/styles.css" /></includeonly><noinclude>
+Renders a [[Crucible]] recipe: a solid input on the left, an arrow, and the molten '''fluid'''
+output shown as its animated fluid icon (''Fluid <name>.gif'', falling back to a {{Grid}} swatch
+for fluids without a gif, e.g. lava/water) with the produced amount in millibuckets to the right —
+the way the machine melts one item into its fluid tank. Styling reuses
+[[Template:Grid Crafting Table/styles.css]] for the panel, slots, and arrow, plus
+[[Template:Grid Crucible Table/styles.css]] for the mB amount.
+
+Usage:
+ {{Grid Crucible Table
+ |Input=Glowstone |Output=Liquid Glowstone |Amount=1000
+ }}
+
+Parameters:
+ Input  — the item being melted (rendered via {{Grid Cycle}}; ";"-separated alternatives cycle)
+ Output — the resulting fluid (rendered via {{Grid}} using its bucket icon)
+ Amount — millibuckets produced, e.g. "1000"
+
+Depends on [[Template:Grid]], [[Template:Grid Cycle]].
+
+[[Category:Templates]]
+</noinclude>

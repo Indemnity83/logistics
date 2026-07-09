@@ -1,0 +1,44 @@
+{{Item
+|image     = Grid Slag.png
+|type      = Item (Material)
+|renewable = Yes
+|stackable = Yes (64)
+|added     = v0.8.2
+}}
+
+'''Slag''' is the low-grade waste left over from processing in an [[Alloy Smelter]]. It is not useless — combined with [[Pulped Biomass]] it recycles back into dirt.
+
+== Obtaining ==
+
+Slag drops as a chance byproduct from many [[Alloy Smelter]] recipes — dust smelting, bronze from dust, stone bricks, and most metal-item recycling. Feeding an ore alongside [[Rich Slag]] also leaves ordinary Slag behind.
+
+== Usage ==
+
+=== Crafting ===
+
+Slag and [[Pulped Biomass]] combine into dirt:
+
+{{Crafting|head=1|foot=1
+|name=Dirt
+|A1=Pulped Biomass |B1=Slag
+|A2=Pulped Biomass |B2=Slag
+|Output=Dirt}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/slag|item.logistics.core.slag}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Slag.png|32px]] Added '''Slag'''.}}
+
+== See also ==
+
+* [[Alloy Smelter]] - Produces Slag as a byproduct
+* [[Rich Slag]] - The higher-grade byproduct
+* [[Pulped Biomass]] - Combined with Slag into dirt
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

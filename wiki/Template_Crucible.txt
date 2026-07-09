@@ -1,0 +1,31 @@
+<includeonly>{{#invoke:Crucible|crucible}}</includeonly><noinclude>
+Builds a row of a [[Crucible]] recipe table (Name / Ingredients / Crucible recipe), powered by
+[[Module:Crucible]]. The Crucible melts a single solid input into a '''fluid'''. Each call is one
+row; group several into one table with <code>head=1</code> on the first and <code>foot=1</code> on
+the last. A standalone single recipe sets both. The '''Crucible recipe''' column reuses
+[[Template:Grid Crucible Table]] (input → fluid, shown with its mB amount).
+
+Usage (a 2-recipe table):
+ {{Crucible
+ |head=1
+ |Input=Glowstone |Output=Liquid Glowstone |Amount=1000
+ }}
+ {{Crucible
+ |foot=1
+ |Input=Glowstone Dust |Output=Liquid Glowstone |Amount=250
+ }}
+
+Parameters:
+ Input       — the item being melted
+ Output      — result fluid; "Name,Amount" is accepted (or use Amount)
+ Amount      — millibuckets produced, e.g. "1000"
+ notes       — a small per-recipe annotation under the ingredient (optional)
+ head/foot   — open / close the table
+ name        — override the Name cell (default: a link to the Output fluid)
+ ingredients — override the Ingredients cell (default: the input)
+ showname=0  — hide the Name column
+
+Depends on [[Module:Crucible]] and [[Template:Grid Crucible Table]].
+
+[[Category:Templates]]
+</noinclude>

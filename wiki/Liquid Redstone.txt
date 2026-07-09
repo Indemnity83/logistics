@@ -1,0 +1,46 @@
+{{Item
+|image     = Fluid Liquid Redstone.gif
+|image2    = Bucket of Liquid Redstone.png
+|imagesize = 96
+|caption   = Liquid Redstone
+|caption2  = Liquid Redstone Bucket
+|type      = Fluid
+|renewable = No
+|added     = v0.8.2
+}}
+
+'''Liquid Redstone''' is a molten fluid produced by melting redstone in a [[Crucible]].
+
+== Obtaining ==
+
+=== Crucible ===
+
+{{Crucible|head=1 |Input=Redstone Block |Output=Liquid Redstone |Amount=900}}
+{{Crucible |foot=1 |Input=Redstone |Output=Liquid Redstone |Amount=100}}
+
+== Usage ==
+
+Liquid Redstone has no processing use yet — it is stored and piped like any other fluid. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+
+=== Bucket ===
+
+The '''Liquid Redstone Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary bucket.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/liquid_redstone|fluid.logistics.core.liquid_redstone|name=Liquid Redstone}}
+{{ID|foot=1|logistics:core/liquid_redstone|item.logistics.core.liquid_redstone|name=Liquid Redstone Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Liquid Redstone.png|32px]] Added '''Liquid Redstone'''.}}
+
+== See also ==
+
+* [[Crucible]] - Melts redstone into Liquid Redstone
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+[[Category:Fluids]]

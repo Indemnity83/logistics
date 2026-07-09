@@ -1,0 +1,91 @@
+{{Block
+|image           = Grid Crucible.png
+|type            = Block (Machine)
+|function        = Melting / fluid production
+|stackable       = Yes (64)
+|tool            = Pickaxe
+|hardness        = 3.5
+|blastresistance = 3.5
+|added           = v0.8.2
+}}
+
+The '''Crucible''' is an RF-powered machine that melts solid blocks and items into [[Fluids|fluids]], filling an internal tank that feeds a [[Fluid Pipes|fluid network]]. It turns ore blocks, nether materials, and ice into molten metals, [[Crude Oil]], lava, and water.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Crucible is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Crucible |icon1=Grid Crucible.png |hardness1=3.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Magma Block
+|A2=Nether Bricks |B2=Machine Frame |C2=Nether Bricks
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Crucible
+}}
+
+Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with a Magma Block and Nether Bricks on top.
+
+== Usage ==
+
+Place a block or item in the single input slot; the Crucible melts it over time and deposits the resulting fluid into its 10,000 mB output-only tank. Drain the tank with a [[Fluid Extractor Pipe]] or [[Pump]], or connect [[Fluid Pipes]] directly. The front face shows a gauge of the stored fluid.
+
+=== Power ===
+
+The Crucible runs on [[RF Energy|RF]]. It holds 40,000 RF and accepts up to 128 RF/t, spending 40 RF/t while melting. Each recipe carries a total RF cost — melting a stack of glowstone is far more expensive than melting ice — so connect a [[Stirling Engine]] or a strong RF source.
+
+=== Recipes ===
+
+Recipes appear in the Just Enough Items (JEI) viewer. Amounts are the millibuckets deposited per input item.
+
+==== Molten materials ====
+
+{{Crucible|head=1 |Input=Redstone Block |Output=Liquid Redstone |Amount=900}}
+{{Crucible |Input=Redstone |Output=Liquid Redstone |Amount=100}}
+{{Crucible |Input=Glowstone |Output=Liquid Glowstone |Amount=1000}}
+{{Crucible |Input=Glowstone Dust |Output=Liquid Glowstone |Amount=250}}
+{{Crucible |Input=Ender Pearl |Output=Liquid Ender |Amount=250}}
+{{Crucible |foot=1 |Input=Pulped Biomass |Output=Liquid Biomass |Amount=100}}
+
+==== Crude oil ====
+
+{{Crucible|head=1 |Input=Oil Sand;Oil Red Sand;Oil Shale |ingredients=[[Oil Sand]], [[Oil Red Sand]], or [[Oil Shale]] |Output=Crude Oil |Amount=1000}}
+{{Crucible |foot=1 |Input=Bitumen |Output=Crude Oil |Amount=250}}
+
+==== Lava & water ====
+
+{{Crucible|head=1 |Input=Magma Block |Output=Lava |Amount=1000}}
+{{Crucible |Input=Netherrack |Output=Lava |Amount=1000}}
+{{Crucible |Input=Cobblestone |ingredients=Cobblestone, stone, and other stone-family blocks |Output=Lava |Amount=1000}}
+{{Crucible |Input=Ice |Output=Water |Amount=1000}}
+{{Crucible |Input=Snow Block |Output=Water |Amount=500}}
+{{Crucible |foot=1 |Input=Snowball |Output=Water |Amount=125}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/crucible|block.logistics.automation.crucible}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Crucible.png|32px]] Added '''Crucible'''.}}
+
+== See also ==
+
+* [[Fluids]] - The molten fluids it produces
+* [[Crude Oil]] - Refined from oil blocks and Bitumen
+* [[Alloy Smelter]] - Companion two-input processing machine
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move the output fluid
+* [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
+* [[Stirling Engine]] - Recommended power source
+
+[[Category:Machines]]
+[[Category:Fluids]]

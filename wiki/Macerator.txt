@@ -96,6 +96,13 @@ The Macerator also breaks worked blocks back down into raw materials, and recove
 {{Grinding |Input=Cinnabar |ingredients=Cinnabar (and variants) |Output=Quicksilver,4 |notes=Since Minecraft 26.2}}
 {{Grinding |foot=1 |Input=Diamond Pickaxe |ingredients=Diamond tools / armor |Output=Diamond,3}}
 
+==== Oil blocks ====
+
+Oil-bearing blocks grind into [[Bitumen]], with a chance byproduct — [[Tar]] from the sands, flint from shale:
+
+{{Grinding|head=1 |Input=Oil Sand;Oil Red Sand |ingredients=[[Oil Sand]] or [[Oil Red Sand]] |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
+{{Grinding |foot=1 |Input=Oil Shale |Output=Bitumen,3 |Byproduct=Flint |ByproductChance=50%}}
+
 ==== Wood → Sawdust ====
 
 The Macerator grinds wood and wooden tools into [[Sawdust]]. To cut logs into planks instead, use the [[Sawmill]].
@@ -147,10 +154,13 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 == History ==
 
 {{History|head=1|v0.5.0|[[File:Grid Macerator (v0.5.0).png|32px]] Added '''Macerator'''.}}
-{{History|foot=1|v0.8.0|[[File:Grid Macerator.png|32px]] The texture of the Macerator has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]]; added chance byproducts and block recycling; renamed Wood Pulp to [[Sawdust]].}}
+{{History|v0.8.0|[[File:Grid Macerator.png|32px]] The texture of the Macerator has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]]; added chance byproducts and block recycling; renamed Wood Pulp to [[Sawdust]].}}
+{{History|foot=1|v0.8.2|Added grinding for the oil blocks into [[Bitumen]] and [[Tar]].}}
 
 == See also ==
 * [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
+* [[Alloy Smelter]] - Smelts the dusts and ores this grinds
+* [[Crucible]] - Companion melting machine
 * [[Sawmill]] - Companion wood processor
 * [[Kiln]] - Companion smelting machine
 * [[Dusts]] - All dust types and their uses

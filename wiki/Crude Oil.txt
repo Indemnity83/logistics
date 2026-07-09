@@ -1,0 +1,54 @@
+{{Item
+|image     = Fluid Crude Oil.gif
+|image2    = Bucket of Crude Oil.png
+|imagesize = 96
+|caption   = Crude Oil
+|caption2  = Crude Oil Bucket
+|type      = Fluid
+|renewable = No
+|added     = v0.8.2
+}}
+
+'''Crude Oil''' is a dark liquid found in surface seeps and locked inside oil-bearing blocks. Unlike the mod's other custom fluids it can be '''placed in the world''', picked up in a bucket, and pooled — it flows sluggishly, spreading a short distance before dropping off.
+
+== Obtaining ==
+
+=== Oil seeps ===
+
+Crude Oil pools naturally in rare '''oil seeps''' — small surface lakes that generate across the Overworld, ringed by [[Oil Sand]], [[Oil Red Sand]], or [[Oil Shale]] depending on the biome. Scoop it up with a bucket or a [[Pump]].
+
+=== Crucible ===
+
+The [[Crucible]] melts oil-bearing blocks and [[Bitumen]] into Crude Oil:
+
+{{Crucible|head=1 |Input=Oil Sand;Oil Red Sand;Oil Shale |ingredients=[[Oil Sand]], [[Oil Red Sand]], or [[Oil Shale]] |Output=Crude Oil |Amount=1000}}
+{{Crucible |foot=1 |Input=Bitumen |Output=Crude Oil |Amount=250}}
+
+== Usage ==
+
+Crude Oil has no processing use yet — it is collected, piped, and stored. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+
+=== Bucket ===
+
+The '''Crude Oil Bucket''' places and picks up the fluid like a water or lava bucket, and empties back to an ordinary bucket when poured into a tank or machine.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/crude_oil|fluid.logistics.core.crude_oil|name=Crude Oil}}
+{{ID|foot=1|logistics:core/crude_oil|item.logistics.core.crude_oil|name=Crude Oil Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Crude Oil.png|32px]] Added '''Crude Oil''', the oil-bearing blocks, and [[Bitumen]].}}
+
+== See also ==
+
+* [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Oil-bearing blocks
+* [[Bitumen]], [[Tar]] - Ground oil products from the [[Macerator]]
+* [[Crucible]] - Melts oil blocks into Crude Oil
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+[[Category:Fluids]]

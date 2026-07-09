@@ -5,7 +5,7 @@
 |added     = v0.8.0
 }}
 
-'''Quicksilver''' is a material extracted from cinnabar (and, occasionally, gold ore) in a [[Macerator]]. It has no use yet — recipes that consume it are coming soon.
+'''Quicksilver''' is a material extracted from cinnabar (and, occasionally, gold ore) in a [[Macerator]]. It serves as a premium flux in the [[Alloy Smelter]], boosting ore yields.
 
 == Obtaining ==
 
@@ -23,7 +23,13 @@ Quicksilver also drops as a 10% byproduct when grinding [[Gold Dust|gold ore]].
 
 == Usage ==
 
-Quicksilver currently has no crafting uses. It is reserved for an upcoming feature.
+=== Ore processing ===
+
+In the [[Alloy Smelter]], Quicksilver works as a flux that smelts an ore into '''three''' ingots and returns a bonus product — a gold ingot from copper, an iron ingot from tin, and extra [[Rich Slag]] from gold:
+
+{{Alloy Smelter|head=1 |Input=Copper Ore;Deepslate Copper Ore |Input2=Quicksilver |Output=Copper Ingot |OutputCount=3 |Byproduct=Gold Ingot |ByproductChance=100%}}
+{{Alloy Smelter |Input=Tin Ore;Deepslate Tin Ore |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
+{{Alloy Smelter |foot=1 |Input=Gold Ore;Deepslate Gold Ore |Input2=Quicksilver |Output=Gold Ingot |OutputCount=3 |Byproduct=Rich Slag |ByproductChance=75%}}
 
 == Data values ==
 
@@ -33,12 +39,15 @@ Quicksilver currently has no crafting uses. It is reserved for an upcoming featu
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.0|[[File:Grid Quicksilver.png|32px]] Added '''Quicksilver'''.}}
+{{History|head=1|v0.8.0|[[File:Grid Quicksilver.png|32px]] Added '''Quicksilver'''.}}
+{{History|foot=1|v0.8.2|Became a flux in the [[Alloy Smelter]].}}
 
 == See also ==
 
 * [[Macerator]] - Produces Quicksilver
+* [[Alloy Smelter]] - Uses Quicksilver as a flux
 * [[Gold Dust]] - Shares the gold-ore grind
+* [[Rich Slag]] - Another ore-yield flux
 * [[Materials]] - Material overview
 
 [[Category:Materials]]

@@ -42,6 +42,12 @@ Alloy three copper with one [[Tin Ingot|tin]] (shapeless):
 |Output=Bronze Ingot
 }}
 
+=== Alloy Smelter ===
+
+The [[Alloy Smelter]] alloys bronze from the same three copper and one tin, in ingot or [[Dusts|dust]] form:
+
+{{Alloy Smelter|head=1|foot=1 |Input=Copper Ingot |InputCount=3 |Input2=Tin Ingot |Output=Bronze Ingot |OutputCount=4}}
+
 === Smelting ===
 
 Smelt [[Bronze Dust]] back into an ingot in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
@@ -109,7 +115,8 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Bronze Ingot.png|32px]] Added '''Bronze Ingot'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Bronze Ingot.png|32px]] Added '''Bronze Ingot'''.}}
+{{History|foot=1|v0.8.2|Can now be alloyed in the [[Alloy Smelter]].}}
 
 == Trivia ==
 
@@ -119,6 +126,7 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 
 * [[Bronze]] - All bronze blocks and items
 * [[Tin Ingot]], Copper Ingot - Alloy components
+* [[Alloy Smelter]] - Alloys bronze from copper and tin
 * [[Machine Frame]] - Machine component
 * [[Bronze Gear]] - Crafting component
 * [[Bronze Dust]] - Ground form

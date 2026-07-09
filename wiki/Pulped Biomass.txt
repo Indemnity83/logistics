@@ -1,0 +1,57 @@
+{{Item
+|image     = Grid Pulped Biomass.png
+|type      = Item (Material)
+|renewable = Yes
+|stackable = Yes (64)
+|added     = v0.8.2
+}}
+
+'''Pulped Biomass''' is a mulch made by running plant matter through a [[Sawmill]]. It melts down into [[Liquid Biomass]] and, combined with [[Slag]], recycles back into dirt.
+
+== Obtaining ==
+
+=== Sawmill ===
+
+The [[Sawmill]] pulps almost any plant block — grass, leaves, saplings, kelp, crops, mushrooms, flowers, cacti, and vines. Each recipe yields one Pulped Biomass; denser plants take more input:
+
+{{Milling|head=1 |Input=Oak Leaves |ingredients=Leaves, saplings, kelp, moss, seagrass, sweet berries (×8) |Output=Pulped Biomass}}
+{{Milling |Input=Sugar Cane |ingredients=Cactus, sugar cane, vines, tall grass, dried kelp block (×6) |Output=Pulped Biomass}}
+{{Milling |foot=1 |Input=Wheat |ingredients=Crops, flowers, mushrooms, moss block, fern (×4) |Output=Pulped Biomass}}
+
+== Usage ==
+
+=== Crucible ===
+
+The [[Crucible]] melts Pulped Biomass into [[Liquid Biomass]]:
+
+{{Crucible|head=1|foot=1 |Input=Pulped Biomass |Output=Liquid Biomass |Amount=100}}
+
+=== Crafting ===
+
+Pulped Biomass and [[Slag]] combine into dirt — a way to turn ore-processing waste back into something useful:
+
+{{Crafting|head=1|foot=1
+|name=Dirt
+|A1=Pulped Biomass |B1=Slag
+|A2=Pulped Biomass |B2=Slag
+|Output=Dirt}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/pulped_biomass|item.logistics.core.pulped_biomass}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Pulped Biomass.png|32px]] Added '''Pulped Biomass'''.}}
+
+== See also ==
+
+* [[Sawmill]] - Pulps plant matter into Pulped Biomass
+* [[Liquid Biomass]] - Melted form
+* [[Slag]] - Combined with Pulped Biomass into dirt
+* [[Crucible]] - Melts Pulped Biomass
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

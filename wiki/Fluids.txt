@@ -1,0 +1,31 @@
+'''Fluids''' are liquids moved through a standalone [[Fluid Pipes|fluid network]] and buffered in a [[Glass Tank]]. Alongside vanilla water and lava, the mod adds five custom fluids, all produced by melting blocks and items in a [[Crucible]].
+
+== Custom fluids ==
+
+* [[File:Grid Crude Oil.png|24px|link=Crude Oil]] '''[[Crude Oil]]''' — a placeable world fluid found in oil seeps and refined from oil blocks
+* [[File:Grid Liquid Redstone.png|24px|link=Liquid Redstone]] '''[[Liquid Redstone]]''' — melted redstone
+* [[File:Grid Liquid Glowstone.png|24px|link=Liquid Glowstone]] '''[[Liquid Glowstone]]''' — melted glowstone; glows in tanks and pipes
+* [[File:Grid Liquid Ender.png|24px|link=Liquid Ender]] '''[[Liquid Ender]]''' — melted ender pearls
+* [[File:Grid Liquid Biomass.png|24px|link=Liquid Biomass]] '''[[Liquid Biomass]]''' — melted [[Pulped Biomass]]
+
+Only [[Crude Oil]] can be placed in the world and scooped with a bucket; the four molten fluids use container-only buckets that fill and drain tanks and machines but hold no world block.
+
+== Vanilla fluids ==
+
+The [[Crucible]] also produces vanilla '''Water''' (from ice, snow blocks, and snowballs) and '''Lava''' (from magma blocks, netherrack, and stone-family blocks), deposited into its tank like any other fluid.
+
+== Storage & transport ==
+
+* [[Glass Tank]] — stores 16,000 mB of a single fluid; stack tanks to merge them
+* [[Fluid Pipes]] — carry fluids through a standalone network, one fluid type per line
+* [[Pump]] — pull fluid source blocks out of the world
+* [[Crucible]] — melt blocks and items into fluid
+
+== See also ==
+
+* [[Fluid Pipes]] — the fluid transport system
+* [[Crucible]] — produces every custom fluid
+* [[Marking Fluid]] — a color-coding tool, despite the name not a piped fluid
+* [[Materials]] — crafting components and materials
+
+[[Category:Fluids]]

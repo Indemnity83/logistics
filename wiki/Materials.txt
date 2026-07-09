@@ -17,9 +17,22 @@
 * [[File:Grid Bronze Ingot.png|24px|link=Bronze]] '''[[Bronze]]''' — the copper-and-tin alloy
 * [[File:Grid Apatite.png|24px|link=Apatite]] '''[[Apatite]]''' — the gem and its ore
 
+== Oil & fuels ==
+
+* [[File:Grid Oil Sand.png|24px|link=Oil Sand]] '''[[Oil Sand]]''', '''[[Oil Red Sand]]''', '''[[Oil Shale]]''' — oil-bearing worldgen blocks
+* [[File:Grid Crude Oil.png|24px|link=Crude Oil]] '''[[Crude Oil]]''' — refined from oil blocks in a [[Crucible]]
+* [[File:Grid Bitumen.png|24px|link=Bitumen]] '''[[Bitumen]]''' and '''[[Tar]]''' — ground oil products; both burn as fuel
+* [[File:Grid Peat.png|24px|link=Peat]] '''[[Peat]]''' — a renewable fuel dried from [[Bog Earth]]
+
+== Processing byproducts ==
+
+* [[File:Grid Slag.png|24px|link=Slag]] '''[[Slag]]''' and '''[[Rich Slag]]''' — [[Alloy Smelter]] byproducts
+* [[File:Grid Pulped Biomass.png|24px|link=Pulped Biomass]] '''[[Pulped Biomass]]''' — plant mulch from the [[Sawmill]]
+
 == See also ==
 
-* [[Macerator]], [[Kiln]] — process raw materials
+* [[Fluids]] — the mod's liquids
+* [[Macerator]], [[Kiln]], [[Alloy Smelter]], [[Crucible]] — process raw materials
 * [[Modules]] — built from chips and dusts
 
 [[Category:Materials]]

@@ -1,0 +1,34 @@
+<includeonly>{{#invoke:AlloySmelter|alloy}}</includeonly><noinclude>
+Builds a row of an [[Alloy Smelter]] recipe table (Name / Ingredients / Alloy Smelter recipe),
+powered by [[Module:AlloySmelter]]. The Alloy Smelter takes '''two''' inputs and produces a primary
+output plus an optional chance byproduct. Each call is one row; group several into one table with
+<code>head=1</code> on the first and <code>foot=1</code> on the last. A standalone single recipe
+sets both. The '''Alloy Smelter recipe''' column reuses [[Template:Grid Alloy Smelter Table]].
+
+Usage (a 2-recipe table):
+ {{Alloy Smelter
+ |head=1
+ |Input=3 Copper Ingot |Input2=Tin Ingot |Output=Bronze Ingot |OutputCount=4
+ }}
+ {{Alloy Smelter
+ |foot=1
+ |Input=Iron Ore |Input2=Sand |Output=Iron Ingot |OutputCount=2 |Byproduct=Rich Slag |ByproductChance=5%
+ }}
+
+Parameters:
+ Input           — first input
+ Input2          — second input (the flux/catalyst)
+ Output          — primary output; "Name,Count" is accepted (or use OutputCount)
+ OutputCount     — quantity produced (optional)
+ Byproduct       — a secondary chance output (optional; "Name,Chance" accepted)
+ ByproductChance — its drop chance, e.g. "5%" (optional)
+ notes           — a small per-recipe annotation under the ingredient (optional)
+ head/foot       — open / close the table
+ name            — override the Name cell (default: a link to the Output)
+ ingredients     — override the Ingredients cell (default: the two inputs joined with "+")
+ showname=0      — hide the Name column
+
+Depends on [[Module:AlloySmelter]] and [[Template:Grid Alloy Smelter Table]].
+
+[[Category:Templates]]
+</noinclude>

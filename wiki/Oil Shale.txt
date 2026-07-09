@@ -1,0 +1,62 @@
+{{Block
+|image           = Grid Oil Shale.png
+|type            = Block
+|tool            = Shovel
+|hardness        = 0.6
+|blastresistance = 0.6
+|drops           = Oil Shale
+|renewable       = No
+|stackable       = Yes (64)
+|added           = v0.8.2
+}}
+
+'''Oil Shale''' is an oil-bearing rock that generates underground. Grind it for [[Bitumen]] or melt it down for [[Crude Oil]].
+
+== Obtaining ==
+
+=== Breaking ===
+
+Oil Shale breaks fastest with a shovel and always drops itself.
+
+{{Breaking
+|tool=shovel
+|tier=none
+|name1=Oil Shale |icon1=Grid Oil Shale.png |hardness1=0.6
+}}
+
+=== Natural generation ===
+
+Oil Shale generates as underground veins replacing gravel, in '''desert''', '''badlands''', and '''savanna''' biomes.
+
+== Usage ==
+
+=== Crucible ===
+
+The [[Crucible]] melts Oil Shale into [[Crude Oil]]:
+
+{{Crucible|head=1|foot=1 |Input=Oil Shale |Output=Crude Oil |Amount=1000}}
+
+=== Grinding ===
+
+The [[Macerator]] grinds it into [[Bitumen]], with a chance of flint:
+
+{{Grinding|head=1|foot=1 |Input=Oil Shale |Output=Bitumen,3 |Byproduct=Flint |ByproductChance=50%}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/oil_shale|block.logistics.core.oil_shale}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Oil Shale.png|32px]] Added '''Oil Shale'''.}}
+
+== See also ==
+
+* [[Oil Sand]], [[Oil Red Sand]] - Other oil-bearing blocks
+* [[Crude Oil]] - Melted form
+* [[Bitumen]], [[Tar]] - Ground products
+* [[Crucible]], [[Macerator]] - Process oil blocks
+
+[[Category:Materials]]

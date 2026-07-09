@@ -1,0 +1,63 @@
+{{Item
+|image     = Grid Tar.png
+|type      = Item (Material)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.2
+}}
+
+'''Tar''' is a sticky oil product recovered from the sandy oil blocks in a [[Macerator]]. Its stickiness stands in for a slime ball in a few recipes, and it burns as a furnace fuel.
+
+== Obtaining ==
+
+=== Grinding ===
+
+Tar drops as a 50% byproduct when the [[Macerator]] grinds [[Oil Sand]] or [[Oil Red Sand]] into [[Bitumen]]:
+
+{{Grinding|head=1|foot=1 |Input=Oil Sand;Oil Red Sand |ingredients=[[Oil Sand]] or [[Oil Red Sand]] |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
+
+== Usage ==
+
+=== Crafting ===
+
+Tar's stickiness makes it a stand-in for slime and coal in several recipes:
+
+{{Crafting|head=1
+|name=Sticky Piston
+|B1=Tar
+|B2=Piston
+|Output=Sticky Piston}}
+{{Crafting
+|name=Lead
+|A1=String |B1=String
+|A2=String |B2=Tar
+|C3=String
+|Output=Lead,2}}
+{{Crafting|foot=1
+|name=Torch
+|B1=Tar
+|B2=Stick
+|Output=Torch,4}}
+
+=== Fuel ===
+
+Tar is a furnace fuel and powers the [[Stirling Engine]], burning for 800 ticks — half of coal — smelting 4 items.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/tar|item.logistics.core.tar}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Tar.png|32px]] Added '''Tar'''.}}
+
+== See also ==
+
+* [[Oil Sand]], [[Oil Red Sand]] - Ground to recover Tar
+* [[Bitumen]] - The main grind product
+* [[Macerator]] - Produces Tar as a byproduct
+* [[Materials]] - Material overview
+
+[[Category:Materials]]

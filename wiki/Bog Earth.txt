@@ -1,0 +1,58 @@
+{{Block
+|image           = Grid Bog Earth.png
+|type            = Block
+|tool            = Shovel
+|hardness        = 0.5
+|blastresistance = 0.5
+|drops           = Bog Earth
+|renewable       = Yes
+|stackable       = Yes (64)
+|added           = v0.8.2
+}}
+
+'''Bog Earth''' is a waterlogged soil that generates in swamps. Dried in a furnace it becomes [[Peat]], a renewable fuel.
+
+== Obtaining ==
+
+=== Breaking ===
+
+Bog Earth breaks fastest with a shovel and always drops itself.
+
+{{Breaking
+|tool=shovel
+|tier=none
+|name1=Bog Earth |icon1=Grid Bog Earth.png |hardness1=0.5
+}}
+
+=== Natural generation ===
+
+Bog Earth generates in '''swamp''' biomes, spreading in patches through the mud, dirt, and grass at the water's edge. Because swamps keep generating it, Bog Earth — and the [[Peat]] made from it — is renewable.
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt Bog Earth to dry it into [[Peat]]:
+
+{{Smelting|head=1|foot=1
+|name=Peat
+|Input=Bog Earth
+|Output=Peat}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/bog_earth|block.logistics.core.bog_earth}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.2|[[File:Grid Bog Earth.png|32px]] Added '''Bog Earth'''.}}
+
+== See also ==
+
+* [[Peat]] - Smelted from Bog Earth
+* [[Stirling Engine]] - Burns Peat for RF
+* [[Materials]] - Material overview
+
+[[Category:Materials]]
