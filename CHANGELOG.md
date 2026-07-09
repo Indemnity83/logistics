@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.8.2](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.1...mc1.21.11-v0.8.2) (2026-07-09)
+
+
+### Added
+
+* **automation:** add pulped biomass from the sawmill ([#660](https://github.com/Indemnity83/logistics/issues/660)) ([96dc6b6](https://github.com/Indemnity83/logistics/commit/96dc6b6d9d1220036885703015bc19efbbc0b904))
+* **automation:** add the alloy smelter ([#656](https://github.com/Indemnity83/logistics/issues/656)) ([749f564](https://github.com/Indemnity83/logistics/commit/749f5640b3ce0061423b6e65f41382c0ab99512e))
+* **automation:** add the crucible ([#679](https://github.com/Indemnity83/logistics/issues/679)) ([726217d](https://github.com/Indemnity83/logistics/commit/726217dc6137ca21584e4100c04747d30def3390))
+* **fluids:** add custom fluids and buckets for the Magma Crucible ([7b7c8ed](https://github.com/Indemnity83/logistics/commit/7b7c8eda76d1dd4d9b8d9a6782f4f0ec50689595))
+* **fluids:** light-emitting fluids glow in pipes and tanks ([#695](https://github.com/Indemnity83/logistics/issues/695)) ([b6fd1e3](https://github.com/Indemnity83/logistics/commit/b6fd1e366e5ea74058016c01dd6e34c58fb04fcb))
+* **fluids:** show machine fluid tanks in the Jade HUD ([#703](https://github.com/Indemnity83/logistics/issues/703)) ([525c99f](https://github.com/Indemnity83/logistics/commit/525c99f3f9fcbbf4321e317a4da312c6434e66db))
+* **worldgen:** add bog earth and peat fuel ([#658](https://github.com/Indemnity83/logistics/issues/658)) ([44a5401](https://github.com/Indemnity83/logistics/commit/44a5401811364e2964966e7bc989a1042b9ff9d9))
+* **worldgen:** add crude oil and the oil chain ([#690](https://github.com/Indemnity83/logistics/issues/690)) ([3a70942](https://github.com/Indemnity83/logistics/commit/3a709423d53da10b5ddd6f3eb42bb1d5b6e34d6a))
+
+
+### Fixed
+
+* **automation:** reject non-finite recipe experience values ([60f2a66](https://github.com/Indemnity83/logistics/commit/60f2a6663942f6e1f1591b93018b627037414c78))
+* **automation:** sync machine progress and energy so bars can't overflow ([#694](https://github.com/Indemnity83/logistics/issues/694)) ([fae9b32](https://github.com/Indemnity83/logistics/commit/fae9b32405c19e07d315043c064bd60c1dd984b6))
+* **ci:** stop Sentry release failing on cross-branch set-commits ([#683](https://github.com/Indemnity83/logistics/issues/683)) ([9791421](https://github.com/Indemnity83/logistics/commit/9791421cb32a9942e46b237ffcafac91c84d853f))
+* **ci:** unblock release publishing broken by Sentry set-commits ([#678](https://github.com/Indemnity83/logistics/issues/678)) ([56afa20](https://github.com/Indemnity83/logistics/commit/56afa20661c3364e2cf4668522a896d7efa65b46))
+* **compat:** add missing Jade fluid-pipe config translation ([#701](https://github.com/Indemnity83/logistics/issues/701)) ([fa24f72](https://github.com/Indemnity83/logistics/commit/fa24f7207ba0d471b6462fc5d4c7fb99ed42fb7e))
+* **fluids:** render custom fluids in the look-at HUD ([#706](https://github.com/Indemnity83/logistics/issues/706)) ([d45436d](https://github.com/Indemnity83/logistics/commit/d45436dee53c35dc189e618327be924dba24b64f))
+* **fluids:** stop drained pipes rendering a checkerboard ([#696](https://github.com/Indemnity83/logistics/issues/696)) ([852ce38](https://github.com/Indemnity83/logistics/commit/852ce382f3c8f0db80cec56be58b80cb3a5ffef4))
+* **fluids:** stop fluid extractor pipes from connecting to each other ([#692](https://github.com/Indemnity83/logistics/issues/692)) ([b6c59c6](https://github.com/Indemnity83/logistics/commit/b6c59c6e51cac0b442546f15903b9200adb4fc55))
+* **pump:** make the pump tank output-only ([#693](https://github.com/Indemnity83/logistics/issues/693)) ([ac5fcaa](https://github.com/Indemnity83/logistics/commit/ac5fcaaad0b80614709e7379eecee096dbaef39b))
+* **routing:** drop the failed order's index entry on delivery retry ([5216286](https://github.com/Indemnity83/logistics/commit/5216286ef4c008788f5e4450f40057469054f012))
+
 ## [0.8.1](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.0...mc1.21.11-v0.8.1) (2026-06-30)
 
 
