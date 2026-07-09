@@ -1,7 +1,7 @@
 package com.logistics.automation.laserquarry;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsAutomation;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.LogisticsAutomation;
@@ -96,8 +96,8 @@ public class LaserQuarryBlock extends BaseEntityBlock {
                     width = Math.max(0, bounds.max().getX() - bounds.min().getX() - 1);
                     depth = Math.max(0, bounds.max().getZ() - bounds.min().getZ() - 1);
                 } else {
-                    width = LogisticsConfigHost.get(Configs.QUARRY_AREA) - 2;
-                    depth = LogisticsConfigHost.get(Configs.QUARRY_AREA) - 2;
+                    width = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) - 2;
+                    depth = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) - 2;
                 }
                 serverPlayer.sendSystemMessage(
                         Component.translatable("laser_quarry.area_preview", width, depth), true);

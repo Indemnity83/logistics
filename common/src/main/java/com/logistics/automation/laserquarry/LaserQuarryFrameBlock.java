@@ -1,7 +1,7 @@
 package com.logistics.automation.laserquarry;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsAutomation;
 
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.mojang.serialization.MapCodec;
@@ -175,12 +175,12 @@ public class LaserQuarryFrameBlock extends Block {
             endZ = quarry.getCustomMaxZ();
         } else {
             // Calculate default bounds from facing direction
-            int half = LogisticsConfigHost.get(Configs.QUARRY_AREA) / 2;
+            int half = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) / 2;
             Direction facing = LaserQuarryBlock.getMiningDirection(quarryState);
             switch (facing) {
                 case NORTH:
                     startX = quarryPos.getX() - half;
-                    startZ = quarryPos.getZ() - LogisticsConfigHost.get(Configs.QUARRY_AREA);
+                    startZ = quarryPos.getZ() - LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA);
                     break;
                 case SOUTH:
                     startX = quarryPos.getX() - half;
@@ -191,14 +191,14 @@ public class LaserQuarryFrameBlock extends Block {
                     startZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
-                    startX = quarryPos.getX() - LogisticsConfigHost.get(Configs.QUARRY_AREA);
+                    startX = quarryPos.getX() - LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA);
                     startZ = quarryPos.getZ() - half;
                     break;
                 default:
                     return false;
             }
-            endX = startX + LogisticsConfigHost.get(Configs.QUARRY_AREA) - 1;
-            endZ = startZ + LogisticsConfigHost.get(Configs.QUARRY_AREA) - 1;
+            endX = startX + LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) - 1;
+            endZ = startZ + LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) - 1;
         }
 
         int bottomY = quarryPos.getY();

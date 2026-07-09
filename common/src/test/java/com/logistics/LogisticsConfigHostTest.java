@@ -3,6 +3,7 @@ package com.logistics;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigKey;
 import com.indemnity83.configory.ConfigRegistry;
 import com.indemnity83.configory.storage.JsonFileConfigStorage;
 import java.io.IOException;
@@ -19,7 +20,7 @@ class LogisticsConfigHostTest {
 
     /** The shared engines child config the {@code Configs} constants are registered on. */
     private static Config engines() {
-        return ConfigRegistry.config(LogisticsConfigHost.Configs.REDSTONE_OUTPUT.configId());
+        return ConfigRegistry.config(LogisticsPower.CONFIG.REDSTONE_OUTPUT.configId());
     }
 
     @Test
@@ -27,17 +28,17 @@ class LogisticsConfigHostTest {
     void engineKeysDefaultsAndValidation() {
         Config engines = engines();
 
-        assertThat(LogisticsConfigHost.get(LogisticsConfigHost.Configs.REDSTONE_OUTPUT)).isEqualTo(10L);
-        assertThat(LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
-        assertThat(LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT)).isEqualTo(10.0);
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT)).isEqualTo(10.0);
 
         // Single-field: redstone output must be >= 0 (a rejected trySet leaves the value unchanged).
-        assertThat(engines.trySet(LogisticsConfigHost.Configs.REDSTONE_OUTPUT, -1L)).isFalse();
-        assertThat(LogisticsConfigHost.get(LogisticsConfigHost.Configs.REDSTONE_OUTPUT)).isEqualTo(10L);
+        assertThat(engines.trySet(LogisticsPower.CONFIG.REDSTONE_OUTPUT, -1L)).isFalse();
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
 
         // Cross-field (recursion fixed in configory): min must not exceed max (default max 10).
-        assertThat(engines.trySet(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT, 12.0)).isFalse();
-        assertThat(LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
+        assertThat(engines.trySet(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 12.0)).isFalse();
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
     }
 
     @Test
@@ -51,26 +52,43 @@ class LogisticsConfigHostTest {
 
         // Before #52 this threw (repairMinMax read through the validating get(), which the inverted state fails).
         engines.repairMinMax(
-                LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT, LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT);
+                LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT);
 
-        double min = LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT);
-        double max = LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT);
+        double min = LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT);
+        double max = LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT);
         assertThat(min).isLessThanOrEqualTo(max);
 
         // Restore defaults so the shared registry config doesn't leak into other tests.
-        engines.set(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT, 3.0);
-        engines.set(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT, 10.0);
+        engines.set(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 3.0);
+        engines.set(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT, 10.0);
     }
 
     @Test
     @DisplayName("fluid pump search radius is capped so radius squared fits in an int")
     void pumpSearchRadiusCap() {
-        Config fluids = ConfigRegistry.config(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS.configId());
+        Config fluids = ConfigRegistry.config(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS.configId());
 
-        assertThat(fluids.trySet(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS, 46_340)).isTrue();
-        assertThat(fluids.trySet(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS, 46_341)).isFalse();
+        assertThat(fluids.trySet(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS, 46_340)).isTrue();
+        assertThat(fluids.trySet(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS, 46_341)).isFalse();
 
-        fluids.set(LogisticsConfigHost.Configs.FLUID_PUMP_SEARCH_RADIUS, 64); // restore default
+        fluids.set(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS, 64); // restore default
+    }
+
+    @Test
+    @DisplayName("each domain's CONFIG registers its child config under logistics")
+    void domainConfigsEnumeratesEveryDomain() {
+        // Touch a key from every domain so each CONFIG class initializes (registers its configFor child).
+        List<ConfigKey<?>> ignored = List.of(
+                LogisticsPower.CONFIG.REDSTONE_OUTPUT,
+                LogisticsAutomation.CONFIG.QUARRY_AREA,
+                LogisticsPipe.CONFIG.PIPE_MAX_SPEED,
+                LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS,
+                LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED);
+        assertThat(ignored).isNotEmpty();
+
+        List<String> ids = LogisticsConfigHost.domainConfigs().stream().map(Config::id).toList();
+        assertThat(ids).contains(
+                "logistics.engines", "logistics.machines", "logistics.pipes", "logistics.fluids", "logistics.reporting");
     }
 
     @Test

@@ -210,8 +210,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         return generationPlanner.outputPower(
                 getTemperature(),
                 getTemperatureFloor(),
-                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT),
-                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT));
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT),
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT));
     }
 
     @Override
@@ -283,8 +283,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 getTemperature(),
                 getEnergy(),
                 getEnergyBufferCapacity(),
-                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MIN_OUTPUT),
-                LogisticsConfigHost.get(LogisticsConfigHost.Configs.STIRLING_MAX_OUTPUT));
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT),
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT));
 
         if (toAdd > 0) {
             addEnergy(toAdd);

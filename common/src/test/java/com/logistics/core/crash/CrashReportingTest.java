@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigRegistry;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsCore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,16 +19,16 @@ class CrashReportingTest {
 
     /** The shared reporting config the crash keys live on. */
     private static Config reporting() {
-        return ConfigRegistry.config(Configs.CRASH_REPORTING_ENABLED.configId());
+        return ConfigRegistry.config(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED.configId());
     }
 
     @AfterEach
     void cleanup() {
         CrashReporting.disable();
         Config reporting = reporting();
-        reporting.set(Configs.CRASH_REPORTING_ENABLED, false);
-        reporting.set(Configs.CRASH_REPORTING_SHOW_NOTIFICATION, true);
-        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, "");
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED, false);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_SHOW_NOTIFICATION, true);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_DSN_OVERRIDE, "");
     }
 
     @Test
@@ -105,8 +105,8 @@ class CrashReportingTest {
     @DisplayName("reconcile brings the live client in line with the enabled config key")
     void reconcileTogglesLiveClient() {
         Config reporting = reporting();
-        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, LOCAL_DSN);
-        reporting.set(Configs.CRASH_REPORTING_ENABLED, true);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_DSN_OVERRIDE, LOCAL_DSN);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED, true);
 
         CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isTrue();
@@ -114,7 +114,7 @@ class CrashReportingTest {
         // Capturing on an active client is accepted without throwing (sent async to the dead DSN).
         assertThatCode(() -> CrashReporting.capture(new RuntimeException("test"))).doesNotThrowAnyException();
 
-        reporting.set(Configs.CRASH_REPORTING_ENABLED, false);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED, false);
         CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isFalse();
     }
@@ -124,8 +124,8 @@ class CrashReportingTest {
     void reconcileFailureIsSafe() {
         Config reporting = reporting();
         // A malformed DSN makes the Sentry client constructor throw inside enable(); reconcile must contain it.
-        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, "https://localhost");
-        reporting.set(Configs.CRASH_REPORTING_ENABLED, true);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_DSN_OVERRIDE, "https://localhost");
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED, true);
 
         assertThatCode(CrashReporting::reconcile).doesNotThrowAnyException();
         assertThat(CrashReporting.isActive()).isFalse();
@@ -135,12 +135,12 @@ class CrashReportingTest {
     @DisplayName("reconcile enables only when the config opted in")
     void reconcileHonorsConfig() {
         Config reporting = reporting();
-        reporting.set(Configs.CRASH_REPORTING_ENABLED, false);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED, false);
         CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isFalse();
 
-        reporting.set(Configs.CRASH_REPORTING_DSN_OVERRIDE, LOCAL_DSN);
-        reporting.set(Configs.CRASH_REPORTING_ENABLED, true);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_DSN_OVERRIDE, LOCAL_DSN);
+        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED, true);
         CrashReporting.reconcile();
         assertThat(CrashReporting.isActive()).isTrue();
     }

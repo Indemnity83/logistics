@@ -36,7 +36,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
 
     @Override
     protected long getOutputPower() {
-        return LogisticsConfigHost.get(LogisticsConfigHost.Configs.REDSTONE_OUTPUT);
+        return LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
         }
 
         if (level.getGameTime() % ENERGY_TICK_INTERVAL == 0) {
-            addEnergy(LogisticsConfigHost.get(LogisticsConfigHost.Configs.REDSTONE_OUTPUT));
+            addEnergy(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT));
         }
     }
 }

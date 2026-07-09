@@ -1,7 +1,7 @@
 package com.logistics.automation.laserquarry.entity;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsAutomation;
 
 /**
  * Derived quarry energy values, computed from the {@code quarry_energy_per_block} and
@@ -24,11 +24,11 @@ public final class QuarryEnergy {
     }
 
     private static long energyPerBlock() {
-        return LogisticsConfigHost.get(Configs.QUARRY_ENERGY_PER_BLOCK);
+        return LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_ENERGY_PER_BLOCK);
     }
 
     private static double energyMultiplier() {
-        return LogisticsConfigHost.get(Configs.QUARRY_ENERGY_MULTIPLIER);
+        return LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_ENERGY_MULTIPLIER);
     }
 
     private static double nonNegativeFiniteOrZero(double value) {

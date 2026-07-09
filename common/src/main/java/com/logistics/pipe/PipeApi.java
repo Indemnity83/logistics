@@ -1,7 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.api.TransportApi;
 import com.logistics.pipe.block.PipeBlock;
@@ -28,7 +28,7 @@ public final class PipeApi implements TransportApi {
                 return false;
             }
 
-            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED));
+            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED));
             return pipeEntity.addItem(travelingItem, from.getOpposite(), false);
         }
         return false;
@@ -42,7 +42,7 @@ public final class PipeApi implements TransportApi {
                 return false;
             }
 
-            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED));
+            TravelingItem travelingItem = new TravelingItem(stack.copy(), from, LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED));
             return pipeEntity.addItem(travelingItem, from.getOpposite(), true);
         }
         return false;

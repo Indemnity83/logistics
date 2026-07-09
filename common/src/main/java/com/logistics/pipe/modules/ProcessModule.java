@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.core.lib.pipe.RoutingModule;
 
@@ -579,7 +579,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                     int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
                     TravelingItem t = new TravelingItem(
                             key.toStack(chunk), dir.getOpposite(),
-                            LogisticsConfigHost.get(Configs.PIPE_INJECT_SPEED), requester);
+                            LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_INJECT_SPEED), requester);
                     t.setDeliveryId(getFirstEntryDeliveryId(ctx));
                     ctx.pipeAccess().forceAddItem(t, dir);
                     rem -= chunk;
@@ -590,7 +590,7 @@ public class ProcessModule implements Module, TickingModule, RoutingModule, Disp
                     int chunk = (int) Math.min(rem, Integer.MAX_VALUE);
                     TravelingItem t = new TravelingItem(
                             key.toStack(chunk), dir.getOpposite(),
-                            LogisticsConfigHost.get(Configs.PIPE_INJECT_SPEED), null);
+                            LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_INJECT_SPEED), null);
                     ctx.pipeAccess().forceAddItem(t, dir);
                     rem -= chunk;
                 }

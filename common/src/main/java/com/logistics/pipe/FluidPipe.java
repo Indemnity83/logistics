@@ -1,7 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.DestinationPriority;
 import com.logistics.core.lib.pipe.FluidPipeBehavior;
 import com.logistics.core.lib.pipe.Module;
@@ -41,7 +41,7 @@ public final class FluidPipe extends Pipe {
 
     /** Transfer rate in mB/tick: the configured base rate folded through each behavior's rate modifier. */
     public long transferRate() {
-        long rate = LogisticsConfigHost.get(Configs.FLUID_PIPE_BASE_TRANSFER_RATE);
+        long rate = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_BASE_TRANSFER_RATE);
         for (Module module : getStaticModules()) {
             if (module instanceof FluidPipeBehavior behavior) {
                 rate = behavior.modifyTransferRate(rate);
@@ -52,7 +52,7 @@ public final class FluidPipe extends Pipe {
 
     /** Buffer capacity in mB — a shared config value across all kinds. */
     public long capacity() {
-        return LogisticsConfigHost.get(Configs.FLUID_PIPE_BASE_CAPACITY);
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_BASE_CAPACITY);
     }
 
     /** Whether this pipe connects to external (non-pipe) fluid handlers — true unless a behavior vetoes it. */

@@ -1,7 +1,7 @@
 package com.logistics.pipe;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.core.lib.pipe.DispatchableModule;
 import com.logistics.core.lib.pipe.IModuleHost;
@@ -103,7 +103,7 @@ public class ItemPipe extends Pipe {
                 return drag;
             }
         }
-        return LogisticsConfigHost.get(Configs.PIPE_DRAG);
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_DRAG);
     }
 
     public float getMaxSpeed(PipeContext ctx) {
@@ -113,7 +113,7 @@ public class ItemPipe extends Pipe {
                 return max;
             }
         }
-        return LogisticsConfigHost.get(Configs.PIPE_MAX_SPEED);
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MAX_SPEED);
     }
 
     public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {

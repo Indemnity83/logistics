@@ -1,7 +1,11 @@
 package com.logistics;
 
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigEntries;
+import com.indemnity83.configory.ConfigKey;
 import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.crash.CrashReporting;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
@@ -143,11 +147,13 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     @Override
+    public void registerConfig() {
+        CONFIG.register();
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
-
-        LogisticsConfigHost.bootstrap();
-        LogisticsConfigMigrator.migrateIfNeeded();
 
         BLOCK.register();
         ITEM.register();
@@ -156,6 +162,34 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         WORLDGEN.register();
         CREATIVE.register();
         ALIAS.register();
+    }
+
+    /** Crash reporting toggles — {@code config/logistics/reporting.json}. Exposed under {@code /logistics config reporting}. */
+    public static final class CONFIG extends ConfigEntries {
+        private static final Config reporting = configFor(LogisticsConfigHost.MOD_ID, "reporting");
+
+        private CONFIG() {}
+
+        public static final ConfigKey<Boolean> CRASH_REPORTING_ENABLED = reporting.defineBoolean("enabled", false)
+                .describe("Opt-in sanitized crash reporting via Sentry")
+                .register();
+
+        public static final ConfigKey<Boolean> CRASH_REPORTING_SHOW_NOTIFICATION =
+                reporting.defineBoolean("show_notification", true)
+                        .describe("Notify operators on join while crash reporting is active")
+                        .register();
+
+        public static final ConfigKey<String> CRASH_REPORTING_DSN_OVERRIDE =
+                reporting.defineString("dsn_override", "")
+                        .describe("Override the Sentry DSN (blank = built-in default)")
+                        .register();
+
+        static void register() {
+            reporting.registerSanitizeHook(CrashReporting::reconcile);
+            LogisticsConfigMigrator.mapLegacy("crashReporting", "enabled", CRASH_REPORTING_ENABLED);
+            LogisticsConfigMigrator.mapLegacy("crashReporting", "notifyOperators", CRASH_REPORTING_SHOW_NOTIFICATION);
+            LogisticsConfigMigrator.mapLegacy("crashReporting", "dsnOverride", CRASH_REPORTING_DSN_OVERRIDE);
+        }
     }
 
     public static final class WORLDGEN {

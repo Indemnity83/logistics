@@ -1,8 +1,13 @@
 package com.logistics.core;
 
+import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPower;
 import com.logistics.test.MinecraftTestEnvironment;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.commands.CommandSourceStack;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +15,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("LogisticsCommandTree")
 class LogisticsCommandTreeTest extends MinecraftTestEnvironment {
+
+    @BeforeAll
+    static void registerDomainConfigs() {
+        // The command enumerates registered per-domain configs (childConfigs). Touch a key from each domain so
+        // its CONFIG class initializes and its configFor child is registered — force-init only, no sanitize hooks.
+        LogisticsPower.CONFIG.REDSTONE_OUTPUT.configId();
+        LogisticsAutomation.CONFIG.QUARRY_AREA.configId();
+        LogisticsPipe.CONFIG.PIPE_MAX_SPEED.configId();
+        LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS.configId();
+        LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED.configId();
+    }
 
     @Test
     @DisplayName("builds /logistics with debug and the configory-generated config surface")

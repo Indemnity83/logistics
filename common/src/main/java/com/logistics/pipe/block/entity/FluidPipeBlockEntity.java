@@ -1,7 +1,7 @@
 package com.logistics.pipe.block.entity;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.LogisticsFluid;
 import com.logistics.core.LogisticsProfiler;
@@ -119,7 +119,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         }
         this.capacityMb = def != null
                 ? def.capacity()
-                : LogisticsConfigHost.get(Configs.FLUID_PIPE_BASE_CAPACITY);
+                : LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_BASE_CAPACITY);
         this.energy = (def != null && def.isExtractor())
                 ? new EnergyComponent(ENERGY_CAPACITY, ENERGY_CAPACITY, 0, this::setChanged)
                 : null;
@@ -154,7 +154,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
 
     /** This pipe's transfer rate in mB/tick, from its definition (falls back to the base rate if unbound). */
     private long transferRate() {
-        return def != null ? def.transferRate() : LogisticsConfigHost.get(Configs.FLUID_PIPE_BASE_TRANSFER_RATE);
+        return def != null ? def.transferRate() : LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_BASE_TRANSFER_RATE);
     }
 
     // ==================== Contents (for rendering + capability) ====================
@@ -476,7 +476,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     private void serverTick(Level level) {
         refreshConnections(level, getBlockPos());
 
-        if (isExtractor() && energy != null && LogisticsConfigHost.get(Configs.FLUID_PIPE_ACTIVE_EXTRACTION)) {
+        if (isExtractor() && energy != null && LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_ACTIVE_EXTRACTION)) {
             extract(level);
         }
 
@@ -526,7 +526,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 provider,
                 energy.getAmount(),
                 budget,
-                LogisticsConfigHost.get(Configs.FLUID_PIPE_WOODEN_REQUIRES_ENGINE),
+                LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_WOODEN_REQUIRES_ENGINE),
                 extractionCarryMb);
         if (pulled.amount() > 0) {
             energy.consume(result.energyToConsume());

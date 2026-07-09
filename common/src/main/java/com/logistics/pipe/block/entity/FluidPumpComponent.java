@@ -1,7 +1,7 @@
 package com.logistics.pipe.block.entity;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
@@ -108,7 +108,7 @@ public final class FluidPumpComponent implements MachineComponent {
 
         pushOut(level, pos);
 
-        if ((level.getGameTime() + tickOffset) % LogisticsConfigHost.get(Configs.FLUID_PUMP_INTERVAL_TICKS) == 0) {
+        if ((level.getGameTime() + tickOffset) % LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) == 0) {
             work((ServerLevel) level, pos);
         }
 
@@ -135,7 +135,7 @@ public final class FluidPumpComponent implements MachineComponent {
         BlockPos pos = ctx.pos();
         float target = targetY + 0.5f;
         boolean server = ctx.isServer();
-        float armSpeed = armSpeedOverride >= 0f ? armSpeedOverride : LogisticsConfigHost.get(Configs.FLUID_PUMP_ARM_SPEED);
+        float armSpeed = armSpeedOverride >= 0f ? armSpeedOverride : LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ARM_SPEED);
         float stepped = stepArm(armY, target, armSpeed);
         if (stepped != armY) {
             armY = stepped;
@@ -160,7 +160,7 @@ public final class FluidPumpComponent implements MachineComponent {
     }
 
     private void pushOut(Level level, BlockPos pos) {
-        long budget = FluidUnits.mb(LogisticsConfigHost.get(Configs.FLUID_PUMP_PUSH_RATE_MB));
+        long budget = FluidUnits.mb(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_PUSH_RATE_MB));
         FluidTankComponent tank = tank();
         for (Direction side : OUTPUT_SIDES) {
             if (budget <= 0 || tank.isEmpty()) {
@@ -204,7 +204,7 @@ public final class FluidPumpComponent implements MachineComponent {
             return;
         }
         if (phase == Phase.STALLED && !sourceQueue.isEmpty() && queuedFluid != null) {
-            if (energy.amount() < LogisticsConfigHost.get(Configs.FLUID_PUMP_ENERGY_PER_SOURCE)) {
+            if (energy.amount() < LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE)) {
                 return;
             }
             phase = Phase.PUMPING;
@@ -215,7 +215,7 @@ public final class FluidPumpComponent implements MachineComponent {
             return;
         }
         if (phase == Phase.PUMPING && queuedFluid != null) {
-            if (energy.amount() < LogisticsConfigHost.get(Configs.FLUID_PUMP_ENERGY_PER_SOURCE)) {
+            if (energy.amount() < LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE)) {
                 phase = Phase.STALLED;
                 return;
             }
@@ -228,7 +228,7 @@ public final class FluidPumpComponent implements MachineComponent {
             return;
         }
         if (isPumpableSource(level, target, fluidState)) {
-            if (energy.amount() < LogisticsConfigHost.get(Configs.FLUID_PUMP_ENERGY_PER_SOURCE)) {
+            if (energy.amount() < LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE)) {
                 phase = Phase.STALLED;
                 return;
             }
@@ -270,7 +270,7 @@ public final class FluidPumpComponent implements MachineComponent {
 
     private boolean pumpFromLayer(
             ServerLevel level, BlockPos pumpPos, BlockPos origin, Fluid fluid) {
-        BlockPos source = findConnectedSource(level, pumpPos, origin, fluid, LogisticsConfigHost.get(Configs.FLUID_PUMP_SEARCH_RADIUS));
+        BlockPos source = findConnectedSource(level, pumpPos, origin, fluid, LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS));
         if (source == null) {
             return false;
         }
@@ -281,7 +281,7 @@ public final class FluidPumpComponent implements MachineComponent {
             phase = Phase.STALLED;
             return true;
         }
-        energy.consume(LogisticsConfigHost.get(Configs.FLUID_PUMP_ENERGY_PER_SOURCE));
+        energy.consume(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE));
         tank.insert(key, bucket, false);
         if (infiniteBody) {
             // Effectively infinite body: draw fluid without carving the landscape. Re-queue at the front
@@ -328,7 +328,7 @@ public final class FluidPumpComponent implements MachineComponent {
         queuedY = origin.getY();
 
         // Only reforming fluids (water) get infinite treatment; lava is always consumed.
-        int threshold = LogisticsConfigHost.get(Configs.FLUID_PUMP_INFINITE_SOURCE_THRESHOLD);
+        int threshold = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INFINITE_SOURCE_THRESHOLD);
         boolean canBeInfinite = threshold > 0 && createsSourceBlocks(fluid);
 
         Queue<BlockPos> queue = new ArrayDeque<>();

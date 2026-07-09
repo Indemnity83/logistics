@@ -1,5 +1,6 @@
 package com.logistics.core;
 
+import com.indemnity83.configory.Config;
 import com.indemnity83.configory.command.CommandFeedback;
 import com.indemnity83.configory.command.ConfigCommands;
 import com.logistics.LogisticsConfigHost;
@@ -124,16 +125,14 @@ public final class LogisticsCommandTree {
         }
         root.then(diagnostics);
 
-        // Configory generates the /logistics config <domain> <key> surface + reload-configs; each domain is a
-        // group (named by its config id) so keys stay short (e.g. `config pipes max_speed`). All inherit this
-        // literal's operator gate.
-        ConfigCommands.builder(CONFIG_FEEDBACK)
-                .group(LogisticsConfigHost.engines())
-                .group(LogisticsConfigHost.machines())
-                .group(LogisticsConfigHost.pipes())
-                .group(LogisticsConfigHost.fluids())
-                .group(LogisticsConfigHost.reporting())
-                .buildInto(root);
+        // Configory generates the /logistics config <domain> <key> surface + reload-configs. Each registered
+        // per-domain config is a group (named by its config id) so keys stay short (e.g. `config pipes
+        // max_speed`). All inherit this literal's operator gate.
+        var configCommands = ConfigCommands.builder(CONFIG_FEEDBACK);
+        for (Config config : LogisticsConfigHost.domainConfigs()) {
+            configCommands.group(config);
+        }
+        configCommands.buildInto(root);
         return root;
     }
 

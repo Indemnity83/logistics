@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.Module;
@@ -211,7 +211,7 @@ public class ExtractionModule implements Module, TickingModule {
             long extracted = storage.extract(key, maxItems, false);
             if (extracted > 0) {
                 ItemStack stack = key.toStack((int) extracted);
-                TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED));
+                TravelingItem item = new TravelingItem(stack, direction.getOpposite(), LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED));
                 ctx.pipeAccess().forceAddItem(item, direction);
                 return true;
             }

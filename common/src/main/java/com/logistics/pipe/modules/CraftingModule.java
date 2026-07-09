@@ -1,7 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsPipe;
 
 import com.logistics.core.lib.pipe.RoutingModule;
 import com.logistics.core.lib.pipe.TransferHandlerModule;
@@ -430,7 +430,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
                     TravelingItem surplus = new TravelingItem(
                             remaining.copy(),
                             autocrafterDir.getOpposite(),
-                            LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED));
+                            LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED));
                     ctx.pipeAccess().forceAddItem(surplus, autocrafterDir);
                 }
             }
@@ -1051,7 +1051,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
             long toSend = Math.min(available, entryOrdered);
             TravelingItem routed = new TravelingItem(
                     stack.copyWithCount((int) toSend),
-                    fromDirection.getOpposite(), LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED), entryRequester);
+                    fromDirection.getOpposite(), LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED), entryRequester);
             if (entryDeliveryId != null) routed.setDeliveryId(entryDeliveryId);
             ctx.pipeAccess().forceAddItem(routed, fromDirection);
 
@@ -1086,7 +1086,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
             TravelingItem surplusItem = new TravelingItem(
                     stack.copyWithCount(available),
                     fromDirection.getOpposite(),
-                    LogisticsConfigHost.get(Configs.PIPE_MIN_SPEED));
+                    LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED));
             ctx.pipeAccess().forceAddItem(surplusItem, fromDirection);
         }
 

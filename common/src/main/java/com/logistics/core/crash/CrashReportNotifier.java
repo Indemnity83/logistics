@@ -1,7 +1,7 @@
 package com.logistics.core.crash;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsCore;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
@@ -37,11 +37,11 @@ public final class CrashReportNotifier {
     /** Show operators the once-per-session crash-reporting status line (unless they've silenced it). */
     public static void maybeNotify(ServerPlayer player) {
         boolean isOperator = Commands.LEVEL_GAMEMASTERS.check(player.permissions());
-        if (!shouldNotify(LogisticsConfigHost.get(Configs.CRASH_REPORTING_SHOW_NOTIFICATION), isOperator)) {
+        if (!shouldNotify(LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_SHOW_NOTIFICATION), isOperator)) {
             return;
         }
         if (NOTIFIED_THIS_SESSION.add(player.getUUID())) {
-            player.sendSystemMessage(buildInvite(LogisticsConfigHost.get(Configs.CRASH_REPORTING_ENABLED)));
+            player.sendSystemMessage(buildInvite(LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED)));
         }
     }
 

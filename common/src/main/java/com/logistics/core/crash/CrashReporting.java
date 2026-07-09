@@ -1,7 +1,7 @@
 package com.logistics.core.crash;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsCore;
 import com.logistics.core.lib.platform.PlatformService;
 import io.sentry.JsonSerializer;
 import io.sentry.SentryClient;
@@ -70,7 +70,7 @@ public final class CrashReporting {
      */
     public static synchronized void reconcile() {
         disable();
-        if (!LogisticsConfigHost.get(Configs.CRASH_REPORTING_ENABLED)) {
+        if (!LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED)) {
             return;
         }
         // Crash reporting is non-critical: a bad persisted DSN must never abort config load or domain startup.
@@ -271,7 +271,7 @@ public final class CrashReporting {
     }
 
     private static String resolveDsn() {
-        String override = LogisticsConfigHost.get(Configs.CRASH_REPORTING_DSN_OVERRIDE);
+        String override = LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_DSN_OVERRIDE);
         return override != null && !override.isBlank() ? override.trim() : DEFAULT_DSN;
     }
 

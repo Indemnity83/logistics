@@ -1,7 +1,7 @@
 package com.logistics.automation.render;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsConfigHost.Configs;
+import com.logistics.LogisticsAutomation;
 
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
@@ -85,11 +85,11 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             state.frameEndX = entity.getCustomMaxX();
             state.frameEndZ = entity.getCustomMaxZ();
         } else {
-            int half = LogisticsConfigHost.get(Configs.QUARRY_AREA) / 2;
+            int half = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) / 2;
             switch (state.facing) {
                 case NORTH:
                     state.frameStartX = quarryPos.getX() - half;
-                    state.frameStartZ = quarryPos.getZ() - LogisticsConfigHost.get(Configs.QUARRY_AREA);
+                    state.frameStartZ = quarryPos.getZ() - LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA);
                     break;
                 case SOUTH:
                     state.frameStartX = quarryPos.getX() - half;
@@ -100,7 +100,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
                     state.frameStartZ = quarryPos.getZ() - half;
                     break;
                 case WEST:
-                    state.frameStartX = quarryPos.getX() - LogisticsConfigHost.get(Configs.QUARRY_AREA);
+                    state.frameStartX = quarryPos.getX() - LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA);
                     state.frameStartZ = quarryPos.getZ() - half;
                     break;
                 default:
@@ -108,8 +108,8 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
                     state.shouldRenderPreviewOutline = false;
                     return;
             }
-            state.frameEndX = state.frameStartX + LogisticsConfigHost.get(Configs.QUARRY_AREA) - 1;
-            state.frameEndZ = state.frameStartZ + LogisticsConfigHost.get(Configs.QUARRY_AREA) - 1;
+            state.frameEndX = state.frameStartX + LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) - 1;
+            state.frameEndZ = state.frameStartZ + LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA) - 1;
         }
         state.frameTopY = quarryPos.getY() + LaserQuarryGeometry.Y_OFFSET_ABOVE;
 
