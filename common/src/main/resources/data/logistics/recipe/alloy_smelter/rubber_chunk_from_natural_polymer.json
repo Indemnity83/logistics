@@ -1,0 +1,9 @@
+{
+  "type": "logistics:alloy_smelter",
+  "ingredients": [
+    "logistics:power/natural_polymer",
+    "logistics:core/sulfur_dust"
+  ],
+  "result": { "id": "logistics:power/rubber_chunk", "count": 2 },
+  "energy": 1000
+}

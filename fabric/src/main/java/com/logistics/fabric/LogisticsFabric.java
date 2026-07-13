@@ -55,10 +55,11 @@ public final class LogisticsFabric implements ModInitializer {
             )
         );
 
-        // Vanilla creative tab entries (rubber items beside slime ball in Ingredients)
+        // Vanilla creative tab entries (polymers + rubber beside slime ball in Ingredients)
         CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.INGREDIENTS, editor -> {
-            editor.insertAfter(Items.SLIME_BALL, LogisticsPower.ITEM.RUBBER_MIX);
-            editor.insertAfter(LogisticsPower.ITEM.RUBBER_MIX, LogisticsPower.ITEM.RUBBER_CHUNK);
+            editor.insertAfter(Items.SLIME_BALL, LogisticsPower.ITEM.NATURAL_POLYMER);
+            editor.insertAfter(LogisticsPower.ITEM.NATURAL_POLYMER, LogisticsPower.ITEM.SYNTHETIC_POLYMER);
+            editor.insertAfter(LogisticsPower.ITEM.SYNTHETIC_POLYMER, LogisticsPower.ITEM.RUBBER_CHUNK);
         });
     }
 
