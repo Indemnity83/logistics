@@ -43,7 +43,7 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
         inventory.startOpen(playerInventory.player);
 
         // Byproduct output slot (0) — extract-only.
-        this.addSlot(new Slot(inventory, RefineryBlockEntity.OUTPUT_SLOT, 134, 35) {
+        this.addSlot(new Slot(inventory, RefineryBlockEntity.OUTPUT_SLOT, 123, 60) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;
@@ -109,9 +109,9 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data getters for GUI rendering ====================
 
-    /** Progress arrow width (0..24 px) from the synced progress fraction. */
+    /** Progress arrow width (0..22 px) from the synced progress fraction. */
     public int getProgressArrowWidth() {
-        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
+        return MachineData.barPixels(data, MachineData.PROGRESS, 22);
     }
 
     /** Energy bar height (0..30 px) from the synced energy fill fraction. */

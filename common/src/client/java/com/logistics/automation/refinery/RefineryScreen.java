@@ -30,15 +30,13 @@ public class RefineryScreen extends AbstractContainerScreen<RefineryScreenHandle
     private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
     private static final int CHARGE_EMPTY_TINT = 0xFF404040;
 
+    // Tank windows in the GUI texture (screen-local): 16px wide, y 18..75; the texture draws the frames.
     private static final int TANK_TOP = 18;
     private static final int TANK_BOTTOM = 76;
     private static final int TANK_WIDTH = 16;
     private static final int TANK_HEIGHT = TANK_BOTTOM - TANK_TOP; // 58
-    private static final int INPUT_TANK_LEFT = 26;
-    private static final int OUTPUT_TANK_LEFT = 98;
-
-    private static final int TANK_BORDER = 0xFF373737;
-    private static final int TANK_BACKING = 0xFF101010;
+    private static final int INPUT_TANK_LEFT = 74;
+    private static final int OUTPUT_TANK_LEFT = 147;
 
     public RefineryScreen(RefineryScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
@@ -102,7 +100,7 @@ public class RefineryScreen extends AbstractContainerScreen<RefineryScreenHandle
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE.toIdentifier(),
-                leftPos + 56, topPos + 35,
+                leftPos + 105, topPos + 35,
                 199, 35,
                 arrowWidth, 16,
                 TEXTURE_WIDTH, TEXTURE_HEIGHT);
@@ -132,31 +130,30 @@ public class RefineryScreen extends AbstractContainerScreen<RefineryScreenHandle
     }
 
     /**
-     * Renders one tank: a dark backing with a border so an empty tank is visible, then the fluid's still
-     * sprite tiled from the bottom up to the fill line (never stretched, clipped to the fill rect).
+     * Renders one tank's fluid: the still sprite tiled from the window bottom up to the fill line (never
+     * stretched, clipped to the fill rect) directly over the tank frame the GUI texture already draws.
      */
     private void renderTank(GuiGraphicsExtractor graphics, int left, int fluidId, float fraction) {
-        int x0 = leftPos + left;
-        int top = topPos + TANK_TOP;
-        int bottomY = topPos + TANK_BOTTOM;
-        graphics.fill(x0 - 1, top - 1, x0 + TANK_WIDTH + 1, bottomY + 1, TANK_BORDER);
-        graphics.fill(x0, top, x0 + TANK_WIDTH, bottomY, TANK_BACKING);
-
-        if (fluidId >= 0 && fraction > 0f) {
-            Fluid fluid = BuiltInRegistries.FLUID.byId(fluidId);
-            if (fluid != Fluids.EMPTY) {
-                FluidBoxRenderer.Appearance appearance = FluidBoxRenderer.resolveForGui(fluid);
-                if (appearance != null) {
-                    TextureAtlasSprite sprite = appearance.sprite();
-                    int tint = appearance.tint();
-                    int fillPixels = Math.round(fraction * TANK_HEIGHT);
-                    graphics.enableScissor(x0, bottomY - fillPixels, x0 + TANK_WIDTH, bottomY);
-                    for (int drawn = 0; drawn < fillPixels; drawn += 16) {
-                        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x0, bottomY - drawn - 16, 16, 16, tint);
-                    }
-                    graphics.disableScissor();
-                }
-            }
+        if (fluidId < 0 || fraction <= 0f) {
+            return;
         }
+        Fluid fluid = BuiltInRegistries.FLUID.byId(fluidId);
+        if (fluid == Fluids.EMPTY) {
+            return;
+        }
+        FluidBoxRenderer.Appearance appearance = FluidBoxRenderer.resolveForGui(fluid);
+        if (appearance == null) {
+            return;
+        }
+        TextureAtlasSprite sprite = appearance.sprite();
+        int tint = appearance.tint();
+        int x0 = leftPos + left;
+        int bottomY = topPos + TANK_BOTTOM;
+        int fillPixels = Math.round(fraction * TANK_HEIGHT);
+        graphics.enableScissor(x0, bottomY - fillPixels, x0 + TANK_WIDTH, bottomY);
+        for (int drawn = 0; drawn < fillPixels; drawn += 16) {
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x0, bottomY - drawn - 16, 16, 16, tint);
+        }
+        graphics.disableScissor();
     }
 }
