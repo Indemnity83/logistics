@@ -41,6 +41,7 @@
   "block.logistics.fluid.glass_tank": "Glass Tank",
   "block.logistics.fluid.fluid_pump": "Fluid Pump",
   "jei.logistics.sawmill.byproduct_chance": "%s%% chance",
+  "jei.logistics.refinery.byproduct_chance": "%s%% chance",
   "jei.logistics.macerator.byproduct_chance": "%s%% chance",
   "jei.logistics.alloy_smelter.byproduct_chance": "%s%% chance",
   "tooltip.logistics.fluid.tank_capacity": "Holds %s buckets",
