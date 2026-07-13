@@ -10,6 +10,7 @@ import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
 import com.logistics.automation.crucible.CrucibleScreen;
+import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
@@ -150,6 +151,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
         event.register(LogisticsAutomation.MENU.ALLOY_SMELTER, AlloySmelterScreen::new);
         event.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
+        event.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

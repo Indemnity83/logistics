@@ -24,6 +24,11 @@ import com.logistics.automation.macerator.MaceratorRecipeDisplay;
 import com.logistics.automation.macerator.MaceratorRecipeSerializer;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import com.logistics.automation.macerator.MaceratorScreenHandler;
+import com.logistics.automation.refinery.RefineryBlock;
+import com.logistics.automation.refinery.RefineryBlockEntity;
+import com.logistics.automation.refinery.RefineryRecipe;
+import com.logistics.automation.refinery.RefineryRecipeSerializer;
+import com.logistics.automation.refinery.RefineryScreenHandler;
 import com.logistics.automation.sawmill.SawmillBlock;
 import com.logistics.automation.sawmill.SawmillBlockEntity;
 import com.logistics.automation.sawmill.SawmillRecipe;
@@ -92,6 +97,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block SAWMILL;
         public static Block ALLOY_SMELTER;
         public static Block CRUCIBLE;
+        public static Block REFINERY;
 
         static void register() {
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
@@ -113,6 +119,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             CRUCIBLE = INSTANCE.registerBlockWithItem("crucible",
                 props -> new CrucibleBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(CrucibleBlock.LIT) ? 13 : 0)));
+            REFINERY = INSTANCE.registerBlockWithItem("refinery",
+                props -> new RefineryBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(RefineryBlock.LIT) ? 13 : 0)));
         }
     }
 
@@ -125,6 +134,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<SawmillBlockEntity> SAWMILL_BLOCK_ENTITY;
         public static BlockEntityType<AlloySmelterBlockEntity> ALLOY_SMELTER_BLOCK_ENTITY;
         public static BlockEntityType<CrucibleBlockEntity> CRUCIBLE_BLOCK_ENTITY;
+        public static BlockEntityType<RefineryBlockEntity> REFINERY_BLOCK_ENTITY;
 
         static void register() {
             LASER_QUARRY_BLOCK_ENTITY =
@@ -139,6 +149,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("alloy_smelter", AlloySmelterBlockEntity::new, BLOCK.ALLOY_SMELTER);
             CRUCIBLE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("crucible", CrucibleBlockEntity::new, BLOCK.CRUCIBLE);
+            REFINERY_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("refinery", RefineryBlockEntity::new, BLOCK.REFINERY);
         }
     }
 
@@ -150,6 +162,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static MenuType<SawmillScreenHandler> SAWMILL;
         public static MenuType<AlloySmelterScreenHandler> ALLOY_SMELTER;
         public static MenuType<CrucibleScreenHandler> CRUCIBLE;
+        public static MenuType<RefineryScreenHandler> REFINERY;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
@@ -157,6 +170,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             SAWMILL = INSTANCE.registerMenuType("sawmill", SawmillScreenHandler::new);
             ALLOY_SMELTER = INSTANCE.registerMenuType("alloy_smelter", AlloySmelterScreenHandler::new);
             CRUCIBLE = INSTANCE.registerMenuType("crucible", CrucibleScreenHandler::new);
+            REFINERY = INSTANCE.registerMenuType("refinery", RefineryScreenHandler::new);
         }
     }
 
@@ -179,6 +193,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static RecipeSerializer<CrucibleRecipe> CRUCIBLE_RECIPE_SERIALIZER;
         public static RecipeBookCategory CRUCIBLE_CATEGORY;
         public static RecipeDisplay.Type<CrucibleRecipeDisplay> CRUCIBLE_DISPLAY_TYPE;
+        public static RecipeType<RefineryRecipe> REFINERY_RECIPE_TYPE;
+        public static RecipeSerializer<RefineryRecipe> REFINERY_RECIPE_SERIALIZER;
+        public static RecipeBookCategory REFINERY_CATEGORY;
 
         static void register() {
             MACERATOR_RECIPE_TYPE = Registry.register(
@@ -281,6 +298,26 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 LogisticsMod.modId("crucible").toIdentifier(),
                 CrucibleRecipeDisplay.TYPE
             );
+            REFINERY_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("refinery").toIdentifier(),
+                new RecipeType<RefineryRecipe>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:refinery";
+                    }
+                }
+            );
+            REFINERY_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("refinery").toIdentifier(),
+                RefineryRecipeSerializer.INSTANCE
+            );
+            REFINERY_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("refinery").toIdentifier(),
+                new RecipeBookCategory()
+            );
         }
     }
 
@@ -303,6 +340,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             TAB.add(BLOCK.SAWMILL);
             TAB.add(BLOCK.ALLOY_SMELTER);
             TAB.add(BLOCK.CRUCIBLE);
+            TAB.add(BLOCK.REFINERY);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
