@@ -1,6 +1,7 @@
 package com.logistics.automation.refinery;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
@@ -145,6 +146,11 @@ public class RefineryBlockEntity extends MachineEntity {
     @Nullable
     public IFluidStorage fluidStorage(@Nullable Direction side) {
         return sidedFluid;
+    }
+
+    /** The output tank holder, for the block-entity renderer's face gauge. */
+    public FluidTankComponent tank() {
+        return outputTank.tank();
     }
 
     private void setLit(MachineContext ctx, boolean lit) {

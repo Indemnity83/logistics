@@ -188,6 +188,9 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY,
                 com.logistics.automation.crucible.CrucibleBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY,
+                com.logistics.automation.refinery.RefineryBlockEntityRenderer::new);
     }
 
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
