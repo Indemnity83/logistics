@@ -177,7 +177,10 @@ public class RefineryBlockEntity extends MachineEntity {
 
     /**
      * Combined fluid view exposed to pipes: insertion fills the input tank, extraction drains the output
-     * tank, and {@link #contents()} reports both so external handlers can see each.
+     * tank. {@link #contents()} reports both tanks (so tooltips like Jade show each), but lists the
+     * output tank first: an extractor reads the first listed fluid and then asks {@link #extract} for it,
+     * and extract only ever yields the output fluid — so the output must come first or extractors would
+     * request the input fluid and pull nothing.
      */
     private record RefineryFluidView(FluidStoreComponent input, FluidStoreComponent output)
             implements IFluidStorage {
@@ -195,8 +198,8 @@ public class RefineryBlockEntity extends MachineEntity {
         @Override
         public Iterable<IFluidView> contents() {
             List<IFluidView> views = new ArrayList<>();
-            input.tank().contents().forEach(views::add);
             output.tank().contents().forEach(views::add);
+            input.tank().contents().forEach(views::add);
             return views;
         }
     }

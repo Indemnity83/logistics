@@ -17,25 +17,24 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Renders the output tank's fluid as a gauge in the refinery's front-face window, mirroring the crucible.
- * The fluid's still sprite is drawn flush on the (solid) face, clipped to the window and filling from the
+ * Renders the output tank's fluid as a gauge on the refinery's front face, mirroring the crucible: the
+ * fluid's still sprite is drawn on top of the (solid) face, clipped to the window and filling from the
  * window bottom up as the tank fills, rotated to the block facing.
  *
- * <p>Window in the face texture: x 2..6, y 6..12 px (top-down). MC's north-face UV mirrors x and y
- * ({@code u=16-x}, {@code v=16-y}), so the block-local window is x 10..14, y 4..10 (measured from the
+ * <p>Window in the face texture: x 2..7, y 6..13 px (top-down). MC's north-face UV mirrors x and y
+ * ({@code u=16-x}, {@code v=16-y}), so the block-local window is x 9..14, y 3..10 (measured from the
  * block's west/bottom).
  */
 public class RefineryBlockEntityRenderer
         implements BlockEntityRenderer<RefineryBlockEntity, RefineryRenderState> {
 
-    private static final float X0 = 10f / 16f;
+    private static final float X0 = 9f / 16f;
     private static final float X1 = 14f / 16f;
-    private static final float Y_BOTTOM = 4f / 16f;
+    private static final float Y_BOTTOM = 3f / 16f;
     private static final float Y_TOP = 10f / 16f;
-    // A flat plane a hair *inside* the front face (north's outside is -Z, so +Z is behind it): the fluid
-    // sits just behind the face so the window's grate lines (opaque texture pixels) draw on top of it. The
-    // fluid is only visible through the window's transparent pixels — the face texture must have them.
-    private static final float Z_FACE = 0.002f;
+    // A flat plane a hair proud of the front face (north's outside is -Z), so the fluid sits flush on the
+    // solid face — visible whether lit or not, with no depth gap and no see-through above the fill line.
+    private static final float Z_FACE = -0.002f;
 
     public RefineryBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
