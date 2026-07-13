@@ -59,7 +59,7 @@ public final class LogisticsFabric implements ModInitializer {
         CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.INGREDIENTS, editor -> {
             editor.insertAfter(Items.SLIME_BALL, LogisticsPower.ITEM.NATURAL_POLYMER);
             editor.insertAfter(LogisticsPower.ITEM.NATURAL_POLYMER, LogisticsPower.ITEM.SYNTHETIC_POLYMER);
-            editor.insertAfter(LogisticsPower.ITEM.SYNTHETIC_POLYMER, LogisticsPower.ITEM.RUBBER_CHUNK);
+            editor.insertAfter(LogisticsPower.ITEM.SYNTHETIC_POLYMER, LogisticsPower.ITEM.RUBBER);
         });
     }
 

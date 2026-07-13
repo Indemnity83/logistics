@@ -3,7 +3,7 @@
   "pattern": ["RRR", "CCC", "RRR"],
   "key": {
     "C": "minecraft:copper_ingot",
-    "R": "logistics:power/rubber_chunk"
+    "R": "logistics:power/rubber"
   },
   "result": {
     "count": 8,
