@@ -4,7 +4,7 @@
   "key": {
     "D": "logistics:core/ender_dust",
     "G": "minecraft:gold_ingot",
-    "R": "logistics:power/rubber_chunk"
+    "R": "logistics:power/rubber"
   },
   "result": {
     "count": 8,
