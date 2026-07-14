@@ -56,4 +56,15 @@ public interface ProcessIO {
 
     /** Deposits {@code fluid} into the machine's tank; the default no-ops for machines without one. */
     default void produceFluid(FluidResult fluid) {}
+
+    /**
+     * Whether the machine's input tank holds at least {@code fluid}. Only called for recipes that declare
+     * a fluid input; machines without an input tank never see one, so the default returns {@code true}.
+     */
+    default boolean hasFluidInput(FluidResult fluid) {
+        return true;
+    }
+
+    /** Drains {@code fluid} from the machine's input tank; the default no-ops for machines without one. */
+    default void consumeFluidInput(FluidResult fluid) {}
 }
