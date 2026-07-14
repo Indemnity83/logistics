@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/automation/refinery",
+  "textures": {
+    "front": "logistics:block/automation/refinery_on"
+  }
+}

@@ -508,4 +508,75 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
         assertThat(processor.energySpent()).isZero();
         assertThat(items.container().getItem(0).getCount()).isEqualTo(5); // untouched
     }
+
+    /** An output-only inventory (one byproduct slot) — the refinery shape. */
+    private static ItemStoreComponent outputOnlyStore(Runnable onChanged) {
+        return new ItemStoreComponent(
+                "items",
+                new SlotRole[] {SlotRole.OUTPUT},
+                SidedLayout.bottomOut(new int[] {}, new int[] {0}, stack -> true),
+                onChanged);
+    }
+
+    @Test
+    void drainsFluidInputAndDepositsFluidOutputWithByproduct() {
+        // Refinery shape: fluid in, fluid out, a chance byproduct into the single output slot, no item input.
+        Runnable noop = () -> {};
+        ItemStoreComponent items = outputOnlyStore(noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+
+        FluidStoreComponent inputTank = new FluidStoreComponent("input", FluidUnits.mb(1_000), noop);
+        FluidStoreComponent outputTank = new FluidStoreComponent("output", FluidUnits.mb(1_000), noop, true);
+        inputTank.tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(200), false);
+
+        RecipePlan plan = new RecipePlan(
+                20,
+                new FluidResult(Fluids.WATER, 200),
+                new FluidResult(Fluids.LAVA, 100),
+                List.of(new ChanceOutput(new ItemStack(Items.GUNPOWDER), 1.0f)),
+                0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> plan, 10, items, energy, outputTank, inputTank, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        processor.serverTick(ctx); // 10
+        processor.serverTick(ctx); // 20 -> complete
+
+        assertThat(FluidUnits.toMillibuckets(inputTank.tank().getAmount())).isZero(); // 200 drained
+        assertThat(FluidUnits.toMillibuckets(outputTank.tank().getAmount())).isEqualTo(100);
+        assertThat(outputTank.tank().getFluidKey().getFluid()).isEqualTo(Fluids.LAVA);
+        assertThat(items.container().getItem(0).getItem()).isEqualTo(Items.GUNPOWDER); // byproduct at slot 0
+    }
+
+    @Test
+    void doesNotRunWhenFluidInputIsInsufficient() {
+        Runnable noop = () -> {};
+        ItemStoreComponent items = outputOnlyStore(noop);
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 100_000, 100_000, 0, noop);
+        energy.energy(null).insert(100_000, false);
+
+        // Only 100 mB in the input tank; the recipe needs 200, so it must never run.
+        FluidStoreComponent inputTank = new FluidStoreComponent("input", FluidUnits.mb(1_000), noop);
+        FluidStoreComponent outputTank = new FluidStoreComponent("output", FluidUnits.mb(1_000), noop, true);
+        inputTank.tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(100), false);
+
+        RecipePlan plan = new RecipePlan(
+                20,
+                new FluidResult(Fluids.WATER, 200),
+                new FluidResult(Fluids.LAVA, 100),
+                List.of(),
+                0f);
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (io, ctx) -> plan, 10, items, energy, outputTank, inputTank, (ctx, lit) -> {}, noop);
+
+        FakeMachineContext ctx = new FakeMachineContext();
+        for (int i = 0; i < 5; i++) {
+            processor.serverTick(ctx); // 50 RF spent >> 20 required: would complete if the input sufficed
+        }
+
+        assertThat(processor.energySpent()).isZero();
+        assertThat(FluidUnits.toMillibuckets(inputTank.tank().getAmount())).isEqualTo(100); // untouched
+        assertThat(outputTank.tank().isEmpty()).isTrue();
+    }
 }

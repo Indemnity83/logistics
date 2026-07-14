@@ -1,0 +1,7 @@
+{
+  "type": "logistics:refinery",
+  "input": { "fluid": "logistics:core/crude_oil", "amount": 200 },
+  "result": { "fluid": "logistics:core/fuel_oil", "amount": 150 },
+  "byproduct": { "id": "logistics:core/tar", "chance": 0.5 },
+  "energy": 5000
+}
