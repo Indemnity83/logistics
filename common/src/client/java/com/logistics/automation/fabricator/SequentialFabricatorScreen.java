@@ -125,7 +125,7 @@ public class SequentialFabricatorScreen extends AbstractContainerScreen<Sequenti
     public void extractRenderState(@NotNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         for (FabricatorOutputButton button : outputButtons) {
-            if (button.visible && button.isHoveredOrFocused() && !button.getItem().isEmpty()) {
+            if (button.visible && button.isMouseOver(mouseX, mouseY) && !button.getItem().isEmpty()) {
                 ItemStack item = button.getItem();
                 graphics.setTooltipForNextFrame(
                         this.font,
