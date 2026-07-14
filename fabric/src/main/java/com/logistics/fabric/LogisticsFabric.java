@@ -68,8 +68,9 @@ public final class LogisticsFabric implements ModInitializer {
 
     private static void addVanillaCreativeTabEntries() {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
-            entries.addAfter(Items.SLIME_BALL, LogisticsPower.ITEM.RUBBER_MIX);
-            entries.addAfter(LogisticsPower.ITEM.RUBBER_MIX, LogisticsPower.ITEM.RUBBER_CHUNK);
+            entries.addAfter(Items.SLIME_BALL, LogisticsPower.ITEM.NATURAL_POLYMER);
+            entries.addAfter(LogisticsPower.ITEM.NATURAL_POLYMER, LogisticsPower.ITEM.SYNTHETIC_POLYMER);
+            entries.addAfter(LogisticsPower.ITEM.SYNTHETIC_POLYMER, LogisticsPower.ITEM.RUBBER);
         });
     }
 

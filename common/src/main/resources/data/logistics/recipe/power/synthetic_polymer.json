@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "logistics:core/tar",
+    "logistics:core/coal_dust"
+  ],
+  "result": {
+    "id": "logistics:power/synthetic_polymer",
+    "count": 1
+  }
+}
