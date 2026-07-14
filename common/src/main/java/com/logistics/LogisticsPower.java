@@ -56,6 +56,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         ENTITY.register();
         SCREEN.register();
         CREATIVE.register();
+        ALIAS.register();
     }
 
     public static final class BLOCK {
@@ -123,12 +124,14 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public static final class ITEM {
         private ITEM() {}
 
-        public static Item RUBBER_CHUNK;
-        public static Item RUBBER_MIX;
+        public static Item RUBBER;
+        public static Item NATURAL_POLYMER;
+        public static Item SYNTHETIC_POLYMER;
 
         static void register() {
-            RUBBER_CHUNK = INSTANCE.registerItem("rubber_chunk", Item::new);
-            RUBBER_MIX = INSTANCE.registerItem("rubber_mix", Item::new);
+            RUBBER = INSTANCE.registerItem("rubber", Item::new);
+            NATURAL_POLYMER = INSTANCE.registerItem("natural_polymer", Item::new);
+            SYNTHETIC_POLYMER = INSTANCE.registerItem("synthetic_polymer", Item::new);
         }
     }
 
@@ -149,8 +152,9 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private CREATIVE() {}
 
         static void register() {
-            LogisticsCore.CREATIVE.TAB.add(ITEM.RUBBER_MIX);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.RUBBER_CHUNK);
+            LogisticsCore.CREATIVE.TAB.add(ITEM.NATURAL_POLYMER);
+            LogisticsCore.CREATIVE.TAB.add(ITEM.SYNTHETIC_POLYMER);
+            LogisticsCore.CREATIVE.TAB.add(ITEM.RUBBER);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.REDSTONE_ENGINE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.STIRLING_ENGINE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_ENGINE);
@@ -159,6 +163,17 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_CABLE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_CABLE);
             LogisticsCore.CREATIVE.TAB.add(BLOCK.ENDER_CABLE);
+        }
+    }
+
+    public static final class ALIAS {
+        private ALIAS() {}
+
+        static void register() {
+            // Rubber Mix renamed to Natural Polymer; old recipes/worlds resolve to the new item.
+            INSTANCE.registerItemAlias("power/rubber_mix", ITEM.NATURAL_POLYMER);
+            // Rubber Chunk renamed to Rubber.
+            INSTANCE.registerItemAlias("power/rubber_chunk", ITEM.RUBBER);
         }
     }
 }
