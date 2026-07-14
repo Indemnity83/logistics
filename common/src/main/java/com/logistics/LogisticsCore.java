@@ -367,7 +367,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item IRON_CHIPSET;
         public static Item GOLD_CHIPSET;
         public static Item DIAMOND_CHIPSET;
-        public static Item QUARTZ_CHIPSET;
 
         // Valves — pipe chassis components
         public static Item WOODEN_VALVE;
@@ -471,7 +470,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             IRON_CHIPSET = INSTANCE.registerItem("iron_chipset", Item::new);
             GOLD_CHIPSET = INSTANCE.registerItem("gold_chipset", Item::new);
             DIAMOND_CHIPSET = INSTANCE.registerItem("diamond_chipset", Item::new);
-            QUARTZ_CHIPSET = INSTANCE.registerItem("quartz_chipset", Item::new);
 
             // Valves
             WOODEN_VALVE = INSTANCE.registerItem("wooden_valve", Item::new);
@@ -614,7 +612,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT, ITEM.PULPED_BIOMASS,
                     ITEM.SLAG, ITEM.RICH_SLAG, ITEM.BITUMEN, ITEM.TAR,
                     ITEM.CARBON_CHIPSET, ITEM.REDSTONE_CHIPSET, ITEM.AMETHYST_CHIPSET, ITEM.ECHO_CHIPSET,
-                    ITEM.IRON_CHIPSET, ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET, ITEM.QUARTZ_CHIPSET,
+                    ITEM.IRON_CHIPSET, ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET,
                     ITEM.WOODEN_CORE,
                     ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
                     ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
