@@ -63,12 +63,29 @@ public final class RecipeProcessorComponent
             @Nullable FluidStoreComponent fluids,
             LitController lit,
             Runnable onChanged) {
+        this(id, resolver, rfPerTick, items, energy, fluids, null, lit, onChanged);
+    }
+
+    /**
+     * Constructor for a machine that also consumes a fluid input: the processor drains recipes' fluid
+     * input from {@code inputFluids} and deposits their fluid output into {@code fluids}.
+     */
+    public RecipeProcessorComponent(
+            String id,
+            RecipeResolver resolver,
+            long rfPerTick,
+            ItemStoreComponent items,
+            EnergyStorageComponent energy,
+            @Nullable FluidStoreComponent fluids,
+            @Nullable FluidStoreComponent inputFluids,
+            LitController lit,
+            Runnable onChanged) {
         this.id = id;
         this.resolver = resolver;
         this.rfPerTick = rfPerTick;
         this.lit = lit;
         this.onChanged = onChanged;
-        this.io = new ComponentProcessIO(items, energy, fluids);
+        this.io = new ComponentProcessIO(items, energy, fluids, inputFluids);
     }
 
     /** Constructor accepting a custom {@link ProcessIO}, primarily for tests. */
@@ -124,10 +141,12 @@ public final class RecipeProcessorComponent
         }
     }
 
-    /** Whether inputs are present and there's room for every item and fluid output the plan will emit. */
+    /** Whether inputs (item and fluid) are present and there's room for every item and fluid output. */
     private boolean canRun(RecipePlan plan) {
         FluidResult fluidResult = plan.fluidResult();
+        FluidResult fluidInput = plan.fluidInput();
         return hasInputs(plan)
+                && (fluidInput == null || io.hasFluidInput(fluidInput))
                 && io.canAcceptOutputs(plan.result(), plan.byproducts())
                 && (fluidResult == null || io.canAcceptFluid(fluidResult));
     }
@@ -135,6 +154,10 @@ public final class RecipeProcessorComponent
     /** Consumes inputs, emits outputs/byproducts/fluid, banks experience, and clears the active run. */
     private void completeRun(RecipePlan plan, MachineContext ctx) {
         consumeInputs(plan);
+        FluidResult fluidInput = plan.fluidInput();
+        if (fluidInput != null) {
+            io.consumeFluidInput(fluidInput);
+        }
         io.produceOutputs(plan.result(), rollByproducts(plan.byproducts(), ctx.random()));
         FluidResult fluidResult = plan.fluidResult();
         if (fluidResult != null) {
@@ -190,7 +213,8 @@ public final class RecipeProcessorComponent
                 && Arrays.equals(a.inputCounts(), b.inputCounts())
                 && ItemStack.isSameItemSameComponents(a.result(), b.result())
                 && sameByproducts(a.byproducts(), b.byproducts())
-                && sameFluid(a.fluidResult(), b.fluidResult());
+                && sameFluid(a.fluidResult(), b.fluidResult())
+                && sameFluid(a.fluidInput(), b.fluidInput());
     }
 
     private static boolean sameFluid(@Nullable FluidResult a, @Nullable FluidResult b) {
@@ -278,10 +302,18 @@ public final class RecipeProcessorComponent
         @Nullable
         private final FluidStoreComponent fluids;
 
-        ComponentProcessIO(ItemStoreComponent items, EnergyStorageComponent energy, @Nullable FluidStoreComponent fluids) {
+        @Nullable
+        private final FluidStoreComponent inputFluids;
+
+        ComponentProcessIO(
+                ItemStoreComponent items,
+                EnergyStorageComponent energy,
+                @Nullable FluidStoreComponent fluids,
+                @Nullable FluidStoreComponent inputFluids) {
             this.items = items;
             this.energy = energy;
             this.fluids = fluids;
+            this.inputFluids = inputFluids;
         }
 
         @Override
@@ -321,7 +353,9 @@ public final class RecipeProcessorComponent
 
         @Override
         public boolean canAcceptOutputs(ItemStack result, List<ChanceOutput> byproducts) {
-            // A fluid-only machine has no item result and no output slot; skip the slot-0 check for it.
+            // A fluid-result machine has no item result; skip the slot-0 check and pack byproducts from
+            // slot 0. With an item result, slot 0 is the result and byproducts start at slot 1.
+            int byproductBase = result.isEmpty() ? 0 : 1;
             if (!result.isEmpty() && !items.canAcceptInto(0, result)) {
                 return false;
             }
@@ -329,7 +363,7 @@ public final class RecipeProcessorComponent
                 ChanceOutput byproduct = byproducts.get(i);
                 // Validate the worst-case roll so a fractional bonus is never silently dropped on completion.
                 int maxCount = byproduct.maxCount();
-                if (maxCount > 0 && !items.canAcceptInto(i + 1, byproduct.stack(maxCount))) {
+                if (maxCount > 0 && !items.canAcceptInto(byproductBase + i, byproduct.stack(maxCount))) {
                     return false;
                 }
             }
@@ -338,11 +372,12 @@ public final class RecipeProcessorComponent
 
         @Override
         public void produceOutputs(ItemStack result, List<ItemStack> rolledByproducts) {
+            int byproductBase = result.isEmpty() ? 0 : 1;
             if (!result.isEmpty()) {
                 items.produceInto(0, result);
             }
             for (int i = 0; i < rolledByproducts.size(); i++) {
-                items.produceInto(i + 1, rolledByproducts.get(i));
+                items.produceInto(byproductBase + i, rolledByproducts.get(i));
             }
         }
 
@@ -359,6 +394,22 @@ public final class RecipeProcessorComponent
         public void produceFluid(FluidResult fluid) {
             if (fluids != null) {
                 fluids.tank().insert(fluid.key(), fluid.nativeAmount(), false);
+            }
+        }
+
+        @Override
+        public boolean hasFluidInput(FluidResult fluid) {
+            if (inputFluids == null) {
+                return false;
+            }
+            long amount = fluid.nativeAmount();
+            return inputFluids.tank().extract(fluid.key(), amount, true) == amount;
+        }
+
+        @Override
+        public void consumeFluidInput(FluidResult fluid) {
+            if (inputFluids != null) {
+                inputFluids.tank().extract(fluid.key(), fluid.nativeAmount(), false);
             }
         }
     }

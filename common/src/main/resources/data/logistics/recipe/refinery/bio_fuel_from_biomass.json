@@ -1,0 +1,6 @@
+{
+  "type": "logistics:refinery",
+  "input": { "fluid": "logistics:core/liquid_biomass", "amount": 200 },
+  "result": { "fluid": "logistics:core/bio_fuel", "amount": 100 },
+  "energy": 5000
+}

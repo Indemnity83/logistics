@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" B ", "TMT", "GCG"],
+  "key": {
+    "B": "minecraft:bucket",
+    "T": "logistics:fluid/glass_tank",
+    "M": "logistics:core/machine_core",
+    "G": "logistics:core/copper_gear",
+    "C": "logistics:core/redstone_reception_coil"
+  },
+  "result": { "id": "logistics:automation/refinery", "count": 1 }
+}
