@@ -12,6 +12,11 @@ import com.logistics.automation.crucible.CrucibleRecipe;
 import com.logistics.automation.crucible.CrucibleRecipeDisplay;
 import com.logistics.automation.crucible.CrucibleRecipeSerializer;
 import com.logistics.automation.crucible.CrucibleScreenHandler;
+import com.logistics.automation.fabricator.FabricatorRecipe;
+import com.logistics.automation.fabricator.FabricatorRecipeSerializer;
+import com.logistics.automation.fabricator.SequentialFabricatorBlock;
+import com.logistics.automation.fabricator.SequentialFabricatorBlockEntity;
+import com.logistics.automation.fabricator.SequentialFabricatorScreenHandler;
 import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.kiln.KilnBlockEntity;
 import com.logistics.automation.kiln.KilnScreenHandler;
@@ -98,6 +103,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block ALLOY_SMELTER;
         public static Block CRUCIBLE;
         public static Block REFINERY;
+        public static Block SEQUENTIAL_FABRICATOR;
 
         static void register() {
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
@@ -122,6 +128,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             REFINERY = INSTANCE.registerBlockWithItem("refinery",
                 props -> new RefineryBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(RefineryBlock.LIT) ? 13 : 0)));
+            SEQUENTIAL_FABRICATOR = INSTANCE.registerBlockWithItem("sequential_fabricator",
+                props -> new SequentialFabricatorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(SequentialFabricatorBlock.LIT) ? 13 : 0)));
         }
     }
 
@@ -135,6 +144,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<AlloySmelterBlockEntity> ALLOY_SMELTER_BLOCK_ENTITY;
         public static BlockEntityType<CrucibleBlockEntity> CRUCIBLE_BLOCK_ENTITY;
         public static BlockEntityType<RefineryBlockEntity> REFINERY_BLOCK_ENTITY;
+        public static BlockEntityType<SequentialFabricatorBlockEntity> SEQUENTIAL_FABRICATOR_BLOCK_ENTITY;
 
         static void register() {
             LASER_QUARRY_BLOCK_ENTITY =
@@ -151,6 +161,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("crucible", CrucibleBlockEntity::new, BLOCK.CRUCIBLE);
             REFINERY_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("refinery", RefineryBlockEntity::new, BLOCK.REFINERY);
+            SEQUENTIAL_FABRICATOR_BLOCK_ENTITY = INSTANCE.registerBlockEntity(
+                "sequential_fabricator", SequentialFabricatorBlockEntity::new, BLOCK.SEQUENTIAL_FABRICATOR);
         }
     }
 
@@ -163,6 +175,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static MenuType<AlloySmelterScreenHandler> ALLOY_SMELTER;
         public static MenuType<CrucibleScreenHandler> CRUCIBLE;
         public static MenuType<RefineryScreenHandler> REFINERY;
+        public static MenuType<SequentialFabricatorScreenHandler> SEQUENTIAL_FABRICATOR;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
@@ -171,6 +184,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             ALLOY_SMELTER = INSTANCE.registerMenuType("alloy_smelter", AlloySmelterScreenHandler::new);
             CRUCIBLE = INSTANCE.registerMenuType("crucible", CrucibleScreenHandler::new);
             REFINERY = INSTANCE.registerMenuType("refinery", RefineryScreenHandler::new);
+            SEQUENTIAL_FABRICATOR =
+                INSTANCE.registerMenuType("sequential_fabricator", SequentialFabricatorScreenHandler::new);
         }
     }
 
@@ -196,6 +211,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static RecipeType<RefineryRecipe> REFINERY_RECIPE_TYPE;
         public static RecipeSerializer<RefineryRecipe> REFINERY_RECIPE_SERIALIZER;
         public static RecipeBookCategory REFINERY_CATEGORY;
+        public static RecipeType<FabricatorRecipe> FABRICATOR_RECIPE_TYPE;
+        public static RecipeSerializer<FabricatorRecipe> FABRICATOR_RECIPE_SERIALIZER;
+        public static RecipeBookCategory FABRICATOR_CATEGORY;
 
         static void register() {
             MACERATOR_RECIPE_TYPE = Registry.register(
@@ -318,6 +336,26 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 LogisticsMod.modId("refinery").toIdentifier(),
                 new RecipeBookCategory()
             );
+            FABRICATOR_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("fabricator").toIdentifier(),
+                new RecipeType<FabricatorRecipe>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:fabricator";
+                    }
+                }
+            );
+            FABRICATOR_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("fabricator").toIdentifier(),
+                FabricatorRecipeSerializer.INSTANCE
+            );
+            FABRICATOR_CATEGORY = Registry.register(
+                BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                LogisticsMod.modId("fabricator").toIdentifier(),
+                new RecipeBookCategory()
+            );
         }
     }
 
@@ -341,6 +379,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             TAB.add(BLOCK.ALLOY_SMELTER);
             TAB.add(BLOCK.CRUCIBLE);
             TAB.add(BLOCK.REFINERY);
+            TAB.add(BLOCK.SEQUENTIAL_FABRICATOR);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
