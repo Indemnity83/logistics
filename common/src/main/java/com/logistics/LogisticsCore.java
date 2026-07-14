@@ -75,6 +75,15 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             return core(name, 0);
         }
 
+        /**
+         * A tank/pipe/bucket fluid drawn from the vanilla water sprites, flat-tinted with {@code 0xRRGGBB}.
+         * Full alpha is applied so NeoForge (which uses {@link #tint()} raw) renders it opaque.
+         */
+        public static FluidDef tinted(String name, int rgb) {
+            return new FluidDef(name, 0xFF000000 | rgb,
+                "minecraft:block/water_still", "minecraft:block/water_flow", null, null, 0);
+        }
+
         /** A {@link #core} fluid that emits {@code luminance} (0-15) when held in a pipe or tank. */
         public static FluidDef core(String name, int luminance) {
             String base = "logistics:block/core/fluid/" + name;
@@ -100,7 +109,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         FluidDef.core("liquid_ender"),
         FluidDef.core("liquid_glowstone", 15),
         FluidDef.world("crude_oil", 2, 2, 15),
-        FluidDef.core("liquid_biomass"));
+        FluidDef.core("liquid_biomass"),
+        FluidDef.tinted("bio_fuel", 0xFFFC5C),
+        FluidDef.tinted("fuel_oil", 0xFE8C01));
 
     private static Map<Fluid, Integer> fluidLuminance;
 

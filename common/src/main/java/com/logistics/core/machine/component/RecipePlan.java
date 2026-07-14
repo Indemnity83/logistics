@@ -13,7 +13,8 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>{@code inputCounts} carries one entry per input slot in slot order; single-input machines pass a
  * length-1 array via the convenience constructors. {@code fluidResult} is {@code null} for item-only
- * machines, so their behaviour is unchanged.
+ * machines and {@code fluidInput} is {@code null} for machines that don't consume a fluid, so their
+ * behaviour is unchanged.
  */
 public record RecipePlan(
         long energyRequired,
@@ -21,7 +22,8 @@ public record RecipePlan(
         ItemStack result,
         List<ChanceOutput> byproducts,
         float experience,
-        @Nullable FluidResult fluidResult) {
+        @Nullable FluidResult fluidResult,
+        @Nullable FluidResult fluidInput) {
 
     public RecipePlan {
         // Own the array (callers reuse buffers) and reject negative counts — a negative reaches
@@ -34,26 +36,39 @@ public record RecipePlan(
         }
     }
 
-    /** Item-output recipe with explicit input counts and no fluid output. */
+    /** Item-output recipe with explicit input counts and no fluids. */
     public RecipePlan(
             long energyRequired, int[] inputCounts, ItemStack result, List<ChanceOutput> byproducts, float experience) {
-        this(energyRequired, inputCounts, result, byproducts, experience, null);
+        this(energyRequired, inputCounts, result, byproducts, experience, null, null);
     }
 
     /** Single-input, single-output recipe with no byproducts (the macerator/kiln case). */
     public RecipePlan(long energyRequired, ItemStack result, float experience) {
-        this(energyRequired, new int[] {1}, result, List.of(), experience, null);
+        this(energyRequired, new int[] {1}, result, List.of(), experience, null, null);
     }
 
     /** Single-input recipe with an explicit input count and byproducts (the sawmill case). */
     public RecipePlan(
             long energyRequired, int inputCount, ItemStack result, List<ChanceOutput> byproducts, float experience) {
-        this(energyRequired, new int[] {inputCount}, result, byproducts, experience, null);
+        this(energyRequired, new int[] {inputCount}, result, byproducts, experience, null, null);
     }
 
     /** Single-input, fluid-only output recipe (the crucible): no item result or byproducts. */
     public RecipePlan(long energyRequired, int inputCount, FluidResult fluidResult, float experience) {
-        this(energyRequired, new int[] {inputCount}, ItemStack.EMPTY, List.of(), experience, fluidResult);
+        this(energyRequired, new int[] {inputCount}, ItemStack.EMPTY, List.of(), experience, fluidResult, null);
+    }
+
+    /**
+     * Fluid-in → fluid-out recipe with optional item byproducts and no item input/result (the refinery):
+     * the machine consumes {@code fluidInput} from its input tank and deposits {@code fluidResult}.
+     */
+    public RecipePlan(
+            long energyRequired,
+            FluidResult fluidInput,
+            FluidResult fluidResult,
+            List<ChanceOutput> byproducts,
+            float experience) {
+        this(energyRequired, new int[0], ItemStack.EMPTY, byproducts, experience, fluidResult, fluidInput);
     }
 
     /** The count consumed from the primary input slot. */

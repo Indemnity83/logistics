@@ -5,6 +5,8 @@ import com.logistics.automation.crucible.CrucibleBlockEntityRenderer;
 import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.macerator.MaceratorScreen;
+import com.logistics.automation.refinery.RefineryBlockEntityRenderer;
+import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
@@ -32,12 +34,15 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY, LaserQuarryBlockEntityRenderer::new);
         BlockEntityRendererRegistry.register(
                 LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY, CrucibleBlockEntityRenderer::new);
+        BlockEntityRendererRegistry.register(
+                LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY, RefineryBlockEntityRenderer::new);
 
         MenuScreens.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.MACERATOR, MaceratorScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.ALLOY_SMELTER, AlloySmelterScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
+        MenuScreens.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
 
         ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryRenderState::clearInterpolationCache);
         ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryRenderState::clearAllInterpolationCaches);
