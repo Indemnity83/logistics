@@ -1,8 +1,0 @@
-{
-  "type": "logistics:fabricator",
-  "ingredients": [
-    { "ingredient": "logistics:core/coal_dust", "count": 1 }
-  ],
-  "result": { "id": "logistics:core/carbon_chipset", "count": 1 },
-  "energy": 10000
-}

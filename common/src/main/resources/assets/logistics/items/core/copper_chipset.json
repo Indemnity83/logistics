@@ -1,6 +1,6 @@
 {
   "model": {
-    "model": "logistics:item/core/carbon_chipset",
+    "model": "logistics:item/core/copper_chipset",
     "type": "minecraft:model"
   }
 }

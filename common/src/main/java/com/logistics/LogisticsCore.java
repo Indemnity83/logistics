@@ -360,13 +360,15 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item TAR;
 
         // Chips — logic components for pipe modules
-        public static Item CARBON_CHIPSET;
         public static Item REDSTONE_CHIPSET;
         public static Item AMETHYST_CHIPSET;
         public static Item ECHO_CHIPSET;
+        public static Item COPPER_CHIPSET;
         public static Item IRON_CHIPSET;
+        public static Item BRONZE_CHIPSET;
         public static Item GOLD_CHIPSET;
         public static Item DIAMOND_CHIPSET;
+        public static Item NETHERITE_CHIPSET;
 
         // Valves — pipe chassis components
         public static Item WOODEN_VALVE;
@@ -463,13 +465,15 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAR = INSTANCE.registerItem("tar", Item::new);
 
             // Chips
-            CARBON_CHIPSET = INSTANCE.registerItem("carbon_chipset", Item::new);
             REDSTONE_CHIPSET = INSTANCE.registerItem("redstone_chipset", Item::new);
             AMETHYST_CHIPSET = INSTANCE.registerItem("amethyst_chipset", Item::new);
             ECHO_CHIPSET = INSTANCE.registerItem("echo_chipset", Item::new);
+            COPPER_CHIPSET = INSTANCE.registerItem("copper_chipset", Item::new);
             IRON_CHIPSET = INSTANCE.registerItem("iron_chipset", Item::new);
+            BRONZE_CHIPSET = INSTANCE.registerItem("bronze_chipset", Item::new);
             GOLD_CHIPSET = INSTANCE.registerItem("gold_chipset", Item::new);
             DIAMOND_CHIPSET = INSTANCE.registerItem("diamond_chipset", Item::new);
+            NETHERITE_CHIPSET = INSTANCE.registerItem("netherite_chipset", Item::new);
 
             // Valves
             WOODEN_VALVE = INSTANCE.registerItem("wooden_valve", Item::new);
@@ -611,8 +615,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST, ITEM.SULFUR_DUST, ITEM.QUICKSILVER, ITEM.NITER,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT, ITEM.PULPED_BIOMASS,
                     ITEM.SLAG, ITEM.RICH_SLAG, ITEM.BITUMEN, ITEM.TAR,
-                    ITEM.CARBON_CHIPSET, ITEM.REDSTONE_CHIPSET, ITEM.AMETHYST_CHIPSET, ITEM.ECHO_CHIPSET,
-                    ITEM.IRON_CHIPSET, ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET,
+                    ITEM.REDSTONE_CHIPSET, ITEM.AMETHYST_CHIPSET, ITEM.ECHO_CHIPSET,
+                    ITEM.COPPER_CHIPSET, ITEM.IRON_CHIPSET, ITEM.BRONZE_CHIPSET,
+                    ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET, ITEM.NETHERITE_CHIPSET,
                     ITEM.WOODEN_CORE,
                     ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
                     ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
@@ -655,7 +660,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             INSTANCE.registerItemAlias("automation/marker", BLOCK.MARKER.asItem());
 
             // Chips renamed to "chipset"; bridge the previously-released chip IDs.
-            INSTANCE.registerItemAlias("core/carbon_chip", ITEM.CARBON_CHIPSET);
             INSTANCE.registerItemAlias("core/redstone_chip", ITEM.REDSTONE_CHIPSET);
             INSTANCE.registerItemAlias("core/amethyst_chip", ITEM.AMETHYST_CHIPSET);
             INSTANCE.registerItemAlias("core/echo_chip", ITEM.ECHO_CHIPSET);
