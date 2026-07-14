@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "logistics:pipe/copper_transport_pipe",
+    "logistics:core/tar"
+  ],
+  "result": {
+    "id": "logistics:fluid/copper_fluid_pipe",
+    "count": 1
+  }
+}
