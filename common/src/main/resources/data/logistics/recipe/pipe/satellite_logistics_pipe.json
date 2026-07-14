@@ -1,10 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "VBV"
+    " R ",
+    "RBR"
   ],
   "key": {
-    "V": "logistics:core/lapis_valve",
+    "R": "minecraft:redstone",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

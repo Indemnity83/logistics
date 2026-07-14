@@ -1,15 +1,15 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " R ",
-    "GBG"
+    " C ",
+    "CBC"
   ],
   "key": {
-    "R": "minecraft:redstone",
-    "G": "logistics:core/copper_gear",
+    "C": "logistics:core/netherite_chipset",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
-    "id": "logistics:pipe/supplier_logistics_pipe"
+    "count": 1,
+    "id": "logistics:pipe/chassis_logistics_pipe_mk5"
   }
 }

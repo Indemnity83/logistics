@@ -1,12 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " V ",
-    "VBV",
-    " V "
+    "MMM",
+    "MBM",
+    "MMM"
   ],
   "key": {
-    "V": "logistics:core/bronze_valve",
+    "M": "minecraft:iron_ingot",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

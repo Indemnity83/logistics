@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     " R ",
-    "GBG"
+    "CBC"
   ],
   "key": {
     "R": "minecraft:redstone",
-    "G": "logistics:core/copper_gear",
+    "C": "logistics:core/iron_chipset",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
-    "id": "logistics:pipe/supplier_logistics_pipe"
+    "id": "logistics:pipe/provider_logistics_pipe"
   }
 }

@@ -1,10 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "VBV"
+    " R ",
+    "GBG"
   ],
   "key": {
-    "V": "logistics:core/diamond_valve",
+    "R": "minecraft:redstone",
+    "G": "logistics:core/diamond_gear",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
