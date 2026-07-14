@@ -1,6 +1,6 @@
 {
   "model": {
-    "model": "logistics:item/core/amethyst_chip",
+    "model": "logistics:item/core/echo_chipset",
     "type": "minecraft:model"
   }
 }

@@ -1,0 +1,8 @@
+{
+  "type": "logistics:fabricator",
+  "ingredients": [
+    { "ingredient": "logistics:core/echo_dust", "count": 1 }
+  ],
+  "result": { "id": "logistics:core/echo_chipset", "count": 1 },
+  "energy": 40000
+}

@@ -1,0 +1,9 @@
+{
+  "type": "logistics:fabricator",
+  "ingredients": [
+    { "ingredient": "minecraft:redstone", "count": 1 },
+    { "ingredient": "minecraft:quartz", "count": 1 }
+  ],
+  "result": { "id": "logistics:core/quartz_chipset", "count": 1 },
+  "energy": 40000
+}

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "logistics:item/core/amethyst_chip"
+    "layer0": "logistics:item/core/diamond_chipset"
   }
 }
