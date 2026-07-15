@@ -5,8 +5,8 @@
     "BCB"
   ],
   "key": {
-    "A": "logistics:core/copper_gear",
-    "B": "logistics:core/amethyst_dust",
+    "A": "logistics:core/iron_gear",
+    "B": "minecraft:redstone",
     "C": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

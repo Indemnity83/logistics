@@ -5,8 +5,8 @@
     "BCB"
   ],
   "key": {
-    "A": "minecraft:redstone",
-    "B": "logistics:core/gold_chipset",
+    "A": "logistics:core/diamond_chipset",
+    "B": "minecraft:redstone",
     "C": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
