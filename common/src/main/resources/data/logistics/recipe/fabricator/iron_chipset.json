@@ -1,0 +1,9 @@
+{
+  "type": "logistics:fabricator",
+  "ingredients": [
+    { "ingredient": "minecraft:redstone", "count": 1 },
+    { "ingredient": "minecraft:iron_ingot", "count": 1 }
+  ],
+  "result": { "id": "logistics:core/iron_chipset", "count": 1 },
+  "energy": 20000
+}
