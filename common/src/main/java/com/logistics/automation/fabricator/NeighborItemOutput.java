@@ -2,7 +2,7 @@ package com.logistics.automation.fabricator;
 
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
-import com.logistics.automation.laserquarry.entity.QuarryOutput;
+import com.logistics.automation.ContainerInsert;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /**
  * Pushes a produced stack out of a machine: tries every side except {@link Direction#UP} (the
  * fabricator's input face) for a pipe or inventory, and drops whatever will not fit. Reuses
- * {@link QuarryOutput#insertIntoSlot} for the per-slot merge.
+ * {@link ContainerInsert#insertIntoSlot} for the per-slot merge.
  */
 public final class NeighborItemOutput {
 
@@ -48,13 +48,13 @@ public final class NeighborItemOutput {
                     for (int slot : sidedInv.getSlotsForFace(insertFace)) {
                         if (stack.isEmpty()) break;
                         if (!sidedInv.canPlaceItemThroughFace(slot, stack, insertFace)) continue;
-                        stack = QuarryOutput.insertIntoSlot(inv, slot, stack);
+                        stack = ContainerInsert.insertIntoSlot(inv, slot, stack);
                     }
                 } else {
                     for (int slot = 0; slot < inv.getContainerSize(); slot++) {
                         if (stack.isEmpty()) break;
                         if (!inv.canPlaceItem(slot, stack)) continue;
-                        stack = QuarryOutput.insertIntoSlot(inv, slot, stack);
+                        stack = ContainerInsert.insertIntoSlot(inv, slot, stack);
                     }
                 }
             }

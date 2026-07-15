@@ -59,12 +59,22 @@ public class FabricatorRecipe implements Recipe<FabricatorInput> {
         return result.toStack();
     }
 
+    /** Reports one greedy allocation from {@link #allocateFrom}: {@code slot} contributed {@code amount}. */
+    @FunctionalInterface
+    public interface Allocation {
+        void take(int slot, int amount);
+    }
+
     /**
-     * Whether {@code pool} holds enough of every ingredient. Greedy allocation over a working copy of
-     * the pool counts — good for the distinct-ingredient recipes shipped here; a slot is never counted
-     * toward two ingredients.
+     * Greedy per-ingredient / per-slot allocation over {@code pool}: for each ingredient, walk the
+     * slots in order taking {@code Math.min(available, needed)} until satisfied, never counting a slot
+     * toward two ingredients. Each take is reported to {@code sink}. Returns {@code true} iff every
+     * ingredient is fully satisfied (stopping short may already have reported partial takes).
+     *
+     * <p>Shared by {@link #canCraftFrom} (no-op sink) and the machine's consume step so the
+     * availability check and the actual consumption can never diverge.
      */
-    public boolean canCraftFrom(List<ItemStack> pool) {
+    public boolean allocateFrom(List<ItemStack> pool, Allocation sink) {
         int[] remaining = new int[pool.size()];
         for (int i = 0; i < pool.size(); i++) {
             remaining[i] = pool.get(i).getCount();
@@ -76,6 +86,7 @@ public class FabricatorRecipe implements Recipe<FabricatorInput> {
                     int take = Math.min(remaining[i], needed);
                     remaining[i] -= take;
                     needed -= take;
+                    sink.take(i, take);
                 }
             }
             if (needed > 0) {
@@ -83,6 +94,15 @@ public class FabricatorRecipe implements Recipe<FabricatorInput> {
             }
         }
         return true;
+    }
+
+    /**
+     * Whether {@code pool} holds enough of every ingredient. Greedy allocation over a working copy of
+     * the pool counts — good for the distinct-ingredient recipes shipped here; a slot is never counted
+     * toward two ingredients.
+     */
+    public boolean canCraftFrom(List<ItemStack> pool) {
+        return allocateFrom(pool, (slot, amount) -> {});
     }
 
     @Override

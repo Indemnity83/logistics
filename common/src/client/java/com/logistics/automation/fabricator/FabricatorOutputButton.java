@@ -80,7 +80,8 @@ public class FabricatorOutputButton extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
-        if (!item.isEmpty() && recipeId != null) {
+        if (active && visible && !item.isEmpty() && recipeId != null
+                && isMouseOver(mouseButtonEvent.x(), mouseButtonEvent.y())) {
             clickHandler.accept(this);
             return true;
         }

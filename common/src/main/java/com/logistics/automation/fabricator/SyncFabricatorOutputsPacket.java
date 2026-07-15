@@ -1,6 +1,8 @@
 package com.logistics.automation.fabricator;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -17,6 +19,13 @@ public record SyncFabricatorOutputsPacket(
         BlockPos pos, List<String> recipeIds, List<ItemStack> results, List<Integer> states)
         implements CustomPacketPayload {
 
+    public SyncFabricatorOutputsPacket {
+        if (recipeIds.size() != results.size() || recipeIds.size() != states.size()) {
+            throw new IllegalArgumentException("fabricator output lists must be the same length: "
+                    + recipeIds.size() + " ids, " + results.size() + " results, " + states.size() + " states");
+        }
+    }
+
     public static final CustomPacketPayload.Type<SyncFabricatorOutputsPacket> TYPE =
             new CustomPacketPayload.Type<>(LogisticsAutomation.resource("sync_fabricator_outputs").toIdentifier());
 
@@ -31,5 +40,17 @@ public record SyncFabricatorOutputsPacket(
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
+    }
+
+    /** Reassemble the parallel lists into {@link FabricatorProcessorComponent.Output}s, skipping unparseable ids. */
+    public List<FabricatorProcessorComponent.Output> toOutputs() {
+        List<FabricatorProcessorComponent.Output> outputs = new ArrayList<>(recipeIds.size());
+        for (int i = 0; i < recipeIds.size(); i++) {
+            ResourceId id = ResourceId.tryParse(recipeIds.get(i));
+            if (id != null) {
+                outputs.add(new FabricatorProcessorComponent.Output(id, results.get(i), states.get(i)));
+            }
+        }
+        return outputs;
     }
 }
