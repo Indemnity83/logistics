@@ -1,5 +1,7 @@
 package com.logistics.fabric;
 
+import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
+import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
@@ -28,7 +30,14 @@ public final class FabricPacketRegistration {
         ServerPlayNetworking.registerGlobalReceiver(OpenChassisSlotPacket.TYPE,
                 (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
 
-        // Clientbound packets (type registration only; receiver registered in LogisticsPipeClient)
+        PayloadTypeRegistry.serverboundPlay().register(
+                ToggleFabricatorSelectionPacket.TYPE, ToggleFabricatorSelectionPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ToggleFabricatorSelectionPacket.TYPE,
+                (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
+
+        // Clientbound packets (type registration only; receiver registered in client bootstraps)
         PayloadTypeRegistry.clientboundPlay().register(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(
+                SyncFabricatorOutputsPacket.TYPE, SyncFabricatorOutputsPacket.CODEC);
     }
 }
