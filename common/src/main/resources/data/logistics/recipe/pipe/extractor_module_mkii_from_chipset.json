@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A",
+    "B"
+  ],
+  "key": {
+    "A": "logistics:core/gold_chipset",
+    "B": "logistics:pipe/extractor_module"
+  },
+  "result": {
+    "id": "logistics:pipe/extractor_module_mkii"
+  }
+}
