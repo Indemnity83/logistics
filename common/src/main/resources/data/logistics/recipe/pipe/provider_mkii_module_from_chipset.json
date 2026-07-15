@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A",
+    "B"
+  ],
+  "key": {
+    "A": "logistics:core/diamond_chipset",
+    "B": "logistics:pipe/provider_module"
+  },
+  "result": {
+    "id": "logistics:pipe/provider_mkii_module"
+  }
+}

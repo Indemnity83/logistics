@@ -1,15 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "VBV"
+    "ABA"
   ],
   "key": {
-    "V": {
-      "item": "logistics:core/lapis_valve"
-    },
-    "B": {
-      "item": "logistics:pipe/basic_logistics_pipe"
-    }
+    "A": "minecraft:redstone",
+    "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
     "id": "logistics:pipe/satellite_logistics_pipe"
