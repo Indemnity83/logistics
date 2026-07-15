@@ -1,0 +1,8 @@
+{
+  "type": "logistics:fabricator",
+  "ingredients": [
+    { "ingredient": "logistics:core/amethyst_dust", "count": 1 }
+  ],
+  "result": { "id": "logistics:core/amethyst_chipset", "count": 1 },
+  "energy": 20000
+}

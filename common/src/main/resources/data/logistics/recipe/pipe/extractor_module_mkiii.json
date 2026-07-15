@@ -6,7 +6,7 @@
   ],
   "key": {
     "D": "logistics:core/sawdust",
-    "C": "logistics:core/echo_chip",
+    "C": "logistics:core/echo_chipset",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
