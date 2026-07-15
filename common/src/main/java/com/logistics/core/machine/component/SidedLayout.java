@@ -54,6 +54,14 @@ public final class SidedLayout {
         return new SidedLayout(inputSlots, inputSlots, outputSlots, inputSlots, outputSlots, insertFilter);
     }
 
+    /**
+     * Inputs insertable from the top only; nothing extractable. For machines that eject their product
+     * directly (the Sequential Fabricator) rather than exposing an output slot pipes can pull from.
+     */
+    public static SidedLayout topIn(int[] inputSlots, Predicate<ItemStack> insertFilter) {
+        return new SidedLayout(inputSlots, NONE, NONE, inputSlots, NONE, insertFilter);
+    }
+
     public int[] slotsForFace(Direction side) {
         return switch (side) {
             case UP -> upSlots;

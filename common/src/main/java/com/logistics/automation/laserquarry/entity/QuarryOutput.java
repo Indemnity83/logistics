@@ -2,6 +2,7 @@ package com.logistics.automation.laserquarry.entity;
 
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
+import com.logistics.automation.ContainerInsert;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,8 +17,7 @@ import net.minecraft.world.phys.AABB;
 /**
  * The laser quarry's item sink: routes mined drops to a pipe above the quarry, then to a sided or
  * regular inventory above, finally dropping an item entity. Also sweeps up items that broken
- * container blocks spawn separately. The {@link #insertIntoSlot} primitive is the shared
- * inventory-merge step.
+ * container blocks spawn separately. The per-slot merge is delegated to {@link ContainerInsert}.
  */
 public final class QuarryOutput {
 
@@ -52,13 +52,13 @@ public final class QuarryOutput {
                 for (int slot : availableSlots) {
                     if (stack.isEmpty()) break;
                     if (!sidedInv.canPlaceItemThroughFace(slot, stack, Direction.DOWN)) continue;
-                    stack = insertIntoSlot(inv, slot, stack);
+                    stack = ContainerInsert.insertIntoSlot(inv, slot, stack);
                 }
             } else {
                 for (int slot = 0; slot < inv.getContainerSize(); slot++) {
                     if (stack.isEmpty()) break;
                     if (!inv.canPlaceItem(slot, stack)) continue;
-                    stack = insertIntoSlot(inv, slot, stack);
+                    stack = ContainerInsert.insertIntoSlot(inv, slot, stack);
                 }
             }
         }
@@ -87,29 +87,5 @@ public final class QuarryOutput {
                 itemEntity.discard();
             }
         }
-    }
-
-    /**
-     * Attempt to insert a stack into a single slot, returning the remainder.
-     * Pure stack arithmetic — no side effects beyond the container itself.
-     */
-    public static ItemStack insertIntoSlot(Container inv, int slot, ItemStack stack) {
-        ItemStack existing = inv.getItem(slot);
-
-        if (existing.isEmpty()) {
-            int maxInsert = Math.min(stack.getCount(), Math.min(inv.getMaxStackSize(), stack.getMaxStackSize()));
-            inv.setItem(slot, stack.split(maxInsert));
-            inv.setChanged();
-        } else if (ItemStack.isSameItemSameComponents(existing, stack)) {
-            int space = Math.min(inv.getMaxStackSize(), existing.getMaxStackSize()) - existing.getCount();
-            if (space > 0) {
-                int toInsert = Math.min(space, stack.getCount());
-                existing.grow(toInsert);
-                stack.shrink(toInsert);
-                inv.setChanged();
-            }
-        }
-
-        return stack;
     }
 }

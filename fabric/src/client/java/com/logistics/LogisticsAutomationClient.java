@@ -3,6 +3,8 @@ package com.logistics;
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
 import com.logistics.automation.crucible.CrucibleBlockEntityRenderer;
 import com.logistics.automation.crucible.CrucibleScreen;
+import com.logistics.automation.fabricator.SequentialFabricatorScreen;
+import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.automation.refinery.RefineryBlockEntityRenderer;
@@ -15,7 +17,9 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 
 import static com.logistics.LogisticsMod.LOGGER;
@@ -38,6 +42,14 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         MenuScreens.register(LogisticsAutomation.MENU.ALLOY_SMELTER, AlloySmelterScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
+        MenuScreens.register(LogisticsAutomation.MENU.SEQUENTIAL_FABRICATOR, SequentialFabricatorScreen::new);
+
+        ClientPlayNetworking.registerGlobalReceiver(SyncFabricatorOutputsPacket.TYPE, (packet, context) ->
+                context.client().execute(() -> {
+                    if (Minecraft.getInstance().screen instanceof SequentialFabricatorScreen screen) {
+                        screen.updateOutputs(packet.pos(), packet.toOutputs());
+                    }
+                }));
 
         ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryRenderState::clearInterpolationCache);
         ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryRenderState::clearAllInterpolationCaches);
