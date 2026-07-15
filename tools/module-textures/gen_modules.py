@@ -48,8 +48,8 @@ STRIPE = 2
 # family name -> (base dye, [(filename, gear), ...]) -- all members share one stencil
 FAMILIES = {
     "crafter":   ("brown", [("crafter_module.png", "iron"),
-                            ("crafter_module_mkii_module.png", "gold"),
-                            ("crafter_module_mkiii_module.png", "diamond")]),
+                            ("crafter_mkii_module.png", "gold"),
+                            ("crafter_mkiii_module.png", "diamond")]),
     "extractor": ("cyan",  [("extractor_module.png", "iron"),
                             ("extractor_module_mkii.png", "gold"),
                             ("extractor_module_mkiii.png", "diamond")]),

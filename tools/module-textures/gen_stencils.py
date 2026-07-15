@@ -116,14 +116,20 @@ def is_good(placed):
             and abs(vert - horiz) <= 1 and not looks_like_face(placed))
 
 
+# Upper bound on layout retries; unsatisfiable constraints must fail loudly, not hang.
+MAX_LAYOUT_ATTEMPTS = 10000
+
+
 def good_layout(seedkey):
     """Deterministic good layout for a stable string key (family name or filename)."""
     import zlib
     rng = random.Random(zlib.crc32(seedkey.encode()) & 0xFFFFFFFF)
-    while True:
+    for _ in range(MAX_LAYOUT_ATTEMPTS):
         layout = try_layout(rng)
         if layout and is_good(layout):
             return layout
+    raise RuntimeError(
+        f"no acceptable layout for {seedkey!r} after {MAX_LAYOUT_ATTEMPTS} attempts")
 
 
 def _render(placed):
@@ -146,10 +152,14 @@ if __name__ == "__main__":
     os.makedirs(out, exist_ok=True)
     rng = random.Random(0)
     made = 0
-    while made < 12:
+    for _ in range(12 * MAX_LAYOUT_ATTEMPTS):
+        if made >= 12:
+            break
         layout = try_layout(rng)
         if layout is None or not is_good(layout):
             continue
         made += 1
         encode_rgba(f"{out}/stencil_{made:02}.png", 16, 16, _render(layout))
+    if made < 12:
+        raise RuntimeError(f"only generated {made}/12 stencils before hitting the attempt cap")
     print(f"wrote 12 candidate stencils to {out}")

@@ -1,8 +1,10 @@
 """Minimal, dependency-free RGBA PNG I/O and raster ops shared by texturekit tools.
 
-Handles 8-bit RGBA, non-interlaced PNGs (all Minecraft textures). Other PNG formats
-(palette/grayscale/16-bit/interlaced) raise a clear error — convert to RGBA first.
-Pure stdlib (zlib); no Pillow, no venv.
+decode_rgba fast-paths 8-bit RGBA (all Minecraft textures) and also decodes grayscale,
+indexed (palette), grayscale+alpha, and 16-bit PNGs, converting each to 8-bit RGBA
+(16-bit samples are downscaled to their high byte). Adam7-interlaced PNGs and unknown
+color types raise a clear error. 16-bit color-keyed (tRNS) transparency is rejected
+rather than mis-matched. Pure stdlib (zlib); no Pillow, no venv.
 """
 import os
 import sys
@@ -121,6 +123,10 @@ def decode_rgba(path):
             raise ValueError(f"{path}: indexed PNG missing PLTE chunk.")
         palette = [(plte[i], plte[i + 1], plte[i + 2]) for i in range(0, len(plte), 3)]
         alphas = list(trns) if trns else []
+    # 16-bit samples are truncated to their high byte below; a full-width tRNS key can no longer be
+    # compared meaningfully, so reject it rather than silently mis-matching transparency.
+    if bit_depth == 16 and trns is not None and color_type in (0, 2):
+        raise ValueError(f"{path}: 16-bit color-keyed (tRNS) transparency is not supported.")
     trns_gray = int.from_bytes(trns[0:2], "big") if (color_type == 0 and trns) else None
     trns_rgb = (tuple(trns[i] for i in (1, 3, 5)) if (color_type == 2 and trns) else None)
     gmax = (1 << bit_depth) - 1
