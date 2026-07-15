@@ -1,14 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["QQQ", "QFQ", "IGI"],
+  "pattern": ["QMQ", "RMR", "MMM"],
   "key": {
     "Q": "logistics:core/quartz_crystal",
-    "F": "logistics:core/bronze_core",
-    "I": "minecraft:iron_nugget",
-    "G": "minecraft:gold_nugget"
+    "R": "minecraft:redstone",
+    "M": "logistics:core/bronze_ingot"
   },
-  "result": {
-    "count": 1,
-    "id": "logistics:core/bronze_valve"
-  }
+  "result": { "count": 1, "id": "logistics:core/bronze_valve" }
 }

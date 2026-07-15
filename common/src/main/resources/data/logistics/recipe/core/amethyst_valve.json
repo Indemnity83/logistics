@@ -4,7 +4,7 @@
   "key": {
     "Q": "logistics:core/quartz_crystal",
     "R": "minecraft:redstone",
-    "M": "minecraft:gold_ingot"
+    "M": "minecraft:amethyst_shard"
   },
-  "result": { "count": 1, "id": "logistics:core/gold_valve" }
+  "result": { "count": 1, "id": "logistics:core/amethyst_valve" }
 }

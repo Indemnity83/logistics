@@ -1,7 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "logistics:item/core/netherite_core",
-    "layer1": "logistics:item/core/valve"
+    "layer0": "logistics:item/core/netherite_valve"
   }
 }
