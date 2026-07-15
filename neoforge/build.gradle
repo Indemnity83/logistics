@@ -20,7 +20,6 @@ repositories {
         url = "https://api.modrinth.com/maven"
         content { includeGroup "maven.modrinth" }
     }
-    mavenLocal()  // configory (POC)
 }
 
 java {
@@ -89,7 +88,7 @@ dependencies {
     }
 
     // Configory config library — jarJar bundles it; implementation compiles the injected common sources.
-    jarJar(implementation("com.indemnity83:configory")) {
+    jarJar(implementation("maven.modrinth:configory")) {
         version {
             strictly "[${rootProject.configory_version},1.0.0)"
             prefer "${rootProject.configory_version}"
