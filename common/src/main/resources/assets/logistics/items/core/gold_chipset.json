@@ -1,6 +1,6 @@
 {
   "model": {
-    "model": "logistics:item/core/echo_chip",
+    "model": "logistics:item/core/gold_chipset",
     "type": "minecraft:model"
   }
 }

@@ -6,7 +6,7 @@
   ],
   "key": {
     "D": "logistics:core/iron_dust",
-    "C": "logistics:core/redstone_chip",
+    "C": "logistics:core/redstone_chipset",
     "R": "minecraft:redstone",
     "B": "logistics:pipe/blank_module"
   },
