@@ -1,5 +1,7 @@
 package com.logistics.neoforge;
 
+import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
+import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
@@ -36,7 +38,12 @@ public final class NeoForgePacketRegistration {
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
         registrar.playToServer(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
+        registrar.playToServer(ToggleFabricatorSelectionPacket.TYPE, ToggleFabricatorSelectionPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
+
         registrar.playToClient(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> syncRequesterInventoryHandler.accept(packet)));
+        registrar.playToClient(SyncFabricatorOutputsPacket.TYPE, SyncFabricatorOutputsPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> syncFabricatorOutputsHandler.accept(packet)));
     }
 }

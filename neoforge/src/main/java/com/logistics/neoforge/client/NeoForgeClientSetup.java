@@ -11,6 +11,8 @@ import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
 import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.refinery.RefineryScreen;
+import com.logistics.automation.fabricator.SequentialFabricatorScreen;
+import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
@@ -147,6 +149,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsAutomation.MENU.ALLOY_SMELTER, AlloySmelterScreen::new);
         event.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
         event.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
+        event.register(LogisticsAutomation.MENU.SEQUENTIAL_FABRICATOR, SequentialFabricatorScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -229,6 +232,13 @@ public final class NeoForgeClientSetup {
         var screen = Minecraft.getInstance().screen;
         if (screen instanceof RequesterScreen requesterScreen) {
             requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+        }
+    }
+
+    private static void handleSyncFabricatorOutputs(SyncFabricatorOutputsPacket packet) {
+        var screen = Minecraft.getInstance().screen;
+        if (screen instanceof SequentialFabricatorScreen fabricatorScreen) {
+            fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
         }
     }
 }

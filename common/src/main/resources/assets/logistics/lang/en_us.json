@@ -125,6 +125,8 @@
   "block.logistics.automation.refinery": "Refinery",
   "container.logistics.crucible": "Crucible",
   "container.logistics.refinery": "Refinery",
+  "block.logistics.automation.sequential_fabricator": "Sequential Fabricator",
+  "container.logistics.sequential_fabricator": "Sequential Fabricator",
   "block.logistics.core.tin_ore": "Tin Ore",
   "block.logistics.core.deepslate_tin_ore": "Deepslate Tin Ore",
   "block.logistics.core.tin_block": "Block of Tin",
