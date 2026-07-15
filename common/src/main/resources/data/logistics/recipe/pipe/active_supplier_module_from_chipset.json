@@ -7,7 +7,7 @@
   ],
   "key": {
     "A": "minecraft:purple_dye",
-    "B": "logistics:core/diamond_chipset",
+    "B": "logistics:core/gold_chipset",
     "C": "minecraft:redstone",
     "D": "logistics:pipe/blank_module"
   },
