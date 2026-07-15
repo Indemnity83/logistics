@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GTG",
+    "CFC",
+    "GTG"
+  ],
+  "key": {
+    "G": "#c:glass_blocks",
+    "T": "minecraft:redstone_torch",
+    "C": "logistics:core/gold_chipset",
+    "F": "logistics:pipe/item_filter_pipe"
+  },
+  "result": {
+    "count": 8,
+    "id": "logistics:pipe/basic_logistics_pipe"
+  }
+}

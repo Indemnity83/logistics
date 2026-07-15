@@ -2,15 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "GTG",
-    "CFC",
-    " E "
+    "EFE",
+    "GTG"
   ],
   "key": {
-    "G": "minecraft:glass",
+    "G": "#c:glass_blocks",
     "T": "minecraft:redstone_torch",
-    "C": "logistics:pipe/copper_transport_pipe",
-    "F": "logistics:pipe/item_filter_pipe",
-    "E": "logistics:core/gold_gear"
+    "E": "logistics:core/gold_gear",
+    "F": "logistics:pipe/item_filter_pipe"
   },
   "result": {
     "count": 8,

@@ -1,14 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DCD",
-    "RBR"
+    "ABC",
+    "DED",
+    "CDA"
   ],
   "key": {
-    "D": "logistics:core/ender_dust",
-    "C": "logistics:core/redstone_chipset",
-    "R": "minecraft:redstone",
-    "B": "logistics:pipe/blank_module"
+    "A": "minecraft:black_dye",
+    "B": "logistics:core/iron_gear",
+    "C": "minecraft:purple_dye",
+    "D": "minecraft:redstone",
+    "E": "logistics:pipe/blank_module"
   },
   "result": {
     "id": "logistics:pipe/terminus_module"
