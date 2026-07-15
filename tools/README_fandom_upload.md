@@ -42,7 +42,9 @@ python tools/upload_to_fandom.py --site https://yourwiki.fandom.com --media
 | `wiki/Item Extractor Pipe.txt` | page **Item Extractor Pipe** |
 | `wiki/Template_Grid.txt` | **Template:Grid** |
 | `wiki/main.txt` | the wiki's **configured main page** (from siteinfo, e.g. *Logistics Wiki*) — gets the full-width, no-rail main-page layout |
-| `docs/assets/icons/<x>.png` (per `ASSET_UPLOAD_MAP.md`) | **File:Grid \<Name\>.png** |
+| `wiki/Template_Grid.styles.txt` | **Template:Grid/styles.css** |
+| `wiki/Module_ItemLink.txt` | **Module:ItemLink** |
+| `wiki/media/Grid <Name>.png` | **File:Grid \<Name\>.png** (produced by the icon tools) |
 
 ## Good to know
 - **Idempotent:** pages skip when the on-wiki text already matches; icons skip when the
@@ -51,12 +53,12 @@ python tools/upload_to_fandom.py --site https://yourwiki.fandom.com --media
   limits. Don't parallelize — Fandom will captcha/refuse floods.
 - **Pages work before icons exist:** `{{Grid}}` falls back to a text link via `#ifexist`,
   so you can do the pages pass and fill in media later.
-- **Missing icons:** the new 26.1 fluid/power blocks (Battery, fluid pipes, cables, …)
-  have no rendered `Grid <Name>.png` yet — they're listed as TODO in `ASSET_UPLOAD_MAP.md`
-  and simply stay as text-link fallbacks until those icons are produced and uploaded.
+- **Icons** are produced into `wiki/media/` by the companion tools (`render_blocks.py`,
+  `upscale_icons.py`, `vanilla_icons.py`, `fluid_icons.py`); anything without a rendered
+  `Grid <Name>.png` simply stays a text-link fallback until its icon is produced and uploaded.
 - **Non-English wikis** live at `.../<lang>/api.php`; pass `--api` explicitly then.
 
 ## Flags
 `--all` (pages+media) · `--pages` · `--media` · `--used-only` · `--force` (re-send even if
 unchanged) · `--dry-run` · `--delay SECONDS` · `--site` / `--api` · `--user` / `--password`
-(or the env vars) · `--wiki-dir` / `--icons-dir` / `--map` (path overrides).
+(or the env vars) · `--wiki-dir` / `--media-dir` (path overrides).

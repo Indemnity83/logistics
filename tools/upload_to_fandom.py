@@ -6,9 +6,9 @@ It does two jobs:
   * Pages  — every `wiki/*.txt` becomes one page. Filename (minus `.txt`) is the title,
              `Template_X.txt` -> `Template:X`, and `main.txt` -> the wiki's configured main
              page (from siteinfo, e.g. `Logistics Wiki`), which gets the full-width no-rail layout.
-  * Media  — every `wiki/media/*.png` is uploaded as `File:<filename>` (the files are
-             already named `Grid <Name>.png`). `--used-only` limits to icons the pages
-             reference. (Legacy: `--from-map` uploads via `ASSET_UPLOAD_MAP.md` instead.)
+  * Media  — every `wiki/media/*.png` and `*.gif` is uploaded as `File:<filename>` (the files
+             are already named, e.g. `Grid <Name>.png`). `--used-only` limits to the icons the
+             pages actually reference.
 
 Both passes are idempotent and safe to re-run:
   * pages skip when the on-wiki text already matches (unless --force),
@@ -252,29 +252,6 @@ def page_sort_key(filename):
     return (2, stem)
 
 
-MAP_ROW = re.compile(r"^\|\s*`([^`]+\.png)`\s*\|\s*`File:([^`]+\.png)`\s*\|")
-
-
-def parse_asset_map(map_path, icons_dir):
-    """Return list of (target_filename, source_path) for rows whose source file exists."""
-    pairs, seen, missing = [], set(), 0
-    with open(map_path, encoding="utf-8") as fh:
-        for line in fh:
-            m = MAP_ROW.match(line)
-            if not m:
-                continue
-            source, target = m.group(1), m.group(2)  # target already has File: stripped
-            if target in seen:
-                continue
-            src_path = os.path.join(icons_dir, source)
-            if not os.path.isfile(src_path):
-                missing += 1
-                continue
-            seen.add(target)
-            pairs.append((target, src_path))
-    return pairs, missing
-
-
 GRID_LITERAL = re.compile(r"Grid ([^\n|}\]=]+?)\.png")
 GRID_TMPL = re.compile(r"\{\{Grid\|([^}|]+)")
 # any explicit [[File:<name>.(png|gif)|...]] reference (e.g. "Bucket of <Fluid>.png")
@@ -348,10 +325,6 @@ def main():
     ap.add_argument("--wiki-dir", default=os.path.join(repo, "wiki"))
     ap.add_argument("--media-dir", default=os.path.join(repo, "wiki", "media"),
                     help="folder of ready-named Grid <Name>.png files to upload")
-    ap.add_argument("--from-map", action="store_true",
-                    help="legacy: upload via ASSET_UPLOAD_MAP.md from --icons-dir instead of --media-dir")
-    ap.add_argument("--icons-dir", default=os.path.join(repo, "docs", "assets", "icons"))
-    ap.add_argument("--map", default=os.path.join(repo, "wiki", "ASSET_UPLOAD_MAP.md"))
     args = ap.parse_args()
 
     do_pages = args.pages or args.all
@@ -422,18 +395,14 @@ def main():
         print("  pages:", dict(sorted(tally.items())))
 
     if do_media:
-        if args.from_map:
-            pairs, missing = parse_asset_map(args.map, args.icons_dir)
-            src_desc = f"{missing} map rows skipped — no local source file"
+        pairs = []
+        if os.path.isdir(args.media_dir):
+            for fn in sorted(os.listdir(args.media_dir)):
+                if fn.lower().endswith((".png", ".gif")):
+                    pairs.append((fn, os.path.join(args.media_dir, fn)))
         else:
-            pairs = []
-            if os.path.isdir(args.media_dir):
-                for fn in sorted(os.listdir(args.media_dir)):
-                    if fn.lower().endswith((".png", ".gif")):
-                        pairs.append((fn, os.path.join(args.media_dir, fn)))
-            else:
-                print(f"  (no media dir at {args.media_dir})")
-            src_desc = f"from {args.media_dir}"
+            print(f"  (no media dir at {args.media_dir})")
+        src_desc = f"from {args.media_dir}"
         if args.used_only:
             needed = referenced_files(args.wiki_dir, only=only)
             pairs = [(t, p) for (t, p) in pairs if t in needed]

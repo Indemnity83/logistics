@@ -24,7 +24,6 @@ wiki/
   Module_<Name>.txt         # → Module:<Name>                (Scribunto Lua)
   main.txt                  # → the Main Page ("Logistics Wiki")
   media/                    # icons + animations uploaded as File:<name>
-  ASSET_UPLOAD_MAP.md       # LEGACY manifest (old docs/assets/icons flow); tools render straight to media/ now
 tools/                      # the Python toolchain (stdlib + Pillow; no venv needed)
 redirect/                   # static GitHub Pages redirect to Fandom (index.html, 404.html)
 .env                        # FANDOM_SITE / FANDOM_USER / FANDOM_PASSWORD (bot password) + Modrinth/CurseForge tokens
