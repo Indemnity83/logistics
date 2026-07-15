@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ACA"
+  ],
+  "key": {
+    "A": "minecraft:purple_dye",
+    "B": "logistics:core/iron_chipset",
+    "C": "minecraft:redstone",
+    "D": "logistics:pipe/blank_module"
+  },
+  "result": {
+    "id": "logistics:pipe/passive_supplier_module"
+  }
+}
