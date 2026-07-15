@@ -6,12 +6,12 @@
     "ACA"
   ],
   "key": {
-    "A": "minecraft:light_blue_dye",
-    "B": "logistics:core/diamond_gear",
+    "A": "minecraft:green_dye",
+    "B": "logistics:core/gold_chipset",
     "C": "minecraft:redstone",
     "D": "logistics:pipe/blank_module"
   },
   "result": {
-    "id": "logistics:pipe/quicksort_module"
+    "id": "logistics:pipe/mod_item_sink_module"
   }
 }

@@ -1,15 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " C ",
-    "CBC"
+    " A ",
+    "BCB",
+    " A "
   ],
   "key": {
-    "C": "logistics:core/diamond_chipset",
-    "B": "logistics:pipe/basic_logistics_pipe"
+    "A": "logistics:core/diamond_chipset",
+    "B": "minecraft:diamond",
+    "C": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
-    "count": 1,
     "id": "logistics:pipe/chassis_logistics_pipe_mk4"
   }
 }

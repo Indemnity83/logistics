@@ -1,14 +1,15 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DCD",
-    "RBR"
+    "ABA",
+    "CDC",
+    "ACA"
   ],
   "key": {
-    "D": "logistics:core/emerald_dust",
-    "C": "logistics:core/amethyst_chipset",
-    "R": "minecraft:redstone",
-    "B": "logistics:pipe/blank_module"
+    "A": "minecraft:purple_dye",
+    "B": "logistics:core/diamond_gear",
+    "C": "minecraft:redstone",
+    "D": "logistics:pipe/blank_module"
   },
   "result": {
     "id": "logistics:pipe/active_supplier_module"

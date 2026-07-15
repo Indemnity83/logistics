@@ -5,10 +5,10 @@
     "B"
   ],
   "key": {
-    "A": "logistics:core/diamond_gear",
+    "A": "logistics:core/gold_chipset",
     "B": "logistics:pipe/extractor_module"
   },
   "result": {
-    "id": "logistics:pipe/extractor_module_mkiii"
+    "id": "logistics:pipe/extractor_module_mkii"
   }
 }

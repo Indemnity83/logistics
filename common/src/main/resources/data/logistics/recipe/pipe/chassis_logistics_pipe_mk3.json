@@ -1,16 +1,15 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "MMM",
-    "MBM",
-    "MMM"
+    "AAA",
+    "ABA",
+    "AAA"
   ],
   "key": {
-    "M": "minecraft:gold_ingot",
+    "A": "minecraft:gold_ingot",
     "B": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
-    "count": 1,
     "id": "logistics:pipe/chassis_logistics_pipe_mk3"
   }
 }

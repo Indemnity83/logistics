@@ -7,7 +7,7 @@
   ],
   "key": {
     "A": "minecraft:black_dye",
-    "B": "logistics:core/iron_gear",
+    "B": "logistics:core/iron_chipset",
     "C": "minecraft:purple_dye",
     "D": "minecraft:redstone",
     "E": "logistics:pipe/blank_module"
