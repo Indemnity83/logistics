@@ -1,0 +1,9 @@
+{
+  "type": "logistics:fabricator",
+  "ingredients": [
+    { "ingredient": "minecraft:redstone", "count": 1 },
+    { "ingredient": "minecraft:netherite_ingot", "count": 1 }
+  ],
+  "result": { "id": "logistics:core/netherite_chipset", "count": 1 },
+  "energy": 120000
+}

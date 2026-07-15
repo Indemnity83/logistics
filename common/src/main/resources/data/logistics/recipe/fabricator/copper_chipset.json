@@ -1,0 +1,9 @@
+{
+  "type": "logistics:fabricator",
+  "ingredients": [
+    { "ingredient": "minecraft:redstone", "count": 1 },
+    { "ingredient": "minecraft:copper_ingot", "count": 1 }
+  ],
+  "result": { "id": "logistics:core/copper_chipset", "count": 1 },
+  "energy": 15000
+}
