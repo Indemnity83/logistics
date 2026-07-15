@@ -9,8 +9,8 @@ public final class ContainerInsert {
     private ContainerInsert() {}
 
     /**
-     * Attempt to insert a stack into a single slot, returning the remainder.
-     * Pure stack arithmetic — no side effects beyond the container itself.
+     * Attempt to insert {@code stack} into a single slot. Mutates {@code stack} in place, reducing it
+     * by the amount that fit, and returns it as the remainder (empty if fully inserted).
      */
     public static ItemStack insertIntoSlot(Container inv, int slot, ItemStack stack) {
         ItemStack existing = inv.getItem(slot);
