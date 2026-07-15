@@ -1,0 +1,79 @@
+<includeonly>{{Navbox
+| name  = Navbox Logistics
+| title = [[Logistics]]
+| state = {{{state|uncollapsed}}}
+
+| list1 = {{Navbox
+  | state = collapsed
+  | title = [[Machines]]
+  | group1 = Crafting
+  | list1  = [[File:Grid Macerator.png|20px|link=Macerator]]&nbsp;[[Macerator]] · [[File:Grid Alloy Smelter.png|20px|link=Alloy Smelter]]&nbsp;[[Alloy Smelter]] · [[File:Grid Crucible.png|20px|link=Crucible]]&nbsp;[[Crucible]] · [[File:Grid Kiln.png|20px|link=Kiln]]&nbsp;[[Kiln]] · [[File:Grid Sawmill.png|20px|link=Sawmill]]&nbsp;[[Sawmill]]
+  | group2 = [[Engines]]
+  | list2  = [[File:Grid Redstone Engine.png|20px|link=Redstone Engine]]&nbsp;[[Redstone Engine]] · [[File:Grid Stirling Engine.png|20px|link=Stirling Engine]]&nbsp;[[Stirling Engine]] · [[File:Grid Creative Engine.png|20px|link=Creative Engine]]&nbsp;[[Creative Engine]]
+  | group3 = Other
+  | list3  = [[File:Grid Laser Quarry.png|20px|link=Laser Quarry]]&nbsp;[[Laser Quarry]] · [[File:Grid Pump.png|20px|link=Pump]]&nbsp;[[Pump]]
+  }}
+
+| list2 = {{Navbox
+  | state = collapsed
+  | title = [[Pipes]]
+  | group1 = [[Transport Pipes|Item Transport]]
+  | list1  = [[File:Grid Stone Transport Pipe.png|20px|link=Stone Transport Pipe]]&nbsp;[[Stone Transport Pipe|Stone]] · [[File:Grid Copper Transport Pipe.png|20px|link=Copper Transport Pipe]]&nbsp;[[Copper Transport Pipe|Copper]] · [[File:Grid Golden Transport Pipe.png|20px|link=Golden Transport Pipe]]&nbsp;[[Golden Transport Pipe|Golden]] · [[File:Grid Item Extractor Pipe.png|20px|link=Item Extractor Pipe]]&nbsp;[[Item Extractor Pipe|Extractor]] · [[File:Grid Item Filter Pipe.png|20px|link=Item Filter Pipe]]&nbsp;[[Item Filter Pipe|Filter]] · [[File:Grid Item Insertion Pipe.png|20px|link=Item Insertion Pipe]]&nbsp;[[Item Insertion Pipe|Insertion]] · [[File:Grid Item Merger Pipe.png|20px|link=Item Merger Pipe]]&nbsp;[[Item Merger Pipe|Merger]] · [[File:Grid Item Passthrough Pipe.png|20px|link=Item Passthrough Pipe]]&nbsp;[[Item Passthrough Pipe|Passthrough]] · [[File:Grid Item Void Pipe.png|20px|link=Item Void Pipe]]&nbsp;[[Item Void Pipe|Void]]
+  | group2 = [[Fluid Pipes|Fluid Transport]]
+  | list2  = [[File:Grid Copper Fluid Pipe.png|20px|link=Copper Fluid Pipe]]&nbsp;[[Copper Fluid Pipe|Copper]] · [[File:Grid Golden Fluid Pipe.png|20px|link=Golden Fluid Pipe]]&nbsp;[[Golden Fluid Pipe|Golden]] · [[File:Grid Stone Fluid Pipe.png|20px|link=Stone Fluid Pipe]]&nbsp;[[Stone Fluid Pipe|Stone]] · [[File:Grid Fluid Extractor Pipe.png|20px|link=Fluid Extractor Pipe]]&nbsp;[[Fluid Extractor Pipe|Extractor]] · [[File:Grid Insertion Fluid Pipe.png|20px|link=Insertion Fluid Pipe]]&nbsp;[[Insertion Fluid Pipe|Insertion]] · [[File:Grid Merger Fluid Pipe.png|20px|link=Merger Fluid Pipe]]&nbsp;[[Merger Fluid Pipe|Merger]] · [[File:Grid Bypass Fluid Pipe.png|20px|link=Bypass Fluid Pipe]]&nbsp;[[Bypass Fluid Pipe|Bypass]] · [[File:Grid Void Fluid Pipe.png|20px|link=Void Fluid Pipe]]&nbsp;[[Void Fluid Pipe|Void]] · [[File:Grid Glass Tank.png|20px|link=Glass Tank]]&nbsp;[[Glass Tank]]
+  | group3 = [[Energy|Power]]
+  | list3  = [[File:Grid Battery.png|20px|link=Battery]]&nbsp;[[Battery]] · [[File:Grid Copper Cable.png|20px|link=Cables]]&nbsp;[[Cables]]
+  | group4 = [[Logistics Pipes]]
+  | list4  = [[File:Grid Basic Logistics Pipe.png|20px|link=Basic Logistics Pipe]]&nbsp;[[Basic Logistics Pipe|Basic]] · [[File:Grid Provider Logistics Pipe.png|20px|link=Provider Logistics Pipe]]&nbsp;[[Provider Logistics Pipe|Provider]] · [[File:Grid Requester Logistics Pipe.png|20px|link=Requester Logistics Pipe]]&nbsp;[[Requester Logistics Pipe|Requester]] · [[File:Grid Supplier Logistics Pipe.png|20px|link=Supplier Logistics Pipe]]&nbsp;[[Supplier Logistics Pipe|Supplier]] · [[File:Grid Crafting Logistics Pipe.png|20px|link=Crafting Logistics Pipe]]&nbsp;[[Crafting Logistics Pipe|Crafting]] · [[File:Grid Process Logistics Pipe.png|20px|link=Process Logistics Pipe]]&nbsp;[[Process Logistics Pipe|Process]] · [[File:Grid Satellite Logistics Pipe.png|20px|link=Satellite Logistics Pipe]]&nbsp;[[Satellite Logistics Pipe|Satellite]] · [[File:Grid Chassis Logistics Pipe MK1.png|20px|link=Chassis Logistics Pipe]]&nbsp;[[Chassis Logistics Pipe|Chassis]] · [[File:Grid Power Junction.png|20px|link=Power Junction]]&nbsp;[[Power Junction]]
+  | group5 = [[Modules|Logistics Modules]]
+  | list5  = [[File:Grid Blank Module.png|20px|link=Blank Module]]&nbsp;[[Blank Module|Blank]] · [[File:Grid Extractor Module.png|20px|link=Extractor Module]]&nbsp;[[Extractor Module|Extractor]] · [[File:Grid Provider Module.png|20px|link=Provider Module]]&nbsp;[[Provider Module|Provider]] · [[File:Grid Passive Supplier Module.png|20px|link=Passive Supplier Module]]&nbsp;[[Passive Supplier Module|Passive Supplier]] · [[File:Grid Active Supplier Module.png|20px|link=Active Supplier Module]]&nbsp;[[Active Supplier Module|Active Supplier]] · [[File:Grid Crafter Module.png|20px|link=Crafter Module]]&nbsp;[[Crafter Module|Crafter]] · [[File:Grid Quicksort Module.png|20px|link=Quicksort Module]]&nbsp;[[Quicksort Module|Quicksort]] · [[File:Grid Terminus Module.png|20px|link=Terminus Module]]&nbsp;[[Terminus Module|Terminus]] · [[File:Grid Item Sink Module.png|20px|link=Item Sink Module]]&nbsp;[[Item Sink Module|Item Sink]] · [[File:Grid Polymorphic Sink Module.png|20px|link=Polymorphic Sink Module]]&nbsp;[[Polymorphic Sink Module|Polymorphic Sink]] · [[File:Grid Enchantment Sink Module.png|20px|link=Enchantment Sink Module]]&nbsp;[[Enchantment Sink Module|Enchantment Sink]] · [[File:Grid Mod Item Sink Module.png|20px|link=Mod Item Sink Module]]&nbsp;[[Mod Item Sink Module|Mod Item Sink]]
+  }}
+
+| list3 = {{Navbox
+  | state = collapsed
+  | title = [[Materials|Resources]]
+  | group1 = Raw
+  | list1  = [[File:Grid Apatite.png|20px|link=Apatite]]&nbsp;[[Apatite]] · [[File:Grid Tin Ingot.png|20px|link=Tin]]&nbsp;[[Tin]] · [[File:Grid Bronze Ingot.png|20px|link=Bronze]]&nbsp;[[Bronze]] · [[File:Grid Oil Sand.png|20px|link=Oil Sand]]&nbsp;[[Oil Sand]] · [[File:Grid Oil Red Sand.png|20px|link=Oil Red Sand]]&nbsp;[[Oil Red Sand]] · [[File:Grid Oil Shale.png|20px|link=Oil Shale]]&nbsp;[[Oil Shale]] · [[File:Grid Bitumen.png|20px|link=Bitumen]]&nbsp;[[Bitumen]] · [[File:Grid Tar.png|20px|link=Tar]]&nbsp;[[Tar]]
+  | group2 = [[Dusts]]
+  | list2  = [[File:Grid Coal Dust.png|20px|link=Coal Dust]]&nbsp;[[Coal Dust|Coal]] · [[File:Grid Copper Dust.png|20px|link=Copper Dust]]&nbsp;[[Copper Dust|Copper]] · [[File:Grid Iron Dust.png|20px|link=Iron Dust]]&nbsp;[[Iron Dust|Iron]] · [[File:Grid Gold Dust.png|20px|link=Gold Dust]]&nbsp;[[Gold Dust|Gold]] · [[File:Grid Tin Dust.png|20px|link=Tin Dust]]&nbsp;[[Tin Dust|Tin]] · [[File:Grid Bronze Dust.png|20px|link=Bronze Dust]]&nbsp;[[Bronze Dust|Bronze]] · [[File:Grid Diamond Dust.png|20px|link=Diamond Dust]]&nbsp;[[Diamond Dust|Diamond]] · [[File:Grid Emerald Dust.png|20px|link=Emerald Dust]]&nbsp;[[Emerald Dust|Emerald]] · [[File:Grid Lapis Dust.png|20px|link=Lapis Dust]]&nbsp;[[Lapis Dust|Lapis]] · [[File:Grid Netherite Dust.png|20px|link=Netherite Dust]]&nbsp;[[Netherite Dust|Netherite]] · [[File:Grid Obsidian Dust.png|20px|link=Obsidian Dust]]&nbsp;[[Obsidian Dust|Obsidian]] · [[File:Grid Amethyst Dust.png|20px|link=Amethyst Dust]]&nbsp;[[Amethyst Dust|Amethyst]] · [[File:Grid Echo Dust.png|20px|link=Echo Dust]]&nbsp;[[Echo Dust|Echo]] · [[File:Grid Ender Dust.png|20px|link=Ender Dust]]&nbsp;[[Ender Dust|Ender]] · [[File:Grid Prismarine Dust.png|20px|link=Prismarine Dust]]&nbsp;[[Prismarine Dust|Prismarine]] · [[File:Grid Quartz Dust.png|20px|link=Quartz Dust]]&nbsp;[[Quartz Dust|Quartz]] · [[File:Grid Sulfur Dust.png|20px|link=Sulfur Dust]]&nbsp;[[Sulfur Dust|Sulfur]] · [[File:Grid Apatite Dust.png|20px|link=Apatite Dust]]&nbsp;[[Apatite Dust|Apatite]]
+  | group3 = [[Gears]]
+  | list3  = [[File:Grid Wooden Gear.png|20px|link=Wooden Gear]]&nbsp;[[Wooden Gear|Wooden]] · [[File:Grid Stone Gear.png|20px|link=Stone Gear]]&nbsp;[[Stone Gear|Stone]] · [[File:Grid Copper Gear.png|20px|link=Copper Gear]]&nbsp;[[Copper Gear|Copper]] · [[File:Grid Iron Gear.png|20px|link=Iron Gear]]&nbsp;[[Iron Gear|Iron]] · [[File:Grid Bronze Gear.png|20px|link=Bronze Gear]]&nbsp;[[Bronze Gear|Bronze]] · [[File:Grid Gold Gear.png|20px|link=Gold Gear]]&nbsp;[[Gold Gear|Gold]] · [[File:Grid Diamond Gear.png|20px|link=Diamond Gear]]&nbsp;[[Diamond Gear|Diamond]] · [[File:Grid Netherite Gear.png|20px|link=Netherite Gear]]&nbsp;[[Netherite Gear|Netherite]]
+  | group4 = [[Valves]]
+  | list4  = [[File:Grid Wooden Valve.png|20px|link=Wooden Valve]]&nbsp;[[Wooden Valve|Wooden]] · [[File:Grid Copper Valve.png|20px|link=Copper Valve]]&nbsp;[[Copper Valve|Copper]] · [[File:Grid Iron Valve.png|20px|link=Iron Valve]]&nbsp;[[Iron Valve|Iron]] · [[File:Grid Bronze Valve.png|20px|link=Bronze Valve]]&nbsp;[[Bronze Valve|Bronze]] · [[File:Grid Gold Valve.png|20px|link=Gold Valve]]&nbsp;[[Gold Valve|Gold]] · [[File:Grid Lapis Valve.png|20px|link=Lapis Valve]]&nbsp;[[Lapis Valve|Lapis]] · [[File:Grid Emerald Valve.png|20px|link=Emerald Valve]]&nbsp;[[Emerald Valve|Emerald]] · [[File:Grid Diamond Valve.png|20px|link=Diamond Valve]]&nbsp;[[Diamond Valve|Diamond]] · [[File:Grid Obsidian Valve.png|20px|link=Obsidian Valve]]&nbsp;[[Obsidian Valve|Obsidian]] · [[File:Grid Blazing Valve.png|20px|link=Blazing Valve]]&nbsp;[[Blazing Valve|Blazing]] · [[File:Grid Ender Valve.png|20px|link=Ender Valve]]&nbsp;[[Ender Valve|Ender]] · [[File:Grid Netherite Valve.png|20px|link=Netherite Valve]]&nbsp;[[Netherite Valve|Netherite]] · [[File:Grid Apatite Valve.png|20px|link=Apatite Valve]]&nbsp;[[Apatite Valve|Apatite]]
+  | group5 = [[Chips|Silicon]]
+  | list5  = [[File:Grid Redstone Chip.png|20px|link=Redstone Chip]]&nbsp;[[Redstone Chip|Redstone]] · [[File:Grid Carbon Chip.png|20px|link=Carbon Chip]]&nbsp;[[Carbon Chip|Carbon]] · [[File:Grid Amethyst Chip.png|20px|link=Amethyst Chip]]&nbsp;[[Amethyst Chip|Amethyst]] · [[File:Grid Echo Chip.png|20px|link=Echo Chip]]&nbsp;[[Echo Chip|Echo]]
+  | group6 = [[Cores]]
+  | list6  = [[File:Grid Wooden Core.png|20px|link=Wooden Core]]&nbsp;[[Wooden Core|Wooden]] · [[File:Grid Copper Core.png|20px|link=Copper Core]]&nbsp;[[Copper Core|Copper]] · [[File:Grid Iron Core.png|20px|link=Iron Core]]&nbsp;[[Iron Core|Iron]] · [[File:Grid Bronze Core.png|20px|link=Bronze Core]]&nbsp;[[Bronze Core|Bronze]] · [[File:Grid Gold Core.png|20px|link=Gold Core]]&nbsp;[[Gold Core|Gold]] · [[File:Grid Lapis Core.png|20px|link=Lapis Core]]&nbsp;[[Lapis Core|Lapis]] · [[File:Grid Emerald Core.png|20px|link=Emerald Core]]&nbsp;[[Emerald Core|Emerald]] · [[File:Grid Diamond Core.png|20px|link=Diamond Core]]&nbsp;[[Diamond Core|Diamond]] · [[File:Grid Obsidian Core.png|20px|link=Obsidian Core]]&nbsp;[[Obsidian Core|Obsidian]] · [[File:Grid Blazing Core.png|20px|link=Blazing Core]]&nbsp;[[Blazing Core|Blazing]] · [[File:Grid Ender Core.png|20px|link=Ender Core]]&nbsp;[[Ender Core|Ender]] · [[File:Grid Netherite Core.png|20px|link=Netherite Core]]&nbsp;[[Netherite Core|Netherite]] · [[File:Grid Apatite Core.png|20px|link=Apatite Core]]&nbsp;[[Apatite Core|Apatite]]
+  | group7 = [[Fluids|Liquids]]
+  | list7  = [[File:Grid Crude Oil.png|20px|link=Crude Oil]]&nbsp;[[Crude Oil]] · [[File:Grid Liquid Biomass.png|20px|link=Liquid Biomass]]&nbsp;[[Liquid Biomass]] · [[File:Grid Liquid Ender.png|20px|link=Liquid Ender]]&nbsp;[[Liquid Ender]] · [[File:Grid Liquid Glowstone.png|20px|link=Liquid Glowstone]]&nbsp;[[Liquid Glowstone]] · [[File:Grid Liquid Redstone.png|20px|link=Liquid Redstone]]&nbsp;[[Liquid Redstone]]
+  | group8 = Farming
+  | list8  = [[File:Grid Peat.png|20px|link=Peat]]&nbsp;[[Peat]] · [[File:Grid Bog Earth.png|20px|link=Bog Earth]]&nbsp;[[Bog Earth]]
+  | group9 = Components
+  | list9  = [[File:Grid Machine Frame.png|20px|link=Machine Frame]]&nbsp;[[Machine Frame]] · [[File:Grid Redstone Reception Coil.png|20px|link=Redstone Reception Coil]]&nbsp;[[Redstone Reception Coil]] · [[File:Grid Quartz Crystal.png|20px|link=Quartz Crystal]]&nbsp;[[Quartz Crystal]] · [[File:Grid Rubber Chunk.png|20px|link=Rubber]]&nbsp;[[Rubber]]
+  | group10 = Byproducts
+  | list10  = [[File:Grid Slag.png|20px|link=Slag]]&nbsp;[[Slag]] · [[File:Grid Rich Slag.png|20px|link=Rich Slag]]&nbsp;[[Rich Slag]] · [[File:Grid Pulped Biomass.png|20px|link=Pulped Biomass]]&nbsp;[[Pulped Biomass]] · [[File:Grid Sawdust.png|20px|link=Sawdust]]&nbsp;[[Sawdust]] · [[File:Grid Niter.png|20px|link=Niter]]&nbsp;[[Niter]] · [[File:Grid Quicksilver.png|20px|link=Quicksilver]]&nbsp;[[Quicksilver]]
+  }}
+
+| list4 = {{Navbox
+  | state = collapsed
+  | title = [[Tools|Utilities]]
+  | group1 = Tools
+  | list1  = [[File:Grid Wrench.png|20px|link=Wrench]]&nbsp;[[Wrench]] · [[File:Grid Marker.png|20px|link=Marker]]&nbsp;[[Marker]] · [[File:Grid Blue Marking Fluid.png|20px|link=Marking Fluid]]&nbsp;[[Marking Fluid]]
+  }}
+
+| below = [[Special:AllPages|All pages]] · [[Special:Categories|Categories]]
+}}</includeonly><noinclude>
+The site-wide '''footer navigation box''' — a quick reference to every block and item, built on the
+standard Fandom [[Template:Navbox]] ([[Module:Navbox]] → Dev:Navbox). Drop it at the very bottom of a
+content page, just above the <code><nowiki>{{Category}}</nowiki></code> lines:
+
+ {{Navbox Logistics}}
+
+The master box is expanded by default; each section (Machines · Pipes · Resources · Utilities) is a
+nested navbox collapsed by default, so readers see the sections and click one open. Every item entry
+carries its {{nowrap|20px grid icon}}. Guide and concept pages are intentionally excluded — this is an
+item/block index, not a table of contents. Styling comes from the <code>.navbox</code> rules in
+[[MediaWiki:Common.css]].
+
+[[Category:Templates]]
+</noinclude>

@@ -169,4 +169,6 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 * [[Materials#Valves|Valves]] - Require Quartz Crystal from the Macerator → Kiln chain
 * [[Modules]] - Consume dusts as crafting ingredients
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]

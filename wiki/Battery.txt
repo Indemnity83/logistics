@@ -64,4 +64,6 @@ Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pi
 * [[Engines]] - Generating RF
 * [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distributing RF
 
+{{Navbox Logistics}}
+
 [[Category:Power]]

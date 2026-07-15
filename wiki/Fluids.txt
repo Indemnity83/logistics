@@ -28,4 +28,6 @@ The [[Crucible]] also produces vanilla '''Water''' (from ice, snow blocks, and s
 * [[Marking Fluid]] — a color-coding tool, despite the name not a piped fluid
 * [[Materials]] — crafting components and materials
 
+{{Navbox Logistics}}
+
 [[Category:Fluids]]

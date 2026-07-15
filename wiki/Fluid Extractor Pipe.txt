@@ -47,5 +47,7 @@ The Fluid Extractor Pipe pulls fluid from an adjacent tank or machine and pushes
 * [[Redstone Engine]], [[Stirling Engine]] - Drive the extraction
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

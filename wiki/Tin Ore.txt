@@ -84,4 +84,6 @@ Grind tin ore in a [[Macerator]] for two [[Tin Dust]] per ore — an ore-doublin
 * [[Bronze Ingot]] - Tin + copper alloy
 * [[Tin Dust]] - Ground form (ore doubling)
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -55,4 +55,6 @@ Smelt Bog Earth to dry it into [[Peat]]:
 * [[Stirling Engine]] - Burns Peat for RF
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

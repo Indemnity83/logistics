@@ -20,4 +20,6 @@
 * [[Materials]] — all crafting components
 * [[Macerator]] — grinds apatite into [[Apatite Dust]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

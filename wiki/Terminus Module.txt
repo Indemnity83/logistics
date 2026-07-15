@@ -48,4 +48,6 @@ Place it at the physical end of a pipe run to stop items from bouncing back into
 * [[Ender Dust]] - Crafting component
 * [[Redstone Chip]] - Module chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

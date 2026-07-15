@@ -58,4 +58,6 @@
 * [[Lapis Core]]
 * [[Marker]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

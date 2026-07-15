@@ -48,4 +48,6 @@
 * [[Cores]] - All cores
 * [[Valves]] - Built from cores
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

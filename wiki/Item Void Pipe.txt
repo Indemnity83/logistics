@@ -45,4 +45,6 @@ Any item that reaches the center of an Item Void Pipe is destroyed after a brief
 * [[Item Filter Pipe]] - Send only unwanted items here
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

@@ -38,4 +38,6 @@ The Blank Module is consumed when crafting any other module type. Craft it in ba
 * [[Provider Module]] - Example module crafted from Blank Module
 * [[Extractor Module]] - Example module crafted from Blank Module
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

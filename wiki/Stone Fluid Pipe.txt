@@ -46,5 +46,7 @@ Stone fluid pipes passively move fluid between tanks, machines, and other pipes 
 * [[Copper Fluid Pipe]], [[Golden Fluid Pipe]] - Faster alternatives
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

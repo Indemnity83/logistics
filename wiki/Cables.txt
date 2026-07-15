@@ -22,4 +22,6 @@ Cables connect to each other and to adjacent power blocks, forming a power netwo
 * [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] — generate RF
 * [[Rubber|Rubber Chunk]] — crafting component
 
+{{Navbox Logistics}}
+
 [[Category:Power]]

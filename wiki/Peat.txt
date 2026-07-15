@@ -42,4 +42,6 @@ Peat is a furnace fuel and powers the [[Stirling Engine]]. Each piece burns for 
 * [[Bitumen]], [[Tar]] - Other mod fuels
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

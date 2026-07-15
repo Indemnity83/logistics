@@ -14,4 +14,6 @@
 * [[Energy]] - Engines configured with wrench
 * [[Machines]] - Machines configured and bounded with these tools
 
+{{Navbox Logistics}}
+
 [[Category:Tools]]

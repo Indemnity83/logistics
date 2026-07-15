@@ -1,0 +1,26 @@
+<includeonly>{{#invoke:Navbox|main}}</includeonly><noinclude>
+The generic '''navigation box''' engine — Fandom's standard [[w:c:dev:Global Lua Modules/Navbox|Dev:Navbox]],
+imported by [[Module:Navbox]] and styled by the <code>.navbox</code> rules in [[MediaWiki:Common.css]].
+
+You normally don't call this directly — the site-wide footer navbox is [[Template:Navbox Logistics]],
+which wraps this. Use <code><nowiki>{{Navbox}}</nowiki></code> directly only to build a new standalone navbox, or with the first
+parameter <code>child</code> to nest one inside another's <code>listN</code>.
+
+Usage:
+ {{Navbox
+ | name  = Navbox Example
+ | title = [[Some Topic]]
+ | state = collapsed          <!-- collapsed (default) | uncollapsed | plain | off -->
+ | group1 = Machines
+ | list1  = [[Macerator]] · [[Crucible]]
+ | group2 = Pipes
+ | list2  = [[Transport Pipes]] · [[Fluid Pipes]]
+ }}
+
+Sections (a full-width subheader with its own rows) are child navboxes placed in a listN:
+ | list1 = {{Navbox|child | title = Machines | group1 = Crafting | list1 = … }}
+
+See the module documentation for the full parameter set (image, above/below, styles, navbar, …).
+
+[[Category:Templates]]
+</noinclude>

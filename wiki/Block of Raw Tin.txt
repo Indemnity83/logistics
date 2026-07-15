@@ -66,4 +66,6 @@ A block of raw tin stores raw tin compactly. It can be unpacked back into nine a
 * [[Block of Tin]] - Ingot storage block
 * [[Tin Ore]] - Source of raw tin
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

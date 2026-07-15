@@ -61,4 +61,6 @@ A single Rubber Mix smelts into two chunks, so a [[Macerator]] → [[Kiln]] line
 * [[Macerator]] - Produces Coal Dust
 * [[Kiln]] - Smelts Rubber Mix into Rubber Chunks
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -46,5 +46,7 @@ The Insertion Fluid Pipe fills adjacent tanks and machines before passing fluid 
 * [[Glass Tank]] - Fluid storage to fill
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

@@ -39,4 +39,6 @@ Grinding the source ore in the [[Macerator]] grants the same experience the furn
 * [[Sawdust]] - Wood byproduct from the [[Sawmill]]
 * [[Cores]], [[Chips]], [[Modules]] - Components crafted from dusts
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

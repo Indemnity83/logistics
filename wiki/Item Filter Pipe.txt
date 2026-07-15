@@ -46,4 +46,6 @@ It is the core of a sorting system — combine it with the [[Item Insertion Pipe
 * [[Item Insertion Pipe]], [[Item Void Pipe]] - Build sorted storage with overflow
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

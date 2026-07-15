@@ -41,4 +41,6 @@ Slag and [[Pulped Biomass]] combine into dirt:
 * [[Pulped Biomass]] - Combined with Slag into dirt
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -35,4 +35,6 @@ Items travel through the network until they:
 * [[Item Transport]] - How items move through pipes
 * [[Pipes]] - Different pipe types and capabilities
 
+{{Navbox Logistics}}
+
 [[Category:Concepts]]

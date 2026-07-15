@@ -34,4 +34,6 @@ The Silicon Wafer is the substrate for every chip, made in two steps:
 * [[Dusts]] — source of the dust ingredients
 * [[Macerator]], [[Kiln]] — produce and smelt the chip materials
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

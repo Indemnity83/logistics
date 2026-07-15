@@ -62,4 +62,6 @@ The Redstone Engine produces low RF, suitable for light-duty machines, early-gam
 * [[Wooden Gear]] - Crafting component
 * [[Laser Quarry]] - Example power consumer
 
+{{Navbox Logistics}}
+
 [[Category:Power]]

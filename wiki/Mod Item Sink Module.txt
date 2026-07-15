@@ -54,4 +54,6 @@ It is most useful in large modpacks for keeping a mod's resources together in de
 * [[Copper Dust]] - Crafting component
 * [[Redstone Chip]] - Module chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

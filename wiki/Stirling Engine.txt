@@ -65,4 +65,6 @@ Use a [[Wrench]] to rotate the output face (cycle through directions) and to res
 * [[Wrench]] - Configuration and overheat reset
 * [[Stone Gear]] - Crafting component
 
+{{Navbox Logistics}}
+
 [[Category:Power]]

@@ -53,4 +53,6 @@ Combine a Crafter Module with a [[Provider Module]] in one chassis for a station
 * [[Amethyst Chip]] - MK2 chip
 * [[Echo Chip]] - MK3 chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

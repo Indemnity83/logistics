@@ -64,4 +64,6 @@ Accept and store specific items or categories.
 * [[Logistics Pipes]] - The powered, network-aware pipe family
 * [[Pipe Networks]] - How the logistics network works
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

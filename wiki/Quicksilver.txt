@@ -50,4 +50,6 @@ In the [[Alloy Smelter]], Quicksilver works as a flux that smelts an ore into ''
 * [[Rich Slag]] - Another ore-yield flux
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

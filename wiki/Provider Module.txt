@@ -45,4 +45,6 @@ Use this module when you want provider behavior combined with other module funct
 * [[Redstone Chip]] - MK1 chip
 * [[Amethyst Chip]] - MK2 chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

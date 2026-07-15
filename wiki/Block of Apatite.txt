@@ -65,4 +65,6 @@ A block of apatite stores apatite compactly. It can be unpacked back into nine g
 * [[Apatite (gem)]] - The gem it stores
 * [[Apatite Ore]] - Source of apatite
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -46,5 +46,7 @@ The Void Fluid Pipe destroys any fluid that flows into it, acting as a bottomles
 * [[Fluid Pipes]] - Pipe overview
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

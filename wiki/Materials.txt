@@ -35,4 +35,6 @@
 * [[Macerator]], [[Kiln]], [[Alloy Smelter]], [[Crucible]] — process raw materials
 * [[Modules]] — built from chips and dusts
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

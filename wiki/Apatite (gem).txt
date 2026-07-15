@@ -59,4 +59,6 @@
 * [[Apatite Valve]] - Major use
 * [[Apatite Dust]] - Ground from the ore
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

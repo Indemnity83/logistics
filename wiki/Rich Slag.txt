@@ -39,4 +39,6 @@ The same works for gold, copper, and tin ores.
 * [[Quicksilver]] - Another flux that boosts ore yield
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

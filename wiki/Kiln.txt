@@ -78,4 +78,6 @@ The Kiln smelts continuously as long as it has power and input items.
 * [[Chips#Silicon Wafer|Silicon Wafer]] - Key product; smelted from Silicon Mix in the Kiln
 * [[Materials#Valves|Valves]] - Require Quartz Crystal from the Kiln
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]

@@ -63,4 +63,6 @@ Smelt raw tin in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel) t
 * [[Tin Ingot]] - Smelted product
 * [[Block of Raw Tin]] - Bulk storage block
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

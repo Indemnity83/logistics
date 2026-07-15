@@ -18,4 +18,6 @@ Fluids use a '''separate''' pipe set and a standalone transport system — they 
 * [[Routing]] — how items choose paths
 * [[Item Transport]] — how items move through pipes
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

@@ -46,5 +46,7 @@ Golden fluid pipes passively carry fluid at '''80 mB/t''', eight times a copper 
 * [[Copper Fluid Pipe]] - The standard 10 mB/t pipe
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

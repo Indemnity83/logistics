@@ -15,4 +15,6 @@
 * [[Battery]] — stores RF
 * [[Energy]] — power overview
 
+{{Navbox Logistics}}
+
 [[Category:Energy]]

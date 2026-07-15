@@ -66,5 +66,7 @@ Place a [[Glass Tank]] or [[Copper Fluid Pipe]] against the output to carry away
 * [[Stirling Engine]] - Power source
 * [[Machine Frame]], [[Redstone Reception Coil]] - Recipe components
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]
 [[Category:Fluids]]

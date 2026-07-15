@@ -47,4 +47,6 @@ Prismarine dust currently has no crafting or smelting use.
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

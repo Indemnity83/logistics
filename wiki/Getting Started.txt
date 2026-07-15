@@ -23,4 +23,6 @@ Once you've built your first network, these pages explain how everything works:
 * '''[[Energy]]''' - Power your extractors and machines.
 * '''[[Recipes]]''' - Crafting recipes for Logistics blocks and items.
 
+{{Navbox Logistics}}
+
 [[Category:Guides]]

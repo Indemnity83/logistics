@@ -92,4 +92,6 @@
 * [[Ender Core]]
 * [[Chips]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

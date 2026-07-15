@@ -54,4 +54,6 @@ Markers have no collision — you can walk through them — and break instantly 
 * [[Macerator]] - Produces Lapis Dust
 * [[Tools]] - Other configuration and utility items
 
+{{Navbox Logistics}}
+
 [[Category:Tools]]

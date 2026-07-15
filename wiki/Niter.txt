@@ -47,4 +47,6 @@ Niter combines with [[Coal Dust]] and [[Sulfur Dust]] to make gunpowder:
 * [[Macerator]] - Produces Niter
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -58,4 +58,6 @@ To keep two separate networks of the same family from merging:
 * [[Marking Fluid]] - Segment item networks by color
 * [[Wrench]] - Configure pipe and cable faces
 
+{{Navbox Logistics}}
+
 [[Category:Concepts]]

@@ -64,4 +64,6 @@
 * [[Rubber]]
 * [[Chips]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -61,4 +61,6 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Macerator]] - Produces dusts
 * [[Kiln]] - Smelts dust into ingots and crystals
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

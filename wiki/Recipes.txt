@@ -18,4 +18,6 @@ Individual machine, tool, and module pages each show their own recipe as well.
 
 See [[Help:Page layout]] for how to add a recipe to a page (single recipe → [[Template:Grid Crafting Table|Grid Crafting Table]]; several recipes on one page → a [[Template:Crafting|Crafting]] table).
 
+{{Navbox Logistics}}
+
 [[Category:Help]]

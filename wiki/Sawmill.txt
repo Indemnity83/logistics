@@ -80,4 +80,6 @@ Loose plant matter pulps into [[Pulped Biomass]] — one per recipe, with denser
 * [[Stirling Engine]] - Recommended power source
 * [[RF Energy]] - Power system overview
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]

@@ -53,4 +53,6 @@
 * [[Valves]] - All valves
 * [[Logistics Pipes]] - What valves build
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -54,4 +54,6 @@ Pulped Biomass and [[Slag]] combine into dirt — a way to turn ore-processing w
 * [[Crucible]] - Melts Pulped Biomass
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -46,5 +46,7 @@ The Bypass Fluid Pipe connects only to other fluid pipes, never to tanks or mach
 * [[Fluid Pipes]] - Pipe overview
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

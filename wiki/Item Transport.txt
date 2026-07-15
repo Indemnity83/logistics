@@ -49,4 +49,6 @@ When items reach a pipe exit:
 * [[Golden Transport Pipe]] - Speed acceleration
 * [[Item Void Pipe]] - Item deletion
 
+{{Navbox Logistics}}
+
 [[Category:Concepts]]

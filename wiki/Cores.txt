@@ -24,4 +24,6 @@
 * [[Machine Frame]] — central machine component
 * [[Macerator]], [[Kiln]] — produce and smelt the dusts
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

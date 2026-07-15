@@ -62,4 +62,6 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Quartz Crystal]]
 * [[Chips]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -158,4 +158,6 @@ Gears, valves, ores, and crafting components.
 
 [https://github.com/indemnity83/logistics GitHub Repository] | [https://github.com/indemnity83/logistics/issues Report Issues]
 
+{{Navbox Logistics}}
+
 [[Category:Logistics]]

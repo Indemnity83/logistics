@@ -40,4 +40,6 @@ It was crafted from a ring of 8 [[Bronze Ingot|bronze ingots]]:
 * [[Machine Frame]] - Core machine component
 * [[Machines]] - RF-powered machines
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

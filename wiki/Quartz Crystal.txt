@@ -46,4 +46,6 @@ Quartz Crystal forms the frame of every [[Valves|valve]] — eight crystals arou
 * [[Cores]] - The other valve ingredient
 * [[Kiln]] - Smelts the dust
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

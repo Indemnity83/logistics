@@ -47,4 +47,6 @@ Chain several powered golden pipes for a cumulative boost. Unpowered, it behaves
 * [[Copper Transport Pipe]] - Its unpowered behavior
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

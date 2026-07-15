@@ -59,4 +59,6 @@ The [[Macerator]] grinds it into [[Bitumen]], with a chance of [[Tar]]:
 * [[Bitumen]], [[Tar]] - Ground products
 * [[Crucible]], [[Macerator]] - Process oil blocks
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

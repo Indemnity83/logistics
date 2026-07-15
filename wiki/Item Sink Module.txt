@@ -53,4 +53,6 @@ Install several Item Sink Modules in one chassis to make a multi-item sorting st
 * [[Copper Dust]] - Crafting component
 * [[Carbon Chip]] - Module chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

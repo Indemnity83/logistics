@@ -72,4 +72,6 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Kiln]] - Smelts dust into ingots and crystals
 * [[Provider Module]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -64,4 +64,6 @@
 * [[Macerator]] - Produces dusts
 * [[Emerald Core]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

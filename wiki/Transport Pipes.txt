@@ -25,5 +25,7 @@ Transport pipes connect to each other and to adjacent inventories automatically.
 * [[Marking Fluid]] — color-code pipes to segment networks
 * [[Pipe Networks]] — how pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Item Pipes]]

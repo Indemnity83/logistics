@@ -48,4 +48,6 @@ Place it in a chassis near your main storage array so items are sorted as they a
 * [[Diamond Dust]] - Crafting component
 * [[Echo Chip]] - Module chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

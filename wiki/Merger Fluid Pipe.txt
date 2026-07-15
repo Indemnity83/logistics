@@ -46,5 +46,7 @@ The Merger Fluid Pipe lets fluid leave only through a wrench-set output face, an
 * [[Wrench]] - Sets the output face
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

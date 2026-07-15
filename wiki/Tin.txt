@@ -22,4 +22,6 @@
 * [[Materials]] — all crafting components
 * [[Macerator]] — grinds tin into [[Tin Dust]] (ore doubling)
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

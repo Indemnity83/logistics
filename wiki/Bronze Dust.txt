@@ -89,4 +89,6 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Copper Dust]]
 * [[Tin Dust]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

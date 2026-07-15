@@ -240,6 +240,9 @@ def page_title(filename):
         return "Module:" + stem[len("Module_"):]
     if stem.startswith("Help_"):
         return "Help:" + stem[len("Help_"):]
+    if stem.startswith("MediaWiki_"):
+        # MediaWiki_Common.css.txt -> MediaWiki:Common.css (sitewide CSS/JS pages)
+        return "MediaWiki:" + stem[len("MediaWiki_"):]
     return stem
 
 

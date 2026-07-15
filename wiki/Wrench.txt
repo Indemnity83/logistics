@@ -70,4 +70,6 @@ Install Jade alongside Logistics to read this information by simply looking at a
 * [[Stirling Engine]] - Rotate output, reset overheat
 * [[Connectivity]] - Understanding pipe faces
 
+{{Navbox Logistics}}
+
 [[Category:Tools]]

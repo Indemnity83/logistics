@@ -47,4 +47,6 @@ Pair it with the [[Item Filter Pipe]] and [[Item Void Pipe]] to build sorted sto
 * [[Item Filter Pipe]] - Routes items by type
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

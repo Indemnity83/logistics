@@ -42,4 +42,6 @@ The '''Liquid Ender Bucket''' is a container-only item: it fills and drains tank
 * [[Fluids]] - All mod fluids
 * [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
 
+{{Navbox Logistics}}
+
 [[Category:Fluids]]

@@ -87,5 +87,7 @@ Marking Fluid is a set of 16 dyed items — <code>logistics:pipe/&lt;color&gt;_m
 * [[Pipe Networks]] - Network segmentation
 * [[Item Passthrough Pipe]] - Alternative segmentation method
 
+{{Navbox Logistics}}
+
 [[Category:Tools]]
 [[Category:Recipes]]

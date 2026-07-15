@@ -70,4 +70,6 @@ Every [[Sawmill]] recipe also drops Sawdust as a byproduct — guaranteed from l
 * [[Extractor Module]] - Crafted with Sawdust
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

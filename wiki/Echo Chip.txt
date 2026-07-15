@@ -77,4 +77,6 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 * [[Modules]] - What chips build
 * [[Dusts]] - Source of chip ingredients
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

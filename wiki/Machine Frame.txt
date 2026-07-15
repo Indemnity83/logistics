@@ -79,4 +79,6 @@ Craft Machine Frames in batches — each machine needs one and they share the sa
 * [[Machines]] - Machines built from the frame
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

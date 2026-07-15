@@ -60,5 +60,7 @@ Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it on
 * [[Fluid Extractor Pipe]] - Pull fluid from machines into a tank
 * [[Copper Fluid Pipe]], [[Golden Fluid Pipe]] - Connect tanks to your network
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]
 [[Category:Fluids]]

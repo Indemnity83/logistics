@@ -66,4 +66,6 @@ A block of tin stores tin ingots compactly. It can be unpacked back into nine in
 * [[Block of Raw Tin]] - Raw-tin storage block
 * [[Tin Nugget]] - Smaller unit
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -105,4 +105,6 @@ With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking
 * [[Item Void Pipe]] - Delete cobblestone overflow
 * [[Macerator]] - Process mined ores into dust for doubling
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]

@@ -50,4 +50,6 @@ The front face shows a charge indicator that fills as the buffer charges. Run yo
 * [[Stirling Engine]] - Generates RF
 * [[RF Energy]] - Power system overview
 
+{{Navbox Logistics}}
+
 [[Category:Blocks]]

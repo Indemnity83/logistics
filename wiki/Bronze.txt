@@ -22,4 +22,6 @@
 * [[Materials]] — all crafting components
 * [[Machine Frame]] — a machine component made from bronze
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -84,4 +84,6 @@ Items drop as entities when:
 * [[Item Filter Pipe]] - Advanced routing
 * [[Item Merger Pipe]] - Directional routing
 
+{{Navbox Logistics}}
+
 [[Category:Concepts]]

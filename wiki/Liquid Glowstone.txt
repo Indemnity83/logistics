@@ -43,4 +43,6 @@ The '''Liquid Glowstone Bucket''' is a container-only item: it fills and drains 
 * [[Fluids]] - All mod fluids
 * [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
 
+{{Navbox Logistics}}
+
 [[Category:Fluids]]

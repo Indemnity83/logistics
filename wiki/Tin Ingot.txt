@@ -124,4 +124,6 @@ Grind tin ore in a [[Macerator]] to produce two [[Tin Dust]] per ore — an ore-
 * [[Bronze Ingot]] - Tin + copper alloy
 * [[Dusts]] - Tin Dust and ore doubling
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

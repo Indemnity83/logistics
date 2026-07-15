@@ -90,5 +90,7 @@ Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]
 * [[Valves]] - The crafting components for each mark
 * [[Power Junction]] - Powers the network
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Item Pipes]]

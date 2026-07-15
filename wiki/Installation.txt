@@ -101,4 +101,6 @@ Once installed, learn how to build your first network:
 * [[Pipes]] - All available pipe types
 * [[Copper Transport Pipe]] - Basic transport pipe
 
+{{Navbox Logistics}}
+
 [[Category:Guides]]

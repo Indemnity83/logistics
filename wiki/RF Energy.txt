@@ -56,4 +56,6 @@ Every engine needs a {{Mcw|Redstone|redstone}} signal to run. They differ in out
 * [[Item Extractor Pipe]] - Extraction paced by an engine
 * [[Laser Quarry]] - Major power consumer
 
+{{Navbox Logistics}}
+
 [[Category:Power]]

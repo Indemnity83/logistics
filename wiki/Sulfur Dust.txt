@@ -48,4 +48,6 @@ Sulfur Dust combines with [[Coal Dust]] and [[Niter]] to make gunpowder:
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

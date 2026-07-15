@@ -47,4 +47,6 @@ Place it next to an enchanted-item storage chest to collect enchanted drops from
 * [[Copper Dust]] - Crafting component
 * [[Amethyst Chip]] - Module chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

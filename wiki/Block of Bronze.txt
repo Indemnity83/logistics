@@ -65,4 +65,6 @@ A block of bronze stores bronze ingots compactly. It can be unpacked back into n
 * [[Bronze Ingot]] - The ingot it stores
 * [[Bronze Nugget]] - Smaller unit
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

@@ -45,4 +45,6 @@ Every machine recipe uses one Redstone Reception Coil in the bottom-centre slot,
 * [[Machines]] - Machines that use the coil
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

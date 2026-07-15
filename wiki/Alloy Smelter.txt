@@ -103,4 +103,6 @@ The full recycling list — every anvil tier, minecart, pressure plate, and iron
 * [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
 * [[Stirling Engine]] - Recommended power source
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]

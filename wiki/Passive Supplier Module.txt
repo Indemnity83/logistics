@@ -55,4 +55,6 @@ Use it for backup stockpiles or low-priority storage that fills opportunisticall
 * [[Emerald Dust]] - Crafting component
 * [[Redstone Chip]] - Module chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

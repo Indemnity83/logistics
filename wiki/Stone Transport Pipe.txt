@@ -47,4 +47,6 @@ Like every transport pipe it connects to other pipes and to adjacent inventories
 * [[Copper Transport Pipe]] - The standard-speed upgrade
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

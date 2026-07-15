@@ -1,0 +1,112 @@
+/* CSS placed here will be applied to all skins */
+.inputbox-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 0 auto;
+}
+.inputbox-gallery > div {
+    width: calc(33.33% - 14px);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* ============================================================================
+   Navbox — footer navigation boxes via [[Template:Navbox]] ([[Module:Navbox]]
+   -> Dev:Navbox). Styling lives here because Dev:Navbox targets these global
+   .navbox classes (it can't use TemplateStyles). Branded with the wiki's slate
+   (#2c3e50); neutral greys elsewhere so it reads on the light and dark skins.
+   ============================================================================ */
+.navbox {
+	box-sizing: border-box;
+	width: 100%;
+	clear: both;
+	margin: 1.25em 0 0;
+	padding: 1px;
+	border: 1px solid rgba(127, 127, 127, 0.45);
+	background: rgba(127, 127, 127, 0.06);
+	font-size: 88%;
+	line-height: 1.5;
+	text-align: center;
+}
+.navbox .navbox {           /* nested (section) navboxes */
+	margin: 0;
+	border: 0;
+	background: transparent;
+	font-size: 100%;
+}
+.navbox + .navbox {
+	margin-top: -1px;
+}
+.navbox-inner,
+.navbox-subgroup {
+	width: 100%;
+}
+.navbox-title,
+.navbox-group,
+.navbox-abovebelow {
+	padding: 4px 10px;
+	line-height: 1.5;
+	text-align: center;
+}
+.navbox-list {
+	padding: 4px 10px;
+	text-align: left;
+}
+.navbox-list img,
+.navbox-group img,
+.navbox-title img {
+	vertical-align: middle;
+}
+th.navbox-group {
+	width: 1%;
+	white-space: nowrap;
+	text-align: right;
+	background: rgba(44, 62, 80, 0.14);
+}
+.navbox-title {
+	background: #2c3e50;
+	color: #ffffff;
+	font-size: 108%;
+}
+.navbox-title a,
+.navbox-title a.external,
+.navbox-title .selflink {
+	color: #ffffff;
+}
+.navbox-abovebelow {
+	background: rgba(44, 62, 80, 0.10);
+	font-style: italic;
+}
+/* section (child) title bar: lighter than the master title */
+.navbox-subgroup .navbox-title,
+.navbox .navbox-title {
+	background: rgba(44, 62, 80, 0.24);
+	color: inherit;
+	font-size: 100%;
+	letter-spacing: 0.02em;
+}
+.navbox-subgroup .navbox-title a,
+.navbox .navbox-title a {
+	color: inherit;
+}
+tr + tr > .navbox-abovebelow,
+tr + tr > .navbox-group,
+tr + tr > .navbox-image,
+tr + tr > .navbox-list {
+	border-top: 1px solid rgba(127, 127, 127, 0.4);
+}
+.navbox .navbar {
+	display: block;
+	font-size: 90%;
+	font-weight: normal;
+}
+.navbox-title .navbar {
+	float: left;
+	text-align: left;
+	margin-right: 0.5em;
+}
+.navbox-title .navbar a {
+	color: #ffffff;
+}

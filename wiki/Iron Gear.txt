@@ -63,4 +63,6 @@
 * [[Materials]] - Crafting components
 * [[Machines]] - What gears help build
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

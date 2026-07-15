@@ -46,5 +46,7 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 * [[Power Junction]] - Powers the network
 * [[Pipe Networks]] - How the network routes items
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Item Pipes]]

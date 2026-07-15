@@ -46,5 +46,7 @@ Copper fluid pipes passively carry fluid at '''10 mB/t''' and form most of a flu
 * [[Golden Fluid Pipe]] - The faster upgrade (80 mB/t)
 * [[Glass Tank]] - Fluid storage
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

@@ -68,4 +68,6 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Tin Ingot]]
 * [[Bronze Dust]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

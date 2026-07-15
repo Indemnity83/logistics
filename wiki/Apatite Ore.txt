@@ -61,4 +61,6 @@ Grind apatite ore in a [[Macerator]] for six [[Apatite Dust]] per ore — a gene
 * [[Apatite Valve]] - Major use
 * [[Apatite Dust]] - Ground form
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

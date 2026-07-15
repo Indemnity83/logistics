@@ -30,4 +30,6 @@ Note that the extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extracto
 * [[Laser Quarry]] - Major power consumer
 * [[Wrench]] - Rotate engine output face
 
+{{Navbox Logistics}}
+
 [[Category:Power]]

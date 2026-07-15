@@ -87,5 +87,7 @@ Recipes appear in the Just Enough Items (JEI) viewer. Amounts are the millibucke
 * [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
 * [[Stirling Engine]] - Recommended power source
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]
 [[Category:Fluids]]

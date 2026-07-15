@@ -48,4 +48,6 @@ Extraction must be powered by an adjacent engine: a [[Redstone Engine]] moves on
 * [[Redstone Engine]], [[Stirling Engine]] - Power the extraction
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

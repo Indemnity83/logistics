@@ -45,4 +45,6 @@ The Item Passthrough Pipe connects only to other pipes, never to adjacent invent
 * [[Transport Pipes]] - Pipe overview
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

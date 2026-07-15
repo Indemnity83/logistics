@@ -43,4 +43,6 @@ The '''Liquid Redstone Bucket''' is a container-only item: it fills and drains t
 * [[Fluids]] - All mod fluids
 * [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
 
+{{Navbox Logistics}}
+
 [[Category:Fluids]]

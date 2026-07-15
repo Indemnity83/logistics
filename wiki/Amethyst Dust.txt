@@ -45,4 +45,6 @@
 * [[Macerator]] - Produces dusts
 * [[Chips]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

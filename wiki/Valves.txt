@@ -26,4 +26,6 @@ Valves are ingredients only. Each [[Logistics Pipes|logistics pipe]] and Chassis
 * [[Logistics Pipes]] — what valves are used to build
 * [[Gears]], [[Chips]] — other crafting components
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

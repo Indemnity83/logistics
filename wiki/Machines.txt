@@ -20,4 +20,6 @@
 * [[Materials#Valves|Valves]] - Crafted using Quartz Crystal from the Macerator/Kiln chain
 * [[Item Extractor Pipe]] - Extract from machine output
 
+{{Navbox Logistics}}
+
 [[Category:Machines]]

@@ -47,4 +47,6 @@ Set the output face with a [[Wrench]].
 * [[Wrench]] - Sets the output face
 * [[Pipe Networks]] - How pipe networks work
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]

@@ -60,4 +60,6 @@ Tar is a furnace fuel and powers the [[Stirling Engine]], burning for 800 ticks 
 * [[Macerator]] - Produces Tar as a byproduct
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

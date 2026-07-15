@@ -26,5 +26,7 @@ A logistics network is formed by connecting logistics pipes (through [[Transport
 * [[Valves]] — crafting components for the role and chassis pipes
 * [[Power Junction]] — powers the network
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Item Pipes]]

@@ -47,4 +47,6 @@ Bitumen is a furnace fuel and powers the [[Stirling Engine]]. Each piece burns f
 * [[Macerator]] - Grinds oil blocks into Bitumen
 * [[Materials]] - Material overview
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

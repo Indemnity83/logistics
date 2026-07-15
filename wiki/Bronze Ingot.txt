@@ -131,4 +131,6 @@ Grind a bronze ingot in a [[Macerator]] to recover [[Bronze Dust]]:
 * [[Bronze Gear]] - Crafting component
 * [[Bronze Dust]] - Ground form
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

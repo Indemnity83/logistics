@@ -51,4 +51,6 @@ The '''Crude Oil Bucket''' places and picks up the fluid like a {{Mcw|Water|wate
 * [[Fluids]] - All mod fluids
 * [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
 
+{{Navbox Logistics}}
+
 [[Category:Fluids]]

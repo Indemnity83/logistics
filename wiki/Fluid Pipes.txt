@@ -25,5 +25,7 @@
 * [[Pump]] — extract fluid source blocks from the world
 * [[Redstone Engine]], [[Stirling Engine]] — drive the Fluid Extractor Pipe
 
+{{Navbox Logistics}}
+
 [[Category:Pipes]]
 [[Category:Fluids]]

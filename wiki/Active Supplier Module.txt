@@ -59,4 +59,6 @@ Use it for machine input buffers (furnaces, kilns) that must never run dry, and 
 * [[Emerald Dust]] - Crafting component
 * [[Amethyst Chip]] - Module chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

@@ -42,4 +42,6 @@ Apatite dust currently has no crafting or smelting use.
 * [[Apatite Ore]]
 * [[Apatite (gem)|Apatite]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]

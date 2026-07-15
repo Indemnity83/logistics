@@ -53,4 +53,6 @@ Pair it with a [[Provider Module]] in the same chassis to both extract from and 
 * [[Amethyst Chip]] - MK2 chip
 * [[Echo Chip]] - MK3 chip
 
+{{Navbox Logistics}}
+
 [[Category:Modules]]

@@ -45,4 +45,6 @@
 * [[Macerator]] - Produces dusts
 * [[Netherite Core]]
 
+{{Navbox Logistics}}
+
 [[Category:Materials]]
