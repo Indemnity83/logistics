@@ -1,379 +1,135 @@
-# Logistics Documentation Site
+# Logistics Wiki (documentation)
 
 ## Overview
-This is the **documentation worktree** for the Logistics Minecraft mod. It contains user-facing documentation built with Zensical, a static site generator similar to MkDocs with Material theme styling.
+This is the **documentation worktree** for the Logistics Minecraft mod. It holds the source for the
+mod's user-facing wiki, published to **Fandom** at <https://logistics.fandom.com/>.
 
-## Relationship to Main Mod
-- **Main mod worktree**: `../logistics-mc-1.21.11/` (and other version-specific worktrees)
-- **This worktree**: Documentation site that covers all versions
-- **Branch**: `docs` (separate from version-specific branches like `mc/1.21.11`)
+The wiki is authored as MediaWiki **wikitext** files under `wiki/` and pushed to Fandom over the
+MediaWiki API with `tools/upload_to_fandom.py`. The old self-hosted Zensical/MkDocs static site has
+been **retired** — GitHub Pages now serves only a static redirect (`redirect/`, deployed by
+`.github/workflows/docs.yml`) pointing at the Fandom wiki. There is no Markdown site or `docs/`
+content anymore; ignore any lingering references to Zensical, `zensical.toml`, or a domain-foldered
+`docs/` tree.
 
-The main mod contains comprehensive technical documentation in its `README.md` and `docs/` folder that serves as source material for this user-facing documentation site.
+## Relationship to the mod
+- **This worktree**: branch `docs` — wiki source only (`wiki/`, `tools/`, `redirect/`, `.github/`). No mod code.
+- **Mod worktrees**: `../logistics-mc-26.2/` (primary/newest), plus `../logistics-mc-26.1`, `../logistics-mc-1.21.11`, `../logistics-mc-1.21.1`. These are the **source of truth** for recipes, IDs, lang strings, worldgen, and mechanics — read them (data JSON + `assets/logistics/lang/en_us.json` + Java) rather than guessing. New content lands on `mc/26.2` first; when documenting it, read and render against `../logistics-mc-26.2`.
 
-## Documentation Structure
-
-### Current State
+## Repository layout (docs branch)
 ```
-docs/
-├── index.md                          # Landing page (minimal)
-└── getting-started/
-    └── install.md                    # Placeholder ("TBD")
-```
-
-### Target Structure (Domain-Based)
-```
-docs/
-├── index.md                          # Main landing page
-├── getting-started/
-│   ├── installation.md
-│   ├── first-network.md
-│   └── understanding-tiers.md
-├── core/
-│   ├── pipe-networks.md
-│   ├── item-transport.md
-│   ├── connectivity.md
-│   ├── routing.md
-│   └── tier-system.md
-├── pipes/
-│   ├── index.md                      # Pipes overview
-│   ├── stone-transport-pipe.md
-│   ├── copper-transport-pipe.md
-│   ├── item-extractor-pipe.md
-│   ├── item-merger-pipe.md
-│   ├── golden-transport-pipe.md
-│   ├── item-filter-pipe.md
-│   ├── item-insertion-pipe.md
-│   ├── item-passthrough-pipe.md
-│   └── item-void-pipe.md
-├── automation/
-│   ├── index.md                      # Automation overview
-│   └── laser-quarry.md
-├── power/
-│   ├── index.md                      # Power overview
-│   ├── rf-energy.md
-│   ├── redstone-engine.md
-│   └── stirling-engine.md
-├── tools/
-│   ├── wrench.md
-│   └── marking-fluid.md
-└── materials/
-    ├── wooden-gear.md
-    ├── stone-gear.md
-    ├── iron-gear.md
-    ├── copper-gear.md
-    └── diamond-gear.md
+wiki/
+  <Page Title>.txt          # one wikitext file per wiki page (~200 content pages)
+  Template_<Name>.txt       # → Template:<Name>
+  Template_<Name>.styles.txt# → Template:<Name>/styles.css   (TemplateStyles CSS)
+  Module_<Name>.txt         # → Module:<Name>                (Scribunto Lua)
+  main.txt                  # → the Main Page ("Logistics Wiki")
+  media/                    # icons + animations uploaded as File:<name>
+  ASSET_UPLOAD_MAP.md       # LEGACY manifest (old docs/assets/icons flow); tools render straight to media/ now
+tools/                      # the Python toolchain (stdlib + Pillow; no venv needed)
+redirect/                   # static GitHub Pages redirect to Fandom (index.html, 404.html)
+.env                        # FANDOM_SITE / FANDOM_USER / FANDOM_PASSWORD (bot password) + Modrinth/CurseForge tokens
 ```
 
-### Planned Structure (Wiki-Style)
-Inspired by ftbwiki.org, each piece of equipment or concept gets its own dedicated page with heavy cross-linking:
+Filename → wiki-title mapping (handled by the upload tool): spaces are literal in filenames;
+`Template_X.txt` → `Template:X`, `Template_X.styles.txt` → `Template:X/styles.css`,
+`Module_X.txt` → `Module:X`, `main.txt` → the Main Page. Everything else → a page of that title.
 
-**Core Concepts:**
-- Pipe Networks
-- Item Transport
-- Pipe Connectivity
-- Routing
-- Tier System (Mechanical → Smart → Network)
+## Toolchain (`tools/`)
+All are plain Python 3 (stdlib; the icon tools also use Pillow). See `tools/README_fandom_upload.md`.
 
-**Pipes Domain:**
-- Stone Transport Pipe
-- Copper Transport Pipe
-- Item Extractor Pipe
-- Item Merger Pipe
-- Golden Transport Pipe
-- Item Filter Pipe
-- Item Insertion Pipe
-- Item Passthrough Pipe
-- Item Void Pipe
+- **`upload_to_fandom.py`** — push/pull pages and media over the MediaWiki API. Idempotent: pages
+  skip when unchanged, media skips when the on-wiki SHA1 matches.
+  - `--pull [--dry-run]` — download live wikitext into `wiki/*.txt`. **Run `--pull --dry-run`
+    before editing/pushing** to catch contributor edits made on the live wiki (this wiki has other
+    editors); reconcile/commit those first so a push never clobbers them.
+  - `--pages` — upload pages (templates/modules first, then Main, then content).
+  - `--media --used-only` — upload only icons the pages reference (fast). Plain `--media` uploads all of `media/`.
+  - `--only <stem…>` (restrict to page file stems), `--force` (re-send despite SHA/dupe), `--dry-run`.
+  - Credentials come from `.env` (or `--site`/env). The reference scanner recognizes the recipe
+    templates and `[[File:…]]` / infobox `image=`/`image2=` refs, so gifs and `Bucket of …` icons
+    upload under `--used-only`.
+- **`render_blocks.py`** — 3D isometric **block** icons from the mod's block/item models. Single
+  model: `--model block/automation/crucible --out "wiki/media/Grid Crucible.png"`; `--batch` renders
+  all; `--rot rx,ry,rz` overrides the default GUI rotation. Point `--assets` at a mod worktree's
+  `assets/logistics` (default is 26.1 — pass `../logistics-mc-26.2/.../assets/logistics` for new content).
+- **`upscale_icons.py`** — flat **item** sprite icons (nearest-neighbor upscale; PIL fallback for
+  palette/grayscale PNGs). `NAME_OVERRIDES` renames, `SKIP_ITEMS` excludes (e.g. fluid buckets).
+- **`vanilla_icons.py`** — vanilla Minecraft ingredient icons, only the referenced-but-missing ones,
+  from a Minecraft client jar's `assets/minecraft` (`--assets`).
+- **`fluid_icons.py`** — per custom fluid, emits three assets: `Grid <Fluid>.png` (static swatch,
+  recipe-list icon), `Fluid <Fluid>.gif` (animated hero for the infobox), `Bucket of <Fluid>.png`
+  (the filled-bucket item). Renders against 26.2 fluid textures.
+- **`gen_item_links.py`** — regenerates `wiki/Module_ItemLink.txt` from the mod's `en_us.json` (the
+  set of mod item/block/fluid display names). **Rerun when items are added.**
 
-**Automation Domain:**
-- Laser Quarry
-- (Future automation items)
+## Icons & media
+- Recipe/list icons are `File:Grid <Display Name>.png`; `{{Grid|Name}}` and `{{Grid Cycle|A;B}}`
+  look them up (graceful text fallback if missing). Vanilla ingredient icons are generated too, so
+  recipe grids show real sprites.
+- Fluids: animated `Fluid <Fluid>.gif` in the infobox `image`; bucket `Bucket of <Fluid>.png` in
+  `image2`; the Crucible recipe **output** slot shows the animated gif (never the bucket).
+- Regenerate against the worktree that has the content (26.2 for the newest), write into
+  `wiki/media/`, then `--media --used-only`.
+- Fandom serves uploads as WebP — a CDN fetch returning `image/webp` is normal, not corruption. If a
+  just-uploaded icon renders as a missing-file redlink that a purge/null-edit won't clear, force a
+  new file revision (re-encode the PNG so bytes differ, then re-upload).
 
-**Power Domain:**
-- Redstone Engine
-- Stirling Engine
-- RF Energy System
-- (Future power items)
+## Page structure & templates
+Every recipe uses a **template — never a hand-built wikitable.** The families:
+- **Infoboxes** (`Module:Infobox`): `{{Item}}`, `{{Block}}` — fields like `image`/`image2`/
+  `imagesize`/`caption`/`type`/`hardness`/`blastresistance`/`added`/`id`.
+- **Recipes**: `{{Crafting}}` (grid), `{{Grinding}}` (Macerator), `{{Milling}}` (Sawmill),
+  `{{Smelting}}`, `{{Crucible}}` (item→fluid, mB), `{{Alloy Smelter}}` (2-input→output+byproduct).
+  Each is a wrapper `Template` + a `Module` + a `{{Grid <X> Table}}` widget + a `.styles.css`.
+- **Data/meta**: `{{ID}}` (namespaced id + translation key — copy the real key from lang, don't
+  infer), `{{History}}`, `{{Breaking}}` (mining-time table), `{{About}}`/`{{Hatnote}}`,
+  `{{Disambig}}`, `{{LootChestItem}}` (chest-loot table via `Module:LootChest`).
+- **Linking**: `{{Grid}}`/`Module:Cycle` route each item's link through **`Module:ItemLink`** — mod
+  items → their local page, vanilla items → the Minecraft Wiki. `{{Mcw|Page|text}}` links vanilla
+  items in prose (uses Fandom's built-in `w:c:minecraft:` interwiki; needs no wiki config). Keep
+  `Module:ItemLink` in sync via `gen_item_links.py`.
 
-**Tools Domain:**
-- Wrench
-- Marking Fluid
+A typical item/block page: infobox → intro sentence (with links) → `== Obtaining ==`
+(Breaking/Crafting/Grinding/…) → `== Usage ==` → `== Data values ==` (`{{ID}}`) → `== History ==`
+→ `== See also ==` → `[[Category:…]]`.
 
-**Materials/Crafting:**
-- Gears (wooden, stone, iron, copper, diamond)
-- (Other crafting components)
+## Wiki writing conventions (established, follow exactly)
+- **One page per item/block/concept**, heavily cross-linked; concise wiki-style (facts, not tutorials).
+- **Body states CURRENT behavior.** "Moved from / renamed / now / no longer / in vX" belongs **only**
+  in the `{{History}}` section.
+- **All recipes use the recipe templates**, never wikitables. Don't restate a recipe in prose
+  ("Requires/Yields X + Y") — the grid already shows it; only add what the grid can't.
+- `{{History}}` "Added" entries lead with the item's **32px icon**, inline: `[[File:Grid X.png|32px]] Added '''X'''.`
+- **Overview / disambiguation pages get NO `== History ==`** (only concrete item/block/machine pages do).
+- Link vanilla items to the Minecraft Wiki (`{{Mcw}}` in prose; automatic in recipe grids); link mod
+  items and concepts internally.
+- Naming: the melting machine is **"Crucible"**, never "Magma Crucible" (matches the shipped lang).
+- **Fandom caps expensive parser functions at 100/page.** `{{#ifexist:}}` counts; a big recipe page
+  is already near the cap. Never add a per-item `#ifexist` — use a table lookup (that's why
+  `Module:ItemLink` exists).
 
-**Getting Started:**
-- Installation
-- Your First Pipe Network
-- Understanding Tiers
+## Multi-version
+The mod ships for Minecraft 1.21.1, 1.21.11, 26.1, and 26.2 on Fabric & NeoForge. Document the
+**current behavior** and keep version numbers out of prose where possible — the Installation page is
+written version-agnostically and points at the download pages (Modrinth/CurseForge) as the source of
+truth for supported versions. Note version-specific differences only where they matter to a player.
 
-## Technology Stack
+## Workflow
+1. `--pull --dry-run` to check for contributor drift; reconcile/commit any live edits first.
+2. Edit `wiki/*.txt`. Regenerate/refresh icons if new items were added
+   (`render_blocks`/`upscale_icons`/`vanilla_icons`/`fluid_icons` against `../logistics-mc-26.2`,
+   plus `gen_item_links.py`).
+3. `--pull --dry-run` again (still clean), then `--pages` and `--media --used-only`.
+4. Optionally verify live via the API (`action=parse`) — check for Script errors, unexpanded
+   `{{…}}`, and missing-file redlinks.
+5. Commit on `docs`, push only when asked.
 
-### Zensical
-- Configuration: `zensical.toml`
-- Builds static site from markdown in `docs/` directory
-- Material for MkDocs-inspired classic theme
-- GitHub integration for "view source" buttons
-
-### Key Commands
-(Assuming standard Zensical commands - verify in main mod if needed)
-```bash
-# Build docs
-zensical build
-
-# Serve locally
-zensical serve
-
-# Deploy (if configured)
-zensical deploy
-```
-
-## Source Material
-
-### Main Mod Documentation
-Rich source material available in `../logistics-mc-1.21.11/`:
-
-**README.md** - Comprehensive user guide with:
-- Feature overview and status
-- All pipe types with recipes and usage
-- Getting started guide
-- Installation instructions
-
-**docs/DESIGN.md** - Technical architecture:
-- Three-tier system philosophy
-- Module system architecture
-- Rendering and routing details
-- Future roadmap
-
-**docs/PIPE_TYPES.md** - Detailed pipe behaviors
-**docs/MATERIALS.md** - Material progression system
-**docs/KILN_PROGRESSION.md** - Crafting progression
-**docs/ASSETS.md** - Asset creation guidelines
-
-### Content Adaptation Strategy
-1. **User-facing content**: Adapt README.md sections into structured guides
-2. **Technical content**: Simplify DESIGN.md for architecture overview
-3. **Reference content**: Extract pipe/machine details into reference pages
-4. **Visual content**: Include images, diagrams, recipes where helpful
-
-## Documentation Principles
-
-### Wiki-Style Approach
-Inspired by **ftbwiki.org**, the documentation follows a granular, interconnected structure:
-- **One page per item/block/concept** - Each piece of equipment gets dedicated coverage
-- **Heavy cross-linking** - Related items are linked extensively
-- **Domain organization** - Group by function (pipes, automation, power, tools)
-- **Discoverability** - Users browse and discover through links, not just search
-- **Concise, focused content** - Each page covers one topic thoroughly but briefly
-
-### Page Structure Template
-Each item/block page should include:
-
-1. **Name & Brief Description** - What it is in 1-2 sentences
-2. **Recipe** - Crafting recipe with ingredient links
-3. **Behavior/Usage** - How it works, what it does
-4. **Configuration** - If applicable (e.g., wrench interactions)
-5. **Tips & Tricks** - Practical usage hints
-6. **Related Items** - Heavy linking to:
-   - Components used in recipe
-   - Items it works with
-   - Alternatives or upgrades
-   - Related concepts
-
-### Audience
-- **Primary**: Minecraft players using the mod
-- **Secondary**: Mod pack creators, server admins
-- **Tertiary**: Developers interested in the mod's design
-
-### Style Guidelines
-- Clear, concise language (wiki-style, not guide-style)
-- Facts and mechanics, not tutorials
-- Recipe boxes for crafting (link all ingredients)
-- In-game screenshots/diagrams (when available)
-- Extensive cross-references between related items
-- Short paragraphs, bullet points for readability
-
-### Tier-Based Organization
-Follow the mod's three-tier architecture:
-1. **Tier 1 (Mechanical)**: Start here - basic pipes, no item awareness
-2. **Tier 2 (Smart)**: Item-aware routing and decisions
-3. **Tier 3 (Network)**: Abstract logistics (future)
-
-Present features in progression order so new players aren't overwhelmed.
-
-### Cross-Linking Examples
-Heavy linking is key to wiki-style discoverability. Examples:
-
-**Item Extractor Pipe page should link to:**
-- [Wrench](../tools/wrench.md) - used to configure extraction face
-- [Copper Transport Pipe](copper-transport-pipe.md) - for connecting network
-- [Item Merger Pipe](item-merger-pipe.md) - for collecting extracted items
-- [Redstone Engine](../power/redstone-engine.md) - extraction requires power
-- [Pipe Networks](../core/pipe-networks.md) - concept overview
-- Recipe ingredients: [Planks], [Glass]
-
-**Laser Quarry page should link to:**
-- [Stirling Engine](../power/stirling-engine.md) - recommended power source
-- [RF Energy](../power/rf-energy.md) - power system concept
-- [Item Extractor Pipe](../pipes/item-extractor-pipe.md) - for collecting drops
-- [Copper Transport Pipe](../pipes/copper-transport-pipe.md) - for transport network
-- Recipe ingredients: [Iron Gear](../materials/iron-gear.md), [Diamond Gear](../materials/diamond-gear.md), etc.
-
-**Copper Transport Pipe page should link to:**
-- [Marking Fluid](../tools/marking-fluid.md) - for network segmentation
-- [Wrench](../tools/wrench.md) - for pipe configuration
-- [Stone Transport Pipe](stone-transport-pipe.md) - slower alternative
-- [Pipe Connectivity](../core/connectivity.md) - how pipes connect
-- Recipe ingredients: [Copper Ingot], [Glass]
-
-## Current Status
-
-### Implemented in Mod (v0.1.0)
-- ✅ All Tier 1 mechanical pipes (stone, copper, wood, iron, gold, sandstone, obsidian)
-- ✅ All Tier 2 smart pipes (diamond, quartz)
-- ✅ Engines (redstone, stirling)
-- ✅ Laser quarry
-- ✅ Wrench tool
-- ✅ Marking fluid (copper pipe segmentation)
-
-### Documentation Status
-- ⚠️ Minimal placeholder structure
-- ⚠️ No installation guide
-- ⚠️ No pipe guides or tutorials
-- ⚠️ No reference pages
-
-### Domain Index Pages
-Each domain (pipes/, automation/, power/, etc.) should have an `index.md` that:
-- Lists all items in that domain with brief descriptions
-- Groups items by sub-category if applicable (e.g., Tier 1 vs Tier 2 pipes)
-- Links to core concepts relevant to that domain
-- Serves as a navigation hub for browsing
-
-**Example - pipes/index.md:**
-```markdown
-# Pipes
-
-Pipes are the core of the Logistics mod, transporting items through your network.
-
-## Tier 1: Mechanical Pipes
-Basic pipes that perform mechanical operations without item awareness.
-
-- [Stone Transport Pipe](stone-transport-pipe.md) - Very slow transport
-- [Copper Transport Pipe](copper-transport-pipe.md) - Standard transport
-- [Item Extractor Pipe](item-extractor-pipe.md) - Pull from inventories
-- [Item Merger Pipe](item-merger-pipe.md) - Converge to single output
-- [Golden Transport Pipe](golden-transport-pipe.md) - Speed boost
-- [Item Passthrough Pipe](item-passthrough-pipe.md) - Bypass inventories
-- [Item Void Pipe](item-void-pipe.md) - Delete items
-
-## Tier 2: Smart Pipes
-Item-aware pipes that make routing decisions.
-
-- [Item Filter Pipe](item-filter-pipe.md) - Route by item type
-- [Item Insertion Pipe](item-insertion-pipe.md) - Prefer inventories
-
-See also: [Pipe Networks](../core/pipe-networks.md), [Tier System](../core/tier-system.md)
-```
-
-### Immediate Priorities
-1. Set up domain directory structure (pipes/, automation/, power/, tools/, materials/, core/)
-2. Create domain index pages (pipes/index.md, automation/index.md, etc.)
-3. Build core concept pages (pipe-networks.md, tier-system.md, etc.)
-4. Create individual pipe pages (start with Tier 1, most commonly used)
-5. Create power system pages (engines, RF energy)
-6. Create tool pages (wrench, marking fluid)
-7. Create material/crafting component pages (gears)
-8. Update main index.md as navigation hub
-9. Create getting-started pages (installation, first-network)
-
-## Multi-Version Support
-The mod uses worktrees for different Minecraft versions:
-- `logistics-mc-1.21.1` (1.21.1)
-- `logistics-mc-1.21.11` (1.21.11 - primary)
-- `logistics-mc-26.1` (future version)
-
-Documentation should:
-- Primarily target the current stable version (1.21.11)
-- Note version-specific differences where relevant
-- Use version-agnostic language where possible
-
-## GitHub Integration
-Configured in `zensical.toml`:
-- Repository: `Indemnity83/logistics`
-- Enables "edit this page" functionality
-- Links back to main mod repository
-
-## Development Workflow
-1. Work in the `docs` branch (this worktree)
-2. Reference main mod worktrees for source material
-3. Build locally to preview changes
-4. Commit and push documentation updates
-5. Deploy site (process TBD)
-
-## Page Template Example
-
-Here's a complete example of a wiki-style item page:
-
-```markdown
-# Item Extractor Pipe
-
-The **Item Extractor Pipe** is a [Tier 1](../core/tier-system.md) mechanical pipe that actively pulls items from adjacent inventories into your [pipe network](../core/pipe-networks.md).
-
-## Recipe
-**Crafting:**
-- 1× Planks (any type)
-- 1× Glass
-- **Yields:** 8× Item Extractor Pipe
-
-## Behavior
-The Item Extractor Pipe pulls one item at a time from a connected inventory and inserts it into the pipe network.
-
-**Key features:**
-- Extracts from one face only (configurable)
-- Pulls one item per operation
-- Requires adjacent inventory to extract from
-- Connects to other pipes on remaining faces
-
-## Configuration
-Use a [Wrench](../tools/wrench.md) to select which face extracts from the inventory:
-1. Right-click with wrench
-2. Face cycles through available directions
-3. Active extraction face indicated by opaque connector
-
-Only one face can extract at a time.
-
-## Tips
-- Place extraction face directly against the inventory (chest, furnace, etc.)
-- Connect other faces to [Copper Transport Pipes](copper-transport-pipe.md) to build your network
-- Use [Item Merger Pipes](item-merger-pipe.md) to collect items from multiple extractors
-- Extraction is automatic - no redstone required
-- Cannot extract through [Item Passthrough Pipes](item-passthrough-pipe.md)
-
-## See Also
-- [Copper Transport Pipe](copper-transport-pipe.md) - Connect extractors to your network
-- [Item Merger Pipe](item-merger-pipe.md) - Combine multiple extraction streams
-- [Wrench](../tools/wrench.md) - Configure extraction face
-- [Pipe Networks](../core/pipe-networks.md) - Understanding pipe connectivity
-- [Tier System](../core/tier-system.md) - Tier 1 mechanical pipes
-```
-
-### Template Structure Breakdown
-1. **Title** - Item name as H1
-2. **Introduction** - Brief description with links to key concepts
-3. **Recipe** - Crafting requirements (link ingredients when they're mod items)
-4. **Behavior** - What it does, how it works
-5. **Configuration** - If applicable, how to configure with tools
-6. **Tips** - Practical usage advice, common patterns
-7. **See Also** - Related items and concepts (extensive links)
+Pre-commit / pre-push hooks run `./gradlew` (Spotless) and **fail in this docs-only worktree** —
+bypass with `git commit --no-verify` / `git push --no-verify`.
 
 ## Notes for Claude
-- This worktree contains ONLY documentation, no mod code
-- Source material is in sibling worktrees (primarily `../logistics-mc-1.21.11/`)
-- **Wiki-style, not guide-style**: Factual, concise, heavily cross-linked
-- Each item/concept gets one dedicated page
-- Focus on user-facing clarity over technical completeness
-- When adapting technical docs, simplify for player audience
-- Maintain consistency with the mod's three-tier progression model
-- Link everything - ingredients, related items, concepts, tools
-- Domain organization: pipes/, automation/, power/, tools/, materials/, core/
+- Source material is the sibling mod worktrees (primarily `../logistics-mc-26.2`); read the data/lang, don't guess recipes or IDs.
+- Wiki-style, not guide-style: factual, concise, one page per thing, link everything.
+- When adding a machine with a new recipe shape, add a matching recipe-template family (wrapper +
+  `Module` + `{{Grid <X> Table}}` widget + styles); keep new machine modules self-contained rather
+  than editing the shared `Module:Grinding` (large blast radius).
