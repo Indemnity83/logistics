@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "#c:nuggets/tin",
-    "#c:nuggets/bronze"
+    "#c:nuggets/bronze",
+    "#c:nuggets/copper"
   ]
 }
