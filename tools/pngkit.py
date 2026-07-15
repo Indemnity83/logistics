@@ -27,8 +27,10 @@ def _unfilter(raw, h, stride, bpp):
     out, prev = bytearray(), bytearray(stride)
     pos = 0
     for _ in range(h):
-        filt = raw[pos]; pos += 1
-        line = bytearray(raw[pos:pos + stride]); pos += stride
+        filt = raw[pos]
+        pos += 1
+        line = bytearray(raw[pos:pos + stride])
+        pos += stride
         if filt == 1:
             for x in range(bpp, stride):
                 line[x] = (line[x] + line[x - bpp]) & 255
@@ -102,6 +104,8 @@ def decode_rgba(path):
         raise ValueError(f"{path}: Adam7-interlaced PNGs are not supported; de-interlace first.")
     if color_type not in _CHANNELS:
         raise ValueError(f"{path}: unsupported PNG color type {color_type}.")
+    if bit_depth == 16:
+        raise ValueError(f"{path}: 16-bit PNGs are not supported; convert to 8-bit first.")
     channels = _CHANNELS[color_type]
     stride = (w * channels * bit_depth + 7) // 8
     bpp = max(1, (channels * bit_depth + 7) // 8)
@@ -134,19 +138,24 @@ def decode_rgba(path):
                 g = s[0] * 255 // gmax if bit_depth < 8 else s[0]
                 a = 0 if trns_gray is not None and s[0] == trns_gray else 255
                 r = gg = bb = g
-                out[o:o + 4] = bytes([r, gg, bb, a]); o += 4
+                out[o:o + 4] = bytes([r, gg, bb, a])
+                o += 4
             elif color_type == 2:  # RGB
                 a = 0 if trns_rgb is not None and s == trns_rgb else 255
-                out[o:o + 4] = bytes([s[0], s[1], s[2], a]); o += 4
+                out[o:o + 4] = bytes([s[0], s[1], s[2], a])
+                o += 4
             elif color_type == 3:  # indexed
                 idx = s[0]
                 r, g, b = palette[idx]
                 a = alphas[idx] if idx < len(alphas) else 255
-                out[o:o + 4] = bytes([r, g, b, a]); o += 4
+                out[o:o + 4] = bytes([r, g, b, a])
+                o += 4
             elif color_type == 4:  # grayscale + alpha
-                out[o:o + 4] = bytes([s[0], s[0], s[0], s[1]]); o += 4
+                out[o:o + 4] = bytes([s[0], s[0], s[0], s[1]])
+                o += 4
             else:  # RGBA, non-8-bit (16)
-                out[o:o + 4] = bytes([s[0], s[1], s[2], s[3]]); o += 4
+                out[o:o + 4] = bytes([s[0], s[1], s[2], s[3]])
+                o += 4
     return w, h, out
 
 
@@ -190,9 +199,12 @@ def composite_over(base, top):
             out[i:i + 4] = base[i:i + 4]
         else:
             inv = 255 - ta
+            ba = base[i + 3]
+            ao = ta + ba * inv // 255
             for k in range(3):
-                out[i + k] = (top[i + k] * ta + base[i + k] * inv) // 255
-            out[i + 3] = ta + base[i + 3] * inv // 255
+                # straight-alpha source-over, normalized by the output alpha
+                out[i + k] = (top[i + k] * ta + base[i + k] * ba * inv // 255) // ao
+            out[i + 3] = ao
     return out
 
 
