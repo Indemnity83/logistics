@@ -11,8 +11,8 @@ glass envelope. Build steps per material:
   4. composite the shared `valve-top` glass envelope over the result.
 
 Source art lives in tools/valve-art/. Vanilla donor textures are read from the
-Minecraft client jar at generation time and never committed. Pure stdlib via
-texturekit -- no venv, no Pillow.
+Minecraft client jar at generation time and never committed. Pure stdlib via the
+vendored tools/pngkit.py -- no venv, no Pillow.
 
 Usage:
   python3 tools/generate_valve_textures.py [--out DIR] [--mc-jar JAR]
@@ -25,10 +25,9 @@ import sys
 import tempfile
 import zipfile
 
-TEXTUREKIT = os.path.expanduser("~/Dev/Tools/texturekit")
-sys.path.insert(0, TEXTUREKIT)
-
-from pngkit import decode_rgba, encode_rgba, composite_over  # noqa: E402
+# pngkit is vendored alongside this script (tools/pngkit.py) so the tool is
+# self-contained; when run as a script its directory is on sys.path.
+from pngkit import decode_rgba, encode_rgba, composite_over
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEX = os.path.join(REPO, "common/src/main/resources/assets/logistics/textures/item")
@@ -134,8 +133,8 @@ def tint(element, color):
     for i in range(0, len(element), 4):
         if element[i + 3] == 0:
             continue
-        l = element[i] * 0.2126 + element[i + 1] * 0.7152 + element[i + 2] * 0.0722
-        f = l / 255.0
+        luma = element[i] * 0.2126 + element[i + 1] * 0.7152 + element[i + 2] * 0.0722
+        f = luma / 255.0
         out[i] = min(255, round(cr * f))
         out[i + 1] = min(255, round(cg * f))
         out[i + 2] = min(255, round(cb * f))
@@ -155,8 +154,8 @@ def tint_gradient(element, top_color, bottom_color):
         cr = top_color[0] + (bottom_color[0] - top_color[0]) * t
         cg = top_color[1] + (bottom_color[1] - top_color[1]) * t
         cb = top_color[2] + (bottom_color[2] - top_color[2]) * t
-        l = element[i] * 0.2126 + element[i + 1] * 0.7152 + element[i + 2] * 0.0722
-        f = l / 255.0
+        luma = element[i] * 0.2126 + element[i + 1] * 0.7152 + element[i + 2] * 0.0722
+        f = luma / 255.0
         out[i] = min(255, round(cr * f))
         out[i + 1] = min(255, round(cg * f))
         out[i + 2] = min(255, round(cb * f))
