@@ -11,7 +11,6 @@ import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
 import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.refinery.RefineryScreen;
-import com.logistics.automation.fabricator.FabricatorProcessorComponent;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.kiln.KilnScreen;
@@ -215,15 +214,7 @@ public final class NeoForgeClientSetup {
         event.register(SyncFabricatorOutputsPacket.TYPE, (packet, context) -> {
             var screen = Minecraft.getInstance().gui.screen();
             if (screen instanceof SequentialFabricatorScreen fabricatorScreen) {
-                List<FabricatorProcessorComponent.Output> outputs = new java.util.ArrayList<>(packet.recipeIds().size());
-                for (int i = 0; i < packet.recipeIds().size(); i++) {
-                    ResourceId id = ResourceId.tryParse(packet.recipeIds().get(i));
-                    if (id != null) {
-                        outputs.add(new FabricatorProcessorComponent.Output(
-                                id, packet.results().get(i), packet.states().get(i)));
-                    }
-                }
-                fabricatorScreen.updateOutputs(packet.pos(), outputs);
+                fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
             }
         });
     }

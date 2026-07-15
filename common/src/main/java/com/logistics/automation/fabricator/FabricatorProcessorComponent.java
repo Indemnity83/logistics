@@ -59,6 +59,7 @@ public final class FabricatorProcessorComponent
     // Fabricator recipes are cached per RecipeManager instance (rebuilt on datapack reload).
     @Nullable private RecipeManager cachedManager;
     private List<RecipeHolder<FabricatorRecipe>> cachedRecipes = List.of();
+    @Nullable private Map<ResourceId, RecipeHolder<FabricatorRecipe>> cachedById;
 
     public FabricatorProcessorComponent(
             String id,
@@ -186,19 +187,9 @@ public final class FabricatorProcessorComponent
         return holder != null && holder.value().canCraftFrom(pool);
     }
 
-    /** Consume ingredient counts from the input slots, same greedy allocation as availability. */
+    /** Consume ingredient counts from the input slots via the recipe's shared greedy allocation. */
     private void consumeIngredients(FabricatorRecipe recipe) {
-        for (SizedIngredient ingredient : recipe.ingredients()) {
-            int needed = ingredient.count();
-            for (int i = 0; i < items.inputCount() && needed > 0; i++) {
-                ItemStack stack = items.input(i);
-                if (!stack.isEmpty() && ingredient.test(stack)) {
-                    int take = Math.min(stack.getCount(), needed);
-                    items.consumeInput(i, take);
-                    needed -= take;
-                }
-            }
-        }
+        recipe.allocateFrom(pool(), (slot, amount) -> items.consumeInput(slot, amount));
     }
 
     private List<ItemStack> pool() {
@@ -227,12 +218,17 @@ public final class FabricatorProcessorComponent
         lit.setLit(ctx, false);
     }
 
+    /** Id-keyed view of {@link #fabricatorRecipes}, cached alongside it per RecipeManager instance. */
     private Map<ResourceId, RecipeHolder<FabricatorRecipe>> recipesById(RecipeManager rm) {
-        Map<ResourceId, RecipeHolder<FabricatorRecipe>> byId = new LinkedHashMap<>();
-        for (RecipeHolder<FabricatorRecipe> holder : fabricatorRecipes(rm)) {
-            byId.put(ResourceId.wrap(holder.id().identifier()), holder);
+        List<RecipeHolder<FabricatorRecipe>> recipes = fabricatorRecipes(rm);
+        if (cachedById == null) {
+            Map<ResourceId, RecipeHolder<FabricatorRecipe>> byId = new LinkedHashMap<>();
+            for (RecipeHolder<FabricatorRecipe> holder : recipes) {
+                byId.put(ResourceId.wrap(holder.id().identifier()), holder);
+            }
+            cachedById = byId;
         }
-        return byId;
+        return cachedById;
     }
 
     @SuppressWarnings("unchecked")
@@ -248,6 +244,7 @@ public final class FabricatorProcessorComponent
         }
         cachedManager = rm;
         cachedRecipes = List.copyOf(found);
+        cachedById = null;
         return cachedRecipes;
     }
 
