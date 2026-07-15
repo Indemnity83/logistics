@@ -368,34 +368,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item NETHERITE_CHIPSET;
 
         // Valves — pipe chassis components
-        public static Item WOODEN_VALVE;
+        public static Item TIN_VALVE;
         public static Item COPPER_VALVE;
+        public static Item RUBBER_VALVE;
         public static Item BRONZE_VALVE;
         public static Item IRON_VALVE;
         public static Item GOLD_VALVE;
-        public static Item DIAMOND_VALVE;
-        public static Item OBSIDIAN_VALVE;
-        public static Item BLAZING_VALVE;
-        public static Item EMERALD_VALVE;
-        public static Item APATITE_VALVE;
         public static Item LAPIS_VALVE;
-        public static Item ENDER_VALVE;
+        public static Item APATITE_VALVE;
+        public static Item OBSIDIAN_VALVE;
+        public static Item AMETHYST_VALVE;
+        public static Item EMERALD_VALVE;
+        public static Item BLAZING_VALVE;
+        public static Item DIAMOND_VALVE;
+        public static Item ECHO_VALVE;
         public static Item NETHERITE_VALVE;
-
-        // Cores — intermediate components for valves and pipe logic
-        public static Item WOODEN_CORE;
-        public static Item COPPER_CORE;
-        public static Item BRONZE_CORE;
-        public static Item IRON_CORE;
-        public static Item GOLD_CORE;
-        public static Item LAPIS_CORE;
-        public static Item APATITE_CORE;
-        public static Item DIAMOND_CORE;
-        public static Item EMERALD_CORE;
-        public static Item BLAZING_CORE;
-        public static Item NETHERITE_CORE;
-        public static Item OBSIDIAN_CORE;
-        public static Item ENDER_CORE;
 
         private ITEM() {}
 
@@ -472,34 +459,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             NETHERITE_CHIPSET = INSTANCE.registerItem("netherite_chipset", Item::new);
 
             // Valves
-            WOODEN_VALVE = INSTANCE.registerItem("wooden_valve", Item::new);
+            TIN_VALVE = INSTANCE.registerItem("tin_valve", Item::new);
             COPPER_VALVE = INSTANCE.registerItem("copper_valve", Item::new);
+            RUBBER_VALVE = INSTANCE.registerItem("rubber_valve", Item::new);
             BRONZE_VALVE = INSTANCE.registerItem("bronze_valve", Item::new);
             IRON_VALVE = INSTANCE.registerItem("iron_valve", Item::new);
             GOLD_VALVE = INSTANCE.registerItem("gold_valve", Item::new);
-            DIAMOND_VALVE = INSTANCE.registerItem("diamond_valve", Item::new);
-            OBSIDIAN_VALVE = INSTANCE.registerItem("obsidian_valve", Item::new);
-            BLAZING_VALVE = INSTANCE.registerItem("blazing_valve", Item::new);
-            EMERALD_VALVE = INSTANCE.registerItem("emerald_valve", Item::new);
-            APATITE_VALVE = INSTANCE.registerItem("apatite_valve", Item::new);
             LAPIS_VALVE = INSTANCE.registerItem("lapis_valve", Item::new);
-            ENDER_VALVE = INSTANCE.registerItem("ender_valve", Item::new);
+            APATITE_VALVE = INSTANCE.registerItem("apatite_valve", Item::new);
+            OBSIDIAN_VALVE = INSTANCE.registerItem("obsidian_valve", Item::new);
+            AMETHYST_VALVE = INSTANCE.registerItem("amethyst_valve", Item::new);
+            EMERALD_VALVE = INSTANCE.registerItem("emerald_valve", Item::new);
+            BLAZING_VALVE = INSTANCE.registerItem("blazing_valve", Item::new);
+            DIAMOND_VALVE = INSTANCE.registerItem("diamond_valve", Item::new);
+            ECHO_VALVE = INSTANCE.registerItem("echo_valve", Item::new);
             NETHERITE_VALVE = INSTANCE.registerItem("netherite_valve", Item::new);
-
-            // Cores
-            WOODEN_CORE = INSTANCE.registerItem("wooden_core", Item::new);
-            COPPER_CORE = INSTANCE.registerItem("copper_core", Item::new);
-            BRONZE_CORE = INSTANCE.registerItem("bronze_core", Item::new);
-            IRON_CORE = INSTANCE.registerItem("iron_core", Item::new);
-            GOLD_CORE = INSTANCE.registerItem("gold_core", Item::new);
-            LAPIS_CORE = INSTANCE.registerItem("lapis_core", Item::new);
-            APATITE_CORE = INSTANCE.registerItem("apatite_core", Item::new);
-            DIAMOND_CORE = INSTANCE.registerItem("diamond_core", Item::new);
-            EMERALD_CORE = INSTANCE.registerItem("emerald_core", Item::new);
-            BLAZING_CORE = INSTANCE.registerItem("blazing_core", Item::new);
-            NETHERITE_CORE = INSTANCE.registerItem("netherite_core", Item::new);
-            OBSIDIAN_CORE = INSTANCE.registerItem("obsidian_core", Item::new);
-            ENDER_CORE = INSTANCE.registerItem("ender_core", Item::new);
         }
     }
 
@@ -589,12 +563,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
                 // Valves — after netherite gear
                 Item[] valves = {
-                    ITEM.WOODEN_VALVE,
-                    ITEM.COPPER_VALVE, ITEM.BRONZE_VALVE,
-                    ITEM.IRON_VALVE, ITEM.GOLD_VALVE, ITEM.DIAMOND_VALVE,
-                    ITEM.OBSIDIAN_VALVE, ITEM.BLAZING_VALVE, ITEM.EMERALD_VALVE,
-                    ITEM.APATITE_VALVE, ITEM.LAPIS_VALVE, ITEM.ENDER_VALVE,
-                    ITEM.NETHERITE_VALVE
+                    ITEM.TIN_VALVE, ITEM.COPPER_VALVE, ITEM.RUBBER_VALVE,
+                    ITEM.BRONZE_VALVE, ITEM.IRON_VALVE, ITEM.GOLD_VALVE,
+                    ITEM.LAPIS_VALVE, ITEM.APATITE_VALVE, ITEM.OBSIDIAN_VALVE,
+                    ITEM.AMETHYST_VALVE, ITEM.EMERALD_VALVE, ITEM.BLAZING_VALVE,
+                    ITEM.DIAMOND_VALVE, ITEM.ECHO_VALVE, ITEM.NETHERITE_VALVE
                 };
                 Item prev = ITEM.NETHERITE_GEAR;
                 for (Item valve : valves) {
@@ -613,13 +586,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT, ITEM.PULPED_BIOMASS,
                     ITEM.SLAG, ITEM.RICH_SLAG, ITEM.BITUMEN, ITEM.TAR,
                     ITEM.REDSTONE_CHIPSET, ITEM.ECHO_CHIPSET, ITEM.COPPER_CHIPSET,
-                    ITEM.IRON_CHIPSET, ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET, ITEM.NETHERITE_CHIPSET,
-                    ITEM.WOODEN_CORE,
-                    ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
-                    ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
-                    ITEM.APATITE_CORE, ITEM.DIAMOND_CORE, ITEM.EMERALD_CORE,
-                    ITEM.BLAZING_CORE, ITEM.NETHERITE_CORE,
-                    ITEM.OBSIDIAN_CORE, ITEM.ENDER_CORE
+                    ITEM.IRON_CHIPSET, ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET, ITEM.NETHERITE_CHIPSET
                 };
                 Item anchor = ITEM.BRONZE_INGOT;
                 for (Item item : intermediates) {

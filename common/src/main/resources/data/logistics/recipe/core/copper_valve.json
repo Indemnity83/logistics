@@ -1,26 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "QQQ",
-    "QFQ",
-    "IGI"
-  ],
+  "pattern": ["QMQ", "RMR", "MMM"],
   "key": {
-    "Q": {
-      "item": "logistics:core/quartz_crystal"
-    },
-    "F": {
-      "item": "logistics:core/copper_core"
-    },
-    "I": {
-      "item": "minecraft:iron_nugget"
-    },
-    "G": {
-      "item": "minecraft:gold_nugget"
-    }
+    "Q": "logistics:core/quartz_crystal",
+    "R": "minecraft:redstone",
+    "M": "minecraft:copper_ingot"
   },
-  "result": {
-    "count": 1,
-    "id": "logistics:core/copper_valve"
-  }
+  "result": { "count": 1, "id": "logistics:core/copper_valve" }
 }
