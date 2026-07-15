@@ -312,6 +312,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item TIN_NUGGET;
         public static Item BRONZE_INGOT;
         public static Item BRONZE_NUGGET;
+        public static Item COPPER_NUGGET;
         public static Item APATITE;
         public static Item MACHINE_CORE;
         public static Item REDSTONE_RECEPTION_COIL;
@@ -412,6 +413,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Bronze Materials
             BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot", Item::new);
             BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget", Item::new);
+            COPPER_NUGGET = INSTANCE.registerItem("copper_nugget", Item::new);
 
             // Apatite
             APATITE = INSTANCE.registerItem("apatite", Item::new);
@@ -572,6 +574,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 // Nuggets
                 entries.insertBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
                 entries.insertAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
+                entries.insertAfter(ITEM.BRONZE_NUGGET, ITEM.COPPER_NUGGET);
 
                 // Apatite
                 entries.insertBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
