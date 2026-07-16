@@ -13,6 +13,8 @@ import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
+import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
@@ -56,6 +58,8 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
@@ -68,6 +72,11 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeClientSetup::registerFluidModels);
+        NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientDisconnect);
+    }
+
+    private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientMachineRecipes.clear();
     }
 
     /**
@@ -217,5 +226,6 @@ public final class NeoForgeClientSetup {
                 fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
             }
         });
+        event.register(SyncMachineRecipesPacket.TYPE, (packet, context) -> ClientMachineRecipes.set(packet));
     }
 }
