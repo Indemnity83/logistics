@@ -13,6 +13,8 @@ import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
+import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
@@ -217,5 +219,6 @@ public final class NeoForgeClientSetup {
                 fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
             }
         });
+        event.register(SyncMachineRecipesPacket.TYPE, (packet, context) -> ClientMachineRecipes.set(packet));
     }
 }
