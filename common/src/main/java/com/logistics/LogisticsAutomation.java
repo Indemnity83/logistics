@@ -97,60 +97,136 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         TICKET_TYPE.register();
     }
 
-    /** Machine tuning — {@code config/logistics/machines.json}. */
+    /**
+     * Machine tuning — one file per machine under {@code config/logistics/machines/}. Every recipe machine
+     * shares the same template: {@code energy_capacity}, {@code max_energy_input}, {@code energy_per_tick}.
+     * Defaults match the historical hardcoded values, so this is a pure "make it configurable" surface.
+     */
     public static final class CONFIG extends ConfigEntries {
-        private static final Config machines = configFor(LogisticsConfigHost.MOD_ID, "machines");
+        private static final Config macerator = configFor(LogisticsConfigHost.MOD_ID, "machines.macerator");
+        private static final Config kiln = configFor(LogisticsConfigHost.MOD_ID, "machines.kiln");
+        private static final Config sawmill = configFor(LogisticsConfigHost.MOD_ID, "machines.sawmill");
+        private static final Config crucible = configFor(LogisticsConfigHost.MOD_ID, "machines.crucible");
+        private static final Config alloySmelter = configFor(LogisticsConfigHost.MOD_ID, "machines.alloy_smelter");
+        private static final Config quarry = configFor(LogisticsConfigHost.MOD_ID, "machines.quarry");
+        private static final Config refinery = configFor(LogisticsConfigHost.MOD_ID, "machines.refinery");
+        private static final Config fabricator = configFor(LogisticsConfigHost.MOD_ID, "machines.fabricator");
 
         private CONFIG() {}
 
-        public static final ConfigKey<Integer> QUARRY_AREA = machines.defineInt("quarry_area", 16)
+        // Macerator
+        public static final ConfigKey<Long> MACERATOR_ENERGY_CAPACITY =
+                macerator.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> MACERATOR_MAX_ENERGY_INPUT =
+                macerator.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> MACERATOR_ENERGY_PER_TICK =
+                macerator.defineLong("energy_per_tick", 10L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+
+        // Kiln
+        public static final ConfigKey<Long> KILN_ENERGY_CAPACITY =
+                kiln.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> KILN_MAX_ENERGY_INPUT =
+                kiln.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> KILN_ENERGY_PER_TICK =
+                kiln.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+        public static final ConfigKey<Long> KILN_RF_PER_COOK_TICK =
+                kiln.defineLong("rf_per_cook_tick", 10L).min(1L).describe("RF per vanilla smelting cook-tick (recipe energy = cook time x this)").register();
+
+        // Sawmill
+        public static final ConfigKey<Long> SAWMILL_ENERGY_CAPACITY =
+                sawmill.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> SAWMILL_MAX_ENERGY_INPUT =
+                sawmill.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> SAWMILL_ENERGY_PER_TICK =
+                sawmill.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+
+        // Crucible
+        public static final ConfigKey<Long> CRUCIBLE_ENERGY_CAPACITY =
+                crucible.defineLong("energy_capacity", 40_000L).min(0L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> CRUCIBLE_MAX_ENERGY_INPUT =
+                crucible.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> CRUCIBLE_ENERGY_PER_TICK =
+                crucible.defineLong("energy_per_tick", 40L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+        public static final ConfigKey<Long> CRUCIBLE_TANK_CAPACITY_MB =
+                crucible.defineLong("tank_capacity_mb", 10_000L).min(1L).describe("Molten-metal tank capacity (mB)").register();
+
+        // Alloy Smelter
+        public static final ConfigKey<Long> ALLOY_SMELTER_ENERGY_CAPACITY =
+                alloySmelter.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> ALLOY_SMELTER_MAX_ENERGY_INPUT =
+                alloySmelter.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> ALLOY_SMELTER_ENERGY_PER_TICK =
+                alloySmelter.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+
+        // Refinery
+        public static final ConfigKey<Long> REFINERY_ENERGY_CAPACITY =
+                refinery.defineLong("energy_capacity", 20_000L).min(1L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> REFINERY_MAX_ENERGY_INPUT =
+                refinery.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> REFINERY_ENERGY_PER_TICK =
+                refinery.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+        public static final ConfigKey<Long> REFINERY_INPUT_TANK_MB =
+                refinery.defineLong("input_tank_mb", 4_000L).min(1L).describe("Input fluid tank capacity (mB)").register();
+        public static final ConfigKey<Long> REFINERY_OUTPUT_TANK_MB =
+                refinery.defineLong("output_tank_mb", 10_000L).min(1L).describe("Output fluid tank capacity (mB)").register();
+
+        // Sequential Fabricator
+        public static final ConfigKey<Long> FABRICATOR_ENERGY_CAPACITY =
+                fabricator.defineLong("energy_capacity", 100_000L).min(1L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> FABRICATOR_MAX_ENERGY_INPUT =
+                fabricator.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> FABRICATOR_ENERGY_PER_TICK =
+                fabricator.defineLong("energy_per_tick", 80L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+
+        // Laser Quarry
+        public static final ConfigKey<Integer> QUARRY_AREA = quarry.defineInt("area", 16)
                 .min(3)
                 .describe("Quarry mining area side length (NxN blocks)")
                 .register();
 
-        public static final ConfigKey<Long> QUARRY_ENERGY_PER_BLOCK = machines.defineLong("quarry_energy_per_block", 60L)
+        public static final ConfigKey<Long> QUARRY_ENERGY_PER_BLOCK = quarry.defineLong("energy_per_block", 60L)
                 .min(0L)
                 .describe("RF cost per block mined")
                 .register();
 
         public static final ConfigKey<Double> QUARRY_ENERGY_MULTIPLIER =
-                machines.defineDouble("quarry_energy_multiplier", 1.0)
+                quarry.defineDouble("energy_multiplier", 1.0)
                         .finite()
                         .min(0.0)
                         .describe("Global energy cost multiplier")
                         .register();
 
-        public static final ConfigKey<Float> QUARRY_ARM_SPEED = machines.defineFloat("quarry_arm_speed", 0.1f)
+        public static final ConfigKey<Float> QUARRY_ARM_SPEED = quarry.defineFloat("arm_speed", 0.1f)
                 .finite()
                 .min(0.0f)
                 .describe("Arm movement speed (blocks/tick)")
                 .register();
 
         public static final ConfigKey<Float> QUARRY_ARM_SPEED_SCALING =
-                machines.defineFloat("quarry_arm_speed_scaling", 2000f)
+                quarry.defineFloat("arm_speed_scaling", 2000f)
                         .finite()
                         .greaterThan(0.0f)
                         .describe("Energy-to-speed scaling constant")
                         .register();
 
-        public static final ConfigKey<Long> QUARRY_ARM_ENERGY = machines.defineLong("quarry_arm_energy", 20L)
+        public static final ConfigKey<Long> QUARRY_ARM_ENERGY = quarry.defineLong("arm_energy", 20L)
                 .min(0L)
                 .describe("RF/tick cost for arm movement")
                 .register();
 
-        public static final ConfigKey<Float> QUARRY_RAIN_PENALTY = machines.defineFloat("quarry_rain_penalty", 0.7f)
+        public static final ConfigKey<Float> QUARRY_RAIN_PENALTY = quarry.defineFloat("rain_penalty", 0.7f)
                 .finite()
                 .range(0.0f, 1.0f)
                 .describe("Speed multiplier when raining (0.0-1.0)")
                 .register();
 
-        public static final ConfigKey<Integer> QUARRY_SCAN_RATE = machines.defineInt("quarry_scan_rate", 256)
+        public static final ConfigKey<Integer> QUARRY_SCAN_RATE = quarry.defineInt("scan_rate", 256)
                 .min(1)
                 .max(65536)
                 .describe("Max blocks scanned per tick when searching")
                 .register();
 
-        public static final ConfigKey<Boolean> QUARRY_LOAD_CHUNKS = machines.defineBoolean("quarry_load_chunks", false)
+        public static final ConfigKey<Boolean> QUARRY_LOAD_CHUNKS = quarry.defineBoolean("load_chunks", false)
                 .describe("Keep the quarry and its work area chunk-loaded while running")
                 .register();
 

@@ -45,7 +45,7 @@ public class BatteryGameTest {
             context.fail("Battery should have a block entity");
             return;
         }
-        setStored(battery, BatteryBlockEntity.CAPACITY);
+        setStored(battery, BatteryBlockEntity.capacity());
 
         context.runAfterDelay(5, () -> {
             int charge = context.getBlockState(pos).getValue(AbstractBatteryBlockEntity.CHARGE);
@@ -89,7 +89,7 @@ public class BatteryGameTest {
             context.fail("Battery should have a block entity");
             return;
         }
-        setStored(battery, BatteryBlockEntity.CAPACITY);
+        setStored(battery, BatteryBlockEntity.capacity());
 
         context.runAfterDelay(25, () -> {
             PipeNetwork net = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(pipePos));

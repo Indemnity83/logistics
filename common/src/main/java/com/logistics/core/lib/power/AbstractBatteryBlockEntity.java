@@ -36,8 +36,10 @@ import org.jetbrains.annotations.Nullable;
 public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
         implements HasEnergyStorage, AcceptsLowTierEnergy {
 
-    /** Max RF to push into a single adjacent machine per tick. */
-    private static final long MAX_OUTPUT_PER_SIDE = 200L;
+    /** Max RF to push into a single adjacent machine per tick; subclasses may source it from config. */
+    protected long maxOutputPerSide() {
+        return 200L;
+    }
 
     /**
      * Discrete charge level (0–10) exposed as a block state property so the battery's fill bar is
@@ -82,7 +84,7 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
             if (level.getBlockEntity(neighborPos) instanceof DirectEnergyReceiver) continue;
-            long maxSend = Math.min(MAX_OUTPUT_PER_SIDE, energy.getAmount());
+            long maxSend = Math.min(maxOutputPerSide(), energy.getAmount());
             if (maxSend <= 0) break;
             long sent = pushService.push(level, neighborPos, dir.getOpposite(), energy, maxSend);
             if (sent > 0) {

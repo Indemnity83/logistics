@@ -68,33 +68,89 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         ALIAS.register();
     }
 
-    /** Engine tuning — {@code config/logistics/engines.json}. */
+    /**
+     * Engine + power tuning — one file per unit under {@code config/logistics/engines/} and
+     * {@code config/logistics/power/}. Every engine shares a {@code buffer_capacity} knob; defaults
+     * match the historical hardcoded values, so this is a pure "make it configurable" surface.
+     */
     public static final class CONFIG extends ConfigEntries {
-        private static final Config engines = configFor(LogisticsConfigHost.MOD_ID, "engines");
+        private static final Config redstone = configFor(LogisticsConfigHost.MOD_ID, "engines.redstone");
+        private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
+        private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
+        private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
+        private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
 
         private CONFIG() {}
 
-        public static final ConfigKey<Long> REDSTONE_OUTPUT = engines.defineLong("redstone_output", 10L)
+        // Redstone engine
+        public static final ConfigKey<Long> REDSTONE_OUTPUT = redstone.defineLong("output", 10L)
                 .min(0L)
-                .describe("RF generated per 16-tick interval.")
+                .describe("RF generated per generation interval")
+                .register();
+        public static final ConfigKey<Long> REDSTONE_GENERATION_INTERVAL =
+                redstone.defineLong("generation_interval", 16L)
+                        .min(1L)
+                        .describe("Ticks between generation pulses when powered")
+                        .register();
+        public static final ConfigKey<Long> REDSTONE_BUFFER_CAPACITY = redstone.defineLong("buffer_capacity", 1_000L)
+                .min(0L)
+                .describe("Internal RF buffer capacity")
                 .register();
 
-        public static final ConfigKey<Double> STIRLING_MIN_OUTPUT = engines.defineDouble("stirling_min_output", 3.0)
+        // Stirling engine
+        public static final ConfigKey<Double> STIRLING_MIN_OUTPUT = stirling.defineDouble("min_output", 3.0)
                 .min(0.0)
                 .finite()
                 .maxValueOf(() -> CONFIG.STIRLING_MAX_OUTPUT)
-                .describe("Stirling engine minimum RF/t output.")
+                .describe("Minimum RF/t output")
                 .register();
-
-        public static final ConfigKey<Double> STIRLING_MAX_OUTPUT = engines.defineDouble("stirling_max_output", 10.0)
+        public static final ConfigKey<Double> STIRLING_MAX_OUTPUT = stirling.defineDouble("max_output", 10.0)
                 .min(0.0)
                 .finite()
                 .minValueOf(() -> CONFIG.STIRLING_MIN_OUTPUT)
-                .describe("Stirling engine maximum RF/t output.")
+                .describe("Maximum RF/t output")
+                .register();
+        public static final ConfigKey<Long> STIRLING_BUFFER_CAPACITY = stirling.defineLong("buffer_capacity", 10_000L)
+                .min(0L)
+                .describe("Internal RF buffer capacity")
+                .register();
+
+        // Creative engine
+        public static final ConfigKey<Long> CREATIVE_BUFFER_CAPACITY = creative.defineLong("buffer_capacity", 10_000L)
+                .min(0L)
+                .describe("Internal RF buffer capacity")
+                .register();
+
+        // Battery
+        public static final ConfigKey<Long> BATTERY_CAPACITY = battery.defineLong("capacity", 100_000L)
+                .min(0L)
+                .describe("Total RF storage")
+                .register();
+        public static final ConfigKey<Long> BATTERY_MAX_IO = battery.defineLong("max_io", 1_000L)
+                .min(0L)
+                .describe("Max RF/t inserted or extracted per side")
+                .register();
+        public static final ConfigKey<Long> BATTERY_OUTPUT_PER_SIDE = battery.defineLong("output_per_side", 200L)
+                .min(0L)
+                .describe("Max RF/t actively pushed into each adjacent machine")
+                .register();
+
+        // Cables
+        public static final ConfigKey<Long> CABLE_COPPER_TRANSFER = cables.defineLong("copper", 30L)
+                .min(0L)
+                .describe("Copper cable RF/t throughput")
+                .register();
+        public static final ConfigKey<Long> CABLE_GOLD_TRANSFER = cables.defineLong("gold", 60L)
+                .min(0L)
+                .describe("Gold cable RF/t throughput")
+                .register();
+        public static final ConfigKey<Long> CABLE_ENDER_TRANSFER = cables.defineLong("ender", 120L)
+                .min(0L)
+                .describe("Ender cable RF/t throughput")
                 .register();
 
         static void register() {
-            engines.registerSanitizeHook(() -> engines.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
+            stirling.registerSanitizeHook(() -> stirling.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
             LogisticsConfigMigrator.mapLegacy("engine", "redstoneOutput", REDSTONE_OUTPUT);
             LogisticsConfigMigrator.mapLegacyPair(
                     "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
