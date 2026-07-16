@@ -6,7 +6,9 @@
     "NNN"
   ],
   "key": {
-    "N": "#c:nuggets/copper"
+    "N": {
+      "tag": "c:nuggets/copper"
+    }
   },
   "result": {
     "count": 1,

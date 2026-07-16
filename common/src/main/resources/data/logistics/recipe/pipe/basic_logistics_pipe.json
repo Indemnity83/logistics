@@ -6,10 +6,18 @@
     "GTG"
   ],
   "key": {
-    "G": "#c:glass_blocks",
-    "T": "minecraft:redstone_torch",
-    "E": "logistics:core/gold_gear",
-    "F": "logistics:pipe/item_filter_pipe"
+    "G": {
+      "tag": "c:glass_blocks"
+    },
+    "T": {
+      "item": "minecraft:redstone_torch"
+    },
+    "E": {
+      "item": "logistics:core/gold_gear"
+    },
+    "F": {
+      "item": "logistics:pipe/item_filter_pipe"
+    }
   },
   "result": {
     "count": 8,

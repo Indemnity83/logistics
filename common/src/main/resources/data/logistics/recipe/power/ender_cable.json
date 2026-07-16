@@ -1,10 +1,20 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["RRR", "DGD", "RRR"],
+  "pattern": [
+    "RRR",
+    "DGD",
+    "RRR"
+  ],
   "key": {
-    "D": "logistics:core/ender_dust",
-    "G": "minecraft:gold_ingot",
-    "R": "logistics:power/rubber"
+    "D": {
+      "item": "logistics:core/ender_dust"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "R": {
+      "item": "logistics:power/rubber"
+    }
   },
   "result": {
     "count": 8,

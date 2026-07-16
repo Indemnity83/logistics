@@ -5,8 +5,12 @@
     "B"
   ],
   "key": {
-    "A": "logistics:core/diamond_gear",
-    "B": "logistics:pipe/extractor_module"
+    "A": {
+      "item": "logistics:core/diamond_gear"
+    },
+    "B": {
+      "item": "logistics:pipe/extractor_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/extractor_module_mkiii"

@@ -6,10 +6,18 @@
     "ACA"
   ],
   "key": {
-    "A": "minecraft:green_dye",
-    "B": "logistics:core/iron_gear",
-    "C": "minecraft:redstone",
-    "D": "logistics:pipe/blank_module"
+    "A": {
+      "item": "minecraft:green_dye"
+    },
+    "B": {
+      "item": "logistics:core/iron_gear"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "D": {
+      "item": "logistics:pipe/blank_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/item_sink_module"

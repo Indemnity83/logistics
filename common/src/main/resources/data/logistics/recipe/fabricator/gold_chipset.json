@@ -1,9 +1,22 @@
 {
   "type": "logistics:fabricator",
   "ingredients": [
-    { "ingredient": "minecraft:redstone", "count": 1 },
-    { "ingredient": "minecraft:gold_ingot", "count": 1 }
+    {
+      "ingredient": {
+        "item": "minecraft:redstone"
+      },
+      "count": 1
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:gold_ingot"
+      },
+      "count": 1
+    }
   ],
-  "result": { "id": "logistics:core/gold_chipset", "count": 1 },
+  "result": {
+    "id": "logistics:core/gold_chipset",
+    "count": 1
+  },
   "energy": 30000
 }

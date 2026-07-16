@@ -1,8 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:pipe/item_extractor_pipe",
-    "logistics:core/tar"
+    {
+      "item": "logistics:pipe/item_extractor_pipe"
+    },
+    {
+      "item": "logistics:core/tar"
+    }
   ],
   "result": {
     "id": "logistics:fluid/fluid_extractor_pipe",

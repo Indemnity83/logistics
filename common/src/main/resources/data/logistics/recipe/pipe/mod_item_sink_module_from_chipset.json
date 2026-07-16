@@ -6,10 +6,18 @@
     "ACA"
   ],
   "key": {
-    "A": "minecraft:green_dye",
-    "B": "logistics:core/gold_chipset",
-    "C": "minecraft:redstone",
-    "D": "logistics:pipe/blank_module"
+    "A": {
+      "item": "minecraft:green_dye"
+    },
+    "B": {
+      "item": "logistics:core/gold_chipset"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "D": {
+      "item": "logistics:pipe/blank_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/mod_item_sink_module"

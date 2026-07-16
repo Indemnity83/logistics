@@ -6,8 +6,12 @@
     "AAA"
   ],
   "key": {
-    "A": "minecraft:redstone",
-    "B": "logistics:pipe/basic_logistics_pipe"
+    "A": {
+      "item": "minecraft:redstone"
+    },
+    "B": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "id": "logistics:pipe/chassis_logistics_pipe_mk1"

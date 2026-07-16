@@ -6,9 +6,15 @@
     "PNP"
   ],
   "key": {
-    "P": "minecraft:paper",
-    "R": "minecraft:redstone",
-    "N": "#c:nuggets/copper"
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "N": {
+      "tag": "c:nuggets/copper"
+    }
   },
   "result": {
     "count": 1,

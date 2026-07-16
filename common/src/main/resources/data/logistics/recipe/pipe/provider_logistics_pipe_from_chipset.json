@@ -5,9 +5,15 @@
     "BCB"
   ],
   "key": {
-    "A": "logistics:core/gold_chipset",
-    "B": "minecraft:glowstone_dust",
-    "C": "logistics:pipe/basic_logistics_pipe"
+    "A": {
+      "item": "logistics:core/gold_chipset"
+    },
+    "B": {
+      "item": "minecraft:glowstone_dust"
+    },
+    "C": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "id": "logistics:pipe/provider_logistics_pipe"

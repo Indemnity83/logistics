@@ -6,10 +6,18 @@
     "ACA"
   ],
   "key": {
-    "A": "minecraft:orange_dye",
-    "B": "logistics:core/iron_chipset",
-    "C": "minecraft:redstone",
-    "D": "logistics:pipe/blank_module"
+    "A": {
+      "item": "minecraft:orange_dye"
+    },
+    "B": {
+      "item": "logistics:core/iron_chipset"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "D": {
+      "item": "logistics:pipe/blank_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/polymorphic_sink_module"

@@ -1,9 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["RRR", "CCC", "RRR"],
+  "pattern": [
+    "RRR",
+    "CCC",
+    "RRR"
+  ],
   "key": {
-    "C": "minecraft:copper_ingot",
-    "R": "logistics:power/rubber"
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "R": {
+      "item": "logistics:power/rubber"
+    }
   },
   "result": {
     "count": 8,

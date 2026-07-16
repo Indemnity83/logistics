@@ -1,9 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["RRR", "GGG", "RRR"],
+  "pattern": [
+    "RRR",
+    "GGG",
+    "RRR"
+  ],
   "key": {
-    "G": "minecraft:gold_ingot",
-    "R": "logistics:power/rubber"
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "R": {
+      "item": "logistics:power/rubber"
+    }
   },
   "result": {
     "count": 8,

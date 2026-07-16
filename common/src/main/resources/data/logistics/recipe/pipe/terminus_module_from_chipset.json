@@ -6,11 +6,21 @@
     "CDA"
   ],
   "key": {
-    "A": "minecraft:black_dye",
-    "B": "logistics:core/iron_chipset",
-    "C": "minecraft:purple_dye",
-    "D": "minecraft:redstone",
-    "E": "logistics:pipe/blank_module"
+    "A": {
+      "item": "minecraft:black_dye"
+    },
+    "B": {
+      "item": "logistics:core/iron_chipset"
+    },
+    "C": {
+      "item": "minecraft:purple_dye"
+    },
+    "D": {
+      "item": "minecraft:redstone"
+    },
+    "E": {
+      "item": "logistics:pipe/blank_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/terminus_module"

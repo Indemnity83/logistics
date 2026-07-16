@@ -1,9 +1,22 @@
 {
   "type": "logistics:fabricator",
   "ingredients": [
-    { "ingredient": "minecraft:redstone", "count": 1 },
-    { "ingredient": "minecraft:diamond", "count": 1 }
+    {
+      "ingredient": {
+        "item": "minecraft:redstone"
+      },
+      "count": 1
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:diamond"
+      },
+      "count": 1
+    }
   ],
-  "result": { "id": "logistics:core/diamond_chipset", "count": 1 },
+  "result": {
+    "id": "logistics:core/diamond_chipset",
+    "count": 1
+  },
   "energy": 80000
 }

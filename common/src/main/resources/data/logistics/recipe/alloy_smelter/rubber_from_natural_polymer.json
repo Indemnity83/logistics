@@ -1,9 +1,16 @@
 {
   "type": "logistics:alloy_smelter",
   "ingredients": [
-    "logistics:power/natural_polymer",
-    "logistics:core/sulfur_dust"
+    {
+      "item": "logistics:power/natural_polymer"
+    },
+    {
+      "item": "logistics:core/sulfur_dust"
+    }
   ],
-  "result": { "id": "logistics:power/rubber", "count": 2 },
+  "result": {
+    "id": "logistics:power/rubber",
+    "count": 2
+  },
   "energy": 1000
 }

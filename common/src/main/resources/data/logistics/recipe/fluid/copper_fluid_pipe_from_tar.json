@@ -1,8 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:pipe/copper_transport_pipe",
-    "logistics:core/tar"
+    {
+      "item": "logistics:pipe/copper_transport_pipe"
+    },
+    {
+      "item": "logistics:core/tar"
+    }
   ],
   "result": {
     "id": "logistics:fluid/copper_fluid_pipe",

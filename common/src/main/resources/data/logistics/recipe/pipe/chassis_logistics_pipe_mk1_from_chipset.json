@@ -6,9 +6,15 @@
     " A "
   ],
   "key": {
-    "A": "logistics:core/redstone_chipset",
-    "B": "minecraft:redstone",
-    "C": "logistics:pipe/basic_logistics_pipe"
+    "A": {
+      "item": "logistics:core/redstone_chipset"
+    },
+    "B": {
+      "item": "minecraft:redstone"
+    },
+    "C": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "id": "logistics:pipe/chassis_logistics_pipe_mk1"

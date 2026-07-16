@@ -5,8 +5,12 @@
     "B"
   ],
   "key": {
-    "A": "logistics:core/gold_chipset",
-    "B": "logistics:pipe/extractor_module"
+    "A": {
+      "item": "logistics:core/gold_chipset"
+    },
+    "B": {
+      "item": "logistics:pipe/extractor_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/extractor_module_mkii"

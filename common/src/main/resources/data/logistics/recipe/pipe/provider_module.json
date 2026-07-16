@@ -6,10 +6,18 @@
     "ACA"
   ],
   "key": {
-    "A": "minecraft:red_dye",
-    "B": "logistics:core/gold_gear",
-    "C": "minecraft:redstone",
-    "D": "logistics:pipe/blank_module"
+    "A": {
+      "item": "minecraft:red_dye"
+    },
+    "B": {
+      "item": "logistics:core/gold_gear"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "D": {
+      "item": "logistics:pipe/blank_module"
+    }
   },
   "result": {
     "id": "logistics:pipe/provider_module"

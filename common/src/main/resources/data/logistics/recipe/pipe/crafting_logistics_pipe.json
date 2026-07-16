@@ -5,9 +5,15 @@
     "BCB"
   ],
   "key": {
-    "A": "logistics:core/iron_gear",
-    "B": "logistics:core/amethyst_dust",
-    "C": "logistics:pipe/basic_logistics_pipe"
+    "A": {
+      "item": "logistics:core/iron_gear"
+    },
+    "B": {
+      "item": "logistics:core/amethyst_dust"
+    },
+    "C": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "id": "logistics:pipe/crafting_logistics_pipe"

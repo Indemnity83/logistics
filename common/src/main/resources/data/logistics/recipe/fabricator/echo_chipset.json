@@ -1,9 +1,22 @@
 {
   "type": "logistics:fabricator",
   "ingredients": [
-    { "ingredient": "minecraft:redstone", "count": 1 },
-    { "ingredient": "minecraft:echo_shard", "count": 1 }
+    {
+      "ingredient": {
+        "item": "minecraft:redstone"
+      },
+      "count": 1
+    },
+    {
+      "ingredient": {
+        "item": "minecraft:echo_shard"
+      },
+      "count": 1
+    }
   ],
-  "result": { "id": "logistics:core/echo_chipset", "count": 1 },
+  "result": {
+    "id": "logistics:core/echo_chipset",
+    "count": 1
+  },
   "energy": 40000
 }

@@ -6,9 +6,15 @@
     " A "
   ],
   "key": {
-    "A": "logistics:core/diamond_chipset",
-    "B": "minecraft:diamond",
-    "C": "logistics:pipe/basic_logistics_pipe"
+    "A": {
+      "item": "logistics:core/diamond_chipset"
+    },
+    "B": {
+      "item": "minecraft:diamond"
+    },
+    "C": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
   },
   "result": {
     "id": "logistics:pipe/chassis_logistics_pipe_mk4"
