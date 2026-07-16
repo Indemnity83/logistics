@@ -569,9 +569,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Components
             TAB.add(ITEM.MACHINE_CORE);
             TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
-            TAB.add(ITEM.NATURAL_POLYMER);
-            TAB.add(ITEM.SYNTHETIC_POLYMER);
-            TAB.add(ITEM.RUBBER);
             TAB.add(ITEM.SILICON_WAFER);
             TAB.add(BLOCK.MARKER);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
@@ -642,6 +639,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.QUICKSILVER);
             TAB.add(ITEM.BITUMEN);
             TAB.add(ITEM.TAR);
+            TAB.add(ITEM.NATURAL_POLYMER);
+            TAB.add(ITEM.SYNTHETIC_POLYMER);
+            TAB.add(ITEM.RUBBER);
 
             // Fluid buckets
             BUCKET.all().values().forEach(TAB::add);
