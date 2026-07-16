@@ -48,12 +48,12 @@ class BatteryBlockItemTest extends MinecraftTestEnvironment {
 
     @Test
     void bar_visibleAndScalesWithCharge() {
-        ItemStack full = stackWithEnergy(BatteryBlockEntity.CAPACITY);
+        ItemStack full = stackWithEnergy(BatteryBlockEntity.capacity());
         assertTrue(item.isBarVisible(full));
         assertEquals(13, item.getBarWidth(full), "full battery fills the whole bar");
         assertEquals(0x00AA00, item.getBarColor(full));
 
-        ItemStack half = stackWithEnergy(BatteryBlockEntity.CAPACITY / 2);
+        ItemStack half = stackWithEnergy(BatteryBlockEntity.capacity() / 2);
         int halfWidth = item.getBarWidth(half);
         assertTrue(halfWidth > 0 && halfWidth < 13, "half charge is a partial bar, got " + halfWidth);
     }

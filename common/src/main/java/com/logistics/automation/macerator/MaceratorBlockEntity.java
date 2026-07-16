@@ -1,6 +1,7 @@
 package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
@@ -23,19 +24,13 @@ import net.minecraft.world.level.block.state.BlockState;
  *
  * <p>Composed from machine components — an energy buffer, a two-slot furnace-style inventory, and
  * an RF-cost recipe processor. The recipe defines the total energy required; the processor spends
- * {@link #ENERGY_PER_TICK} RF/tick toward it.
+ * a configurable RF/tick toward it.
  */
 public class MaceratorBlockEntity extends MachineEntity {
 
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
     static final int SECONDARY_OUTPUT_SLOT = 2;
-
-    static final long ENERGY_CAPACITY = 10_000L;
-    static final long MAX_ENERGY_INPUT = 128L;
-
-    // Tuned so 1 coal in a Stirling Engine (16,000 RF) macerates 8 items (8 × 2,000 RF each).
-    static final int ENERGY_PER_TICK = 10;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -47,9 +42,10 @@ public class MaceratorBlockEntity extends MachineEntity {
 
     @Override
     protected void configure(MachineBuilder machine) {
+        long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY);
         energy = machine.energy("energy")
-                .capacity(ENERGY_CAPACITY)
-                .maxInput(MAX_ENERGY_INPUT)
+                .capacity(capacity)
+                .maxInput(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.MACERATOR_MAX_ENERGY_INPUT))
                 .build();
 
         var items = machine.items("inventory")
@@ -59,13 +55,13 @@ public class MaceratorBlockEntity extends MachineEntity {
 
         processor = machine.recipeProcessor("processor")
                 .resolver(new MaceratorRecipeResolver())
-                .rfPerTick(ENERGY_PER_TICK)
+                .rfPerTick(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_PER_TICK))
                 .items(items)
                 .energy(energy)
                 .lit(this::setLit)
                 .build();
 
-        containerData = MachineData.source(processor, energy, ENERGY_CAPACITY);
+        containerData = MachineData.source(processor, energy, capacity);
     }
 
     private void setLit(MachineContext ctx, boolean lit) {

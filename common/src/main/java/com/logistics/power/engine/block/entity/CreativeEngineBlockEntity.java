@@ -3,6 +3,7 @@ package com.logistics.power.engine.block.entity;
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.power.engine.block.CreativeEngineBlock;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPower;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,8 +23,6 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
     /** Output levels that double with each wrench click. */
     public static final long[] OUTPUT_LEVELS = CreativeOutputLevels.DEFAULT_LEVELS.clone();
 
-    private static final long MAX_ENERGY = 10_000L;
-
     // ==================== State ====================
 
     private final CreativeOutputLevels outputLevels = new CreativeOutputLevels();
@@ -42,7 +41,7 @@ public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
 
     @Override
     protected long getEnergyBufferCapacity() {
-        return MAX_ENERGY;
+        return LogisticsConfigHost.get(LogisticsPower.CONFIG.CREATIVE_BUFFER_CAPACITY);
     }
 
     @Override

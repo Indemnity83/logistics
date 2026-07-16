@@ -1,6 +1,7 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
@@ -27,7 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
  *
  * <p>Composed from machine components — an energy buffer, a three-slot inventory (input + two
  * outputs), and an RF-cost recipe processor. The recipe defines the total energy and the byproduct;
- * the processor spends {@link #ENERGY_PER_TICK} RF/tick and rolls the byproduct on completion.
+ * the processor spends a configurable RF/tick and rolls the byproduct on completion.
  * Top/sides feed the input; the bottom pulls both outputs.
  */
 public class SawmillBlockEntity extends MachineEntity {
@@ -36,10 +37,6 @@ public class SawmillBlockEntity extends MachineEntity {
     public static final int PRIMARY_OUTPUT_SLOT = 1;
     public static final int SECONDARY_OUTPUT_SLOT = 2;
     public static final int TOTAL_SLOTS = 3;
-
-    public static final long ENERGY_CAPACITY = 10_000L;
-    static final long MAX_ENERGY_INPUT = 128L;
-    static final int ENERGY_PER_TICK = 20;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -51,9 +48,10 @@ public class SawmillBlockEntity extends MachineEntity {
 
     @Override
     protected void configure(MachineBuilder machine) {
+        long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.SAWMILL_ENERGY_CAPACITY);
         energy = machine.energy("energy")
-                .capacity(ENERGY_CAPACITY)
-                .maxInput(MAX_ENERGY_INPUT)
+                .capacity(capacity)
+                .maxInput(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.SAWMILL_MAX_ENERGY_INPUT))
                 .build();
 
         var items = machine.items("inventory")
@@ -63,13 +61,13 @@ public class SawmillBlockEntity extends MachineEntity {
 
         processor = machine.recipeProcessor("processor")
                 .resolver(new SawmillRecipeResolver())
-                .rfPerTick(ENERGY_PER_TICK)
+                .rfPerTick(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.SAWMILL_ENERGY_PER_TICK))
                 .items(items)
                 .energy(energy)
                 .lit(this::setLit)
                 .build();
 
-        containerData = MachineData.source(processor, energy, ENERGY_CAPACITY);
+        containerData = MachineData.source(processor, energy, capacity);
     }
 
     private boolean isSawable(ItemStack stack) {
