@@ -4,7 +4,7 @@
   "key": {
     "Q": "logistics:core/quartz_crystal",
     "R": "minecraft:redstone",
-    "M": "logistics:power/rubber"
+    "M": "logistics:core/rubber"
   },
   "result": { "count": 1, "id": "logistics:core/rubber_valve" }
 }

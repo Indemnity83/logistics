@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "logistics:item/power/natural_polymer"
+    "model": "logistics:item/core/natural_polymer"
   }
 }
