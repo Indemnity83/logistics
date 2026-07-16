@@ -64,8 +64,10 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
                 LaserQuarryRenderState.pruneInterpolationCache(client.level);
             }
         });
-        ClientPlayConnectionEvents.DISCONNECT.register(
-                (handler, client) -> ClientRenderCacheHooks.clearAllInterpolationCaches());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            ClientRenderCacheHooks.clearAllInterpolationCaches();
+            ClientMachineRecipes.clear();
+        });
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ClientRenderCacheHooks.clearAllInterpolationCaches());
     }
 

@@ -30,6 +30,15 @@ public final class ClientMachineRecipes {
         refinery = List.copyOf(packet.refinery());
     }
 
+    /** Drops cached recipes on disconnect so a later server's sync starts clean. */
+    public static void clear() {
+        macerator = List.of();
+        sawmill = List.of();
+        crucible = List.of();
+        alloySmelter = List.of();
+        refinery = List.of();
+    }
+
     public static List<MaceratorRecipeWrapper> macerator() {
         return macerator;
     }
