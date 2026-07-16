@@ -50,7 +50,7 @@ purely a debugging aid, not analytics, and it is intentionally narrow.
 ## Your choice, always
 
 Crash reporting is **disabled by default** and must be turned on explicitly. The toggle lives in your
-config (`config/logistics.json`) and is controlled with operator-level commands.
+config (`config/logistics/reporting.json`) and is controlled with operator-level `/logistics config` commands.
 
 **Single-player:** you are the operator, so you decide for your own game.
 
@@ -66,14 +66,20 @@ separate choice you make on your own machine.
 All of these require operator (gamemaster) permission. Turning it off is exactly as easy as turning
 it on.
 
+Enabling, the join notice, and the DSN are now plain config keys, set with `/logistics config`. Changes
+persist immediately; the live Sentry client is reconciled on `/logistics reload-configs` (or next launch).
+
 | Command | What it does |
 | --- | --- |
-| `/logistics diagnostics` | Show whether reporting and the join notice are on or off |
-| `/logistics diagnostics enable` | Opt in to sending sanitized reports |
-| `/logistics diagnostics disable` | Stop sending reports |
+| `/logistics config reporting enabled true` | Opt in to sending sanitized reports |
+| `/logistics config reporting enabled false` | Stop sending reports |
+| `/logistics config reporting show_notification false` | Hide the one-time join invitation |
+| `/logistics config reporting dsn_override <url>` | Send to your own Sentry project instead |
+| `/logistics reload-configs` | Apply the above to the running server |
 | `/logistics diagnostics preview` | Write an example sanitized report to the log **without sending it** |
-| `/logistics diagnostics notify off` | Hide the one-time join invitation |
-| `/logistics diagnostics notify on` | Show the join invitation again |
+
+> After `/logistics config reporting enabled true`, run `/logistics reload-configs` (or restart) so the
+> live client starts this session.
 
 ### See for yourself: `preview`
 
@@ -145,16 +151,16 @@ Reports are processed by [Sentry](https://sentry.io), a widely used error-monito
 project owned by the mod's developers.
 
 **Self-hosting:** if you'd rather send reports to your own Sentry project (or a local endpoint of
-your choosing), set `crashReporting.dsnOverride` in `config/logistics.json` to your own DSN. When set,
-reports go there instead of the default project.
+your choosing), set `dsn_override` (via `/logistics config`, stored in
+`config/logistics/reporting.json`) to your own DSN. When set, reports go there instead of the default project.
 
 ---
 
 ## How to check the current state, or turn it off
 
-- Run `/logistics diagnostics` to see the current status at any time.
-- Run `/logistics diagnostics disable` to stop immediately.
-- Or open `config/logistics.json` and set `crashReporting.enabled` to `false`.
+- Run `/logistics config reporting enabled` to see the current value at any time.
+- Run `/logistics config reporting enabled false` then `/logistics reload-configs` to stop.
+- Or open `config/logistics/reporting.json` and set `enabled` to `false`.
 
 When disabled, the reporter sends nothing and runs no background networking.
 
@@ -179,7 +185,7 @@ Please [open an issue](https://github.com/Indemnity83/logistics/issues) and tell
 don't need to include the sensitive value itself). We'll tighten the sanitizer.
 
 **Can I turn off just the in-game invitation but leave reporting off?**
-Yes — `/logistics diagnostics notify off` hides the prompt without changing anything else.
+Yes — `/logistics config reporting show_notification false` hides the prompt without changing anything else.
 
 ---
 

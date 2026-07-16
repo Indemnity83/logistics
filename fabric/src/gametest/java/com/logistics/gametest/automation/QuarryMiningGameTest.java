@@ -1,7 +1,8 @@
 package com.logistics.gametest.automation;
 
+import com.logistics.automation.laserquarry.entity.QuarryEnergy;
+
 import com.logistics.LogisticsAutomation;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.automation.laserquarry.entity.QuarryPhase;
@@ -106,7 +107,7 @@ public class QuarryMiningGameTest {
         // EnergyComponent.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call),
         // so loop until the battery is full.
         IEnergyStorage es = quarry.energyStorage(Direction.DOWN);
-        long remaining = LogisticsConfig.get().quarry.energyCapacity();
+        long remaining = QuarryEnergy.energyCapacity();
         while (remaining > 0) {
             long inserted = es.insert(remaining, false);
             if (inserted == 0) {
@@ -183,7 +184,7 @@ public class QuarryMiningGameTest {
         // EnergyComponent.insert() is rate-limited by MAX_ENERGY_INPUT (1 000 RF/call);
         // loop to fill the full 7 680 RF capacity.
         IEnergyStorage es = quarry.energyStorage(Direction.DOWN);
-        long remaining = LogisticsConfig.get().quarry.energyCapacity();
+        long remaining = QuarryEnergy.energyCapacity();
         while (remaining > 0) {
             long inserted = es.insert(remaining, false);
             if (inserted == 0) {

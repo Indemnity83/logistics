@@ -40,6 +40,10 @@ import com.logistics.automation.sawmill.SawmillRecipe;
 import com.logistics.automation.sawmill.SawmillRecipeDisplay;
 import com.logistics.automation.sawmill.SawmillRecipeSerializer;
 import com.logistics.automation.sawmill.SawmillScreenHandler;
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigEntries;
+import com.indemnity83.configory.ConfigKey;
+import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -80,6 +84,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
     }
 
     @Override
+    public void registerConfig() {
+        CONFIG.register();
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
@@ -90,6 +99,76 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         CREATIVE.register();
         ALIAS.register();
         TICKET_TYPE.register();
+    }
+
+    /** Machine tuning — {@code config/logistics/machines.json}. */
+    public static final class CONFIG extends ConfigEntries {
+        private static final Config machines = configFor(LogisticsConfigHost.MOD_ID, "machines");
+
+        private CONFIG() {}
+
+        public static final ConfigKey<Integer> QUARRY_AREA = machines.defineInt("quarry_area", 16)
+                .min(3)
+                .describe("Quarry mining area side length (NxN blocks)")
+                .register();
+
+        public static final ConfigKey<Long> QUARRY_ENERGY_PER_BLOCK = machines.defineLong("quarry_energy_per_block", 60L)
+                .min(0L)
+                .describe("RF cost per block mined")
+                .register();
+
+        public static final ConfigKey<Double> QUARRY_ENERGY_MULTIPLIER =
+                machines.defineDouble("quarry_energy_multiplier", 1.0)
+                        .finite()
+                        .min(0.0)
+                        .describe("Global energy cost multiplier")
+                        .register();
+
+        public static final ConfigKey<Float> QUARRY_ARM_SPEED = machines.defineFloat("quarry_arm_speed", 0.1f)
+                .finite()
+                .min(0.0f)
+                .describe("Arm movement speed (blocks/tick)")
+                .register();
+
+        public static final ConfigKey<Float> QUARRY_ARM_SPEED_SCALING =
+                machines.defineFloat("quarry_arm_speed_scaling", 2000f)
+                        .finite()
+                        .greaterThan(0.0f)
+                        .describe("Energy-to-speed scaling constant")
+                        .register();
+
+        public static final ConfigKey<Long> QUARRY_ARM_ENERGY = machines.defineLong("quarry_arm_energy", 20L)
+                .min(0L)
+                .describe("RF/tick cost for arm movement")
+                .register();
+
+        public static final ConfigKey<Float> QUARRY_RAIN_PENALTY = machines.defineFloat("quarry_rain_penalty", 0.7f)
+                .finite()
+                .range(0.0f, 1.0f)
+                .describe("Speed multiplier when raining (0.0-1.0)")
+                .register();
+
+        public static final ConfigKey<Integer> QUARRY_SCAN_RATE = machines.defineInt("quarry_scan_rate", 256)
+                .min(1)
+                .max(65536)
+                .describe("Max blocks scanned per tick when searching")
+                .register();
+
+        public static final ConfigKey<Boolean> QUARRY_LOAD_CHUNKS = machines.defineBoolean("quarry_load_chunks", false)
+                .describe("Keep the quarry and its work area chunk-loaded while running")
+                .register();
+
+        static void register() {
+            LogisticsConfigMigrator.mapLegacy("quarry", "area", QUARRY_AREA);
+            LogisticsConfigMigrator.mapLegacy("quarry", "energyPerBlock", QUARRY_ENERGY_PER_BLOCK);
+            LogisticsConfigMigrator.mapLegacy("quarry", "energyMultiplier", QUARRY_ENERGY_MULTIPLIER);
+            LogisticsConfigMigrator.mapLegacy("quarry", "armSpeed", QUARRY_ARM_SPEED);
+            LogisticsConfigMigrator.mapLegacy("quarry", "armSpeedScaling", QUARRY_ARM_SPEED_SCALING);
+            LogisticsConfigMigrator.mapLegacy("quarry", "armEnergy", QUARRY_ARM_ENERGY);
+            LogisticsConfigMigrator.mapLegacy("quarry", "rainPenalty", QUARRY_RAIN_PENALTY);
+            LogisticsConfigMigrator.mapLegacy("quarry", "scanRate", QUARRY_SCAN_RATE);
+            LogisticsConfigMigrator.mapLegacy("quarry", "loadChunks", QUARRY_LOAD_CHUNKS);
+        }
     }
 
     public static final class BLOCK {
