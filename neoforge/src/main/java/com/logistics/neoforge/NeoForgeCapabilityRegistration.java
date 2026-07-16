@@ -71,9 +71,11 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsPipe.ENTITY.POWER_JUNCTION_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.SAWMILL_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.ALLOY_SMELTER_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.SEQUENTIAL_FABRICATOR_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
         // Extraction pipes (item + fluid) are DirectEnergyReceivers: kept off the energy grid so only
         // a directly-adjacent engine can power them (engines feed them directly).
@@ -82,6 +84,7 @@ public final class NeoForgeCapabilityRegistration {
         registerItems(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
         registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
+        registerItems(event, LogisticsAutomation.ENTITY.SAWMILL_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.ALLOY_SMELTER_BLOCK_ENTITY);
         // Crucible input inventory, so item pipes can insert the melt input.
         registerItems(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
@@ -95,6 +98,8 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
         // Crucible exposes its output tank as a fluid handler so pipes can pull the product.
         registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
+        // Refinery exposes input+output tanks: pipes fill the input fluid and drain the output.
+        registerFluids(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
         // FullItemFluidStorage). Empty-bucket -> filled is handled by vanilla BucketResourceHandler via the
