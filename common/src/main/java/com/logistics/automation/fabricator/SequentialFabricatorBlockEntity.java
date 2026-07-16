@@ -1,6 +1,7 @@
 package com.logistics.automation.fabricator;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
@@ -32,10 +33,6 @@ public class SequentialFabricatorBlockEntity extends MachineEntity {
 
     public static final int INPUT_SLOTS = 12;
 
-    static final long ENERGY_CAPACITY = 100_000L;
-    static final long MAX_ENERGY_INPUT = 128L;
-    static final long ENERGY_PER_TICK = 80L;
-
     private EnergyStorageComponent energy;
     private ItemStoreComponent items;
     private FabricatorProcessorComponent processor;
@@ -48,8 +45,8 @@ public class SequentialFabricatorBlockEntity extends MachineEntity {
     @Override
     protected void configure(MachineBuilder machine) {
         energy = machine.energy("energy")
-                .capacity(ENERGY_CAPACITY)
-                .maxInput(MAX_ENERGY_INPUT)
+                .capacity(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.FABRICATOR_ENERGY_CAPACITY))
+                .maxInput(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.FABRICATOR_MAX_ENERGY_INPUT))
                 .build();
 
         SlotRole[] roles = new SlotRole[INPUT_SLOTS];
@@ -60,14 +57,17 @@ public class SequentialFabricatorBlockEntity extends MachineEntity {
                 .build();
 
         processor = machine.add(new FabricatorProcessorComponent(
-                "processor", items, energy, ENERGY_PER_TICK, this::setLit, this::setChanged));
+                "processor", items, energy,
+                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.FABRICATOR_ENERGY_PER_TICK),
+                this::setLit, this::setChanged));
 
         containerData = new ContainerData() {
             @Override
             public int get(int index) {
                 return switch (index) {
                     case MachineData.PROGRESS -> Math.round(processor.progress() * MachineData.SCALE);
-                    case MachineData.ENERGY -> MachineData.energyFraction(energy, ENERGY_CAPACITY);
+                    case MachineData.ENERGY -> MachineData.energyFraction(
+                            energy, LogisticsConfigHost.get(LogisticsAutomation.CONFIG.FABRICATOR_ENERGY_CAPACITY));
                     default -> 0;
                 };
             }

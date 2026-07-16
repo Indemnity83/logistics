@@ -113,6 +113,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private static final Config crucible = configFor(LogisticsConfigHost.MOD_ID, "machines.crucible");
         private static final Config alloySmelter = configFor(LogisticsConfigHost.MOD_ID, "machines.alloy_smelter");
         private static final Config quarry = configFor(LogisticsConfigHost.MOD_ID, "machines.quarry");
+        private static final Config refinery = configFor(LogisticsConfigHost.MOD_ID, "machines.refinery");
+        private static final Config fabricator = configFor(LogisticsConfigHost.MOD_ID, "machines.fabricator");
 
         private CONFIG() {}
 
@@ -159,6 +161,26 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 alloySmelter.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> ALLOY_SMELTER_ENERGY_PER_TICK =
                 alloySmelter.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+
+        // Refinery
+        public static final ConfigKey<Long> REFINERY_ENERGY_CAPACITY =
+                refinery.defineLong("energy_capacity", 20_000L).min(1L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> REFINERY_MAX_ENERGY_INPUT =
+                refinery.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> REFINERY_ENERGY_PER_TICK =
+                refinery.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+        public static final ConfigKey<Long> REFINERY_INPUT_TANK_MB =
+                refinery.defineLong("input_tank_mb", 4_000L).min(1L).describe("Input fluid tank capacity (mB)").register();
+        public static final ConfigKey<Long> REFINERY_OUTPUT_TANK_MB =
+                refinery.defineLong("output_tank_mb", 10_000L).min(1L).describe("Output fluid tank capacity (mB)").register();
+
+        // Sequential Fabricator
+        public static final ConfigKey<Long> FABRICATOR_ENERGY_CAPACITY =
+                fabricator.defineLong("energy_capacity", 100_000L).min(1L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> FABRICATOR_MAX_ENERGY_INPUT =
+                fabricator.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> FABRICATOR_ENERGY_PER_TICK =
+                fabricator.defineLong("energy_per_tick", 80L).min(1L).describe("RF/t spent processing (higher = faster)").register();
 
         // Laser Quarry
         public static final ConfigKey<Integer> QUARRY_AREA = quarry.defineInt("area", 16)
