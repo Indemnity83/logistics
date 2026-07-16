@@ -1,10 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["QMQ", "RMR", "MMM"],
+  "pattern": [
+    "QMQ",
+    "RMR",
+    "MMM"
+  ],
   "key": {
-    "Q": "logistics:core/quartz_crystal",
-    "R": "minecraft:redstone",
-    "M": "minecraft:lapis_lazuli"
+    "Q": {
+      "item": "logistics:core/quartz_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "M": {
+      "item": "minecraft:lapis_lazuli"
+    }
   },
-  "result": { "count": 1, "id": "logistics:core/lapis_valve" }
+  "result": {
+    "count": 1,
+    "id": "logistics:core/lapis_valve"
+  }
 }

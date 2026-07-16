@@ -1,10 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["QMQ", "RMR", "MMM"],
+  "pattern": [
+    "QMQ",
+    "RMR",
+    "MMM"
+  ],
   "key": {
-    "Q": "logistics:core/quartz_crystal",
-    "R": "minecraft:redstone",
-    "M": "minecraft:netherite_ingot"
+    "Q": {
+      "item": "logistics:core/quartz_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "M": {
+      "item": "minecraft:netherite_ingot"
+    }
   },
-  "result": { "count": 1, "id": "logistics:core/netherite_valve" }
+  "result": {
+    "count": 1,
+    "id": "logistics:core/netherite_valve"
+  }
 }

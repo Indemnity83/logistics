@@ -1,10 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["QMQ", "RMR", "MMM"],
+  "pattern": [
+    "QMQ",
+    "RMR",
+    "MMM"
+  ],
   "key": {
-    "Q": "logistics:core/quartz_crystal",
-    "R": "minecraft:redstone",
-    "M": "minecraft:blaze_rod"
+    "Q": {
+      "item": "logistics:core/quartz_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "M": {
+      "item": "minecraft:blaze_rod"
+    }
   },
-  "result": { "count": 1, "id": "logistics:core/blazing_valve" }
+  "result": {
+    "count": 1,
+    "id": "logistics:core/blazing_valve"
+  }
 }

@@ -1,10 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["QMQ", "RMR", "MMM"],
+  "pattern": [
+    "QMQ",
+    "RMR",
+    "MMM"
+  ],
   "key": {
-    "Q": "logistics:core/quartz_crystal",
-    "R": "minecraft:redstone",
-    "M": "minecraft:echo_shard"
+    "Q": {
+      "item": "logistics:core/quartz_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "M": {
+      "item": "minecraft:echo_shard"
+    }
   },
-  "result": { "count": 1, "id": "logistics:core/echo_valve" }
+  "result": {
+    "count": 1,
+    "id": "logistics:core/echo_valve"
+  }
 }

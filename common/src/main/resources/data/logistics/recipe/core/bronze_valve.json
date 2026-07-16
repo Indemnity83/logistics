@@ -1,10 +1,23 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["QMQ", "RMR", "MMM"],
+  "pattern": [
+    "QMQ",
+    "RMR",
+    "MMM"
+  ],
   "key": {
-    "Q": "logistics:core/quartz_crystal",
-    "R": "minecraft:redstone",
-    "M": "logistics:core/bronze_ingot"
+    "Q": {
+      "item": "logistics:core/quartz_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "M": {
+      "item": "logistics:core/bronze_ingot"
+    }
   },
-  "result": { "count": 1, "id": "logistics:core/bronze_valve" }
+  "result": {
+    "count": 1,
+    "id": "logistics:core/bronze_valve"
+  }
 }
