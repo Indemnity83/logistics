@@ -1,0 +1,110 @@
+package com.logistics;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigKey;
+import com.indemnity83.configory.ConfigRegistry;
+import com.indemnity83.configory.storage.JsonFileConfigStorage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+@DisplayName("LogisticsConfigHost (configory)")
+class LogisticsConfigHostTest {
+
+    /** The shared engines child config the {@code Configs} constants are registered on. */
+    private static Config engines() {
+        return ConfigRegistry.config(LogisticsPower.CONFIG.REDSTONE_OUTPUT.configId());
+    }
+
+    @Test
+    @DisplayName("engine keys expose defaults and reject invalid single- and cross-field values")
+    void engineKeysDefaultsAndValidation() {
+        Config engines = engines();
+
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT)).isEqualTo(10.0);
+
+        // Single-field: redstone output must be >= 0 (a rejected trySet leaves the value unchanged).
+        assertThat(engines.trySet(LogisticsPower.CONFIG.REDSTONE_OUTPUT, -1L)).isFalse();
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
+
+        // Cross-field (recursion fixed in configory): min must not exceed max (default max 10).
+        assertThat(engines.trySet(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 12.0)).isFalse();
+        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
+    }
+
+    @Test
+    @DisplayName("repairMinMax heals an inverted range even with cross-field validators")
+    void repairMinMaxHealsInvertedRange() {
+        Config engines = engines();
+
+        // Raw path set forces an inverted state (bypasses validation).
+        engines.set("stirling_min_output", 12.0);
+        engines.set("stirling_max_output", 10.0);
+
+        // repairMinMax bypasses the validating get(), so it can heal a state the validators reject.
+        engines.repairMinMax(
+                LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT);
+
+        double min = LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT);
+        double max = LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT);
+        assertThat(min).isLessThanOrEqualTo(max);
+
+        // Restore defaults so the shared registry config doesn't leak into other tests.
+        engines.set(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 3.0);
+        engines.set(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT, 10.0);
+    }
+
+    @Test
+    @DisplayName("fluid pump search radius is capped so radius squared fits in an int")
+    void pumpSearchRadiusCap() {
+        Config fluids = ConfigRegistry.config(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS.configId());
+
+        assertThat(fluids.trySet(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS, 46_340)).isTrue();
+        assertThat(fluids.trySet(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS, 46_341)).isFalse();
+
+        fluids.set(LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS, 64); // restore default
+    }
+
+    @Test
+    @DisplayName("each domain's CONFIG registers its child config under logistics")
+    void domainConfigsEnumeratesEveryDomain() {
+        // Touch a key from every domain so each CONFIG class initializes (registers its configFor child).
+        List<ConfigKey<?>> ignored = List.of(
+                LogisticsPower.CONFIG.REDSTONE_OUTPUT,
+                LogisticsAutomation.CONFIG.QUARRY_AREA,
+                LogisticsPipe.CONFIG.PIPE_MAX_SPEED,
+                LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS,
+                LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED);
+        assertThat(ignored).isNotEmpty();
+
+        List<String> ids = LogisticsConfigHost.domainConfigs().stream().map(Config::id).toList();
+        assertThat(ids).contains(
+                "logistics.engines", "logistics.machines", "logistics.pipes", "logistics.fluids", "logistics.reporting");
+    }
+
+    @Test
+    @DisplayName("save writes a JSON file with the defined values")
+    void savesFileAsJson(@TempDir Path dir) throws IOException {
+        // Inject temp storage so the test stays isolated on a temp dir instead of the CWD-relative default.
+        Config config = ConfigRegistry.getOrCreate("test.engines", new JsonFileConfigStorage(dir));
+        config.defineLong("redstone.output", 10L).min(0L).register();
+
+        config.load().save();
+
+        try (Stream<Path> paths = Files.walk(dir)) {
+            List<Path> jsonFiles = paths.filter(p -> p.toString().endsWith(".json")).toList();
+            assertThat(jsonFiles).isNotEmpty();
+            String json = Files.readString(jsonFiles.get(0));
+            assertThat(json).contains("redstone").contains("output").contains("10");
+        }
+    }
+}

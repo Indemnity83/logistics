@@ -1,5 +1,9 @@
 package com.logistics;
 
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigEntries;
+import com.indemnity83.configory.ConfigKey;
+import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.block.BatteryBlock;
@@ -48,6 +52,11 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     @Override
+    public void registerConfig() {
+        CONFIG.register();
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
@@ -57,6 +66,39 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         SCREEN.register();
         CREATIVE.register();
         ALIAS.register();
+    }
+
+    /** Engine tuning — {@code config/logistics/engines.json}. */
+    public static final class CONFIG extends ConfigEntries {
+        private static final Config engines = configFor(LogisticsConfigHost.MOD_ID, "engines");
+
+        private CONFIG() {}
+
+        public static final ConfigKey<Long> REDSTONE_OUTPUT = engines.defineLong("redstone_output", 10L)
+                .min(0L)
+                .describe("RF generated per 16-tick interval.")
+                .register();
+
+        public static final ConfigKey<Double> STIRLING_MIN_OUTPUT = engines.defineDouble("stirling_min_output", 3.0)
+                .min(0.0)
+                .finite()
+                .maxValueOf(() -> CONFIG.STIRLING_MAX_OUTPUT)
+                .describe("Stirling engine minimum RF/t output.")
+                .register();
+
+        public static final ConfigKey<Double> STIRLING_MAX_OUTPUT = engines.defineDouble("stirling_max_output", 10.0)
+                .min(0.0)
+                .finite()
+                .minValueOf(() -> CONFIG.STIRLING_MIN_OUTPUT)
+                .describe("Stirling engine maximum RF/t output.")
+                .register();
+
+        static void register() {
+            engines.registerSanitizeHook(() -> engines.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
+            LogisticsConfigMigrator.mapLegacy("engine", "redstoneOutput", REDSTONE_OUTPUT);
+            LogisticsConfigMigrator.mapLegacyPair(
+                    "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
+        }
     }
 
     public static final class BLOCK {

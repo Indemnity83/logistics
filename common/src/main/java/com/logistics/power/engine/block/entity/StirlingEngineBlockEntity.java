@@ -1,6 +1,6 @@
 package com.logistics.power.engine.block.entity;
+import com.logistics.LogisticsConfigHost;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.items.ItemInventoryComponent;
@@ -66,7 +66,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
     private static final double PID_KD = 0.3;
     private static final double TARGET_TEMPERATURE = 150;
 
-    // Output range defaults — actual range read from LogisticsConfig at runtime
+    // Output range defaults — actual range read from the configory engines config at runtime
     private static final double DEFAULT_MIN_GENERATION = 3.0;
 
     // Property delegate indices for GUI
@@ -211,8 +211,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
         return generationPlanner.outputPower(
                 getTemperature(),
                 getTemperatureFloor(),
-                LogisticsConfig.get().engine.stirlingMinOutput,
-                LogisticsConfig.get().engine.stirlingMaxOutput);
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT),
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT));
     }
 
     @Override
@@ -284,8 +284,8 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
                 getTemperature(),
                 getEnergy(),
                 getEnergyBufferCapacity(),
-                LogisticsConfig.get().engine.stirlingMinOutput,
-                LogisticsConfig.get().engine.stirlingMaxOutput);
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT),
+                LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT));
 
         if (toAdd > 0) {
             addEnergy(toAdd);

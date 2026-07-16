@@ -1,7 +1,9 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPipe;
+
 import com.logistics.core.lib.pipe.RoutingModule;
-import com.logistics.core.LogisticsConfig;
 
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.pipe.Module;
@@ -63,7 +65,7 @@ public class NetworkRouterModule implements Module, RoutingModule {
 
     @Override
     public float getMaxSpeed(PipeContext ctx) {
-        return LogisticsConfig.get().pipe.injectSpeed;
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_INJECT_SPEED);
     }
 
     @Override

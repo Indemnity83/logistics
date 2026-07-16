@@ -1,6 +1,5 @@
 package com.logistics.automation.laserquarry.entity;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.MachineModifiers;
 import net.minecraft.core.BlockPos;
@@ -82,7 +81,7 @@ public final class QuarryEnergyPolicy {
 
     /** Total energy to break a block of the given hardness. */
     public float breakCost(float hardness) {
-        return (float) (LogisticsConfig.get().quarry.energyPerBlockMultiplier()
+        return (float) (QuarryEnergy.energyPerBlockMultiplier()
                 * (hardness + 1)
                 * modifiers.cost(QuarryOperation.BREAK_BLOCK));
     }
