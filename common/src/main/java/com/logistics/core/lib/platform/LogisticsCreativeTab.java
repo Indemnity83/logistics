@@ -22,7 +22,7 @@ import java.util.function.Supplier;
  * <pre>{@code
  * // common — define and populate
  * public static final LogisticsCreativeTab LOGISTICS_TAB = LogisticsCreativeTab.create(
- *     LogisticsMod.modId("logistics_transport"),
+ *     LogisticsMod.modId("resources"),
  *     Component.literal("Logistics"),
  *     () -> new ItemStack(ITEM.IRON_GEAR)
  * );

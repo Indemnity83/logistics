@@ -6,7 +6,10 @@ import com.indemnity83.configory.ConfigKey;
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
+import net.minecraft.network.chat.Component;
 import com.logistics.pipe.modules.*;
 import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
@@ -68,14 +71,15 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         ENTITY.register();
         DATA.register();
         SCREEN.register();
+
+        // Fluid is part of the pipe domain (so fluid pipes can compose pipe modules); register its blocks
+        // before the creative tab is built so the Fluid Transport section can reference them.
+        LogisticsFluid.registerCommon();
+
         CREATIVE.register();
         ALIAS.register();
 
         LogisticsApi.Registry.transport(new PipeApi());
-
-        // Fluid is part of the pipe domain (so fluid pipes can compose pipe modules); register it here
-        // rather than as an independent DomainBootstrap.
-        LogisticsFluid.registerCommon();
     }
 
     /**
@@ -548,18 +552,24 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class CREATIVE {
+        public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
+            LogisticsMod.modId("2_pipes"),
+            Component.translatable("itemGroup.logistics.2_pipes"),
+            () -> new ItemStack(BLOCK.COPPER_TRANSPORT_PIPE)
+        );
+
         private CREATIVE() {}
 
         static void register() {
             // Marking fluids
-            LogisticsCore.CREATIVE.TAB.add(entries -> {
+            TAB.add(entries -> {
                 for (Item fluid : ITEM.MARKING_FLUIDS_BY_COLOR.values()) {
                     entries.accept(fluid);
                 }
             });
 
             // Copper pipe variants (modular)
-            LogisticsCore.CREATIVE.TAB.add(entries -> {
+            TAB.add(entries -> {
                 if (BLOCK.COPPER_TRANSPORT_PIPE instanceof PipeBlock pipeBlock) {
                     Pipe pipe = pipeBlock.getPipe();
                     if (pipe != null) {
@@ -571,46 +581,55 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 }
             });
 
-            // Pipes
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_TRANSPORT_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_PASSTHROUGH_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_TRANSPORT_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_EXTRACTOR_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_MERGER_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_TRANSPORT_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_FILTER_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_INSERTION_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_VOID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.BASIC_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.PROVIDER_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.REQUESTER_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.SUPPLIER_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CRAFTING_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.PROCESS_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.SATELLITE_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK1);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK2);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK3);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK4);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK5);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.POWER_JUNCTION);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.BLANK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.ITEM_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.POLYMORPHIC_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.ENCHANTMENT_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.MOD_ITEM_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.PASSIVE_SUPPLIER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.ACTIVE_SUPPLIER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.PROVIDER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.PROVIDER_MODULE_MKII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.EXTRACTOR_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.EXTRACTOR_MODULE_MKII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.EXTRACTOR_MODULE_MKIII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.CRAFTER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.CRAFTER_MODULE_MKII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.CRAFTER_MODULE_MKIII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.QUICKSORT_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.TERMINUS_MODULE);
+            // Item Transport
+            TAB.add(BLOCK.STONE_TRANSPORT_PIPE);
+            TAB.add(BLOCK.ITEM_PASSTHROUGH_PIPE);
+            TAB.add(BLOCK.COPPER_TRANSPORT_PIPE);
+            TAB.add(BLOCK.ITEM_EXTRACTOR_PIPE);
+            TAB.add(BLOCK.ITEM_MERGER_PIPE);
+            TAB.add(BLOCK.GOLD_TRANSPORT_PIPE);
+            TAB.add(BLOCK.ITEM_FILTER_PIPE);
+            TAB.add(BLOCK.ITEM_INSERTION_PIPE);
+            TAB.add(BLOCK.ITEM_VOID_PIPE);
+
+            // Fluid Transport
+            LogisticsFluid.CREATIVE.register();
+
+            // Logistics Pipes
+            TAB.add(BLOCK.BASIC_LOGISTICS_PIPE);
+            TAB.add(BLOCK.PROVIDER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.REQUESTER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.SUPPLIER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.CRAFTING_LOGISTICS_PIPE);
+            TAB.add(BLOCK.PROCESS_LOGISTICS_PIPE);
+            TAB.add(BLOCK.SATELLITE_LOGISTICS_PIPE);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK1);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK2);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK3);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK4);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK5);
+            TAB.add(BLOCK.POWER_JUNCTION);
+
+            // Logistics Modules
+            TAB.add(ITEM.BLANK_MODULE);
+            TAB.add(ITEM.ITEM_SINK_MODULE);
+            TAB.add(ITEM.POLYMORPHIC_SINK_MODULE);
+            TAB.add(ITEM.ENCHANTMENT_SINK_MODULE);
+            TAB.add(ITEM.MOD_ITEM_SINK_MODULE);
+            TAB.add(ITEM.PASSIVE_SUPPLIER_MODULE);
+            TAB.add(ITEM.ACTIVE_SUPPLIER_MODULE);
+            TAB.add(ITEM.PROVIDER_MODULE);
+            TAB.add(ITEM.PROVIDER_MODULE_MKII);
+            TAB.add(ITEM.EXTRACTOR_MODULE);
+            TAB.add(ITEM.EXTRACTOR_MODULE_MKII);
+            TAB.add(ITEM.EXTRACTOR_MODULE_MKIII);
+            TAB.add(ITEM.CRAFTER_MODULE);
+            TAB.add(ITEM.CRAFTER_MODULE_MKII);
+            TAB.add(ITEM.CRAFTER_MODULE_MKIII);
+            TAB.add(ITEM.QUICKSORT_MODULE);
+            TAB.add(ITEM.TERMINUS_MODULE);
+
+            CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
 
