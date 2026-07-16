@@ -128,11 +128,11 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     }
 
     public int getInputCapacityMb() {
-        return (int) RefineryBlockEntity.INPUT_TANK_CAPACITY_MB;
+        return data.get(RefineryBlockEntity.DATA_IN_CAPACITY);
     }
 
     public float getInputFillFraction() {
-        return fill(getInputAmountMb(), RefineryBlockEntity.INPUT_TANK_CAPACITY_MB);
+        return fill(getInputAmountMb(), getInputCapacityMb());
     }
 
     public int getOutputFluidId() {
@@ -144,14 +144,14 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     }
 
     public int getOutputCapacityMb() {
-        return (int) RefineryBlockEntity.OUTPUT_TANK_CAPACITY_MB;
+        return data.get(RefineryBlockEntity.DATA_OUT_CAPACITY);
     }
 
     public float getOutputFillFraction() {
-        return fill(getOutputAmountMb(), RefineryBlockEntity.OUTPUT_TANK_CAPACITY_MB);
+        return fill(getOutputAmountMb(), getOutputCapacityMb());
     }
 
-    private static float fill(int amountMb, long capacityMb) {
+    private static float fill(int amountMb, int capacityMb) {
         if (amountMb <= 0 || capacityMb <= 0) {
             return 0f;
         }

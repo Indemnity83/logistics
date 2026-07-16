@@ -58,8 +58,6 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     // ==================== Constants ====================
 
-    private static final long MAX_ENERGY = 10_000L;
-
     // PID controller settings (tuned via run/pid_simulator.py)
     private static final double PID_KP = 0.2;
     private static final double PID_KI = 0.0002;
@@ -203,7 +201,7 @@ public class StirlingEngineBlockEntity extends AbstractEngineBlockEntity
 
     @Override
     protected long getEnergyBufferCapacity() {
-        return MAX_ENERGY;
+        return LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_BUFFER_CAPACITY);
     }
 
     @Override

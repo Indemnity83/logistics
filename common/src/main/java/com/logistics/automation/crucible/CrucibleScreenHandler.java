@@ -1,6 +1,7 @@
 package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.machine.MachineData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -122,7 +123,7 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
     /** Tank fill as a 0..1 fraction of the tank's capacity. */
     public float getTankFillFraction() {
         int amount = data.get(CrucibleBlockEntity.DATA_FLUID_AMOUNT);
-        long capacity = CrucibleBlockEntity.TANK_CAPACITY_MB;
+        long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.CRUCIBLE_TANK_CAPACITY_MB);
         if (amount <= 0 || capacity <= 0) {
             return 0f;
         }
@@ -136,6 +137,6 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
 
     /** Tank capacity in mB. */
     public int getTankCapacityMb() {
-        return (int) CrucibleBlockEntity.TANK_CAPACITY_MB;
+        return (int) (long) LogisticsConfigHost.get(LogisticsAutomation.CONFIG.CRUCIBLE_TANK_CAPACITY_MB);
     }
 }

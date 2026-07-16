@@ -16,10 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
  * The simplest engine type that converts redstone signals to energy.
  */
 public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity implements LowTierEnergySource {
-    private static final long MAX_ENERGY = 1000L;
-
-    // Energy generation: configurable RF every 16 ticks when powered
-    private static final int ENERGY_TICK_INTERVAL = 16;
 
     public RedstoneEngineBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
@@ -31,7 +27,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
 
     @Override
     protected long getEnergyBufferCapacity() {
-        return MAX_ENERGY;
+        return LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_BUFFER_CAPACITY);
     }
 
     @Override
@@ -78,7 +74,7 @@ public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity impleme
             return;
         }
 
-        if (level.getGameTime() % ENERGY_TICK_INTERVAL == 0) {
+        if (level.getGameTime() % LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_GENERATION_INTERVAL) == 0) {
             addEnergy(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT));
         }
     }

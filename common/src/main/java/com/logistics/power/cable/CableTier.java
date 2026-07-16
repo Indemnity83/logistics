@@ -1,20 +1,21 @@
 package com.logistics.power.cable;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPower;
+
 public enum CableTier {
-    COPPER("copper_cable", "Copper Cable", 30),
-    GOLD("gold_cable", "Gold Cable", 60),
-    ENDER("ender_cable", "Ender Cable", 120);
+    COPPER("copper_cable", "Copper Cable"),
+    GOLD("gold_cable", "Gold Cable"),
+    ENDER("ender_cable", "Ender Cable");
 
     private static final String BASE_MODEL_PREFIX = "cable_";
 
     private final String id;
     private final String displayName;
-    private final long transferRate;
 
-    CableTier(String id, String displayName, long transferRate) {
+    CableTier(String id, String displayName) {
         this.id = id;
         this.displayName = displayName;
-        this.transferRate = transferRate;
     }
 
     public String id() {
@@ -25,8 +26,13 @@ public enum CableTier {
         return displayName;
     }
 
+    /** RF/tick throughput limit, sourced from the {@code power/cables} config. */
     public long transferRate() {
-        return transferRate;
+        return switch (this) {
+            case COPPER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_COPPER_TRANSFER);
+            case GOLD -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_GOLD_TRANSFER);
+            case ENDER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_ENDER_TRANSFER);
+        };
     }
 
     public String modelName(String baseModelName) {

@@ -109,6 +109,11 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
         return storage.getAmount();
     }
 
+    /** Total RF capacity, fixed at construction (use this for GUI fill fractions instead of rereading config). */
+    public long capacity() {
+        return capacity;
+    }
+
     /** Deducts energy for internal work (no change notification, matching the holder's semantics). */
     public void consume(long rf) {
         storage.consume(rf);

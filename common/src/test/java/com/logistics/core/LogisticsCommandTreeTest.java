@@ -34,10 +34,11 @@ class LogisticsCommandTreeTest extends MinecraftTestEnvironment {
         assertThat(root.getName()).isEqualTo("logistics");
         assertThat(root.getChild("debug")).isNotNull();
 
-        // Configory groups each domain under `config <domain>` with short keys, plus a sibling `reload-configs`.
+        // Configory groups each config file under `config <group>` (its id's last segment) with short keys,
+        // plus a sibling `reload-configs`. Machines/engines are per-unit files, so their group is the unit name.
         CommandNode<CommandSourceStack> config = root.getChild("config");
         assertThat(config).isNotNull();
-        assertThat(config.getChild("machines").getChild("quarry_area")).isNotNull();
+        assertThat(config.getChild("quarry").getChild("area")).isNotNull();
         assertThat(config.getChild("pipes").getChild("max_speed")).isNotNull();
         assertThat(config.getChild("reporting").getChild("enabled")).isNotNull();
         assertThat(root.getChild("reload-configs")).isNotNull();
