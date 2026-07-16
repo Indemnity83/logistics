@@ -3,9 +3,11 @@ package com.logistics.automation.macerator.jei;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.automation.jei.MachineRecipeJeiSync;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.runtime.IJeiRuntime;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -50,5 +52,15 @@ public class MaceratorJeiPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(
             LogisticsAutomation.BLOCK.MACERATOR, MaceratorRecipeCategory.RECIPE_TYPE);
+    }
+
+    @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        MachineRecipeJeiSync.onRuntimeAvailable(jeiRuntime);
+    }
+
+    @Override
+    public void onRuntimeUnavailable() {
+        MachineRecipeJeiSync.onRuntimeUnavailable();
     }
 }
