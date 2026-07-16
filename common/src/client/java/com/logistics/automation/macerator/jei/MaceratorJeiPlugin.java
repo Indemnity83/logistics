@@ -2,16 +2,16 @@ package com.logistics.automation.macerator.jei;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
+import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.automation.jei.MachineRecipeJeiSync;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.runtime.IJeiRuntime;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import com.logistics.core.lib.resource.ResourceId;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,17 +41,8 @@ public class MaceratorJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        // Full recipe data only exists on the (integrated) server; clients are not sent the
-        // recipe list in modern Minecraft, so JEI shows macerator recipes in singleplayer.
-        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) {
-            return;
-        }
-        List<MaceratorRecipeWrapper> recipes = server.getRecipeManager().getRecipes().stream()
-            .map(RecipeHolder::value)
-            .filter(MaceratorRecipeWrapper.class::isInstance)
-            .map(MaceratorRecipeWrapper.class::cast)
-            .toList();
+        // Recipes come from the server-synced client cache, so JEI works in singleplayer and multiplayer.
+        List<MaceratorRecipeWrapper> recipes = ClientMachineRecipes.macerator();
         LOGGER.info("Registering {} macerator recipes with JEI", recipes.size());
         registration.addRecipes(MaceratorRecipeCategory.RECIPE_TYPE, recipes);
     }
@@ -60,5 +51,15 @@ public class MaceratorJeiPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addCraftingStation(
             MaceratorRecipeCategory.RECIPE_TYPE, LogisticsAutomation.BLOCK.MACERATOR);
+    }
+
+    @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        MachineRecipeJeiSync.onRuntimeAvailable(jeiRuntime);
+    }
+
+    @Override
+    public void onRuntimeUnavailable() {
+        MachineRecipeJeiSync.onRuntimeUnavailable();
     }
 }

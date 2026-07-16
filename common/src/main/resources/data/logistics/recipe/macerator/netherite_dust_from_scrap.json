@@ -1,9 +1,0 @@
-{
-  "type": "logistics:macerator",
-  "ingredient": "minecraft:netherite_scrap",
-  "result": {
-    "id": "logistics:core/netherite_dust",
-    "count": 1
-  },
-  "energy": 2000
-}

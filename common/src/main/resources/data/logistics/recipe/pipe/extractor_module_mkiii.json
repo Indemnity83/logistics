@@ -1,14 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "DCD",
-    "RBR"
+    "A",
+    "B"
   ],
   "key": {
-    "D": "logistics:core/sawdust",
-    "C": "logistics:core/echo_chip",
-    "R": "minecraft:redstone",
-    "B": "logistics:pipe/blank_module"
+    "A": "logistics:core/diamond_gear",
+    "B": "logistics:pipe/extractor_module"
   },
   "result": {
     "id": "logistics:pipe/extractor_module_mkiii"

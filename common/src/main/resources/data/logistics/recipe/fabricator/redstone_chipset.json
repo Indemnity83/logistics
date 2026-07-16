@@ -1,0 +1,8 @@
+{
+  "type": "logistics:fabricator",
+  "ingredients": [
+    { "ingredient": "minecraft:redstone", "count": 1 }
+  ],
+  "result": { "id": "logistics:core/redstone_chipset", "count": 1 },
+  "energy": 10000
+}

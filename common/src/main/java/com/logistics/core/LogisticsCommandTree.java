@@ -1,5 +1,9 @@
 package com.logistics.core;
 
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.command.CommandFeedback;
+import com.indemnity83.configory.command.ConfigCommands;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.crash.CrashReporting;
 import com.logistics.core.lib.platform.PlatformService;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -29,10 +33,10 @@ import java.util.Set;
  * /logistics debug &lt;domain&gt; true    — enable debug logging for a named domain
  * /logistics debug &lt;domain&gt; false   — disable debug logging for a named domain
  *
- * <p>/logistics config list            — list all config keys, values, and descriptions
- * /logistics config get &lt;key&gt;        — show current value for a config key
- * /logistics config set &lt;key&gt; &lt;val&gt; — set a config value and save to disk
- * /logistics config reload            — reload config from disk
+ * <p>/logistics config &lt;domain&gt;               — list a domain's keys (engines/machines/pipes/fluids/reporting)
+ * /logistics config &lt;domain&gt; &lt;key&gt;         — show one value
+ * /logistics config &lt;domain&gt; &lt;key&gt; &lt;value&gt; — set it (parsed + validated)
+ * /logistics reload-configs                — reload configory-backed config from disk
  */
 public final class LogisticsCommandTree {
     private LogisticsCommandTree() {}
@@ -42,8 +46,9 @@ public final class LogisticsCommandTree {
     private static final SuggestionProvider<CommandSourceStack> DOMAIN_SUGGESTIONS =
         (ctx, builder) -> SharedSuggestionProvider.suggest(sortedDomains(), builder);
 
-    private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
-        (ctx, builder) -> SharedSuggestionProvider.suggest(LogisticsConfig.ENTRIES.keySet(), builder);
+    /** Delivers configory's generated-command output (list/get/set results) to the command source. */
+    private static final CommandFeedback<CommandSourceStack> CONFIG_FEEDBACK =
+        (source, message) -> source.sendSuccess(() -> Component.literal(message), false);
 
     private static List<String> sortedDomains() {
         List<String> domains = new ArrayList<>(DebugLog.getRegisteredDomains());
@@ -52,69 +57,7 @@ public final class LogisticsCommandTree {
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
-        LiteralArgumentBuilder<CommandSourceStack> diagnostics = Commands.literal("diagnostics")
-            .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Component.literal(CrashReporting.statusText()), false);
-                return 1;
-            })
-            .then(Commands.literal("enable")
-                .executes(ctx -> {
-                    if (!CrashReporting.enableReporting()) {
-                        ctx.getSource().sendFailure(Component.literal(
-                            "Could not start crash reporting — no DSN configured or initialization failed. "
-                            + "See the log for details."));
-                        return 0;
-                    }
-                    ctx.getSource().sendSuccess(
-                        () -> Component.literal(
-                            "Sanitized crash reporting enabled. Thank you for helping improve Logistics!"),
-                        true);
-                    return 1;
-                }))
-            .then(Commands.literal("disable")
-                .executes(ctx -> {
-                    CrashReporting.disableReporting();
-                    ctx.getSource().sendSuccess(
-                        () -> Component.literal("Crash reporting disabled."), true);
-                    return 1;
-                }))
-            .then(Commands.literal("preview")
-                .executes(ctx -> {
-                    CrashReporting.logPreviewReport();
-                    ctx.getSource().sendSuccess(LogisticsCommandTree::diagnosticsPreviewSummary, false);
-                    return 1;
-                }))
-            .then(Commands.literal("notify")
-                .then(Commands.literal("on")
-                    .executes(ctx -> {
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal(CrashReporting.setJoinNotice(true)), true);
-                        return 1;
-                    }))
-                .then(Commands.literal("off")
-                    .executes(ctx -> {
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal(CrashReporting.setJoinNotice(false)), true);
-                        return 1;
-                    })));
-
-        // Dev-only: send a temporary test crash report to verify the Sentry pipeline.
-        if (inDevelopmentEnvironment()) {
-            diagnostics.then(Commands.literal("test")
-                .executes(ctx -> {
-                    if (!CrashReporting.captureTestReport()) {
-                        ctx.getSource().sendFailure(Component.literal(
-                            "Crash reporting is not active. Run /logistics diagnostics enable first."));
-                        return 0;
-                    }
-                    ctx.getSource().sendSuccess(
-                        () -> Component.literal("Sent a temporary test crash report to Sentry."),
-                        false);
-                    return 1;
-                }));
-        }
-
-        return Commands.literal("logistics")
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("logistics")
             .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
             .then(Commands.literal("debug")
                 .executes(ctx -> {
@@ -155,70 +98,42 @@ public final class LogisticsCommandTree {
                         })
                     )
                 )
-            )
-            .then(Commands.literal("config")
-                .then(Commands.literal("list")
-                    .executes(ctx -> {
-                        StringBuilder sb = new StringBuilder("Logistics config:");
-                        for (LogisticsConfig.ConfigEntry<?> entry : LogisticsConfig.ENTRIES.values()) {
-                            sb.append("\n  ").append(entry.key())
-                              .append(" = ").append(entry.getAsString())
-                              .append("  \u00a77(").append(entry.description()).append(")\u00a7r");
-                        }
-                        String msg = sb.toString();
-                        ctx.getSource().sendSuccess(() -> Component.literal(msg), false);
-                        return 1;
-                    }))
-                .then(Commands.literal("get")
-                    .then(Commands.argument("key", StringArgumentType.word())
-                        .suggests(CONFIG_KEY_SUGGESTIONS)
-                        .executes(ctx -> {
-                            String key = StringArgumentType.getString(ctx, "key");
-                            LogisticsConfig.ConfigEntry<?> entry = LogisticsConfig.ENTRIES.get(key);
-                            if (entry == null) {
-                                ctx.getSource().sendFailure(Component.literal(
-                                    "Unknown config key: " + key));
-                                return 0;
-                            }
-                            ctx.getSource().sendSuccess(
-                                () -> Component.literal(key + " = " + entry.getAsString()), false);
-                            return 1;
-                        })))
-                .then(Commands.literal("set")
-                    .then(Commands.argument("key", StringArgumentType.word())
-                        .suggests(CONFIG_KEY_SUGGESTIONS)
-                        .then(Commands.argument("value", StringArgumentType.greedyString())
-                            .executes(ctx -> {
-                                String key = StringArgumentType.getString(ctx, "key");
-                                String value = StringArgumentType.getString(ctx, "value");
-                                LogisticsConfig.ConfigEntry<?> entry = LogisticsConfig.ENTRIES.get(key);
-                                if (entry == null) {
-                                    ctx.getSource().sendFailure(Component.literal(
-                                        "Unknown config key: " + key));
-                                    return 0;
-                                }
-                                try {
-                                    entry.setFromString(value);
-                                } catch (Exception e) {
-                                    ctx.getSource().sendFailure(Component.literal(
-                                        "Invalid value for " + key + ": " + e.getMessage()));
-                                    return 0;
-                                }
-                                LogisticsConfig.save();
-                                ctx.getSource().sendSuccess(
-                                    () -> Component.literal("Set " + key + " = " + entry.getAsString()),
-                                    true);
-                                return 1;
-                            }))))
-                .then(Commands.literal("reload")
-                    .executes(ctx -> {
-                        LogisticsConfig.reload();
-                        CrashReporting.reconcile();
-                        ctx.getSource().sendSuccess(
-                            () -> Component.literal("Reloaded logistics config from disk"), true);
-                        return 1;
-                    })))
-            .then(diagnostics);
+            );
+
+        // Diagnostics actions (enable/disable/notify/dsn are now config keys). `preview` is always available —
+        // read-only privacy transparency; `test` is dev-only.
+        LiteralArgumentBuilder<CommandSourceStack> diagnostics = Commands.literal("diagnostics")
+            .then(Commands.literal("preview")
+                .executes(ctx -> {
+                    CrashReporting.logPreviewReport();
+                    ctx.getSource().sendSuccess(LogisticsCommandTree::diagnosticsPreviewSummary, false);
+                    return 1;
+                }));
+        if (inDevelopmentEnvironment()) {
+            diagnostics.then(Commands.literal("test")
+                .executes(ctx -> {
+                    if (!CrashReporting.captureTestReport()) {
+                        ctx.getSource().sendFailure(Component.literal(
+                            "Crash reporting is not active. Set /logistics config reporting enabled"
+                            + " true, then /logistics reload-configs."));
+                        return 0;
+                    }
+                    ctx.getSource().sendSuccess(
+                        () -> Component.literal("Sent a temporary test crash report to Sentry."), false);
+                    return 1;
+                }));
+        }
+        root.then(diagnostics);
+
+        // Configory generates the /logistics config <domain> <key> surface + reload-configs. Each registered
+        // per-domain config is a group (named by its config id) so keys stay short (e.g. `config pipes
+        // max_speed`). All inherit this literal's operator gate.
+        var configCommands = ConfigCommands.builder(CONFIG_FEEDBACK);
+        for (Config config : LogisticsConfigHost.domainConfigs()) {
+            configCommands.group(config);
+        }
+        configCommands.buildInto(root);
+        return root;
     }
 
     /**

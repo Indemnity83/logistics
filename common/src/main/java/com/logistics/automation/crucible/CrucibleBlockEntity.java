@@ -1,6 +1,7 @@
 package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineBuilder;
@@ -28,17 +29,11 @@ import net.minecraft.world.level.block.state.BlockState;
  *
  * <p>Composed from machine components — an energy buffer, a single input slot, a fluid tank, and an
  * RF-cost recipe processor whose recipes output a {@code FluidResult} into the tank. The recipe defines
- * the total energy required; the processor spends {@link #ENERGY_PER_TICK} RF/tick toward it.
+ * the total energy required; the processor spends a configurable RF/tick toward it.
  */
 public class CrucibleBlockEntity extends MachineEntity {
 
     static final int INPUT_SLOT = 0;
-
-    static final long ENERGY_CAPACITY = 40_000L;
-    static final long MAX_ENERGY_INPUT = 128L;
-    static final int ENERGY_PER_TICK = 40;
-
-    static final long TANK_CAPACITY_MB = 10_000L;
 
     // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the tank adds two more.
     static final int DATA_FLUID_ID = MachineData.COUNT;
@@ -48,13 +43,14 @@ public class CrucibleBlockEntity extends MachineEntity {
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
     private FluidStoreComponent fluidStore;
+    private long energyCapacity;
 
     private final ContainerData containerData = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
                 case MachineData.PROGRESS -> MachineData.progressFraction(processor);
-                case MachineData.ENERGY -> MachineData.energyFraction(energy, ENERGY_CAPACITY);
+                case MachineData.ENERGY -> MachineData.energyFraction(energy, energyCapacity);
                 case DATA_FLUID_ID -> fluidStore.tank().isEmpty()
                         ? -1
                         : BuiltInRegistries.FLUID.getId(fluidStore.tank().getFluidKey().getFluid());
@@ -81,9 +77,10 @@ public class CrucibleBlockEntity extends MachineEntity {
 
     @Override
     protected void configure(MachineBuilder machine) {
+        energyCapacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.CRUCIBLE_ENERGY_CAPACITY);
         energy = machine.energy("energy")
-                .capacity(ENERGY_CAPACITY)
-                .maxInput(MAX_ENERGY_INPUT)
+                .capacity(energyCapacity)
+                .maxInput(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.CRUCIBLE_MAX_ENERGY_INPUT))
                 .build();
 
         var items = machine.items("inventory")
@@ -92,13 +89,13 @@ public class CrucibleBlockEntity extends MachineEntity {
                 .build();
 
         fluidStore = machine.fluids("tank")
-                .capacity(FluidUnits.mb(TANK_CAPACITY_MB))
+                .capacity(FluidUnits.mb(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.CRUCIBLE_TANK_CAPACITY_MB)))
                 .outputOnly()
                 .build();
 
         processor = machine.recipeProcessor("processor")
                 .resolver(new CrucibleRecipeResolver())
-                .rfPerTick(ENERGY_PER_TICK)
+                .rfPerTick(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.CRUCIBLE_ENERGY_PER_TICK))
                 .items(items)
                 .energy(energy)
                 .fluids(fluidStore)

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["QMQ", "RMR", "MMM"],
+  "key": {
+    "Q": "logistics:core/quartz_crystal",
+    "R": "minecraft:redstone",
+    "M": "minecraft:amethyst_shard"
+  },
+  "result": { "count": 1, "id": "logistics:core/amethyst_valve" }
+}

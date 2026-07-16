@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B ",
+    "CDC",
+    "ACA"
+  ],
+  "key": {
+    "A": "minecraft:green_dye",
+    "B": "logistics:core/gold_chipset",
+    "C": "minecraft:redstone",
+    "D": "logistics:pipe/blank_module"
+  },
+  "result": {
+    "id": "logistics:pipe/mod_item_sink_module"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "BCB",
+    " A "
+  ],
+  "key": {
+    "A": "logistics:core/redstone_chipset",
+    "B": "minecraft:redstone",
+    "C": "logistics:pipe/basic_logistics_pipe"
+  },
+  "result": {
+    "id": "logistics:pipe/chassis_logistics_pipe_mk1"
+  }
+}

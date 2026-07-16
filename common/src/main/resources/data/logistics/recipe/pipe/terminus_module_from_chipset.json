@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B ",
+    "DED",
+    "CDA"
+  ],
+  "key": {
+    "A": "minecraft:black_dye",
+    "B": "logistics:core/iron_chipset",
+    "C": "minecraft:purple_dye",
+    "D": "minecraft:redstone",
+    "E": "logistics:pipe/blank_module"
+  },
+  "result": {
+    "id": "logistics:pipe/terminus_module"
+  }
+}

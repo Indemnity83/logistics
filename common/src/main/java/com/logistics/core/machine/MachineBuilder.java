@@ -156,7 +156,8 @@ public final class MachineBuilder {
         private enum AccessMode {
             NONE,
             FURNACE,
-            BOTTOM_OUT
+            BOTTOM_OUT,
+            TOP_IN
         }
 
         private final String id;
@@ -197,6 +198,18 @@ public final class MachineBuilder {
             return this;
         }
 
+        /** Top-in access: input from the top only, nothing extractable (product is ejected directly). */
+        public ItemsBuilder topInAccess() {
+            return topInAccess(stack -> true);
+        }
+
+        /** Top-in access with an insertion filter on the input slots. */
+        public ItemsBuilder topInAccess(Predicate<ItemStack> insertFilter) {
+            this.accessMode = AccessMode.TOP_IN;
+            this.insertFilter = insertFilter;
+            return this;
+        }
+
         public ItemStoreComponent build() {
             // Resolve the layout from the final roles so slot order is independent of call order.
             SidedLayout layout =
@@ -205,6 +218,7 @@ public final class MachineBuilder {
                                 indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
                         case BOTTOM_OUT -> SidedLayout.bottomOut(
                                 indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
+                        case TOP_IN -> SidedLayout.topIn(indicesOf(SlotRole.INPUT), insertFilter);
                         case NONE -> null;
                     };
             return components.add(new ItemStoreComponent(id, roles, layout, onChanged));
@@ -223,6 +237,7 @@ public final class MachineBuilder {
         private ItemStoreComponent items;
         private EnergyStorageComponent energy;
         private FluidStoreComponent fluids;
+        private FluidStoreComponent inputFluids;
         private LitController lit = (ctx, on) -> {};
 
         private RecipeProcessorBuilder(String id) {
@@ -255,6 +270,12 @@ public final class MachineBuilder {
             return this;
         }
 
+        /** Optional fluid input: recipes with a fluid input drain from this tank. */
+        public RecipeProcessorBuilder inputFluids(FluidStoreComponent inputFluids) {
+            this.inputFluids = inputFluids;
+            return this;
+        }
+
         /** Hook that toggles the machine's working/lit block state. */
         public RecipeProcessorBuilder lit(LitController lit) {
             this.lit = lit;
@@ -269,8 +290,8 @@ public final class MachineBuilder {
                 throw new IllegalStateException(
                         "recipeProcessor(" + id + ") requires a positive rfPerTick, got " + rfPerTick);
             }
-            return components.add(
-                    new RecipeProcessorComponent(id, resolver, rfPerTick, items, energy, fluids, lit, onChanged));
+            return components.add(new RecipeProcessorComponent(
+                    id, resolver, rfPerTick, items, energy, fluids, inputFluids, lit, onChanged));
         }
     }
 }

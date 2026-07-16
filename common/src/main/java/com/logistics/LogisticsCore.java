@@ -1,6 +1,9 @@
 package com.logistics;
 
-import com.logistics.core.LogisticsConfig;
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigEntries;
+import com.indemnity83.configory.ConfigKey;
+import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.crash.CrashReporting;
 import com.logistics.core.item.WrenchItem;
@@ -75,6 +78,15 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             return core(name, 0);
         }
 
+        /**
+         * A tank/pipe/bucket fluid drawn from the vanilla water sprites, flat-tinted with {@code 0xRRGGBB}.
+         * Full alpha is applied so NeoForge (which uses {@link #tint()} raw) renders it opaque.
+         */
+        public static FluidDef tinted(String name, int rgb) {
+            return new FluidDef(name, 0xFF000000 | rgb,
+                "minecraft:block/water_still", "minecraft:block/water_flow", null, null, 0);
+        }
+
         /** A {@link #core} fluid that emits {@code luminance} (0-15) when held in a pipe or tank. */
         public static FluidDef core(String name, int luminance) {
             String base = "logistics:block/core/fluid/" + name;
@@ -100,7 +112,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         FluidDef.core("liquid_ender"),
         FluidDef.core("liquid_glowstone", 15),
         FluidDef.world("crude_oil", 2, 2, 15),
-        FluidDef.core("liquid_biomass"));
+        FluidDef.core("liquid_biomass"),
+        FluidDef.tinted("bio_fuel", 0xFFFC5C),
+        FluidDef.tinted("fuel_oil", 0xFE8C01));
 
     private static Map<Fluid, Integer> fluidLuminance;
 
@@ -144,11 +158,13 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     @Override
+    public void registerConfig() {
+        CONFIG.register();
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
-
-        LogisticsConfig.load();
-        CrashReporting.bootstrap();
 
         BLOCK.register();
         ITEM.register();
@@ -157,6 +173,34 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         WORLDGEN.register();
         CREATIVE.register();
         ALIAS.register();
+    }
+
+    /** Crash reporting toggles — {@code config/logistics/reporting.json}. Exposed under {@code /logistics config reporting}. */
+    public static final class CONFIG extends ConfigEntries {
+        private static final Config reporting = configFor(LogisticsConfigHost.MOD_ID, "reporting");
+
+        private CONFIG() {}
+
+        public static final ConfigKey<Boolean> CRASH_REPORTING_ENABLED = reporting.defineBoolean("enabled", false)
+                .describe("Opt-in sanitized crash reporting via Sentry")
+                .register();
+
+        public static final ConfigKey<Boolean> CRASH_REPORTING_SHOW_NOTIFICATION =
+                reporting.defineBoolean("show_notification", true)
+                        .describe("Notify operators on join while crash reporting is active")
+                        .register();
+
+        public static final ConfigKey<String> CRASH_REPORTING_DSN_OVERRIDE =
+                reporting.defineString("dsn_override", "")
+                        .describe("Override the Sentry DSN (blank = built-in default)")
+                        .register();
+
+        static void register() {
+            reporting.registerSanitizeHook(CrashReporting::reconcile);
+            LogisticsConfigMigrator.mapLegacy("crashReporting", "enabled", CRASH_REPORTING_ENABLED);
+            LogisticsConfigMigrator.mapLegacy("crashReporting", "notifyOperators", CRASH_REPORTING_SHOW_NOTIFICATION);
+            LogisticsConfigMigrator.mapLegacy("crashReporting", "dsnOverride", CRASH_REPORTING_DSN_OVERRIDE);
+        }
     }
 
     public static final class WORLDGEN {
@@ -303,6 +347,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item TIN_NUGGET;
         public static Item BRONZE_INGOT;
         public static Item BRONZE_NUGGET;
+        public static Item COPPER_NUGGET;
         public static Item APATITE;
         public static Item MACHINE_CORE;
         public static Item REDSTONE_RECEPTION_COIL;
@@ -349,40 +394,30 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item TAR;
 
         // Chips — logic components for pipe modules
-        public static Item CARBON_CHIP;
-        public static Item REDSTONE_CHIP;
-        public static Item AMETHYST_CHIP;
-        public static Item ECHO_CHIP;
+        public static Item REDSTONE_CHIPSET;
+        public static Item ECHO_CHIPSET;
+        public static Item COPPER_CHIPSET;
+        public static Item IRON_CHIPSET;
+        public static Item GOLD_CHIPSET;
+        public static Item DIAMOND_CHIPSET;
+        public static Item NETHERITE_CHIPSET;
 
         // Valves — pipe chassis components
-        public static Item WOODEN_VALVE;
+        public static Item TIN_VALVE;
         public static Item COPPER_VALVE;
+        public static Item RUBBER_VALVE;
         public static Item BRONZE_VALVE;
         public static Item IRON_VALVE;
         public static Item GOLD_VALVE;
-        public static Item DIAMOND_VALVE;
-        public static Item OBSIDIAN_VALVE;
-        public static Item BLAZING_VALVE;
-        public static Item EMERALD_VALVE;
-        public static Item APATITE_VALVE;
         public static Item LAPIS_VALVE;
-        public static Item ENDER_VALVE;
+        public static Item APATITE_VALVE;
+        public static Item OBSIDIAN_VALVE;
+        public static Item AMETHYST_VALVE;
+        public static Item EMERALD_VALVE;
+        public static Item BLAZING_VALVE;
+        public static Item DIAMOND_VALVE;
+        public static Item ECHO_VALVE;
         public static Item NETHERITE_VALVE;
-
-        // Cores — intermediate components for valves and pipe logic
-        public static Item WOODEN_CORE;
-        public static Item COPPER_CORE;
-        public static Item BRONZE_CORE;
-        public static Item IRON_CORE;
-        public static Item GOLD_CORE;
-        public static Item LAPIS_CORE;
-        public static Item APATITE_CORE;
-        public static Item DIAMOND_CORE;
-        public static Item EMERALD_CORE;
-        public static Item BLAZING_CORE;
-        public static Item NETHERITE_CORE;
-        public static Item OBSIDIAN_CORE;
-        public static Item ENDER_CORE;
 
         private ITEM() {}
 
@@ -398,6 +433,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Bronze Materials
             BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot", Item::new);
             BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget", Item::new);
+            COPPER_NUGGET = INSTANCE.registerItem("copper_nugget", Item::new);
 
             // Apatite
             APATITE = INSTANCE.registerItem("apatite", Item::new);
@@ -449,40 +485,30 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAR = INSTANCE.registerItem("tar", Item::new);
 
             // Chips
-            CARBON_CHIP = INSTANCE.registerItem("carbon_chip", Item::new);
-            REDSTONE_CHIP = INSTANCE.registerItem("redstone_chip", Item::new);
-            AMETHYST_CHIP = INSTANCE.registerItem("amethyst_chip", Item::new);
-            ECHO_CHIP = INSTANCE.registerItem("echo_chip", Item::new);
+            REDSTONE_CHIPSET = INSTANCE.registerItem("redstone_chipset", Item::new);
+            ECHO_CHIPSET = INSTANCE.registerItem("echo_chipset", Item::new);
+            COPPER_CHIPSET = INSTANCE.registerItem("copper_chipset", Item::new);
+            IRON_CHIPSET = INSTANCE.registerItem("iron_chipset", Item::new);
+            GOLD_CHIPSET = INSTANCE.registerItem("gold_chipset", Item::new);
+            DIAMOND_CHIPSET = INSTANCE.registerItem("diamond_chipset", Item::new);
+            NETHERITE_CHIPSET = INSTANCE.registerItem("netherite_chipset", Item::new);
 
             // Valves
-            WOODEN_VALVE = INSTANCE.registerItem("wooden_valve", Item::new);
+            TIN_VALVE = INSTANCE.registerItem("tin_valve", Item::new);
             COPPER_VALVE = INSTANCE.registerItem("copper_valve", Item::new);
+            RUBBER_VALVE = INSTANCE.registerItem("rubber_valve", Item::new);
             BRONZE_VALVE = INSTANCE.registerItem("bronze_valve", Item::new);
             IRON_VALVE = INSTANCE.registerItem("iron_valve", Item::new);
             GOLD_VALVE = INSTANCE.registerItem("gold_valve", Item::new);
-            DIAMOND_VALVE = INSTANCE.registerItem("diamond_valve", Item::new);
-            OBSIDIAN_VALVE = INSTANCE.registerItem("obsidian_valve", Item::new);
-            BLAZING_VALVE = INSTANCE.registerItem("blazing_valve", Item::new);
-            EMERALD_VALVE = INSTANCE.registerItem("emerald_valve", Item::new);
-            APATITE_VALVE = INSTANCE.registerItem("apatite_valve", Item::new);
             LAPIS_VALVE = INSTANCE.registerItem("lapis_valve", Item::new);
-            ENDER_VALVE = INSTANCE.registerItem("ender_valve", Item::new);
+            APATITE_VALVE = INSTANCE.registerItem("apatite_valve", Item::new);
+            OBSIDIAN_VALVE = INSTANCE.registerItem("obsidian_valve", Item::new);
+            AMETHYST_VALVE = INSTANCE.registerItem("amethyst_valve", Item::new);
+            EMERALD_VALVE = INSTANCE.registerItem("emerald_valve", Item::new);
+            BLAZING_VALVE = INSTANCE.registerItem("blazing_valve", Item::new);
+            DIAMOND_VALVE = INSTANCE.registerItem("diamond_valve", Item::new);
+            ECHO_VALVE = INSTANCE.registerItem("echo_valve", Item::new);
             NETHERITE_VALVE = INSTANCE.registerItem("netherite_valve", Item::new);
-
-            // Cores
-            WOODEN_CORE = INSTANCE.registerItem("wooden_core", Item::new);
-            COPPER_CORE = INSTANCE.registerItem("copper_core", Item::new);
-            BRONZE_CORE = INSTANCE.registerItem("bronze_core", Item::new);
-            IRON_CORE = INSTANCE.registerItem("iron_core", Item::new);
-            GOLD_CORE = INSTANCE.registerItem("gold_core", Item::new);
-            LAPIS_CORE = INSTANCE.registerItem("lapis_core", Item::new);
-            APATITE_CORE = INSTANCE.registerItem("apatite_core", Item::new);
-            DIAMOND_CORE = INSTANCE.registerItem("diamond_core", Item::new);
-            EMERALD_CORE = INSTANCE.registerItem("emerald_core", Item::new);
-            BLAZING_CORE = INSTANCE.registerItem("blazing_core", Item::new);
-            NETHERITE_CORE = INSTANCE.registerItem("netherite_core", Item::new);
-            OBSIDIAN_CORE = INSTANCE.registerItem("obsidian_core", Item::new);
-            ENDER_CORE = INSTANCE.registerItem("ender_core", Item::new);
         }
     }
 
@@ -553,6 +579,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 // Nuggets
                 entries.insertBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
                 entries.insertAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
+                entries.insertAfter(ITEM.BRONZE_NUGGET, ITEM.COPPER_NUGGET);
 
                 // Apatite
                 entries.insertBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
@@ -571,12 +598,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
                 // Valves — after netherite gear
                 Item[] valves = {
-                    ITEM.WOODEN_VALVE,
-                    ITEM.COPPER_VALVE, ITEM.BRONZE_VALVE,
-                    ITEM.IRON_VALVE, ITEM.GOLD_VALVE, ITEM.DIAMOND_VALVE,
-                    ITEM.OBSIDIAN_VALVE, ITEM.BLAZING_VALVE, ITEM.EMERALD_VALVE,
-                    ITEM.APATITE_VALVE, ITEM.LAPIS_VALVE, ITEM.ENDER_VALVE,
-                    ITEM.NETHERITE_VALVE
+                    ITEM.TIN_VALVE, ITEM.COPPER_VALVE, ITEM.RUBBER_VALVE,
+                    ITEM.BRONZE_VALVE, ITEM.IRON_VALVE, ITEM.GOLD_VALVE,
+                    ITEM.LAPIS_VALVE, ITEM.APATITE_VALVE, ITEM.OBSIDIAN_VALVE,
+                    ITEM.AMETHYST_VALVE, ITEM.EMERALD_VALVE, ITEM.BLAZING_VALVE,
+                    ITEM.DIAMOND_VALVE, ITEM.ECHO_VALVE, ITEM.NETHERITE_VALVE
                 };
                 Item prev = ITEM.NETHERITE_GEAR;
                 for (Item valve : valves) {
@@ -594,13 +620,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                     ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST, ITEM.SULFUR_DUST, ITEM.QUICKSILVER, ITEM.NITER,
                     ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT, ITEM.PULPED_BIOMASS,
                     ITEM.SLAG, ITEM.RICH_SLAG, ITEM.BITUMEN, ITEM.TAR,
-                    ITEM.CARBON_CHIP, ITEM.REDSTONE_CHIP, ITEM.AMETHYST_CHIP, ITEM.ECHO_CHIP,
-                    ITEM.WOODEN_CORE,
-                    ITEM.COPPER_CORE, ITEM.BRONZE_CORE,
-                    ITEM.IRON_CORE, ITEM.GOLD_CORE, ITEM.LAPIS_CORE,
-                    ITEM.APATITE_CORE, ITEM.DIAMOND_CORE, ITEM.EMERALD_CORE,
-                    ITEM.BLAZING_CORE, ITEM.NETHERITE_CORE,
-                    ITEM.OBSIDIAN_CORE, ITEM.ENDER_CORE
+                    ITEM.REDSTONE_CHIPSET, ITEM.ECHO_CHIPSET, ITEM.COPPER_CHIPSET,
+                    ITEM.IRON_CHIPSET, ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET, ITEM.NETHERITE_CHIPSET
                 };
                 Item anchor = ITEM.BRONZE_INGOT;
                 for (Item item : intermediates) {
@@ -635,6 +656,10 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             INSTANCE.registerBlockAlias("automation/marker", BLOCK.MARKER);
             INSTANCE.registerBlockEntityAlias("automation/marker", ENTITY.MARKER_BLOCK_ENTITY);
             INSTANCE.registerItemAlias("automation/marker", BLOCK.MARKER.asItem());
+
+            // Chips renamed to "chipset"; bridge the previously-released chip IDs.
+            INSTANCE.registerItemAlias("core/redstone_chip", ITEM.REDSTONE_CHIPSET);
+            INSTANCE.registerItemAlias("core/echo_chip", ITEM.ECHO_CHIPSET);
         }
     }
 }

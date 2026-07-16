@@ -8,7 +8,7 @@
   "key": {
     "P": "minecraft:paper",
     "R": "minecraft:redstone",
-    "N": "minecraft:gold_nugget"
+    "N": "#c:nuggets/copper"
   },
   "result": {
     "count": 1,

@@ -10,6 +10,11 @@ import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;
 import com.logistics.pipe.render.GlassTankBlockEntityRenderer;
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
 import com.logistics.automation.crucible.CrucibleScreen;
+import com.logistics.automation.refinery.RefineryScreen;
+import com.logistics.automation.fabricator.SequentialFabricatorScreen;
+import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
+import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
@@ -53,6 +58,8 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
@@ -65,6 +72,11 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeClientSetup::registerFluidModels);
+        NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientDisconnect);
+    }
+
+    private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientMachineRecipes.clear();
     }
 
     /**
@@ -150,6 +162,8 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
         event.register(LogisticsAutomation.MENU.ALLOY_SMELTER, AlloySmelterScreen::new);
         event.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
+        event.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
+        event.register(LogisticsAutomation.MENU.SEQUENTIAL_FABRICATOR, SequentialFabricatorScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -186,6 +200,9 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY,
                 com.logistics.automation.crucible.CrucibleBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY,
+                com.logistics.automation.refinery.RefineryBlockEntityRenderer::new);
     }
 
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
@@ -203,5 +220,12 @@ public final class NeoForgeClientSetup {
                 requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
             }
         });
+        event.register(SyncFabricatorOutputsPacket.TYPE, (packet, context) -> {
+            var screen = Minecraft.getInstance().gui.screen();
+            if (screen instanceof SequentialFabricatorScreen fabricatorScreen) {
+                fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
+            }
+        });
+        event.register(SyncMachineRecipesPacket.TYPE, (packet, context) -> ClientMachineRecipes.set(packet));
     }
 }
