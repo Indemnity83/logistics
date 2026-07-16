@@ -42,7 +42,7 @@ class LogisticsConfigHostTest {
     }
 
     @Test
-    @DisplayName("repairMinMax heals an inverted range even with cross-field validators (#52)")
+    @DisplayName("repairMinMax heals an inverted range even with cross-field validators")
     void repairMinMaxHealsInvertedRange() {
         Config engines = engines();
 
@@ -50,7 +50,7 @@ class LogisticsConfigHostTest {
         engines.set("stirling_min_output", 12.0);
         engines.set("stirling_max_output", 10.0);
 
-        // Before #52 this threw (repairMinMax read through the validating get(), which the inverted state fails).
+        // repairMinMax bypasses the validating get(), so it can heal a state the validators reject.
         engines.repairMinMax(
                 LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT);
 
@@ -94,7 +94,7 @@ class LogisticsConfigHostTest {
     @Test
     @DisplayName("save writes a JSON file with the defined values")
     void savesFileAsJson(@TempDir Path dir) throws IOException {
-        // Storage injection (#41) keeps this isolated on a temp dir instead of the CWD-relative default.
+        // Inject temp storage so the test stays isolated on a temp dir instead of the CWD-relative default.
         Config config = ConfigRegistry.getOrCreate("test.engines", new JsonFileConfigStorage(dir));
         config.defineLong("redstone.output", 10L).min(0L).register();
 

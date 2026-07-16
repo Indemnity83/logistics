@@ -38,7 +38,8 @@ import java.util.regex.Pattern;
  *       never intentionally send player names, UUIDs, IPs, server addresses, chat, or world data.</li>
  * </ul>
  *
- * <p>State lives in the configory {@code reporting} config ({@code crash_reporting_*} keys, settable via
+ * <p>State lives in the configory {@code reporting} config ({@code enabled}, {@code show_notification},
+ * {@code dsn_override} keys, settable via
  * {@code /logistics config}). {@link #reconcile()} is registered as that config's sanitize hook, so the live
  * client is brought in line with the persisted value on every load and {@code /logistics reload-configs}.
  */
@@ -47,7 +48,7 @@ public final class CrashReporting {
 
     /**
      * Public Sentry ingest key (DSN). NOT a secret — DSNs are designed to be embedded in shipped
-     * clients. Overridable per-install via the {@code crash_reporting_dsn_override} config key.
+     * clients. Overridable per-install via the {@code reporting.dsn_override} config key.
      */
     private static final String DEFAULT_DSN =
             "https://677897aaa1709d6e63d47ebbed033218@o148290.ingest.us.sentry.io/4511488473169920";
@@ -77,6 +78,8 @@ public final class CrashReporting {
         try {
             enable();
         } catch (Exception e) {
+            // enable() may have left a partial client/bridge; disable() can't reach them while inactive.
+            teardown();
             LOGGER.error("Failed to start crash reporting; continuing without it", e);
         }
     }
@@ -171,6 +174,12 @@ public final class CrashReporting {
         if (!ACTIVE.getAndSet(false)) {
             return;
         }
+        teardown();
+        LOGGER.info("Crash reporting disabled");
+    }
+
+    /** Detach the bridge and close the client, if present. Safe to call regardless of {@link #ACTIVE}. */
+    private static void teardown() {
         if (bridge != null) {
             bridge.detach();
             bridge = null;
@@ -180,7 +189,6 @@ public final class CrashReporting {
         if (current != null) {
             current.close(); // flushes queued events
         }
-        LOGGER.info("Crash reporting disabled");
     }
 
     public static boolean isActive() {

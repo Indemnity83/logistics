@@ -140,6 +140,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         public static final ConfigKey<Integer> QUARRY_SCAN_RATE = machines.defineInt("quarry_scan_rate", 256)
                 .min(1)
+                .max(65536)
                 .describe("Max blocks scanned per tick when searching")
                 .register();
 

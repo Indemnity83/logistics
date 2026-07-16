@@ -80,12 +80,14 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         public static final ConfigKey<Double> STIRLING_MIN_OUTPUT = engines.defineDouble("stirling_min_output", 3.0)
                 .min(0.0)
+                .finite()
                 .maxValueOf(() -> CONFIG.STIRLING_MAX_OUTPUT)
                 .describe("Stirling engine minimum RF/t output.")
                 .register();
 
         public static final ConfigKey<Double> STIRLING_MAX_OUTPUT = engines.defineDouble("stirling_max_output", 10.0)
                 .min(0.0)
+                .finite()
                 .minValueOf(() -> CONFIG.STIRLING_MIN_OUTPUT)
                 .describe("Stirling engine maximum RF/t output.")
                 .register();

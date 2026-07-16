@@ -81,10 +81,18 @@ public final class LogisticsConfigMigrator {
     /** Apply every registered legacy mapping to {@code root} (in memory). Package-visible for tests. */
     static void apply(JsonObject root) {
         for (Scalar scalar : SCALARS) {
-            applyScalar(root, scalar);
+            try {
+                applyScalar(root, scalar);
+            } catch (RuntimeException e) {
+                LOGGER.warn("Skipped legacy config value {}.{} during migration", scalar.group(), scalar.field(), e);
+            }
         }
         for (Consumer<JsonObject> pair : PAIRS) {
-            pair.accept(root);
+            try {
+                pair.accept(root);
+            } catch (RuntimeException e) {
+                LOGGER.warn("Skipped a legacy config pair during migration", e);
+            }
         }
     }
 
@@ -113,11 +121,14 @@ public final class LogisticsConfigMigrator {
             return;
         }
         Config config = ConfigRegistry.config(minKey.configId());
-        if (minValue != null) {
-            config.set(minKey.path().fullPath(), coerce(minKey, minValue));
+        // Coerce both before mutating either key, so a bad value leaves neither half-migrated.
+        Object min = minValue != null ? coerce(minKey, minValue) : null;
+        Object max = maxValue != null ? coerce(maxKey, maxValue) : null;
+        if (min != null) {
+            config.set(minKey.path().fullPath(), min);
         }
-        if (maxValue != null) {
-            config.set(maxKey.path().fullPath(), coerce(maxKey, maxValue));
+        if (max != null) {
+            config.set(maxKey.path().fullPath(), max);
         }
         config.repairMinMax(minKey, maxKey);
     }

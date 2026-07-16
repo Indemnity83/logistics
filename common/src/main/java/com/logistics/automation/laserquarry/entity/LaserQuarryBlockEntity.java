@@ -73,7 +73,8 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
     // ==================== Energy diagnostics ====================
 
     public double getEnergyLevel() {
-        return (double) energy.amount() / QuarryEnergy.energyCapacity();
+        long capacity = QuarryEnergy.energyCapacity();
+        return capacity > 0 ? (double) energy.amount() / capacity : 0.0;
     }
 
     public long getEnergyReceivedLastTick() {

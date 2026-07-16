@@ -114,7 +114,7 @@ public final class LogisticsCommandTree {
                 .executes(ctx -> {
                     if (!CrashReporting.captureTestReport()) {
                         ctx.getSource().sendFailure(Component.literal(
-                            "Crash reporting is not active. Set /logistics config crash_reporting_enabled"
+                            "Crash reporting is not active. Set /logistics config reporting enabled"
                             + " true, then /logistics reload-configs."));
                         return 0;
                     }
