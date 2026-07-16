@@ -2,9 +2,7 @@ package com.logistics.fabric;
 
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
-import com.logistics.LogisticsPower;
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
-import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -16,8 +14,6 @@ import net.fabricmc.fabric.api.registry.FuelValueEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Items;
 
 public final class LogisticsFabric implements ModInitializer {
     private static final LogisticsCommonBootstrap COMMON_BOOTSTRAP = new LogisticsCommonBootstrap();
@@ -55,12 +51,6 @@ public final class LogisticsFabric implements ModInitializer {
             )
         );
 
-        // Vanilla creative tab entries (polymers + rubber beside slime ball in Ingredients)
-        CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.INGREDIENTS, editor -> {
-            editor.insertAfter(Items.SLIME_BALL, LogisticsPower.ITEM.NATURAL_POLYMER);
-            editor.insertAfter(LogisticsPower.ITEM.NATURAL_POLYMER, LogisticsPower.ITEM.SYNTHETIC_POLYMER);
-            editor.insertAfter(LogisticsPower.ITEM.SYNTHETIC_POLYMER, LogisticsPower.ITEM.RUBBER);
-        });
     }
 
     private void registerEnergyServices() {

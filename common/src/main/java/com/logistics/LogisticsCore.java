@@ -350,6 +350,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item APATITE;
         public static Item MACHINE_CORE;
         public static Item REDSTONE_RECEPTION_COIL;
+        public static Item RUBBER;
+        public static Item NATURAL_POLYMER;
+        public static Item SYNTHETIC_POLYMER;
 
         public static Item WOODEN_GEAR;
         public static Item STONE_GEAR;
@@ -440,6 +443,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Components
             MACHINE_CORE = INSTANCE.registerItem("machine_core", Item::new);
             REDSTONE_RECEPTION_COIL = INSTANCE.registerItem("redstone_reception_coil", Item::new);
+            RUBBER = INSTANCE.registerItem("rubber", Item::new);
+            NATURAL_POLYMER = INSTANCE.registerItem("natural_polymer", Item::new);
+            SYNTHETIC_POLYMER = INSTANCE.registerItem("synthetic_polymer", Item::new);
 
             // Gears
             WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
@@ -563,6 +569,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Components
             TAB.add(ITEM.MACHINE_CORE);
             TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
+            TAB.add(ITEM.NATURAL_POLYMER);
+            TAB.add(ITEM.SYNTHETIC_POLYMER);
+            TAB.add(ITEM.RUBBER);
             TAB.add(ITEM.SILICON_WAFER);
             TAB.add(BLOCK.MARKER);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
@@ -667,6 +676,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Chips renamed to "chipset"; bridge the previously-released chip IDs.
             INSTANCE.registerItemAlias("core/redstone_chip", ITEM.REDSTONE_CHIPSET);
             INSTANCE.registerItemAlias("core/echo_chip", ITEM.ECHO_CHIPSET);
+
+            // Rubber and polymers moved from the power domain to core.
+            INSTANCE.registerItemAlias("power/rubber", ITEM.RUBBER);
+            INSTANCE.registerItemAlias("power/natural_polymer", ITEM.NATURAL_POLYMER);
+            INSTANCE.registerItemAlias("power/synthetic_polymer", ITEM.SYNTHETIC_POLYMER);
+            // Older power-domain renames: Rubber Mix -> Natural Polymer, Rubber Chunk -> Rubber.
+            INSTANCE.registerItemAlias("power/rubber_mix", ITEM.NATURAL_POLYMER);
+            INSTANCE.registerItemAlias("power/rubber_chunk", ITEM.RUBBER);
         }
     }
 }

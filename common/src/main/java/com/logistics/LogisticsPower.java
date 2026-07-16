@@ -29,7 +29,6 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -65,11 +64,9 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         LOGGER.info("Registering {}", domain());
 
         BLOCK.register();
-        ITEM.register();
         ENTITY.register();
         SCREEN.register();
         CREATIVE.register();
-        ALIAS.register();
     }
 
     /**
@@ -223,20 +220,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         }
     }
 
-    public static final class ITEM {
-        private ITEM() {}
-
-        public static Item RUBBER;
-        public static Item NATURAL_POLYMER;
-        public static Item SYNTHETIC_POLYMER;
-
-        static void register() {
-            RUBBER = INSTANCE.registerItem("rubber", Item::new);
-            NATURAL_POLYMER = INSTANCE.registerItem("natural_polymer", Item::new);
-            SYNTHETIC_POLYMER = INSTANCE.registerItem("synthetic_polymer", Item::new);
-        }
-    }
-
     public static final class SCREEN {
         private SCREEN() {}
 
@@ -268,21 +251,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(BLOCK.COPPER_CABLE);
             TAB.add(BLOCK.GOLD_CABLE);
             TAB.add(BLOCK.ENDER_CABLE);
-            TAB.add(ITEM.RUBBER);
-            TAB.add(ITEM.NATURAL_POLYMER);
-            TAB.add(ITEM.SYNTHETIC_POLYMER);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
-        }
-    }
-
-    public static final class ALIAS {
-        private ALIAS() {}
-
-        static void register() {
-            // Rubber Mix renamed to Natural Polymer; old recipes/worlds resolve to the new item.
-            INSTANCE.registerItemAlias("power/rubber_mix", ITEM.NATURAL_POLYMER);
-            // Rubber Chunk renamed to Rubber.
-            INSTANCE.registerItemAlias("power/rubber_chunk", ITEM.RUBBER);
         }
     }
 }
