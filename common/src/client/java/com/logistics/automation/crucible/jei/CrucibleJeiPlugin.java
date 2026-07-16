@@ -3,15 +3,13 @@ package com.logistics.automation.crucible.jei;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.automation.crucible.CrucibleRecipe;
+import com.logistics.automation.jei.ClientMachineRecipes;
 import com.logistics.core.lib.resource.ResourceId;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,16 +39,8 @@ public class CrucibleJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        // Recipe data only exists on the (integrated) server, so JEI shows crucible recipes in singleplayer.
-        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) {
-            return;
-        }
-        List<CrucibleRecipe> recipes = server.getRecipeManager().getRecipes().stream()
-            .map(RecipeHolder::value)
-            .filter(CrucibleRecipe.class::isInstance)
-            .map(CrucibleRecipe.class::cast)
-            .toList();
+        // Recipes come from the server-synced client cache, so JEI works in singleplayer and multiplayer.
+        List<CrucibleRecipe> recipes = ClientMachineRecipes.crucible();
         LOGGER.info("Registering {} crucible recipes with JEI", recipes.size());
         registration.addRecipes(CrucibleRecipeCategory.RECIPE_TYPE, recipes);
     }

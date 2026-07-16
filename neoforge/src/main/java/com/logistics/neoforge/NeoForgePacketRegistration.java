@@ -2,6 +2,7 @@ package com.logistics.neoforge;
 
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
+import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
@@ -18,6 +19,7 @@ import java.util.function.Consumer;
 public final class NeoForgePacketRegistration {
     private static volatile Consumer<SyncRequesterInventoryPacket> syncRequesterInventoryHandler = packet -> {};
     private static volatile Consumer<SyncFabricatorOutputsPacket> syncFabricatorOutputsHandler = packet -> {};
+    private static volatile Consumer<SyncMachineRecipesPacket> syncMachineRecipesHandler = packet -> {};
 
     private NeoForgePacketRegistration() {}
 
@@ -32,6 +34,10 @@ public final class NeoForgePacketRegistration {
 
     public static void registerSyncFabricatorOutputsHandler(Consumer<SyncFabricatorOutputsPacket> handler) {
         syncFabricatorOutputsHandler = handler;
+    }
+
+    public static void registerSyncMachineRecipesHandler(Consumer<SyncMachineRecipesPacket> handler) {
+        syncMachineRecipesHandler = handler;
     }
 
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
@@ -50,5 +56,7 @@ public final class NeoForgePacketRegistration {
                 (packet, context) -> context.enqueueWork(() -> syncRequesterInventoryHandler.accept(packet)));
         registrar.playToClient(SyncFabricatorOutputsPacket.TYPE, SyncFabricatorOutputsPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> syncFabricatorOutputsHandler.accept(packet)));
+        registrar.playToClient(SyncMachineRecipesPacket.TYPE, SyncMachineRecipesPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> syncMachineRecipesHandler.accept(packet)));
     }
 }

@@ -2,6 +2,7 @@ package com.logistics.automation.refinery.jei;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
+import com.logistics.automation.jei.ClientMachineRecipes;
 import com.logistics.automation.refinery.RefineryRecipe;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.List;
@@ -10,9 +11,6 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,16 +38,8 @@ public class RefineryJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        // Recipe data only exists on the (integrated) server, so JEI shows refinery recipes in singleplayer.
-        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) {
-            return;
-        }
-        List<RefineryRecipe> recipes = server.getRecipeManager().getRecipes().stream()
-            .map(RecipeHolder::value)
-            .filter(RefineryRecipe.class::isInstance)
-            .map(RefineryRecipe.class::cast)
-            .toList();
+        // Recipes come from the server-synced client cache, so JEI works in singleplayer and multiplayer.
+        List<RefineryRecipe> recipes = ClientMachineRecipes.refinery();
         LOGGER.info("Registering {} refinery recipes with JEI", recipes.size());
         registration.addRecipes(RefineryRecipeCategory.RECIPE_TYPE, recipes);
     }

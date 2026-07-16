@@ -3,6 +3,7 @@ package com.logistics.automation.alloysmelter.jei;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.automation.alloysmelter.AlloySmelterRecipe;
+import com.logistics.automation.jei.ClientMachineRecipes;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.List;
 import mezz.jei.api.IModPlugin;
@@ -10,9 +11,6 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,17 +38,8 @@ public class AlloySmelterJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        // Full recipe data only exists on the (integrated) server; clients are not sent the
-        // recipe list in modern Minecraft, so JEI shows alloy-smelter recipes in singleplayer.
-        MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) {
-            return;
-        }
-        List<AlloySmelterRecipe> recipes = server.getRecipeManager().getRecipes().stream()
-            .map(RecipeHolder::value)
-            .filter(AlloySmelterRecipe.class::isInstance)
-            .map(AlloySmelterRecipe.class::cast)
-            .toList();
+        // Recipes come from the server-synced client cache, so JEI works in singleplayer and multiplayer.
+        List<AlloySmelterRecipe> recipes = ClientMachineRecipes.alloySmelter();
         LOGGER.info("Registering {} alloy smelter recipes with JEI", recipes.size());
         registration.addRecipes(AlloySmelterRecipeCategory.RECIPE_TYPE, recipes);
     }

@@ -58,6 +58,10 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.automation.jei.SyncMachineRecipesPacket;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
@@ -65,12 +69,14 @@ public final class NeoForgeClientSetup {
     public static void register(IEventBus modBus) {
         NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
         NeoForgePacketRegistration.registerSyncFabricatorOutputsHandler(NeoForgeClientSetup::handleSyncFabricatorOutputs);
+        NeoForgePacketRegistration.registerSyncMachineRecipesHandler(NeoForgeClientSetup::handleSyncMachineRecipes);
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerItemColors);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
+        NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientDisconnect);
     }
 
     /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
@@ -241,5 +247,13 @@ public final class NeoForgeClientSetup {
         if (screen instanceof SequentialFabricatorScreen fabricatorScreen) {
             fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
         }
+    }
+
+    private static void handleSyncMachineRecipes(SyncMachineRecipesPacket packet) {
+        ClientMachineRecipes.set(packet);
+    }
+
+    private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientMachineRecipes.clear();
     }
 }
