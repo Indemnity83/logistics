@@ -41,13 +41,16 @@ public final class LogisticsFluid extends LogisticsMod {
         return INSTANCE.domainModelResource(name);
     }
 
-    /** Register all fluid blocks, block entities, and creative entries. Called by the pipe domain bootstrap. */
+    /**
+     * Register all fluid blocks and block entities. Called by the pipe domain bootstrap before it builds
+     * the creative tab; the fluid creative entries are added into the pipe tab's Fluid Transport section
+     * via {@link CREATIVE#register()}.
+     */
     public static void registerCommon() {
         LOGGER.info("Registering {}", INSTANCE.domain());
 
         BLOCK.register();
         ENTITY.register();
-        CREATIVE.register();
     }
 
     public static final class BLOCK {
@@ -151,7 +154,7 @@ public final class LogisticsFluid extends LogisticsMod {
         static void register() {
             // Copper fluid pipe weathering variants (exposed/weathered/oxidized + waxed); the base entry
             // is added below.
-            LogisticsCore.CREATIVE.TAB.add(entries -> {
+            LogisticsPipe.CREATIVE.TAB.add(entries -> {
                 if (BLOCK.COPPER_FLUID_PIPE instanceof FluidPipeBlock pipeBlock && pipeBlock.fluidPipe() != null) {
                     ItemStack baseStack = new ItemStack(BLOCK.COPPER_FLUID_PIPE);
                     List<ItemStack> variants = new ArrayList<>();
@@ -160,16 +163,16 @@ public final class LogisticsFluid extends LogisticsMod {
                 }
             });
 
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_FLUID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_FLUID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_FLUID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.INSERTION_FLUID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.MERGER_FLUID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.FLUID_EXTRACTOR_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.VOID_FLUID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.BYPASS_FLUID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.GLASS_TANK);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.FLUID_PUMP);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.COPPER_FLUID_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.STONE_FLUID_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.GOLD_FLUID_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.INSERTION_FLUID_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.MERGER_FLUID_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.FLUID_EXTRACTOR_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.VOID_FLUID_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.BYPASS_FLUID_PIPE);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.GLASS_TANK);
+            LogisticsPipe.CREATIVE.TAB.add(BLOCK.FLUID_PUMP);
         }
     }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "logistics:item/power/natural_polymer"
+    "layer0": "logistics:item/core/natural_polymer"
   }
 }
