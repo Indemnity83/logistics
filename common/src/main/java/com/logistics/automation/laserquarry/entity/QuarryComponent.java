@@ -1,7 +1,9 @@
 package com.logistics.automation.laserquarry.entity;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsAutomation;
+
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.ChunkArea;
@@ -110,14 +112,14 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
      */
     @Nullable
     public ChunkArea chunkArea(MachineContext context) {
-        if (!LogisticsConfig.get().quarry.loadChunks || phaseRunner.isFinished()) {
+        if (!LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_LOAD_CHUNKS) || phaseRunner.isFinished()) {
             return null;
         }
         QuarryFrameRect frame = QuarryFrameRect.resolve(
                 LaserQuarryBlock.getMiningDirection(context.blockState()),
                 context.pos(),
                 bounds,
-                LogisticsConfig.get().quarry.area);
+                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA));
         if (frame == null) {
             throw new IllegalStateException("Quarry has null frame");
         }

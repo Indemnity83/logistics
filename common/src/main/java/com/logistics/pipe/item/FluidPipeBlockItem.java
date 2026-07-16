@@ -1,6 +1,5 @@
 package com.logistics.pipe.item;
 
-import com.logistics.core.LogisticsConfig;
 import com.logistics.pipe.FluidPipe;
 import com.logistics.pipe.block.FluidPipeBlock;
 import java.util.List;
@@ -44,16 +43,15 @@ public class FluidPipeBlockItem extends BlockItem {
             return;
         }
         FluidPipe def = block.fluidPipe();
-        LogisticsConfig.FluidPipeConfig cfg = LogisticsConfig.get().fluidPipe;
 
         tooltipComponents.add(Component.translatable("tooltip.logistics.fluid." + def.modelBase())
                 .withStyle(ChatFormatting.GRAY));
 
-        tooltipComponents.add(Component.translatable("tooltip.logistics.fluid.capacity", (int) def.capacity(cfg))
+        tooltipComponents.add(Component.translatable("tooltip.logistics.fluid.capacity", (int) def.capacity())
                 .withStyle(ChatFormatting.GRAY));
         // Extractors are paced by engine power, not a fixed rate; void destroys rather than transfers.
         if (!def.isExtractor() && !def.isVoid()) {
-            tooltipComponents.add(Component.translatable("tooltip.logistics.fluid.transfer", (int) def.transferRate(cfg))
+            tooltipComponents.add(Component.translatable("tooltip.logistics.fluid.transfer", (int) def.transferRate())
                     .withStyle(ChatFormatting.GRAY));
         }
         tooltipComponents.add(Component.translatable("tooltip.logistics.fluid.no_item_pipes")

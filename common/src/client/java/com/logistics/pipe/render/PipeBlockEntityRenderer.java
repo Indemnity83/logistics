@@ -1,6 +1,7 @@
 package com.logistics.pipe.render;
 
-import com.logistics.core.LogisticsConfig;
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.DebugLog;
 import com.logistics.core.lib.client.render.VanillaQuadBaker;
 import com.logistics.core.lib.block.capability.PipeConnection;
@@ -231,8 +232,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
 
         // Speed at the end of this partial tick
         float interpolatedSpeed = item.getSpeed() + speedChange;
-        if (interpolatedSpeed < LogisticsConfig.get().pipe.minSpeed) {
-            interpolatedSpeed = LogisticsConfig.get().pipe.minSpeed;
+        if (interpolatedSpeed < LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED)) {
+            interpolatedSpeed = LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED);
         } else if (!deceleratingToMax && interpolatedSpeed > maxSpeed) {
             interpolatedSpeed = maxSpeed;
         }

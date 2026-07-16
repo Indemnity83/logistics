@@ -1,6 +1,10 @@
 package com.logistics;
 
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigEntries;
+import com.indemnity83.configory.ConfigKey;
 import com.logistics.api.LogisticsApi;
+import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.*;
@@ -51,6 +55,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     }
 
     @Override
+    public void registerConfig() {
+        CONFIG.register();
+    }
+
+    @Override
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
@@ -67,6 +76,147 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         // Fluid is part of the pipe domain (so fluid pipes can compose pipe modules); register it here
         // rather than as an independent DomainBootstrap.
         LogisticsFluid.registerCommon();
+    }
+
+    /**
+     * Pipe tuning. Fluids are part of the pipe domain, so both files live here — item transport in
+     * {@code config/logistics/pipes.json}, fluid pipe/pump in {@code config/logistics/fluids.json}.
+     */
+    public static final class CONFIG extends ConfigEntries {
+        private static final Config pipes = configFor(LogisticsConfigHost.MOD_ID, "pipes");
+        private static final Config fluids = configFor(LogisticsConfigHost.MOD_ID, "fluids");
+
+        private CONFIG() {}
+
+        // ---- item transport (pipes.json) ----
+
+        public static final ConfigKey<Float> PIPE_MAX_SPEED = pipes.defineFloat("max_speed", 0.16f)
+                .finite()
+                .greaterThan(0.0f)
+                .minValueOf(() -> CONFIG.PIPE_MIN_SPEED)
+                .describe("Item speed ceiling (blocks/tick)")
+                .register();
+
+        public static final ConfigKey<Float> PIPE_MIN_SPEED = pipes.defineFloat("min_speed", 0.02f)
+                .finite()
+                .greaterThan(0.0f)
+                .maxValueOf(() -> CONFIG.PIPE_MAX_SPEED)
+                .describe("Item speed floor (blocks/tick)")
+                .register();
+
+        public static final ConfigKey<Float> PIPE_ACCELERATION = pipes.defineFloat("acceleration", 1.0f / 200.0f)
+                .finite()
+                .min(0.0f)
+                .describe("Speed gain per tick when accelerating")
+                .register();
+
+        public static final ConfigKey<Float> PIPE_DRAG = pipes.defineFloat("drag", 0.005f)
+                .finite()
+                .range(0.0f, 1.0f)
+                .describe("Speed decay fraction per tick")
+                .register();
+
+        public static final ConfigKey<Float> PIPE_INJECT_SPEED = pipes.defineFloat("inject_speed", 0.2f)
+                .finite()
+                .greaterThan(0.0f)
+                .describe("Item speed when injected by network routing (blocks/tick)")
+                .register();
+
+        // ---- fluid pipe + pump (fluids.json) ----
+
+        public static final ConfigKey<Integer> FLUID_PIPE_BASE_TRANSFER_RATE =
+                fluids.defineInt("pipe_base_transfer_rate", 10)
+                        .min(1)
+                        .describe("Base Fluid Pipe transfer rate (mB/tick), scaled per tier")
+                        .register();
+
+        public static final ConfigKey<Integer> FLUID_PIPE_BASE_CAPACITY = fluids.defineInt("pipe_base_capacity", 250)
+                .min(1)
+                .describe("Fluid Pipe buffer capacity (mB)")
+                .register();
+
+        public static final ConfigKey<Boolean> FLUID_PIPE_WOODEN_REQUIRES_ENGINE =
+                fluids.defineBoolean("pipe_wooden_requires_engine", true)
+                        .describe("Fluid Extractor Pipe requires engine power")
+                        .register();
+
+        public static final ConfigKey<Boolean> FLUID_PIPE_ACTIVE_EXTRACTION =
+                fluids.defineBoolean("pipe_active_extraction", true)
+                        .describe("Debug: extractor pulling enabled")
+                        .register();
+
+        public static final ConfigKey<Integer> FLUID_PUMP_TANK_CAPACITY_MB =
+                fluids.defineInt("pump_tank_capacity_mb", 16_000)
+                        .min(1)
+                        .describe("Fluid Pump tank capacity (mB)")
+                        .register();
+
+        public static final ConfigKey<Long> FLUID_PUMP_ENERGY_CAPACITY = fluids.defineLong("pump_energy_capacity", 1_000L)
+                .min(1L)
+                .describe("Fluid Pump energy buffer capacity (RF)")
+                .register();
+
+        public static final ConfigKey<Long> FLUID_PUMP_MAX_ENERGY_INPUT = fluids.defineLong("pump_max_energy_input", 150L)
+                .min(1L)
+                .describe("Fluid Pump max energy input (RF/t)")
+                .register();
+
+        public static final ConfigKey<Long> FLUID_PUMP_ENERGY_PER_SOURCE = fluids.defineLong("pump_energy_per_source", 100L)
+                .min(0L)
+                .describe("RF consumed per source block pumped")
+                .register();
+
+        public static final ConfigKey<Integer> FLUID_PUMP_PUSH_RATE_MB = fluids.defineInt("pump_push_rate_mb", 400)
+                .min(1)
+                .describe("Fluid Pump output rate (mB/tick)")
+                .register();
+
+        public static final ConfigKey<Integer> FLUID_PUMP_INTERVAL_TICKS = fluids.defineInt("pump_interval_ticks", 16)
+                .min(1)
+                .describe("Fluid Pump source pickup interval (ticks)")
+                .register();
+
+        // Capped at 46340 so the radius can be squared as an int downstream without overflowing.
+        public static final ConfigKey<Integer> FLUID_PUMP_SEARCH_RADIUS = fluids.defineInt("pump_search_radius", 64)
+                .range(1, 46_340)
+                .describe("Fluid Pump connected source search radius")
+                .register();
+
+        public static final ConfigKey<Float> FLUID_PUMP_ARM_SPEED = fluids.defineFloat("pump_arm_speed", 0.01f)
+                .finite()
+                .greaterThan(0.0f)
+                .describe("Fluid Pump arm movement speed (blocks/tick)")
+                .register();
+
+        public static final ConfigKey<Integer> FLUID_PUMP_INFINITE_SOURCE_THRESHOLD =
+                fluids.defineInt("pump_infinite_source_threshold", 9)
+                        .min(0)
+                        .describe("Connected water sources at or above which the pump treats the body as infinite and"
+                                + " pumps without consuming blocks (0 = always consume)")
+                        .register();
+
+        static void register() {
+            pipes.registerSanitizeHook(() -> pipes.repairMinMax(PIPE_MIN_SPEED, PIPE_MAX_SPEED));
+
+            LogisticsConfigMigrator.mapLegacy("pipe", "acceleration", PIPE_ACCELERATION);
+            LogisticsConfigMigrator.mapLegacy("pipe", "drag", PIPE_DRAG);
+            LogisticsConfigMigrator.mapLegacy("pipe", "injectSpeed", PIPE_INJECT_SPEED);
+            LogisticsConfigMigrator.mapLegacyPair("pipe", "minSpeed", "maxSpeed", PIPE_MIN_SPEED, PIPE_MAX_SPEED);
+
+            LogisticsConfigMigrator.mapLegacy("fluidPipe", "baseTransferRate", FLUID_PIPE_BASE_TRANSFER_RATE);
+            LogisticsConfigMigrator.mapLegacy("fluidPipe", "baseCapacity", FLUID_PIPE_BASE_CAPACITY);
+            LogisticsConfigMigrator.mapLegacy("fluidPipe", "woodenRequiresEngine", FLUID_PIPE_WOODEN_REQUIRES_ENGINE);
+            LogisticsConfigMigrator.mapLegacy("fluidPipe", "activeExtraction", FLUID_PIPE_ACTIVE_EXTRACTION);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "tankCapacityMb", FLUID_PUMP_TANK_CAPACITY_MB);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "energyCapacity", FLUID_PUMP_ENERGY_CAPACITY);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "maxEnergyInput", FLUID_PUMP_MAX_ENERGY_INPUT);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "energyPerSource", FLUID_PUMP_ENERGY_PER_SOURCE);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "pushRateMb", FLUID_PUMP_PUSH_RATE_MB);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "pumpIntervalTicks", FLUID_PUMP_INTERVAL_TICKS);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "searchRadius", FLUID_PUMP_SEARCH_RADIUS);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "armSpeed", FLUID_PUMP_ARM_SPEED);
+            LogisticsConfigMigrator.mapLegacy("fluidPump", "infiniteSourceThreshold", FLUID_PUMP_INFINITE_SOURCE_THRESHOLD);
+        }
     }
 
     public static final class BLOCK {

@@ -1,6 +1,7 @@
 package com.logistics.core.crash;
 
-import com.logistics.core.LogisticsConfig;
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsCore;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
@@ -17,14 +18,14 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Shared by both loaders; the loader-specific hooks call {@link #maybeNotify} on player join and
  * {@link #reset()} when a server starts so each new world/server session shows the line once. It is
- * suppressed when an operator silences it via {@code /logistics diagnostics notify off}.
+ * suppressed when an operator silences it via {@code /logistics config reporting show_notification false}.
  */
 public final class CrashReportNotifier {
     private static final Set<UUID> NOTIFIED_THIS_SESSION = ConcurrentHashMap.newKeySet();
 
-    private static final String ENABLE_COMMAND = "/logistics diagnostics enable";
-    private static final String DISABLE_COMMAND = "/logistics diagnostics disable";
-    private static final String HIDE_COMMAND = "/logistics diagnostics notify off";
+    private static final String ENABLE_COMMAND = "/logistics config reporting enabled true";
+    private static final String DISABLE_COMMAND = "/logistics config reporting enabled false";
+    private static final String HIDE_COMMAND = "/logistics config reporting show_notification false";
 
     /** Latest crash-reporting & privacy page, opened by the [More Info] link. */
     private static final String DETAILS_URL =
@@ -34,13 +35,12 @@ public final class CrashReportNotifier {
 
     /** Show operators the once-per-session crash-reporting status line (unless they've silenced it). */
     public static void maybeNotify(ServerPlayer player) {
-        LogisticsConfig.CrashReportingConfig cfg = LogisticsConfig.get().crashReporting;
         boolean isOperator = player.hasPermissions(Commands.LEVEL_GAMEMASTERS);
-        if (!shouldNotify(cfg.notifyOperators, isOperator)) {
+        if (!shouldNotify(LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_SHOW_NOTIFICATION), isOperator)) {
             return;
         }
         if (NOTIFIED_THIS_SESSION.add(player.getUUID())) {
-            player.sendSystemMessage(buildInvite(cfg.enabled));
+            player.sendSystemMessage(buildInvite(LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED)));
         }
     }
 
@@ -87,7 +87,7 @@ public final class CrashReportNotifier {
                 .withUnderlined(true)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, HIDE_COMMAND))
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Component.literal("Stop showing this on join (you can still use /logistics diagnostics)"))));
+                        Component.literal("Stop showing this on join (you can still use /logistics config)"))));
     }
 
     private static Component moreInfoLink() {
