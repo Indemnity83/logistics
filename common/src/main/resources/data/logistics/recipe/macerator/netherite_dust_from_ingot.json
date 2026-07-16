@@ -1,12 +1,11 @@
 {
   "type": "logistics:macerator",
   "ingredient": {
-    "item": "minecraft:ancient_debris"
+    "item": "minecraft:netherite_ingot"
   },
   "result": {
     "id": "logistics:core/netherite_dust",
     "count": 1
   },
-  "energy": 2000,
-  "experience": 2.0
+  "energy": 2000
 }
