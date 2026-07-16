@@ -4,11 +4,9 @@ import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -64,28 +62,27 @@ public class FabricatorOutputButton extends AbstractWidget {
     }
 
     @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int highlightU = state == FabricatorProcessorComponent.STATE_ACTIVE ? ACTIVE_U
                 : state == FabricatorProcessorComponent.STATE_QUEUED ? QUEUED_U : -1;
         if (highlightU >= 0) {
             graphics.blit(
-                    RenderPipelines.GUI_TEXTURED, TEXTURE.toIdentifier(),
+                    TEXTURE.toIdentifier(),
                     getX(), getY(), highlightU, HIGHLIGHT_V, SIZE, SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
         if (!item.isEmpty()) {
-            graphics.item(item, getX() + 1, getY() + 1);
-            graphics.itemDecorations(Minecraft.getInstance().font, item, getX() + 1, getY() + 1, null);
+            graphics.renderItem(item, getX() + 1, getY() + 1);
+            graphics.renderItemDecorations(Minecraft.getInstance().font, item, getX() + 1, getY() + 1, null);
         }
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
-        if (active && visible && !item.isEmpty() && recipeId != null
-                && isMouseOver(mouseButtonEvent.x(), mouseButtonEvent.y())) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (active && visible && !item.isEmpty() && recipeId != null && isMouseOver(mouseX, mouseY)) {
             clickHandler.accept(this);
             return true;
         }
-        return super.mouseClicked(mouseButtonEvent, doubleClick);
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override

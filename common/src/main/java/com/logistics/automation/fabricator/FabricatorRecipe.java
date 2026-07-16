@@ -3,16 +3,13 @@ package com.logistics.automation.fabricator;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.recipe.ItemResult;
 import java.util.List;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Assembly-style recipe for the Sequential Fabricator — a list of sized ingredients drawn from the
@@ -27,7 +24,6 @@ public class FabricatorRecipe implements Recipe<FabricatorInput> {
     private final List<SizedIngredient> ingredients;
     private final ItemResult result;
     private final int energy;
-    @Nullable private PlacementInfo placementInfo;
 
     public FabricatorRecipe(List<SizedIngredient> ingredients, ItemResult result, int energy) {
         if (ingredients.isEmpty()) {
@@ -111,12 +107,17 @@ public class FabricatorRecipe implements Recipe<FabricatorInput> {
     }
 
     @Override
-    public @NotNull String group() {
-        return "";
+    public @NotNull ItemStack assemble(@NotNull FabricatorInput input, HolderLookup.@NotNull Provider provider) {
+        return result.toStack();
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull FabricatorInput input) {
+    public boolean canCraftInDimensions(int width, int height) {
+        return true;
+    }
+
+    @Override
+    public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
         return result.toStack();
     }
 
@@ -133,29 +134,5 @@ public class FabricatorRecipe implements Recipe<FabricatorInput> {
     @Override
     public boolean isSpecial() {
         return false;
-    }
-
-    @Override
-    public boolean showNotification() {
-        return false;
-    }
-
-    @Override
-    public @NotNull PlacementInfo placementInfo() {
-        if (placementInfo == null) {
-            placementInfo = PlacementInfo.create(ingredients.stream().map(SizedIngredient::ingredient).toList());
-        }
-        return placementInfo;
-    }
-
-    @Override
-    public @NotNull RecipeBookCategory recipeBookCategory() {
-        return LogisticsAutomation.RECIPE.FABRICATOR_CATEGORY;
-    }
-
-    @Override
-    public @NotNull List<RecipeDisplay> display() {
-        // Custom GUI drives its own output preview; no recipe-book display.
-        return List.of();
     }
 }

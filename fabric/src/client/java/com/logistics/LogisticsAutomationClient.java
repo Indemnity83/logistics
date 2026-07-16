@@ -50,7 +50,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
 
         ClientPlayNetworking.registerGlobalReceiver(SyncFabricatorOutputsPacket.TYPE, (packet, context) ->
                 context.client().execute(() -> {
-                    if (Minecraft.getInstance().gui.screen() instanceof SequentialFabricatorScreen screen) {
+                    if (Minecraft.getInstance().screen instanceof SequentialFabricatorScreen screen) {
                         screen.updateOutputs(packet.pos(), packet.toOutputs());
                     }
                 }));

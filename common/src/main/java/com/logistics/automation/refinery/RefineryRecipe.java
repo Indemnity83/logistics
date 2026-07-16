@@ -3,16 +3,13 @@ package com.logistics.automation.refinery;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.lib.recipe.RecipeByproduct;
-import java.util.List;
 import java.util.Optional;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -84,13 +81,18 @@ public class RefineryRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull String group() {
-        return "";
+    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
+        // Fluid-only output — nothing goes into an item slot.
+        return ItemStack.EMPTY;
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input) {
-        // Fluid-only output — nothing goes into an item slot.
+    public boolean canCraftInDimensions(int width, int height) {
+        return true;
+    }
+
+    @Override
+    public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
         return ItemStack.EMPTY;
     }
 
@@ -108,25 +110,5 @@ public class RefineryRecipe implements Recipe<SingleRecipeInput> {
     public boolean isSpecial() {
         // No item ingredient to place into a crafting grid; keeps it out of the recipe book.
         return true;
-    }
-
-    @Override
-    public boolean showNotification() {
-        return false;
-    }
-
-    @Override
-    public @NotNull PlacementInfo placementInfo() {
-        return PlacementInfo.NOT_PLACEABLE;
-    }
-
-    @Override
-    public @NotNull RecipeBookCategory recipeBookCategory() {
-        return LogisticsAutomation.RECIPE.REFINERY_CATEGORY;
-    }
-
-    @Override
-    public @NotNull List<RecipeDisplay> display() {
-        return List.of();
     }
 }

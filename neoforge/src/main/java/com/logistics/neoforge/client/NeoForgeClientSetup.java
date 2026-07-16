@@ -64,6 +64,7 @@ public final class NeoForgeClientSetup {
 
     public static void register(IEventBus modBus) {
         NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
+        NeoForgePacketRegistration.registerSyncFabricatorOutputsHandler(NeoForgeClientSetup::handleSyncFabricatorOutputs);
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);

@@ -4,7 +4,6 @@ import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
-import com.logistics.core.machine.MachineHudModel;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.RecipeProcessPlan;
@@ -34,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  * recipe, and progress persist across saves.
  */
 public final class FabricatorProcessorComponent
-        implements MachineComponent, MachineComponent.ProcessState, MachineComponent.HudContributor {
+        implements MachineComponent, MachineComponent.ProcessState {
 
     /** Output state for the GUI: 0 = craftable (unselected), 1 = queued, 2 = active. */
     public static final int STATE_AVAILABLE = 0;
@@ -154,7 +153,7 @@ public final class FabricatorProcessorComponent
         List<Output> out = new ArrayList<>();
         for (RecipeHolder<FabricatorRecipe> holder : fabricatorRecipes(rm)) {
             if (holder.value().canCraftFrom(pool)) {
-                ResourceId rid = ResourceId.wrap(holder.id().identifier());
+                ResourceId rid = ResourceId.wrap(holder.id());
                 int state = rid.equals(activeId) ? STATE_ACTIVE : (selected.contains(rid) ? STATE_QUEUED : STATE_AVAILABLE);
                 out.add(new Output(rid, holder.value().getResultItem(), state));
             }
@@ -224,7 +223,7 @@ public final class FabricatorProcessorComponent
         if (cachedById == null) {
             Map<ResourceId, RecipeHolder<FabricatorRecipe>> byId = new LinkedHashMap<>();
             for (RecipeHolder<FabricatorRecipe> holder : recipes) {
-                byId.put(ResourceId.wrap(holder.id().identifier()), holder);
+                byId.put(ResourceId.wrap(holder.id()), holder);
             }
             cachedById = byId;
         }
@@ -261,13 +260,6 @@ public final class FabricatorProcessorComponent
     @Override
     public boolean isProcessing() {
         return activeId != null;
-    }
-
-    @Override
-    public void contributeHud(MachineHudModel hud) {
-        if (isProcessing()) {
-            hud.progress(progress());
-        }
     }
 
     // ----- persistence -----

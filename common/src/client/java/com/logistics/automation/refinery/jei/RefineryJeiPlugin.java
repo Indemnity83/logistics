@@ -27,7 +27,7 @@ public class RefineryJeiPlugin implements IModPlugin {
     private static final ResourceId PLUGIN_ID = LogisticsMod.modId("jei_refinery_plugin");
 
     @Override
-    public net.minecraft.resources.Identifier getPluginUid() { // raw-id-ok: JEI IModPlugin signature
+    public net.minecraft.resources.ResourceLocation getPluginUid() { // raw-id-ok: JEI IModPlugin signature
         return PLUGIN_ID.toIdentifier();
     }
 
@@ -56,7 +56,7 @@ public class RefineryJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(
-            RefineryRecipeCategory.RECIPE_TYPE, LogisticsAutomation.BLOCK.REFINERY);
+        registration.addRecipeCatalyst(
+            LogisticsAutomation.BLOCK.REFINERY, RefineryRecipeCategory.RECIPE_TYPE);
     }
 }

@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 
 public final class NeoForgePacketRegistration {
     private static volatile Consumer<SyncRequesterInventoryPacket> syncRequesterInventoryHandler = packet -> {};
+    private static volatile Consumer<SyncFabricatorOutputsPacket> syncFabricatorOutputsHandler = packet -> {};
 
     private NeoForgePacketRegistration() {}
 
@@ -27,6 +28,10 @@ public final class NeoForgePacketRegistration {
 
     public static void registerSyncRequesterInventoryHandler(Consumer<SyncRequesterInventoryPacket> handler) {
         syncRequesterInventoryHandler = handler;
+    }
+
+    public static void registerSyncFabricatorOutputsHandler(Consumer<SyncFabricatorOutputsPacket> handler) {
+        syncFabricatorOutputsHandler = handler;
     }
 
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
