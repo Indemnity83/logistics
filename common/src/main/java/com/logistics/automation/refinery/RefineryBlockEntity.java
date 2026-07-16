@@ -1,6 +1,7 @@
 package com.logistics.automation.refinery;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidKey;
@@ -43,19 +44,16 @@ public class RefineryBlockEntity extends MachineEntity {
 
     static final int OUTPUT_SLOT = 0;
 
-    static final long ENERGY_CAPACITY = 20_000L;
-    static final long MAX_ENERGY_INPUT = 128L;
-    static final int ENERGY_PER_TICK = 20;
-
-    static final long INPUT_TANK_CAPACITY_MB = 4_000L;
-    static final long OUTPUT_TANK_CAPACITY_MB = 10_000L;
-
-    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the two tanks add four.
+    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the two tanks add six
+    // (id, amount, and capacity each). Capacities are synced from the server so the GUI gauges don't read
+    // the client's own config, which can diverge from the server's in multiplayer.
     static final int DATA_IN_FLUID_ID = MachineData.COUNT;
     static final int DATA_IN_FLUID_AMOUNT = MachineData.COUNT + 1;
     static final int DATA_OUT_FLUID_ID = MachineData.COUNT + 2;
     static final int DATA_OUT_FLUID_AMOUNT = MachineData.COUNT + 3;
-    static final int DATA_COUNT = MachineData.COUNT + 4;
+    static final int DATA_IN_CAPACITY = MachineData.COUNT + 4;
+    static final int DATA_OUT_CAPACITY = MachineData.COUNT + 5;
+    static final int DATA_COUNT = MachineData.COUNT + 6;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -68,11 +66,13 @@ public class RefineryBlockEntity extends MachineEntity {
         public int get(int index) {
             return switch (index) {
                 case MachineData.PROGRESS -> MachineData.progressFraction(processor);
-                case MachineData.ENERGY -> MachineData.energyFraction(energy, ENERGY_CAPACITY);
+                case MachineData.ENERGY -> MachineData.energyFraction(energy, energy.capacity());
                 case DATA_IN_FLUID_ID -> fluidId(inputTank);
                 case DATA_IN_FLUID_AMOUNT -> amountMb(inputTank);
                 case DATA_OUT_FLUID_ID -> fluidId(outputTank);
                 case DATA_OUT_FLUID_AMOUNT -> amountMb(outputTank);
+                case DATA_IN_CAPACITY -> capacityMb(inputTank);
+                case DATA_OUT_CAPACITY -> capacityMb(outputTank);
                 default -> 0;
             };
         }
@@ -102,11 +102,15 @@ public class RefineryBlockEntity extends MachineEntity {
         return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getAmount()), Integer.MAX_VALUE);
     }
 
+    private static int capacityMb(FluidStoreComponent store) {
+        return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getCapacity()), Integer.MAX_VALUE);
+    }
+
     @Override
     protected void configure(MachineBuilder machine) {
         energy = machine.energy("energy")
-                .capacity(ENERGY_CAPACITY)
-                .maxInput(MAX_ENERGY_INPUT)
+                .capacity(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_ENERGY_CAPACITY))
+                .maxInput(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_MAX_ENERGY_INPUT))
                 .build();
 
         var items = machine.items("inventory")
@@ -115,17 +119,17 @@ public class RefineryBlockEntity extends MachineEntity {
                 .build();
 
         inputTank = machine.fluids("input")
-                .capacity(FluidUnits.mb(INPUT_TANK_CAPACITY_MB))
+                .capacity(FluidUnits.mb(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_INPUT_TANK_MB)))
                 .build();
 
         outputTank = machine.fluids("output")
-                .capacity(FluidUnits.mb(OUTPUT_TANK_CAPACITY_MB))
+                .capacity(FluidUnits.mb(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_OUTPUT_TANK_MB)))
                 .outputOnly()
                 .build();
 
         processor = machine.recipeProcessor("processor")
                 .resolver(new RefineryRecipeResolver(inputTank))
-                .rfPerTick(ENERGY_PER_TICK)
+                .rfPerTick(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_ENERGY_PER_TICK))
                 .items(items)
                 .energy(energy)
                 .inputFluids(inputTank)

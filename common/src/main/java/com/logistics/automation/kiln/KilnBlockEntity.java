@@ -1,6 +1,7 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
@@ -34,11 +35,6 @@ public class KilnBlockEntity extends MachineEntity {
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
 
-    static final long ENERGY_CAPACITY = 10_000L;
-    static final long MAX_ENERGY_INPUT = 128L;
-
-    static final int ENERGY_PER_TICK = 20;
-
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
     private ContainerData containerData;
@@ -49,9 +45,10 @@ public class KilnBlockEntity extends MachineEntity {
 
     @Override
     protected void configure(MachineBuilder machine) {
+        long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.KILN_ENERGY_CAPACITY);
         energy = machine.energy("energy")
-                .capacity(ENERGY_CAPACITY)
-                .maxInput(MAX_ENERGY_INPUT)
+                .capacity(capacity)
+                .maxInput(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.KILN_MAX_ENERGY_INPUT))
                 .build();
 
         var items = machine.items("inventory")
@@ -61,13 +58,13 @@ public class KilnBlockEntity extends MachineEntity {
 
         processor = machine.recipeProcessor("processor")
                 .resolver(new SmeltingRecipeResolver())
-                .rfPerTick(ENERGY_PER_TICK)
+                .rfPerTick(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.KILN_ENERGY_PER_TICK))
                 .items(items)
                 .energy(energy)
                 .lit(this::setLit)
                 .build();
 
-        containerData = MachineData.source(processor, energy, ENERGY_CAPACITY);
+        containerData = MachineData.source(processor, energy, capacity);
     }
 
     private boolean canSmelt(ItemStack stack) {
