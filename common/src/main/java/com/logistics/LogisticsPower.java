@@ -5,7 +5,11 @@ import com.indemnity83.configory.ConfigEntries;
 import com.indemnity83.configory.ConfigKey;
 import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import com.logistics.power.block.BatteryBlock;
 import com.logistics.power.block.BatteryBlockItem;
 import com.logistics.power.block.CreativeSinkBlock;
@@ -247,20 +251,27 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     public static final class CREATIVE {
+        public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
+            LogisticsMod.modId("3_power"),
+            Component.translatable("itemGroup.logistics.3_power"),
+            () -> new ItemStack(BLOCK.REDSTONE_ENGINE)
+        );
+
         private CREATIVE() {}
 
         static void register() {
-            LogisticsCore.CREATIVE.TAB.add(ITEM.NATURAL_POLYMER);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.SYNTHETIC_POLYMER);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.RUBBER);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.REDSTONE_ENGINE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.STIRLING_ENGINE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_ENGINE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_SINK);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.BATTERY);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_CABLE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_CABLE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ENDER_CABLE);
+            TAB.add(BLOCK.REDSTONE_ENGINE);
+            TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.CREATIVE_ENGINE);
+            TAB.add(BLOCK.CREATIVE_SINK);
+            TAB.add(BLOCK.BATTERY);
+            TAB.add(BLOCK.COPPER_CABLE);
+            TAB.add(BLOCK.GOLD_CABLE);
+            TAB.add(BLOCK.ENDER_CABLE);
+            TAB.add(ITEM.RUBBER);
+            TAB.add(ITEM.NATURAL_POLYMER);
+            TAB.add(ITEM.SYNTHETIC_POLYMER);
+            CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
 

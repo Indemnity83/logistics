@@ -1,6 +1,8 @@
 {
-  "itemGroup.logistics.logistics_transport": "Logistics",
-  "itemGroup.logistics.automation": "Automation",
+  "itemGroup.logistics.1_resources": "Logistics Resources",
+  "itemGroup.logistics.2_pipes": "Logistics Pipes",
+  "itemGroup.logistics.3_power": "Logistics Power",
+  "itemGroup.logistics.4_automation": "Logistics Automation",
   "block.logistics.pipe.copper_transport_pipe": "Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.exposed": "Exposed Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.weathered": "Weathered Copper Transport Pipe",
