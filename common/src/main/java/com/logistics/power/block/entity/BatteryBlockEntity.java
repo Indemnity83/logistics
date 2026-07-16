@@ -11,7 +11,9 @@ import net.minecraft.world.level.block.state.BlockState;
  * machines and connected logistics pipe networks.
  *
  * <p>Capacity, per-side I/O, and active push rate are configurable (see the {@code power/battery}
- * config); defaults are 100,000 RF storage and 1,000 RF/t per side.
+ * config). Defaults: 100,000 RF storage capacity; 1,000 RF/t insert/extract per side (the
+ * {@code max_io}-controlled limits passed to the constructor); and a 200 RF/t active push rate into
+ * each adjacent machine (from {@link AbstractBatteryBlockEntity#maxOutputPerSide()}).
  *
  * <p>When placed adjacent to a logistics pipe network, this battery registers itself
  * as an energy source for that network. Logistics pipe modules (requester, provider, etc.)

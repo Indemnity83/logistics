@@ -41,7 +41,7 @@ class LogisticsConfigHostTest {
         assertThat(redstone.trySet(LogisticsPower.CONFIG.REDSTONE_OUTPUT, -1L)).isFalse();
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
 
-        // Cross-field (recursion fixed in configory): min must not exceed max (default max 10).
+        // Cross-field: min must not exceed max (default max 10).
         assertThat(stirling.trySet(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 12.0)).isFalse();
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
     }
@@ -92,12 +92,25 @@ class LogisticsConfigHostTest {
         assertThat(ignored).isNotEmpty();
 
         List<String> ids = LogisticsConfigHost.domainConfigs().stream().map(Config::id).toList();
-        // Each domain declares one child config per unit (engines/machines/power) plus the flat pipe/fluid/reporting files.
-        assertThat(ids).contains(
-                "logistics.engines.redstone", "logistics.engines.stirling",
-                "logistics.machines.macerator", "logistics.machines.quarry",
-                "logistics.power.battery", "logistics.power.cables",
-                "logistics.pipes", "logistics.fluids", "logistics.reporting");
+        // The complete set of registered child configs: one per engine/machine/power unit plus the flat
+        // pipe/fluid/reporting files. Asserted exhaustively so a missing registration can't slip through.
+        assertThat(ids).containsExactlyInAnyOrder(
+                "logistics.engines.redstone",
+                "logistics.engines.stirling",
+                "logistics.engines.creative",
+                "logistics.power.battery",
+                "logistics.power.cables",
+                "logistics.machines.macerator",
+                "logistics.machines.kiln",
+                "logistics.machines.sawmill",
+                "logistics.machines.crucible",
+                "logistics.machines.alloy_smelter",
+                "logistics.machines.quarry",
+                "logistics.machines.refinery",
+                "logistics.machines.fabricator",
+                "logistics.pipes",
+                "logistics.fluids",
+                "logistics.reporting");
     }
 
     @Test

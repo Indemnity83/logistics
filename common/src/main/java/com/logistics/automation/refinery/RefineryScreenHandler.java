@@ -1,7 +1,6 @@
 package com.logistics.automation.refinery;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsConfigHost;
 import com.logistics.core.machine.MachineData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -129,11 +128,11 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     }
 
     public int getInputCapacityMb() {
-        return LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_INPUT_TANK_MB).intValue();
+        return data.get(RefineryBlockEntity.DATA_IN_CAPACITY);
     }
 
     public float getInputFillFraction() {
-        return fill(getInputAmountMb(), LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_INPUT_TANK_MB));
+        return fill(getInputAmountMb(), getInputCapacityMb());
     }
 
     public int getOutputFluidId() {
@@ -145,14 +144,14 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     }
 
     public int getOutputCapacityMb() {
-        return LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_OUTPUT_TANK_MB).intValue();
+        return data.get(RefineryBlockEntity.DATA_OUT_CAPACITY);
     }
 
     public float getOutputFillFraction() {
-        return fill(getOutputAmountMb(), LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_OUTPUT_TANK_MB));
+        return fill(getOutputAmountMb(), getOutputCapacityMb());
     }
 
-    private static float fill(int amountMb, long capacityMb) {
+    private static float fill(int amountMb, int capacityMb) {
         if (amountMb <= 0 || capacityMb <= 0) {
             return 0f;
         }

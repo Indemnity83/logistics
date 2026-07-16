@@ -66,8 +66,7 @@ public class SequentialFabricatorBlockEntity extends MachineEntity {
             public int get(int index) {
                 return switch (index) {
                     case MachineData.PROGRESS -> Math.round(processor.progress() * MachineData.SCALE);
-                    case MachineData.ENERGY -> MachineData.energyFraction(
-                            energy, LogisticsConfigHost.get(LogisticsAutomation.CONFIG.FABRICATOR_ENERGY_CAPACITY));
+                    case MachineData.ENERGY -> MachineData.energyFraction(energy, energy.capacity());
                     default -> 0;
                 };
             }

@@ -44,12 +44,16 @@ public class RefineryBlockEntity extends MachineEntity {
 
     static final int OUTPUT_SLOT = 0;
 
-    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the two tanks add four.
+    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the two tanks add six
+    // (id, amount, and capacity each). Capacities are synced from the server so the GUI gauges don't read
+    // the client's own config, which can diverge from the server's in multiplayer.
     static final int DATA_IN_FLUID_ID = MachineData.COUNT;
     static final int DATA_IN_FLUID_AMOUNT = MachineData.COUNT + 1;
     static final int DATA_OUT_FLUID_ID = MachineData.COUNT + 2;
     static final int DATA_OUT_FLUID_AMOUNT = MachineData.COUNT + 3;
-    static final int DATA_COUNT = MachineData.COUNT + 4;
+    static final int DATA_IN_CAPACITY = MachineData.COUNT + 4;
+    static final int DATA_OUT_CAPACITY = MachineData.COUNT + 5;
+    static final int DATA_COUNT = MachineData.COUNT + 6;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -62,12 +66,13 @@ public class RefineryBlockEntity extends MachineEntity {
         public int get(int index) {
             return switch (index) {
                 case MachineData.PROGRESS -> MachineData.progressFraction(processor);
-                case MachineData.ENERGY -> MachineData.energyFraction(
-                        energy, LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_ENERGY_CAPACITY));
+                case MachineData.ENERGY -> MachineData.energyFraction(energy, energy.capacity());
                 case DATA_IN_FLUID_ID -> fluidId(inputTank);
                 case DATA_IN_FLUID_AMOUNT -> amountMb(inputTank);
                 case DATA_OUT_FLUID_ID -> fluidId(outputTank);
                 case DATA_OUT_FLUID_AMOUNT -> amountMb(outputTank);
+                case DATA_IN_CAPACITY -> capacityMb(inputTank);
+                case DATA_OUT_CAPACITY -> capacityMb(outputTank);
                 default -> 0;
             };
         }
@@ -95,6 +100,10 @@ public class RefineryBlockEntity extends MachineEntity {
 
     private static int amountMb(FluidStoreComponent store) {
         return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getAmount()), Integer.MAX_VALUE);
+    }
+
+    private static int capacityMb(FluidStoreComponent store) {
+        return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getCapacity()), Integer.MAX_VALUE);
     }
 
     @Override
