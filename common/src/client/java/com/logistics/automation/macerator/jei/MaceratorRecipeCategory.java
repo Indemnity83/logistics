@@ -44,7 +44,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
     private final IDrawable arrow;
 
     public MaceratorRecipeCategory(IGuiHelper guiHelper) {
-        this.background = guiHelper.createDrawable(TEXTURE, 48, 27, WIDTH, HEIGHT);
+        this.background = guiHelper.createBlankDrawable(WIDTH, HEIGHT);
         this.icon = guiHelper.createDrawableItemStack(
             new ItemStack(LogisticsAutomation.BLOCK.MACERATOR));
         this.arrow = guiHelper.createDrawable(TEXTURE, 199, 35, 24, 16);
