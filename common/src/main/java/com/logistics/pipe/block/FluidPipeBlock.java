@@ -1,6 +1,6 @@
 package com.logistics.pipe.block;
 
-import com.logistics.LogisticsFluid;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.ConnectedShapeCache;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
@@ -147,7 +147,7 @@ public class FluidPipeBlock extends BaseEntityBlock
         }
         return createTickerHelper(
                 type,
-                LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY,
+                LogisticsPipe.ENTITY.FLUID_PIPE_BLOCK_ENTITY,
                 FluidPipeBlockEntity::tick);
     }
 

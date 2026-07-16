@@ -2,8 +2,8 @@ package com.logistics.neoforge;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsFluid;
-import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPipe;import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
@@ -76,7 +76,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.SEQUENTIAL_FABRICATOR_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
-        registerEnergy(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
         // Extraction pipes (item + fluid) are DirectEnergyReceivers: kept off the energy grid so only
         // a directly-adjacent engine can power them (engines feed them directly).
 
@@ -92,10 +92,10 @@ public final class NeoForgeCapabilityRegistration {
         registerItems(event, LogisticsAutomation.ENTITY.SEQUENTIAL_FABRICATOR_BLOCK_ENTITY);
 
         // Fluid pipes expose their buffer tank as a fluid handler on every enabled side.
-        registerFluids(event, LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
+        registerFluids(event, LogisticsPipe.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
         // Glass tanks expose their whole vertical column as a fluid handler.
-        registerFluids(event, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY);
-        registerFluids(event, LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+        registerFluids(event, LogisticsPipe.ENTITY.GLASS_TANK_BLOCK_ENTITY);
+        registerFluids(event, LogisticsAutomation.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
         // Crucible exposes its output tank as a fluid handler so pipes can pull the product.
         registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Refinery exposes input+output tanks: pipes fill the input fluid and drain the output.

@@ -1,7 +1,7 @@
 package com.logistics.pipe.block.entity;
 
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsFluid;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.fluids.FluidLight;
@@ -34,7 +34,7 @@ public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidSto
     private final FluidTankComponent tank;
 
     public GlassTankBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY, pos, state);
+        super(LogisticsPipe.ENTITY.GLASS_TANK_BLOCK_ENTITY, pos, state);
         this.tank = new FluidTankComponent(TankTier.GLASS.capacityNative(), this::markDirtyAndSync);
     }
 
