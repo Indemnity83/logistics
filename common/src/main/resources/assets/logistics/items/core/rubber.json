@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "logistics:item/power/rubber"
+    "model": "logistics:item/core/rubber"
   }
 }

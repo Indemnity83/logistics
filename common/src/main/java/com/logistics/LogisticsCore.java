@@ -28,7 +28,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -349,6 +348,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item APATITE;
         public static Item MACHINE_CORE;
         public static Item REDSTONE_RECEPTION_COIL;
+        public static Item RUBBER;
+        public static Item NATURAL_POLYMER;
+        public static Item SYNTHETIC_POLYMER;
 
         public static Item WOODEN_GEAR;
         public static Item STONE_GEAR;
@@ -439,6 +441,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Components
             MACHINE_CORE = INSTANCE.registerItem("machine_core", Item::new);
             REDSTONE_RECEPTION_COIL = INSTANCE.registerItem("redstone_reception_coil", Item::new);
+            RUBBER = INSTANCE.registerItem("rubber", Item::new);
+            NATURAL_POLYMER = INSTANCE.registerItem("natural_polymer", Item::new);
+            SYNTHETIC_POLYMER = INSTANCE.registerItem("synthetic_polymer", Item::new);
 
             // Gears
             WOODEN_GEAR = INSTANCE.registerItem("wooden_gear", Item::new);
@@ -521,18 +526,122 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class CREATIVE {
+        // Tab ids carry an ordinal prefix: Fabric sorts creative tabs alphabetically by id, so the
+        // prefix (not registration order) controls left-to-right placement. Order: resources, pipes,
+        // power, automation.
         public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
-            LogisticsMod.modId("logistics_transport"),
-            Component.translatable("itemGroup.logistics.logistics_transport"),
-            () -> new ItemStack(ITEM.IRON_GEAR)
+            LogisticsMod.modId("1_resources"),
+            Component.translatable("itemGroup.logistics.1_resources"),
+            () -> new ItemStack(ITEM.WRENCH)
         );
 
         private CREATIVE() {}
 
         static void register() {
+            // Tools
             TAB.add(ITEM.WRENCH);
-            TAB.add(BLOCK.QUARTZ_CRYSTAL);
+
+            // --- Misc & raw materials (kept contiguous) ---
+            // Ores and storage blocks
+            TAB.add(BLOCK.BOG_EARTH);
+            TAB.add(BLOCK.TIN_ORE);
+            TAB.add(BLOCK.DEEPSLATE_TIN_ORE);
+            TAB.add(BLOCK.APATITE_ORE);
+            TAB.add(BLOCK.OIL_SAND);
+            TAB.add(BLOCK.OIL_RED_SAND);
+            TAB.add(BLOCK.OIL_SHALE);
+            TAB.add(BLOCK.RAW_TIN_BLOCK);
+
+            // Metals
+            TAB.add(ITEM.RAW_TIN);
+            TAB.add(ITEM.APATITE);
+            TAB.add(ITEM.TIN_INGOT);
+            TAB.add(ITEM.BRONZE_INGOT);
+            TAB.add(ITEM.TIN_NUGGET);
+            TAB.add(ITEM.COPPER_NUGGET);
+            TAB.add(ITEM.BRONZE_NUGGET);
+            TAB.add(BLOCK.APATITE_BLOCK);
+            TAB.add(BLOCK.TIN_BLOCK);
+            TAB.add(BLOCK.BRONZE_BLOCK);
+
+            // Components
+            TAB.add(ITEM.MACHINE_CORE);
+            TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
+            TAB.add(ITEM.SILICON_WAFER);
             TAB.add(BLOCK.MARKER);
+            TAB.add(BLOCK.QUARTZ_CRYSTAL);
+
+            // --- Component ladder: gears -> valves -> chipsets ---
+            TAB.add(ITEM.WOODEN_GEAR);
+            TAB.add(ITEM.STONE_GEAR);
+            TAB.add(ITEM.COPPER_GEAR);
+            TAB.add(ITEM.IRON_GEAR);
+            TAB.add(ITEM.BRONZE_GEAR);
+            TAB.add(ITEM.GOLD_GEAR);
+            TAB.add(ITEM.DIAMOND_GEAR);
+            TAB.add(ITEM.NETHERITE_GEAR);
+
+            TAB.add(ITEM.TIN_VALVE);
+            TAB.add(ITEM.COPPER_VALVE);
+            TAB.add(ITEM.RUBBER_VALVE);
+            TAB.add(ITEM.BRONZE_VALVE);
+            TAB.add(ITEM.IRON_VALVE);
+            TAB.add(ITEM.GOLD_VALVE);
+            TAB.add(ITEM.LAPIS_VALVE);
+            TAB.add(ITEM.APATITE_VALVE);
+            TAB.add(ITEM.OBSIDIAN_VALVE);
+            TAB.add(ITEM.AMETHYST_VALVE);
+            TAB.add(ITEM.EMERALD_VALVE);
+            TAB.add(ITEM.BLAZING_VALVE);
+            TAB.add(ITEM.DIAMOND_VALVE);
+            TAB.add(ITEM.ECHO_VALVE);
+            TAB.add(ITEM.NETHERITE_VALVE);
+
+            TAB.add(ITEM.REDSTONE_CHIPSET);
+            TAB.add(ITEM.ECHO_CHIPSET);
+            TAB.add(ITEM.COPPER_CHIPSET);
+            TAB.add(ITEM.IRON_CHIPSET);
+            TAB.add(ITEM.GOLD_CHIPSET);
+            TAB.add(ITEM.DIAMOND_CHIPSET);
+            TAB.add(ITEM.NETHERITE_CHIPSET);
+
+            // Dusts and powders (macerator outputs)
+            TAB.add(ITEM.APATITE_DUST);
+            TAB.add(ITEM.IRON_DUST);
+            TAB.add(ITEM.COPPER_DUST);
+            TAB.add(ITEM.TIN_DUST);
+            TAB.add(ITEM.BRONZE_DUST);
+            TAB.add(ITEM.GOLD_DUST);
+            TAB.add(ITEM.LAPIS_DUST);
+            TAB.add(ITEM.QUARTZ_DUST);
+            TAB.add(ITEM.COAL_DUST);
+            TAB.add(ITEM.AMETHYST_DUST);
+            TAB.add(ITEM.DIAMOND_DUST);
+            TAB.add(ITEM.EMERALD_DUST);
+            TAB.add(ITEM.NETHERITE_DUST);
+            TAB.add(ITEM.OBSIDIAN_DUST);
+            TAB.add(ITEM.ENDER_DUST);
+            TAB.add(ITEM.ECHO_DUST);
+            TAB.add(ITEM.PRISMARINE_DUST);
+            TAB.add(ITEM.SULFUR_DUST);
+            TAB.add(ITEM.SAWDUST);
+            TAB.add(ITEM.PULPED_BIOMASS);
+            TAB.add(ITEM.FLOUR);
+
+            // Byproducts and intermediates
+            TAB.add(ITEM.PEAT);
+            TAB.add(ITEM.SILICON_MIX);
+            TAB.add(ITEM.SLAG);
+            TAB.add(ITEM.RICH_SLAG);
+            TAB.add(ITEM.NITER);
+            TAB.add(ITEM.QUICKSILVER);
+            TAB.add(ITEM.BITUMEN);
+            TAB.add(ITEM.TAR);
+            TAB.add(ITEM.NATURAL_POLYMER);
+            TAB.add(ITEM.SYNTHETIC_POLYMER);
+            TAB.add(ITEM.RUBBER);
+
+            // Fluid buckets
             BUCKET.all().values().forEach(TAB::add);
             // Placeable fluids' buckets register per loader; add them lazily so they resolve at populate time.
             TAB.add(out -> {
@@ -546,100 +655,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 }
             });
 
-            // Register the tab — populate() is lazy, so other domains can still add items after this
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
-
-            // Add storage blocks to Building Blocks tab
-            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.BUILDING_BLOCKS, entries -> {
-                entries.insertAfter(Items.COAL_BLOCK, BLOCK.APATITE_BLOCK);
-                entries.insertBefore(Items.IRON_BLOCK, BLOCK.TIN_BLOCK);
-                entries.insertAfter(Items.IRON_BLOCK, BLOCK.BRONZE_BLOCK);
-            });
-
-            // Bog earth and the oil deposits sit with the other natural soils and sands
-            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries -> {
-                entries.insertAfter(Items.MUD, BLOCK.BOG_EARTH);
-                entries.insertAfter(Items.SAND, BLOCK.OIL_SAND);
-                entries.insertAfter(Items.RED_SAND, BLOCK.OIL_RED_SAND);
-                entries.insertAfter(Items.GRAVEL, BLOCK.OIL_SHALE);
-            });
-
-            // Add materials to Ingredients tab — all in one callback so each insertAfter/insertBefore
-            // sees the items placed by earlier calls in the same invocation
-            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.INGREDIENTS, entries -> {
-                // Raw materials
-                entries.insertBefore(Items.RAW_IRON, ITEM.RAW_TIN);
-
-                // Ingots
-                entries.insertBefore(Items.IRON_INGOT, ITEM.TIN_INGOT);
-                entries.insertAfter(ITEM.TIN_INGOT, ITEM.BRONZE_INGOT);
-
-                // Nuggets
-                entries.insertBefore(Items.IRON_NUGGET, ITEM.TIN_NUGGET);
-                entries.insertAfter(ITEM.TIN_NUGGET, ITEM.BRONZE_NUGGET);
-                entries.insertAfter(ITEM.BRONZE_NUGGET, ITEM.COPPER_NUGGET);
-
-                // Apatite
-                entries.insertBefore(Items.AMETHYST_SHARD, ITEM.APATITE);
-
-                // Intermediate Crafting Items
-                entries.insertBefore(Items.HEAVY_CORE, ITEM.MACHINE_CORE);
-                entries.insertAfter(ITEM.MACHINE_CORE, ITEM.REDSTONE_RECEPTION_COIL);
-                entries.insertAfter(ITEM.REDSTONE_RECEPTION_COIL, ITEM.WOODEN_GEAR);
-                entries.insertAfter(ITEM.WOODEN_GEAR, ITEM.STONE_GEAR);
-                entries.insertAfter(ITEM.STONE_GEAR, ITEM.COPPER_GEAR);
-                entries.insertAfter(ITEM.COPPER_GEAR, ITEM.IRON_GEAR);
-                entries.insertAfter(ITEM.IRON_GEAR, ITEM.BRONZE_GEAR);
-                entries.insertAfter(ITEM.BRONZE_GEAR, ITEM.GOLD_GEAR);
-                entries.insertAfter(ITEM.GOLD_GEAR, ITEM.DIAMOND_GEAR);
-                entries.insertAfter(ITEM.DIAMOND_GEAR, ITEM.NETHERITE_GEAR);
-
-                // Valves — after netherite gear
-                Item[] valves = {
-                    ITEM.TIN_VALVE, ITEM.COPPER_VALVE, ITEM.RUBBER_VALVE,
-                    ITEM.BRONZE_VALVE, ITEM.IRON_VALVE, ITEM.GOLD_VALVE,
-                    ITEM.LAPIS_VALVE, ITEM.APATITE_VALVE, ITEM.OBSIDIAN_VALVE,
-                    ITEM.AMETHYST_VALVE, ITEM.EMERALD_VALVE, ITEM.BLAZING_VALVE,
-                    ITEM.DIAMOND_VALVE, ITEM.ECHO_VALVE, ITEM.NETHERITE_VALVE
-                };
-                Item prev = ITEM.NETHERITE_GEAR;
-                for (Item valve : valves) {
-                    entries.insertAfter(prev, valve);
-                    prev = valve;
-                }
-
-                // Dusts, chips, cores — after bronze_ingot (inserted above)
-                Item[] intermediates = {
-                    ITEM.APATITE_DUST,
-                    ITEM.IRON_DUST, ITEM.COPPER_DUST, ITEM.TIN_DUST, ITEM.BRONZE_DUST,
-                    ITEM.GOLD_DUST, ITEM.LAPIS_DUST, ITEM.QUARTZ_DUST, ITEM.COAL_DUST,
-                    ITEM.AMETHYST_DUST, ITEM.DIAMOND_DUST, ITEM.EMERALD_DUST,
-                    ITEM.NETHERITE_DUST, ITEM.OBSIDIAN_DUST, ITEM.ENDER_DUST,
-                    ITEM.ECHO_DUST, ITEM.PRISMARINE_DUST, ITEM.SULFUR_DUST, ITEM.QUICKSILVER, ITEM.NITER,
-                    ITEM.SILICON_MIX, ITEM.SILICON_WAFER, ITEM.FLOUR, ITEM.SAWDUST, ITEM.PEAT, ITEM.PULPED_BIOMASS,
-                    ITEM.SLAG, ITEM.RICH_SLAG, ITEM.BITUMEN, ITEM.TAR,
-                    ITEM.REDSTONE_CHIPSET, ITEM.ECHO_CHIPSET, ITEM.COPPER_CHIPSET,
-                    ITEM.IRON_CHIPSET, ITEM.GOLD_CHIPSET, ITEM.DIAMOND_CHIPSET, ITEM.NETHERITE_CHIPSET
-                };
-                Item anchor = ITEM.BRONZE_INGOT;
-                for (Item item : intermediates) {
-                    entries.insertAfter(anchor, item);
-                    anchor = item;
-                }
-            });
-
-            // Add ore blocks to Natural Blocks tab
-            CreativeTabRegistrar.INSTANCE.modifyTab(CreativeModeTabs.NATURAL_BLOCKS, entries -> {
-                // Tin ores
-                entries.insertAfter(Items.DEEPSLATE_COAL_ORE, BLOCK.TIN_ORE);
-                entries.insertAfter(BLOCK.TIN_ORE, BLOCK.DEEPSLATE_TIN_ORE);
-
-                // Apatite ore
-                entries.insertBefore(Items.AMETHYST_BLOCK, BLOCK.APATITE_ORE);
-
-                // Raw tin block
-                entries.insertBefore(Items.RAW_IRON_BLOCK, BLOCK.RAW_TIN_BLOCK);
-            });
         }
     }
 
@@ -658,6 +674,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Chips renamed to "chipset"; bridge the previously-released chip IDs.
             INSTANCE.registerItemAlias("core/redstone_chip", ITEM.REDSTONE_CHIPSET);
             INSTANCE.registerItemAlias("core/echo_chip", ITEM.ECHO_CHIPSET);
+
+            // Rubber and polymers moved from the power domain to core.
+            INSTANCE.registerItemAlias("power/rubber", ITEM.RUBBER);
+            INSTANCE.registerItemAlias("power/natural_polymer", ITEM.NATURAL_POLYMER);
+            INSTANCE.registerItemAlias("power/synthetic_polymer", ITEM.SYNTHETIC_POLYMER);
+            // Older power-domain renames: Rubber Mix -> Natural Polymer, Rubber Chunk -> Rubber.
+            INSTANCE.registerItemAlias("power/rubber_mix", ITEM.NATURAL_POLYMER);
+            INSTANCE.registerItemAlias("power/rubber_chunk", ITEM.RUBBER);
         }
     }
 }

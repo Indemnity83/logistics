@@ -10,7 +10,7 @@
       "item": "minecraft:copper_ingot"
     },
     "R": {
-      "item": "logistics:power/rubber"
+      "item": "logistics:core/rubber"
     }
   },
   "result": {

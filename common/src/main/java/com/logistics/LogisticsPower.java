@@ -5,7 +5,11 @@ import com.indemnity83.configory.ConfigEntries;
 import com.indemnity83.configory.ConfigKey;
 import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import com.logistics.power.block.BatteryBlock;
 import com.logistics.power.block.BatteryBlockItem;
 import com.logistics.power.block.CreativeSinkBlock;
@@ -25,7 +29,6 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -61,11 +64,9 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         LOGGER.info("Registering {}", domain());
 
         BLOCK.register();
-        ITEM.register();
         ENTITY.register();
         SCREEN.register();
         CREATIVE.register();
-        ALIAS.register();
     }
 
     /**
@@ -219,20 +220,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         }
     }
 
-    public static final class ITEM {
-        private ITEM() {}
-
-        public static Item RUBBER;
-        public static Item NATURAL_POLYMER;
-        public static Item SYNTHETIC_POLYMER;
-
-        static void register() {
-            RUBBER = INSTANCE.registerItem("rubber", Item::new);
-            NATURAL_POLYMER = INSTANCE.registerItem("natural_polymer", Item::new);
-            SYNTHETIC_POLYMER = INSTANCE.registerItem("synthetic_polymer", Item::new);
-        }
-    }
-
     public static final class SCREEN {
         private SCREEN() {}
 
@@ -247,31 +234,24 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     }
 
     public static final class CREATIVE {
+        public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
+            LogisticsMod.modId("3_power"),
+            Component.translatable("itemGroup.logistics.3_power"),
+            () -> new ItemStack(BLOCK.REDSTONE_ENGINE)
+        );
+
         private CREATIVE() {}
 
         static void register() {
-            LogisticsCore.CREATIVE.TAB.add(ITEM.NATURAL_POLYMER);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.SYNTHETIC_POLYMER);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.RUBBER);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.REDSTONE_ENGINE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.STIRLING_ENGINE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_ENGINE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CREATIVE_SINK);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.BATTERY);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_CABLE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_CABLE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ENDER_CABLE);
-        }
-    }
-
-    public static final class ALIAS {
-        private ALIAS() {}
-
-        static void register() {
-            // Rubber Mix renamed to Natural Polymer; old recipes/worlds resolve to the new item.
-            INSTANCE.registerItemAlias("power/rubber_mix", ITEM.NATURAL_POLYMER);
-            // Rubber Chunk renamed to Rubber.
-            INSTANCE.registerItemAlias("power/rubber_chunk", ITEM.RUBBER);
+            TAB.add(BLOCK.REDSTONE_ENGINE);
+            TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.CREATIVE_ENGINE);
+            TAB.add(BLOCK.CREATIVE_SINK);
+            TAB.add(BLOCK.BATTERY);
+            TAB.add(BLOCK.COPPER_CABLE);
+            TAB.add(BLOCK.GOLD_CABLE);
+            TAB.add(BLOCK.ENDER_CABLE);
+            CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
 }

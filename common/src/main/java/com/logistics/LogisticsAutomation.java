@@ -452,17 +452,14 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
     public static final class CREATIVE {
         public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
-            LogisticsMod.modId("automation"),
-            Component.translatable("itemGroup.logistics.automation"),
-            () -> new ItemStack(LogisticsCore.ITEM.MACHINE_CORE)
+            LogisticsMod.modId("4_automation"),
+            Component.translatable("itemGroup.logistics.4_automation"),
+            () -> new ItemStack(BLOCK.KILN)
         );
 
         private CREATIVE() {}
 
         static void register() {
-            // Machine components, then the machines.
-            TAB.add(LogisticsCore.ITEM.MACHINE_CORE);
-            TAB.add(LogisticsCore.ITEM.REDSTONE_RECEPTION_COIL);
             TAB.add(BLOCK.LASER_QUARRY);
             TAB.add(BLOCK.KILN);
             TAB.add(BLOCK.MACERATOR);
