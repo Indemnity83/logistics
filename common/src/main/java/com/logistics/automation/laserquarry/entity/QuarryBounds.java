@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 /**
  * Mutable holder for the laser quarry's marker-defined mining bounds.
  * When {@link #isCustom()} is {@code false}, callers fall back to the default
- * area defined in {@code LogisticsConfig}.
+ * area from the {@code quarry_area} config key.
  */
 public final class QuarryBounds {
     private boolean custom = false;

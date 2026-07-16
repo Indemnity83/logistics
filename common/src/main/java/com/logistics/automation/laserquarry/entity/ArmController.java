@@ -1,6 +1,8 @@
 package com.logistics.automation.laserquarry.entity;
 
-import com.logistics.core.LogisticsConfig;
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsAutomation;
+
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -160,15 +162,15 @@ public final class ArmController {
     /** Move cost per tick — scales with current buffer to drain excess energy faster. */
     public static long moveCost(long bufferAmount, long moveCostDivisor) {
         return (long) Math
-                .ceil(LogisticsConfig.get().quarry.armEnergy + (double) bufferAmount / moveCostDivisor);
+                .ceil(LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_ARM_ENERGY) + (double) bufferAmount / moveCostDivisor);
     }
 
     /** Effective arm speed in blocks/tick, including the rain penalty when applicable. */
     public static float effectiveSpeed(long bufferAmount, long moveCostDivisor, Level level, BlockPos quarryPos) {
         long mc = moveCost(bufferAmount, moveCostDivisor);
-        float speed = LogisticsConfig.get().quarry.armSpeed + (mc / LogisticsConfig.get().quarry.armSpeedScaling);
+        float speed = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_ARM_SPEED) + (mc / LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_ARM_SPEED_SCALING));
         if (level != null && level.isRainingAt(quarryPos.above())) {
-            speed *= LogisticsConfig.get().quarry.rainPenalty;
+            speed *= LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_RAIN_PENALTY);
         }
         return speed;
     }

@@ -1,7 +1,9 @@
 package com.logistics.pipe.block.entity;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPipe;
+
 import com.logistics.LogisticsFluid;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
@@ -45,13 +47,12 @@ public class FluidPumpBlockEntity extends MachineEntity implements AcceptsLowTie
 
     @Override
     protected void configure(MachineBuilder machine) {
-        LogisticsConfig.FluidPumpConfig cfg = LogisticsConfig.get().fluidPump;
         energy = machine.energy("energy")
-                .capacity(cfg.energyCapacity)
-                .maxInput(cfg.maxEnergyInput)
+                .capacity(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY))
+                .maxInput(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_MAX_ENERGY_INPUT))
                 .build();
         fluidStore = machine.fluids("tank")
-                .capacity(FluidUnits.mb(cfg.tankCapacityMb))
+                .capacity(FluidUnits.mb(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_TANK_CAPACITY_MB)))
                 .outputOnly()
                 .build();
         pump = machine.add(new FluidPumpComponent("pump", energy, fluidStore, getBlockPos()));

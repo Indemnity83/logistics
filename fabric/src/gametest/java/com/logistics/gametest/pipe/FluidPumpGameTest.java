@@ -1,7 +1,9 @@
 package com.logistics.gametest.pipe;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPipe;
+
 import com.logistics.LogisticsFluid;
-import com.logistics.core.LogisticsConfig;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
@@ -88,7 +90,7 @@ public class FluidPumpGameTest {
         fastArm(pump);
         float startArmY = pump.armY();
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 2L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 2L, () -> {
             if (pump.energyAmount() != 0) {
                 fail(context, "Precondition failed: pump should have no energy");
                 return;
@@ -113,11 +115,11 @@ public class FluidPumpGameTest {
             fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
-        pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
+        pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
 
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 2, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) + 2, () -> {
             if (!context.getBlockState(waterPos).isAir()) {
                 fail(context, "Fluid pump should remove the water source");
                 return;
@@ -147,7 +149,7 @@ public class FluidPumpGameTest {
         fillEnergy(pump);
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 2, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) + 2, () -> {
             if (!context.getBlockState(slabPos).is(Blocks.OAK_SLAB)
                     || !context.getBlockState(slabPos).getValue(BlockStateProperties.WATERLOGGED)) {
                 fail(context, "Fluid pump must not drain or replace a waterlogged block");
@@ -179,7 +181,7 @@ public class FluidPumpGameTest {
         fillEnergy(pump);
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 4L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 4L, () -> {
             if (context.getBlockState(firstWater).getFluidState().isSource()
                     || context.getBlockState(connectedWater).getFluidState().isSource()) {
                 fail(context, "Fluid pump should remove connected source blocks on the same body");
@@ -215,7 +217,7 @@ public class FluidPumpGameTest {
         fillEnergy(pump);
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 6L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 6L, () -> {
             for (BlockPos water : pool) {
                 if (context.getBlockState(water).getFluidState().isSource()) {
                     fail(context, "Fluid pump should carve every source from a finite pool");
@@ -248,10 +250,10 @@ public class FluidPumpGameTest {
             fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
-        pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
+        pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 2L + 4, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 2L + 4, () -> {
             if (pump.tank().getAmount() < FluidUnits.mb(1_000)
                     || pump.tank().getFluidKey().getFluid() != Fluids.WATER) {
                 fail(context, "Fluid pump should draw fluid from a large body");
@@ -280,7 +282,7 @@ public class FluidPumpGameTest {
             fail(context, "Expected pump and fluid pipe block entities");
             return;
         }
-        pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
+        pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
 
         fastArm(pump);
 
@@ -306,7 +308,7 @@ public class FluidPumpGameTest {
             fail(context, "Expected pump and fluid pipe block entities");
             return;
         }
-        pump.energyStorage(Direction.NORTH).insert(LogisticsConfig.get().fluidPump.energyCapacity, false);
+        pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
 
         fastArm(pump);
 
@@ -337,7 +339,7 @@ public class FluidPumpGameTest {
         fillEnergy(pump);
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 5L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 5L, () -> {
             if (!context.getBlockState(a).isAir()
                     || !context.getBlockState(b).isAir()
                     || !context.getBlockState(c).isAir()) {
@@ -369,7 +371,7 @@ public class FluidPumpGameTest {
         fillEnergy(pump);
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 5L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 5L, () -> {
             if (!context.getBlockState(a).isAir() || !context.getBlockState(c).isAir()) {
                 fail(context, "Fluid pump should reach sources across flowing fluid in the same layer");
                 return;
@@ -408,7 +410,7 @@ public class FluidPumpGameTest {
 
         // Lava flows (UPDATE_ALL), so flowing remnants decay on vanilla's slow schedule; the pump's job
         // is to remove every source block in the pool.
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 12L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 12L, () -> {
             for (BlockPos p : pool) {
                 if (context.getBlockState(p).getFluidState().isSource()) {
                     fail(context, "Open lava pool still has a source block at " + p);
@@ -443,7 +445,7 @@ public class FluidPumpGameTest {
 
         // The tank instantly empties the pump's buffer each pump; the pump must still finish the layer.
         // Water flows (UPDATE_ALL), so assert no sources remain rather than full air.
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 4L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 4L, () -> {
             if (context.getBlockState(a).getFluidState().isSource()
                     || context.getBlockState(b).getFluidState().isSource()
                     || context.getBlockState(c).getFluidState().isSource()) {
@@ -472,7 +474,7 @@ public class FluidPumpGameTest {
         fillEnergy(pump);
         fastArm(pump);
 
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks * 3L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 3L, () -> {
             if (!context.getBlockState(water).isAir()) {
                 fail(context, "Fluid pump should drain the water");
                 return;
@@ -507,7 +509,7 @@ public class FluidPumpGameTest {
         fastArm(pump);
 
         // After the first pump the furthest source is gone but the one under the tube remains.
-        context.runAfterDelay(LogisticsConfig.get().fluidPump.pumpIntervalTicks + 6L, () -> {
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) + 6L, () -> {
             if (context.getBlockState(far).getFluidState().isSource()) {
                 fail(context, "Fluid pump should drain the furthest source first");
                 return;
@@ -522,8 +524,8 @@ public class FluidPumpGameTest {
 
     // Fills the energy buffer; a single insert is capped at maxEnergyInput, only enough for one pump.
     private static void fillEnergy(FluidPumpBlockEntity pump) {
-        long capacity = LogisticsConfig.get().fluidPump.energyCapacity;
-        long input = Math.max(1, LogisticsConfig.get().fluidPump.maxEnergyInput);
+        long capacity = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY);
+        long input = Math.max(1, LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_MAX_ENERGY_INPUT));
         for (long filled = 0; filled <= capacity; filled += input) {
             pump.energyStorage(Direction.NORTH).insert(input, false);
         }

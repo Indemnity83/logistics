@@ -87,6 +87,15 @@ dependencies {
         }
     }
 
+    // Configory config library — jarJar bundles it; implementation compiles the injected common sources.
+    // Pinned to the 0.2.x line to match the Fabric include; prefers the version in gradle.properties.
+    jarJar(implementation("maven.modrinth:configory")) {
+        version {
+            strictly "[0.2.0,0.3.0)"
+            prefer "${rootProject.configory_version}"
+        }
+    }
+
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
