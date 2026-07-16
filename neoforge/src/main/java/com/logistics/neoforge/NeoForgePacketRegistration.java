@@ -2,6 +2,7 @@ package com.logistics.neoforge;
 
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
+import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
@@ -35,5 +36,6 @@ public final class NeoForgePacketRegistration {
 
         registrar.playToClient(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC);
         registrar.playToClient(SyncFabricatorOutputsPacket.TYPE, SyncFabricatorOutputsPacket.CODEC);
+        registrar.playToClient(SyncMachineRecipesPacket.TYPE, SyncMachineRecipesPacket.CODEC);
     }
 }

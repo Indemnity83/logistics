@@ -2,6 +2,7 @@ package com.logistics.fabric;
 
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
+import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
@@ -39,5 +40,7 @@ public final class FabricPacketRegistration {
         PayloadTypeRegistry.playS2C().register(SyncRequesterInventoryPacket.TYPE, SyncRequesterInventoryPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(
                 SyncFabricatorOutputsPacket.TYPE, SyncFabricatorOutputsPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                SyncMachineRecipesPacket.TYPE, SyncMachineRecipesPacket.CODEC);
     }
 }
