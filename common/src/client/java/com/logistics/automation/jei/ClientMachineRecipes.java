@@ -28,6 +28,7 @@ public final class ClientMachineRecipes {
         crucible = List.copyOf(packet.crucible());
         alloySmelter = List.copyOf(packet.alloySmelter());
         refinery = List.copyOf(packet.refinery());
+        MachineRecipeJeiSync.pushToJei();
     }
 
     /** Drops cached recipes on disconnect so a later server's sync starts clean. */
