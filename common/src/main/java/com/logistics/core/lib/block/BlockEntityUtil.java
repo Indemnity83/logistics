@@ -50,17 +50,34 @@ public final class BlockEntityUtil {
             ItemStack template = key.toStack(1);
             int maxStackSize = template.getMaxStackSize();
 
-            // Build drop stacks from view amount, then do a real extract to remove items from storage
-            long remaining = amount;
-            while (remaining > 0) {
-                int stackSize = (int) Math.min(remaining, maxStackSize);
+            for (int stackSize : splitIntoStacks(amount, maxStackSize)) {
                 drops.add(key.toStack(stackSize));
-                remaining -= stackSize;
             }
 
             storage.extract(key, amount, false);
         }
 
         return drops;
+    }
+
+    /**
+     * Splits a total item count into max-stack-sized chunks (a final smaller chunk holds the
+     * remainder). Returns an empty list for a non-positive amount.
+     *
+     * @throws IllegalArgumentException if {@code maxStackSize} is not positive (a zero or negative
+     *     chunk size would never make progress)
+     */
+    static List<Integer> splitIntoStacks(long amount, int maxStackSize) {
+        if (maxStackSize <= 0) {
+            throw new IllegalArgumentException("maxStackSize must be positive, got " + maxStackSize);
+        }
+        List<Integer> sizes = new ArrayList<>();
+        long remaining = amount;
+        while (remaining > 0) {
+            int stackSize = (int) Math.min(remaining, maxStackSize);
+            sizes.add(stackSize);
+            remaining -= stackSize;
+        }
+        return sizes;
     }
 }
