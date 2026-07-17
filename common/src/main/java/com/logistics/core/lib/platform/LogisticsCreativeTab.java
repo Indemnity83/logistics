@@ -78,6 +78,29 @@ public final class LogisticsCreativeTab {
         return this;
     }
 
+    /** Appends each item in {@code items}, individually. */
+    public LogisticsCreativeTab addAll(Iterable<? extends ItemLike> items) {
+        for (ItemLike item : items) {
+            entries.add(new Entry.Add(List.of(item)));
+        }
+        return this;
+    }
+
+    /**
+     * Appends {@code item}, then any extra creative entries it exposes via {@link CreativeVariantProvider}
+     * (e.g. weathering states). Items that don't provide variants are simply added on their own.
+     */
+    public LogisticsCreativeTab addWithVariants(ItemLike item) {
+        return add(out -> {
+            out.accept(item);
+            if (item instanceof CreativeVariantProvider provider) {
+                List<ItemStack> variants = new ArrayList<>();
+                provider.appendCreativeMenuVariants(variants, new ItemStack(item));
+                variants.forEach(out::accept);
+            }
+        });
+    }
+
     /**
      * Inserts {@code item} immediately after the last entry containing {@code anchor}.
      * Falls back to appending if {@code anchor} is not found.

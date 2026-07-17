@@ -1,6 +1,8 @@
 package com.logistics.pipe.block;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.platform.CreativeVariantProvider;
+import java.util.List;
 import com.logistics.core.lib.block.ConnectedShapeCache;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
@@ -52,7 +54,7 @@ import org.jetbrains.annotations.Nullable;
  * Connections are computed here and cached on the block entity for shape and arm rendering.
  */
 public class FluidPipeBlock extends BaseEntityBlock
-        implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock {
+        implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock, CreativeVariantProvider {
 
     public static final MapCodec<FluidPipeBlock> CODEC = simpleCodec(FluidPipeBlock::new);
 
@@ -105,6 +107,14 @@ public class FluidPipeBlock extends BaseEntityBlock
     @Nullable
     public FluidPipe fluidPipe() {
         return fluidPipe;
+    }
+
+    @Override
+    public void appendCreativeMenuVariants(List<ItemStack> variants, ItemStack baseStack) {
+        FluidPipe pipe = fluidPipe();
+        if (pipe != null) {
+            pipe.appendCreativeMenuVariants(variants, baseStack);
+        }
     }
 
     @Override

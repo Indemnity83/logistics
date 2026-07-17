@@ -11,7 +11,6 @@ import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.network.chat.Component;
 import com.logistics.pipe.modules.*;
-import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.PipeTypes;
 import com.logistics.pipe.block.FluidPipeBlock;
@@ -42,9 +41,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.MapColor;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap {
@@ -614,53 +611,28 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         static void register() {
             // Marking fluids
-            TAB.add(entries -> {
-                for (Item fluid : ITEM.MARKING_FLUIDS_BY_COLOR.values()) {
-                    entries.accept(fluid);
-                }
-            });
-
-            // Copper pipe variants (modular)
-            TAB.add(entries -> {
-                if (BLOCK.COPPER_TRANSPORT_PIPE instanceof PipeBlock pipeBlock) {
-                    Pipe pipe = pipeBlock.getPipe();
-                    if (pipe != null) {
-                        ItemStack baseStack = new ItemStack(BLOCK.COPPER_TRANSPORT_PIPE);
-                        List<ItemStack> variants = new ArrayList<>();
-                        pipe.appendCreativeMenuVariants(variants, baseStack);
-                        variants.forEach(entries::accept);
-                    }
-                }
-            });
+            TAB.addAll(ITEM.MARKING_FLUIDS_BY_COLOR.values());
 
             // Item Transport
             TAB.add(BLOCK.STONE_TRANSPORT_PIPE);
-            TAB.add(BLOCK.ITEM_PASSTHROUGH_PIPE);
-            TAB.add(BLOCK.COPPER_TRANSPORT_PIPE);
+            TAB.addWithVariants(BLOCK.COPPER_TRANSPORT_PIPE);
+            TAB.add(BLOCK.GOLD_TRANSPORT_PIPE);
             TAB.add(BLOCK.ITEM_EXTRACTOR_PIPE);
             TAB.add(BLOCK.ITEM_MERGER_PIPE);
-            TAB.add(BLOCK.GOLD_TRANSPORT_PIPE);
-            TAB.add(BLOCK.ITEM_FILTER_PIPE);
             TAB.add(BLOCK.ITEM_INSERTION_PIPE);
+            TAB.add(BLOCK.ITEM_FILTER_PIPE);
+            TAB.add(BLOCK.ITEM_PASSTHROUGH_PIPE);
             TAB.add(BLOCK.ITEM_VOID_PIPE);
 
             // Fluid Transport
-            TAB.add(entries -> {
-                if (BLOCK.COPPER_FLUID_PIPE instanceof FluidPipeBlock pipeBlock && pipeBlock.fluidPipe() != null) {
-                    ItemStack baseStack = new ItemStack(BLOCK.COPPER_FLUID_PIPE);
-                    List<ItemStack> variants = new ArrayList<>();
-                    pipeBlock.fluidPipe().appendCreativeMenuVariants(variants, baseStack);
-                    variants.forEach(entries::accept);
-                }
-            });
-            TAB.add(BLOCK.COPPER_FLUID_PIPE);
             TAB.add(BLOCK.STONE_FLUID_PIPE);
+            TAB.addWithVariants(BLOCK.COPPER_FLUID_PIPE);
             TAB.add(BLOCK.GOLD_FLUID_PIPE);
-            TAB.add(BLOCK.INSERTION_FLUID_PIPE);
-            TAB.add(BLOCK.MERGER_FLUID_PIPE);
             TAB.add(BLOCK.FLUID_EXTRACTOR_PIPE);
-            TAB.add(BLOCK.VOID_FLUID_PIPE);
+            TAB.add(BLOCK.MERGER_FLUID_PIPE);
+            TAB.add(BLOCK.INSERTION_FLUID_PIPE);
             TAB.add(BLOCK.BYPASS_FLUID_PIPE);
+            TAB.add(BLOCK.VOID_FLUID_PIPE);
             TAB.add(BLOCK.GLASS_TANK);
 
             // Logistics Pipes
