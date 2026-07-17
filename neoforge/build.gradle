@@ -88,8 +88,8 @@ dependencies {
     }
 
     // Configory config library — jarJar bundles it; implementation compiles the injected common sources.
-    // Exact version via Modrinth project id (aoem3zBJ = configory); a range forces flaky metadata lookups.
-    jarJar(implementation("maven.modrinth:aoem3zBJ:${rootProject.configory_version}"))
+    // Pinned to an exact version (see common/build.gradle).
+    jarJar(implementation("maven.modrinth:configory:${rootProject.configory_version}"))
 
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
