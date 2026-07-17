@@ -11,8 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -25,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * Screen handler for the Crafting Logistics Pipe GUI.
  * Displays a 3x3 ghost crafting grid, a ghost result slot, and a blocking mode toggle.
  */
-public class CraftingScreenHandler extends AbstractContainerMenu {
+public class CraftingScreenHandler extends CustomSlotScreenHandler {
     // Slot layout
     private static final int INGREDIENT_SLOTS = 9;
     private static final int RESULT_SLOT = 9;
@@ -164,9 +162,9 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ContainerInput actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         if (slotIndex >= 0 && slotIndex < TOTAL_GHOST_SLOTS) {
-            if (actionType == ContainerInput.QUICK_MOVE) return;
+            if (quickMove) return true;
 
             ItemStack cursor = getCarried();
             boolean isResultSlot = slotIndex == RESULT_SLOT;
@@ -175,7 +173,7 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
                 if (isResultSlot) clearResultSlot();
                 else clearIngredientSlot(slotIndex);
                 broadcastChanges();
-                return;
+                return true;
             }
 
             // Left-click with item: place ghost item
@@ -184,10 +182,10 @@ public class CraftingScreenHandler extends AbstractContainerMenu {
             if (isResultSlot) setResultSlot(cursor.copyWithCount(count), itemId, count);
             else setIngredientSlot(slotIndex, cursor.copyWithCount(count), itemId, count);
             broadcastChanges();
-            return;
+            return true;
         }
 
-        super.clicked(slotIndex, button, actionType, player);
+        return false;
     }
 
     private void clearResultSlot() {
