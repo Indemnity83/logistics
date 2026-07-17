@@ -2,6 +2,7 @@ package com.logistics.automation.jei;
 
 import com.logistics.automation.alloysmelter.jei.AlloySmelterRecipeCategory;
 import com.logistics.automation.crucible.jei.CrucibleRecipeCategory;
+import com.logistics.automation.fabricator.jei.FabricatorRecipeCategory;
 import com.logistics.automation.macerator.jei.MaceratorRecipeCategory;
 import com.logistics.automation.refinery.jei.RefineryRecipeCategory;
 import com.logistics.automation.sawmill.jei.SawmillRecipeCategory;
@@ -40,5 +41,6 @@ public final class MachineRecipeJeiSync {
         recipes.addRecipes(CrucibleRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.crucible());
         recipes.addRecipes(AlloySmelterRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.alloySmelter());
         recipes.addRecipes(RefineryRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.refinery());
+        recipes.addRecipes(FabricatorRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.fabricator());
     }
 }
