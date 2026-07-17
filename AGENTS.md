@@ -195,7 +195,7 @@ When a critical bug needs a patch release *after* feature development has alread
 
 **2. Snapshot testing** (`build-snapshot.yml`) — After feature PRs merge, leave the release-please PR open and publish snapshot builds for community testing. Bugs found here accumulate as `fix:` commits in the upcoming release.
 
-**3. Pre-release gate** (`build-prerelease.yml`) — When ready to commit to the release, publish `v0.6.0-pre.1`. This signals "final testing phase." When satisfied, merge the release-please PR.
+**3. Release Candidate gate** (`build-prerelease.yml`) — When ready to commit to the release, publish `v0.6.0-rc.1`. This builds the base branch merged with the open Release Please PR, publishes it as a beta/prerelease, and signals the "Field Test phase." When satisfied, merge the release-please PR.
 
 **Full cycle:**
 ```
@@ -206,7 +206,7 @@ Strip "up next" from held PRs
 Merge feat: PRs → release-please opens vX.Y+1.0 PR (leave it open)
 Publish snapshots via build-snapshot.yml → community testing
 Fix bugs (accumulate in vX.Y+1.0 release notes)
-Publish vX.Y+1.0-pre.1 via build-prerelease.yml → final gate
+Publish vX.Y+1.0-rc.1 via build-prerelease.yml → Field Test gate
 Merge vX.Y+1.0 release-please PR → ships → cherry-pick
 ```
 
