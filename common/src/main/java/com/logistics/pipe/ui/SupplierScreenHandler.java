@@ -11,8 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -27,7 +25,7 @@ import java.util.function.BiConsumer;
  * Screen handler for the Supplier GUI.
  * Displays 9 supply slots where players can configure items and target amounts to maintain in the connected inventory.
  */
-public class SupplierScreenHandler extends AbstractContainerMenu {
+public class SupplierScreenHandler extends CustomSlotScreenHandler {
     private static final int SUPPLY_SLOT_COUNT = SupplierModule.MAX_SUPPLY_SLOTS;
     private static final int SLOT_SIZE = 18;
     private static final int PLAYER_INV_START_Y = 60;
@@ -148,10 +146,10 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ContainerInput actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         if (slotIndex >= 0 && slotIndex < SUPPLY_SLOT_COUNT) {
-            if (actionType == ContainerInput.QUICK_MOVE) return;
-            if (itemConfigPlayer != null && !isPinnedItemStillHeld()) return;
+            if (quickMove) return true;
+            if (itemConfigPlayer != null && !isPinnedItemStillHeld()) return true;
 
             ItemStack cursor = getCarried();
             ItemStack slotItem = supplyInventory.getItem(slotIndex);
@@ -159,7 +157,7 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             if (button == 1 || cursor.isEmpty()) {
                 clearSupplySlot(slotIndex);
                 broadcastChanges();
-                return;
+                return true;
             }
 
             // Left-click with item: Add to count or place new item
@@ -178,10 +176,10 @@ public class SupplierScreenHandler extends AbstractContainerMenu {
             supplyInventory.setItem(slotIndex, cursor.copyWithCount(newAmount));
             saveSupplySlot(slotIndex, itemId, newAmount);
             broadcastChanges();
-            return;
+            return true;
         }
 
-        super.clicked(slotIndex, button, actionType, player);
+        return false;
     }
 
     private void clearSupplySlot(int slotIndex) {
