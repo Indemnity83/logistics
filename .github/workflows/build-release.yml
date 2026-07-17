@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   build:
-    # Skip prereleases (e.g. Release Candidates from build-prerelease.yml). Those publish
+    # Skip prereleases (e.g. Release Candidates from build-rc.yml). Those publish
     # themselves as beta; this stable pipeline must never rebuild them as a release.
     if: ${{ github.event_name != 'release' || github.event.release.prerelease == false }}
     runs-on: ubuntu-latest
