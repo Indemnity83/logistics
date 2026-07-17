@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.LongSupplier;
 
 /**
  * Supplier module - maintains inventory stock levels by requesting items from the network.
@@ -206,35 +207,47 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
             SupplierModeConfig modeConfig = SupplierModeConfig.forMode(mode, stack.getMaxStackSize());
-            long toRequest = 0;
-
-            if (modeConfig.isWindowBounded()) {
-                // INFINITE mode: continuously top-up; ignore target amount.
-                // Request = min(maxStack, roomForItem - inTransit), so we keep filling
-                // available space even while items are already in transit.
-                long availableSpace = getAvailableSpace(ctx, supplierDir, stack);
-                toRequest = Math.min(modeConfig.maxOpenRequestWindow(),
-                        Math.max(0, availableSpace - pendingAmount));
-            } else if (needed > 0 && modeConfig.isTriggerMet(currentAmount, config.amount())) {
-                if (modeConfig.fulfillmentMode() == FulfillmentMode.FULL) {
-                    // All-or-nothing: only request when full amount is available (chest)
-                    // or on-demand craftable (Long.MAX_VALUE). Crafter-busy (0) waits
-                    // for next check interval when the crafter re-advertises supply.
-                    long available = network.getAvailableAmount(stack);
-                    if (available >= needed) {
-                        toRequest = needed;
-                    }
-                } else {
-                    // PARTIAL: request needed regardless of availability;
-                    // dispatch validation handles fulfillability (same as RequesterModule).
-                    toRequest = needed;
-                }
-            }
+            long toRequest = requestAmount(modeConfig, config.amount(), currentAmount, pendingAmount,
+                    () -> getAvailableSpace(ctx, supplierDir, stack),
+                    () -> network.getAvailableAmount(stack));
 
             if (toRequest > 0) {
                 network.placeOrder(ItemStorageLookup.of(stack), toRequest, ctx.pos(), modeConfig.fulfillmentMode());
             }
         }
+    }
+
+    /**
+     * Decide how many items to order this cycle for one configured supply slot. Returns 0 when
+     * nothing should be ordered.
+     *
+     * <p>The two framework lookups are passed as suppliers so each is evaluated only on the branch
+     * that needs it: window-bounded (INFINITE) mode reads free inventory space and tops up toward it;
+     * threshold modes restock the shortfall once on-hand drops below the mode's trigger, and an
+     * all-or-nothing mode additionally waits until the network can cover the whole shortfall.
+     *
+     * @param modeConfig       resolved supplier mode (trigger threshold, fulfillment mode, window)
+     * @param targetAmount     configured stock target for the item
+     * @param currentAmount    amount already on hand in the supplied inventory
+     * @param pendingAmount    amount ordered but not yet delivered
+     * @param availableSpace   free room for the item in the supplied inventory (window-bounded only)
+     * @param networkAvailable network-wide available amount (all-or-nothing only)
+     */
+    static long requestAmount(SupplierModeConfig modeConfig, long targetAmount, long currentAmount,
+            long pendingAmount, LongSupplier availableSpace, LongSupplier networkAvailable) {
+        if (modeConfig.isWindowBounded()) {
+            return Math.min(modeConfig.maxOpenRequestWindow(),
+                    Math.max(0, availableSpace.getAsLong() - pendingAmount));
+        }
+
+        long needed = targetAmount - currentAmount - pendingAmount;
+        if (needed <= 0 || !modeConfig.isTriggerMet(currentAmount, targetAmount)) {
+            return 0;
+        }
+        if (modeConfig.fulfillmentMode() == FulfillmentMode.FULL) {
+            return networkAvailable.getAsLong() >= needed ? needed : 0;
+        }
+        return needed; // PARTIAL: dispatch validation handles fulfillability
     }
 
     /**
