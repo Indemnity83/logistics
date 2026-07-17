@@ -1,8 +1,11 @@
 name: Build (Release Candidate)
 
 # Builds a Release Candidate from the EXACT combined state of:
-#   1. the latest commit on the base (default) branch, and
-#   2. the current open Release Please release PR branch.
+#   1. the latest commit on the branch this workflow is dispatched from, and
+#   2. that branch's open Release Please release PR branch.
+# Dispatch this workflow from the mc/* branch you want an RC for (mc/26.2, mc/26.1,
+# mc/1.21.11, mc/1.21.1) — the run targets whichever branch you select, NOT the repo
+# default branch, so each version line publishes its own RC.
 # The RC therefore carries all current development changes plus the pending version,
 # changelog, and release metadata that Release Please has staged — without pushing to
 # or modifying either source branch. RCs publish as beta on Modrinth/CurseForge, as a
@@ -17,10 +20,12 @@ on:
         required: true
         default: "1"
 
-# One publication per base branch at a time. Never cancel an in-flight publish — a
-# half-cancelled run can leave a partial RC live on one platform.
+# One publication per dispatched branch at a time. Keyed on the selected branch so
+# different version lines can publish RCs concurrently, while a single branch never
+# double-publishes. Never cancel an in-flight publish — a half-cancelled run can leave
+# a partial RC live on one platform.
 concurrency:
-  group: release-candidate-${{ github.event.repository.default_branch }}
+  group: release-candidate-${{ github.ref_name }}
   cancel-in-progress: false
 
 # Least privilege: write is only needed to create the prerelease/tag; the PR lookup is read-only.
@@ -59,13 +64,15 @@ jobs:
         id: resolve
         env:
           GH_TOKEN: ${{ github.token }}
-          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          # The branch this workflow was dispatched from — NOT the repo default branch —
+          # so RCs can be cut for any mc/* version line, not just mc/26.2.
+          BASE_BRANCH: ${{ github.ref_name }}
         shell: bash
         run: |
           set -euo pipefail
 
           if [[ -z "$BASE_BRANCH" ]]; then
-            echo "::error::Could not determine the repository default branch" >&2
+            echo "::error::Could not determine the dispatched branch" >&2
             exit 1
           fi
           echo "Base branch: $BASE_BRANCH"
@@ -425,6 +432,11 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
+          # CurseForge requires an explicit environment tag (Client/Server); its inference
+          # from the jar's `"environment": "*"` no longer satisfies that group. The mod runs
+          # on both sides, so declare both.
+          curseforge-environment: client, server
+
           game-version-filter: releases
           version-type: beta
           version: ${{ env.FABRIC_FULL }}
@@ -440,6 +452,10 @@ jobs:
 
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          # CurseForge requires an explicit environment tag (Client/Server); its inference
+          # from the jar metadata no longer satisfies that group. The mod runs on both sides.
+          curseforge-environment: client, server
 
           game-version-filter: releases
           version-type: beta
