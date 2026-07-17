@@ -1,6 +1,7 @@
 package com.logistics.automation.refinery;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.AbstractLogisticsRecipe;
 import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.lib.recipe.RecipeByproduct;
 import java.util.List;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * the input tank's fluid. The item-facing {@link Recipe} methods therefore behave as a non-placeable,
  * non-item recipe.
  */
-public class RefineryRecipe implements Recipe<SingleRecipeInput> {
+public class RefineryRecipe extends AbstractLogisticsRecipe<SingleRecipeInput> {
 
     public static final float DEFAULT_EXPERIENCE = 0.0f;
 
@@ -89,7 +90,7 @@ public class RefineryRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input) {
+    protected @NotNull ItemStack assembleResult() {
         // Fluid-only output — nothing goes into an item slot.
         return ItemStack.EMPTY;
     }

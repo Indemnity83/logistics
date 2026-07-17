@@ -1,12 +1,12 @@
 package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.AbstractLogisticsRecipe;
 import com.logistics.core.lib.recipe.FluidResult;
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * their {@code logistics:crucible} type. The output is a {@link FluidResult} deposited into the
  * machine's tank — there is no item result.
  */
-public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
+public class CrucibleRecipe extends AbstractLogisticsRecipe<SingleRecipeInput> {
 
     public static final int DEFAULT_INGREDIENT_COUNT = 1;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
@@ -92,7 +92,7 @@ public class CrucibleRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input) {
+    protected @NotNull ItemStack assembleResult() {
         // Fluid-only output — nothing goes into an item slot.
         return ItemStack.EMPTY;
     }
