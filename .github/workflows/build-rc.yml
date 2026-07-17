@@ -1,0 +1,481 @@
+name: Build (Release Candidate)
+
+# Builds a Release Candidate from the EXACT combined state of:
+#   1. the latest commit on the base (default) branch, and
+#   2. the current open Release Please release PR branch.
+# The RC therefore carries all current development changes plus the pending version,
+# changelog, and release metadata that Release Please has staged — without pushing to
+# or modifying either source branch. RCs publish as beta on Modrinth/CurseForge, as a
+# GitHub *prerelease*, and to Sentry's `preview` environment (never production).
+# Field Test announcements are posted manually, not from this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      number:
+        description: "Release candidate number (1, 2, 3...)"
+        required: true
+        default: "1"
+
+# One publication per base branch at a time. Never cancel an in-flight publish — a
+# half-cancelled run can leave a partial RC live on one platform.
+concurrency:
+  group: release-candidate-${{ github.event.repository.default_branch }}
+  cancel-in-progress: false
+
+# Least privilege: write is only needed to create the prerelease/tag; the PR lookup is read-only.
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # prepare: discover the exact source revisions, merge them locally (no push),
+  # resolve version info, and pin everything as job outputs so both loader builds
+  # compile the identical snapshot instead of re-discovering moving branch heads.
+  # ---------------------------------------------------------------------------
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      base_branch: ${{ steps.resolve.outputs.base_branch }}
+      base_sha: ${{ steps.resolve.outputs.base_sha }}
+      rp_sha: ${{ steps.resolve.outputs.rp_sha }}
+      rp_branch: ${{ steps.resolve.outputs.rp_branch }}
+      rp_pr_number: ${{ steps.resolve.outputs.rp_pr_number }}
+      merged_sha: ${{ steps.merge.outputs.merged_sha }}
+      base_version: ${{ steps.version.outputs.base_version }}
+      rc_version: ${{ steps.version.outputs.rc_version }}
+      minecraft_version: ${{ steps.version.outputs.minecraft_version }}
+      component: ${{ steps.version.outputs.component }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
+        with:
+          # Full history + tags so the merge and the tag-collision check are accurate.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve base branch and Release Please PR
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$BASE_BRANCH" ]]; then
+            echo "::error::Could not determine the repository default branch" >&2
+            exit 1
+          fi
+          echo "Base branch: $BASE_BRANCH"
+
+          git fetch --prune --tags origin
+
+          BASE_SHA="$(git rev-parse "origin/${BASE_BRANCH}")"
+
+          # Discover the actual open Release Please PR rather than guessing the branch name.
+          # Release Please head branches are named release-please--branches--<base>--components--<component>.
+          PRS="$(gh pr list --state open --base "$BASE_BRANCH" \
+                   --json number,headRefName,headRefOid,baseRefName --limit 100)"
+          MATCHES="$(echo "$PRS" | jq -c '[.[] | select(.headRefName | startswith("release-please--branches--"))]')"
+          COUNT="$(echo "$MATCHES" | jq 'length')"
+
+          if [[ "$COUNT" -eq 0 ]]; then
+            echo "::error::No open Release Please PR found targeting ${BASE_BRANCH}" >&2
+            exit 1
+          fi
+          if [[ "$COUNT" -gt 1 ]]; then
+            echo "::error::Found ${COUNT} open Release Please PRs targeting ${BASE_BRANCH}; expected exactly one" >&2
+            echo "$MATCHES" | jq -r '.[] | "  #\(.number) \(.headRefName)"' >&2
+            exit 1
+          fi
+
+          RP_PR_NUMBER="$(echo "$MATCHES" | jq -r '.[0].number')"
+          RP_BRANCH="$(echo "$MATCHES" | jq -r '.[0].headRefName')"
+          RP_SHA="$(echo "$MATCHES" | jq -r '.[0].headRefOid')"
+          RP_BASE="$(echo "$MATCHES" | jq -r '.[0].baseRefName')"
+
+          if [[ "$RP_BASE" != "$BASE_BRANCH" ]]; then
+            echo "::error::Release Please PR #${RP_PR_NUMBER} targets ${RP_BASE}, not ${BASE_BRANCH}" >&2
+            exit 1
+          fi
+
+          echo "Release Please PR: #${RP_PR_NUMBER} (${RP_BRANCH} @ ${RP_SHA})"
+          echo "Base SHA: ${BASE_SHA}"
+
+          {
+            echo "base_branch=$BASE_BRANCH"
+            echo "base_sha=$BASE_SHA"
+            echo "rp_sha=$RP_SHA"
+            echo "rp_branch=$RP_BRANCH"
+            echo "rp_pr_number=$RP_PR_NUMBER"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Merge base into Release Please head (disposable, unpushed)
+        id: merge
+        env:
+          BASE_SHA: ${{ steps.resolve.outputs.base_sha }}
+          RP_SHA: ${{ steps.resolve.outputs.rp_sha }}
+          RP_BRANCH: ${{ steps.resolve.outputs.rp_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Ensure both source revisions are present locally.
+          git fetch --no-tags origin "+refs/heads/${RP_BRANCH}:refs/remotes/origin/${RP_BRANCH}"
+
+          # Identity is only for the throwaway local merge commit; nothing is pushed.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout --detach "$RP_SHA"
+
+          # Fail loudly on conflicts. No -X ours/theirs — we never silently pick a side.
+          if ! git merge --no-ff --no-edit "$BASE_SHA"; then
+            echo "::error::Merge conflict between base (${BASE_SHA}) and Release Please head (${RP_SHA}). Resolve on the PR, then re-run." >&2
+            git merge --abort || true
+            exit 1
+          fi
+
+          MERGED_SHA="$(git rev-parse HEAD)"
+          echo "Merged tree commit: ${MERGED_SHA}"
+          echo "merged_sha=$MERGED_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve version information
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ inputs.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Read the upcoming version from the MERGED manifest (Release Please's staged bump).
+          BASE_VERSION="$(jq -r '."."' .release-please-manifest.json)"
+          if [[ -z "$BASE_VERSION" || "$BASE_VERSION" == "null" ]]; then
+            echo "::error::Failed to resolve base version from merged .release-please-manifest.json" >&2
+            exit 1
+          fi
+
+          COMPONENT="$(jq -r '.packages["."].component' release-please-config.json)"
+          if [[ -z "$COMPONENT" || "$COMPONENT" == "null" ]]; then
+            echo "::error::Failed to resolve component from release-please-config.json" >&2
+            exit 1
+          fi
+
+          [[ "$NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "::error::Invalid RC number: must be a positive integer" >&2; exit 1; }
+
+          # RC terminology (not `pre`) — this is a Field Test candidate, distinct from the
+          # older internal pre-release gate.
+          RC_VERSION="${BASE_VERSION}-rc.${NUMBER}"
+
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
+
+          # Tag matches the repo's component-scoped scheme (e.g. mc26.2-v0.8.0-rc.1),
+          # keeping RCs in the same tag namespace as stable releases.
+          TAG="${COMPONENT}-v${RC_VERSION}"
+
+          # Fail before building if this RC was already published.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Release ${TAG} already exists — RC ${NUMBER} was already published" >&2
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "::error::Tag ${TAG} already exists" >&2
+            exit 1
+          fi
+
+          {
+            echo "base_version=$BASE_VERSION"
+            echo "rc_version=$RC_VERSION"
+            echo "minecraft_version=$MC_VERSION"
+            echo "component=$COMPONENT"
+            echo "tag=$TAG"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Preparing Release Candidate ${RC_VERSION} (tag ${TAG}) for MC ${MC_VERSION}"
+
+  # ---------------------------------------------------------------------------
+  # build: compile each loader from the SAME pinned snapshot. Both legs check out
+  # the exact Release Please head SHA and merge the exact base SHA — a deterministic
+  # reproduction of prepare's merge, so both jars come from identical source. Builds
+  # only; nothing is published from inside the matrix.
+  # ---------------------------------------------------------------------------
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [fabric, neoforge]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Reproduce prepared merged source
+        env:
+          BASE_SHA: ${{ needs.prepare.outputs.base_sha }}
+          RP_SHA: ${{ needs.prepare.outputs.rp_sha }}
+          RP_BRANCH: ${{ needs.prepare.outputs.rp_branch }}
+          BASE_BRANCH: ${{ needs.prepare.outputs.base_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Fetch the exact refs; the pinned SHAs from prepare guarantee both legs build
+          # the same snapshot even if a branch head moves mid-run.
+          git fetch --no-tags origin \
+            "+refs/heads/${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}" \
+            "+refs/heads/${RP_BRANCH}:refs/remotes/origin/${RP_BRANCH}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout --detach "$RP_SHA"
+          if ! git merge --no-ff --no-edit "$BASE_SHA"; then
+            echo "::error::Unexpected merge conflict reproducing prepared source" >&2
+            exit 1
+          fi
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Compute loader version
+        id: version
+        env:
+          RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+          MC_VERSION: ${{ needs.prepare.outputs.minecraft_version }}
+          LOADER: ${{ matrix.loader }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          FULL_VERSION="${RC_VERSION}+mc${MC_VERSION}.${LOADER}"
+          {
+            echo "full_version=$FULL_VERSION"
+            echo "gradle_task=:${LOADER}:jar"
+          } >> "$GITHUB_OUTPUT"
+          echo "Building $FULL_VERSION"
+
+      - name: Build
+        run: ./gradlew ${{ steps.version.outputs.gradle_task }} --console=plain
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.full_version }}
+          # Enables Sentry source-context upload during the build (gated on the token being present).
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Verify built jar
+        env:
+          JAR: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -f "$JAR" ]] || { echo "::error::Expected jar not found: $JAR" >&2; exit 1; }
+          echo "Built $JAR"
+
+      - name: Upload jar
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: logistics-${{ matrix.loader }}-${{ steps.version.outputs.full_version }}
+          path: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # publish: runs ONLY after both loader builds succeed (needs-gating). Downloads
+  # both jars, validates them, then publishes atomically: GitHub prerelease first,
+  # then Modrinth/CurseForge beta, then Sentry preview releases. A single loader
+  # failure above skips this entire job, so a partial RC never goes public.
+  # ---------------------------------------------------------------------------
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    env:
+      HAS_SENTRY_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+      FABRIC_FULL: ${{ needs.prepare.outputs.rc_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.fabric
+      NEOFORGE_FULL: ${{ needs.prepare.outputs.rc_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.neoforge
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
+        with:
+          # Check out the real, published base SHA (full history) so Sentry's set_commits
+          # can walk actual GitHub commits instead of the unpushed local merge commit.
+          ref: ${{ needs.prepare.outputs.base_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download Fabric jar
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: logistics-fabric-${{ env.FABRIC_FULL }}
+          path: artifacts/
+
+      - name: Download NeoForge jar
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: logistics-neoforge-${{ env.NEOFORGE_FULL }}
+          path: artifacts/
+
+      - name: Validate artifacts and identifiers
+        id: validate
+        env:
+          RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+          MC_VERSION: ${{ needs.prepare.outputs.minecraft_version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FABRIC_JAR="artifacts/logistics-${RC_VERSION}+mc${MC_VERSION}.fabric.jar"
+          NEO_JAR="artifacts/logistics-${RC_VERSION}+mc${MC_VERSION}.neoforge.jar"
+
+          for JAR in "$FABRIC_JAR" "$NEO_JAR"; do
+            [[ -f "$JAR" ]] || { echo "::error::Expected jar missing: $JAR" >&2; exit 1; }
+          done
+
+          # Both jars must share the same RC version (only the loader suffix differs).
+          for JAR in "$FABRIC_JAR" "$NEO_JAR"; do
+            base="$(basename "$JAR")"
+            [[ "$base" == "logistics-${RC_VERSION}+mc${MC_VERSION}."* ]] || {
+              echo "::error::RC version mismatch in $base (expected ${RC_VERSION})" >&2; exit 1; }
+          done
+
+          # Build compact Modrinth identifiers deliberately (single-letter loader). Fail —
+          # never silently truncate — if an identifier still exceeds Modrinth's 32-char limit,
+          # since truncation could collide two loaders' versions.
+          MODRINTH_FABRIC="${RC_VERSION}+mc${MC_VERSION}.f"
+          MODRINTH_NEO="${RC_VERSION}+mc${MC_VERSION}.n"
+          for ID in "$MODRINTH_FABRIC" "$MODRINTH_NEO"; do
+            if (( ${#ID} > 32 )); then
+              echo "::error::Modrinth version identifier '${ID}' is ${#ID} chars (>32). Shorten the version scheme." >&2
+              exit 1
+            fi
+          done
+
+          {
+            echo "fabric_jar=$FABRIC_JAR"
+            echo "neoforge_jar=$NEO_JAR"
+            echo "modrinth_fabric=$MODRINTH_FABRIC"
+            echo "modrinth_neoforge=$MODRINTH_NEO"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+          MC_VERSION: ${{ needs.prepare.outputs.minecraft_version }}
+          BASE_BRANCH: ${{ needs.prepare.outputs.base_branch }}
+          BASE_SHA: ${{ needs.prepare.outputs.base_sha }}
+          RP_PR: ${{ needs.prepare.outputs.rp_pr_number }}
+          RP_SHA: ${{ needs.prepare.outputs.rp_sha }}
+          MERGED_SHA: ${{ needs.prepare.outputs.merged_sha }}
+          FABRIC_JAR: ${{ steps.validate.outputs.fabric_jar }}
+          NEO_JAR: ${{ steps.validate.outputs.neoforge_jar }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Guard again at publish time in case a concurrent run beat us to it.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Release ${TAG} already exists" >&2
+            exit 1
+          fi
+
+          NOTES="$(cat <<EOF
+          ## 🛠️ Release Candidate — for Field Test only
+
+          **Logistics v${RC_VERSION} for MC ${MC_VERSION}** (Fabric + NeoForge).
+
+          This is a **release candidate**, not a stable release. It combines the current
+          development branch with the pending Release Please version and changelog so
+          Field Engineers can validate the exact state we intend to ship.
+
+          ### Traceability
+          - Base branch: \`${BASE_BRANCH}\` @ \`${BASE_SHA}\`
+          - Release Please PR: #${RP_PR} @ \`${RP_SHA}\`
+          - Merged source commit: \`${MERGED_SHA}\` (local, unpushed)
+
+          Please report findings in **#field-engineers**.
+          EOF
+          )"
+
+          gh release create "$TAG" \
+            --prerelease \
+            --target "$BASE_SHA" \
+            --title "Logistics v${RC_VERSION} (RC) for MC ${MC_VERSION}" \
+            --notes "$NOTES" \
+            "$FABRIC_JAR" "$NEO_JAR"
+
+          echo "Created prerelease $TAG"
+
+      - name: Publish Fabric to Modrinth and CurseForge
+        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-version: ${{ steps.validate.outputs.modrinth_fabric }}
+
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          game-version-filter: releases
+          version-type: beta
+          version: ${{ env.FABRIC_FULL }}
+          name: "Logistics v${{ needs.prepare.outputs.rc_version }} for fabric ${{ needs.prepare.outputs.minecraft_version }}"
+          files: ${{ steps.validate.outputs.fabric_jar }}
+
+      - name: Publish NeoForge to Modrinth and CurseForge
+        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-version: ${{ steps.validate.outputs.modrinth_neoforge }}
+
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+          game-version-filter: releases
+          version-type: beta
+          version: ${{ env.NEOFORGE_FULL }}
+          name: "Logistics v${{ needs.prepare.outputs.rc_version }} for neoforge ${{ needs.prepare.outputs.minecraft_version }}"
+          files: ${{ steps.validate.outputs.neoforge_jar }}
+
+      # Sentry release creation happens only here — after both loader builds succeeded.
+      # Commits are associated against the real base SHA (checked out above); RCs stay in
+      # the `preview` environment, out of the production deploy stream.
+      - name: Create Sentry release (Fabric)
+        if: ${{ env.HAS_SENTRY_TOKEN == 'true' }}
+        uses: getsentry/action-release@ff07929a6537bac57790c3451cf4d364aca38528 # v3.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: indmenity83
+          SENTRY_PROJECT: logistics-mod
+        with:
+          release: logistics@${{ env.FABRIC_FULL }}
+          set_commits: auto
+          # One Sentry project spans all mc/* branches and the merge commit isn't on GitHub,
+          # so tolerate a missing previous-release commit instead of failing.
+          ignore_missing: true
+          finalize: true
+          environment: preview
+
+      - name: Create Sentry release (NeoForge)
+        if: ${{ env.HAS_SENTRY_TOKEN == 'true' }}
+        uses: getsentry/action-release@ff07929a6537bac57790c3451cf4d364aca38528 # v3.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: indmenity83
+          SENTRY_PROJECT: logistics-mod
+        with:
+          release: logistics@${{ env.NEOFORGE_FULL }}
+          set_commits: auto
+          ignore_missing: true
+          finalize: true
+          environment: preview
