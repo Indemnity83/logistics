@@ -2,6 +2,7 @@ package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsConfigHost;
+import com.logistics.core.lib.compat.RecipeCompat;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.ProcessIO;
 import com.logistics.core.machine.component.RecipePlan;
@@ -38,7 +39,7 @@ public final class SmeltingRecipeResolver implements RecipeResolver {
                 .getRecipeFor(RecipeType.SMELTING, recipeInput, level)
                 .map(holder -> new RecipePlan(
                         holder.value().cookingTime() * LogisticsConfigHost.get(LogisticsAutomation.CONFIG.KILN_RF_PER_COOK_TICK),
-                        holder.value().assemble(recipeInput),
+                        RecipeCompat.assemble(holder.value(), recipeInput, level),
                         holder.value().experience()))
                 .orElse(null);
     }
