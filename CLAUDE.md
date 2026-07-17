@@ -106,10 +106,7 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 ./gradlew runServer          # Launch Minecraft server
 ```
 
-**Requirements:**
-- **Java 21**
-- Minecraft 1.21.11+
-- Fabric API
+**Requirements:** See `gradle.properties` for current versions (`java_version`, `minecraft_version`, `loader_version`, `fabric_version`).
 
 **Build output:** `build/libs/logistics-{version}.jar`
 - Local: `logistics-dev-local.jar`
@@ -402,6 +399,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 - **Formatting:** Automated via Spotless (minimal rules for consistency)
 - **Single-line if/for allowed** but braces preferred for multi-line
 - Keep nesting depth reasonable (prefer max 3 levels)
+- **Comments: terse, and about the code — not the change.** State the non-obvious *what* a future reader needs; don't narrate why this edit was made, version history, or context around the change (meaningless to the next reader). Put change rationale in the commit/PR, not the code.
 
 ### Code Formatting (Spotless)
 
