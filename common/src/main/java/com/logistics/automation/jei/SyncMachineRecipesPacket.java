@@ -5,6 +5,8 @@ import com.logistics.automation.alloysmelter.AlloySmelterRecipe;
 import com.logistics.automation.alloysmelter.AlloySmelterRecipeSerializer;
 import com.logistics.automation.crucible.CrucibleRecipe;
 import com.logistics.automation.crucible.CrucibleRecipeSerializer;
+import com.logistics.automation.fabricator.FabricatorRecipe;
+import com.logistics.automation.fabricator.FabricatorRecipeSerializer;
 import com.logistics.automation.macerator.MaceratorRecipeSerializer;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import com.logistics.automation.refinery.RefineryRecipe;
@@ -29,7 +31,8 @@ public record SyncMachineRecipesPacket(
         List<SawmillRecipe> sawmill,
         List<CrucibleRecipe> crucible,
         List<AlloySmelterRecipe> alloySmelter,
-        List<RefineryRecipe> refinery)
+        List<RefineryRecipe> refinery,
+        List<FabricatorRecipe> fabricator)
         implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SyncMachineRecipesPacket> TYPE =
@@ -47,6 +50,8 @@ public record SyncMachineRecipesPacket(
                     SyncMachineRecipesPacket::alloySmelter,
                     RefineryRecipeSerializer.STREAM_CODEC.apply(ByteBufCodecs.list()),
                     SyncMachineRecipesPacket::refinery,
+                    FabricatorRecipeSerializer.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                    SyncMachineRecipesPacket::fabricator,
                     SyncMachineRecipesPacket::new);
 
     @Override
@@ -54,13 +59,14 @@ public record SyncMachineRecipesPacket(
         return TYPE;
     }
 
-    /** Reads the server's loaded recipes and partitions the five machine recipe types into one packet. */
+    /** Reads the server's loaded recipes and partitions the six machine recipe types into one packet. */
     public static SyncMachineRecipesPacket from(MinecraftServer server) {
         List<MaceratorRecipeWrapper> macerator = new ArrayList<>();
         List<SawmillRecipe> sawmill = new ArrayList<>();
         List<CrucibleRecipe> crucible = new ArrayList<>();
         List<AlloySmelterRecipe> alloySmelter = new ArrayList<>();
         List<RefineryRecipe> refinery = new ArrayList<>();
+        List<FabricatorRecipe> fabricator = new ArrayList<>();
 
         server.getRecipeManager().getRecipes().forEach(holder -> {
             var recipe = holder.value();
@@ -74,9 +80,11 @@ public record SyncMachineRecipesPacket(
                 alloySmelter.add(r);
             } else if (recipe instanceof RefineryRecipe r) {
                 refinery.add(r);
+            } else if (recipe instanceof FabricatorRecipe r) {
+                fabricator.add(r);
             }
         });
 
-        return new SyncMachineRecipesPacket(macerator, sawmill, crucible, alloySmelter, refinery);
+        return new SyncMachineRecipesPacket(macerator, sawmill, crucible, alloySmelter, refinery, fabricator);
     }
 }

@@ -2,6 +2,7 @@ package com.logistics.automation.jei;
 
 import com.logistics.automation.alloysmelter.AlloySmelterRecipe;
 import com.logistics.automation.crucible.CrucibleRecipe;
+import com.logistics.automation.fabricator.FabricatorRecipe;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import com.logistics.automation.refinery.RefineryRecipe;
 import com.logistics.automation.sawmill.SawmillRecipe;
@@ -19,6 +20,7 @@ public final class ClientMachineRecipes {
     private static volatile List<CrucibleRecipe> crucible = List.of();
     private static volatile List<AlloySmelterRecipe> alloySmelter = List.of();
     private static volatile List<RefineryRecipe> refinery = List.of();
+    private static volatile List<FabricatorRecipe> fabricator = List.of();
 
     private ClientMachineRecipes() {}
 
@@ -28,6 +30,7 @@ public final class ClientMachineRecipes {
         crucible = List.copyOf(packet.crucible());
         alloySmelter = List.copyOf(packet.alloySmelter());
         refinery = List.copyOf(packet.refinery());
+        fabricator = List.copyOf(packet.fabricator());
         MachineRecipeJeiSync.pushToJei();
     }
 
@@ -38,6 +41,7 @@ public final class ClientMachineRecipes {
         crucible = List.of();
         alloySmelter = List.of();
         refinery = List.of();
+        fabricator = List.of();
     }
 
     public static List<MaceratorRecipeWrapper> macerator() {
@@ -58,5 +62,9 @@ public final class ClientMachineRecipes {
 
     public static List<RefineryRecipe> refinery() {
         return refinery;
+    }
+
+    public static List<FabricatorRecipe> fabricator() {
+        return fabricator;
     }
 }
