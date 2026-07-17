@@ -20,6 +20,9 @@ permissions:
 
 jobs:
   build:
+    # Skip prereleases (e.g. Release Candidates from build-rc.yml). Those publish
+    # themselves as beta; this stable pipeline must never rebuild them as a release.
+    if: ${{ github.event_name != 'release' || github.event.release.prerelease == false }}
     runs-on: ubuntu-latest
     # Non-secret boolean so the "Create Sentry release" step can gate on it (secrets can't be used in
     # `if`). The token itself is passed only to the steps that need it, never the whole job.
