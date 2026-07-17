@@ -27,11 +27,11 @@ public final class LogisticsFluidClient {
         LOGGER.info("Registering fluid (client)");
 
         BlockEntityRenderers.register(
-                LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY, FluidPipeBlockEntityRenderer::new);
+                LogisticsPipe.ENTITY.FLUID_PIPE_BLOCK_ENTITY, FluidPipeBlockEntityRenderer::new);
         BlockEntityRenderers.register(
-                LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntityRenderer::new);
+                LogisticsPipe.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntityRenderer::new);
         BlockEntityRenderers.register(
-                LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY, FluidPumpBlockEntityRenderer::new);
+                LogisticsAutomation.ENTITY.FLUID_PUMP_BLOCK_ENTITY, FluidPumpBlockEntityRenderer::new);
 
         registerFluidRenderers();
     }
