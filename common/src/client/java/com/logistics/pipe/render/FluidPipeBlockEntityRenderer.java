@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class FluidPipeBlockEntityRenderer implements BlockEntityRenderer<FluidPipeBlockEntity> {
 
-    private static final String MODEL_PREFIX = "block/fluid/";
+    private static final String MODEL_PREFIX = "block/pipe/";
 
     // Pipe geometry in block units: the core spans 4..12 px (0.25..0.75); arms run from the core face
     // to the block edge. The fluid is inset 0.1 px from the inner walls on all four longitudinal sides.

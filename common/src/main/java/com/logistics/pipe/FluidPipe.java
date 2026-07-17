@@ -97,9 +97,9 @@ public final class FluidPipe extends Pipe {
     }
 
     /**
-     * Asset base name for the renderer (the leaf under {@code block/fluid/}), derived from the registered
-     * block's name. The registry path carries the domain folder (e.g. {@code fluid/copper_fluid_pipe}), so
-     * strip it — the renderer already prepends {@code block/fluid/}.
+     * Asset base name for the renderer (the leaf under {@code block/pipe/}), derived from the registered
+     * block's name. The registry path carries the domain folder (e.g. {@code pipe/copper_fluid_pipe}), so
+     * strip it — the renderer already prepends {@code block/pipe/}.
      */
     public String modelBase() {
         String name = getPipeName();
