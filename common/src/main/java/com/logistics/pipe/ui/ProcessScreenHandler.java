@@ -8,8 +8,6 @@ import com.logistics.pipe.network.NetworkRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -27,7 +25,7 @@ import java.util.List;
  * ContainerData[0-8]: input counts. [9]: output count. [10]: active. [11]: satellite id. [12]: satellite registered (1=yes).
  * Button 0 = satellite prev, button 1 = satellite next (cycles through Off + registered IDs only).
  */
-public class ProcessScreenHandler extends AbstractContainerMenu {
+public class ProcessScreenHandler extends CustomSlotScreenHandler {
     private static final int INPUT_SLOTS = ProcessModule.MAX_INPUTS;   // 9
     private static final int OUTPUT_SLOTS = ProcessModule.MAX_OUTPUTS; // 1
     private static final int TOTAL_GHOST_SLOTS = INPUT_SLOTS + OUTPUT_SLOTS;
@@ -160,9 +158,9 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         if (slotIndex >= 0 && slotIndex < TOTAL_GHOST_SLOTS) {
-            if (actionType == ClickType.QUICK_MOVE) return;
+            if (quickMove) return true;
 
             ItemStack cursor = getCarried();
             boolean isInput = slotIndex < INPUT_SLOTS;
@@ -180,7 +178,7 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
                             else module.setOutput(ctx, moduleSlot, "", 1);
                         }));
                 broadcastChanges();
-                return;
+                return true;
             }
 
             // Left-click with item: place ghost item
@@ -201,10 +199,10 @@ public class ProcessScreenHandler extends AbstractContainerMenu {
                         }
                     }));
             broadcastChanges();
-            return;
+            return true;
         }
 
-        super.clicked(slotIndex, button, actionType, player);
+        return false;
     }
 
     @Override
