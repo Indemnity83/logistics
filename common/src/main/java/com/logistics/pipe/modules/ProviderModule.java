@@ -292,37 +292,21 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             if (head == null) break;
 
             long toExtract = Math.min(head.remaining(), Math.min(itemsLeft, item.toStack(1).getMaxStackSize()));
-            long extracted = 0;
-            Direction extractDir = null;
-            IItemStorage extractStorage = null;
+            Extraction extraction = extractFromNeighbors(ctx, item, toExtract, mode);
 
-            for (Direction direction : ctx.getInventoryConnections()) {
-                BlockPos targetPos = ctx.pos().relative(direction);
-                IItemStorage storage =
-                        ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
-                if (storage == null) continue;
-
-                long got = extractItems(storage, item, toExtract, mode);
-                if (got > 0) {
-                    extracted = got;
-                    extractDir = direction;
-                    extractStorage = storage;
-                    break;
-                }
-            }
-
-            if (extracted > 0) {
+            if (extraction.amount() > 0) {
+                long extracted = extraction.amount();
                 // Extraction already removed the items. If the network can't pay, refund them so an
                 // unpowered network never destroys items, then stop dispatching this tick.
                 if (!ctx.consumeEnergy(RF_PER_ITEM * extracted)) {
-                    extractStorage.insert(item, extracted, false);
+                    extraction.storage().insert(item, extracted, false);
                     break;
                 }
                 ItemStack stack = item.toStack((int) extracted);
                 TravelingItem traveling = new TravelingItem(
-                        stack, extractDir.getOpposite(), LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED), head.requester());
+                        stack, extraction.dir().getOpposite(), LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED), head.requester());
                 traveling.setDeliveryId(head.deliveryId());
-                ctx.pipeAccess().forceAddItem(traveling, extractDir);
+                ctx.pipeAccess().forceAddItem(traveling, extraction.dir());
                 queue.consumeFromHead(extracted);
                 itemsLeft -= extracted;
                 stacksLeft -= 1;
@@ -349,6 +333,30 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         }
 
         saveQueue(ctx, queue);
+    }
+
+    /** Items pulled from a neighboring inventory: the amount and where it came from (for refunds/routing). */
+    private record Extraction(long amount, Direction dir, IItemStorage storage) {
+        static final Extraction NONE = new Extraction(0, null, null);
+    }
+
+    /**
+     * Scan each connected inventory in turn, extracting from the first that yields items.
+     * Extraction is eager (items are removed from the source immediately), so the caller must
+     * refund via {@link Extraction#storage()} if it can't complete the dispatch.
+     */
+    private Extraction extractFromNeighbors(PipeContext ctx, IItemKey item, long toExtract, ProviderMode mode) {
+        for (Direction direction : ctx.getInventoryConnections()) {
+            BlockPos targetPos = ctx.pos().relative(direction);
+            IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
+            if (storage == null) continue;
+
+            long got = extractItems(storage, item, toExtract, mode);
+            if (got > 0) {
+                return new Extraction(got, direction, storage);
+            }
+        }
+        return Extraction.NONE;
     }
 
     // ===== Queue NBT serialisation =====
