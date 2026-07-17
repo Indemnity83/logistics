@@ -187,15 +187,13 @@ When a critical bug needs a patch release *after* feature development has alread
 
 **The version boundary problem:** Once any `feat:` PR merges, the next release-please bump is a minor version. This makes "quick patch after features land" impossible without the hotfix workflow above.
 
-**Three tools to manage this:**
+**Two tools to manage this:**
 
 **1. "Up Next" label** — Applied to PRs that are approved but intentionally held past the current patch release.
 - Rule: If a release-please PR for the current version is still open, apply `up next` to any `feat:` PR instead of merging it.
 - Transition: When the patch release ships, strip `up next` — those PRs are now in scope for the next minor.
 
-**2. Snapshot testing** (`build-snapshot.yml`) — After feature PRs merge, leave the release-please PR open and publish snapshot builds for community testing. Bugs found here accumulate as `fix:` commits in the upcoming release.
-
-**3. Pre-release gate** (`build-prerelease.yml`) — When ready to commit to the release, publish `v0.6.0-pre.1`. This signals "final testing phase." When satisfied, merge the release-please PR.
+**2. Release Candidate gate** (`build-rc.yml`) — When ready to commit to the release, publish `v0.6.0-rc.1`. This builds the base branch merged with the open Release Please PR, publishes it as a beta/prerelease, and signals the "Field Test phase" for community testing. When satisfied, merge the release-please PR.
 
 **Full cycle:**
 ```
@@ -204,9 +202,8 @@ Apply "up next" label to any feat: PRs that should wait
 Merge patch release-please PR → vX.Y.Z ships → cherry-pick to other branches
 Strip "up next" from held PRs
 Merge feat: PRs → release-please opens vX.Y+1.0 PR (leave it open)
-Publish snapshots via build-snapshot.yml → community testing
-Fix bugs (accumulate in vX.Y+1.0 release notes)
-Publish vX.Y+1.0-pre.1 via build-prerelease.yml → final gate
+Publish vX.Y+1.0-rc.1 via build-rc.yml → Field Test gate
+Fix bugs found in testing (accumulate in vX.Y+1.0 release notes; re-publish rc.2, rc.3 as needed)
 Merge vX.Y+1.0 release-please PR → ships → cherry-pick
 ```
 
