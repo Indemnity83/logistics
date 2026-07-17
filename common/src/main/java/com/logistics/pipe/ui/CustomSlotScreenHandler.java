@@ -13,10 +13,6 @@ import net.minecraft.world.inventory.MenuType;
  * {@code ContainerInput} on mc/26.x and {@code ClickType} on mc/1.21.x; this class is the only
  * place either name appears. Subclasses implement {@link #handleCustomSlotClick} with a
  * version-stable signature and never reference it.
- *
- * <p>Per branch, this file carries the matching type — {@code ContainerInput} on mc/26.x,
- * {@code ClickType} on mc/1.21.x — in the import and the two references in {@link #clicked}
- * (parameter type and {@code QUICK_MOVE}). Nothing else here, or in any subclass, changes.
  */
 public abstract class CustomSlotScreenHandler extends AbstractContainerMenu {
 
