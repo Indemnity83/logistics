@@ -65,19 +65,9 @@ dependencies {
     implementation("io.sentry:sentry:${rootProject.sentry_version}")
 
     // Configory config library — bundled jar-in-jar (it ships fabric.mod.json as a GAMELIBRARY).
-    // Pinned to the 0.2.x line; prefers the version in gradle.properties.
-    include("maven.modrinth:configory") {
-        version {
-            strictly "[0.2.0,0.3.0)"
-            prefer "${rootProject.configory_version}"
-        }
-    }
-    implementation("maven.modrinth:configory") {
-        version {
-            strictly "[0.2.0,0.3.0)"
-            prefer "${rootProject.configory_version}"
-        }
-    }
+    // Pinned to an exact version (see common/build.gradle).
+    include("maven.modrinth:configory:${rootProject.configory_version}")
+    implementation("maven.modrinth:configory:${rootProject.configory_version}")
 
     // JEI — compile against API only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
