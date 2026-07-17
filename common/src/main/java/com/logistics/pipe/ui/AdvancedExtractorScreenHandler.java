@@ -10,8 +10,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -25,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * Shows 9 filter ghost slots and an Include/Exclude toggle.
  * No mode selection (unlike the Provider GUI).
  */
-public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
+public class AdvancedExtractorScreenHandler extends CustomSlotScreenHandler {
     private static final int FILTER_SLOT_COUNT = 9;
     private static final int SLOT_SIZE = 18;
     private static final int FILTER_START_Y = 18;
@@ -142,15 +140,15 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
     public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 
     @Override
-    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
-            if (actionType == ClickType.QUICK_MOVE) return;
+            if (quickMove) return true;
 
             ItemStack cursor = getCarried();
 
             if (button == 1 || cursor.isEmpty()) {
                 if (itemConfigPlayer != null) {
-                    if (!isPinnedItemStillHeld()) return;
+                    if (!isPinnedItemStillHeld()) return true;
                     filterInventory.setItem(slotIndex, ItemStack.EMPTY);
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
@@ -164,13 +162,13 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                             module.setFilterItem(ctx, slotIndex, ""));
                 }
                 broadcastChanges();
-                return;
+                return true;
             }
 
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM
                     .getKey(cursor.getItem()).toString();
             if (itemConfigPlayer != null) {
-                if (!isPinnedItemStillHeld()) return;
+                if (!isPinnedItemStillHeld()) return true;
                 filterInventory.setItem(slotIndex, cursor.copyWithCount(1));
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
@@ -184,10 +182,10 @@ public class AdvancedExtractorScreenHandler extends AbstractContainerMenu {
                         module.setFilterItem(ctx, slotIndex, itemId));
             }
             broadcastChanges();
-            return;
+            return true;
         }
 
-        super.clicked(slotIndex, button, actionType, player);
+        return false;
     }
 
     @Override

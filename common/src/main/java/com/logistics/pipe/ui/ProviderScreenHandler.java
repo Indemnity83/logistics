@@ -10,8 +10,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -24,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
  * Screen handler for the Provider GUI.
  * Displays mode selection button to control which items are available for extraction.
  */
-public class ProviderScreenHandler extends AbstractContainerMenu {
+public class ProviderScreenHandler extends CustomSlotScreenHandler {
     private static final int FILTER_SLOT_COUNT = 9;
     private static final int SLOT_SIZE = 18;
     private static final int FILTER_START_Y = 18;
@@ -148,9 +146,9 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ClickType actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
-            if (actionType == ClickType.QUICK_MOVE) return;
+            if (quickMove) return true;
 
             ItemStack cursor = getCarried();
 
@@ -158,16 +156,16 @@ public class ProviderScreenHandler extends AbstractContainerMenu {
                 if (itemConfigPlayer != null) handleClearSlotForPlayer(slotIndex);
                 else handleClearSlotForModule(slotIndex);
                 broadcastChanges();
-                return;
+                return true;
             }
 
             if (itemConfigPlayer != null) handlePlaceItemForPlayer(slotIndex, cursor);
             else handlePlaceItemForModule(slotIndex, cursor);
             broadcastChanges();
-            return;
+            return true;
         }
 
-        super.clicked(slotIndex, button, actionType, player);
+        return false;
     }
 
     private void handleClearSlotForPlayer(int slotIndex) {
