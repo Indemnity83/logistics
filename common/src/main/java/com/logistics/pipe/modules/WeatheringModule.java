@@ -106,16 +106,18 @@ public class WeatheringModule implements Module, RandomTickModule {
         int stage = getOxidationStage(ctx);
         if (stage >= STAGE_OXIDIZED) return;
 
-        // Step 1: random tick gate (vanilla copper uses 1125/64 odds)
+        // Random-tick gate: vanilla copper's 1125/64 odds.
         if (rand.nextInt(1125) >= 64) return;
 
         // Only consider neighbors of this pipe's own family (item pipes never influence fluid pipes).
         PipeFamily selfFamily =
                 (ctx.state().getBlock() instanceof ModularPipeBlock self) ? self.family() : null;
 
-        // Step 2: scan neighbors within Manhattan distance 4
-        int a = 0; // nearby non-waxed weathering pipes
-        int b = 0; // nearby pipes more oxidized than me
+        // Scan same-family weathering pipes within Manhattan distance 4, mirroring vanilla copper:
+        // progression scales with how many neighbors are further along, and aborts entirely if any
+        // neighbor is less oxidized than this pipe.
+        int weatheringNeighbors = 0;
+        int moreOxidizedNeighbors = 0;
         BlockPos origin = ctx.pos();
 
         for (BlockPos p : BlockPos.betweenClosed(origin.offset(-4, -4, -4), origin.offset(4, 4, 4))) {
@@ -133,20 +135,16 @@ public class WeatheringModule implements Module, RandomTickModule {
             if (isWaxed(neighbor)) continue;
 
             int neighborStage = getOxidationStage(neighbor);
-
-            // Abort if any neighbor is less oxidized
             if (neighborStage < stage) return;
 
-            a++;
-            if (neighborStage > stage) b++;
+            weatheringNeighbors++;
+            if (neighborStage > stage) moreOxidizedNeighbors++;
         }
 
-        // Step 3: compute progression chance
-        double c = (b + 1.0) / (a + 1.0);
-        double m = (stage == STAGE_UNAFFECTED) ? 0.75 : 1.0;
-        double chance = m * c * c;
+        double ratio = (moreOxidizedNeighbors + 1.0) / (weatheringNeighbors + 1.0);
+        double stageMultiplier = (stage == STAGE_UNAFFECTED) ? 0.75 : 1.0;
+        double chance = stageMultiplier * ratio * ratio;
 
-        // Step 4: roll for progression
         if (rand.nextDouble() < chance) {
             ctx.saveInt(this, OXIDATION_KEY, stage + 1);
             ctx.markDirtyAndSync();
