@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "logistics:pipe/gold_transport_pipe"
+    },
+    {
+      "item": "minecraft:slime_ball"
+    }
+  ],
+  "result": {
+    "id": "logistics:pipe/gold_fluid_pipe",
+    "count": 1
+  }
+}

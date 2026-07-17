@@ -1,6 +1,6 @@
 package com.logistics.gametest.pipe;
 
-import com.logistics.LogisticsFluid;
+import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.FluidConnection;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -19,8 +19,8 @@ public class FluidConnectionGameTest {
     public void fluidExtractorsDoNotConnectToEachOther(GameTestHelper context) {
         BlockPos a = new BlockPos(0, 1, 0);
         BlockPos b = a.east();
-        context.setBlock(a, LogisticsFluid.BLOCK.FLUID_EXTRACTOR_PIPE);
-        context.setBlock(b, LogisticsFluid.BLOCK.FLUID_EXTRACTOR_PIPE);
+        context.setBlock(a, LogisticsPipe.BLOCK.FLUID_EXTRACTOR_PIPE);
+        context.setBlock(b, LogisticsPipe.BLOCK.FLUID_EXTRACTOR_PIPE);
 
         context.succeedWhen(() -> {
             FluidPipeBlockEntity pipe = (FluidPipeBlockEntity) context.getBlockEntity(a);
@@ -39,8 +39,8 @@ public class FluidConnectionGameTest {
     public void fluidExtractorConnectsToTransportPipe(GameTestHelper context) {
         BlockPos a = new BlockPos(0, 1, 0);
         BlockPos b = a.east();
-        context.setBlock(a, LogisticsFluid.BLOCK.FLUID_EXTRACTOR_PIPE);
-        context.setBlock(b, LogisticsFluid.BLOCK.STONE_FLUID_PIPE);
+        context.setBlock(a, LogisticsPipe.BLOCK.FLUID_EXTRACTOR_PIPE);
+        context.setBlock(b, LogisticsPipe.BLOCK.STONE_FLUID_PIPE);
 
         context.succeedWhen(() -> {
             FluidPipeBlockEntity pipe = (FluidPipeBlockEntity) context.getBlockEntity(a);

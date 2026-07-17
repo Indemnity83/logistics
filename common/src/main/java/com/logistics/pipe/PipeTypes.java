@@ -3,7 +3,6 @@ package com.logistics.pipe;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
-import com.logistics.LogisticsFluid;
 import com.logistics.pipe.modules.*;
 import com.logistics.pipe.modules.FluidTransportModule.FlowRate;
 
@@ -127,8 +126,8 @@ public final class PipeTypes {
     // Copper fluid pipe - normal rate; weathers like vanilla copper and accepts colored markings.
     public static final FluidPipe COPPER_FLUID_PIPE = new FluidPipe(
             new FluidTransportModule(FlowRate.NORMAL),
-            new WeatheringModule(LogisticsFluid::model, "copper_fluid_pipe", false),
-            new PipeMarkingModule(LogisticsFluid::model, "pipe_markings"));
+            new WeatheringModule(LogisticsPipe::model, "copper_fluid_pipe", false),
+            new PipeMarkingModule(LogisticsPipe::model, "pipe_markings"));
 
     // Stone fluid pipe - slow rate.
     public static final FluidPipe STONE_FLUID_PIPE = new FluidPipe(

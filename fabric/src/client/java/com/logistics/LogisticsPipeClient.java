@@ -38,15 +38,15 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
 
         // Fluid pipes also use transparent textures (cutout); the glass tank uses translucent so the
         // contained fluid shows through. On 1.21.1 model render_type JSON is ignored, so register here.
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.COPPER_FLUID_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.STONE_FLUID_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.GOLD_FLUID_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.INSERTION_FLUID_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.MERGER_FLUID_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.FLUID_EXTRACTOR_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.VOID_FLUID_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.BYPASS_FLUID_PIPE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsFluid.BLOCK.GLASS_TANK, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.COPPER_FLUID_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.STONE_FLUID_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.GOLD_FLUID_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.INSERTION_FLUID_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.MERGER_FLUID_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.FLUID_EXTRACTOR_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.VOID_FLUID_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.BYPASS_FLUID_PIPE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPipe.BLOCK.GLASS_TANK, RenderType.translucent());
 
         // Register pipe block entity renderer
         BlockEntityRenderers.register(LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY, PipeBlockEntityRenderer::new);

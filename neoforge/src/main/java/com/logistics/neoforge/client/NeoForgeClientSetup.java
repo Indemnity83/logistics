@@ -2,7 +2,6 @@ package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
@@ -179,13 +178,13 @@ public final class NeoForgeClientSetup {
                 LogisticsAutomation.ENTITY.LASER_QUARRY_BLOCK_ENTITY,
                 LaserQuarryBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
-                LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY,
+                LogisticsPipe.ENTITY.FLUID_PIPE_BLOCK_ENTITY,
                 FluidPipeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
-                LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY,
+                LogisticsPipe.ENTITY.GLASS_TANK_BLOCK_ENTITY,
                 GlassTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
-                LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY,
+                LogisticsAutomation.ENTITY.FLUID_PUMP_BLOCK_ENTITY,
                 FluidPumpBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY,

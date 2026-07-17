@@ -1,12 +1,12 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsFluid;
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
-import com.logistics.pipe.block.entity.FluidPumpBlockEntity;
+import com.logistics.automation.pump.FluidPumpBlockEntity;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +31,7 @@ public class FluidPumpGameTest {
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFluidPumpPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 2, 1);
-        context.setBlock(pos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         if (!(context.getBlockEntity(pos) instanceof FluidPumpBlockEntity)) {
             context.fail("Fluid pump should create a block entity");
         }
@@ -41,7 +41,7 @@ public class FluidPumpGameTest {
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFluidPumpEnergyAndTankAccessibleFromTopAndSides(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 2, 1);
-        context.setBlock(pos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pos);
         if (pump == null) {
             context.fail("Expected FluidPumpBlockEntity");
@@ -70,7 +70,7 @@ public class FluidPumpGameTest {
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testFluidPumpTubeDescendsWithoutEnergy(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 5, 1);
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
@@ -97,7 +97,7 @@ public class FluidPumpGameTest {
     public void testFluidPumpRemovesSourceAndFillsTank(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
         BlockPos waterPos = pumpPos.below();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         context.setBlock(waterPos, Blocks.WATER);
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
@@ -128,7 +128,7 @@ public class FluidPumpGameTest {
         BlockPos pumpPos = new BlockPos(3, 3, 3);
         BlockPos firstWater = pumpPos.below();
         BlockPos connectedWater = firstWater.east();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         context.setBlock(firstWater, Blocks.WATER);
         context.setBlock(connectedWater, Blocks.WATER);
         encloseWater(context, firstWater, connectedWater);
@@ -163,7 +163,7 @@ public class FluidPumpGameTest {
         // the whole pool. Water flows (UPDATE_ALL), so assert no sources remain rather than full air
         // (flowing remnants decay on vanilla's schedule).
         BlockPos[] pool = {firstWater, firstWater.east(), firstWater.east().east()};
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         for (BlockPos water : pool) {
             context.setBlock(water, Blocks.WATER);
         }
@@ -192,7 +192,7 @@ public class FluidPumpGameTest {
     public void testFluidPumpTreatsLargeBodyAsInfinite(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(3, 5, 3);
         BlockPos center = pumpPos.below();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         // 3x3 flat body (9 sources) >= default threshold (9) => infinite, no carving.
         BlockPos[] body = new BlockPos[9];
         int i = 0;
@@ -232,8 +232,8 @@ public class FluidPumpGameTest {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
         BlockPos pipePos = pumpPos.above();
         BlockPos waterPos = pumpPos.below();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
-        context.setBlock(pipePos, LogisticsFluid.BLOCK.COPPER_FLUID_PIPE);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.COPPER_FLUID_PIPE);
         context.setBlock(waterPos, Blocks.WATER);
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
@@ -256,8 +256,8 @@ public class FluidPumpGameTest {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
         BlockPos pipePos = pumpPos.east();
         BlockPos waterPos = pumpPos.below();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
-        context.setBlock(pipePos, LogisticsFluid.BLOCK.COPPER_FLUID_PIPE);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.COPPER_FLUID_PIPE);
         context.setBlock(waterPos, Blocks.WATER);
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
@@ -281,7 +281,7 @@ public class FluidPumpGameTest {
         BlockPos a = pumpPos.below();
         BlockPos b = a.east();
         BlockPos c = b.east();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         context.setBlock(a, Blocks.LAVA);
         context.setBlock(b, Blocks.LAVA);
         context.setBlock(c, Blocks.LAVA);
@@ -312,7 +312,7 @@ public class FluidPumpGameTest {
         BlockPos a = pumpPos.below();
         BlockPos b = a.east();
         BlockPos c = b.east();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         context.setBlock(a, Blocks.LAVA);
         // Flowing lava between the two sources: the flood must cross it to reach the far source.
         context.setBlock(b, Blocks.LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, 1));
@@ -354,7 +354,7 @@ public class FluidPumpGameTest {
                 i++;
             }
         }
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
@@ -384,8 +384,8 @@ public class FluidPumpGameTest {
         BlockPos a = pumpPos.below();
         BlockPos b = a.east();
         BlockPos c = b.east();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
-        context.setBlock(tankPos, LogisticsFluid.BLOCK.GLASS_TANK);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(tankPos, LogisticsPipe.BLOCK.GLASS_TANK);
         context.setBlock(a, Blocks.WATER);
         context.setBlock(b, Blocks.WATER);
         context.setBlock(c, Blocks.WATER);
@@ -417,7 +417,7 @@ public class FluidPumpGameTest {
         BlockPos pumpPos = new BlockPos(2, 5, 2);
         BlockPos water = pumpPos.below();
         BlockPos floor = water.below();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         context.setBlock(water, Blocks.WATER);
         encloseWater(context, water);
         context.setBlock(floor, Blocks.STONE);
@@ -450,7 +450,7 @@ public class FluidPumpGameTest {
         BlockPos near = pumpPos.below();
         BlockPos mid = near.east();
         BlockPos far = mid.east();
-        context.setBlock(pumpPos, LogisticsFluid.BLOCK.FLUID_PUMP);
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         context.setBlock(near, Blocks.WATER);
         context.setBlock(mid, Blocks.WATER);
         context.setBlock(far, Blocks.WATER);

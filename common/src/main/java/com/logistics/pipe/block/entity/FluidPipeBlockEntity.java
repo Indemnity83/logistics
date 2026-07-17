@@ -3,7 +3,6 @@ package com.logistics.pipe.block.entity;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
-import com.logistics.LogisticsFluid;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
@@ -114,7 +113,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     private boolean lastSyncedEmpty = true;
 
     public FluidPipeBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY, pos, state);
+        super(LogisticsPipe.ENTITY.FLUID_PIPE_BLOCK_ENTITY, pos, state);
         this.def = defOf(state);
         for (int i = 0; i < 6; i++) {
             connections[i] = FluidConnection.NONE;

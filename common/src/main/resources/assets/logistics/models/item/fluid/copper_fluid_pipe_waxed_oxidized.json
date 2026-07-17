@@ -1,8 +1,0 @@
-{
-  "parent": "logistics:item/fluid/copper_fluid_pipe",
-  "textures": {
-    "particle": "logistics:block/fluid/copper_fluid_pipe_core_oxidized",
-    "core": "logistics:block/fluid/copper_fluid_pipe_core_oxidized",
-    "arm": "logistics:block/fluid/copper_fluid_pipe_arm_oxidized"
-  }
-}

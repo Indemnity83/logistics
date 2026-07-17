@@ -1,7 +1,7 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsFluid;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.pipe.block.FluidPipeBlock;
@@ -26,7 +26,7 @@ public class FluidLightGameTest {
     }
 
     private static void assertTankLight(GameTestHelper context, BlockPos pos, Fluid fluid, long mb, int expected) {
-        context.setBlock(pos, LogisticsFluid.BLOCK.GLASS_TANK);
+        context.setBlock(pos, LogisticsPipe.BLOCK.GLASS_TANK);
         GlassTankBlockEntity tank = (GlassTankBlockEntity) context.getBlockEntity(pos);
         context.assertTrue(tank != null, "Glass tank should have a block entity");
         tank.tank().setContents(SimpleFluidKey.of(fluid), FluidUnits.mb(mb));
@@ -55,7 +55,7 @@ public class FluidLightGameTest {
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void drainedTankStopsGlowing(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsFluid.BLOCK.GLASS_TANK);
+        context.setBlock(pos, LogisticsPipe.BLOCK.GLASS_TANK);
         GlassTankBlockEntity tank = (GlassTankBlockEntity) context.getBlockEntity(pos);
         context.assertTrue(tank != null, "Glass tank should have a block entity");
         tank.tank().setContents(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(1_000));
@@ -70,7 +70,7 @@ public class FluidLightGameTest {
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void pipeOfLavaGlows(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsFluid.BLOCK.COPPER_FLUID_PIPE);
+        context.setBlock(pos, LogisticsPipe.BLOCK.COPPER_FLUID_PIPE);
         FluidPipeBlockEntity pipe = (FluidPipeBlockEntity) context.getBlockEntity(pos);
         context.assertTrue(pipe != null, "Fluid pipe should have a block entity");
         pipe.fluidStorage(null).insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(100), false);
