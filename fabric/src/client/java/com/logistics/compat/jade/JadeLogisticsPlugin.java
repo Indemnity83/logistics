@@ -7,6 +7,8 @@ import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.automation.macerator.MaceratorBlock;
+import com.logistics.automation.refinery.RefineryBlock;
+import com.logistics.automation.fabricator.SequentialFabricatorBlock;
 import com.logistics.automation.sawmill.SawmillBlock;
 import com.logistics.pipe.block.FluidPipeBlock;
 import com.logistics.pipe.block.PipeBlock;
@@ -40,6 +42,8 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, SawmillBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, AlloySmelterBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, CrucibleBlock.class);
+        registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, RefineryBlock.class);
+        registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, SequentialFabricatorBlock.class);
     }
 
     @Override
@@ -53,6 +57,8 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, SawmillBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, AlloySmelterBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, CrucibleBlock.class);
+        registration.registerBlockComponent(MachineComponentProvider.INSTANCE, RefineryBlock.class);
+        registration.registerBlockComponent(MachineComponentProvider.INSTANCE, SequentialFabricatorBlock.class);
         registration.registerBlockComponent(PipeComponentProvider.INSTANCE, PipeBlock.class);
         registration.registerBlockComponent(FluidPipeComponentProvider.INSTANCE, FluidPipeBlock.class);
     }
