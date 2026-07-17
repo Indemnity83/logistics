@@ -21,7 +21,8 @@
       "com.logistics.automation.sawmill.jei.SawmillJeiPlugin",
       "com.logistics.automation.alloysmelter.jei.AlloySmelterJeiPlugin",
       "com.logistics.automation.crucible.jei.CrucibleJeiPlugin",
-      "com.logistics.automation.refinery.jei.RefineryJeiPlugin"
+      "com.logistics.automation.refinery.jei.RefineryJeiPlugin",
+      "com.logistics.automation.fabricator.jei.FabricatorJeiPlugin"
     ],
     "jade": ["com.logistics.compat.jade.JadeLogisticsPlugin"]
   },
