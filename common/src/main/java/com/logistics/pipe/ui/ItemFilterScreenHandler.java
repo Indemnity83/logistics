@@ -14,15 +14,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemFilterScreenHandler extends AbstractContainerMenu {
+public class ItemFilterScreenHandler extends CustomSlotScreenHandler {
     private static final int FILTER_SLOT_COUNT =
             ItemFilterModule.FILTER_ORDER.length * ItemFilterModule.FILTER_SLOTS_PER_SIDE;
     private static final int SLOT_SIZE = 18;
@@ -124,10 +122,10 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ContainerInput actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
-            if (actionType == ContainerInput.QUICK_MOVE) {
-                return;
+            if (quickMove) {
+                return true;
             }
 
             ItemStack cursor = getCarried();
@@ -142,10 +140,10 @@ public class ItemFilterScreenHandler extends AbstractContainerMenu {
             }
 
             broadcastChanges();
-            return;
+            return true;
         }
 
-        super.clicked(slotIndex, button, actionType, player);
+        return false;
     }
 
     @Override

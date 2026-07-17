@@ -10,8 +10,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -35,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>On close, any item in the preview slot is returned to the player's inventory.
  */
-public class ModSinkScreenHandler extends AbstractContainerMenu {
+public class ModSinkScreenHandler extends CustomSlotScreenHandler {
     public static final int MAX_FILTER_SLOTS = ModSinkModule.MAX_FILTERS;
     public static final int PREVIEW_SLOT = 0;
     public static final int FILTER_SLOT_START = 1;
@@ -133,12 +131,9 @@ public class ModSinkScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ContainerInput actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         // Filter display slots are not directly interactable
-        if (slotIndex >= FILTER_SLOT_START && slotIndex < FILTER_SLOT_START + MAX_FILTER_SLOTS) {
-            return;
-        }
-        super.clicked(slotIndex, button, actionType, player);
+        return slotIndex >= FILTER_SLOT_START && slotIndex < FILTER_SLOT_START + MAX_FILTER_SLOTS;
     }
 
     @Override

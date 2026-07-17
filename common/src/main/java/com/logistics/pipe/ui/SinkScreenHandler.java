@@ -11,8 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
@@ -25,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * Screen handler for the Sink GUI (Basic Logistics Pipe).
  * Displays 9 filter slots and a Default Route toggle.
  */
-public class SinkScreenHandler extends AbstractContainerMenu {
+public class SinkScreenHandler extends CustomSlotScreenHandler {
     private static final int FILTER_SLOT_COUNT = SinkModule.MAX_FILTER_SLOTS;
     private static final int SLOT_SIZE = 18;
     private static final int PLAYER_INV_START_Y = 60;
@@ -168,11 +166,11 @@ public class SinkScreenHandler extends AbstractContainerMenu {
     }
 
     @Override
-    public void clicked(int slotIndex, int button, ContainerInput actionType, Player player) {
+    protected boolean handleCustomSlotClick(int slotIndex, int button, boolean quickMove, Player player) {
         if (slotIndex >= 0 && slotIndex < FILTER_SLOT_COUNT) {
             // Prevent shift-click
-            if (actionType == ContainerInput.QUICK_MOVE) {
-                return;
+            if (quickMove) {
+                return true;
             }
 
             ItemStack cursor = getCarried();
@@ -180,7 +178,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             // Right-click: Clear slot
             if (button == 1) {
                 if (itemConfigPlayer != null) {
-                    if (!isPinnedItemStillHeld()) return;
+                    if (!isPinnedItemStillHeld()) return true;
                     sinkInventory.setItem(slotIndex, ItemStack.EMPTY);
                     final int s = slotIndex;
                     ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
@@ -199,12 +197,12 @@ public class SinkScreenHandler extends AbstractContainerMenu {
                     });
                 }
                 broadcastChanges();
-                return;
+                return true;
             }
 
             // Left-click: Set filter
             if (cursor.isEmpty()) {
-                return; // Nothing to do
+                return true; // Nothing to do
             }
 
             String itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(cursor.getItem()).toString();
@@ -212,7 +210,7 @@ public class SinkScreenHandler extends AbstractContainerMenu {
 
             // Save to module configuration
             if (itemConfigPlayer != null) {
-                if (!isPinnedItemStillHeld()) return;
+                if (!isPinnedItemStillHeld()) return true;
                 sinkInventory.setItem(slotIndex, ghostItem);
                 final int s = slotIndex;
                 ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
@@ -228,10 +226,10 @@ public class SinkScreenHandler extends AbstractContainerMenu {
             }
 
             broadcastChanges();
-            return;
+            return true;
         }
 
-        super.clicked(slotIndex, button, actionType, player);
+        return false;
     }
 
     @Override
