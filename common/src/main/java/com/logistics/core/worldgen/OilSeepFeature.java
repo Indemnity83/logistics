@@ -1,5 +1,6 @@
 package com.logistics.core.worldgen;
 
+import com.logistics.core.lib.compat.LakeConfigCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
@@ -33,9 +34,8 @@ public class OilSeepFeature extends LakeFeature {
     public boolean place(FeaturePlaceContext<LakeFeature.Configuration> context) {
         OilOreMix mix = OilOreMix.forBiome(context.level(), context.origin());
         LakeFeature.Configuration base = context.config();
-        LakeFeature.Configuration withOreBarrier = new LakeFeature.Configuration(
-                base.fluid(),
-                BlockStateProvider.simple(mix.ore().get()));
+        LakeFeature.Configuration withOreBarrier =
+                LakeConfigCompat.withBarrier(base, BlockStateProvider.simple(mix.ore().get()));
         FeaturePlaceContext<LakeFeature.Configuration> withBarrier = new FeaturePlaceContext<>(
                 context.topFeature(), context.level(), context.chunkGenerator(),
                 context.random(), context.origin(), withOreBarrier);
