@@ -42,7 +42,7 @@ import net.minecraft.world.phys.Vec3;
 public class FluidPipeBlockEntityRenderer
         implements BlockEntityRenderer<FluidPipeBlockEntity, FluidPipeRenderState> {
 
-    private static final String MODEL_PREFIX = "block/fluid/";
+    private static final String MODEL_PREFIX = "block/pipe/";
 
     // Opaque-white tint for the pipe body parts; hoisted out of the render loop to avoid per-frame allocation.
     private static final int[] WHITE_TINT = {0xFFFFFFFF};
