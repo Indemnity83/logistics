@@ -1,13 +1,12 @@
 package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.AbstractLogisticsRecipe;
 import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.core.lib.recipe.RecipeByproduct;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -29,7 +28,7 @@ import java.util.Optional;
  *
  * <p>Both the machine ({@code MaceratorBlockEntity}) and recipe display read this directly.
  */
-public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
+public class MaceratorRecipeWrapper extends AbstractLogisticsRecipe<SingleRecipeInput> {
 
     public static final int DEFAULT_ENERGY = 2000;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
@@ -111,7 +110,7 @@ public class MaceratorRecipeWrapper implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
+    protected @NotNull ItemStack assembleResult() {
         return result.toStack();
     }
 
