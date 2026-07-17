@@ -141,14 +141,24 @@ public class WeatheringModule implements Module, RandomTickModule {
             if (neighborStage > stage) moreOxidizedNeighbors++;
         }
 
-        double ratio = (moreOxidizedNeighbors + 1.0) / (weatheringNeighbors + 1.0);
-        double stageMultiplier = (stage == STAGE_UNAFFECTED) ? 0.75 : 1.0;
-        double chance = stageMultiplier * ratio * ratio;
-
+        double chance = oxidationChance(stage, weatheringNeighbors, moreOxidizedNeighbors);
         if (rand.nextDouble() < chance) {
             ctx.saveInt(this, OXIDATION_KEY, stage + 1);
             ctx.markDirtyAndSync();
         }
+    }
+
+    /**
+     * Probability that a pipe at {@code stage} advances one oxidation stage this tick, given how many
+     * same-family weathering neighbors it has and how many of those are further oxidized. Mirrors
+     * vanilla copper: the chance grows with the share of more-oxidized neighbors and is dampened for
+     * an as-yet unaffected pipe. Never exceeds 1.0 because a more-oxidized neighbor is also counted
+     * as a weathering neighbor, so {@code moreOxidizedNeighbors <= weatheringNeighbors}.
+     */
+    static double oxidationChance(int stage, int weatheringNeighbors, int moreOxidizedNeighbors) {
+        double ratio = (moreOxidizedNeighbors + 1.0) / (weatheringNeighbors + 1.0);
+        double stageMultiplier = (stage == STAGE_UNAFFECTED) ? 0.75 : 1.0;
+        return stageMultiplier * ratio * ratio;
     }
 
     @Override
