@@ -681,6 +681,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             INSTANCE.registerItemAlias("power/rubber", ITEM.RUBBER);
             INSTANCE.registerItemAlias("power/natural_polymer", ITEM.NATURAL_POLYMER);
             INSTANCE.registerItemAlias("power/synthetic_polymer", ITEM.SYNTHETIC_POLYMER);
+
             // Older power-domain renames: Rubber Mix -> Natural Polymer, Rubber Chunk -> Rubber.
             INSTANCE.registerItemAlias("power/rubber_mix", ITEM.NATURAL_POLYMER);
             INSTANCE.registerItemAlias("power/rubber_chunk", ITEM.RUBBER);

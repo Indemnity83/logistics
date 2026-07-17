@@ -32,16 +32,16 @@ public final class LogisticsFluidClient {
         LOGGER.info("Registering fluid (client)");
 
         BlockEntityRenderers.register(
-                LogisticsFluid.ENTITY.FLUID_PIPE_BLOCK_ENTITY, FluidPipeBlockEntityRenderer::new);
+                LogisticsPipe.ENTITY.FLUID_PIPE_BLOCK_ENTITY, FluidPipeBlockEntityRenderer::new);
         BlockEntityRenderers.register(
-                LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntityRenderer::new);
+                LogisticsPipe.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntityRenderer::new);
         BlockEntityRenderers.register(
-                LogisticsFluid.ENTITY.FLUID_PUMP_BLOCK_ENTITY, FluidPumpBlockEntityRenderer::new);
+                LogisticsAutomation.ENTITY.FLUID_PUMP_BLOCK_ENTITY, FluidPumpBlockEntityRenderer::new);
 
         // The glass tank uses translucent rendering so the contained fluid shows through. On 1.21.11
         // Fabric the model render_type JSON is not honored, so register it explicitly (NeoForge reads
         // render_type directly). The pipe cores are opaque, so they render fine on the default layer.
-        BlockRenderLayerMap.putBlock(LogisticsFluid.BLOCK.GLASS_TANK, ChunkSectionLayer.TRANSLUCENT);
+        BlockRenderLayerMap.putBlock(LogisticsPipe.BLOCK.GLASS_TANK, ChunkSectionLayer.TRANSLUCENT);
 
         registerFluidRenderers();
 
