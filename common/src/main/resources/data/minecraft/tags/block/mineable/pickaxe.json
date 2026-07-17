@@ -17,6 +17,8 @@
     "logistics:automation/fluid_pump",
     "logistics:automation/sawmill",
     "logistics:automation/alloy_smelter",
-    "logistics:automation/crucible"
+    "logistics:automation/crucible",
+    "logistics:automation/refinery",
+    "logistics:automation/sequential_fabricator"
   ]
 }
