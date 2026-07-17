@@ -1,13 +1,13 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.AbstractLogisticsRecipe;
 import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.core.lib.recipe.RecipeByproduct;
 import java.util.Optional;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  * Sawmill recipe — one ingredient cut into a primary product plus a chance-based byproduct
  * (Sawdust). Loaded by vanilla's {@code RecipeManager} under the {@code logistics:sawmill} type.
  */
-public class SawmillRecipe implements Recipe<SingleRecipeInput> {
+public class SawmillRecipe extends AbstractLogisticsRecipe<SingleRecipeInput> {
 
     public static final int DEFAULT_INGREDIENT_COUNT = 1;
     public static final float DEFAULT_EXPERIENCE = 0.0f;
@@ -84,7 +84,7 @@ public class SawmillRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull SingleRecipeInput input, HolderLookup.@NotNull Provider provider) {
+    protected @NotNull ItemStack assembleResult() {
         return result.toStack();
     }
 

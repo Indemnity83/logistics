@@ -1,6 +1,7 @@
 package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.AbstractLogisticsRecipe;
 import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.core.lib.recipe.RecipeByproduct;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.Optional;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
  * {@code Cobblestone + Sand}). The resolver derives per-slot consumption counts from the actual
  * placement via {@link #consumptionForSlots}.
  */
-public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
+public class AlloySmelterRecipe extends AbstractLogisticsRecipe<DualRecipeInput> {
 
     public static final float DEFAULT_EXPERIENCE = 0.0f;
 
@@ -156,7 +156,7 @@ public class AlloySmelterRecipe implements Recipe<DualRecipeInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull DualRecipeInput input, HolderLookup.@NotNull Provider provider) {
+    protected @NotNull ItemStack assembleResult() {
         return result.toStack();
     }
 

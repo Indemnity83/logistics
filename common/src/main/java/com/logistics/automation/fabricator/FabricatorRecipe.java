@@ -1,11 +1,11 @@
 package com.logistics.automation.fabricator;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.lib.recipe.AbstractLogisticsRecipe;
 import com.logistics.core.lib.recipe.ItemResult;
 import java.util.List;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
  * <p>Ingredient availability is checked against the whole 12-slot pool via {@link #canCraftFrom},
  * not vanilla grid matching, so the recipe carries no slot layout.
  */
-public class FabricatorRecipe implements Recipe<FabricatorInput> {
+public class FabricatorRecipe extends AbstractLogisticsRecipe<FabricatorInput> {
 
     private final List<SizedIngredient> ingredients;
     private final ItemResult result;
@@ -107,7 +107,7 @@ public class FabricatorRecipe implements Recipe<FabricatorInput> {
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull FabricatorInput input, HolderLookup.@NotNull Provider provider) {
+    protected @NotNull ItemStack assembleResult() {
         return result.toStack();
     }
 
