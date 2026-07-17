@@ -48,14 +48,9 @@ dependencies {
     implementation("io.sentry:sentry:${rootProject.sentry_version}")
 
     // Configory config library (pure Java; only transitive dep is Gson, already on the MC classpath).
-    // Bundled per loader via include (Fabric) / jarJar (NeoForge). Available to common compilation
-    // and unit tests here; pinned to the 0.2.x line to match the loaders, preferring gradle.properties.
-    implementation("maven.modrinth:configory") {
-        version {
-            strictly "[0.2.0,0.3.0)"
-            prefer "${rootProject.configory_version}"
-        }
-    }
+    // Bundled per loader via include (Fabric) / jarJar (NeoForge). Pinned to an exact version — a range
+    // makes Gradle resolve it from the Modrinth maven's metadata, which is unreliable.
+    implementation("maven.modrinth:configory:${rootProject.configory_version}")
 
     // JEI — compile only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
