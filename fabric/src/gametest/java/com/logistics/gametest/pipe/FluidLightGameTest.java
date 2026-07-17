@@ -1,7 +1,7 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsFluid;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.pipe.block.FluidPipeBlock;
@@ -26,7 +26,7 @@ public class FluidLightGameTest {
     }
 
     private static void assertTankLight(GameTestHelper context, BlockPos pos, Fluid fluid, long mb, int expected) {
-        context.setBlock(pos, LogisticsFluid.BLOCK.GLASS_TANK);
+        context.setBlock(pos, LogisticsPipe.BLOCK.GLASS_TANK);
         GlassTankBlockEntity tank = context.getBlockEntity(pos, GlassTankBlockEntity.class);
         if (tank == null) {
             throw context.assertionException("Glass tank should have a block entity");
@@ -57,7 +57,7 @@ public class FluidLightGameTest {
     @GameTest
     public void drainedTankStopsGlowing(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsFluid.BLOCK.GLASS_TANK);
+        context.setBlock(pos, LogisticsPipe.BLOCK.GLASS_TANK);
         GlassTankBlockEntity tank = context.getBlockEntity(pos, GlassTankBlockEntity.class);
         if (tank == null) {
             throw context.assertionException("Glass tank should have a block entity");
@@ -74,7 +74,7 @@ public class FluidLightGameTest {
     @GameTest
     public void pipeOfLavaGlows(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsFluid.BLOCK.COPPER_FLUID_PIPE);
+        context.setBlock(pos, LogisticsPipe.BLOCK.COPPER_FLUID_PIPE);
         FluidPipeBlockEntity pipe = context.getBlockEntity(pos, FluidPipeBlockEntity.class);
         if (pipe == null) {
             throw context.assertionException("Fluid pipe should have a block entity");

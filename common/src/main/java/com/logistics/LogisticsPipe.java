@@ -6,15 +6,23 @@ import com.indemnity83.configory.ConfigKey;
 import com.logistics.api.LogisticsApi;
 import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
+import com.logistics.core.lib.platform.CreativeTabRegistrar;
+import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
+import net.minecraft.network.chat.Component;
 import com.logistics.pipe.modules.*;
-import com.logistics.pipe.Pipe;
 import com.logistics.pipe.PipeApi;
 import com.logistics.pipe.PipeTypes;
+import com.logistics.pipe.block.FluidPipeBlock;
+import com.logistics.pipe.block.GlassTankBlock;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.PowerJunctionBlock;
+import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
+import com.logistics.pipe.item.FluidPipeBlockItem;
+import com.logistics.pipe.item.GlassTankBlockItem;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
 import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.pipe.item.ModularPipeBlockItem;
@@ -33,9 +41,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.MapColor;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap {
@@ -72,10 +78,6 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         ALIAS.register();
 
         LogisticsApi.Registry.transport(new PipeApi());
-
-        // Fluid is part of the pipe domain (so fluid pipes can compose pipe modules); register it here
-        // rather than as an independent DomainBootstrap.
-        LogisticsFluid.registerCommon();
     }
 
     /**
@@ -245,11 +247,33 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block CHASSIS_LOGISTICS_PIPE_MK5;
         public static Block POWER_JUNCTION;
 
+        // Fluid transport
+        public static Block COPPER_FLUID_PIPE;
+        public static Block STONE_FLUID_PIPE;
+        public static Block GOLD_FLUID_PIPE;
+        public static Block INSERTION_FLUID_PIPE;
+        public static Block MERGER_FLUID_PIPE;
+        public static Block FLUID_EXTRACTOR_PIPE;
+        public static Block VOID_FLUID_PIPE;
+        public static Block BYPASS_FLUID_PIPE;
+        public static Block GLASS_TANK;
+
         private static Block.Properties pipeProps(Block.Properties props) {
             return props.mapColor(MapColor.NONE)
                     .strength(0.3f)
                     .sound(SoundType.METAL)
                     .noOcclusion();
+        }
+
+        private static Block.Properties tankProps(Block.Properties props) {
+            return props.mapColor(MapColor.NONE)
+                    .strength(0.5f)
+                    .sound(SoundType.GLASS)
+                    .noOcclusion()
+                    .isValidSpawn((s, w, p, t) -> false)
+                    .isRedstoneConductor((s, w, p) -> false)
+                    .isSuffocating((s, w, p) -> false)
+                    .isViewBlocking((s, w, p) -> false);
         }
 
         static void register() {
@@ -298,6 +322,26 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CHASSIS_LOGISTICS_PIPE_MK5));
             POWER_JUNCTION = INSTANCE.registerBlockWithItem("power_junction",
                 props -> new PowerJunctionBlock(props.strength(3.0f).sound(SoundType.METAL)));
+
+            // Fluid transport
+            COPPER_FLUID_PIPE = INSTANCE.registerBlockWithItem("copper_fluid_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.COPPER_FLUID_PIPE), FluidPipeBlockItem::new);
+            STONE_FLUID_PIPE = INSTANCE.registerBlockWithItem("stone_fluid_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.STONE_FLUID_PIPE), FluidPipeBlockItem::new);
+            GOLD_FLUID_PIPE = INSTANCE.registerBlockWithItem("gold_fluid_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.GOLD_FLUID_PIPE), FluidPipeBlockItem::new);
+            INSERTION_FLUID_PIPE = INSTANCE.registerBlockWithItem("insertion_fluid_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.INSERTION_FLUID_PIPE), FluidPipeBlockItem::new);
+            MERGER_FLUID_PIPE = INSTANCE.registerBlockWithItem("merger_fluid_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.MERGER_FLUID_PIPE), FluidPipeBlockItem::new);
+            FLUID_EXTRACTOR_PIPE = INSTANCE.registerBlockWithItem("fluid_extractor_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.FLUID_EXTRACTOR_PIPE), FluidPipeBlockItem::new);
+            VOID_FLUID_PIPE = INSTANCE.registerBlockWithItem("void_fluid_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.VOID_FLUID_PIPE), FluidPipeBlockItem::new);
+            BYPASS_FLUID_PIPE = INSTANCE.registerBlockWithItem("bypass_fluid_pipe",
+                props -> new FluidPipeBlock(pipeProps(props), PipeTypes.BYPASS_FLUID_PIPE), FluidPipeBlockItem::new);
+            GLASS_TANK = INSTANCE.registerBlockWithItem("glass_tank",
+                props -> new GlassTankBlock(tankProps(props)), GlassTankBlockItem::new);
         }
     }
 
@@ -406,12 +450,21 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     public static final class ENTITY {
         public static BlockEntityType<PipeBlockEntity> PIPE_BLOCK_ENTITY;
         public static BlockEntityType<PowerJunctionBlockEntity> POWER_JUNCTION_BLOCK_ENTITY;
+        public static BlockEntityType<FluidPipeBlockEntity> FLUID_PIPE_BLOCK_ENTITY;
+        public static BlockEntityType<GlassTankBlockEntity> GLASS_TANK_BLOCK_ENTITY;
 
         private ENTITY() {}
 
         static void register() {
             POWER_JUNCTION_BLOCK_ENTITY = INSTANCE.registerBlockEntity("power_junction",
                 PowerJunctionBlockEntity::new, BLOCK.POWER_JUNCTION);
+            FLUID_PIPE_BLOCK_ENTITY = INSTANCE.registerBlockEntity("fluid_pipe",
+                FluidPipeBlockEntity::new,
+                BLOCK.COPPER_FLUID_PIPE, BLOCK.STONE_FLUID_PIPE, BLOCK.GOLD_FLUID_PIPE,
+                BLOCK.INSERTION_FLUID_PIPE, BLOCK.MERGER_FLUID_PIPE, BLOCK.FLUID_EXTRACTOR_PIPE,
+                BLOCK.VOID_FLUID_PIPE, BLOCK.BYPASS_FLUID_PIPE);
+            GLASS_TANK_BLOCK_ENTITY = INSTANCE.registerBlockEntity("glass_tank",
+                GlassTankBlockEntity::new, BLOCK.GLASS_TANK);
             PIPE_BLOCK_ENTITY = INSTANCE.registerBlockEntity("pipe",
                 PipeBlockEntity::new,
                 BLOCK.STONE_TRANSPORT_PIPE,
@@ -548,69 +601,75 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class CREATIVE {
+        public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
+            LogisticsMod.modId("2_pipes"),
+            Component.translatable("itemGroup.logistics.2_pipes"),
+            () -> new ItemStack(BLOCK.COPPER_TRANSPORT_PIPE)
+        );
+
         private CREATIVE() {}
 
         static void register() {
             // Marking fluids
-            LogisticsCore.CREATIVE.TAB.add(entries -> {
-                for (Item fluid : ITEM.MARKING_FLUIDS_BY_COLOR.values()) {
-                    entries.accept(fluid);
-                }
-            });
+            TAB.addAll(ITEM.MARKING_FLUIDS_BY_COLOR.values());
 
-            // Copper pipe variants (modular)
-            LogisticsCore.CREATIVE.TAB.add(entries -> {
-                if (BLOCK.COPPER_TRANSPORT_PIPE instanceof PipeBlock pipeBlock) {
-                    Pipe pipe = pipeBlock.getPipe();
-                    if (pipe != null) {
-                        ItemStack baseStack = new ItemStack(BLOCK.COPPER_TRANSPORT_PIPE);
-                        List<ItemStack> variants = new ArrayList<>();
-                        pipe.appendCreativeMenuVariants(variants, baseStack);
-                        variants.forEach(entries::accept);
-                    }
-                }
-            });
+            // Item Transport
+            TAB.add(BLOCK.STONE_TRANSPORT_PIPE);
+            TAB.addWithVariants(BLOCK.COPPER_TRANSPORT_PIPE);
+            TAB.add(BLOCK.GOLD_TRANSPORT_PIPE);
+            TAB.add(BLOCK.ITEM_EXTRACTOR_PIPE);
+            TAB.add(BLOCK.ITEM_MERGER_PIPE);
+            TAB.add(BLOCK.ITEM_INSERTION_PIPE);
+            TAB.add(BLOCK.ITEM_FILTER_PIPE);
+            TAB.add(BLOCK.ITEM_PASSTHROUGH_PIPE);
+            TAB.add(BLOCK.ITEM_VOID_PIPE);
 
-            // Pipes
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.STONE_TRANSPORT_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_PASSTHROUGH_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.COPPER_TRANSPORT_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_EXTRACTOR_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_MERGER_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.GOLD_TRANSPORT_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_FILTER_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_INSERTION_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.ITEM_VOID_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.BASIC_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.PROVIDER_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.REQUESTER_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.SUPPLIER_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CRAFTING_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.PROCESS_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.SATELLITE_LOGISTICS_PIPE);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK1);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK2);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK3);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK4);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK5);
-            LogisticsCore.CREATIVE.TAB.add(BLOCK.POWER_JUNCTION);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.BLANK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.ITEM_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.POLYMORPHIC_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.ENCHANTMENT_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.MOD_ITEM_SINK_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.PASSIVE_SUPPLIER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.ACTIVE_SUPPLIER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.PROVIDER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.PROVIDER_MODULE_MKII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.EXTRACTOR_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.EXTRACTOR_MODULE_MKII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.EXTRACTOR_MODULE_MKIII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.CRAFTER_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.CRAFTER_MODULE_MKII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.CRAFTER_MODULE_MKIII);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.QUICKSORT_MODULE);
-            LogisticsCore.CREATIVE.TAB.add(ITEM.TERMINUS_MODULE);
+            // Fluid Transport
+            TAB.add(BLOCK.STONE_FLUID_PIPE);
+            TAB.addWithVariants(BLOCK.COPPER_FLUID_PIPE);
+            TAB.add(BLOCK.GOLD_FLUID_PIPE);
+            TAB.add(BLOCK.FLUID_EXTRACTOR_PIPE);
+            TAB.add(BLOCK.MERGER_FLUID_PIPE);
+            TAB.add(BLOCK.INSERTION_FLUID_PIPE);
+            TAB.add(BLOCK.BYPASS_FLUID_PIPE);
+            TAB.add(BLOCK.VOID_FLUID_PIPE);
+            TAB.add(BLOCK.GLASS_TANK);
+
+            // Logistics Pipes
+            TAB.add(BLOCK.BASIC_LOGISTICS_PIPE);
+            TAB.add(BLOCK.PROVIDER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.REQUESTER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.SUPPLIER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.CRAFTING_LOGISTICS_PIPE);
+            TAB.add(BLOCK.PROCESS_LOGISTICS_PIPE);
+            TAB.add(BLOCK.SATELLITE_LOGISTICS_PIPE);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK1);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK2);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK3);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK4);
+            TAB.add(BLOCK.CHASSIS_LOGISTICS_PIPE_MK5);
+            TAB.add(BLOCK.POWER_JUNCTION);
+
+            // Logistics Modules
+            TAB.add(ITEM.BLANK_MODULE);
+            TAB.add(ITEM.ITEM_SINK_MODULE);
+            TAB.add(ITEM.POLYMORPHIC_SINK_MODULE);
+            TAB.add(ITEM.ENCHANTMENT_SINK_MODULE);
+            TAB.add(ITEM.MOD_ITEM_SINK_MODULE);
+            TAB.add(ITEM.PASSIVE_SUPPLIER_MODULE);
+            TAB.add(ITEM.ACTIVE_SUPPLIER_MODULE);
+            TAB.add(ITEM.PROVIDER_MODULE);
+            TAB.add(ITEM.PROVIDER_MODULE_MKII);
+            TAB.add(ITEM.EXTRACTOR_MODULE);
+            TAB.add(ITEM.EXTRACTOR_MODULE_MKII);
+            TAB.add(ITEM.EXTRACTOR_MODULE_MKIII);
+            TAB.add(ITEM.CRAFTER_MODULE);
+            TAB.add(ITEM.CRAFTER_MODULE_MKII);
+            TAB.add(ITEM.CRAFTER_MODULE_MKIII);
+            TAB.add(ITEM.QUICKSORT_MODULE);
+            TAB.add(ITEM.TERMINUS_MODULE);
+
+            CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
 
@@ -618,7 +677,23 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         private ALIAS() {}
 
         static void register() {
-            // Aliases bridging IDs renamed in the previous major go here; none in window.
+            // Fluid pipes and the glass tank moved from the former fluid unit into the pipe domain.
+            bridgeFluid("copper_fluid_pipe", BLOCK.COPPER_FLUID_PIPE);
+            bridgeFluid("stone_fluid_pipe", BLOCK.STONE_FLUID_PIPE);
+            bridgeFluid("gold_fluid_pipe", BLOCK.GOLD_FLUID_PIPE);
+            bridgeFluid("insertion_fluid_pipe", BLOCK.INSERTION_FLUID_PIPE);
+            bridgeFluid("merger_fluid_pipe", BLOCK.MERGER_FLUID_PIPE);
+            bridgeFluid("fluid_extractor_pipe", BLOCK.FLUID_EXTRACTOR_PIPE);
+            bridgeFluid("void_fluid_pipe", BLOCK.VOID_FLUID_PIPE);
+            bridgeFluid("bypass_fluid_pipe", BLOCK.BYPASS_FLUID_PIPE);
+            bridgeFluid("glass_tank", BLOCK.GLASS_TANK);
+            INSTANCE.registerBlockEntityAlias("fluid/fluid_pipe", ENTITY.FLUID_PIPE_BLOCK_ENTITY);
+            INSTANCE.registerBlockEntityAlias("fluid/glass_tank", ENTITY.GLASS_TANK_BLOCK_ENTITY);
+        }
+
+        private static void bridgeFluid(String name, Block block) {
+            INSTANCE.registerBlockAlias("fluid/" + name, block);
+            INSTANCE.registerItemAlias("fluid/" + name, block.asItem());
         }
     }
 

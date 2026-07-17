@@ -3,7 +3,7 @@
   "pattern": ["RRR", "GGG", "RRR"],
   "key": {
     "G": "minecraft:gold_ingot",
-    "R": "logistics:power/rubber"
+    "R": "logistics:core/rubber"
   },
   "result": {
     "count": 8,

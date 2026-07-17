@@ -22,6 +22,8 @@ import com.logistics.automation.kiln.KilnBlockEntity;
 import com.logistics.automation.kiln.KilnScreenHandler;
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
+import com.logistics.automation.pump.FluidPumpBlock;
+import com.logistics.automation.pump.FluidPumpBlockEntity;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.automation.macerator.MaceratorBlock;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
@@ -60,6 +62,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public final class LogisticsAutomation extends LogisticsMod implements DomainBootstrap {
@@ -259,6 +262,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block CRUCIBLE;
         public static Block REFINERY;
         public static Block SEQUENTIAL_FABRICATOR;
+        public static Block FLUID_PUMP;
 
         static void register() {
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
@@ -286,6 +290,9 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             SEQUENTIAL_FABRICATOR = INSTANCE.registerBlockWithItem("sequential_fabricator",
                 props -> new SequentialFabricatorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(SequentialFabricatorBlock.LIT) ? 13 : 0)));
+            FLUID_PUMP = INSTANCE.registerBlockWithItem("fluid_pump",
+                props -> new FluidPumpBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
         }
     }
 
@@ -300,6 +307,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<CrucibleBlockEntity> CRUCIBLE_BLOCK_ENTITY;
         public static BlockEntityType<RefineryBlockEntity> REFINERY_BLOCK_ENTITY;
         public static BlockEntityType<SequentialFabricatorBlockEntity> SEQUENTIAL_FABRICATOR_BLOCK_ENTITY;
+        public static BlockEntityType<FluidPumpBlockEntity> FLUID_PUMP_BLOCK_ENTITY;
 
         static void register() {
             LASER_QUARRY_BLOCK_ENTITY =
@@ -318,6 +326,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 INSTANCE.registerBlockEntity("refinery", RefineryBlockEntity::new, BLOCK.REFINERY);
             SEQUENTIAL_FABRICATOR_BLOCK_ENTITY = INSTANCE.registerBlockEntity(
                 "sequential_fabricator", SequentialFabricatorBlockEntity::new, BLOCK.SEQUENTIAL_FABRICATOR);
+            FLUID_PUMP_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("fluid_pump", FluidPumpBlockEntity::new, BLOCK.FLUID_PUMP);
         }
     }
 
@@ -516,18 +526,16 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
     public static final class CREATIVE {
         public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
-            LogisticsMod.modId("automation"),
-            Component.translatable("itemGroup.logistics.automation"),
-            () -> new ItemStack(LogisticsCore.ITEM.MACHINE_CORE)
+            LogisticsMod.modId("4_automation"),
+            Component.translatable("itemGroup.logistics.4_automation"),
+            () -> new ItemStack(BLOCK.KILN)
         );
 
         private CREATIVE() {}
 
         static void register() {
-            // Machine components, then the machines.
-            TAB.add(LogisticsCore.ITEM.MACHINE_CORE);
-            TAB.add(LogisticsCore.ITEM.REDSTONE_RECEPTION_COIL);
             TAB.add(BLOCK.LASER_QUARRY);
+            TAB.add(BLOCK.FLUID_PUMP);
             TAB.add(BLOCK.KILN);
             TAB.add(BLOCK.MACERATOR);
             TAB.add(BLOCK.SAWMILL);
@@ -547,6 +555,11 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             INSTANCE.registerBlockAlias("core/macerator", BLOCK.MACERATOR);
             INSTANCE.registerBlockEntityAlias("core/macerator", ENTITY.MACERATOR_BLOCK_ENTITY);
             INSTANCE.registerItemAlias("core/macerator", BLOCK.MACERATOR.asItem());
+
+            // Fluid Pump moved from the fluid unit into the automation domain.
+            INSTANCE.registerBlockAlias("fluid/fluid_pump", BLOCK.FLUID_PUMP);
+            INSTANCE.registerBlockEntityAlias("fluid/fluid_pump", ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("fluid/fluid_pump", BLOCK.FLUID_PUMP.asItem());
         }
     }
 

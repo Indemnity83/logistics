@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.*;
@@ -108,5 +109,53 @@ class WeatheringModuleTest {
 
         assertThat(module.getOxidationStage(ctx)).isEqualTo(WeatheringModule.STAGE_WEATHERED);
         assertThat(module.isWaxed(ctx)).isTrue();
+    }
+
+    // ==================== Oxidation progression chance ====================
+
+    @Test
+    @DisplayName("an isolated unaffected pipe advances at the dampened 0.75 base rate")
+    void oxidationChance_isolatedUnaffected_isDampened() {
+        assertThat(WeatheringModule.oxidationChance(WeatheringModule.STAGE_UNAFFECTED, 0, 0))
+                .isEqualTo(0.75, within(1e-9));
+    }
+
+    @Test
+    @DisplayName("an isolated already-weathering pipe advances at the full base rate")
+    void oxidationChance_isolatedWeathering_isFullRate() {
+        assertThat(WeatheringModule.oxidationChance(WeatheringModule.STAGE_EXPOSED, 0, 0))
+                .isEqualTo(1.0, within(1e-9));
+    }
+
+    @ParameterizedTest(name = "stage={0}, weathering={1}, moreOxidized={2} -> {3}")
+    @DisplayName("chance = stageMultiplier * ((moreOxidized+1)/(weathering+1))^2")
+    @CsvSource({
+        // stage, weatheringNeighbors, moreOxidizedNeighbors, expectedChance
+        "0, 0, 0, 0.75", // isolated, dampened
+        "1, 0, 0, 1.0", // isolated, full rate
+        "0, 4, 0, 0.03", // surrounded by peers, none further along: 0.75 * (1/5)^2
+        "1, 4, 4, 1.0", // every neighbor further along: (5/5)^2
+        "1, 4, 2, 0.36", // (3/5)^2
+        "1, 3, 1, 0.25", // (2/4)^2
+    })
+    void oxidationChance_matchesFormula(int stage, int weathering, int moreOxidized, double expected) {
+        assertThat(WeatheringModule.oxidationChance(stage, weathering, moreOxidized))
+                .isEqualTo(expected, within(1e-9));
+    }
+
+    @ParameterizedTest(name = "stage={0}, weathering={1}, moreOxidized={2}")
+    @DisplayName("chance stays a valid probability in [0,1] (moreOxidized never exceeds weathering)")
+    @CsvSource({"0, 0, 0", "0, 8, 0", "1, 8, 8", "2, 5, 3", "1, 1, 1", "0, 100, 100"})
+    void oxidationChance_isValidProbability(int stage, int weathering, int moreOxidized) {
+        assertThat(WeatheringModule.oxidationChance(stage, weathering, moreOxidized))
+                .isBetween(0.0, 1.0);
+    }
+
+    @Test
+    @DisplayName("an unaffected pipe is exactly 0.75x as likely to advance as a further-along peer")
+    void oxidationChance_unaffectedIsDampenedRelativeToLaterStages() {
+        double unaffected = WeatheringModule.oxidationChance(WeatheringModule.STAGE_UNAFFECTED, 4, 2);
+        double exposed = WeatheringModule.oxidationChance(WeatheringModule.STAGE_EXPOSED, 4, 2);
+        assertThat(unaffected).isEqualTo(0.75 * exposed, within(1e-9));
     }
 }

@@ -22,7 +22,7 @@ import java.util.function.Supplier;
  * <pre>{@code
  * // common — define and populate
  * public static final LogisticsCreativeTab LOGISTICS_TAB = LogisticsCreativeTab.create(
- *     LogisticsMod.modId("logistics_transport"),
+ *     LogisticsMod.modId("resources"),
  *     Component.literal("Logistics"),
  *     () -> new ItemStack(ITEM.IRON_GEAR)
  * );
@@ -76,6 +76,29 @@ public final class LogisticsCreativeTab {
     public LogisticsCreativeTab add(Consumer<CreativeModeTab.Output> builder) {
         entries.add(new Entry.Custom(builder));
         return this;
+    }
+
+    /** Appends each item in {@code items}, individually. */
+    public LogisticsCreativeTab addAll(Iterable<? extends ItemLike> items) {
+        for (ItemLike item : items) {
+            entries.add(new Entry.Add(List.of(item)));
+        }
+        return this;
+    }
+
+    /**
+     * Appends {@code item}, then any extra creative entries it exposes via {@link CreativeVariantProvider}
+     * (e.g. weathering states). Items that don't provide variants are simply added on their own.
+     */
+    public LogisticsCreativeTab addWithVariants(ItemLike item) {
+        return add(out -> {
+            out.accept(item);
+            if (item instanceof CreativeVariantProvider provider) {
+                List<ItemStack> variants = new ArrayList<>();
+                provider.appendCreativeMenuVariants(variants, new ItemStack(item));
+                variants.forEach(out::accept);
+            }
+        });
     }
 
     /**
