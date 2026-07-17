@@ -1,5 +1,6 @@
 package com.logistics.power.cable;
 
+import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import java.util.function.Predicate;
@@ -96,8 +97,14 @@ public class CableNetwork {
      */
     public void tick(Level level) {
         resetAccountingIfNeeded(level);
-        DeviceConnections connections = collectDeviceConnections(level, null);
-        transferBetween(level, connections.sources(), connections.targets(), remainingNetworkTransfer(level));
+        LogisticsProfiler.push("cable_scan");
+        try {
+            DeviceConnections connections = collectDeviceConnections(level, null);
+            LogisticsProfiler.popPush("cable_transfer");
+            transferBetween(level, connections.sources(), connections.targets(), remainingNetworkTransfer(level));
+        } finally {
+            LogisticsProfiler.pop();
+        }
     }
 
     public long insert(
