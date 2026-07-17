@@ -125,20 +125,11 @@ public class PIDController {
         // Compute the unclamped output using all three terms.
         double unclamped = proportional + proposedIntegral + derivative;
 
-        // Clamp to output range.
-        double output = unclamped;
-        if (output > maxOutput) {
-            output = maxOutput;
-        } else if (output < minOutput) {
-            output = minOutput;
-        }
+        double output = clamp(unclamped, minOutput, maxOutput);
 
-        // Conditional integration anti-windup: accept the integral update unless we're saturated
-        // and the error would push the output further into saturation (which would wind up the integral).
-        boolean saturatedHigh = output >= maxOutput && unclamped > maxOutput;
-        boolean saturatedLow = output <= minOutput && unclamped < minOutput;
-        boolean deepensSaturation = (saturatedHigh && error > 0.0) || (saturatedLow && error < 0.0);
-        if (!deepensSaturation) {
+        // Conditional-integration anti-windup: accept the integral update unless it would push an
+        // already-saturated output deeper into saturation.
+        if (!deepensSaturation(output, unclamped, error, minOutput, maxOutput)) {
             integral = proposedIntegral;
         }
 
@@ -152,6 +143,23 @@ public class PIDController {
         logData();
 
         return output;
+    }
+
+    private static double clamp(double value, double min, double max) {
+        if (value > max) {
+            return max;
+        }
+        if (value < min) {
+            return min;
+        }
+        return value;
+    }
+
+    /** Whether the clamped output sits at a rail and the unclamped output is still pushing past it in the error's direction. */
+    private static boolean deepensSaturation(double output, double unclamped, double error, double min, double max) {
+        boolean saturatedHigh = output >= max && unclamped > max;
+        boolean saturatedLow = output <= min && unclamped < min;
+        return (saturatedHigh && error > 0.0) || (saturatedLow && error < 0.0);
     }
 
     /**
