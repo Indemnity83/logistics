@@ -69,7 +69,7 @@ If worktrees are detected at these paths, they may be referenced when working on
 
 **When adding features:**
 - Develop on **mc/26.1** (main), then backport to mc/1.21.11 and mc/1.21.1 if the feature applies
-- Internal/infra-only work generally stays on mc/26.1 and is not backported
+- Internal/infra work is backported too — keep all branches as close to in sync as possible, since closer branches make every future cherry-pick apply cleanly
 - Keep changes minimal and tested
 - Avoid large refactorings unless coordinated across all branches
 
