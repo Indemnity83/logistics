@@ -1,6 +1,6 @@
 package com.logistics.pipe.block;
 
-import com.logistics.LogisticsFluid;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.fluids.FluidContainerInteraction;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
@@ -84,7 +84,7 @@ public class GlassTankBlock extends BaseEntityBlock {
             Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide()
                 ? null
-                : createTickerHelper(type, LogisticsFluid.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntity::tick);
+                : createTickerHelper(type, LogisticsPipe.ENTITY.GLASS_TANK_BLOCK_ENTITY, GlassTankBlockEntity::tick);
     }
 
     // ==================== Interaction ====================

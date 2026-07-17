@@ -1,6 +1,8 @@
 package com.logistics.pipe.block;
 
 import com.logistics.core.lib.block.ConnectedShapeCache;
+import com.logistics.core.lib.platform.CreativeVariantProvider;
+import java.util.List;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.network.NetworkRegistry;
@@ -49,7 +51,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeBlock extends BaseEntityBlock
-        implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock {
+        implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock, CreativeVariantProvider {
     public static final MapCodec<PipeBlock> CODEC = simpleCodec(PipeBlock::new);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -110,6 +112,14 @@ public class PipeBlock extends BaseEntityBlock
 
     public ItemPipe getPipe() {
         return pipe;
+    }
+
+    @Override
+    public void appendCreativeMenuVariants(List<ItemStack> variants, ItemStack baseStack) {
+        ItemPipe pipe = getPipe();
+        if (pipe != null) {
+            pipe.appendCreativeMenuVariants(variants, baseStack);
+        }
     }
 
     @Override

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "logistics:pipe/item_insertion_pipe",
+    "logistics:core/tar"
+  ],
+  "result": {
+    "id": "logistics:pipe/insertion_fluid_pipe",
+    "count": 1
+  }
+}

@@ -1,7 +1,7 @@
 package com.logistics.pipe.render;
 
 import com.logistics.core.lib.client.render.MachineModels;
-import com.logistics.pipe.block.entity.FluidPumpBlockEntity;
+import com.logistics.automation.pump.FluidPumpBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.renderer.SubmitNodeCollector;
