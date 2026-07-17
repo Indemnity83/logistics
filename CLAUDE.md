@@ -50,7 +50,7 @@ If worktrees are detected at these paths, they may be referenced when working on
 
 ### Branch Protection Rules (CRITICAL)
 
-**Never push or commit directly to `mc/*` branches** (`mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected primary branches. All work — including in auto mode — must go through a feature branch and PR.
+**Never push or commit directly to `mc/*` branches** (`mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected branches. All work — including in auto mode — must go through a feature branch and PR.
 
 **Required workflow for any new work:**
 1. Create a feature branch first: `git checkout -b descriptive-branch-name`
