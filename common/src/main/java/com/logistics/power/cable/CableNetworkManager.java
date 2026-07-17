@@ -1,5 +1,6 @@
 package com.logistics.power.cable;
 
+import com.logistics.core.LogisticsProfiler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -83,13 +84,18 @@ public class CableNetworkManager {
      * Called once per server tick from the power domain's tick handler.
      */
     public void tick(Level level) {
-        if (dirty || hasUnloadedNetworkPositions(level)) {
-            rebuildNetworks(level);
-            dirty = false;
-        }
+        LogisticsProfiler.push("power_cables");
+        try {
+            if (dirty || hasUnloadedNetworkPositions(level)) {
+                rebuildNetworks(level);
+                dirty = false;
+            }
 
-        for (CableNetwork network : networks) {
-            network.tick(level);
+            for (CableNetwork network : networks) {
+                network.tick(level);
+            }
+        } finally {
+            LogisticsProfiler.pop();
         }
     }
 

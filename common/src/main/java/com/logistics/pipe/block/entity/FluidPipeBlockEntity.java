@@ -3,6 +3,7 @@ package com.logistics.pipe.block.entity;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
+import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
@@ -463,7 +464,12 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
         if (level.isClientSide()) {
             return;
         }
-        be.serverTick(level);
+        LogisticsProfiler.push("fluid_pipes");
+        try {
+            be.serverTick(level);
+        } finally {
+            LogisticsProfiler.pop();
+        }
     }
 
     private void serverTick(Level level) {
