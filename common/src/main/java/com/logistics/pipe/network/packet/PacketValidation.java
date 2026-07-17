@@ -12,8 +12,11 @@ final class PacketValidation {
     private PacketValidation() {}
 
     static boolean isPlayerInRange(ServerPlayer player, BlockPos pos, double maxDistance) {
-        // distanceToSqr avoids Math.sqrt(); squaring maxDistance gives the same comparison
-        return player.distanceToSqr(pos.getCenter()) <= maxDistance * maxDistance;
+        // distanceToSqr avoids Math.sqrt(); squaring maxDistance gives the same comparison.
+        // Use the block-center coordinates directly (matches the other distance checks in the
+        // codebase, e.g. AdvancedExtractorScreenHandler/RequesterModule).
+        return player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)
+                <= maxDistance * maxDistance;
     }
 
     static boolean isPlayerOutOfRange(ServerPlayer player, BlockPos pos, double maxDistance) {
