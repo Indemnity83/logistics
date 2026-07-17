@@ -250,7 +250,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block CHASSIS_LOGISTICS_PIPE_MK5;
         public static Block POWER_JUNCTION;
 
-        // Fluid transport (folded in from the former LogisticsFluid unit)
+        // Fluid transport
         public static Block COPPER_FLUID_PIPE;
         public static Block STONE_FLUID_PIPE;
         public static Block GOLD_FLUID_PIPE;

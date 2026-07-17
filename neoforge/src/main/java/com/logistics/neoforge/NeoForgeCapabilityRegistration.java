@@ -2,8 +2,7 @@ package com.logistics.neoforge;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsPipe;import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.block.capability.HasFluidStorage;

@@ -1,7 +1,8 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsPipe;import com.logistics.core.lib.fluids.FluidUnits;
+import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.pipe.block.FluidPipeBlock;
 import com.logistics.pipe.block.GlassTankBlock;

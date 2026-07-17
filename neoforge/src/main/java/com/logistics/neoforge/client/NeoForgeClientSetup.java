@@ -2,8 +2,7 @@ package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
-import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsPipe;import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
 import com.logistics.pipe.render.FluidPumpBlockEntityRenderer;

@@ -1,6 +1,7 @@
 package com.logistics.gametest.pipe;
 
-import com.logistics.LogisticsPipe;import com.logistics.pipe.block.FluidConnection;
+import com.logistics.LogisticsPipe;
+import com.logistics.pipe.block.FluidConnection;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;

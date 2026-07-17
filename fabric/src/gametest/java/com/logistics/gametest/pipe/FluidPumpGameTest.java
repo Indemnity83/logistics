@@ -4,7 +4,7 @@ import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsPipe;import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.automation.pump.FluidPumpBlockEntity;
