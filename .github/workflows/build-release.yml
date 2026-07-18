@@ -202,11 +202,13 @@ jobs:
             MODRINTH_FEATURED="true"
           fi
 
-          # Create potentially shortened version for Modrinth (32 char limit)
+          # Modrinth caps version_number at 32 chars (labrinth). Fail loudly rather than
+          # truncate — chopping the tail would drop the loader suffix and could collide the
+          # fabric and neoforge uploads onto the same version_number.
           MODRINTH_VERSION="${FULL_VERSION}"
           if (( ${#MODRINTH_VERSION} > 32 )); then
-            MODRINTH_VERSION="${MODRINTH_VERSION:0:32}"
-            echo "⚠️  Modrinth version truncated to 32 chars: $MODRINTH_VERSION"
+            echo "::error::Modrinth version '${MODRINTH_VERSION}' is ${#MODRINTH_VERSION} chars (>32). Shorten the version scheme." >&2
+            exit 1
           fi
 
           {
