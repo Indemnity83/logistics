@@ -359,11 +359,13 @@ jobs:
               echo "::error::RC version mismatch in $base (expected ${RC_VERSION})" >&2; exit 1; }
           done
 
-          # Build compact Modrinth identifiers deliberately (single-letter loader). Fail —
-          # never silently truncate — if an identifier still exceeds Modrinth's 32-char limit,
-          # since truncation could collide two loaders' versions.
-          MODRINTH_FABRIC="${RC_VERSION}+mc${MC_VERSION}.f"
-          MODRINTH_NEO="${RC_VERSION}+mc${MC_VERSION}.n"
+          # Modrinth requires a distinct version_number per loader upload (loaders aren't
+          # disambiguated by the version string), so suffix each with its loader name. Fail —
+          # never silently truncate — if an identifier exceeds Modrinth's 32-char limit
+          # (labrinth caps version_number at 32), since truncation could collide two loaders'
+          # versions on the same prefix.
+          MODRINTH_FABRIC="${RC_VERSION}+mc${MC_VERSION}.fabric"
+          MODRINTH_NEO="${RC_VERSION}+mc${MC_VERSION}.neoforge"
           for ID in "$MODRINTH_FABRIC" "$MODRINTH_NEO"; do
             if (( ${#ID} > 32 )); then
               echo "::error::Modrinth version identifier '${ID}' is ${#ID} chars (>32). Shorten the version scheme." >&2
