@@ -3,7 +3,7 @@ package com.logistics.power.render;
 import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
+import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;

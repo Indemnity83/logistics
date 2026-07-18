@@ -22,7 +22,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         LOGGER.info("Registering power (client)");
 
         // Register engine block entity renderers
-        BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
@@ -56,7 +56,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
     private void registerEngineBlockColors() {
         BlockColorRegistry.register(
             List.of(EngineHeatTintSource.INSTANCE),
-            LogisticsPower.BLOCK.REDSTONE_ENGINE,
+            LogisticsCore.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
             LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }

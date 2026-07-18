@@ -19,10 +19,8 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.engine.block.CreativeEngineBlock;
-import com.logistics.power.engine.block.RedstoneEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -75,7 +73,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
      * match the historical hardcoded values, so this is a pure "make it configurable" surface.
      */
     public static final class CONFIG extends ConfigEntries {
-        private static final Config redstone = configFor(LogisticsConfigHost.MOD_ID, "engines.redstone");
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
@@ -83,20 +80,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         private CONFIG() {}
 
-        // Redstone engine
-        public static final ConfigKey<Long> REDSTONE_OUTPUT = redstone.defineLong("output", 10L)
-                .min(0L)
-                .describe("RF generated per generation interval")
-                .register();
-        public static final ConfigKey<Long> REDSTONE_GENERATION_INTERVAL =
-                redstone.defineLong("generation_interval", 16L)
-                        .min(1L)
-                        .describe("Ticks between generation pulses when powered")
-                        .register();
-        public static final ConfigKey<Long> REDSTONE_BUFFER_CAPACITY = redstone.defineLong("buffer_capacity", 1_000L)
-                .min(0L)
-                .describe("Internal RF buffer capacity")
-                .register();
 
         // Stirling engine
         public static final ConfigKey<Double> STIRLING_MIN_OUTPUT = stirling.defineDouble("min_output", 3.0)
@@ -152,7 +135,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             stirling.registerSanitizeHook(() -> stirling.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
-            LogisticsConfigMigrator.mapLegacy("engine", "redstoneOutput", REDSTONE_OUTPUT);
             LogisticsConfigMigrator.mapLegacyPair(
                     "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
         }
@@ -161,7 +143,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public static final class BLOCK {
         private BLOCK() {}
 
-        public static Block REDSTONE_ENGINE;
         public static Block STIRLING_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
@@ -171,8 +152,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block ENDER_CABLE;
 
         static void register() {
-            REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
-                props -> new RedstoneEngineBlock(props.strength(5.0f).sound(SoundType.WOOD).noOcclusion()));
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
@@ -196,7 +175,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public static final class ENTITY {
         private ENTITY() {}
 
-        public static BlockEntityType<RedstoneEngineBlockEntity> REDSTONE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
@@ -204,8 +182,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static BlockEntityType<CableBlockEntity> CABLE_BLOCK_ENTITY;
 
         static void register() {
-            REDSTONE_ENGINE_BLOCK_ENTITY =
-                INSTANCE.registerBlockEntity("redstone_engine", RedstoneEngineBlockEntity::new, BLOCK.REDSTONE_ENGINE);
             STIRLING_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
             CREATIVE_ENGINE_BLOCK_ENTITY =
@@ -237,13 +213,12 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
             LogisticsMod.modId("3_power"),
             Component.translatable("itemGroup.logistics.3_power"),
-            () -> new ItemStack(BLOCK.REDSTONE_ENGINE)
+            () -> new ItemStack(BLOCK.STIRLING_ENGINE)
         );
 
         private CREATIVE() {}
 
         static void register() {
-            TAB.add(BLOCK.REDSTONE_ENGINE);
             TAB.add(BLOCK.STIRLING_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);

@@ -167,7 +167,7 @@ public final class NeoForgeClientSetup {
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(
-                LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY,
+                LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY,
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY,
@@ -207,7 +207,7 @@ public final class NeoForgeClientSetup {
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(
                 List.of(EngineHeatTintSource.INSTANCE),
-                LogisticsPower.BLOCK.REDSTONE_ENGINE,
+                LogisticsCore.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }

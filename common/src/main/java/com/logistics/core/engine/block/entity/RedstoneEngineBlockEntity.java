@@ -1,7 +1,7 @@
-package com.logistics.power.engine.block.entity;
+package com.logistics.core.engine.block.entity;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsPower;
+import com.logistics.LogisticsCore;
 import com.logistics.core.lib.power.EngineBuilder;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.LowTierEnergySource;
@@ -9,7 +9,7 @@ import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
 import com.logistics.core.lib.power.component.EngineHeatComponent;
 import com.logistics.core.lib.power.component.EnginePistonCycleComponent;
 import com.logistics.core.machine.MachineContext;
-import com.logistics.power.engine.block.RedstoneEngineBlock;
+import com.logistics.core.engine.block.RedstoneEngineBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -28,7 +28,7 @@ public class RedstoneEngineBlockEntity extends EngineEntity implements LowTierEn
     private EnginePistonCycleComponent cycle;
 
     public RedstoneEngineBlockEntity(BlockPos pos, BlockState state) {
-        super(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
+        super(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, RedstoneEngineBlockEntity entity) {
@@ -38,7 +38,7 @@ public class RedstoneEngineBlockEntity extends EngineEntity implements LowTierEn
     @Override
     protected void configure(EngineBuilder engine) {
         energy = engine.energyOutput("energy")
-                .capacity(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_BUFFER_CAPACITY))
+                .capacity(() -> LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_BUFFER_CAPACITY))
                 .build();
         heat = engine.heat("heat")
                 .energy(energy)
@@ -50,8 +50,8 @@ public class RedstoneEngineBlockEntity extends EngineEntity implements LowTierEn
                 .energy(energy)
                 .heat(heat)
                 .powered(this::isPowered)
-                .output(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT))
-                .interval(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_GENERATION_INTERVAL))
+                .output(() -> LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_OUTPUT))
+                .interval(() -> LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_GENERATION_INTERVAL))
                 .runningGate(this::targetAcceptsLowTier)
                 .build();
         cycle = engine.pistonCycle("cycle")
@@ -59,7 +59,7 @@ public class RedstoneEngineBlockEntity extends EngineEntity implements LowTierEn
                 .heat(heat)
                 .powered(this::isPowered)
                 .pistonSpeed(heat::getPistonSpeed)
-                .outputPower(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT))
+                .outputPower(() -> LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_OUTPUT))
                 .outputFace(() -> RedstoneEngineBlock.getOutputDirection(getBlockState()))
                 .sendsEnergyContinuously(false)
                 .build();
