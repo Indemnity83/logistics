@@ -63,6 +63,7 @@ public final class ConstantFillComponent implements MachineComponent {
         readState(tag);
     }
 
+    // Pre-component (0.7.x) flat-root save format; prune when the 0.9 major opens.
     @Override
     public void loadLegacy(CompoundTag root, HolderLookup.Provider registries) {
         readState(root);

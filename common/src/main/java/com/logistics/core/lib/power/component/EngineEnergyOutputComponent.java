@@ -88,6 +88,7 @@ public final class EngineEnergyOutputComponent implements MachineComponent, Mach
         buffer.readNbt(tag, ENERGY_KEY);
     }
 
+    // Pre-component (0.7.x) flat-root save format; prune when the 0.9 major opens.
     @Override
     public void loadLegacy(CompoundTag root, HolderLookup.Provider registries) {
         buffer.readNbt(root, ENERGY_KEY);
