@@ -3,7 +3,6 @@ package com.logistics.core.lib.power;
 import com.logistics.core.lib.block.BaseBlockEntity;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.energy.EnergyComponent;
-import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
@@ -277,26 +276,10 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
     protected void sendEnergy() {
         if (level == null || !isRedstonePowered()) return;
 
-        Direction outputDir = getOutputDirection();
-        BlockPos targetPos = getBlockPos().relative(outputDir);
-        long maxSend = Math.min(getOutputPower(), energyBuffer.getAmount());
-        if (maxSend <= 0) return;
-
-        long sent = sendEnergyTo(targetPos, outputDir.getOpposite(), maxSend);
+        long sent = EngineEnergyPusher.push(level, getBlockPos(), getOutputDirection(), energyBuffer, getOutputPower());
         if (sent > 0) {
-            energyBuffer.consume(Math.min(sent, energyBuffer.getAmount()));
             setChanged();
         }
-    }
-
-    private long sendEnergyTo(BlockPos targetPos, Direction fromDirection, long maxSend) {
-        if (level.getBlockEntity(targetPos) instanceof DirectEnergyReceiver receiver
-                && receiver instanceof HasEnergyStorage hasStorage) {
-            IEnergyStorage storage = hasStorage.energyStorage(fromDirection);
-            return storage == null ? 0L : storage.insert(maxSend, false);
-        }
-        EnergyPushService pushService = EnergyPushService.get();
-        return pushService == null ? 0L : pushService.push(level, targetPos, fromDirection, energyBuffer, maxSend);
     }
 
     /** Adds energy to the buffer, capped at max capacity. */
