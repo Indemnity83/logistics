@@ -1,9 +1,9 @@
 package com.logistics.core.lib.power;
 
-final class EngineCyclePlanner {
+public final class EngineCyclePlanner {
     private EngineCyclePlanner() {}
 
-    static Result advance(
+    public static Result advance(
             CyclePhase phase,
             float progress,
             boolean powered,
@@ -30,5 +30,5 @@ final class EngineCyclePlanner {
         return new Result(nextPhase, nextProgress, shouldSendEnergy);
     }
 
-    record Result(CyclePhase phase, float progress, boolean shouldSendEnergy) {}
+    public record Result(CyclePhase phase, float progress, boolean shouldSendEnergy) {}
 }
