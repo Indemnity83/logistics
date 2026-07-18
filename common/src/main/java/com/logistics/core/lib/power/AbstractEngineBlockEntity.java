@@ -6,19 +6,16 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
-import java.util.Locale;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -44,46 +41,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implements HasEnergyStorage {
 
-    // ==================== Heat Stage Enum ====================
-
-    /** Represents the heat stages of an engine. */
-    public enum HeatStage implements StringRepresentable {
-        COLD,
-        COOL,
-        WARM,
-        HOT,
-        OVERHEAT;
-
-        private static final HeatStage[] VALUES = values();
-
-        @Override
-        public String getSerializedName() {
-            return name().toLowerCase(Locale.ROOT);
-        }
-
-        public static HeatStage fromOrdinal(int ordinal) {
-            return (ordinal >= 0 && ordinal < VALUES.length) ? VALUES[ordinal] : COLD;
-        }
-    }
-
-    /** Block state property for engine heat stage. */
-    public static final EnumProperty<HeatStage> STAGE = EnumProperty.create("stage", HeatStage.class);
-
     /** Client-side callback for cleanup when an engine is removed. Set by client bootstrap. */
     private static java.util.function.Consumer<BlockPos> onRemovedCallback;
-
-    /** Two-stroke engine cycle phases. */
-    protected enum CyclePhase {
-        IDLE,
-        EXPANSION,
-        COMPRESSION;
-
-        private static final CyclePhase[] VALUES = values();
-
-        static CyclePhase fromOrdinal(int ordinal) {
-            return (ordinal >= 0 && ordinal < VALUES.length) ? VALUES[ordinal] : IDLE;
-        }
-    }
 
     // State tracking
     protected double temperature = 0;
@@ -265,7 +224,7 @@ public abstract class AbstractEngineBlockEntity extends BaseBlockEntity implemen
 
     private void syncStageToBlock() {
         if (level == null) return;
-        BlockState newState = getBlockState().setValue(STAGE, heatStage);
+        BlockState newState = getBlockState().setValue(HeatStage.STAGE, heatStage);
         level.setBlock(getBlockPos(), newState, Block.UPDATE_ALL);
     }
 

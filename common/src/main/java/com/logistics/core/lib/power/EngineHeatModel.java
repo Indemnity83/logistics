@@ -21,15 +21,15 @@ final class EngineHeatModel {
         return temperature / max;
     }
 
-    static AbstractEngineBlockEntity.HeatStage stage(double temperature, double max, boolean canOverheat, boolean compression) {
+    static HeatStage stage(double temperature, double max, boolean canOverheat, boolean compression) {
         double ratio = heatLevel(temperature, max);
 
-        if (ratio < 0.25) return AbstractEngineBlockEntity.HeatStage.COLD;
-        if (ratio < 0.50) return AbstractEngineBlockEntity.HeatStage.COOL;
-        if (ratio < 0.75) return AbstractEngineBlockEntity.HeatStage.WARM;
-        if (ratio >= 1.0 && canOverheat) return AbstractEngineBlockEntity.HeatStage.OVERHEAT;
+        if (ratio < 0.25) return HeatStage.COLD;
+        if (ratio < 0.50) return HeatStage.COOL;
+        if (ratio < 0.75) return HeatStage.WARM;
+        if (ratio >= 1.0 && canOverheat) return HeatStage.OVERHEAT;
 
-        return !canOverheat && compression ? AbstractEngineBlockEntity.HeatStage.WARM : AbstractEngineBlockEntity.HeatStage.HOT;
+        return !canOverheat && compression ? HeatStage.WARM : HeatStage.HOT;
     }
 
     static float pistonSpeed(double temperature, double max, boolean canOverheat) {

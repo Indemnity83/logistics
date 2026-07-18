@@ -1,6 +1,7 @@
 package com.logistics.power.engine.block.entity;
 
 import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.HeatStage;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.LogisticsConfigHost;

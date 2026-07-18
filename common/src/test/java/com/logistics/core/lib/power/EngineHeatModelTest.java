@@ -24,21 +24,21 @@ class EngineHeatModelTest {
 
     @Test
     void stage_usesHeatRatioThresholds() {
-        assertThat(EngineHeatModel.stage(20, 250, true, false)).isEqualTo(AbstractEngineBlockEntity.HeatStage.COLD);
-        assertThat(EngineHeatModel.stage(80, 250, true, false)).isEqualTo(AbstractEngineBlockEntity.HeatStage.COOL);
-        assertThat(EngineHeatModel.stage(140, 250, true, false)).isEqualTo(AbstractEngineBlockEntity.HeatStage.WARM);
-        assertThat(EngineHeatModel.stage(200, 250, true, false)).isEqualTo(AbstractEngineBlockEntity.HeatStage.HOT);
+        assertThat(EngineHeatModel.stage(20, 250, true, false)).isEqualTo(HeatStage.COLD);
+        assertThat(EngineHeatModel.stage(80, 250, true, false)).isEqualTo(HeatStage.COOL);
+        assertThat(EngineHeatModel.stage(140, 250, true, false)).isEqualTo(HeatStage.WARM);
+        assertThat(EngineHeatModel.stage(200, 250, true, false)).isEqualTo(HeatStage.HOT);
     }
 
     @Test
     void stage_overheatsOnlyWhenEnabled() {
-        assertThat(EngineHeatModel.stage(250, 250, true, false)).isEqualTo(AbstractEngineBlockEntity.HeatStage.OVERHEAT);
-        assertThat(EngineHeatModel.stage(250, 250, false, false)).isEqualTo(AbstractEngineBlockEntity.HeatStage.HOT);
+        assertThat(EngineHeatModel.stage(250, 250, true, false)).isEqualTo(HeatStage.OVERHEAT);
+        assertThat(EngineHeatModel.stage(250, 250, false, false)).isEqualTo(HeatStage.HOT);
     }
 
     @Test
     void stage_flashesWarmForNonOverheatingCompression() {
-        assertThat(EngineHeatModel.stage(250, 250, false, true)).isEqualTo(AbstractEngineBlockEntity.HeatStage.WARM);
+        assertThat(EngineHeatModel.stage(250, 250, false, true)).isEqualTo(HeatStage.WARM);
     }
 
     @Test

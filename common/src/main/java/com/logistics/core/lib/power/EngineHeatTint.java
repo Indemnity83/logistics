@@ -1,6 +1,5 @@
 package com.logistics.core.lib.power;
 
-import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
 import java.util.Set;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -16,7 +15,7 @@ import net.minecraft.world.level.block.state.properties.Property;
  * once per "model group", and two block states share a group unless a property the tint source
  * declares as relevant differs between them ({@code ModelGroupCollector} keys groups on
  * {@code BlockColors.getColoringProperties}). The engine model is identical across heat stages, so
- * unless {@link AbstractEngineBlockEntity#STAGE} is declared relevant, all stages collapse into one
+ * unless {@link HeatStage#STAGE} is declared relevant, all stages collapse into one
  * cached tint and the heat color never updates in-world.
  */
 public final class EngineHeatTint {
@@ -24,7 +23,7 @@ public final class EngineHeatTint {
     private EngineHeatTint() {}
 
     /** Block-state properties that affect the engine tint; must include STAGE (see class docs). */
-    public static final Set<Property<?>> RELEVANT_PROPERTIES = Set.of(AbstractEngineBlockEntity.STAGE);
+    public static final Set<Property<?>> RELEVANT_PROPERTIES = Set.of(HeatStage.STAGE);
 
     /** Returns the ARGB tint for the given heat stage. */
     public static int color(HeatStage stage) {
@@ -39,6 +38,6 @@ public final class EngineHeatTint {
 
     /** Returns the ARGB tint for an engine block state, read from its {@code STAGE} property. */
     public static int color(BlockState state) {
-        return color(state.getValue(AbstractEngineBlockEntity.STAGE));
+        return color(state.getValue(HeatStage.STAGE));
     }
 }
