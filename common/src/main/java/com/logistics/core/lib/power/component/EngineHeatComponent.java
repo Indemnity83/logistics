@@ -109,6 +109,16 @@ public final class EngineHeatComponent implements MachineComponent, EngineCompon
     }
 
     @Override
+    public double maxTemperature() {
+        return max;
+    }
+
+    @Override
+    public boolean canOverheat() {
+        return canOverheat;
+    }
+
+    @Override
     public HeatStage stage() {
         return heatStage;
     }

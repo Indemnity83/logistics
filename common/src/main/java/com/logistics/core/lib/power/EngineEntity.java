@@ -1,15 +1,10 @@
 package com.logistics.core.lib.power;
 
 import com.logistics.core.lib.block.BaseBlockEntity;
-import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
-import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
-import com.logistics.core.lib.power.component.EngineHeatComponent;
 import com.logistics.core.lib.power.component.EnginePistonCycleComponent;
-import com.logistics.core.lib.storage.ContainerItemStorage;
-import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
@@ -23,10 +18,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -41,11 +32,10 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Engines are energy <em>sources</em>: energy is exposed only on the output face and never
  * accepted, so this base intentionally omits the demand/sink routing {@code MachineEntity} has.
+ * Item storage and menus are engine-specific (only the Stirling Engine has them), so those
+ * interfaces are declared by the concrete engine rather than here.
  */
-public abstract class EngineEntity extends BaseBlockEntity
-        implements MachineContext, HasEnergyStorage, HasItemStorage, WorldlyContainer, MenuBehavior.HasMenu {
-
-    private static final int[] NO_SLOTS = new int[0];
+public abstract class EngineEntity extends BaseBlockEntity implements MachineContext, HasEnergyStorage {
 
     /** Client-side callback for cleanup when an engine is removed. Set by client bootstrap. */
     private static Consumer<BlockPos> onRemovedCallback;
@@ -83,81 +73,6 @@ public abstract class EngineEntity extends BaseBlockEntity
         return components.find(MachineComponent.EnergyAccess.class).map(a -> a.energy(side)).orElse(null);
     }
 
-    // ==================== Item capability + WorldlyContainer ====================
-
-    @Override
-    @Nullable
-    public IItemStorage itemStorage(@Nullable Direction side) {
-        return sidedItems().map(items -> (IItemStorage) new ContainerItemStorage(this, side)).orElse(null);
-    }
-
-    private Optional<MachineComponent.SidedItems> sidedItems() {
-        return components.find(MachineComponent.SidedItems.class);
-    }
-
-    @Override
-    public int[] getSlotsForFace(Direction side) {
-        return sidedItems().map(s -> s.slotsForFace(side)).orElse(NO_SLOTS);
-    }
-
-    @Override
-    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable Direction direction) {
-        return direction != null && sidedItems().map(s -> s.canPlace(slot, stack, direction)).orElse(false);
-    }
-
-    @Override
-    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
-        return sidedItems().map(s -> s.canTake(slot, stack, direction)).orElse(false);
-    }
-
-    @Override
-    public int getContainerSize() {
-        return sidedItems().map(s -> s.container().getContainerSize()).orElse(0);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return sidedItems().map(s -> s.container().isEmpty()).orElse(true);
-    }
-
-    @Override
-    public ItemStack getItem(int slot) {
-        return sidedItems().map(s -> s.container().getItem(slot)).orElse(ItemStack.EMPTY);
-    }
-
-    @Override
-    public ItemStack removeItem(int slot, int amount) {
-        return sidedItems().map(s -> s.container().removeItem(slot, amount)).orElse(ItemStack.EMPTY);
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int slot) {
-        return sidedItems().map(s -> s.container().removeItemNoUpdate(slot)).orElse(ItemStack.EMPTY);
-    }
-
-    @Override
-    public void setItem(int slot, ItemStack stack) {
-        sidedItems().ifPresent(s -> s.container().setItem(slot, stack));
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return sidedItems().map(s -> s.container().stillValid(player)).orElse(true);
-    }
-
-    @Override
-    public void clearContent() {
-        sidedItems().ifPresent(s -> s.container().clearContent());
-    }
-
-    // ==================== Menu (default none) ====================
-
-    @Override
-    @Nullable
-    public MenuProvider createMenuProvider() {
-        return null;
-    }
-
     // ==================== Engine getters (block + renderer facing) ====================
 
     /** Running when powered, not overheated, and every running gate is satisfied. */
@@ -186,12 +101,26 @@ public abstract class EngineEntity extends BaseBlockEntity
         return heat().map(EngineComponent.HeatState::isOverheated).orElse(false);
     }
 
+    public boolean canOverheat() {
+        return heat().map(EngineComponent.HeatState::canOverheat).orElse(true);
+    }
+
     public boolean resetOverheat() {
         return heat().map(h -> h.resetOverheat(this)).orElse(false);
     }
 
     public double getTemperature() {
         return heat().map(EngineComponent.HeatState::temperature).orElse(0.0);
+    }
+
+    public double getMaxTemperature() {
+        return heat().map(EngineComponent.HeatState::maxTemperature).orElse(0.0);
+    }
+
+    public long getCurrentOutputPower() {
+        return components.find(EnginePistonCycleComponent.class)
+                .map(EnginePistonCycleComponent::outputPower)
+                .orElse(0L);
     }
 
     public HeatStage getHeatStage() {

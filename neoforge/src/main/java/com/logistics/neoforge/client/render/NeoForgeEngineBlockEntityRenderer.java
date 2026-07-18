@@ -1,7 +1,7 @@
 package com.logistics.neoforge.client.render;
 
 import com.logistics.core.lib.client.render.MachineModels;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
 public class NeoForgeEngineBlockEntityRenderer
-        implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
+        implements BlockEntityRenderer<EngineEntity, EngineRenderState> {
     private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
             new java.util.concurrent.ConcurrentHashMap<>();
     private static final float DEFAULT_PISTON_SPEED = 0.02f;
@@ -50,7 +50,7 @@ public class NeoForgeEngineBlockEntityRenderer
 
     @Override
     public void extractRenderState(
-            AbstractEngineBlockEntity entity,
+            EngineEntity entity,
             EngineRenderState state,
             float tickDelta,
             Vec3 cameraPos,

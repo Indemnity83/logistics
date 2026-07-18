@@ -1,7 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
@@ -37,7 +37,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         registerEngineBlockColors();
 
         // Register cleanup callback for engine animation cache
-        AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
+        EngineEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
 
         // Clear all animation caches when disconnecting from server
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());

@@ -1,10 +1,15 @@
 package com.logistics.power.engine.block.entity;
-import com.logistics.LogisticsConfigHost;
 
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
-import com.logistics.core.lib.power.LowTierEnergySource;
-import com.logistics.power.engine.block.RedstoneEngineBlock;
+import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.power.EngineBuilder;
+import com.logistics.core.lib.power.EngineEntity;
+import com.logistics.core.lib.power.LowTierEnergySource;
+import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
+import com.logistics.core.lib.power.component.EngineHeatComponent;
+import com.logistics.core.lib.power.component.EnginePistonCycleComponent;
+import com.logistics.core.machine.MachineContext;
+import com.logistics.power.engine.block.RedstoneEngineBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -12,70 +17,62 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Block entity for the Redstone Engine.
- * The simplest engine type that converts redstone signals to energy.
+ * The Redstone Engine: the simplest engine, converting a redstone signal into a trickle of energy
+ * with no fuel. Composed of an output buffer, a non-overheating heat model, an interval generator,
+ * and a piston cycle.
  */
-public class RedstoneEngineBlockEntity extends AbstractEngineBlockEntity implements LowTierEnergySource {
+public class RedstoneEngineBlockEntity extends EngineEntity implements LowTierEnergySource {
+
+    private EngineEnergyOutputComponent energy;
+    private EngineHeatComponent heat;
+    private EnginePistonCycleComponent cycle;
 
     public RedstoneEngineBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, RedstoneEngineBlockEntity entity) {
-        entity.tickEngine(level, pos, state);
+        EngineEntity.tick(level, pos, state, entity);
     }
 
     @Override
-    protected long getEnergyBufferCapacity() {
-        return LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_BUFFER_CAPACITY);
+    protected void configure(EngineBuilder engine) {
+        energy = engine.energyOutput("energy")
+                .capacity(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_BUFFER_CAPACITY))
+                .build();
+        heat = engine.heat("heat")
+                .energy(energy)
+                .canOverheat(false)
+                .running(this::isRunning)
+                .compression(() -> cycle.isCompression())
+                .build();
+        engine.intervalGen("burn")
+                .energy(energy)
+                .heat(heat)
+                .powered(this::isPowered)
+                .output(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT))
+                .interval(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_GENERATION_INTERVAL))
+                .runningGate(this::targetAcceptsLowTier)
+                .build();
+        cycle = engine.pistonCycle("cycle")
+                .energy(energy)
+                .heat(heat)
+                .powered(this::isPowered)
+                .pistonSpeed(heat::getPistonSpeed)
+                .outputPower(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT))
+                .outputFace(() -> RedstoneEngineBlock.getOutputDirection(getBlockState()))
+                .sendsEnergyContinuously(false)
+                .build();
     }
 
-    @Override
-    protected long getOutputPower() {
-        return LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT);
-    }
-
-    @Override
-    public boolean canOverheat() {
-        return false;
-    }
-
-    @Override
-    protected Direction getOutputDirection() {
-        return RedstoneEngineBlock.getOutputDirection(getBlockState());
-    }
-
-    @Override
-    protected boolean isRedstonePowered() {
-        return getBlockState().getValue(RedstoneEngineBlock.POWERED);
-    }
-
-    @Override
-    public boolean isRunning() {
-        if (!super.isRunning()) {
-            return false;
-        }
-
-        // Don't run if target doesn't accept low-tier energy
+    /** Redstone engines refuse to run unless the target accepts low-tier energy. */
+    private boolean targetAcceptsLowTier(MachineContext ctx) {
+        Level level = ctx.level();
         if (level == null) {
             return false;
         }
-
-        Direction outputDir = getOutputDirection();
-        BlockPos targetPos = worldPosition.relative(outputDir);
-        BlockEntity target = level.getBlockEntity(targetPos);
-
+        Direction outputDir = RedstoneEngineBlock.getOutputDirection(getBlockState());
+        BlockEntity target = level.getBlockEntity(ctx.pos().relative(outputDir));
         return RedstoneTargetGate.acceptsLowTierEnergy(target, outputDir);
-    }
-
-    @Override
-    protected void produceEnergy() {
-        if (!isRedstonePowered() || level == null) {
-            return;
-        }
-
-        if (level.getGameTime() % LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_GENERATION_INTERVAL) == 0) {
-            addEnergy(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT));
-        }
     }
 }

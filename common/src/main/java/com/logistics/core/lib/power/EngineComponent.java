@@ -28,7 +28,11 @@ public final class EngineComponent {
     public interface HeatState {
         double temperature();
 
+        double maxTemperature();
+
         HeatStage stage();
+
+        boolean canOverheat();
 
         boolean isOverheated();
 

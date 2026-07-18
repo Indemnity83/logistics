@@ -1,7 +1,7 @@
 package com.logistics.power.render;
 
 import com.logistics.core.lib.client.render.MachineModels;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
  * Uses baked models with transformations for smooth animations.
  * Uses client-side animation cache for smooth piston movement independent of server updates.
  */
-public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity, EngineRenderState> {
+public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEntity, EngineRenderState> {
     // Animation cache - persists between frames, cleaned up when block entities are removed
     private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
             new java.util.concurrent.ConcurrentHashMap<>();
@@ -65,7 +65,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
     @Override
     public void extractRenderState(
-            AbstractEngineBlockEntity entity,
+            EngineEntity entity,
             EngineRenderState state,
             float tickDelta,
             Vec3 cameraPos,

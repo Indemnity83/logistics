@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <E> The type of engine block entity this block creates
  */
-public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends MachineBlock
+public abstract class AbstractEngineBlock<E extends EngineEntity> extends MachineBlock
         implements WrenchBehavior.Wrenchable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;

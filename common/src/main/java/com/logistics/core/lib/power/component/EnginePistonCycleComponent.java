@@ -86,6 +86,11 @@ public final class EnginePistonCycleComponent implements MachineComponent, Engin
         return cyclePhase == CyclePhase.COMPRESSION;
     }
 
+    /** The engine's current output power in RF/t. */
+    public long outputPower() {
+        return outputPower.getAsLong();
+    }
+
     public float progress() {
         return progress;
     }

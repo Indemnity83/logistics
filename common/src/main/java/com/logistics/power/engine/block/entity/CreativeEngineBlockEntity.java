@@ -1,139 +1,79 @@
 package com.logistics.power.engine.block.entity;
 
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
-import com.logistics.core.lib.power.HeatStage;
-import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.power.engine.block.CreativeEngineBlock;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.power.EngineBuilder;
+import com.logistics.core.lib.power.EngineEntity;
+import com.logistics.core.lib.power.HeatStage;
+import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
+import com.logistics.core.lib.power.component.EngineHeatComponent;
+import com.logistics.power.engine.block.CreativeEngineBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Block entity for the Creative Engine.
- * A special engine for Creative Mode that generates configurable amounts of energy.
+ * The Creative Engine: generates infinite energy for testing. Fills its buffer every tick while
+ * powered, never overheats (stage pinned to COLD), and its output rate — and piston speed — cycle
+ * through doubling levels on a sneak-wrench.
  */
-public class CreativeEngineBlockEntity extends AbstractEngineBlockEntity {
-
-    // ==================== Constants ====================
+public class CreativeEngineBlockEntity extends EngineEntity {
 
     /** Output levels that double with each wrench click. */
     public static final long[] OUTPUT_LEVELS = CreativeOutputLevels.DEFAULT_LEVELS.clone();
 
-    // ==================== State ====================
-
     private final CreativeOutputLevels outputLevels = new CreativeOutputLevels();
 
-    // ==================== Constructor & Ticker ====================
+    private EngineEnergyOutputComponent energy;
+    private EngineHeatComponent heat;
 
     public CreativeEngineBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, pos, state);
     }
 
-    public static void tick(Level world, BlockPos pos, BlockState state, CreativeEngineBlockEntity entity) {
-        entity.tickEngine(world, pos, state);
-    }
-
-    // ==================== Subclass Configuration ====================
-
-    @Override
-    protected long getEnergyBufferCapacity() {
-        return LogisticsConfigHost.get(LogisticsPower.CONFIG.CREATIVE_BUFFER_CAPACITY);
+    public static void tick(Level level, BlockPos pos, BlockState state, CreativeEngineBlockEntity entity) {
+        EngineEntity.tick(level, pos, state, entity);
     }
 
     @Override
-    protected long getOutputPower() {
-        return outputLevels.outputRate();
+    protected void configure(EngineBuilder engine) {
+        energy = engine.energyOutput("energy")
+                .capacity(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CREATIVE_BUFFER_CAPACITY))
+                .build();
+        heat = engine.heat("heat")
+                .energy(energy)
+                .canOverheat(false)
+                .stageOverride(HeatStage.COLD)
+                .running(this::isRunning)
+                .build();
+        engine.constantFill("burn")
+                .energy(energy)
+                .powered(this::isPowered)
+                .levelIndex(() -> outputLevels.index(), value -> outputLevels.restore(value))
+                .build();
+        engine.pistonCycle("cycle")
+                .energy(energy)
+                .heat(heat)
+                .powered(this::isPowered)
+                .pistonSpeed(() -> outputLevels.pistonSpeed())
+                .outputPower(() -> outputLevels.outputRate())
+                .outputFace(() -> CreativeEngineBlock.getOutputDirection(getBlockState()))
+                .sendsEnergyContinuously(true)
+                .build();
     }
 
-    @Override
-    public boolean canOverheat() {
-        return false;
-    }
-
-    @Override
-    protected Direction getOutputDirection() {
-        return CreativeEngineBlock.getOutputDirection(getBlockState());
-    }
-
-    @Override
-    protected boolean isRedstonePowered() {
-        return getBlockState().getValue(CreativeEngineBlock.POWERED);
-    }
-
-    @Override
-    protected boolean sendsEnergyContinuously() {
-        return true;
-    }
-
-    @Override
-    protected HeatStage computeStage() {
-        return HeatStage.COLD;
-    }
-
-    @Override
-    public float getPistonSpeed() {
-        return outputLevels.pistonSpeed();
-    }
-
-    // ==================== Lifecycle Hooks ====================
-
-    /**
-     * Creative engine generates infinite energy - buffer is always full when running.
-     */
-    @Override
-    protected void produceEnergy() {
-        if (!isRedstonePowered()) {
-            return;
-        }
-
-        // Infinite energy generation - always fill buffer to max
-        energyBuffer.setAmount(getEnergyBufferCapacity());
-    }
-
-    // ==================== Output Level Control ====================
-
-    /**
-     * Cycles to the next output level (doubles the output rate).
-     * Wraps around to minimum when maximum is exceeded.
-     *
-     * @return the new output rate in RF/t
-     */
+    /** Cycles to the next output level (doubles the output rate); syncs so the renderer updates. */
     public long cycleOutputLevel() {
         long outputRate = outputLevels.cycle();
-        markDirtyAndSync(); // Sync to clients so renderer can update piston speed
+        markDirtyAndSync();
         return outputRate;
     }
 
-    /**
-     * Gets the current output level index.
-     */
     public int getOutputLevelIndex() {
         return outputLevels.index();
     }
 
-    /**
-     * Gets the current output rate in RF/t.
-     */
     public long getOutputRate() {
         return outputLevels.outputRate();
-    }
-
-    // ==================== NBT Serialization ====================
-
-    @Override
-    protected void saveLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.saveLogisticsData(nbt, registries);
-        nbt.putInt("OutputLevelIndex", outputLevels.index());
-    }
-
-    @Override
-    protected void loadLogisticsData(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadLogisticsData(nbt, registries);
-        outputLevels.restore(NbtCompat.getInt(nbt, "OutputLevelIndex", 0));
     }
 }
