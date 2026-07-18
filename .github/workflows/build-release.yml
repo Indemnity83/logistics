@@ -228,8 +228,6 @@ jobs:
           path: artifacts/
 
       - name: Publish to Modrinth and CurseForge
-        # v3.3.1 propagates the mod's environment (fabric.mod.json "environment": "*")
-        # to CurseForge, which now requires an explicit Client/Server tag. v3.3.0 did not.
         uses: Kir-Antipov/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
