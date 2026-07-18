@@ -423,7 +423,9 @@ jobs:
           echo "Created prerelease $TAG"
 
       - name: Publish Fabric to Modrinth and CurseForge
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
+        # v3.3.1 propagates the mod's environment (fabric.mod.json "environment": "*")
+        # to CurseForge, which now requires an explicit Client/Server tag. v3.3.0 did not.
+        uses: Kir-Antipov/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
@@ -432,11 +434,6 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          # CurseForge requires an explicit environment tag (Client/Server); its inference
-          # from the jar's `"environment": "*"` no longer satisfies that group. The mod runs
-          # on both sides, so declare both.
-          curseforge-environment: client, server
-
           game-version-filter: releases
           version-type: beta
           version: ${{ env.FABRIC_FULL }}
@@ -444,7 +441,9 @@ jobs:
           files: ${{ steps.validate.outputs.fabric_jar }}
 
       - name: Publish NeoForge to Modrinth and CurseForge
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3
+        # v3.3.1 propagates the mod's environment (fabric.mod.json "environment": "*")
+        # to CurseForge, which now requires an explicit Client/Server tag. v3.3.0 did not.
+        uses: Kir-Antipov/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
@@ -452,10 +451,6 @@ jobs:
 
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-
-          # CurseForge requires an explicit environment tag (Client/Server); its inference
-          # from the jar metadata no longer satisfies that group. The mod runs on both sides.
-          curseforge-environment: client, server
 
           game-version-filter: releases
           version-type: beta
