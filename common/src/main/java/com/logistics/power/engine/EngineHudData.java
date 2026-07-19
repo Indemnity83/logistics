@@ -1,8 +1,12 @@
 package com.logistics.power.engine;
 
+import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.power.EngineEntity;
+import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -26,6 +30,13 @@ public final class EngineHudData {
     public static final String KEY_STIRLING = "stirling";
     public static final String KEY_BURN_TIME = "burnTime";
     public static final String KEY_FUEL_TIME = "fuelTime";
+    public static final String KEY_FUEL_ENGINE = "fuelEngine";
+    public static final String KEY_GENERATION = "generation";
+    public static final String KEY_COMMITTED_FUEL = "committedFuel";
+    public static final String KEY_FUEL_FLUID = "fuelFluid";
+    public static final String KEY_FUEL_AMOUNT = "fuelAmount";
+    public static final String KEY_COOLANT_FLUID = "coolantFluid";
+    public static final String KEY_COOLANT_AMOUNT = "coolantAmount";
 
     private EngineHudData() {}
 
@@ -47,5 +58,21 @@ public final class EngineHudData {
             data.putInt(KEY_BURN_TIME, stirling.getBurnTime());
             data.putInt(KEY_FUEL_TIME, stirling.getFuelTime());
         }
+
+        if (engine instanceof FuelEngineBlockEntity fuel) {
+            data.putBoolean(KEY_FUEL_ENGINE, true);
+            data.putLong(KEY_GENERATION, fuel.simulation().lastGenerationRate());
+            data.putLong(KEY_COMMITTED_FUEL, fuel.simulation().committedFuelEnergy());
+            writeTank(data, KEY_FUEL_FLUID, KEY_FUEL_AMOUNT, fuel.fuelTank());
+            writeTank(data, KEY_COOLANT_FLUID, KEY_COOLANT_AMOUNT, fuel.coolantTank());
+        }
+    }
+
+    private static void writeTank(CompoundTag data, String fluidKey, String amountKey, FluidStoreComponent store) {
+        if (store.tank().isEmpty()) {
+            return;
+        }
+        data.putString(fluidKey, BuiltInRegistries.FLUID.getKey(store.tank().getFluidKey().getFluid()).toString());
+        data.putInt(amountKey, (int) Math.min(FluidUnits.toMillibuckets(store.tank().getAmount()), Integer.MAX_VALUE));
     }
 }
