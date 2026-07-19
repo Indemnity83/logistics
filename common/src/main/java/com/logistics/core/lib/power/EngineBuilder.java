@@ -170,7 +170,7 @@ public final class EngineBuilder {
     public final class PistonCycleBuilder {
         private final String id;
         private EngineEnergyOutputComponent energy;
-        private EngineHeatComponent heat;
+        private BooleanSupplier overheated = () -> false;
         private BooleanSupplier powered = () -> false;
         private LongSupplier outputPower = () -> 0L;
         private Supplier<Direction> outputFace = () -> Direction.NORTH;
@@ -186,8 +186,9 @@ public final class EngineBuilder {
             return this;
         }
 
-        public PistonCycleBuilder heat(EngineHeatComponent heat) {
-            this.heat = heat;
+        /** Whether the engine is overheated (skips the cycle); typically the heat component's {@code isOverheated}. */
+        public PistonCycleBuilder overheated(BooleanSupplier overheated) {
+            this.overheated = overheated;
             return this;
         }
 
@@ -218,9 +219,9 @@ public final class EngineBuilder {
 
         public EnginePistonCycleComponent build() {
             java.util.Objects.requireNonNull(energy, "pistonCycle(" + id + ") requires an energy component");
-            java.util.Objects.requireNonNull(heat, "pistonCycle(" + id + ") requires a heat component");
             return components.add(new EnginePistonCycleComponent(
-                    id, energy, heat, powered, outputPower, outputFace, pistonSpeed, sendsEnergyContinuously, onChanged));
+                    id, energy, overheated, powered, outputPower, outputFace, pistonSpeed, sendsEnergyContinuously,
+                    onChanged));
         }
     }
 

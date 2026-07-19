@@ -56,7 +56,7 @@ public class RedstoneEngineBlockEntity extends EngineEntity implements LowTierEn
                 .build();
         cycle = engine.pistonCycle("cycle")
                 .energy(energy)
-                .heat(heat)
+                .overheated(heat::isOverheated)
                 .powered(this::isPowered)
                 .pistonSpeed(heat::getPistonSpeed)
                 .outputPower(() -> LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_OUTPUT))
