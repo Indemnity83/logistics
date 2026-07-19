@@ -266,6 +266,7 @@
   "marker.activation.failed.invalid_l_shape": "Marker activation failed - need 3 markers in a right triangle",
   "block.logistics.core.redstone_engine": "Redstone Engine",
   "block.logistics.power.stirling_engine": "Stirling Engine",
+  "block.logistics.power.fuel_engine": "Fuel Engine",
   "block.logistics.power.creative_engine": "Creative Engine",
   "block.logistics.power.copper_cable": "Copper Cable",
   "block.logistics.power.gold_cable": "Gold Cable",

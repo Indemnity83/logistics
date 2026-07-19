@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["III", "bGb", "gpg"],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "b": "minecraft:bucket",
+    "G": "minecraft:glass",
+    "g": "logistics:core/stone_gear",
+    "p": "minecraft:piston"
+  },
+  "result": {
+    "id": "logistics:power/fuel_engine",
+    "count": 1
+  }
+}

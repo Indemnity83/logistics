@@ -19,8 +19,10 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.engine.block.CreativeEngineBlock;
+import com.logistics.power.engine.block.FuelEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -75,6 +77,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
+        private static final Config fuel = configFor(LogisticsConfigHost.MOD_ID, "engines.fuel");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
         private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
 
@@ -103,6 +106,38 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static final ConfigKey<Long> CREATIVE_BUFFER_CAPACITY = creative.defineLong("buffer_capacity", 10_000L)
                 .min(0L)
                 .describe("Internal RF buffer capacity")
+                .register();
+
+        // Fuel engine
+        public static final ConfigKey<Long> FUEL_MIN_OUTPUT = fuel.defineLong("min_output", 10L)
+                .min(0L)
+                .describe("Minimum RF/t generated while a fuel batch is burning")
+                .register();
+        public static final ConfigKey<Long> FUEL_MAX_OUTPUT = fuel.defineLong("max_output", 40L)
+                .min(1L)
+                .describe("Maximum RF/t generated")
+                .register();
+        public static final ConfigKey<Long> FUEL_BUFFER_CAPACITY = fuel.defineLong("buffer_capacity", 10_000L)
+                .min(0L)
+                .describe("Internal RF buffer capacity")
+                .register();
+        public static final ConfigKey<Double> FUEL_MAX_TEMPERATURE = fuel.defineDouble("max_temperature", 250.0)
+                .min(1.0)
+                .finite()
+                .describe("Temperature at which the engine overheats and thermally shuts down")
+                .register();
+        public static final ConfigKey<Double> FUEL_WASTE_HEAT_PER_RF = fuel.defineDouble("waste_heat_per_rf", 0.25)
+                .min(0.0)
+                .finite()
+                .describe("Heat added per RF of generation that cannot fit into the buffer")
+                .register();
+        public static final ConfigKey<Long> FUEL_TANK_CAPACITY = fuel.defineLong("fuel_tank_capacity_mb", 4_000L)
+                .min(100L)
+                .describe("Fuel tank capacity (mB)")
+                .register();
+        public static final ConfigKey<Long> COOLANT_TANK_CAPACITY = fuel.defineLong("coolant_tank_capacity_mb", 4_000L)
+                .min(100L)
+                .describe("Coolant tank capacity (mB)")
                 .register();
 
         // Battery
@@ -144,6 +179,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private BLOCK() {}
 
         public static Block STIRLING_ENGINE;
+        public static Block FUEL_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
         public static Block BATTERY;
@@ -154,6 +190,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+            FUEL_ENGINE = INSTANCE.registerBlockWithItem("fuel_engine",
+                props -> new FuelEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
                 props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
@@ -176,6 +214,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private ENTITY() {}
 
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<FuelEngineBlockEntity> FUEL_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
         public static BlockEntityType<BatteryBlockEntity> BATTERY_BLOCK_ENTITY;
@@ -184,6 +223,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
+            FUEL_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("fuel_engine", FuelEngineBlockEntity::new, BLOCK.FUEL_ENGINE);
             CREATIVE_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
             CREATIVE_SINK_BLOCK_ENTITY =
@@ -220,6 +261,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.FUEL_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
             TAB.add(BLOCK.BATTERY);
