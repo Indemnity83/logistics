@@ -43,7 +43,7 @@ class EnginePersistenceTest extends MinecraftTestEnvironment {
                     .fuel(ctx -> 0)
                     .generation(new FixedGeneration(0))
                     .build();
-            cycle = engine.pistonCycle("cycle").energy(energy).heat(heat).build();
+            cycle = engine.pistonCycle("cycle").energy(energy).overheated(heat::isOverheated).build();
         }
 
         void save(CompoundTag tag) {

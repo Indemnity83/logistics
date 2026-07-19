@@ -132,7 +132,7 @@ public class StirlingEngineBlockEntity extends EngineEntity
                 .build();
         engine.pistonCycle("cycle")
                 .energy(energy)
-                .heat(heat)
+                .overheated(heat::isOverheated)
                 .powered(this::isPowered)
                 .pistonSpeed(heat::getPistonSpeed)
                 .outputPower(this::currentOutputPower)
