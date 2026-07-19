@@ -2,6 +2,7 @@ package com.logistics.power.engine.block.entity;
 
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidKey;
@@ -17,10 +18,19 @@ import com.logistics.power.engine.fuel.FuelEngineComponent;
 import com.logistics.power.engine.fuel.FuelEngineCoolants;
 import com.logistics.power.engine.fuel.FuelEngineFuels;
 import com.logistics.power.engine.fuel.FuelEngineProfile;
+import com.logistics.power.engine.ui.FuelEngineScreenHandler;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -32,7 +42,55 @@ import org.jetbrains.annotations.Nullable;
  * piston cycle for animation + export. Exposes both tanks through one combined fluid view that routes
  * inserts by fluid type.
  */
-public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStorage {
+public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStorage, MenuBehavior.HasMenu {
+
+    // Synced GUI data indices.
+    public static final int DATA_ENERGY = 0; // 0..10000 fill fraction
+    public static final int DATA_TEMPERATURE = 1;
+    public static final int DATA_MAX_TEMP = 2;
+    public static final int DATA_GENERATION = 3;
+    public static final int DATA_FUEL_ID = 4;
+    public static final int DATA_FUEL_AMOUNT = 5;
+    public static final int DATA_FUEL_CAPACITY = 6;
+    public static final int DATA_COOLANT_ID = 7;
+    public static final int DATA_COOLANT_AMOUNT = 8;
+    public static final int DATA_COOLANT_CAPACITY = 9;
+    public static final int DATA_SHUTDOWN = 10;
+    public static final int DATA_COMMITTED_FUEL = 11;
+    public static final int DATA_COMMITTED_COOLING = 12;
+    public static final int DATA_COUNT = 13;
+
+    private final ContainerData containerData = new ContainerData() {
+        @Override
+        public int get(int index) {
+            return switch (index) {
+                case DATA_ENERGY -> energyFraction();
+                case DATA_TEMPERATURE -> (int) Math.round(fuelSim.temperature());
+                case DATA_MAX_TEMP -> (int) Math.round(fuelSim.maxTemperature());
+                case DATA_GENERATION -> (int) fuelSim.lastGenerationRate();
+                case DATA_FUEL_ID -> fluidId(fuelTank);
+                case DATA_FUEL_AMOUNT -> amountMb(fuelTank);
+                case DATA_FUEL_CAPACITY -> capacityMb(fuelTank);
+                case DATA_COOLANT_ID -> fluidId(coolantTank);
+                case DATA_COOLANT_AMOUNT -> amountMb(coolantTank);
+                case DATA_COOLANT_CAPACITY -> capacityMb(coolantTank);
+                case DATA_SHUTDOWN -> fuelSim.thermallyShutDown() ? 1 : 0;
+                case DATA_COMMITTED_FUEL -> (int) Math.min(Integer.MAX_VALUE, fuelSim.committedFuelEnergy());
+                case DATA_COMMITTED_COOLING -> (int) Math.round(fuelSim.committedCoolingCapacity());
+                default -> 0;
+            };
+        }
+
+        @Override
+        public void set(int index, int value) {
+            // Server-side data source only; the client uses a SimpleContainerData populated by sync.
+        }
+
+        @Override
+        public int getCount() {
+            return DATA_COUNT;
+        }
+    };
 
     private EngineEnergyOutputComponent energy;
     private FluidStoreComponent fuelTank;
@@ -116,6 +174,46 @@ public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStora
 
     public long getEnergyStored() {
         return energy.getAmount();
+    }
+
+    public ContainerData getContainerData() {
+        return containerData;
+    }
+
+    @Override
+    public MenuProvider createMenuProvider() {
+        return new MenuProvider() {
+            @Override
+            public Component getDisplayName() {
+                return Component.translatable("block.logistics.power.fuel_engine");
+            }
+
+            @Nullable
+            @Override
+            public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+                ContainerLevelAccess accessor = level == null
+                        ? ContainerLevelAccess.NULL
+                        : ContainerLevelAccess.create(level, getBlockPos());
+                return new FuelEngineScreenHandler(syncId, playerInventory, containerData, accessor);
+            }
+        };
+    }
+
+    private int energyFraction() {
+        long capacity = energy.getCapacity();
+        return capacity <= 0 ? 0 : (int) Math.min(10_000L, energy.getAmount() * 10_000L / capacity);
+    }
+
+    private static int fluidId(FluidStoreComponent store) {
+        return store.tank().isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(store.tank().getFluidKey().getFluid());
+    }
+
+    private static int amountMb(FluidStoreComponent store) {
+        return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getAmount()), Integer.MAX_VALUE);
+    }
+
+    private static int capacityMb(FluidStoreComponent store) {
+        return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getCapacity()), Integer.MAX_VALUE);
     }
 
     /** Insert-by-type view: fuels route to the fuel tank, water to the coolant tank; nothing is drainable. */

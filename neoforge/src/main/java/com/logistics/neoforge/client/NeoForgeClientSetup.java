@@ -35,6 +35,7 @@ import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
+import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.fluids.NeoForgeFluids;
@@ -156,6 +157,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsPipe.SCREEN.MOD_SINK, ModSinkScreen::new);
 
         event.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
+        event.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
         event.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
         event.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);

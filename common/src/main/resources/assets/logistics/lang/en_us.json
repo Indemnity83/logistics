@@ -278,6 +278,12 @@
   "block.logistics.power.battery": "Battery",
   "message.logistics.power.creative_sink.drain_rate": "Creative Sink: %s RF/t",
   "message.logistics.power.creative_engine.output": "Creative Engine: %s RF/t",
+  "tooltip.logistics.fuel_engine.temperature": "Temperature: %1$s / %2$s",
+  "tooltip.logistics.fuel_engine.generation": "Generating: %s RF/t",
+  "tooltip.logistics.fuel_engine.committed_fuel": "Burning: %s RF remaining",
+  "tooltip.logistics.fuel_engine.committed_cooling": "Cooling reserve: %s",
+  "tooltip.logistics.fuel_engine.shutdown": "Thermal Shutdown",
+  "tooltip.logistics.fuel_engine.shutdown_hint": "Right-click with a wrench to reset",
 
   "jade.logistics.common.yes": "Yes",
   "jade.logistics.common.no": "No",

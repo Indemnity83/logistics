@@ -24,6 +24,7 @@ import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import com.logistics.power.engine.ui.FuelEngineScreenHandler;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
@@ -241,12 +242,17 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private SCREEN() {}
 
         public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
+        public static MenuType<FuelEngineScreenHandler> FUEL_ENGINE;
 
         static void register() {
             STIRLING_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("stirling_engine").toIdentifier(),
                     new MenuType<>(StirlingEngineScreenHandler::new, FeatureFlagSet.of()));
+            FUEL_ENGINE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPower.resource("fuel_engine").toIdentifier(),
+                    new MenuType<>(FuelEngineScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 
