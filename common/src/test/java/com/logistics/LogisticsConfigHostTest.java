@@ -98,6 +98,7 @@ class LogisticsConfigHostTest {
                 "logistics.engines.redstone",
                 "logistics.engines.stirling",
                 "logistics.engines.creative",
+                "logistics.engines.fuel",
                 "logistics.power.battery",
                 "logistics.power.cables",
                 "logistics.machines.macerator",

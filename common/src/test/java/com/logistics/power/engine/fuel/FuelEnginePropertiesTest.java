@@ -32,13 +32,13 @@ class FuelEnginePropertiesTest {
 
     @Test
     void fuelTableByRegistryId() {
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("crude_oil").toIdentifier()))
+        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("crude_oil").toString()))
                 .isEqualTo(new FuelEngineFuel(40_000L, 3.0));
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("bio_fuel").toIdentifier()))
+        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("bio_fuel").toString()))
                 .isEqualTo(new FuelEngineFuel(80_000L, 1.5));
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("fuel_oil").toIdentifier()))
+        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("fuel_oil").toString()))
                 .isEqualTo(new FuelEngineFuel(150_000L, 2.25));
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("liquid_redstone").toIdentifier())).isNull();
+        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("liquid_redstone").toString())).isNull();
         assertThat(FuelEngineFuels.byId(null)).isNull();
     }
 
