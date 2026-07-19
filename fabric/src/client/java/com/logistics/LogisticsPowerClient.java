@@ -24,6 +24,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
         // Cables render fully in code via the shared vanilla CableBlockEntityRenderer
@@ -58,6 +59,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
             List.of(EngineHeatTintSource.INSTANCE),
             LogisticsCore.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
+            LogisticsPower.BLOCK.FUEL_ENGINE,
             LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 }
