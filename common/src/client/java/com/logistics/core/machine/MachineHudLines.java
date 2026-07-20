@@ -20,7 +20,9 @@ public final class MachineHudLines {
         List<Component> lines = new ArrayList<>();
         if (NbtCompat.getBoolean(data, MachineHudData.KEY_PROCESSING, false)) {
             float progress = NbtCompat.getFloat(data, "progress", 0);
-            lines.add(Component.translatable("jade.logistics.machine.progress")
+            // Empty root so Jade's toCleanTranslation() doesn't rebuild a translatable root and drop the value.
+            lines.add(Component.empty()
+                    .append(Component.translatable("jade.logistics.machine.progress"))
                     .append(Component.literal(": "))
                     .append(Component.literal(String.format("%.0f%%", progress * 100)).withStyle(ChatFormatting.GREEN)));
         }

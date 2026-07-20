@@ -24,7 +24,8 @@ public final class QuarryHudLines {
         boolean finished = NbtCompat.getBoolean(data, "finished", false);
 
         String phaseKey = finished ? "jade.logistics.quarry.phase.finished" : phaseKey(phase);
-        lines.add(Component.translatable("jade.logistics.quarry.phase")
+        lines.add(Component.empty()
+                .append(Component.translatable("jade.logistics.quarry.phase"))
                 .append(Component.literal(": "))
                 .append(Component.translatable(phaseKey).withStyle(ChatFormatting.AQUA)));
 
@@ -53,7 +54,9 @@ public final class QuarryHudLines {
     }
 
     private static Component row(String labelKey, String value, ChatFormatting valueColor) {
-        return Component.translatable(labelKey)
+        // Empty root so Jade's toCleanTranslation() doesn't rebuild a translatable root and drop the value.
+        return Component.empty()
+                .append(Component.translatable(labelKey))
                 .append(Component.literal(": "))
                 .append(Component.literal(value).withStyle(valueColor));
     }
