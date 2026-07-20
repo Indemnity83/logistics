@@ -20,9 +20,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Client-side GUI for the Fuel Engine: a fuel tank and a coolant tank flanking a temperature readout,
- * with an energy buffer bar. Numeric detail (temperature, generation, committed reserves, thermal
- * shutdown) is shown as hover tooltips.
+ * Client-side GUI for the Fuel Engine: a fuel tank and a coolant tank (right-aligned), an energy buffer
+ * gauge, and a burn flame that crops down as the committed fuel reserve is spent. Numeric detail
+ * (temperature, generation, committed reserves, thermal shutdown) is shown as hover tooltips.
  */
 public class FuelEngineScreen extends AbstractContainerScreen<FuelEngineScreenHandler> {
 
@@ -31,35 +31,48 @@ public class FuelEngineScreen extends AbstractContainerScreen<FuelEngineScreenHa
     private static final int TEXTURE_HEIGHT = 256;
 
     private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
-    private static final int CHARGE_EMPTY_TINT = 0xFF404040;
+    private static final ResourceId FLAME = ResourceId.in("minecraft", "container/furnace/lit_progress");
 
-    private static final int TANK_TOP = 18;
-    private static final int TANK_BOTTOM = 76;
+    // Tank frames are 18x60 in the texture; fluid fills the 16x58 interior (1px border).
+    private static final int TANK_TOP = 14;
+    private static final int TANK_BOTTOM = TANK_TOP + 58;
     private static final int TANK_WIDTH = 16;
     private static final int TANK_HEIGHT = TANK_BOTTOM - TANK_TOP;
-    private static final int FUEL_TANK_LEFT = 74;
-    private static final int COOLANT_TANK_LEFT = 147;
-    private static final int ENERGY_LEFT = 10;
+    private static final int FUEL_TANK_LEFT = 88;
+    private static final int COOLANT_TANK_LEFT = 109;
+    // Frame bounds for hover tooltips.
+    private static final int FUEL_FRAME_LEFT = 87;
+    private static final int COOLANT_FRAME_LEFT = 108;
+    private static final int TANK_FRAME_TOP = 13;
+    private static final int TANK_FRAME_WIDTH = 18;
+    private static final int TANK_FRAME_HEIGHT = 60;
+
+    // Energy gauge frame is 14x32; the charge fill is its 12x30 interior.
+    private static final int ENERGY_FRAME_LEFT = 154;
+    private static final int ENERGY_FRAME_TOP = 18;
+    private static final int ENERGY_LEFT = 155;
     private static final int ENERGY_TOP = 19;
     private static final int ENERGY_WIDTH = 12;
     private static final int ENERGY_HEIGHT = 30;
+
+    // Burn flame, directly below the energy gauge.
+    private static final int FLAME_X = 154;
+    private static final int FLAME_Y = 53;
+    private static final int FLAME_SIZE = 14;
 
     public FuelEngineScreen(FuelEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
     }
 
     @Override
-    protected void init() {
-        super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
-    }
-
-    @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        hoverTooltip(graphics, mouseX, mouseY, FUEL_TANK_LEFT, TANK_TOP, TANK_WIDTH, TANK_HEIGHT, fuelTooltip());
-        hoverTooltip(graphics, mouseX, mouseY, COOLANT_TANK_LEFT, TANK_TOP, TANK_WIDTH, TANK_HEIGHT, coolantTooltip());
-        hoverTooltip(graphics, mouseX, mouseY, ENERGY_LEFT, ENERGY_TOP, ENERGY_WIDTH, ENERGY_HEIGHT, statusTooltip());
+        hoverTooltip(graphics, mouseX, mouseY,
+                FUEL_FRAME_LEFT, TANK_FRAME_TOP, TANK_FRAME_WIDTH, TANK_FRAME_HEIGHT, fuelTooltip());
+        hoverTooltip(graphics, mouseX, mouseY,
+                COOLANT_FRAME_LEFT, TANK_FRAME_TOP, TANK_FRAME_WIDTH, TANK_FRAME_HEIGHT, coolantTooltip());
+        hoverTooltip(graphics, mouseX, mouseY,
+                ENERGY_FRAME_LEFT, ENERGY_FRAME_TOP, FLAME_SIZE, 32, statusTooltip());
     }
 
     private void hoverTooltip(
@@ -117,10 +130,9 @@ public class FuelEngineScreen extends AbstractContainerScreen<FuelEngineScreenHa
                 RenderPipelines.GUI_TEXTURED, TEXTURE.toIdentifier(),
                 leftPos, topPos, 0, 0, imageWidth, imageHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        graphics.blitSprite(
-                RenderPipelines.GUI_TEXTURED, CHARGE.toIdentifier(),
-                ENERGY_WIDTH, ENERGY_HEIGHT, 0, 0,
-                leftPos + ENERGY_LEFT, topPos + ENERGY_TOP, ENERGY_WIDTH, ENERGY_HEIGHT, CHARGE_EMPTY_TINT);
+        renderTank(graphics, FUEL_TANK_LEFT, menu.getFuelId(), menu.getFuelFillFraction());
+        renderTank(graphics, COOLANT_TANK_LEFT, menu.getCoolantId(), menu.getCoolantFillFraction());
+
         int energyHeight = menu.getEnergyBarHeight(ENERGY_HEIGHT);
         if (energyHeight > 0) {
             graphics.blitSprite(
@@ -129,12 +141,20 @@ public class FuelEngineScreen extends AbstractContainerScreen<FuelEngineScreenHa
                     leftPos + ENERGY_LEFT, topPos + ENERGY_TOP + (ENERGY_HEIGHT - energyHeight), ENERGY_WIDTH, energyHeight);
         }
 
-        renderTank(graphics, FUEL_TANK_LEFT, menu.getFuelId(), menu.getFuelFillFraction());
-        renderTank(graphics, COOLANT_TANK_LEFT, menu.getCoolantId(), menu.getCoolantFillFraction());
+        renderFlame(graphics, menu.getFuelBurnFraction());
+    }
 
-        Component temp = Component.literal(menu.getTemperature() + "°");
-        int color = menu.isThermalShutdown() ? 0xFFC03020 : 0xFF404040;
-        graphics.text(font, temp, leftPos + 104 - font.width(temp) / 2, topPos + 40, color, false);
+    /** Flame starts full and crops from the top down to zero as the committed fuel reserve is spent. */
+    private void renderFlame(GuiGraphicsExtractor graphics, float fraction) {
+        if (fraction <= 0f) {
+            return;
+        }
+        int shown = Math.max(1, Math.round(fraction * FLAME_SIZE));
+        int yOffset = FLAME_SIZE - shown;
+        graphics.blitSprite(
+                RenderPipelines.GUI_TEXTURED, FLAME.toIdentifier(),
+                FLAME_SIZE, FLAME_SIZE, 0, yOffset,
+                leftPos + FLAME_X, topPos + FLAME_Y + yOffset, FLAME_SIZE, shown);
     }
 
     private void renderTank(GuiGraphicsExtractor graphics, int left, int fluidId, float fraction) {

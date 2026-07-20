@@ -311,6 +311,15 @@ public final class FuelEngineComponent
         return committedFuelEnergy;
     }
 
+    /** Remaining committed fuel as a fraction of the batch it was drawn from (1 at commit, 0 when spent). */
+    public double committedFuelFraction() {
+        if (committedFuelType == null || committedFuelEnergy <= 0) {
+            return 0.0;
+        }
+        long full = fuelLookup.apply(committedFuelType).energyPerBatch(profile.fuelBatchMb());
+        return full <= 0 ? 0.0 : Math.min(1.0, (double) committedFuelEnergy / (double) full);
+    }
+
     public double committedCoolingCapacity() {
         return committedCoolingCapacity;
     }

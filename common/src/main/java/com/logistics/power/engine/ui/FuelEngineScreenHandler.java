@@ -111,6 +111,11 @@ public class FuelEngineScreenHandler extends AbstractContainerMenu {
         return data.get(FuelEngineBlockEntity.DATA_COMMITTED_COOLING);
     }
 
+    /** Remaining committed fuel as a fraction (1 at commit, 0 when spent) for the burn flame. */
+    public float getFuelBurnFraction() {
+        return data.get(FuelEngineBlockEntity.DATA_FUEL_BURN) / 1000f;
+    }
+
     public float getTemperatureFraction() {
         int max = getMaxTemperature();
         return max <= 0 ? 0f : Math.min(1f, getTemperature() / (float) max);

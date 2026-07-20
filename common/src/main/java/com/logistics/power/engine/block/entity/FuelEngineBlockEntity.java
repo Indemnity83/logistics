@@ -58,7 +58,8 @@ public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStora
     public static final int DATA_SHUTDOWN = 10;
     public static final int DATA_COMMITTED_FUEL = 11;
     public static final int DATA_COMMITTED_COOLING = 12;
-    public static final int DATA_COUNT = 13;
+    public static final int DATA_FUEL_BURN = 13; // committed-fuel fraction, 0..1000
+    public static final int DATA_COUNT = 14;
 
     private final ContainerData containerData = new ContainerData() {
         @Override
@@ -77,6 +78,7 @@ public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStora
                 case DATA_SHUTDOWN -> fuelSim.thermallyShutDown() ? 1 : 0;
                 case DATA_COMMITTED_FUEL -> (int) Math.min(Integer.MAX_VALUE, fuelSim.committedFuelEnergy());
                 case DATA_COMMITTED_COOLING -> (int) Math.round(fuelSim.committedCoolingCapacity());
+                case DATA_FUEL_BURN -> (int) Math.round(fuelSim.committedFuelFraction() * 1000);
                 default -> 0;
             };
         }
