@@ -19,7 +19,9 @@ public final class MachineHudLines {
         List<Component> lines = new ArrayList<>();
         for (MachineHudModel.Entry entry : MachineHudModel.entries(data)) {
             if (entry instanceof MachineHudModel.ProgressEntry progress) {
-                lines.add(Component.translatable("jade.logistics.machine.progress")
+                // Empty root so Jade's toCleanTranslation() doesn't rebuild a translatable root and drop the value.
+                lines.add(Component.empty()
+                        .append(Component.translatable("jade.logistics.machine.progress"))
                         .append(Component.literal(": "))
                         .append(Component.literal(String.format("%.0f%%", progress.fraction() * 100))
                                 .withStyle(ChatFormatting.GREEN)));
