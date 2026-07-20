@@ -19,9 +19,12 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.engine.block.CreativeEngineBlock;
+import com.logistics.power.engine.block.SteamEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import com.logistics.power.engine.ui.SteamEngineScreenHandler;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
@@ -208,6 +211,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private BLOCK() {}
 
         public static Block STIRLING_ENGINE;
+        public static Block STEAM_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
         public static Block BATTERY;
@@ -218,6 +222,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+            STEAM_ENGINE = INSTANCE.registerBlockWithItem("steam_engine",
+                props -> new SteamEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
                 props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
@@ -240,6 +246,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private ENTITY() {}
 
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<SteamEngineBlockEntity> STEAM_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
         public static BlockEntityType<BatteryBlockEntity> BATTERY_BLOCK_ENTITY;
@@ -248,6 +255,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
+            STEAM_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("steam_engine", SteamEngineBlockEntity::new, BLOCK.STEAM_ENGINE);
             CREATIVE_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
             CREATIVE_SINK_BLOCK_ENTITY =
@@ -264,12 +273,17 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private SCREEN() {}
 
         public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
+        public static MenuType<SteamEngineScreenHandler> STEAM_ENGINE;
 
         static void register() {
             STIRLING_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("stirling_engine").toIdentifier(),
                     new MenuType<>(StirlingEngineScreenHandler::new, FeatureFlagSet.of()));
+            STEAM_ENGINE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPower.resource("steam_engine").toIdentifier(),
+                    new MenuType<>(SteamEngineScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 
@@ -284,6 +298,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.STEAM_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
             TAB.add(BLOCK.BATTERY);

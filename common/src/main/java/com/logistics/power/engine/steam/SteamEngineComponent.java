@@ -276,6 +276,10 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         return vessel.fraction(profile.maxPressure());
     }
 
+    public double maxPressure() {
+        return profile.maxPressure();
+    }
+
     public long lastGenerationRate() {
         return lastGenerationRate;
     }
