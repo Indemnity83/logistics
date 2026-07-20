@@ -201,7 +201,11 @@ public final class FuelEngineComponent
             committedCoolantType = null;
             return 0;
         }
-        double demand = Math.min(availableHeat, props.maximumCoolingPerTick());
+        // Proportional (Newton's-law) cooling: shed heat in proportion to the current temperature, capped
+        // by the coolant's max rate. Gives a stable warm equilibrium at generatedHeat / coolingCoefficient
+        // (so a cooled engine runs visibly warm, not at 0), and climbs to overheat once coolant runs out.
+        double demand =
+                Math.min(availableHeat * profile.coolingCoefficient(), props.maximumCoolingPerTick());
         if (committedCoolingCapacity + EPSILON < demand && mayCommit) {
             tryCommitCoolantBatch(); // refill when insufficient, not only when empty
         }

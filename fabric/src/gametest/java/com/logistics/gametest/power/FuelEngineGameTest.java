@@ -50,9 +50,11 @@ public class FuelEngineGameTest {
                 context.fail("Fuel engine should be actively generating while burning");
                 return;
             }
-            // Adequate coolant (6/t) fully absorbs crude oil's 3/t base heat, so temperature stays low.
-            if (e.simulation().temperature() > 50) {
-                context.fail("Fuel engine with coolant should stay cool, temp: " + e.simulation().temperature());
+            // Proportional cooling settles the engine at a warm equilibrium: it heats above ambient while
+            // burning, but adequate coolant keeps it far below the overheat threshold.
+            double temp = e.simulation().temperature();
+            if (temp <= 0 || temp > 150) {
+                context.fail("Fuel engine with coolant should run warm but stable, temp: " + temp);
                 return;
             }
             context.succeed();

@@ -9,6 +9,7 @@ public record FuelEngineProfile(
         long maxGeneration,
         double maxTemperature,
         double wasteHeatPerRejectedRf,
+        double coolingCoefficient,
         double passiveCoolingRate,
         double passiveCoolingThresholdRatio,
         double restartTemperatureRatio,
@@ -19,7 +20,7 @@ public record FuelEngineProfile(
     public static FuelEngineProfile of(
             long minGeneration, long maxGeneration, double maxTemperature, double wasteHeatPerRejectedRf) {
         return new FuelEngineProfile(
-                minGeneration, maxGeneration, maxTemperature, wasteHeatPerRejectedRf, 0.5, 0.5, 0.75, 100, 100);
+                minGeneration, maxGeneration, maxTemperature, wasteHeatPerRejectedRf, 0.03, 0.5, 0.5, 0.75, 100, 100);
     }
 
     /** Temperature above which an idle engine may still commit a fresh coolant batch. */

@@ -226,17 +226,19 @@ class FuelEngineComponentTest extends MinecraftTestEnvironment {
         FluidStoreComponent cool = tank("cool", Fluids.WATER, 500);
         FuelEngineComponent fuel = new FuelEngineComponent(
                 "fuel", e, tank("fuel", null, 0), cool, fuelLookup, lookup, () -> true, PROFILE, () -> {});
+        // Seed hot enough that proportional cooling saturates water's 6/t cap (temp*0.03 > 6 above 200C),
+        // so the committed reserve's rate is distinguishable from the faster coolant's.
         CompoundTag seed = new CompoundTag();
-        seed.putDouble("Temperature", 200.0);
+        seed.putDouble("Temperature", 240.0);
         fuel.load(seed, registries);
 
-        fuel.serverTick(new FakeMachineContext()); // commits water (rate 6), spends 6
+        fuel.serverTick(new FakeMachineContext()); // commits water (cap 6), spends 6
         double afterFirst = fuel.committedCoolingCapacity();
         cool.tank().setContents(SimpleFluidKey.of(Fluids.LAVA), mb(500)); // swap tank to the faster coolant
 
         fuel.serverTick(new FakeMachineContext());
 
-        // Still spent at water's rate (6), not lava's (30).
+        // Still capped at water's rate (6), not lava's (30) — proving the reserve keeps its committed identity.
         assertThat(afterFirst - fuel.committedCoolingCapacity()).isEqualTo(6.0, within(1e-6));
     }
 
