@@ -74,6 +74,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
+        private static final Config steam = configFor(LogisticsConfigHost.MOD_ID, "engines.steam");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
         private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
@@ -97,6 +98,64 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static final ConfigKey<Long> STIRLING_BUFFER_CAPACITY = stirling.defineLong("buffer_capacity", 10_000L)
                 .min(0L)
                 .describe("Internal RF buffer capacity")
+                .register();
+
+        // Steam engine — burns solid fuel + water into stored pressure; pressure drives RF.
+        public static final ConfigKey<Long> STEAM_MAX_OUTPUT = steam.defineLong("max_output", 40L)
+                .min(1L)
+                .describe("Maximum RF/t generated (flat at/above operating pressure)")
+                .register();
+        public static final ConfigKey<Long> STEAM_BUFFER_CAPACITY = steam.defineLong("buffer_capacity", 10_000L)
+                .min(0L)
+                .describe("Internal RF buffer capacity")
+                .register();
+        public static final ConfigKey<Long> STEAM_WATER_TANK_CAPACITY = steam.defineLong("water_tank_capacity_mb", 4_000L)
+                .min(100L)
+                .describe("Water tank capacity (mB)")
+                .register();
+        public static final ConfigKey<Long> STEAM_STOKED_BURN_INTERVAL = steam.defineLong("stoked_burn_interval", 20L)
+                .min(1L)
+                .describe("While stoked, burn one reserve tick per this many game ticks")
+                .register();
+        public static final ConfigKey<Double> STEAM_MAX_PRESSURE = steam.defineDouble("max_pressure", 1000.0)
+                .min(1.0)
+                .finite()
+                .describe("Safety pressure ceiling (clamp); the boiler never targets this")
+                .register();
+        public static final ConfigKey<Double> STEAM_OPERATING_PRESSURE = steam.defineDouble("operating_pressure", 400.0)
+                .min(0.0)
+                .finite()
+                .describe("Pressure at/above which the engine outputs full RF/t")
+                .register();
+        public static final ConfigKey<Double> STEAM_RELIGHT_PRESSURE = steam.defineDouble("relight_pressure", 650.0)
+                .min(0.0)
+                .finite()
+                .describe("Pressure below which the boiler ignites a new fuel item")
+                .register();
+        public static final ConfigKey<Double> STEAM_TARGET_PRESSURE = steam.defineDouble("target_pressure", 800.0)
+                .min(1.0)
+                .finite()
+                .describe("Pressure the boiler produces up to before pausing")
+                .register();
+        public static final ConfigKey<Double> STEAM_STEAM_PER_BURN_TICK = steam.defineDouble("steam_per_burn_tick", 12.0)
+                .min(0.0)
+                .finite()
+                .describe("Pressure produced per tick while actively boiling")
+                .register();
+        public static final ConfigKey<Double> STEAM_PRESSURE_PER_RF = steam.defineDouble("pressure_per_rf", 0.25)
+                .min(0.0)
+                .finite()
+                .describe("Pressure consumed per RF generated")
+                .register();
+        public static final ConfigKey<Double> STEAM_WATER_CONVERSION = steam.defineDouble("water_conversion", 6.0)
+                .min(0.0)
+                .finite()
+                .describe("Pressure produced per mB of water boiled")
+                .register();
+        public static final ConfigKey<Double> STEAM_COOLING_DECAY = steam.defineDouble("cooling_decay_per_tick", 0.05)
+                .min(0.0)
+                .finite()
+                .describe("Pressure lost per tick only while the firebox is out (cold boiler)")
                 .register();
 
         // Creative engine
@@ -135,6 +194,11 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             stirling.registerSanitizeHook(() -> stirling.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
+            steam.registerSanitizeHook(() -> {
+                steam.repairMinMax(STEAM_OPERATING_PRESSURE, STEAM_RELIGHT_PRESSURE);
+                steam.repairMinMax(STEAM_RELIGHT_PRESSURE, STEAM_TARGET_PRESSURE);
+                steam.repairMinMax(STEAM_TARGET_PRESSURE, STEAM_MAX_PRESSURE);
+            });
             LogisticsConfigMigrator.mapLegacyPair(
                     "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
         }
