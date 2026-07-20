@@ -46,7 +46,9 @@ public final class PipeHudLines {
             return lines;
         }
 
-        lines.add(Component.translatable("jade.logistics.pipe.items")
+        // Empty root so Jade's toCleanTranslation() doesn't rebuild a translatable root and drop the value.
+        lines.add(Component.empty()
+                .append(Component.translatable("jade.logistics.pipe.items"))
                 .append(Component.literal(": "))
                 .append(Component.literal(String.valueOf(items.size())).withStyle(ChatFormatting.WHITE)));
 

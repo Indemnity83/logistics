@@ -81,7 +81,10 @@ public final class EngineHudLines {
     }
 
     private static net.minecraft.network.chat.MutableComponent labelled(String labelKey) {
-        return Component.translatable(labelKey).append(Component.literal(": "));
+        // Root must NOT be a bare no-args translatable: Jade's TextElement runs each line through
+        // JadeLanguages.toCleanTranslation(), which rebuilds such a component from its key alone and
+        // drops appended siblings (the ": " + value). An empty root sidesteps that and keeps the value.
+        return Component.empty().append(Component.translatable(labelKey)).append(Component.literal(": "));
     }
 
     private static ChatFormatting stageColor(String stage) {
