@@ -59,6 +59,7 @@ public final class FuelEngineComponent
     private Fluid committedCoolantType;
     private long lastGenerationRate;
     private HeatStage syncedStage = HeatStage.COLD;
+    private boolean syncedRunning;
 
     public FuelEngineComponent(
             String id,
@@ -98,6 +99,14 @@ public final class FuelEngineComponent
 
         if (temperature != t0 || committedFuelEnergy != f0 || committedCoolingCapacity != c0 || thermallyShutDown != sd0) {
             onChanged.run();
+        }
+
+        // Push a client sync when the engine starts or stops running, so the piston renderer (which reads
+        // the synced isRunning() + generation-derived piston speed) starts and stops promptly.
+        boolean running = powered.getAsBoolean() && !thermallyShutDown && committedFuelEnergy > 0;
+        if (running != syncedRunning) {
+            syncedRunning = running;
+            ctx.sync();
         }
     }
 
@@ -336,6 +345,8 @@ public final class FuelEngineComponent
         if (committedCoolantType != null) {
             tag.putString("CommittedCoolantType", BuiltInRegistries.FLUID.getKey(committedCoolantType).toString());
         }
+        // Persisted so it syncs to the client, which drives piston-speed rendering (recomputed each server tick).
+        tag.putLong("LastGenerationRate", lastGenerationRate);
     }
 
     @Override
@@ -346,6 +357,7 @@ public final class FuelEngineComponent
         committedFuelType = resolveFluid(NbtCompat.getString(tag, "CommittedFuelType", ""));
         committedCoolingCapacity = NbtCompat.getDouble(tag, "CommittedCoolingCapacity", 0);
         committedCoolantType = resolveFluid(NbtCompat.getString(tag, "CommittedCoolantType", ""));
+        lastGenerationRate = NbtCompat.getLong(tag, "LastGenerationRate", 0);
         // Keep the invariants after a load with possibly-stale fields.
         if (committedFuelEnergy <= 0) {
             discardCommittedFuel();

@@ -260,5 +260,8 @@ class FuelEngineComponentTest extends MinecraftTestEnvironment {
         assertThat(reader.committedFuelEnergy()).isEqualTo(writer.committedFuelEnergy());
         assertThat(reader.committedCoolingCapacity()).isEqualTo(writer.committedCoolingCapacity(), within(1e-6));
         assertThat(reader.thermallyShutDown()).isEqualTo(writer.thermallyShutDown());
+        // Synced to the client to drive piston-speed rendering.
+        assertThat(reader.lastGenerationRate()).isEqualTo(writer.lastGenerationRate());
+        assertThat(writer.lastGenerationRate()).isGreaterThan(0);
     }
 }
