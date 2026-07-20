@@ -23,9 +23,9 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
     private static final int HOTBAR_Y = 142;
     private static final int SLOT_START_X = 8;
 
-    // Fuel slot position (centered horizontally, near top)
+    // Fuel slot position (centered horizontally); item sits 1px inside its 18x18 texture frame at (79,34).
     private static final int FUEL_SLOT_X = 80;
-    private static final int FUEL_SLOT_Y = 39;
+    private static final int FUEL_SLOT_Y = 35;
 
     private final Container inventory;
     private final ContainerData propertyDelegate;
@@ -147,6 +147,15 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
     }
 
     // Getters for GUI rendering
+
+    /**
+     * Energy buffer fill height in pixels. PROPERTY_ENERGY is the stored energy scaled by 1/100, so it
+     * spans 0..100 at the default 10,000 buffer capacity.
+     */
+    public int getEnergyBarHeight(int maxPixels) {
+        return Math.min(100, Math.max(0, getEnergy())) * maxPixels / 100;
+    }
+
     public int getBurnTime() {
         return propertyDelegate.get(StirlingEngineBlockEntity.PROPERTY_BURN_TIME);
     }
