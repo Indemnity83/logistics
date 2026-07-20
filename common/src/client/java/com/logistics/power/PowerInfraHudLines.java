@@ -45,7 +45,9 @@ public final class PowerInfraHudLines {
     }
 
     private static Component row(String labelKey, String value, ChatFormatting valueColor) {
-        return Component.translatable(labelKey)
+        // Empty root so Jade's toCleanTranslation() doesn't rebuild a translatable root and drop the value.
+        return Component.empty()
+                .append(Component.translatable(labelKey))
                 .append(Component.literal(": "))
                 .append(Component.literal(value).withStyle(valueColor));
     }
