@@ -1,5 +1,50 @@
 # Changelog
 
+## [0.8.3](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.2...mc1.21.11-v0.8.3) (2026-07-20)
+
+
+### Added
+
+* **automation:** add the refinery ([#714](https://github.com/Indemnity83/logistics/issues/714)) ([6488f4c](https://github.com/Indemnity83/logistics/commit/6488f4c28da10fe8bd37728defba77bf143b0662))
+* **automation:** add the sequential fabricator ([#719](https://github.com/Indemnity83/logistics/issues/719)) ([607c3b4](https://github.com/Indemnity83/logistics/commit/607c3b4d6e2cdaa0d4b89387cae1a75866d63aba))
+* **automation:** add the sequential fabricator ([#719](https://github.com/Indemnity83/logistics/issues/719)) ([607c3b4](https://github.com/Indemnity83/logistics/commit/607c3b4d6e2cdaa0d4b89387cae1a75866d63aba))
+* **automation:** fabricate chipsets in the sequential fabricator ([#720](https://github.com/Indemnity83/logistics/issues/720)) ([8cbff82](https://github.com/Indemnity83/logistics/commit/8cbff82d0554a4dac49ede577681355ef0aaa507))
+* **automation:** fabricate chipsets in the sequential fabricator ([#720](https://github.com/Indemnity83/logistics/issues/720)) ([8cbff82](https://github.com/Indemnity83/logistics/commit/8cbff82d0554a4dac49ede577681355ef0aaa507))
+* **automation:** make machine tuning configurable per machine ([#713](https://github.com/Indemnity83/logistics/issues/713)) ([08d214b](https://github.com/Indemnity83/logistics/commit/08d214b9add2ae3b1b0897c85e6efa313eba4042))
+* **compat:** add Jade HUD support for refinery and sequential fabricator ([#744](https://github.com/Indemnity83/logistics/issues/744)) ([e2dabbe](https://github.com/Indemnity83/logistics/commit/e2dabbea4143e808beebccd5b7a973b8ec4ea624))
+* **core:** add a copper nugget ([#722](https://github.com/Indemnity83/logistics/issues/722)) ([4435420](https://github.com/Indemnity83/logistics/commit/4435420cd4c5f618f641b034b7e6d8a289a1f70c))
+* **crafting:** add tin, rubber, amethyst, and echo valves ([7536bb9](https://github.com/Indemnity83/logistics/commit/7536bb9ac7055227294225bbe942c64cbcac8135))
+* **crafting:** rework the valve lineup with a bench recipe ([#727](https://github.com/Indemnity83/logistics/issues/727)) ([7536bb9](https://github.com/Indemnity83/logistics/commit/7536bb9ac7055227294225bbe942c64cbcac8135))
+* **crafting:** show sequential fabricator recipes in JEI ([#745](https://github.com/Indemnity83/logistics/issues/745)) ([c9bbd56](https://github.com/Indemnity83/logistics/commit/c9bbd56129a348f04a1ce0fb1a8ad399140bbc87))
+* **energy:** add natural and synthetic polymers for rubber ([#716](https://github.com/Indemnity83/logistics/issues/716)) ([c5d9d87](https://github.com/Indemnity83/logistics/commit/c5d9d8773eadc83ea5c14769fbebe091eefcdd2a))
+* **fluids:** add bio fuel and fuel oil fluids ([6488f4c](https://github.com/Indemnity83/logistics/commit/6488f4c28da10fe8bd37728defba77bf143b0662))
+* **fluids:** add tar as an alternative fluid pipe sealant ([#715](https://github.com/Indemnity83/logistics/issues/715)) ([67331b7](https://github.com/Indemnity83/logistics/commit/67331b717a24e219ce4c880669ac20e1841f2c82))
+* **routing:** add chipset crafting alternatives for pipes and modules ([3095cc7](https://github.com/Indemnity83/logistics/commit/3095cc7def6bccafb114e74a1f25486b9b591399))
+* **ui:** split creative menu into domain tabs ([#738](https://github.com/Indemnity83/logistics/issues/738)) ([1def318](https://github.com/Indemnity83/logistics/commit/1def3189a3da5c7aaa9aadbe66ed8a0e0e643c96))
+
+
+### Changed
+
+* **crafting:** craft valves from quartz, redstone, and a base material ([7536bb9](https://github.com/Indemnity83/logistics/commit/7536bb9ac7055227294225bbe942c64cbcac8135))
+* **crafting:** restyle every valve with a distinct electron-tube texture ([7536bb9](https://github.com/Indemnity83/logistics/commit/7536bb9ac7055227294225bbe942c64cbcac8135))
+* **macerator:** recycle netherite dust to and from ingots ([#734](https://github.com/Indemnity83/logistics/issues/734)) ([5cbce97](https://github.com/Indemnity83/logistics/commit/5cbce97e6f393042392f629d0f7eb0195c097e99))
+* **routing:** rework logistics pipe recipes with chipset alternatives ([#721](https://github.com/Indemnity83/logistics/issues/721)) ([3095cc7](https://github.com/Indemnity83/logistics/commit/3095cc7def6bccafb114e74a1f25486b9b591399))
+* **routing:** use a copper nugget in the blank module recipe ([4435420](https://github.com/Indemnity83/logistics/commit/4435420cd4c5f618f641b034b7e6d8a289a1f70c))
+
+
+### Removed
+
+* **crafting:** drop the wooden and ender valves ([7536bb9](https://github.com/Indemnity83/logistics/commit/7536bb9ac7055227294225bbe942c64cbcac8135))
+
+
+### Fixed
+
+* **automation:** make the refinery and sequential fabricator harvestable ([e7dfe5c](https://github.com/Indemnity83/logistics/commit/e7dfe5c7731dea79ae33215c766fccc536f07912))
+* **automation:** show machine recipes in JEI on multiplayer clients ([#735](https://github.com/Indemnity83/logistics/issues/735)) ([d8c2af7](https://github.com/Indemnity83/logistics/commit/d8c2af724ec5d84992901b95dbf6de3197c93448))
+* **compat:** register Crucible with NeoForge Jade plugin ([#744](https://github.com/Indemnity83/logistics/issues/744)) ([e2dabbe](https://github.com/Indemnity83/logistics/commit/e2dabbea4143e808beebccd5b7a973b8ec4ea624))
+* **compat:** show values in the Jade HUD instead of only labels ([#761](https://github.com/Indemnity83/logistics/issues/761)) ([8b5cf44](https://github.com/Indemnity83/logistics/commit/8b5cf442c0038f80a6e9d64735841b70b77d98f7))
+* **neoforge:** let pipes and cables interact with the refinery and sawmill ([#733](https://github.com/Indemnity83/logistics/issues/733)) ([480ce33](https://github.com/Indemnity83/logistics/commit/480ce333301b3cb17fc321d1350a45fa57922278))
+
 ## [0.8.2](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.1...mc1.21.11-v0.8.2) (2026-07-09)
 
 
