@@ -65,15 +65,23 @@ public final class EnginePistonCycleComponent implements MachineComponent, Engin
             return;
         }
 
+        CyclePhase previousPhase = cyclePhase;
+        float previousProgress = progress;
+
         EngineCyclePlanner.Result result = EngineCyclePlanner.advance(
                 cyclePhase, progress, powered.getAsBoolean(), (float) pistonSpeed.getAsDouble(), sendsEnergyContinuously);
         cyclePhase = result.phase();
         progress = result.progress();
 
+        boolean sentEnergy = false;
         if (result.shouldSendEnergy() && powered.getAsBoolean()) {
-            energy.push(ctx.level(), ctx.pos(), outputFace.get(), outputPower.getAsLong());
+            sentEnergy = energy.push(ctx.level(), ctx.pos(), outputFace.get(), outputPower.getAsLong()) > 0;
         }
-        onChanged.run();
+
+        // Only mark dirty on real change; an unpowered idle engine holds its phase/progress and stays clean.
+        if (cyclePhase != previousPhase || progress != previousProgress || sentEnergy) {
+            onChanged.run();
+        }
     }
 
     @Override
@@ -93,6 +101,10 @@ public final class EnginePistonCycleComponent implements MachineComponent, Engin
 
     public float progress() {
         return progress;
+    }
+
+    public CyclePhase cyclePhase() {
+        return cyclePhase;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.logistics.core.lib.power;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.core.lib.power.component.EngineBurnComponent;
+import com.logistics.core.lib.power.component.EnginePistonCycleComponent;
 import com.logistics.core.lib.power.gen.FixedGeneration;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
@@ -15,9 +16,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import org.junit.jupiter.api.Test;
 
 /**
- * Persistence of an {@link EngineEntity} composed from the real engine components, including
- * migration from the pre-component save format (flat {@code StoredEnergy}/{@code Temperature}/… keys
- * at the {@code LogisticsData} root) that engines used before this refactor.
+ * Persistence of an {@link EngineEntity} composed from the real engine components, including migration
+ * of legacy saves.
  */
 class EnginePersistenceTest extends MinecraftTestEnvironment {
 
@@ -27,6 +27,7 @@ class EnginePersistenceTest extends MinecraftTestEnvironment {
     /** An engine shell backed by a vanilla BE type so no mod registration is needed. */
     private static final class TestEngine extends EngineEntity {
         EngineBurnComponent burn;
+        EnginePistonCycleComponent cycle;
 
         TestEngine() {
             super(BlockEntityTypes.FURNACE, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
@@ -42,7 +43,7 @@ class EnginePersistenceTest extends MinecraftTestEnvironment {
                     .fuel(ctx -> 0)
                     .generation(new FixedGeneration(0))
                     .build();
-            engine.pistonCycle("cycle").energy(energy).heat(heat).build();
+            cycle = engine.pistonCycle("cycle").energy(energy).heat(heat).build();
         }
 
         void save(CompoundTag tag) {
@@ -75,6 +76,7 @@ class EnginePersistenceTest extends MinecraftTestEnvironment {
         assertThat(reader.getTemperature()).isEqualTo(99.0);
         assertThat(reader.getHeatStage()).isEqualTo(HeatStage.WARM);
         assertThat(reader.getProgress()).isEqualTo(0.3f);
+        assertThat(reader.cycle.cyclePhase()).isEqualTo(CyclePhase.EXPANSION);
         assertThat(reader.burn.burnTime()).isEqualTo(100);
         assertThat(reader.burn.fuelTime()).isEqualTo(200);
     }
@@ -95,6 +97,7 @@ class EnginePersistenceTest extends MinecraftTestEnvironment {
         assertThat(reader.getTemperature()).isEqualTo(99.0);
         assertThat(reader.getHeatStage()).isEqualTo(HeatStage.WARM);
         assertThat(reader.getProgress()).isEqualTo(0.3f);
+        assertThat(reader.cycle.cyclePhase()).isEqualTo(CyclePhase.EXPANSION);
         assertThat(reader.burn.burnTime()).isEqualTo(100);
         assertThat(reader.burn.fuelTime()).isEqualTo(200);
     }
