@@ -13,7 +13,7 @@ import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.EngineBuilder;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.FuelHelper;
-import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
+import com.logistics.core.lib.power.EngineEnergyPusher;
 import com.logistics.core.lib.power.fuel.FuelSource;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
@@ -61,27 +61,26 @@ public class SteamEngineBlockEntity extends EngineEntity
                 MenuBehavior.HasMenu,
                 ContainerSingleItem.BlockContainerSingleItem {
 
-    // Synced GUI data indices.
-    public static final int DATA_ENERGY = 0; // 0..10000 fill fraction
-    public static final int DATA_PRESSURE = 1;
-    public static final int DATA_MAX_PRESSURE = 2;
-    public static final int DATA_OPERATING = 3;
-    public static final int DATA_RELIGHT = 4;
-    public static final int DATA_TARGET = 5;
-    public static final int DATA_GENERATION = 6;
-    public static final int DATA_WATER_ID = 7;
-    public static final int DATA_WATER_AMOUNT = 8;
-    public static final int DATA_WATER_CAPACITY = 9;
-    public static final int DATA_COMMITTED_BURN = 10;
-    public static final int DATA_TOTAL_FUEL = 11;
-    public static final int DATA_BURN_FRACTION = 12; // committed-burn fraction, 0..1000
-    public static final int DATA_STATUS = 13; // SteamEngineStatus ordinal
-    public static final int DATA_FIREBOX = 14; // SteamFireboxState ordinal
+    // Synced GUI data indices. Pressure is the only stored-energy value — there is no RF buffer.
+    public static final int DATA_PRESSURE = 0;
+    public static final int DATA_MAX_PRESSURE = 1;
+    public static final int DATA_OPERATING = 2;
+    public static final int DATA_RELIGHT = 3;
+    public static final int DATA_TARGET = 4;
+    public static final int DATA_GENERATION = 5; // accepted RF/t
+    public static final int DATA_WATER_ID = 6;
+    public static final int DATA_WATER_AMOUNT = 7;
+    public static final int DATA_WATER_CAPACITY = 8;
+    public static final int DATA_COMMITTED_BURN = 9;
+    public static final int DATA_TOTAL_FUEL = 10;
+    public static final int DATA_BURN_FRACTION = 11; // committed-burn fraction, 0..1000
+    public static final int DATA_STATUS = 12; // SteamEngineStatus ordinal
+    public static final int DATA_FIREBOX = 13; // SteamFireboxState ordinal
+    public static final int DATA_FORCED_FIRING = 14; // 1 while force-firing below operating pressure
     public static final int DATA_COUNT = 15;
 
     // Assigned in configure() — see the note there on why these can't be field initializers.
     private ItemInventoryComponent fuelInventory;
-    private EngineEnergyOutputComponent energy;
     private FluidStoreComponent waterTank;
     private SteamEngineComponent steamSim;
 
@@ -89,7 +88,6 @@ public class SteamEngineBlockEntity extends EngineEntity
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATA_ENERGY -> energyFraction();
                 case DATA_PRESSURE -> (int) Math.round(steamSim.pressure());
                 case DATA_MAX_PRESSURE -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_MAX_PRESSURE));
                 case DATA_OPERATING -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_OPERATING_PRESSURE));
@@ -104,6 +102,7 @@ public class SteamEngineBlockEntity extends EngineEntity
                 case DATA_BURN_FRACTION -> (int) Math.round(steamSim.burnFraction() * 1000);
                 case DATA_STATUS -> steamSim.status().ordinal();
                 case DATA_FIREBOX -> steamSim.fireboxState().ordinal();
+                case DATA_FORCED_FIRING -> steamSim.isForcedFiring() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -144,27 +143,28 @@ public class SteamEngineBlockEntity extends EngineEntity
                 cfg(LogisticsPower.CONFIG.STEAM_PRESSURE_PER_RF),
                 cfg(LogisticsPower.CONFIG.STEAM_WATER_CONVERSION),
                 cfg(LogisticsPower.CONFIG.STEAM_COOLING_DECAY),
-                (int) (long) cfg(LogisticsPower.CONFIG.STEAM_STOKED_BURN_INTERVAL));
+                (int) (long) cfg(LogisticsPower.CONFIG.STEAM_STOKED_BURN_INTERVAL),
+                (int) (long) cfg(LogisticsPower.CONFIG.STEAM_STARTUP_BURN_MULTIPLIER));
 
-        energy = engine.energyOutput("energy")
-                .capacity(() -> cfg(LogisticsPower.CONFIG.STEAM_BUFFER_CAPACITY))
-                .build();
         waterTank = engine.fluids("waterTank")
                 .capacity(FluidUnits.mb(cfg(LogisticsPower.CONFIG.STEAM_WATER_TANK_CAPACITY)))
                 .build();
         engine.add(new FluidSyncComponent(waterTank));
+        // Pressure is the only reserve: the turbine offers RF directly to the output face each tick (no
+        // buffer, no piston-cycle component). SteamEngineComponent supplies PistonState for animation.
         steamSim = engine.add(new SteamEngineComponent(
-                "steamSim", energy, waterTank, fuelSource(), profile,
+                "steamSim", this::offerEnergy, waterTank, fuelSource(), profile,
                 this::isPowered, this::setLit, this::setChanged));
-        engine.pistonCycle("cycle")
-                .energy(energy)
-                .overheated(() -> false) // no heat model — the steam engine cannot overheat
-                .powered(this::isPowered)
-                .pistonSpeed(steamSim::pistonSpeed)
-                .outputPower(() -> cfg(LogisticsPower.CONFIG.STEAM_MAX_OUTPUT))
-                .outputFace(() -> SteamEngineBlock.getOutputDirection(getBlockState()))
-                .sendsEnergyContinuously(true)
-                .build();
+    }
+
+    /** Offer freshly generated RF directly to the output-face neighbor; returns accepted. */
+    private long offerEnergy(MachineContext ctx, long maxRf) {
+        Level level = ctx.level();
+        if (level == null) {
+            return 0;
+        }
+        return EngineEnergyPusher.pushGenerated(
+                level, getBlockPos(), SteamEngineBlock.getOutputDirection(getBlockState()), maxRf);
     }
 
     private static <T> T cfg(com.indemnity83.configory.ConfigKey<T> key) {
@@ -304,17 +304,8 @@ public class SteamEngineBlockEntity extends EngineEntity
         return steamSim;
     }
 
-    public long getEnergyStored() {
-        return energy.getAmount();
-    }
-
     public ContainerData getContainerData() {
         return containerData;
-    }
-
-    private int energyFraction() {
-        long capacity = energy.getCapacity();
-        return capacity <= 0 ? 0 : (int) Math.min(10_000L, energy.getAmount() * 10_000L / capacity);
     }
 
     private static int fluidId(FluidStoreComponent store) {

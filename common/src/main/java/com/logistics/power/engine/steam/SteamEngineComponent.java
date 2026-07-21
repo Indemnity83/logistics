@@ -4,7 +4,6 @@ import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.power.EngineComponent;
 import com.logistics.core.lib.power.HeatStage;
-import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
 import com.logistics.core.lib.power.fuel.FuelSource;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
@@ -18,20 +17,25 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * The Steam Engine simulation: a pressure-vessel engine. Solid fuel is a committed burn reserve, lit
  * only when pressure falls below the relight threshold and water is present. While a reserve burns it
- * boils water into stored {@link PressureVessel} pressure (up to the target, not the safety max), and
- * the turbine draws that pressure back out as RF (flat above the operating threshold, ramping below).
- * The firebox damps to {@link SteamFireboxState#STOKED} when it can't boil — burning slowly to keep the
- * boiler hot — so only a truly-out firebox lets pressure decay. It has no heat model and cannot overheat.
+ * boils water into stored {@link PressureVessel} pressure (up to the target, not the safety max). The
+ * turbine offers RF <em>directly</em> from pressure to the output-face neighbor each tick and spends
+ * pressure only for what the neighbor accepts — pressure is the engine's only stored-energy reserve
+ * (no RF buffer). Below the operating threshold a committed fire is "force-fired": it burns its reserve
+ * {@code startupBurnMultiplier}× faster (an efficiency penalty, not more steam). The firebox damps to
+ * {@link SteamFireboxState#STOKED} when it can't boil — burning slowly to keep the boiler hot — so only
+ * a truly-out firebox lets pressure decay. It has no heat model and cannot overheat.
  *
- * <p>Plugs into {@code EngineEntity} through {@link EngineComponent.RunningGate}; the fuel-ignition seam
- * ({@link FuelSource}) is injected so unit tests can drive it without a live level.
+ * <p>Plugs into {@code EngineEntity} through {@link EngineComponent.RunningGate} +
+ * {@link EngineComponent.PistonState}; the fuel-ignition ({@link FuelSource}) and energy-output
+ * ({@link TurbineOutput}) seams are injected so unit tests can drive it without a live level.
  */
-public final class SteamEngineComponent implements MachineComponent, EngineComponent.RunningGate {
+public final class SteamEngineComponent
+        implements MachineComponent, EngineComponent.RunningGate, EngineComponent.PistonState {
 
     private static final double EPSILON = 1e-6;
 
     private final String id;
-    private final EngineEnergyOutputComponent energy;
+    private final TurbineOutput output;
     private final FluidStoreComponent waterStore;
     private final FuelSource fuel;
     private final SteamEngineProfile profile;
@@ -45,14 +49,15 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
     private int stokedTickAccumulator;
     private double waterDebt;
 
-    private long lastGenerationRate; // transient: recomputed each tick, GUI-only (client piston uses pressure)
+    private long lastGenerationRate; // accepted RF/t; see save() for why it is (client-sync) persisted
     private SteamFireboxState firebox = SteamFireboxState.OFF; // derived
+    private boolean forcedFiring; // derived: boiling below operating pressure
     private SteamEngineStatus status = SteamEngineStatus.EMPTY; // derived
     private long syncedSpeedBucket;
 
     public SteamEngineComponent(
             String id,
-            EngineEnergyOutputComponent energy,
+            TurbineOutput output,
             FluidStoreComponent waterStore,
             FuelSource fuel,
             SteamEngineProfile profile,
@@ -60,7 +65,7 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
             EngineComponent.LitController lit,
             Runnable onChanged) {
         this.id = id;
-        this.energy = energy;
+        this.output = output;
         this.waterStore = waterStore;
         this.fuel = fuel;
         this.profile = profile;
@@ -90,8 +95,8 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
             onChanged.run();
         }
 
-        // Push a client sync when the piston's derived speed bucket changes (including start/stop). The
-        // piston reads speed/running from synced pressure + buffer, so this just refreshes those promptly.
+        // Push a client sync when the piston's speed bucket changes (including start/stop). The piston
+        // reflects accepted RF/t (lastGenerationRate), which is not client-derivable, so this refreshes it.
         long bucket = Math.round(pistonSpeed() * 1000);
         if (bucket != syncedSpeedBucket) {
             syncedSpeedBucket = bucket;
@@ -103,6 +108,7 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         if (!powered.getAsBoolean()) {
             // Redstone shutdown: preserve the reserve without consuming it, firebox OFF, cooling decay.
             firebox = SteamFireboxState.OFF;
+            forcedFiring = false;
             stokedTickAccumulator = 0;
             lastGenerationRate = 0;
             vessel.leak(profile.coolingDecayPerTick());
@@ -111,13 +117,14 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
             return;
         }
 
-        // Turbine: draw pressure to make RF (flat-then-ramp, limited by buffer space and stored pressure).
-        long output = computeOutput();
-        if (output > 0) {
-            energy.addEnergy(output);
-            vessel.draw(output * profile.pressurePerRf());
+        // Turbine: offer RF directly from pressure to the output-face neighbor (no buffer); spend pressure
+        // only for what is accepted. The clamp keeps a misbehaving receiver from over-drawing pressure.
+        long offered = computeOutput();
+        long accepted = Math.clamp(output.offer(ctx, offered), 0, offered);
+        if (accepted > 0) {
+            vessel.draw(accepted * profile.pressurePerRf());
         }
-        lastGenerationRate = output;
+        lastGenerationRate = accepted;
 
         // Relight when the reserve is out, pressure is low, and water is present (never waste fuel dry).
         boolean waterAvailable = !waterStore.tank().isEmpty();
@@ -132,9 +139,13 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
             }
         }
 
+        // Pressure the boiler sees this tick (post-turbine, pre-boil) — classifies the whole boiler tick,
+        // so steam added below can't flip the burn cost mid-tick.
+        double pressureBeforeBoiling = vessel.pressure();
+
         // Boil: produce steam if a reserve exists and pressure is below the target.
         double steam = 0;
-        if (committedBurnTicks > 0 && vessel.pressure() < profile.targetPressure()) {
+        if (committedBurnTicks > 0 && pressureBeforeBoiling < profile.targetPressure()) {
             steam = produceSteam();
         }
 
@@ -146,11 +157,14 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         } else {
             firebox = SteamFireboxState.STOKED;
         }
+        forcedFiring = firebox == SteamFireboxState.BOILING && pressureBeforeBoiling < profile.operatingPressure();
 
-        // Spend the reserve: fast while boiling, slow while stoked, none while off.
+        // Spend the reserve: forced-firing (boiling below operating) burns faster, then normal boiling,
+        // then slow stoking, then nothing while off.
         switch (firebox) {
             case BOILING -> {
-                committedBurnTicks--;
+                int cost = forcedFiring ? profile.startupBurnMultiplier() : 1;
+                committedBurnTicks = Math.max(0, committedBurnTicks - cost);
                 stokedTickAccumulator = 0;
             }
             case STOKED -> {
@@ -173,17 +187,16 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         }
 
         vessel.clampTo(profile.maxPressure());
-        status = deriveStatus(output, noFuel, waterAvailable);
+        status = deriveStatus(offered, accepted, noFuel, waterAvailable);
     }
 
-    /** Flat-then-ramp turbine output, limited by both buffer space and the pressure physically available. */
+    /** Flat-then-ramp turbine output, limited only by the pressure physically available (no buffer). */
     private long computeOutput() {
         long desired = profile.desiredOutput(vessel.pressure());
-        long bufferSpace = energy.getCapacity() - energy.getAmount();
         long pressureLimited = profile.pressurePerRf() > 0
                 ? (long) Math.floor(vessel.pressure() / profile.pressurePerRf())
                 : Long.MAX_VALUE;
-        return Math.max(0, Math.min(desired, Math.min(bufferSpace, pressureLimited)));
+        return Math.max(0, Math.min(desired, pressureLimited));
     }
 
     /**
@@ -215,10 +228,9 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         return steam;
     }
 
-    private SteamEngineStatus deriveStatus(long output, boolean noFuel, boolean waterAvailable) {
+    private SteamEngineStatus deriveStatus(long offered, long accepted, boolean noFuel, boolean waterAvailable) {
         double pressure = vessel.pressure();
         boolean hasReserve = committedBurnTicks > 0;
-        boolean bufferFull = energy.getAmount() >= energy.getCapacity();
 
         if (firebox == SteamFireboxState.STOKED && !waterAvailable) {
             return SteamEngineStatus.NO_WATER; // lit but can't boil for lack of water
@@ -229,28 +241,17 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         if (pressure <= EPSILON && !hasReserve) {
             return SteamEngineStatus.EMPTY;
         }
-        if (bufferFull && output == 0) {
-            return SteamEngineStatus.OUTPUT_FULL;
-        }
         if (firebox == SteamFireboxState.BOILING && pressure < profile.operatingPressure()) {
-            return SteamEngineStatus.BUILDING_PRESSURE;
+            return SteamEngineStatus.BUILDING_PRESSURE; // (forced firing while below operating)
         }
-        if (output > 0) {
+        if (offered > 0 && accepted == 0) {
+            return SteamEngineStatus.OUTPUT_BLOCKED; // pressure available but the neighbor took nothing
+        }
+        if (accepted > 0) {
             // Boiling while generating = fresh steam; generating without boiling = coasting on the reserve.
             return firebox == SteamFireboxState.BOILING ? SteamEngineStatus.GENERATING : SteamEngineStatus.COASTING;
         }
         return SteamEngineStatus.COASTING;
-    }
-
-    /**
-     * Whether the turbine would deliver RF, derived purely from synced state (stored pressure + buffer
-     * space) so the client can compute it without the transient generation rate. The host ANDs
-     * {@code isPowered()}, so redstone-off stops the piston.
-     */
-    private boolean runningFromState() {
-        return vessel.pressure() > EPSILON
-                && energy.getAmount() < energy.getCapacity()
-                && profile.desiredOutput(vessel.pressure()) > 0;
     }
 
     /**
@@ -284,21 +285,22 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         }
     }
 
-    // ==================== RunningGate ====================
+    // ==================== RunningGate / PistonState ====================
 
     @Override
     public boolean isRunning(MachineContext ctx) {
-        return runningFromState(); // host ANDs isPowered(); client-derivable from synced pressure + buffer
+        return lastGenerationRate > 0; // host ANDs isPowered(); reflects actual accepted RF, synced to the client
     }
 
-    /** Piston speed derived from stored pressure (client-safe): ramps to full at the operating threshold. */
-    public double pistonSpeed() {
-        if (!runningFromState()) {
-            return 0.0;
+    /** Piston speed tracks the accepted RF/t (0.02..0.08 over 0..maxOutput), synced via lastGenerationRate. */
+    @Override
+    public float pistonSpeed() {
+        if (lastGenerationRate <= 0) {
+            return 0f;
         }
-        double op = profile.operatingPressure();
-        double t = op > 0 ? Math.clamp(vessel.pressure() / op, 0.0, 1.0) : 1.0;
-        return 0.02 + t * 0.06;
+        long max = Math.max(1, profile.maxOutput());
+        float t = Math.clamp(lastGenerationRate / (float) max, 0f, 1f);
+        return 0.02f + t * 0.06f;
     }
 
     // ==================== GUI/HUD getters (derived, live) ====================
@@ -335,6 +337,11 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         return firebox;
     }
 
+    /** Whether the fire is being force-fired (boiling below operating pressure, burning fuel faster). */
+    public boolean isForcedFiring() {
+        return forcedFiring;
+    }
+
     public SteamEngineStatus status() {
         return status;
     }
@@ -348,7 +355,11 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         tag.putInt("TotalFuelTicks", totalFuelTicks);
         tag.putInt("StokedTickAccumulator", stokedTickAccumulator);
         tag.putDouble("WaterDebt", waterDebt);
-        // lastGenerationRate + derived firebox/status intentionally NOT persisted.
+        // lastGenerationRate is CLIENT-ANIMATION SYNC state, not authoritative simulation state: the
+        // update tag == save() is the only channel to the client, and the piston must reflect accepted RF
+        // (not client-derivable). The next server tick unconditionally overwrites it, so the on-disk copy
+        // is never trusted. (firebox/status are derived and not persisted.)
+        tag.putLong("LastGenerationRate", lastGenerationRate);
         fuel.save(tag, registries);
     }
 
@@ -359,7 +370,7 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         totalFuelTicks = NbtCompat.getInt(tag, "TotalFuelTicks", 0);
         stokedTickAccumulator = NbtCompat.getInt(tag, "StokedTickAccumulator", 0);
         waterDebt = Math.max(0, NbtCompat.getDouble(tag, "WaterDebt", 0));
-        lastGenerationRate = 0; // transient: reset, recompute on the first server tick
+        lastGenerationRate = NbtCompat.getLong(tag, "LastGenerationRate", 0); // client piston; server recomputes
         if (committedBurnTicks <= 0) {
             committedBurnTicks = 0;
             totalFuelTicks = 0;

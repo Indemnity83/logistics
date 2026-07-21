@@ -38,6 +38,7 @@ public final class EngineHudData {
     public static final String KEY_BURN_RESERVE = "burnReserve";
     public static final String KEY_FIREBOX = "firebox";
     public static final String KEY_STATUS = "status";
+    public static final String KEY_FORCED_FIRING = "forcedFiring";
 
     private EngineHudData() {}
 
@@ -70,6 +71,7 @@ public final class EngineHudData {
             data.putInt(KEY_BURN_RESERVE, steam.simulation().committedBurnTicks());
             data.putInt(KEY_FIREBOX, steam.simulation().fireboxState().ordinal());
             data.putInt(KEY_STATUS, steam.simulation().status().ordinal());
+            data.putBoolean(KEY_FORCED_FIRING, steam.simulation().isForcedFiring());
             if (!steam.waterTank().tank().isEmpty()) {
                 data.putString(KEY_WATER_FLUID,
                         BuiltInRegistries.FLUID.getKey(steam.waterTank().tank().getFluidKey().getFluid()).toString());

@@ -15,7 +15,8 @@ public record SteamEngineProfile(
         double pressurePerRf,
         double steamPerWaterMb,
         double coolingDecayPerTick,
-        int stokedBurnInterval) {
+        int stokedBurnInterval,
+        int startupBurnMultiplier) {
 
     /** RF the turbine wants at a given pressure: flat max at/above operating, linear ramp to 0 below. */
     public long desiredOutput(double pressure) {

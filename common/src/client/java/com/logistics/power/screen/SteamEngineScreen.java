@@ -92,6 +92,10 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
             lines.add(Component.translatable("tooltip.logistics.steam_engine.burn_reserve", menu.getCommittedBurn())
                     .withStyle(ChatFormatting.GRAY));
         }
+        if (menu.isForcedFiring()) {
+            lines.add(Component.translatable("tooltip.logistics.steam_engine.forced_firing")
+                    .withStyle(ChatFormatting.GOLD));
+        }
         lines.add(fireboxLine(menu.getFirebox()));
         lines.add(Component.translatable("jade.logistics.engine.status." + statusName(menu))
                 .withStyle(ChatFormatting.GRAY));

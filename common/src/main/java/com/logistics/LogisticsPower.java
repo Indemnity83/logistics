@@ -108,10 +108,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .min(1L)
                 .describe("Maximum RF/t generated (flat at/above operating pressure)")
                 .register();
-        public static final ConfigKey<Long> STEAM_BUFFER_CAPACITY = steam.defineLong("buffer_capacity", 10_000L)
-                .min(0L)
-                .describe("Internal RF buffer capacity")
-                .register();
         public static final ConfigKey<Long> STEAM_WATER_TANK_CAPACITY = steam.defineLong("water_tank_capacity_mb", 4_000L)
                 .min(100L)
                 .describe("Water tank capacity (mB)")
@@ -119,6 +115,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static final ConfigKey<Long> STEAM_STOKED_BURN_INTERVAL = steam.defineLong("stoked_burn_interval", 20L)
                 .min(1L)
                 .describe("While stoked, burn one reserve tick per this many game ticks")
+                .register();
+        public static final ConfigKey<Long> STEAM_STARTUP_BURN_MULTIPLIER = steam.defineLong("startup_burn_multiplier", 4L)
+                .min(1L)
+                .describe("Committed-reserve burn cost per tick while boiling below operating pressure (forced firing)")
                 .register();
         public static final ConfigKey<Double> STEAM_MAX_PRESSURE = steam.defineDouble("max_pressure", 1000.0)
                 .min(1.0)

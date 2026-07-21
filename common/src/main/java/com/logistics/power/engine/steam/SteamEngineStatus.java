@@ -17,8 +17,8 @@ public enum SteamEngineStatus {
     GENERATING,
     /** Holding pressure but not delivering RF this tick (no demand / buffer). */
     COASTING,
-    /** Buffer is full so no RF is delivered; pressure is conserved. */
-    OUTPUT_FULL,
+    /** Pressure is available but the output-face neighbor accepted nothing (no/full/disconnected consumer). */
+    OUTPUT_BLOCKED,
     /** No pressure, no reserve — completely idle. */
     EMPTY
 }

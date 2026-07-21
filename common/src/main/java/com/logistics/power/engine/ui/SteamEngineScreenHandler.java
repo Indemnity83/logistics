@@ -128,8 +128,8 @@ public class SteamEngineScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data getters for GUI rendering ====================
 
-    public int getEnergyBarHeight(int maxPixels) {
-        return data.get(SteamEngineBlockEntity.DATA_ENERGY) * maxPixels / 10_000;
+    public boolean isForcedFiring() {
+        return data.get(SteamEngineBlockEntity.DATA_FORCED_FIRING) != 0;
     }
 
     public int getPressure() {

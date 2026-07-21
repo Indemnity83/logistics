@@ -99,6 +99,11 @@ public final class EngineHudLines {
                         "jade.logistics.engine.burn_reserve",
                         String.format("%d ticks", NbtCompat.getInt(data, EngineHudData.KEY_BURN_RESERVE, 0)),
                         ChatFormatting.YELLOW));
+                if (NbtCompat.getBoolean(data, EngineHudData.KEY_FORCED_FIRING, false)) {
+                    lines.add(Component.empty()
+                            .append(Component.translatable("jade.logistics.engine.forced_firing")
+                                    .withStyle(ChatFormatting.GOLD)));
+                }
             }
         }
 
