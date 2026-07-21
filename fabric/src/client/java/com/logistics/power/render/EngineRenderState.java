@@ -17,9 +17,6 @@ public class EngineRenderState extends BlockEntityRenderState {
     public boolean isRunning = false;
     public float pistonSpeed = 0.0f;
 
-    // ARGB tint for the piston shaft (-1 = no tint); the Steam Engine colors it by stored pressure.
-    public int pistonTint = -1;
-
     // Engine type for model selection
     public EngineType engineType = EngineType.REDSTONE;
 
