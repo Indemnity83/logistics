@@ -21,9 +21,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Client-side GUI for the Steam Engine: a fuel slot with a firebox flame (bright while boiling, dimmed
- * while stoked), a water tank gauge, a pressure gauge with threshold markers at the operating, relight,
- * and target pressures, and an energy buffer gauge. Numeric detail is shown as hover tooltips.
+ * Client-side GUI for the Steam Engine: a fuel slot, a water tank gauge, a firebox flame (bright while
+ * boiling, dimmed while stoked), and the energy-buffer gauge — which for now shows stored pressure as a
+ * white fill (a fuller energy/pressure split is TBD). Numeric detail is shown as hover tooltips.
  */
 public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreenHandler> {
 
@@ -31,33 +31,26 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
-    private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
     private static final ResourceId FLAME = ResourceId.in("minecraft", "container/furnace/lit_progress");
 
-    // Firebox flame, below the fuel slot.
-    private static final int FLAME_X = 44;
-    private static final int FLAME_Y = 53;
-    private static final int FLAME_SIZE = 14;
-
-    // Water tank gauge (fluid fills a 16x48 interior).
-    private static final int WATER_LEFT = 80;
-    private static final int WATER_TOP = 18;
+    // Water tank gauge (fluid fills the interior).
+    private static final int WATER_LEFT = 109;
+    private static final int WATER_TOP = 14;
     private static final int WATER_WIDTH = 16;
-    private static final int WATER_HEIGHT = 48;
+    private static final int WATER_HEIGHT = 58;
     private static final int WATER_BOTTOM = WATER_TOP + WATER_HEIGHT;
 
-    // Pressure gauge (a vertical filled bar with threshold marker lines).
-    private static final int PRESSURE_LEFT = 104;
-    private static final int PRESSURE_TOP = 18;
-    private static final int PRESSURE_WIDTH = 8;
-    private static final int PRESSURE_HEIGHT = 48;
-    private static final int PRESSURE_BOTTOM = PRESSURE_TOP + PRESSURE_HEIGHT;
+    // Energy-buffer gauge — temporarily filled by stored pressure (white overlay).
+    private static final int GAUGE_LEFT = 155;
+    private static final int GAUGE_TOP = 19;
+    private static final int GAUGE_WIDTH = 12;
+    private static final int GAUGE_HEIGHT = 30;
+    private static final int GAUGE_BOTTOM = GAUGE_TOP + GAUGE_HEIGHT;
 
-    // Energy buffer gauge.
-    private static final int ENERGY_LEFT = 140;
-    private static final int ENERGY_TOP = 18;
-    private static final int ENERGY_WIDTH = 12;
-    private static final int ENERGY_HEIGHT = 48;
+    // Firebox flame, below the energy gauge.
+    private static final int FLAME_X = 154;
+    private static final int FLAME_Y = 53;
+    private static final int FLAME_SIZE = 14;
 
     public SteamEngineScreen(SteamEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
@@ -67,9 +60,7 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         hoverTooltip(graphics, mouseX, mouseY, WATER_LEFT, WATER_TOP, WATER_WIDTH, WATER_HEIGHT, waterTooltip());
-        hoverTooltip(graphics, mouseX, mouseY,
-                PRESSURE_LEFT, PRESSURE_TOP, PRESSURE_WIDTH, PRESSURE_HEIGHT, pressureTooltip());
-        hoverTooltip(graphics, mouseX, mouseY, ENERGY_LEFT, ENERGY_TOP, ENERGY_WIDTH, ENERGY_HEIGHT, statusTooltip());
+        hoverTooltip(graphics, mouseX, mouseY, GAUGE_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT, gaugeTooltip());
     }
 
     private void hoverTooltip(
@@ -91,23 +82,17 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
                 Component.translatable("tooltip.logistics.steam_engine.water", amount).withStyle(ChatFormatting.GRAY));
     }
 
-    private List<Component> pressureTooltip() {
+    private List<Component> gaugeTooltip() {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable(
                 "tooltip.logistics.steam_engine.pressure", menu.getPressure(), menu.getMaxPressure()));
         lines.add(Component.translatable("tooltip.logistics.steam_engine.output", menu.getGeneration())
                 .withStyle(ChatFormatting.GRAY));
-        lines.add(fireboxLine(menu.getFirebox()));
-        return lines;
-    }
-
-    private List<Component> statusTooltip() {
-        List<Component> lines = new ArrayList<>();
-        lines.add(Component.translatable("tooltip.logistics.steam_engine.output", menu.getGeneration()));
         if (menu.getCommittedBurn() > 0) {
             lines.add(Component.translatable("tooltip.logistics.steam_engine.burn_reserve", menu.getCommittedBurn())
                     .withStyle(ChatFormatting.GRAY));
         }
+        lines.add(fireboxLine(menu.getFirebox()));
         lines.add(Component.translatable("jade.logistics.engine.status." + statusName(menu))
                 .withStyle(ChatFormatting.GRAY));
         return lines;
@@ -129,41 +114,19 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
                 leftPos, topPos, 0, 0, imageWidth, imageHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
         renderTank(graphics, WATER_LEFT, menu.getWaterId(), menu.getWaterFillFraction());
-        renderPressureGauge(graphics);
-
-        int energyHeight = menu.getEnergyBarHeight(ENERGY_HEIGHT);
-        if (energyHeight > 0) {
-            graphics.blitSprite(
-                    RenderPipelines.GUI_TEXTURED, CHARGE.toIdentifier(),
-                    ENERGY_WIDTH, ENERGY_HEIGHT, 0, ENERGY_HEIGHT - energyHeight,
-                    leftPos + ENERGY_LEFT, topPos + ENERGY_TOP + (ENERGY_HEIGHT - energyHeight), ENERGY_WIDTH, energyHeight);
-        }
-
+        renderPressureInGauge(graphics);
         renderFlame(graphics);
     }
 
-    /** Vertical pressure bar with threshold marker lines at operating / relight / target pressures. */
-    private void renderPressureGauge(GuiGraphicsExtractor graphics) {
-        int x0 = leftPos + PRESSURE_LEFT;
-        int bottom = topPos + PRESSURE_BOTTOM;
-        // Background well.
-        graphics.fill(x0, topPos + PRESSURE_TOP, x0 + PRESSURE_WIDTH, bottom, 0xFF20140A);
-        int fillPixels = Math.round(menu.getPressureFraction() * PRESSURE_HEIGHT);
-        if (fillPixels > 0) {
-            graphics.fill(x0, bottom - fillPixels, x0 + PRESSURE_WIDTH, bottom, 0xFF57C4E0);
-        }
-        int max = menu.getMaxPressure();
-        marker(graphics, x0, bottom, menu.getOperatingPressure(), max, 0xFF3CB043); // operating (green)
-        marker(graphics, x0, bottom, menu.getRelightPressure(), max, 0xFFE0A030); // relight (amber)
-        marker(graphics, x0, bottom, menu.getTargetPressure(), max, 0xFFC03030); // target (red)
-    }
-
-    private void marker(GuiGraphicsExtractor graphics, int x0, int bottom, int value, int max, int color) {
-        if (max <= 0 || value <= 0) {
+    /** Stored pressure shown in the energy-buffer gauge as a white overlay (energy/pressure split is TBD). */
+    private void renderPressureInGauge(GuiGraphicsExtractor graphics) {
+        int fillPixels = Math.round(menu.getPressureFraction() * GAUGE_HEIGHT);
+        if (fillPixels <= 0) {
             return;
         }
-        int y = bottom - Math.round(Math.min(1f, value / (float) max) * PRESSURE_HEIGHT);
-        graphics.fill(x0, y, x0 + PRESSURE_WIDTH, y + 1, color);
+        int x0 = leftPos + GAUGE_LEFT;
+        int bottom = topPos + GAUGE_BOTTOM;
+        graphics.fill(x0, bottom - fillPixels, x0 + GAUGE_WIDTH, bottom, 0xC8FFFFFF);
     }
 
     /** Firebox flame: full-bright while boiling, dimmed while stoked, hidden while off. */

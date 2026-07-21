@@ -26,7 +26,7 @@ public class SteamEngineScreenHandler extends AbstractContainerMenu {
     private static final int HOTBAR_Y = 142;
     private static final int SLOT_START_X = 8;
 
-    private static final int FUEL_SLOT_X = 44;
+    private static final int FUEL_SLOT_X = 80;
     private static final int FUEL_SLOT_Y = 35;
 
     private final Container inventory;
