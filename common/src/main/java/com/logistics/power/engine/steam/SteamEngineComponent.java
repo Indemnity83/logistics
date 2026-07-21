@@ -3,6 +3,7 @@ package com.logistics.power.engine.steam;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.power.EngineComponent;
+import com.logistics.core.lib.power.HeatStage;
 import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
 import com.logistics.core.lib.power.fuel.FuelSource;
 import com.logistics.core.machine.MachineComponent;
@@ -11,6 +12,8 @@ import com.logistics.core.machine.component.FluidStoreComponent;
 import java.util.function.BooleanSupplier;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * The Steam Engine simulation: a pressure-vessel engine. Solid fuel is a committed burn reserve, lit
@@ -79,6 +82,7 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         double w0 = waterDebt;
 
         tickSimulation(ctx);
+        syncStage(ctx);
 
         lit.setLit(ctx, firebox != SteamFireboxState.OFF);
 
@@ -247,6 +251,37 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
         return vessel.pressure() > EPSILON
                 && energy.getAmount() < energy.getCapacity()
                 && profile.desiredOutput(vessel.pressure()) > 0;
+    }
+
+    /**
+     * Pressure mapped onto the shared engine heat-stage property so the static shaft tints the same way
+     * Stirling's does, but by stored pressure instead of temperature: blue building, green/yellow through
+     * the operating band, red when over the target.
+     */
+    private HeatStage pressureStage() {
+        double p = vessel.pressure();
+        if (p < profile.operatingPressure()) {
+            return HeatStage.COLD;
+        }
+        if (p < profile.relightPressure()) {
+            return HeatStage.COOL;
+        }
+        if (p < profile.targetPressure()) {
+            return HeatStage.WARM;
+        }
+        return HeatStage.HOT;
+    }
+
+    /** Writes the pressure stage onto the block's {@code STAGE} property (drives the shaft tint) on change. */
+    private void syncStage(MachineContext ctx) {
+        BlockState state = ctx.blockState();
+        if (!state.hasProperty(HeatStage.STAGE)) {
+            return;
+        }
+        HeatStage stage = pressureStage();
+        if (state.getValue(HeatStage.STAGE) != stage) {
+            ctx.setBlockState(state.setValue(HeatStage.STAGE, stage), Block.UPDATE_ALL);
+        }
     }
 
     // ==================== RunningGate ====================
