@@ -53,7 +53,7 @@ public class CreativeEngineBlockEntity extends EngineEntity {
                 .build();
         engine.pistonCycle("cycle")
                 .energy(energy)
-                .heat(heat)
+                .overheated(heat::isOverheated)
                 .powered(this::isPowered)
                 .pistonSpeed(() -> outputLevels.pistonSpeed())
                 .outputPower(() -> outputLevels.outputRate())

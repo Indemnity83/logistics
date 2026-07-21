@@ -22,7 +22,7 @@ public final class EnginePistonCycleComponent implements MachineComponent, Engin
 
     private final String id;
     private final EngineEnergyOutputComponent energy;
-    private final EngineHeatComponent heat;
+    private final BooleanSupplier overheated;
     private final BooleanSupplier powered;
     private final LongSupplier outputPower;
     private final Supplier<Direction> outputFace;
@@ -36,7 +36,7 @@ public final class EnginePistonCycleComponent implements MachineComponent, Engin
     public EnginePistonCycleComponent(
             String id,
             EngineEnergyOutputComponent energy,
-            EngineHeatComponent heat,
+            BooleanSupplier overheated,
             BooleanSupplier powered,
             LongSupplier outputPower,
             Supplier<Direction> outputFace,
@@ -45,7 +45,7 @@ public final class EnginePistonCycleComponent implements MachineComponent, Engin
             Runnable onChanged) {
         this.id = id;
         this.energy = energy;
-        this.heat = heat;
+        this.overheated = overheated;
         this.powered = powered;
         this.outputPower = outputPower;
         this.outputFace = outputFace;
@@ -61,7 +61,7 @@ public final class EnginePistonCycleComponent implements MachineComponent, Engin
 
     @Override
     public void serverTick(MachineContext ctx) {
-        if (heat.isOverheated()) {
+        if (overheated.getAsBoolean()) {
             return;
         }
 

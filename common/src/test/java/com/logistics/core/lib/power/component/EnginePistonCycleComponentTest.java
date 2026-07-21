@@ -15,10 +15,9 @@ class EnginePistonCycleComponentTest extends MinecraftTestEnvironment {
 
     private EnginePistonCycleComponent cycle(boolean powered, double pistonSpeed) {
         EngineEnergyOutputComponent energy = new EngineEnergyOutputComponent("energy", () -> 1000L, () -> {});
-        EngineHeatComponent heat = new EngineHeatComponent(
-                "heat", energy, 20, 250, true, 10, null, () -> false, () -> false, () -> {});
         return new EnginePistonCycleComponent(
-                "cycle", energy, heat, () -> powered, () -> 10L, () -> Direction.NORTH, () -> pistonSpeed, false, () -> {});
+                "cycle", energy, () -> false, () -> powered, () -> 10L, () -> Direction.NORTH, () -> pistonSpeed, false,
+                () -> {});
     }
 
     @Test
