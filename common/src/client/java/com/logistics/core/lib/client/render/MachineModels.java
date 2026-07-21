@@ -142,7 +142,17 @@ public final class MachineModels {
      * an empty list for an unknown key.
      */
     public static List<BlockStateModelPart> parts(String key) {
-        List<BlockStateModelPart> cached = PARTS_CACHE.get(key);
+        return parts(key, -1);
+    }
+
+    /**
+     * Build (and cache) the parts baked with the given {@code tintIndex}. Pass {@code 0} for a part
+     * that should receive a per-frame tint color from {@code submitBlockModel} (e.g. the Steam Engine
+     * shaft colored by pressure); {@code -1} bakes it untinted.
+     */
+    public static List<BlockStateModelPart> parts(String key, int tintIndex) {
+        String cacheKey = key + "#" + tintIndex;
+        List<BlockStateModelPart> cached = PARTS_CACHE.get(cacheKey);
         if (cached != null) {
             return cached;
         }
@@ -153,10 +163,10 @@ public final class MachineModels {
         TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
                 .getSprite(LogisticsMod.modId("block/" + model.textureBase()).toIdentifier());
-        VanillaQuadBaker baker = new VanillaQuadBaker(sprite, -1, true, 0);
+        VanillaQuadBaker baker = new VanillaQuadBaker(sprite, tintIndex, true, 0);
         BoxGeometry.emit(baker::quad, model.elements(), sprite);
         List<BlockStateModelPart> parts = baker.isEmpty() ? List.of() : List.of(baker.toPart());
-        PARTS_CACHE.put(key, parts);
+        PARTS_CACHE.put(cacheKey, parts);
         return parts;
     }
 }

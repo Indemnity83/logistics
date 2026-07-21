@@ -45,7 +45,7 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
     private long lastGenerationRate; // transient: recomputed each tick, GUI-only (client piston uses pressure)
     private SteamFireboxState firebox = SteamFireboxState.OFF; // derived
     private SteamEngineStatus status = SteamEngineStatus.EMPTY; // derived
-    private long syncedSpeedBucket;
+    private long syncedRenderKey;
 
     public SteamEngineComponent(
             String id,
@@ -86,11 +86,12 @@ public final class SteamEngineComponent implements MachineComponent, EngineCompo
             onChanged.run();
         }
 
-        // Push a client sync when the piston's derived speed bucket changes (including start/stop). The
-        // piston reads speed/running from synced pressure + buffer, so this just refreshes those promptly.
-        long bucket = Math.round(pistonSpeed() * 1000);
-        if (bucket != syncedSpeedBucket) {
-            syncedSpeedBucket = bucket;
+        // Push a client sync when the piston's derived speed bucket OR the pressure bucket changes
+        // (including start/stop). The client reads piston speed/running and the shaft pressure-tint from
+        // synced pressure + buffer, so this refreshes both promptly without syncing every tick.
+        long renderKey = Math.round(pistonSpeed() * 1000) * 100 + Math.round(vessel.pressure() / 25.0);
+        if (renderKey != syncedRenderKey) {
+            syncedRenderKey = renderKey;
             ctx.sync();
         }
     }

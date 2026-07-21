@@ -9,6 +9,7 @@ public class EngineRenderState extends BlockEntityRenderState {
     public Direction facing = Direction.UP;
     public boolean isRunning = false;
     public float pistonSpeed = 0.0f;
+    public int pistonTint = -1; // ARGB piston-shaft tint (-1 = none); Steam colors it by stored pressure
     public EngineType engineType = EngineType.REDSTONE;
     private float animationProgress = 0f;
 

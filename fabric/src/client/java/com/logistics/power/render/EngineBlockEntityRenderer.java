@@ -80,8 +80,10 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             state.engineType = EngineRenderState.EngineType.REDSTONE;
         } else if (entity instanceof StirlingEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.STIRLING;
-        } else if (entity instanceof com.logistics.power.engine.block.entity.SteamEngineBlockEntity) {
+        } else if (entity instanceof com.logistics.power.engine.block.entity.SteamEngineBlockEntity steam) {
             state.engineType = EngineRenderState.EngineType.STEAM;
+            state.pistonTint =
+                    com.logistics.power.engine.SteamPressureTint.color(steam.simulation().pressureFraction());
         } else if (entity instanceof CreativeEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.CREATIVE;
         }
@@ -102,9 +104,13 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             SubmitNodeCollector queue,
             CameraRenderState cameraState) {
 
-        // Get code-generated parts
+        // Get code-generated parts. The Steam Engine's shaft bakes with tint index 0 so it can be
+        // colored by stored pressure; every other engine's parts stay untinted.
         List<BlockStateModelPart> bellowParts = MachineModels.parts(getBellowKey(state.engineType));
-        List<BlockStateModelPart> pistonParts = MachineModels.parts(getPistonKey(state.engineType));
+        boolean tintPiston = state.engineType == EngineRenderState.EngineType.STEAM;
+        List<BlockStateModelPart> pistonParts = tintPiston
+                ? MachineModels.parts(getPistonKey(state.engineType), 0)
+                : MachineModels.parts(getPistonKey(state.engineType));
 
         if (bellowParts.isEmpty() || pistonParts.isEmpty()) {
             return; // Atlas/parts not ready yet
@@ -125,10 +131,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
         queue.submitBlockModel(matrices, renderLayer, bellowParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
-        // Render piston (translates with animation)
+        // Render piston (translates with animation); the shaft is tinted by pressure on the Steam Engine.
         matrices.pushPose();
         matrices.translate(0, 4 / 16f + pistonOffset, 0);
-        queue.submitBlockModel(matrices, renderLayer, pistonParts, new int[]{-1}, light, OverlayTexture.NO_OVERLAY, 0);
+        queue.submitBlockModel(
+                matrices, renderLayer, pistonParts, new int[]{state.pistonTint}, light, OverlayTexture.NO_OVERLAY, 0);
         matrices.popPose();
 
         matrices.popPose();
