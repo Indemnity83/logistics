@@ -13,9 +13,7 @@ import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.EngineBuilder;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.FuelHelper;
-import com.logistics.core.lib.power.HeatStage;
 import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
-import com.logistics.core.lib.power.component.EngineHeatComponent;
 import com.logistics.core.lib.power.fuel.FuelSource;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
@@ -53,8 +51,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * The Steam Engine: boils solid fuel + water into stored pressure, which the turbine draws down as RF.
  * It has a solid-fuel slot and a water tank; pressure is an internal reserve owned by the
- * {@link SteamEngineComponent} simulation. Structurally it cannot overheat, so — unlike the Stirling
- * and Fuel engines — its inert heat component is pinned to COLD purely to satisfy the piston cycle.
+ * {@link SteamEngineComponent} simulation. It has no heat model at all — structurally it cannot
+ * overheat — so the piston cycle is wired with a constant {@code overheated = false} gate.
  */
 public class SteamEngineBlockEntity extends EngineEntity
         implements HasItemStorage,
@@ -151,14 +149,6 @@ public class SteamEngineBlockEntity extends EngineEntity
         energy = engine.energyOutput("energy")
                 .capacity(() -> cfg(LogisticsPower.CONFIG.STEAM_BUFFER_CAPACITY))
                 .build();
-        // The steam engine cannot overheat; this heat component exists only to satisfy the piston cycle,
-        // pinned to COLD so no heat is ever reported (mirrors the Creative Engine).
-        EngineHeatComponent heat = engine.heat("heat")
-                .energy(energy)
-                .canOverheat(false)
-                .stageOverride(HeatStage.COLD)
-                .running(this::isRunning)
-                .build();
         waterTank = engine.fluids("waterTank")
                 .capacity(FluidUnits.mb(cfg(LogisticsPower.CONFIG.STEAM_WATER_TANK_CAPACITY)))
                 .build();
@@ -168,7 +158,7 @@ public class SteamEngineBlockEntity extends EngineEntity
                 this::isPowered, this::setLit, this::setChanged));
         engine.pistonCycle("cycle")
                 .energy(energy)
-                .heat(heat)
+                .overheated(() -> false) // no heat model — the steam engine cannot overheat
                 .powered(this::isPowered)
                 .pistonSpeed(steamSim::pistonSpeed)
                 .outputPower(() -> cfg(LogisticsPower.CONFIG.STEAM_MAX_OUTPUT))
