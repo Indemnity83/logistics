@@ -1,11 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["CCC", "bGb", "gpg"],
+  "pattern": ["CCC", " G ", "gpg"],
   "key": {
     "C": "minecraft:copper_ingot",
-    "b": "minecraft:bucket",
     "G": "minecraft:glass",
-    "g": "logistics:core/stone_gear",
+    "g": "logistics:core/bronze_gear",
     "p": "minecraft:piston"
   },
   "result": {
