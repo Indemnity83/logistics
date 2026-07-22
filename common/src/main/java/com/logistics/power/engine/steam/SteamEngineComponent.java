@@ -15,15 +15,21 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * The Steam Engine simulation: a pressure-vessel engine. Solid fuel is a committed burn reserve, lit
- * only when pressure falls below the relight threshold and water is present. While a reserve burns it
- * boils water into stored {@link PressureVessel} pressure (up to the target, not the safety max). The
- * turbine offers RF <em>directly</em> from pressure to the output-face neighbor each tick and spends
- * pressure only for what the neighbor accepts — pressure is the engine's only stored-energy reserve
- * (no RF buffer). Below the operating threshold a committed fire is "force-fired": it burns its reserve
- * {@code startupBurnMultiplier}× faster (an efficiency penalty, not more steam). The firebox damps to
- * {@link SteamFireboxState#STOKED} when it can't boil — burning slowly to keep the boiler hot — so only
- * a truly-out firebox lets pressure decay. It has no heat model and cannot overheat.
+ * The Steam Engine simulation, built as a physical thermal-mass model rather than a bag of gameplay
+ * rules. <b>Boiler heat is the engine's truth</b>; everything else is a one-way consequence of it:
+ *
+ * <pre>{@code
+ * fuel  ->  boiler heat  ->  steam  ->  pressure  ->  RF
+ * }</pre>
+ *
+ * <p>Once a fuel item is lit it burns continuously to completion (adding heat); the firebox controls
+ * temperature only by deciding <em>when to commit the next item</em> — at/below {@code refuelHeat}.
+ * Heat makes steam above the boiling point (consuming latent heat), steam is stored as
+ * {@link PressureVessel} pressure, and the turbine spends pressure directly into RF on the output face
+ * (no RF buffer). Passive loss bleeds heat every tick; below boiling, pressure condenses away. Heat is
+ * clamped at {@code maxBoilerHeat} and any overflow is simply discarded — the engine never overheats or
+ * fails; the only penalty for under-utilization is wasted fuel. The one feedback is indirect: load
+ * spends pressure, which lets more steam form, which removes more heat, which eventually commits fuel.
  *
  * <p>Plugs into {@code EngineEntity} through {@link EngineComponent.RunningGate} +
  * {@link EngineComponent.PistonState}; the fuel-ignition ({@link FuelSource}) and energy-output
@@ -44,14 +50,14 @@ public final class SteamEngineComponent
     private final Runnable onChanged;
 
     private final PressureVessel vessel = new PressureVessel();
+    private double boilerHeat; // the primary state; heat past maxBoilerHeat is discarded
     private int committedBurnTicks;
     private int totalFuelTicks;
-    private int stokedTickAccumulator;
     private double waterDebt;
 
     private long lastGenerationRate; // accepted RF/t; see save() for why it is (client-sync) persisted
     private SteamFireboxState firebox = SteamFireboxState.OFF; // derived
-    private boolean forcedFiring; // derived: boiling below operating pressure
+    private boolean safetyValveActive; // derived, cosmetic: heat was discarded this tick
     private SteamEngineStatus status = SteamEngineStatus.EMPTY; // derived
     private long syncedSpeedBucket;
 
@@ -82,16 +88,16 @@ public final class SteamEngineComponent
     @Override
     public void serverTick(MachineContext ctx) {
         double p0 = vessel.pressure();
+        double h0 = boilerHeat;
         int b0 = committedBurnTicks;
-        int s0 = stokedTickAccumulator;
         double w0 = waterDebt;
 
         tickSimulation(ctx);
         syncStage(ctx);
 
-        lit.setLit(ctx, firebox != SteamFireboxState.OFF);
+        lit.setLit(ctx, firebox == SteamFireboxState.FIRING);
 
-        if (vessel.pressure() != p0 || committedBurnTicks != b0 || stokedTickAccumulator != s0 || waterDebt != w0) {
+        if (vessel.pressure() != p0 || boilerHeat != h0 || committedBurnTicks != b0 || waterDebt != w0) {
             onChanged.run();
         }
 
@@ -106,19 +112,20 @@ public final class SteamEngineComponent
 
     private void tickSimulation(MachineContext ctx) {
         if (!powered.getAsBoolean()) {
-            // Redstone shutdown: preserve the reserve without consuming it, firebox OFF, cooling decay.
+            // Redstone-disabled: preserve the committed reserve unconsumed, firebox OFF; passive loss and
+            // condensation still run (heat is lost first, then pressure once below boiling).
             firebox = SteamFireboxState.OFF;
-            forcedFiring = false;
-            stokedTickAccumulator = 0;
+            safetyValveActive = false;
             lastGenerationRate = 0;
-            vessel.leak(profile.coolingDecayPerTick());
+            boilerHeat = Math.max(0, boilerHeat - profile.passiveHeatLoss());
+            condense();
             vessel.clampTo(profile.maxPressure());
             status = SteamEngineStatus.REDSTONE_DISABLED;
             return;
         }
 
-        // Turbine: offer RF directly from pressure to the output-face neighbor (no buffer); spend pressure
-        // only for what is accepted. The clamp keeps a misbehaving receiver from over-drawing pressure.
+        // 1-2. Turbine: offer RF directly from pressure to the output-face neighbor (no buffer); spend
+        // pressure only for what is accepted. The clamp keeps a misbehaving receiver from over-drawing.
         long offered = computeOutput();
         long accepted = Math.clamp(output.offer(ctx, offered), 0, offered);
         if (accepted > 0) {
@@ -126,68 +133,59 @@ public final class SteamEngineComponent
         }
         lastGenerationRate = accepted;
 
-        // Relight when the reserve is out, pressure is low, and water is present (never waste fuel dry).
+        // 3. Passive heat loss (every state).
+        boilerHeat = Math.max(0, boilerHeat - profile.passiveHeatLoss());
+
+        // 4-5. Steam (only above boiling, with headroom + water): adds pressure, removes latent heat + water.
         boolean waterAvailable = !waterStore.tank().isEmpty();
-        boolean noFuel = false;
-        if (committedBurnTicks <= 0 && vessel.pressure() < profile.relightPressure() && waterAvailable) {
+        double steam = produceSteam();
+
+        // 6. Fuel: a lit reserve burns continuously to completion; only when it is spent AND heat has
+        // fallen to/below refuelHeat do we commit the next item (dry-firing is allowed — no water gate).
+        boolean noFuelToCommit = false;
+        if (committedBurnTicks > 0) {
+            int burned = Math.min(profile.firingRate(), committedBurnTicks);
+            committedBurnTicks -= burned;
+            boilerHeat += burned * profile.heatPerBurnTick();
+            if (committedBurnTicks <= 0) {
+                totalFuelTicks = 0;
+            }
+        } else if (boilerHeat <= profile.refuelHeat()) {
             int ticks = fuel.ignite(ctx);
             if (ticks > 0) {
                 committedBurnTicks = ticks;
                 totalFuelTicks = ticks;
             } else {
-                noFuel = true;
+                noFuelToCommit = true;
             }
         }
 
-        // Pressure the boiler sees this tick (post-turbine, pre-boil) — classifies the whole boiler tick,
-        // so steam added below can't flip the burn cost mid-tick.
-        double pressureBeforeBoiling = vessel.pressure();
-
-        // Boil: produce steam if a reserve exists and pressure is below the target.
-        double steam = 0;
-        if (committedBurnTicks > 0 && pressureBeforeBoiling < profile.targetPressure()) {
-            steam = produceSteam();
-        }
-
-        // Derive the firebox from the reserve and whether steam was produced this tick.
-        if (committedBurnTicks <= 0) {
-            firebox = SteamFireboxState.OFF;
-        } else if (steam > EPSILON) {
-            firebox = SteamFireboxState.BOILING;
-        } else {
+        // 7. Derive the firebox purely from committed fuel + heat.
+        if (committedBurnTicks > 0) {
+            firebox = SteamFireboxState.FIRING;
+        } else if (boilerHeat > profile.refuelHeat()) {
             firebox = SteamFireboxState.STOKED;
-        }
-        forcedFiring = firebox == SteamFireboxState.BOILING && pressureBeforeBoiling < profile.operatingPressure();
-
-        // Spend the reserve: forced-firing (boiling below operating) burns faster, then normal boiling,
-        // then slow stoking, then nothing while off.
-        switch (firebox) {
-            case BOILING -> {
-                int cost = forcedFiring ? profile.startupBurnMultiplier() : 1;
-                committedBurnTicks = Math.max(0, committedBurnTicks - cost);
-                stokedTickAccumulator = 0;
-            }
-            case STOKED -> {
-                if (++stokedTickAccumulator >= profile.stokedBurnInterval()) {
-                    committedBurnTicks--;
-                    stokedTickAccumulator = 0;
-                }
-            }
-            case OFF -> stokedTickAccumulator = 0;
-        }
-        if (committedBurnTicks <= 0) {
-            committedBurnTicks = 0;
-            totalFuelTicks = 0;
-            stokedTickAccumulator = 0;
+        } else {
+            firebox = SteamFireboxState.OFF;
         }
 
-        // Pressure decay only while the firebox is out (a stoked/boiling fire maintains boiler heat).
-        if (firebox == SteamFireboxState.OFF) {
-            vessel.leak(profile.coolingDecayPerTick());
-        }
+        // 8-9. Clamp heat; the overflow is discarded (cosmetic safety valve, never a failure).
+        safetyValveActive = boilerHeat > profile.maxBoilerHeat() + EPSILON;
+        boilerHeat = Math.clamp(boilerHeat, 0.0, profile.maxBoilerHeat());
 
+        // 10. Pressure condensation while cold; then the safety pressure clamp.
+        condense();
         vessel.clampTo(profile.maxPressure());
-        status = deriveStatus(offered, accepted, noFuel, waterAvailable);
+
+        // 11. Status (GUI/tint/sync happen in serverTick around this).
+        status = deriveStatus(offered, accepted, noFuelToCommit, waterAvailable, steam);
+    }
+
+    /** Steam condenses back to water only once the boiler has cooled below the boiling point. */
+    private void condense() {
+        if (boilerHeat < profile.boilingHeat()) {
+            vessel.leak(profile.condensationRate());
+        }
     }
 
     /** Flat-then-ramp turbine output, limited only by the pressure physically available (no buffer). */
@@ -200,25 +198,32 @@ public final class SteamEngineComponent
     }
 
     /**
-     * Produce steam this tick, limited by the burn rate, target headroom, and available water; consume
-     * the water transactionally via a fractional accumulator that never promises absent water.
+     * Produce steam this tick, limited by the heat-quality rate, target headroom, available water, and
+     * the latent heat physically available. Consumes latent heat and (transactionally, via a fractional
+     * accumulator that never promises absent water) the water it boils.
      *
      * @return the pressure of steam actually produced.
      */
     private double produceSteam() {
+        if (boilerHeat < profile.boilingHeat()) {
+            return 0; // below boiling: heating up, no steam yet
+        }
         double targetHeadroom = Math.max(0, profile.targetPressure() - vessel.pressure());
-        if (targetHeadroom <= EPSILON || profile.steamPerWaterMb() <= 0) {
+        if (targetHeadroom <= EPSILON || profile.steamPerWaterMb() <= 0 || profile.latentHeat() <= 0) {
             return 0;
         }
+        double rateLimited = profile.steamRate() * profile.heatFactor(boilerHeat);
         long unitsPerMb = FluidUnits.mb(1);
         double availableMb = waterStore.tank().getAmount() / (double) unitsPerMb;
         double usableWaterMb = Math.max(0, availableMb - waterDebt); // honor water already owed
         double waterLimited = usableWaterMb * profile.steamPerWaterMb();
-        double steam = Math.min(profile.steamPerBurnTick(), Math.min(targetHeadroom, waterLimited));
+        double heatLimited = boilerHeat / profile.latentHeat();
+        double steam = Math.min(Math.min(rateLimited, targetHeadroom), Math.min(waterLimited, heatLimited));
         if (steam <= EPSILON) {
             return 0;
         }
         vessel.add(steam);
+        boilerHeat -= steam * profile.latentHeat();
         waterDebt += steam / profile.steamPerWaterMb();
         long wholeMb = (long) Math.floor(waterDebt);
         if (wholeMb > 0) {
@@ -228,58 +233,61 @@ public final class SteamEngineComponent
         return steam;
     }
 
-    private SteamEngineStatus deriveStatus(long offered, long accepted, boolean noFuel, boolean waterAvailable) {
+    private SteamEngineStatus deriveStatus(
+            long offered, long accepted, boolean noFuelToCommit, boolean waterAvailable, double steam) {
         double pressure = vessel.pressure();
         boolean hasReserve = committedBurnTicks > 0;
 
-        if (firebox == SteamFireboxState.STOKED && !waterAvailable) {
-            return SteamEngineStatus.NO_WATER; // lit but can't boil for lack of water
-        }
-        if (!hasReserve && noFuel && pressure < profile.relightPressure()) {
+        if (!hasReserve && noFuelToCommit && boilerHeat <= profile.refuelHeat() && pressure <= EPSILON) {
             return SteamEngineStatus.NO_FUEL;
         }
-        if (pressure <= EPSILON && !hasReserve) {
-            return SteamEngineStatus.EMPTY;
+        if (hasReserve && boilerHeat < profile.boilingHeat()) {
+            return SteamEngineStatus.HEATING; // fire lit, warming up, no steam yet
         }
-        if (firebox == SteamFireboxState.BOILING && pressure < profile.operatingPressure()) {
-            return SteamEngineStatus.BUILDING_PRESSURE; // (forced firing while below operating)
+        if (boilerHeat >= profile.boilingHeat() && !waterAvailable && pressure < profile.targetPressure()) {
+            return SteamEngineStatus.NO_WATER; // hot enough to boil but dry
+        }
+        if (steam > EPSILON && pressure < profile.operatingPressure()) {
+            return SteamEngineStatus.BUILDING_PRESSURE;
         }
         if (offered > 0 && accepted == 0) {
             return SteamEngineStatus.OUTPUT_BLOCKED; // pressure available but the neighbor took nothing
         }
         if (accepted > 0) {
-            // Boiling while generating = fresh steam; generating without boiling = coasting on the reserve.
-            return firebox == SteamFireboxState.BOILING ? SteamEngineStatus.GENERATING : SteamEngineStatus.COASTING;
+            // Steaming while generating = fresh steam; generating without steam = coasting on pressure.
+            return steam > EPSILON ? SteamEngineStatus.GENERATING : SteamEngineStatus.COASTING;
         }
-        return SteamEngineStatus.COASTING;
+        if (pressure > EPSILON) {
+            return SteamEngineStatus.COASTING;
+        }
+        return SteamEngineStatus.EMPTY;
     }
 
     /**
-     * Pressure mapped onto the shared engine heat-stage property so the static shaft tints the same way
-     * Stirling's does, but by stored pressure instead of temperature: blue building, green/yellow through
-     * the operating band, red when over the target.
+     * Boiler heat mapped onto the shared engine heat-stage property so the static shaft tints by real
+     * temperature (blue cold → red hot), keyed to the thermal regime: cold below boiling, cool up to the
+     * refuel point, warm up to the steam-quality target, hot at/above it.
      */
-    private HeatStage pressureStage() {
-        double p = vessel.pressure();
-        if (p < profile.operatingPressure()) {
+    private HeatStage heatStage() {
+        if (boilerHeat < profile.boilingHeat()) {
             return HeatStage.COLD;
         }
-        if (p < profile.relightPressure()) {
+        if (boilerHeat < profile.refuelHeat()) {
             return HeatStage.COOL;
         }
-        if (p < profile.targetPressure()) {
+        if (boilerHeat < profile.targetHeat()) {
             return HeatStage.WARM;
         }
         return HeatStage.HOT;
     }
 
-    /** Writes the pressure stage onto the block's {@code STAGE} property (drives the shaft tint) on change. */
+    /** Writes the heat stage onto the block's {@code STAGE} property (drives the shaft tint) on change. */
     private void syncStage(MachineContext ctx) {
         BlockState state = ctx.blockState();
         if (!state.hasProperty(HeatStage.STAGE)) {
             return;
         }
-        HeatStage stage = pressureStage();
+        HeatStage stage = heatStage();
         if (state.getValue(HeatStage.STAGE) != stage) {
             ctx.setBlockState(state.setValue(HeatStage.STAGE, stage), Block.UPDATE_ALL);
         }
@@ -317,6 +325,23 @@ public final class SteamEngineComponent
         return profile.maxPressure();
     }
 
+    public double boilerHeat() {
+        return boilerHeat;
+    }
+
+    public double maxBoilerHeat() {
+        return profile.maxBoilerHeat();
+    }
+
+    public double boilingHeat() {
+        return profile.boilingHeat();
+    }
+
+    public double heatFraction() {
+        double max = profile.maxBoilerHeat();
+        return max <= 0 ? 0 : Math.clamp(boilerHeat / max, 0.0, 1.0);
+    }
+
     public long lastGenerationRate() {
         return lastGenerationRate;
     }
@@ -337,9 +362,9 @@ public final class SteamEngineComponent
         return firebox;
     }
 
-    /** Whether the fire is being force-fired (boiling below operating pressure, burning fuel faster). */
-    public boolean isForcedFiring() {
-        return forcedFiring;
+    /** Cosmetic: heat was discarded this tick (fuel burning into a saturated boiler). Never affects the sim. */
+    public boolean isSafetyValveActive() {
+        return safetyValveActive;
     }
 
     public SteamEngineStatus status() {
@@ -351,14 +376,14 @@ public final class SteamEngineComponent
     @Override
     public void save(CompoundTag tag, HolderLookup.Provider registries) {
         vessel.save(tag, "Pressure");
+        tag.putDouble("BoilerHeat", boilerHeat);
         tag.putInt("CommittedBurnTicks", committedBurnTicks);
         tag.putInt("TotalFuelTicks", totalFuelTicks);
-        tag.putInt("StokedTickAccumulator", stokedTickAccumulator);
         tag.putDouble("WaterDebt", waterDebt);
         // lastGenerationRate is CLIENT-ANIMATION SYNC state, not authoritative simulation state: the
         // update tag == save() is the only channel to the client, and the piston must reflect accepted RF
         // (not client-derivable). The next server tick unconditionally overwrites it, so the on-disk copy
-        // is never trusted. (firebox/status are derived and not persisted.)
+        // is never trusted. (firebox/status/safetyValve are derived and not persisted.)
         tag.putLong("LastGenerationRate", lastGenerationRate);
         fuel.save(tag, registries);
     }
@@ -366,15 +391,14 @@ public final class SteamEngineComponent
     @Override
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
         vessel.load(tag, "Pressure");
+        boilerHeat = Math.max(0, NbtCompat.getDouble(tag, "BoilerHeat", 0)); // defaults cold; obsolete tags ignored
         committedBurnTicks = NbtCompat.getInt(tag, "CommittedBurnTicks", 0);
         totalFuelTicks = NbtCompat.getInt(tag, "TotalFuelTicks", 0);
-        stokedTickAccumulator = NbtCompat.getInt(tag, "StokedTickAccumulator", 0);
         waterDebt = Math.max(0, NbtCompat.getDouble(tag, "WaterDebt", 0));
         lastGenerationRate = NbtCompat.getLong(tag, "LastGenerationRate", 0); // client piston; server recomputes
         if (committedBurnTicks <= 0) {
             committedBurnTicks = 0;
             totalFuelTicks = 0;
-            stokedTickAccumulator = 0;
         }
         fuel.load(tag, registries);
     }

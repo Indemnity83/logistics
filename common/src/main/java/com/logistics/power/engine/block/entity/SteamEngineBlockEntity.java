@@ -65,19 +65,21 @@ public class SteamEngineBlockEntity extends EngineEntity
     public static final int DATA_PRESSURE = 0;
     public static final int DATA_MAX_PRESSURE = 1;
     public static final int DATA_OPERATING = 2;
-    public static final int DATA_RELIGHT = 3;
-    public static final int DATA_TARGET = 4;
-    public static final int DATA_GENERATION = 5; // accepted RF/t
-    public static final int DATA_WATER_ID = 6;
-    public static final int DATA_WATER_AMOUNT = 7;
-    public static final int DATA_WATER_CAPACITY = 8;
-    public static final int DATA_COMMITTED_BURN = 9;
-    public static final int DATA_TOTAL_FUEL = 10;
-    public static final int DATA_BURN_FRACTION = 11; // committed-burn fraction, 0..1000
-    public static final int DATA_STATUS = 12; // SteamEngineStatus ordinal
-    public static final int DATA_FIREBOX = 13; // SteamFireboxState ordinal
-    public static final int DATA_FORCED_FIRING = 14; // 1 while force-firing below operating pressure
-    public static final int DATA_COUNT = 15;
+    public static final int DATA_TARGET = 3;
+    public static final int DATA_GENERATION = 4; // accepted RF/t
+    public static final int DATA_WATER_ID = 5;
+    public static final int DATA_WATER_AMOUNT = 6;
+    public static final int DATA_WATER_CAPACITY = 7;
+    public static final int DATA_COMMITTED_BURN = 8;
+    public static final int DATA_TOTAL_FUEL = 9;
+    public static final int DATA_BURN_FRACTION = 10; // committed-burn fraction, 0..1000
+    public static final int DATA_STATUS = 11; // SteamEngineStatus ordinal
+    public static final int DATA_FIREBOX = 12; // SteamFireboxState ordinal
+    public static final int DATA_BOILER_HEAT = 13;
+    public static final int DATA_MAX_HEAT = 14;
+    public static final int DATA_BOILING_HEAT = 15;
+    public static final int DATA_SAFETY_VALVE = 16; // 1 while heat is being discarded (cosmetic)
+    public static final int DATA_COUNT = 17;
 
     // Assigned in configure() — see the note there on why these can't be field initializers.
     private ItemInventoryComponent fuelInventory;
@@ -91,7 +93,6 @@ public class SteamEngineBlockEntity extends EngineEntity
                 case DATA_PRESSURE -> (int) Math.round(steamSim.pressure());
                 case DATA_MAX_PRESSURE -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_MAX_PRESSURE));
                 case DATA_OPERATING -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_OPERATING_PRESSURE));
-                case DATA_RELIGHT -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_RELIGHT_PRESSURE));
                 case DATA_TARGET -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_TARGET_PRESSURE));
                 case DATA_GENERATION -> (int) steamSim.lastGenerationRate();
                 case DATA_WATER_ID -> fluidId(waterTank);
@@ -102,7 +103,10 @@ public class SteamEngineBlockEntity extends EngineEntity
                 case DATA_BURN_FRACTION -> (int) Math.round(steamSim.burnFraction() * 1000);
                 case DATA_STATUS -> steamSim.status().ordinal();
                 case DATA_FIREBOX -> steamSim.fireboxState().ordinal();
-                case DATA_FORCED_FIRING -> steamSim.isForcedFiring() ? 1 : 0;
+                case DATA_BOILER_HEAT -> (int) Math.round(steamSim.boilerHeat());
+                case DATA_MAX_HEAT -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_MAX_BOILER_HEAT));
+                case DATA_BOILING_HEAT -> (int) Math.round(cfg(LogisticsPower.CONFIG.STEAM_BOILING_HEAT));
+                case DATA_SAFETY_VALVE -> steamSim.isSafetyValveActive() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -137,14 +141,19 @@ public class SteamEngineBlockEntity extends EngineEntity
                 cfg(LogisticsPower.CONFIG.STEAM_MAX_OUTPUT),
                 cfg(LogisticsPower.CONFIG.STEAM_MAX_PRESSURE),
                 cfg(LogisticsPower.CONFIG.STEAM_OPERATING_PRESSURE),
-                cfg(LogisticsPower.CONFIG.STEAM_RELIGHT_PRESSURE),
                 cfg(LogisticsPower.CONFIG.STEAM_TARGET_PRESSURE),
-                cfg(LogisticsPower.CONFIG.STEAM_STEAM_PER_BURN_TICK),
                 cfg(LogisticsPower.CONFIG.STEAM_PRESSURE_PER_RF),
                 cfg(LogisticsPower.CONFIG.STEAM_WATER_CONVERSION),
-                cfg(LogisticsPower.CONFIG.STEAM_COOLING_DECAY),
-                (int) (long) cfg(LogisticsPower.CONFIG.STEAM_STOKED_BURN_INTERVAL),
-                (int) (long) cfg(LogisticsPower.CONFIG.STEAM_STARTUP_BURN_MULTIPLIER));
+                cfg(LogisticsPower.CONFIG.STEAM_STEAM_RATE),
+                cfg(LogisticsPower.CONFIG.STEAM_CONDENSATION_RATE),
+                cfg(LogisticsPower.CONFIG.STEAM_MAX_BOILER_HEAT),
+                cfg(LogisticsPower.CONFIG.STEAM_BOILING_HEAT),
+                cfg(LogisticsPower.CONFIG.STEAM_REFUEL_HEAT),
+                cfg(LogisticsPower.CONFIG.STEAM_TARGET_HEAT),
+                cfg(LogisticsPower.CONFIG.STEAM_HEAT_PER_BURN_TICK),
+                (int) (long) cfg(LogisticsPower.CONFIG.STEAM_FIRING_RATE),
+                cfg(LogisticsPower.CONFIG.STEAM_PASSIVE_HEAT_LOSS),
+                cfg(LogisticsPower.CONFIG.STEAM_LATENT_HEAT));
 
         waterTank = engine.fluids("waterTank")
                 .capacity(FluidUnits.mb(cfg(LogisticsPower.CONFIG.STEAM_WATER_TANK_CAPACITY)))

@@ -128,8 +128,8 @@ public class SteamEngineScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data getters for GUI rendering ====================
 
-    public boolean isForcedFiring() {
-        return data.get(SteamEngineBlockEntity.DATA_FORCED_FIRING) != 0;
+    public boolean isSafetyValveActive() {
+        return data.get(SteamEngineBlockEntity.DATA_SAFETY_VALVE) != 0;
     }
 
     public int getPressure() {
@@ -144,12 +144,24 @@ public class SteamEngineScreenHandler extends AbstractContainerMenu {
         return data.get(SteamEngineBlockEntity.DATA_OPERATING);
     }
 
-    public int getRelightPressure() {
-        return data.get(SteamEngineBlockEntity.DATA_RELIGHT);
-    }
-
     public int getTargetPressure() {
         return data.get(SteamEngineBlockEntity.DATA_TARGET);
+    }
+
+    public int getBoilerHeat() {
+        return data.get(SteamEngineBlockEntity.DATA_BOILER_HEAT);
+    }
+
+    public int getMaxHeat() {
+        return data.get(SteamEngineBlockEntity.DATA_MAX_HEAT);
+    }
+
+    public int getBoilingHeat() {
+        return data.get(SteamEngineBlockEntity.DATA_BOILING_HEAT);
+    }
+
+    public float getHeatFraction() {
+        return fraction(getBoilerHeat(), getMaxHeat());
     }
 
     public float getPressureFraction() {

@@ -22,8 +22,9 @@ import net.minecraft.world.level.material.Fluids;
 
 /**
  * Client-side GUI for the Steam Engine: a fuel slot, a water tank gauge, a firebox flame (bright while
- * boiling, dimmed while stoked), and the energy-buffer gauge — which for now shows stored pressure as a
- * white fill (a fuller energy/pressure split is TBD). Numeric detail is shown as hover tooltips.
+ * firing, dimmed while stoked), a boiler-heat thermometer, and the energy-buffer gauge — which for now
+ * shows stored pressure as a white fill (a fuller energy/pressure split is TBD). Numeric detail is shown
+ * as hover tooltips.
  */
 public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreenHandler> {
 
@@ -52,6 +53,14 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
     private static final int FLAME_Y = 53;
     private static final int FLAME_SIZE = 14;
 
+    // Boiler-heat thermometer — placeholder position in the gap between the fuel slot and the water gauge
+    // (final placement is a texture decision); a red fill by heat fraction with a tick at the boiling point.
+    private static final int HEAT_LEFT = 101;
+    private static final int HEAT_TOP = 14;
+    private static final int HEAT_WIDTH = 6;
+    private static final int HEAT_HEIGHT = 58;
+    private static final int HEAT_BOTTOM = HEAT_TOP + HEAT_HEIGHT;
+
     public SteamEngineScreen(SteamEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
     }
@@ -61,6 +70,7 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         hoverTooltip(graphics, mouseX, mouseY, WATER_LEFT, WATER_TOP, WATER_WIDTH, WATER_HEIGHT, waterTooltip());
         hoverTooltip(graphics, mouseX, mouseY, GAUGE_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT, gaugeTooltip());
+        hoverTooltip(graphics, mouseX, mouseY, HEAT_LEFT, HEAT_TOP, HEAT_WIDTH, HEAT_HEIGHT, heatTooltip());
     }
 
     private void hoverTooltip(
@@ -92,13 +102,30 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
             lines.add(Component.translatable("tooltip.logistics.steam_engine.burn_reserve", menu.getCommittedBurn())
                     .withStyle(ChatFormatting.GRAY));
         }
-        if (menu.isForcedFiring()) {
-            lines.add(Component.translatable("tooltip.logistics.steam_engine.forced_firing")
+        if (menu.isSafetyValveActive()) {
+            lines.add(Component.translatable("tooltip.logistics.steam_engine.safety_valve")
                     .withStyle(ChatFormatting.GOLD));
         }
         lines.add(fireboxLine(menu.getFirebox()));
         lines.add(Component.translatable("jade.logistics.engine.status." + statusName(menu))
                 .withStyle(ChatFormatting.GRAY));
+        return lines;
+    }
+
+    private List<Component> heatTooltip() {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable(
+                "tooltip.logistics.steam_engine.heat", menu.getBoilerHeat(), menu.getMaxHeat()));
+        boolean boiling = menu.getBoilerHeat() >= menu.getBoilingHeat();
+        lines.add(Component.translatable(
+                        boiling
+                                ? "tooltip.logistics.steam_engine.heat_boiling"
+                                : "tooltip.logistics.steam_engine.heat_warming")
+                .withStyle(ChatFormatting.GRAY));
+        if (menu.isSafetyValveActive()) {
+            lines.add(Component.translatable("tooltip.logistics.steam_engine.safety_valve")
+                    .withStyle(ChatFormatting.GOLD));
+        }
         return lines;
     }
 
@@ -118,8 +145,26 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
                 leftPos, topPos, 0, 0, imageWidth, imageHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
         renderTank(graphics, WATER_LEFT, menu.getWaterId(), menu.getWaterFillFraction());
+        renderHeatBar(graphics);
         renderPressureInGauge(graphics);
         renderFlame(graphics);
+    }
+
+    /** Boiler heat as a red thermometer fill, with a tick mark at the boiling point (placeholder placement). */
+    private void renderHeatBar(GuiGraphicsExtractor graphics) {
+        int x0 = leftPos + HEAT_LEFT;
+        int bottom = topPos + HEAT_BOTTOM;
+        int fillPixels = Math.round(menu.getHeatFraction() * HEAT_HEIGHT);
+        if (fillPixels > 0) {
+            int color = menu.isSafetyValveActive() ? 0xFFFF5030 : 0xFFC83010;
+            graphics.fill(x0, bottom - fillPixels, x0 + HEAT_WIDTH, bottom, color);
+        }
+        int maxHeat = menu.getMaxHeat();
+        if (maxHeat > 0) {
+            int markPixels = Math.round(menu.getBoilingHeat() / (float) maxHeat * HEAT_HEIGHT);
+            int y = bottom - markPixels;
+            graphics.fill(x0, y, x0 + HEAT_WIDTH, y + 1, 0xFF202020); // boiling-point marker
+        }
     }
 
     /** Stored pressure shown in the energy-buffer gauge as a white overlay (energy/pressure split is TBD). */
@@ -133,7 +178,7 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
         graphics.fill(x0, bottom - fillPixels, x0 + GAUGE_WIDTH, bottom, 0xC8FFFFFF);
     }
 
-    /** Firebox flame: full-bright while boiling, dimmed while stoked, hidden while off. */
+    /** Firebox flame: full-bright while firing, dimmed while stoked, hidden while off. */
     private void renderFlame(GuiGraphicsExtractor graphics) {
         SteamFireboxState firebox = menu.getFirebox();
         if (firebox == SteamFireboxState.OFF) {

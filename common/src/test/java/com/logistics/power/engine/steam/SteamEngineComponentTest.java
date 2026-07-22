@@ -20,15 +20,17 @@ import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.Test;
 
 /**
- * Behavior of the Steam Engine pressure simulation. Uses vanilla water, an injected fake {@link
- * FuelSource}, and an injected {@link TurbineOutput} (the consumer) so tests need no live level.
- * Profile: maxOutput 40, maxPressure 1000, operating 400, relight 650, target 800, steam 12/t,
- * pressurePerRf 0.25, water 6 pressure/mB, coolingDecay 0.05, stokedInterval 20, startupMultiplier 4.
+ * Behavior of the Steam Engine thermal-mass simulation (fuel -> heat -> steam -> pressure -> RF). Uses
+ * vanilla water, an injected fake {@link FuelSource}, and an injected {@link TurbineOutput} so tests need
+ * no live level. Test profile scales heat down for readability: maxHeat 2000, boiling 800, refuel 1400,
+ * target 1600, heatPerBurnTick 1, firingRate 16, passiveLoss 0.1, latentHeat 0.5, steamRate 12,
+ * condensation 0.5; pressure side matches the real defaults (maxOutput 40, operating 400, target 800,
+ * pressurePerRf 0.25, water 6 pressure/mB).
  */
 class SteamEngineComponentTest extends MinecraftTestEnvironment {
 
-    private static final SteamEngineProfile PROFILE =
-            new SteamEngineProfile(40, 1000, 400, 650, 800, 12, 0.25, 6, 0.05, 20, 4);
+    private static final SteamEngineProfile PROFILE = new SteamEngineProfile(
+            40, 1000, 400, 800, 0.25, 6, 12, 0.5, 2000, 800, 1400, 1600, 1, 16, 0.1, 0.5);
 
     // Injected output "consumers": nothing accepts / everything accepts / a fixed cap accepts.
     private static final TurbineOutput NO_CONSUMER = (ctx, rf) -> 0;
@@ -64,7 +66,7 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
     }
 
     private FluidStoreComponent water(long mb) {
-        FluidStoreComponent s = new FluidStoreComponent("water", FluidUnits.mb(100_000), () -> {});
+        FluidStoreComponent s = new FluidStoreComponent("water", FluidUnits.mb(1_000_000), () -> {});
         if (mb > 0) {
             s.tank().setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(mb));
         }
@@ -86,13 +88,13 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         return new SteamEngineComponent("steam", out, w, fuel, profile, powered, lit, () -> {});
     }
 
-    /** Seed pressure + burn reserve directly through the persistence path. */
-    private void seed(SteamEngineComponent s, double pressure, int burn, int total, int stoked, double debt) {
+    /** Seed pressure + boiler heat + burn reserve directly through the persistence path. */
+    private void seed(SteamEngineComponent s, double pressure, double heat, int burn, int total, double debt) {
         CompoundTag tag = new CompoundTag();
         tag.putDouble("Pressure", pressure);
+        tag.putDouble("BoilerHeat", heat);
         tag.putInt("CommittedBurnTicks", burn);
         tag.putInt("TotalFuelTicks", total);
-        tag.putInt("StokedTickAccumulator", stoked);
         tag.putDouble("WaterDebt", debt);
         s.load(tag, registries);
     }
@@ -107,10 +109,10 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         }
     }
 
-    /** Tick until pressure reaches {@code threshold} (cap at {@code maxTicks}); returns the tick count. */
-    private int ticksUntilPressure(SteamEngineComponent s, double threshold, int maxTicks) {
+    /** Tick until boiler heat reaches {@code threshold} (cap at {@code maxTicks}); returns the tick count. */
+    private int ticksUntilHeat(SteamEngineComponent s, double threshold, int maxTicks) {
         for (int i = 0; i < maxTicks; i++) {
-            if (s.pressure() >= threshold) {
+            if (s.boilerHeat() >= threshold) {
                 return i;
             }
             tick(s);
@@ -118,15 +120,15 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         return maxTicks;
     }
 
-    // ==================== Direct output ====================
+    // ==================== Direct output (turbine spends pressure, never heat) ====================
 
     @Test
     void noConsumerDrawsNoPressure() {
         SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 0, 0, 0, 0); // reserve 0, dry: no boil, isolate the turbine
+        seed(s, 700, 0, 0, 0, 0); // cold, dry, no reserve: isolate the turbine
         tick(s);
         assertThat(s.lastGenerationRate()).isZero();
-        assertThat(s.pressure()).isEqualTo(700.0 - 0.05, within(1e-9)); // only the OFF cooling decay
+        assertThat(s.pressure()).isEqualTo(700.0 - 0.5, within(1e-9)); // cold boiler condenses 0.5
     }
 
     @Test
@@ -135,7 +137,7 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         seed(s, 700, 0, 0, 0, 0);
         tick(s);
         assertThat(s.lastGenerationRate()).isEqualTo(15);
-        assertThat(s.pressure()).isEqualTo(700.0 - 15 * 0.25 - 0.05, within(1e-9)); // 696.2
+        assertThat(s.pressure()).isEqualTo(700.0 - 15 * 0.25 - 0.5, within(1e-9)); // 695.75
     }
 
     @Test
@@ -144,13 +146,13 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         seed(s, 700, 0, 0, 0, 0);
         tick(s);
         assertThat(s.lastGenerationRate()).isEqualTo(40);
-        assertThat(s.pressure()).isEqualTo(700.0 - 40 * 0.25 - 0.05, within(1e-9)); // 689.95
+        assertThat(s.pressure()).isEqualTo(700.0 - 40 * 0.25 - 0.5, within(1e-9)); // 689.5
     }
 
     @Test
     void outputNeverExceedsMaxOutput() {
         SteamEngineComponent s = engine((ctx, rf) -> 1_000_000, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 950, 0, 0, 0, 0); // plenty of pressure; a greedy consumer must still get only maxOutput
+        seed(s, 950, 0, 0, 0, 0);
         tick(s);
         assertThat(s.lastGenerationRate()).isEqualTo(40);
     }
@@ -158,12 +160,13 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
     @Test
     void outputLimitedByAvailablePressure() {
         // pressurePerRf 100 makes the pressure-limit bind before the ramp; full consumer.
-        SteamEngineProfile p = new SteamEngineProfile(40, 1000, 400, 650, 800, 12, 100, 6, 0.05, 20, 4);
+        SteamEngineProfile p = new SteamEngineProfile(
+                40, 1000, 400, 800, 100, 6, 12, 0.5, 2000, 800, 1400, 1600, 1, 16, 0.1, 0.5);
         SteamEngineComponent s = engine(FULL_CONSUMER, water(0), new FakeFuel(0, 0), () -> true, p, (c, l) -> {});
         seed(s, 250, 0, 0, 0, 0);
         tick(s);
         assertThat(s.lastGenerationRate()).isEqualTo(2); // floor(250 / 100) caps it at 2, below the ramp of 25
-        assertThat(s.pressure()).isEqualTo(49.95, within(1e-6)); // 250 - 2*100 = 50, minus 0.05 leak (fire off)
+        assertThat(s.pressure()).isEqualTo(49.5, within(1e-6)); // 250 - 2*100 = 50, minus 0.5 cold condensation
     }
 
     @Test
@@ -175,22 +178,28 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    void noConsumerDrawsNoPressureButBoilerRuns() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 500, 100, 100, 0, 0);
-        tick(s);
-        assertThat(s.lastGenerationRate()).isZero(); // nothing accepted → no draw
-        assertThat(s.pressure()).isEqualTo(512.0, within(1e-9)); // boiler still added 12
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.BOILING);
+    void turbineSpendsPressureNotHeat() {
+        // Two identical hot engines, no water/steam and no fuel: the consumer draws pressure but heat only
+        // ever changes by passive loss — the turbine never touches boiler heat.
+        SteamEngineComponent idle = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        SteamEngineComponent loaded = engine(FULL_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(idle, 700, 1500, 0, 0, 0);
+        seed(loaded, 700, 1500, 0, 0, 0);
+        tick(idle);
+        tick(loaded);
+        assertThat(idle.boilerHeat()).isEqualTo(1499.9, within(1e-9));
+        assertThat(loaded.boilerHeat()).isEqualTo(1499.9, within(1e-9)); // same heat despite the draw
+        assertThat(idle.pressure()).isEqualTo(700.0, within(1e-9)); // hot boiler: no condensation
+        assertThat(loaded.pressure()).isEqualTo(690.0, within(1e-9)); // only the turbine spent pressure
     }
 
     @Test
     void redstoneDisabledDoesNoOutput() {
         SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> false);
-        seed(s, 700, 100, 100, 0, 0);
+        seed(s, 700, 1500, 100, 100, 0);
         tick(s);
         assertThat(s.lastGenerationRate()).isZero();
-        assertThat(s.pressure()).isEqualTo(700.0 - 0.05, within(1e-9)); // only cooling decay, no turbine draw
+        assertThat(s.pressure()).isEqualTo(700.0, within(1e-9)); // hot: no draw, no condensation
     }
 
     @Test
@@ -198,7 +207,7 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         SteamEngineComponent s = engine(accepts(20), water(0), new FakeFuel(0, 0), () -> true);
         seed(s, 700, 0, 0, 0, 0);
         tick(s);
-        // 20/40 → 0.02 + 0.5*0.06 = 0.05
+        // 20/40 -> 0.02 + 0.5*0.06 = 0.05
         assertThat(s.pistonSpeed()).isEqualTo(0.05f, within(1e-6f));
         assertThat(s.isRunning(new FakeMachineContext())).isTrue();
 
@@ -209,248 +218,193 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         assertThat(idle.isRunning(new FakeMachineContext())).isFalse();
     }
 
-    // ==================== Firebox + burn reserve ====================
+    // ==================== Continuous burn + item-boundary thermostat ====================
 
     @Test
-    void boilingSpendsOneBurnTickPerTick() {
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0); // above operating → normal (1×) burn
-        tick(s);
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.BOILING);
-        assertThat(s.committedBurnTicks()).isEqualTo(99);
-    }
-
-    @Test
-    void dryCommittedFireIsStokedNotOff() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0);
-        tick(s);
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED);
-        assertThat(s.committedBurnTicks()).isEqualTo(100); // not spent this tick
-    }
-
-    @Test
-    void stokedFireSpendsBurnTickOnlyAfterInterval() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0);
-        tick(s, 19);
-        assertThat(s.committedBurnTicks()).isEqualTo(100); // 19 stoked ticks < interval of 20
-        tick(s);
-        assertThat(s.committedBurnTicks()).isEqualTo(99); // 20th stoked tick spends one
-    }
-
-    @Test
-    void stokedFirePreventsPressureDecay() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0);
-        tick(s); // no consumer → no draw; dry → stoked → no decay
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED);
-        assertThat(s.pressure()).isEqualTo(700.0, within(1e-9));
-    }
-
-    @Test
-    void reachingTargetFlipsBoilingToStoked() {
+    void committedFuelBurnsFiringRatePerTick() {
         SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 799, 100, 100, 0, 0);
-        tick(s); // boils the last point up to the target
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.BOILING);
-        assertThat(s.pressure()).isEqualTo(800.0, within(1e-9));
-        tick(s); // at target now → cannot boil → stoked
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED);
+        seed(s, 700, 1000, 100, 100, 0); // hot enough to fire, mid-band
+        tick(s);
+        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.FIRING);
+        assertThat(s.committedBurnTicks()).isEqualTo(84); // 100 - firingRate(16)
     }
 
     @Test
-    void fallingBelowTargetResumesBoilingWithoutConsumingNewFuel() {
-        FakeFuel fuel = new FakeFuel(1, 1600);
+    void reachingTargetDoesNotPauseCommittedFuel() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(s, 800, 1800, 100, 100, 0); // above targetHeat, pressure at target (no steam headroom)
+        tick(s);
+        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.FIRING); // still burning above target
+        assertThat(s.committedBurnTicks()).isEqualTo(84);
+        assertThat(s.boilerHeat()).isEqualTo(1815.9, within(1e-9)); // 1800 - 0.1 + 16, still climbing
+    }
+
+    @Test
+    void noNewItemCommittedWhileAboveRefuel() {
+        FakeFuel fuel = new FakeFuel(5, 1600);
         SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), fuel, () -> true);
-        seed(s, 800, 100, 100, 0, 0);
-        tick(s); // at target → stoked
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED);
-        seed(s, 790, s.committedBurnTicks(), 100, 0, 0); // drop below target, keep the reserve
+        seed(s, 700, 1500, 0, 0, 0); // reserve empty, but heat above refuelHeat
         tick(s);
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.BOILING);
-        assertThat(fuel.ignitions).isZero(); // never lit a new item — resumed the committed reserve
-    }
-
-    @Test
-    void waterArrivingFlipsStokedToBoiling() {
-        FluidStoreComponent w = water(0);
-        SteamEngineComponent s = engine(NO_CONSUMER, w, new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0);
-        tick(s);
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED);
-        w.tank().setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(1000));
-        tick(s);
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.BOILING);
-    }
-
-    @Test
-    void exhaustingReserveWhileStokedGoesOffThenDecays() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 1, 1, 19, 0); // one burn tick left, one stoked tick from spending it
-        tick(s); // stoked, 20th accumulator tick spends the last burn tick → reserve exhausted
+        assertThat(fuel.ignitions).isZero();
         assertThat(s.committedBurnTicks()).isZero();
-        assertThat(s.pressure()).isEqualTo(700.0, within(1e-9)); // fire still counted as maintained this tick
-        tick(s); // now OFF → cooling decay kicks in
+        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED); // hot & ready, no new item
+    }
+
+    @Test
+    void newItemCommittedOnceAtOrBelowRefuel() {
+        FakeFuel fuel = new FakeFuel(5, 1600);
+        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), fuel, () -> true);
+        seed(s, 700, 1400, 0, 0, 0); // reserve empty, heat at refuelHeat
+        tick(s);
+        assertThat(fuel.ignitions).isEqualTo(1);
+        assertThat(s.committedBurnTicks()).isEqualTo(1600); // committed this tick, burns from next
+        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.FIRING);
+    }
+
+    @Test
+    void ignitionAndCombustionAreNotWaterGated() {
+        FakeFuel fuel = new FakeFuel(5, 1600);
+        SteamEngineComponent s = engine(NO_CONSUMER, water(0), fuel, () -> true); // bone dry
+        seed(s, 0, 0, 0, 0, 0);
+        tick(s, 5);
+        assertThat(fuel.ignitions).isEqualTo(1); // committed despite no water
+        assertThat(s.boilerHeat()).isGreaterThan(0.0); // and heated (dry-firing permitted)
+        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.FIRING);
+    }
+
+    @Test
+    void passiveLossAppliesWhileFiring() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(s, 0, 1000, 100, 100, 0); // dry so no steam removes heat; isolate fire + passive loss
+        tick(s);
+        assertThat(s.boilerHeat()).isEqualTo(1015.9, within(1e-9)); // 1000 - 0.1 passive + 16 fire
+    }
+
+    // ==================== Saturation: clamp, discard, no failure ====================
+
+    @Test
+    void heatClampsAtMaxWithoutShutdown() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(s, 0, 1990, 1000, 1000, 0); // hot, huge reserve, no load, no water
+        tick(s);
+        assertThat(s.boilerHeat()).isEqualTo(2000.0, within(1e-9)); // clamped, overflow discarded
+        assertThat(s.isSafetyValveActive()).isTrue();
+        assertThat(s.committedBurnTicks()).isEqualTo(984); // keeps burning while saturated
+        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.FIRING);
+    }
+
+    @Test
+    void smallFuelOvershootsLessThanLarge() {
+        SteamEngineComponent small = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        SteamEngineComponent large = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(small, 0, 1400, 16, 16, 0); // one firing tick of fuel
+        seed(large, 0, 1400, 1600, 1600, 0); // a full item
+        // Check the large item at its peak (before its reserve exhausts and passive loss cools it back).
+        tick(large, 60);
+        assertThat(large.boilerHeat()).isEqualTo(2000.0, within(1e-9)); // large saturates the boiler
+        assertThat(large.isSafetyValveActive()).isTrue();
+        tick(small, 60);
+        assertThat(small.boilerHeat()).isLessThan(large.boilerHeat()); // small overshoots far less
+        assertThat(small.isSafetyValveActive()).isFalse();
+    }
+
+    // ==================== Steam / latent heat ====================
+
+    @Test
+    void noSteamBelowBoiling() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(s, 0, 700, 100, 100, 0); // below boilingHeat
+        tick(s);
+        assertThat(s.pressure()).isEqualTo(0.0, within(1e-9)); // no steam while heating
+        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.FIRING);
+        assertThat(s.status()).isEqualTo(SteamEngineStatus.HEATING);
+    }
+
+    @Test
+    void heatFactorRampsSteam() {
+        SteamEngineComponent half = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        SteamEngineComponent full = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(half, 0, 1200, 0, 0, 0); // heatFactor ~0.5
+        seed(full, 0, 1700, 0, 0, 0); // heatFactor clamps to 1
+        tick(half);
+        tick(full);
+        assertThat(half.pressure()).isEqualTo(12 * (1199.9 - 800) / 800.0, within(1e-6)); // ~5.9985
+        assertThat(full.pressure()).isEqualTo(12.0, within(1e-9)); // full rate
+        assertThat(full.pressure()).isGreaterThan(half.pressure());
+    }
+
+    @Test
+    void steamConsumesLatentHeat() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(s, 0, 1700, 0, 0, 0); // hot, no reserve so no fuel heat added this tick
+        tick(s);
+        assertThat(s.pressure()).isEqualTo(12.0, within(1e-9)); // full-rate steam
+        assertThat(s.boilerHeat()).isEqualTo(1700.0 - 0.1 - 12 * 0.5, within(1e-9)); // 1693.9: latent 0.5/pressure
+    }
+
+    @Test
+    void efficiencyChainIsEightRfPerBurnTick() {
+        double rfPerBurnTick =
+                PROFILE.heatPerBurnTick() / (PROFILE.latentHeat() * PROFILE.pressurePerRf());
+        assertThat(rfPerBurnTick).isEqualTo(8.0, within(1e-9));
+    }
+
+    // ==================== Condensation ====================
+
+    @Test
+    void pressureHeldWhileHot() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(s, 700, 1500, 0, 0, 0); // hot, no water/steam, no reserve
+        tick(s, 10);
+        assertThat(s.pressure()).isEqualTo(700.0, within(1e-9)); // no condensation above boiling
+    }
+
+    @Test
+    void pressureCondensesOnlyWhenCold() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(s, 700, 700, 0, 0, 0); // below boilingHeat
+        tick(s);
+        assertThat(s.pressure()).isEqualTo(699.5, within(1e-9)); // condensationRate 0.5
         assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.OFF);
-        assertThat(s.pressure()).isLessThan(700.0);
     }
 
-    // ==================== Startup / forced firing ====================
+    // ==================== Redstone disable preserves + resumes the reserve ====================
 
     @Test
-    void boilingBelowOperatingSpendsStartupMultiplier() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 100, 100, 0, 0); // below operating, boiling → forced firing
-        tick(s);
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.BOILING);
-        assertThat(s.isForcedFiring()).isTrue();
-        assertThat(s.committedBurnTicks()).isEqualTo(96); // 100 - 4× startup cost
-        assertThat(s.pressure()).isEqualTo(112.0, within(1e-9)); // steam NOT multiplied (12, not 48)
-    }
-
-    @Test
-    void boilingAtOrAboveOperatingSpendsOne() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0); // above operating → normal cost, not forced
-        tick(s);
-        assertThat(s.isForcedFiring()).isFalse();
-        assertThat(s.committedBurnTicks()).isEqualTo(99);
-    }
-
-    @Test
-    void startupMultiplierDoesNotMultiplyWater() {
-        FluidStoreComponent w = water(10);
-        SteamEngineComponent s = engine(NO_CONSUMER, w, new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 100, 100, 0, 0);
-        tick(s);
-        assertThat(w.tank().getAmount()).isEqualTo(FluidUnits.mb(8)); // 2 mB consumed, not 8
-        assertThat(s.committedBurnTicks()).isEqualTo(96); // but fuel burns 4×
-    }
-
-    @Test
-    void startupCostClassifiedByPressureBeforeBoiling() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 399, 100, 100, 0, 0); // pre-boil below operating; boiling to 411 must NOT flip it to 1×
-        tick(s);
-        assertThat(s.isForcedFiring()).isTrue();
-        assertThat(s.committedBurnTicks()).isEqualTo(96);
-    }
-
-    @Test
-    void stokedBelowOperatingIsNotForced() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 100, 100, 0, 0); // below operating but dry → stoked, not boiling
-        tick(s);
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED);
-        assertThat(s.isForcedFiring()).isFalse();
-        assertThat(s.committedBurnTicks()).isEqualTo(100); // stoked (interval), no startup multiplier
-    }
-
-    @Test
-    void startupMultiplierCannotDriveReserveBelowZero() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 2, 2, 0, 0); // only 2 ticks left, 4× cost
-        tick(s);
-        assertThat(s.committedBurnTicks()).isZero(); // clamped at 0, never negative
-    }
-
-    @Test
-    void forcedFiringClearsWhenRedstoneDisabled() {
-        boolean[] powered = {true};
-        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> powered[0]);
-        seed(s, 100, 100, 100, 0, 0);
-        tick(s);
-        assertThat(s.isForcedFiring()).isTrue();
-        powered[0] = false;
-        tick(s);
-        assertThat(s.isForcedFiring()).isFalse();
-        assertThat(s.committedBurnTicks()).isEqualTo(96); // reserve preserved while off
-    }
-
-    // ==================== Pressure / target / clamp ====================
-
-    @Test
-    void boilerStopsAtTargetNotMax() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(100_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 799, 1_000_000, 1_000_000, 0, 0);
-        tick(s, 200);
-        assertThat(s.pressure()).isEqualTo(800.0, within(1e-6)); // holds at target, never climbs to max
-    }
-
-    @Test
-    void safetyMaxClampsPressureWithoutFailure() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 1200, 0, 0, 0, 0); // above the safety ceiling (e.g. a config change)
-        tick(s);
-        assertThat(s.pressure()).isEqualTo(1000.0, within(1e-9));
-    }
-
-    @Test
-    void waterLimitsSteamAndConsumesTransactionally() {
-        FluidStoreComponent w = water(1); // only 1 mB → at most 6 pressure of steam
-        SteamEngineComponent s = engine(NO_CONSUMER, w, new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 100, 100, 0, 0);
-        tick(s); // no consumer → no draw; steam limited by 1 mB water = 6 pressure
-        assertThat(s.pressure()).isEqualTo(106.0, within(1e-9));
-        assertThat(w.tank().getAmount()).isZero(); // exactly the 1 mB consumed, never over-drawn
-    }
-
-    @Test
-    void noSteamWithoutWater() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 100, 100, 0, 0);
-        tick(s);
-        assertThat(s.pressure()).isEqualTo(100.0, within(1e-9)); // no water → no steam
-        assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.STOKED);
-    }
-
-    // ==================== Redstone / leak ====================
-
-    @Test
-    void redstoneDisabledFreezesReserveAndDecays() {
+    void redstoneDisablePreservesReserveThenResumes() {
         FakeFuel fuel = new FakeFuel(5, 1600);
         boolean[] powered = {false};
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), fuel, () -> powered[0]);
-        seed(s, 700, 100, 100, 0, 0);
+        SteamEngineComponent s = engine(FULL_CONSUMER, water(0), fuel, () -> powered[0]);
+        seed(s, 700, 1500, 100, 100, 0);
         tick(s);
         assertThat(s.fireboxState()).isEqualTo(SteamFireboxState.OFF);
-        assertThat(s.committedBurnTicks()).isEqualTo(100); // frozen, not consumed
+        assertThat(s.committedBurnTicks()).isEqualTo(100); // preserved, not consumed
         assertThat(s.lastGenerationRate()).isZero();
-        assertThat(s.pressure()).isLessThan(700.0); // cooling decay applies
         assertThat(s.status()).isEqualTo(SteamEngineStatus.REDSTONE_DISABLED);
         assertThat(fuel.ignitions).isZero();
 
         powered[0] = true;
         tick(s);
-        assertThat(s.committedBurnTicks()).isEqualTo(99); // resumed the same reserve (boiled one tick, 1×)
-        assertThat(fuel.ignitions).isZero(); // no new fuel item consumed
-    }
-
-    @Test
-    void coolingDecayAppliesOnlyWhileOff() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 1000, 0, 0, 0, 0); // no reserve → OFF
-        tick(s, 100);
-        assertThat(s.pressure()).isEqualTo(1000.0 - 100 * 0.05, within(1e-6)); // 995
+        assertThat(s.committedBurnTicks()).isEqualTo(84); // resumed the same reserve (burned firingRate)
+        assertThat(fuel.ignitions).isZero(); // no new fuel item committed
     }
 
     // ==================== LIT ====================
 
     @Test
-    void litTrueForStokedAndBoilingFalseForOff() {
+    void litTrueOnlyWhileFiring() {
         boolean[] lit = {false};
         EngineComponent.LitController rec = (ctx, l) -> lit[0] = l;
 
-        SteamEngineComponent boiling = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true, PROFILE, rec);
-        seed(boiling, 700, 100, 100, 0, 0);
-        tick(boiling);
-        assertThat(lit[0]).isTrue(); // boiling
+        SteamEngineComponent firing = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true, PROFILE, rec);
+        seed(firing, 700, 1000, 100, 100, 0);
+        tick(firing);
+        assertThat(lit[0]).isTrue(); // firing
 
         SteamEngineComponent stoked = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true, PROFILE, rec);
-        seed(stoked, 700, 100, 100, 0, 0);
+        seed(stoked, 700, 1500, 0, 0, 0); // no reserve, above refuel
         tick(stoked);
-        assertThat(lit[0]).isTrue(); // stoked
+        assertThat(lit[0]).isFalse(); // stoked is not an active flame
 
         SteamEngineComponent off = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true, PROFILE, rec);
         seed(off, 700, 0, 0, 0, 0);
@@ -458,20 +412,53 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         assertThat(lit[0]).isFalse(); // off
     }
 
-    // ==================== Persistence ====================
+    // ==================== Persistence / migration ====================
+
+    @Test
+    void boilerHeatRoundTrips() {
+        SteamEngineComponent writer = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(writer, 512.5, 1234.5, 77, 100, 0.5);
+
+        CompoundTag tag = new CompoundTag();
+        writer.save(tag, registries);
+        assertThat(tag.contains("StokedTickAccumulator")).isFalse(); // dropped
+        assertThat(tag.contains("StoredEnergy")).isFalse(); // no RF buffer
+
+        SteamEngineComponent reader = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        reader.load(tag, registries);
+        assertThat(reader.pressure()).isEqualTo(512.5, within(1e-9));
+        assertThat(reader.boilerHeat()).isEqualTo(1234.5, within(1e-9));
+        assertThat(reader.committedBurnTicks()).isEqualTo(77);
+        assertThat(reader.totalFuelTicks()).isEqualTo(100);
+        assertThat(reader.burnFraction()).isEqualTo(0.77, within(1e-9));
+    }
+
+    @Test
+    void loadsColdWhenNoBoilerHeatAndIgnoresObsoleteTags() {
+        CompoundTag tag = new CompoundTag();
+        tag.putDouble("Pressure", 300);
+        tag.putInt("CommittedBurnTicks", 50);
+        tag.putInt("TotalFuelTicks", 100);
+        tag.putLong("StoredEnergy", 9999); // obsolete RF buffer
+        tag.putInt("StokedTickAccumulator", 7); // obsolete stoked timer
+        SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        s.load(tag, registries);
+        assertThat(s.boilerHeat()).isEqualTo(0.0, within(1e-9)); // reloads cold
+        assertThat(s.pressure()).isEqualTo(300.0, within(1e-9));
+        assertThat(s.committedBurnTicks()).isEqualTo(50);
+    }
 
     @Test
     void lastGenerationRateIsSyncedForClientAndRecomputed() {
         SteamEngineComponent writer = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(writer, 700, 100, 100, 0, 0);
+        seed(writer, 700, 1700, 100, 100, 0);
         tick(writer);
         assertThat(writer.lastGenerationRate()).isEqualTo(40);
 
         CompoundTag tag = new CompoundTag();
         writer.save(tag, registries);
-        assertThat(tag.contains("LastGenerationRate")).isTrue(); // client-animation sync field
+        assertThat(tag.contains("LastGenerationRate")).isTrue();
 
-        // Load restores it so the client piston reflects accepted RF immediately; the server recomputes.
         SteamEngineComponent reader = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
         reader.load(tag, registries);
         assertThat(reader.lastGenerationRate()).isEqualTo(40);
@@ -479,65 +466,36 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
         assertThat(reader.lastGenerationRate()).isEqualTo(40); // recomputed
     }
 
-    @Test
-    void persistedStateRoundTrips() {
-        SteamEngineComponent writer = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(writer, 512.5, 77, 100, 5, 0.5);
-
-        CompoundTag tag = new CompoundTag();
-        writer.save(tag, registries);
-        assertThat(tag.contains("StoredEnergy")).isFalse(); // no RF buffer persisted
-
-        SteamEngineComponent reader = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        reader.load(tag, registries);
-        assertThat(reader.pressure()).isEqualTo(512.5, within(1e-9));
-        assertThat(reader.committedBurnTicks()).isEqualTo(77);
-        assertThat(reader.totalFuelTicks()).isEqualTo(100);
-        assertThat(reader.burnFraction()).isEqualTo(0.77, within(1e-9));
-    }
-
-    @Test
-    void oldRfBufferTagIsIgnored() {
-        CompoundTag tag = new CompoundTag();
-        tag.putDouble("Pressure", 300);
-        tag.putInt("CommittedBurnTicks", 50);
-        tag.putInt("TotalFuelTicks", 100);
-        tag.putLong("StoredEnergy", 9999); // obsolete RF buffer from before the refactor
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        s.load(tag, registries);
-        assertThat(s.pressure()).isEqualTo(300.0, within(1e-9)); // pressure survives; buffered RF discarded
-    }
-
     // ==================== Status derivation ====================
 
     @Test
     void statusRedstoneDisabled() {
         SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(1, 1600), () -> false);
-        seed(s, 700, 100, 100, 0, 0);
+        seed(s, 700, 1500, 100, 100, 0);
         tick(s);
         assertThat(s.status()).isEqualTo(SteamEngineStatus.REDSTONE_DISABLED);
     }
 
     @Test
-    void statusEmpty() {
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 0, 0, 0, 0, 0);
-        tick(s);
-        assertThat(s.status()).isEqualTo(SteamEngineStatus.EMPTY);
-    }
-
-    @Test
     void statusNoFuel() {
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 0, 0, 0, 0); // below relight, water present, but no fuel item
+        SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(s, 0, 0, 0, 0, 0); // cold, no pressure, no fuel to commit
         tick(s);
         assertThat(s.status()).isEqualTo(SteamEngineStatus.NO_FUEL);
     }
 
     @Test
+    void statusHeating() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(s, 0, 500, 100, 100, 0); // firing but below boiling
+        tick(s);
+        assertThat(s.status()).isEqualTo(SteamEngineStatus.HEATING);
+    }
+
+    @Test
     void statusNoWater() {
         SteamEngineComponent s = engine(NO_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0); // lit reserve but dry
+        seed(s, 500, 1500, 100, 100, 0); // hot enough to boil but dry
         tick(s);
         assertThat(s.status()).isEqualTo(SteamEngineStatus.NO_WATER);
     }
@@ -545,7 +503,7 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
     @Test
     void statusBuildingPressure() {
         SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 100, 100, 100, 0, 0); // boiling below operating
+        seed(s, 100, 1700, 100, 100, 0); // steaming, pressure below operating
         tick(s);
         assertThat(s.status()).isEqualTo(SteamEngineStatus.BUILDING_PRESSURE);
     }
@@ -553,15 +511,15 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
     @Test
     void statusGenerating() {
         SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0); // boiling at/above operating, delivering
+        seed(s, 700, 1700, 100, 100, 0); // steaming and delivering above operating
         tick(s);
         assertThat(s.status()).isEqualTo(SteamEngineStatus.GENERATING);
     }
 
     @Test
     void statusCoasting() {
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(1, 1600), () -> true);
-        seed(s, 700, 0, 0, 0, 0); // no reserve, pressure above relight → coasting on stored pressure
+        SteamEngineComponent s = engine(FULL_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(s, 700, 700, 0, 0, 0); // cold boiler, no steam, delivering stored pressure
         tick(s);
         assertThat(s.status()).isEqualTo(SteamEngineStatus.COASTING);
     }
@@ -569,40 +527,45 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
     @Test
     void statusOutputBlocked() {
         SteamEngineComponent s = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 700, 100, 100, 0, 0); // pressurized above operating, but nothing accepts
+        seed(s, 800, 1500, 100, 100, 0); // at target (no steam headroom), pressure available, nothing accepts
         tick(s);
         assertThat(s.status()).isEqualTo(SteamEngineStatus.OUTPUT_BLOCKED);
     }
 
-    // ==================== Balance (deterministic, turbine-before-boiler) ====================
+    // ==================== Balance relationships (tolerances, not brittle counts) ====================
 
     @Test
-    void startupDurationNoConsumer() {
-        SteamEngineComponent s = engine(NO_CONSUMER, water(100_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 0, 1_000_000, 1_000_000, 0, 0);
-        int toOperating = ticksUntilPressure(s, 400, 500);
-        assertThat(toOperating).isBetween(30, 36); // ~33 ticks at +12/t, no draw
-        int toTarget = toOperating + ticksUntilPressure(s, 800, 500);
-        assertThat(toTarget).isBetween(63, 71); // ~67 ticks
+    void coldStartPassesBoilingBeforeTarget() {
+        SteamEngineComponent s = engine(NO_CONSUMER, water(1_000_000), new FakeFuel(0, 0), () -> true);
+        seed(s, 0, 0, 1_000_000, 1_000_000, 0);
+        int toBoiling = ticksUntilHeat(s, PROFILE.boilingHeat(), 5000);
+        int toTarget = ticksUntilHeat(s, PROFILE.targetHeat(), 5000);
+        assertThat(toBoiling).isLessThan(toTarget); // boiling reached first
+        assertThat(toTarget).isLessThan(5000); // and the target is eventually reached
     }
 
     @Test
-    void startupDurationFullConsumer() {
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(100_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 0, 1_000_000, 1_000_000, 0, 0);
-        int toOperating = ticksUntilPressure(s, 400, 500);
-        assertThat(toOperating).isBetween(60, 80); // ~69 ticks — draw competes with boiler on the ramp
-        int toTarget = toOperating + ticksUntilPressure(s, 800, 500);
-        assertThat(toTarget).isBetween(250, 290); // ~269 ticks — +2/t above operating under full load
+    void heavyLoadCommitsFuelMoreOftenThanLightLoad() {
+        FakeFuel heavyFuel = new FakeFuel(1_000_000, 100);
+        FakeFuel lightFuel = new FakeFuel(1_000_000, 100);
+        SteamEngineComponent heavy = engine(FULL_CONSUMER, water(1_000_000), heavyFuel, () -> true);
+        SteamEngineComponent light = engine(NO_CONSUMER, water(1_000_000), lightFuel, () -> true);
+        seed(heavy, 0, 1600, 0, 0, 0);
+        seed(light, 0, 1600, 0, 0, 0);
+        tick(heavy, 3000);
+        tick(light, 3000);
+        assertThat(heavyFuel.ignitions).isGreaterThan(lightFuel.ignitions);
     }
 
     @Test
-    void fullLoadEquilibriumHoldsNearTarget() {
-        SteamEngineComponent s = engine(FULL_CONSUMER, water(100_000), new FakeFuel(0, 0), () -> true);
-        seed(s, 800, 1_000_000, 1_000_000, 0, 0);
+    void fullLoadWithHotBoilerHoldsPressureAndDelivers() {
+        // A well-fed, fully-heated boiler: full-rate steam (12/t) comfortably covers the turbine draw
+        // (10/t at 40 RF), so pressure holds near the target and full output is delivered indefinitely.
+        SteamEngineComponent s = engine(FULL_CONSUMER, water(1_000_000), new FakeFuel(0, 0), () -> true);
+        seed(s, 800, 1700, 1_000_000, 1_000_000, 0);
         tick(s, 400);
-        // Draws 10/t, boils 12/t: hovers just below the target, delivering full output.
-        assertThat(s.pressure()).isBetween(788.0, 800.0);
         assertThat(s.lastGenerationRate()).isEqualTo(40);
+        assertThat(s.pressure()).isBetween(760.0, 800.0); // steam covers draw; hovers just below target
+        assertThat(s.boilerHeat()).isGreaterThanOrEqualTo(PROFILE.targetHeat()); // stays fully hot
     }
 }

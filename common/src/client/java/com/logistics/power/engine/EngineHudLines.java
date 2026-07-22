@@ -92,6 +92,12 @@ public final class EngineHudLines {
                     .append(Component.translatable(statusKey(NbtCompat.getInt(data, EngineHudData.KEY_STATUS, 0)))
                             .withStyle(ChatFormatting.GRAY)));
             if (showDetails) {
+                double heat = NbtCompat.getDouble(data, EngineHudData.KEY_BOILER_HEAT, 0);
+                double maxHeat = NbtCompat.getDouble(data, EngineHudData.KEY_MAX_HEAT, 0);
+                lines.add(row(
+                        "jade.logistics.engine.heat",
+                        String.format("%.0f / %.0f", heat, maxHeat),
+                        ChatFormatting.RED));
                 lines.add(fluidRow("jade.logistics.engine.water",
                         NbtCompat.getString(data, EngineHudData.KEY_WATER_FLUID, ""),
                         NbtCompat.getInt(data, EngineHudData.KEY_WATER_AMOUNT, 0)));
@@ -99,9 +105,9 @@ public final class EngineHudLines {
                         "jade.logistics.engine.burn_reserve",
                         String.format("%d ticks", NbtCompat.getInt(data, EngineHudData.KEY_BURN_RESERVE, 0)),
                         ChatFormatting.YELLOW));
-                if (NbtCompat.getBoolean(data, EngineHudData.KEY_FORCED_FIRING, false)) {
+                if (NbtCompat.getBoolean(data, EngineHudData.KEY_SAFETY_VALVE, false)) {
                     lines.add(Component.empty()
-                            .append(Component.translatable("jade.logistics.engine.forced_firing")
+                            .append(Component.translatable("jade.logistics.engine.safety_valve")
                                     .withStyle(ChatFormatting.GOLD)));
                 }
             }

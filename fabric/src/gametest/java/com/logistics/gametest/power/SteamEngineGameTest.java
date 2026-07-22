@@ -5,7 +5,6 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.core.lib.power.HeatStage;
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -28,7 +27,7 @@ public class SteamEngineGameTest {
 
     private static void primeFuelAndWater(SteamEngineBlockEntity engine) {
         engine.setTheItem(new ItemStack(Items.COAL, 16));
-        engine.waterTank().tank().setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(1000));
+        engine.waterTank().tank().setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(4000));
     }
 
     private static long batteryStored(GameTestHelper context, BlockPos pos) {
@@ -37,10 +36,11 @@ public class SteamEngineGameTest {
     }
 
     /**
-     * With a consumer on the output face, the engine pushes RF <em>directly</em> from pressure (no RF
-     * buffer, no energy capability) — the battery accumulates it. Then draining water sags the pressure.
+     * With a consumer on the output face, the engine first <em>heats</em> the boiler (~500+ ticks past the
+     * boiling point) before steam builds pressure, which it pushes as RF <em>directly</em> (no RF buffer,
+     * no energy capability) — the battery accumulates it. Then draining water sags the pressure.
      */
-    @GameTest(maxTicks = 260)
+    @GameTest(maxTicks = 1000)
     public void testSteamEngineDeliversRfFromPressureThenSags(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         BlockPos batteryPos = new BlockPos(1, 1, 0); // output faces EAST
@@ -52,11 +52,11 @@ public class SteamEngineGameTest {
         }
         primeFuelAndWater(engine);
 
-        context.runAfterDelay(150, () -> {
+        context.runAfterDelay(800, () -> {
             SteamEngineBlockEntity e = context.getBlockEntity(pos, SteamEngineBlockEntity.class);
             double built = e.simulation().pressure();
             if (built <= 0) {
-                context.fail("Steam engine should have built pressure, pressure: " + built);
+                context.fail("Steam engine should have built pressure once hot, pressure: " + built);
                 return;
             }
             if (batteryStored(context, batteryPos) <= 0) {
@@ -64,15 +64,15 @@ public class SteamEngineGameTest {
                         + batteryStored(context, batteryPos));
                 return;
             }
-            // Pressure, not temperature, is the state variable: it can never overheat.
-            if (e.getHeatStage() != HeatStage.COLD || e.isOverheated()) {
-                context.fail("Steam engine must never overheat, stage: " + e.getHeatStage());
+            // The Steam Engine has no overheat latch — heat clamps and discards, never fails.
+            if (e.isOverheated()) {
+                context.fail("Steam engine must never overheat");
                 return;
             }
 
             // Cut the water; the turbine keeps drawing pressure down with no boiler to replenish it.
             e.waterTank().tank().extract(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(100_000), false);
-            context.runAfterDelay(90, () -> {
+            context.runAfterDelay(150, () -> {
                 SteamEngineBlockEntity drained = context.getBlockEntity(pos, SteamEngineBlockEntity.class);
                 if (drained.simulation().pressure() >= built) {
                     context.fail("Pressure should sag once water runs out, was " + built
@@ -85,7 +85,7 @@ public class SteamEngineGameTest {
     }
 
     /** RF pushed from pressure flows through a cable to a consumer, even with no engine capability. */
-    @GameTest(maxTicks = 200)
+    @GameTest(maxTicks = 900)
     public void testSteamEngineDeliversThroughCable(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         BlockPos cablePos = new BlockPos(1, 1, 0); // output faces EAST → cable → battery
@@ -99,7 +99,7 @@ public class SteamEngineGameTest {
         }
         primeFuelAndWater(engine);
 
-        context.runAfterDelay(180, () -> {
+        context.runAfterDelay(850, () -> {
             if (batteryStored(context, batteryPos) <= 0) {
                 context.fail("Consumer behind a cable should receive RF, stored: "
                         + batteryStored(context, batteryPos));
@@ -109,8 +109,8 @@ public class SteamEngineGameTest {
         });
     }
 
-    /** With no consumer, the boiler still builds pressure but the turbine delivers nothing. */
-    @GameTest(maxTicks = 100)
+    /** Once hot, the boiler builds pressure with no consumer but the turbine delivers nothing. */
+    @GameTest(maxTicks = 800)
     public void testSteamEngineHoldsPressureWithNoConsumer(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         SteamEngineBlockEntity engine = placePowered(context, pos);
@@ -120,7 +120,7 @@ public class SteamEngineGameTest {
         }
         primeFuelAndWater(engine);
 
-        context.runAfterDelay(80, () -> {
+        context.runAfterDelay(750, () -> {
             SteamEngineBlockEntity e = context.getBlockEntity(pos, SteamEngineBlockEntity.class);
             if (e.simulation().pressure() <= 0) {
                 context.fail("Boiler should build pressure with no consumer, pressure: " + e.simulation().pressure());
