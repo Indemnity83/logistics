@@ -315,7 +315,6 @@
   "jade.logistics.engine.status.empty": "Empty",
   "tooltip.logistics.steam_engine.pressure": "Pressure: %1$s / %2$s",
   "tooltip.logistics.steam_engine.output": "Output: %s RF/t",
-  "tooltip.logistics.steam_engine.water": "Water: %s mB",
   "tooltip.logistics.steam_engine.heat": "Boiler heat: %1$s / %2$s",
   "tooltip.logistics.steam_engine.heat_warming": "Warming up",
   "tooltip.logistics.steam_engine.heat_boiling": "Hot",

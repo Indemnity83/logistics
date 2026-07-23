@@ -34,19 +34,27 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
 
     private static final ResourceId FLAME = ResourceId.in("minecraft", "container/furnace/lit_progress");
 
-    // Water tank gauge (fluid fills the interior).
+    // Water tank gauge (fluid fills the interior; the hover test uses the full 18x60 frame).
     private static final int WATER_LEFT = 109;
     private static final int WATER_TOP = 14;
     private static final int WATER_WIDTH = 16;
     private static final int WATER_HEIGHT = 58;
     private static final int WATER_BOTTOM = WATER_TOP + WATER_HEIGHT;
+    private static final int WATER_FRAME_LEFT = 108;
+    private static final int WATER_FRAME_TOP = 13;
+    private static final int WATER_FRAME_WIDTH = 18;
+    private static final int WATER_FRAME_HEIGHT = 60;
 
-    // Energy-buffer gauge — temporarily filled by stored pressure (white overlay).
+    // Energy-buffer gauge — temporarily filled by stored pressure (white overlay); hover uses the 14x32 frame.
     private static final int GAUGE_LEFT = 155;
     private static final int GAUGE_TOP = 19;
     private static final int GAUGE_WIDTH = 12;
     private static final int GAUGE_HEIGHT = 30;
     private static final int GAUGE_BOTTOM = GAUGE_TOP + GAUGE_HEIGHT;
+    private static final int GAUGE_FRAME_LEFT = 154;
+    private static final int GAUGE_FRAME_TOP = 18;
+    private static final int GAUGE_FRAME_WIDTH = 14;
+    private static final int GAUGE_FRAME_HEIGHT = 32;
 
     // Firebox flame, below the energy gauge.
     private static final int FLAME_X = 154;
@@ -68,8 +76,10 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        hoverTooltip(graphics, mouseX, mouseY, WATER_LEFT, WATER_TOP, WATER_WIDTH, WATER_HEIGHT, waterTooltip());
-        hoverTooltip(graphics, mouseX, mouseY, GAUGE_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT, gaugeTooltip());
+        hoverTooltip(graphics, mouseX, mouseY,
+                WATER_FRAME_LEFT, WATER_FRAME_TOP, WATER_FRAME_WIDTH, WATER_FRAME_HEIGHT, waterTooltip());
+        hoverTooltip(graphics, mouseX, mouseY,
+                GAUGE_FRAME_LEFT, GAUGE_FRAME_TOP, GAUGE_FRAME_WIDTH, GAUGE_FRAME_HEIGHT, gaugeTooltip());
         hoverTooltip(graphics, mouseX, mouseY, HEAT_LEFT, HEAT_TOP, HEAT_WIDTH, HEAT_HEIGHT, heatTooltip());
     }
 
@@ -89,7 +99,7 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
         Fluid fluid = BuiltInRegistries.FLUID.byId(id);
         return List.of(
                 FluidDisplay.name(fluid),
-                Component.translatable("tooltip.logistics.steam_engine.water", amount).withStyle(ChatFormatting.GRAY));
+                Component.translatable("tooltip.logistics.fluid.tank_amount", amount).withStyle(ChatFormatting.GRAY));
     }
 
     private List<Component> gaugeTooltip() {
