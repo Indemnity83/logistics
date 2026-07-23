@@ -1,6 +1,6 @@
 {
   "type": "logistics:reaction",
-  "reactant": { "fluid": "logistics:core/liquid_ender", "amount": 250 },
+  "reactant": { "fluid": "logistics:core/liquid_ender", "amount": 1000 },
   "reagent": "minecraft:echo_shard",
   "energy": 100000,
   "time": 500
