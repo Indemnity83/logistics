@@ -9,7 +9,6 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsPipe;
-import com.logistics.LogisticsPower;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +21,7 @@ class LogisticsConfigMigratorTest {
     private static final ConfigKey<?>[] TOUCHED = {
         LogisticsAutomation.CONFIG.QUARRY_AREA, LogisticsAutomation.CONFIG.QUARRY_SCAN_RATE,
         LogisticsPipe.CONFIG.PIPE_MIN_SPEED, LogisticsPipe.CONFIG.PIPE_MAX_SPEED,
-        LogisticsPower.CONFIG.REDSTONE_OUTPUT, LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED,
+        LogisticsCore.CONFIG.REDSTONE_OUTPUT, LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED,
     };
 
     @BeforeEach
@@ -46,7 +45,7 @@ class LogisticsConfigMigratorTest {
         LogisticsConfigMigrator.mapLegacy("quarry", "scanRate", LogisticsAutomation.CONFIG.QUARRY_SCAN_RATE);
         LogisticsConfigMigrator.mapLegacyPair(
                 "pipe", "minSpeed", "maxSpeed", LogisticsPipe.CONFIG.PIPE_MIN_SPEED, LogisticsPipe.CONFIG.PIPE_MAX_SPEED);
-        LogisticsConfigMigrator.mapLegacy("engine", "redstoneOutput", LogisticsPower.CONFIG.REDSTONE_OUTPUT);
+        LogisticsConfigMigrator.mapLegacy("engine", "redstoneOutput", LogisticsCore.CONFIG.REDSTONE_OUTPUT);
         LogisticsConfigMigrator.mapLegacy("crashReporting", "enabled", LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED);
 
         JsonObject root = new JsonObject();
@@ -72,7 +71,7 @@ class LogisticsConfigMigratorTest {
                 .isEqualTo(LogisticsAutomation.CONFIG.QUARRY_SCAN_RATE.definition().defaultValue()); // skipped
         assertThat(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED))
                 .isLessThanOrEqualTo(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MAX_SPEED)); // repaired
-        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(99L);
+        assertThat(LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_OUTPUT)).isEqualTo(99L);
         assertThat(LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED)).isTrue();
     }
 }

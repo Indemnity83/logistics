@@ -1,8 +1,8 @@
-package com.logistics.power.engine.block;
+package com.logistics.core.engine.block;
 
 import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
-import com.logistics.LogisticsPower;
+import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
+import com.logistics.LogisticsCore;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -44,6 +44,6 @@ public class RedstoneEngineBlock extends AbstractEngineBlock<RedstoneEngineBlock
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level world, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, RedstoneEngineBlockEntity::tick);
+        return createTickerHelper(type, LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, RedstoneEngineBlockEntity::tick);
     }
 }

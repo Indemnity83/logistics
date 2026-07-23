@@ -1,4 +1,4 @@
-package com.logistics.power.engine.block.entity;
+package com.logistics.core.engine.block.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

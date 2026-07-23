@@ -4,7 +4,7 @@ import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import java.util.function.Predicate;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -439,7 +439,7 @@ public class CableNetwork {
     }
 
     private boolean isManagedPushSource(BlockEntity blockEntity) {
-        return blockEntity instanceof AbstractEngineBlockEntity;
+        return blockEntity instanceof EngineEntity;
     }
 
     private record DeviceConnections(List<DeviceConnection> sources, List<DeviceConnection> targets) {}

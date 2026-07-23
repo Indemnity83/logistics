@@ -1,7 +1,7 @@
 package com.logistics.neoforge.client.compat;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.engine.EngineHudData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier; // raw-id-ok: Jade's IJadeProvider.getUid() returns Identifier
@@ -28,7 +28,7 @@ public final class EngineServerDataProvider implements IServerDataProvider<Block
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-        if (accessor.getBlockEntity() instanceof AbstractEngineBlockEntity engine) {
+        if (accessor.getBlockEntity() instanceof EngineEntity engine) {
             EngineHudData.write(data, engine);
         }
     }
