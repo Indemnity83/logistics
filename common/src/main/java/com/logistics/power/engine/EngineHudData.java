@@ -2,7 +2,9 @@ package com.logistics.power.engine;
 
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -27,6 +29,14 @@ public final class EngineHudData {
     public static final String KEY_BURN_TIME = "burnTime";
     public static final String KEY_FUEL_TIME = "fuelTime";
 
+    // Reaction engine (bufferless): attempted vs accepted output, reaction progress, and the reactant.
+    public static final String KEY_REACTION = "reaction";
+    public static final String KEY_ATTEMPTED = "attempted";
+    public static final String KEY_ACCEPTED = "accepted";
+    public static final String KEY_PROGRESS_REMAINING = "progressRemaining";
+    public static final String KEY_PROGRESS_TOTAL = "progressTotal";
+    public static final String KEY_REACTANT_ID = "reactantId";
+
     private EngineHudData() {}
 
     public static void write(CompoundTag data, EngineEntity engine) {
@@ -35,7 +45,8 @@ public final class EngineHudData {
         data.putString(KEY_STAGE, engine.getHeatStage().name());
         // The Creative engine is the odd man out: its stage is hardwired to COLD and its temperature is
         // meaningless, so the readout hides both for it.
-        data.putBoolean(KEY_HAS_HEAT, !(engine instanceof CreativeEngineBlockEntity));
+        data.putBoolean(KEY_HAS_HEAT, !(engine instanceof CreativeEngineBlockEntity)
+                && !(engine instanceof ReactionEngineBlockEntity));
         data.putDouble(KEY_TEMP, engine.getTemperature());
         data.putDouble(KEY_MAX_TEMP, engine.getMaxTemperature());
         data.putLong(KEY_OUTPUT, engine.getCurrentOutputPower());
@@ -46,6 +57,16 @@ public final class EngineHudData {
             data.putBoolean(KEY_STIRLING, true);
             data.putInt(KEY_BURN_TIME, stirling.getBurnTime());
             data.putInt(KEY_FUEL_TIME, stirling.getFuelTime());
+        }
+
+        if (engine instanceof ReactionEngineBlockEntity reaction) {
+            data.putBoolean(KEY_REACTION, true);
+            data.putLong(KEY_ATTEMPTED, reaction.simulation().lastAttempted());
+            data.putLong(KEY_ACCEPTED, reaction.simulation().lastAccepted());
+            data.putInt(KEY_PROGRESS_REMAINING, reaction.simulation().remainingReactionTicks());
+            data.putInt(KEY_PROGRESS_TOTAL, reaction.simulation().reactionDurationTicks());
+            var tank = reaction.reactantTank().tank();
+            data.putInt(KEY_REACTANT_ID, tank.isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(tank.getFluidKey().getFluid()));
         }
     }
 }
