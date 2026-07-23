@@ -182,6 +182,22 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
         return id < 0 ? Fluids.EMPTY : BuiltInRegistries.FLUID.byId(id);
     }
 
+    /** Raw reactant fluid registry id, or -1 when the tank is empty. */
+    public int getReactantFluidId() {
+        return propertyDelegate.get(ReactionEngineBlockEntity.DATA_REACTANT_ID);
+    }
+
+    /** Reactant tank fill as a fraction 0..1. */
+    public float getReactantFillFraction() {
+        int capacity = getReactantCapacity();
+        return capacity <= 0 ? 0f : Math.max(0f, Math.min(1f, (float) getReactantAmount() / capacity));
+    }
+
+    /** Progress-arrow width in pixels (0..24), filling as the reaction proceeds. */
+    public int getProgressArrowWidth() {
+        return Math.round(getReactionProgress() * 24f);
+    }
+
     public int getReactantAmount() {
         return propertyDelegate.get(ReactionEngineBlockEntity.DATA_REACTANT_AMOUNT);
     }
