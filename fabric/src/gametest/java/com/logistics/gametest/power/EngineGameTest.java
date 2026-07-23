@@ -1,9 +1,10 @@
 package com.logistics.gametest.power;
 
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsPower;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
+import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.storage.IItemStorage;
@@ -28,7 +29,7 @@ public class EngineGameTest {
     @GameTest
     public void testRedstoneEnginePlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPower.BLOCK.REDSTONE_ENGINE);
+        context.setBlock(pos, LogisticsCore.BLOCK.REDSTONE_ENGINE);
 
         RedstoneEngineBlockEntity engine = context.getBlockEntity(pos, RedstoneEngineBlockEntity.class);
         if (engine == null) {
@@ -78,7 +79,7 @@ public class EngineGameTest {
         BlockPos enginePos = new BlockPos(0, 1, 0);
 
         // Place engine
-        context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE);
+        context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE);
 
         RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
         if (engine == null) {
@@ -330,7 +331,7 @@ public class EngineGameTest {
 
         // Place sink first so isRunning() can detect it when the engine first ticks
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
-        context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE
+        context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)
                 .setValue(AbstractEngineBlock.POWERED, true));
@@ -441,7 +442,7 @@ public class EngineGameTest {
 
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
         // Place engine with POWERED=false (default)
-        context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE
+        context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)
                 .setValue(AbstractEngineBlock.POWERED, false));

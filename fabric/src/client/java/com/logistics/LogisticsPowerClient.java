@@ -1,7 +1,7 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
@@ -22,7 +22,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         LOGGER.info("Registering power (client)");
 
         // Register engine block entity renderers
-        BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
@@ -37,7 +37,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         registerEngineBlockColors();
 
         // Register cleanup callback for engine animation cache
-        AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
+        EngineEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
 
         // Clear all animation caches when disconnecting from server
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());
@@ -56,7 +56,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
     private void registerEngineBlockColors() {
         BlockColorRegistry.register(
             List.of(EngineHeatTintSource.INSTANCE),
-            LogisticsPower.BLOCK.REDSTONE_ENGINE,
+            LogisticsCore.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
             LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }

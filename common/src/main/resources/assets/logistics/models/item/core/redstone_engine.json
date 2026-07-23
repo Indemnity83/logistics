@@ -2,7 +2,7 @@
   "parent": "minecraft:block/cube",
   "texture_size": [64, 64],
   "textures": {
-    "0": "logistics:block/power/redstone_engine"
+    "0": "logistics:block/core/redstone_engine"
   },
   "elements": [
     {

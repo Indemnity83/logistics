@@ -20,7 +20,7 @@ class LogisticsConfigHostTest {
 
     /** The per-engine child configs the power {@code CONFIG} keys are registered on. */
     private static Config redstone() {
-        return ConfigRegistry.config(LogisticsPower.CONFIG.REDSTONE_OUTPUT.configId());
+        return ConfigRegistry.config(LogisticsCore.CONFIG.REDSTONE_OUTPUT.configId());
     }
 
     private static Config stirling() {
@@ -33,13 +33,13 @@ class LogisticsConfigHostTest {
         Config redstone = redstone();
         Config stirling = stirling();
 
-        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
+        assertThat(LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT)).isEqualTo(3.0);
         assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT)).isEqualTo(10.0);
 
         // Single-field: redstone output must be >= 0 (a rejected trySet leaves the value unchanged).
-        assertThat(redstone.trySet(LogisticsPower.CONFIG.REDSTONE_OUTPUT, -1L)).isFalse();
-        assertThat(LogisticsConfigHost.get(LogisticsPower.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
+        assertThat(redstone.trySet(LogisticsCore.CONFIG.REDSTONE_OUTPUT, -1L)).isFalse();
+        assertThat(LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_OUTPUT)).isEqualTo(10L);
 
         // Cross-field: min must not exceed max (default max 10).
         assertThat(stirling.trySet(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 12.0)).isFalse();
@@ -84,7 +84,7 @@ class LogisticsConfigHostTest {
     void domainConfigsEnumeratesEveryDomain() {
         // Touch a key from every domain so each CONFIG class initializes (registers its configFor child).
         List<ConfigKey<?>> ignored = List.of(
-                LogisticsPower.CONFIG.REDSTONE_OUTPUT,
+                LogisticsCore.CONFIG.REDSTONE_OUTPUT,
                 LogisticsAutomation.CONFIG.QUARRY_AREA,
                 LogisticsPipe.CONFIG.PIPE_MAX_SPEED,
                 LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS,

@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:power/redstone_engine"
+          "name": "logistics:core/redstone_engine"
         }
       ]
     }
