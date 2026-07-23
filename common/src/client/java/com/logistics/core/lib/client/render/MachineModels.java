@@ -67,6 +67,20 @@ public final class MachineModels {
                     new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
                     new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
                     new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
+        Map.entry("magmatic_engine_bellow", new Model("power/magmatic_engine", List.of(
+            new Element(2f, 0f, 2f, 14f, 8f, 14f, List.of(
+                    new Face(Direction.NORTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.EAST, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.SOUTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.WEST, 0.5f, 12f, 3.5f, 14f, 0)))))),
+        Map.entry("magmatic_engine_piston", new Model("power/magmatic_engine", List.of(
+            new Element(0f, 0f, 0f, 16f, 4f, 16f, List.of(
+                    new Face(Direction.NORTH, 4f, 14f, 8f, 15f, 0),
+                    new Face(Direction.EAST, 0f, 14f, 4f, 15f, 0),
+                    new Face(Direction.SOUTH, 12f, 14f, 16f, 15f, 0),
+                    new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
+                    new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
+                    new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
         Map.entry("marker_beam", new Model("core/marker_beam", List.of(
             new Element(7.1f, 8.1f, 0f, 8.9f, 9.9f, 16f, List.of(
                     new Face(Direction.NORTH, 0f, 4f, 2f, 12f, 0),

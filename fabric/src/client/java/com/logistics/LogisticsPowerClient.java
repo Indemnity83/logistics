@@ -5,6 +5,7 @@ import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
+import com.logistics.power.screen.MagmaticEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
@@ -24,6 +25,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
         // Cables render fully in code via the shared vanilla CableBlockEntityRenderer
@@ -32,6 +34,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
+        MenuScreens.register(LogisticsPower.SCREEN.MAGMATIC_ENGINE, MagmaticEngineScreen::new);
 
         // Register block color providers for engine heat stage tinting
         registerEngineBlockColors();
@@ -58,6 +61,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
             List.of(EngineHeatTintSource.INSTANCE),
             LogisticsCore.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
+            LogisticsPower.BLOCK.MAGMATIC_ENGINE,
             LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 }
