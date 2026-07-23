@@ -1,6 +1,6 @@
 package com.logistics.core.lib.power;
 
-import static com.logistics.core.lib.power.AbstractEngineBlockEntity.STAGE;
+import static com.logistics.core.lib.power.HeatStage.STAGE;
 
 import com.logistics.core.lib.block.MachineBlock;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <E> The type of engine block entity this block creates
  */
-public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> extends MachineBlock
+public abstract class AbstractEngineBlock<E extends EngineEntity> extends MachineBlock
         implements WrenchBehavior.Wrenchable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -50,7 +50,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(POWERED, false)
-                .setValue(STAGE, AbstractEngineBlockEntity.HeatStage.COLD));
+                .setValue(STAGE, HeatStage.COLD));
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class AbstractEngineBlock<E extends AbstractEngineBlockEntity> e
         boolean powered = hasDirectRedstonePower(ctx.getLevel(), ctx.getClickedPos());
 
         BlockState base =
-                defaultBlockState().setValue(FACING, facing).setValue(POWERED, powered).setValue(STAGE, AbstractEngineBlockEntity.HeatStage.COLD);
+                defaultBlockState().setValue(FACING, facing).setValue(POWERED, powered).setValue(STAGE, HeatStage.COLD);
 
         return applyAdditionalPlacementState(base, ctx);
     }

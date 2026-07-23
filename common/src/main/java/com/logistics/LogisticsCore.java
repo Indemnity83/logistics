@@ -10,6 +10,8 @@ import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.engine.block.RedstoneEngineBlock;
+import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
 import com.logistics.core.worldgen.BogPatchConfiguration;
@@ -177,8 +179,24 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     /** Crash reporting toggles — {@code config/logistics/reporting.json}. Exposed under {@code /logistics config reporting}. */
     public static final class CONFIG extends ConfigEntries {
         private static final Config reporting = configFor(LogisticsConfigHost.MOD_ID, "reporting");
+        private static final Config redstone = configFor(LogisticsConfigHost.MOD_ID, "engines.redstone");
 
         private CONFIG() {}
+
+        // Redstone engine
+        public static final ConfigKey<Long> REDSTONE_OUTPUT = redstone.defineLong("output", 10L)
+                .min(0L)
+                .describe("RF generated per generation interval")
+                .register();
+        public static final ConfigKey<Long> REDSTONE_GENERATION_INTERVAL =
+                redstone.defineLong("generation_interval", 16L)
+                        .min(1L)
+                        .describe("Ticks between generation pulses when powered")
+                        .register();
+        public static final ConfigKey<Long> REDSTONE_BUFFER_CAPACITY = redstone.defineLong("buffer_capacity", 1_000L)
+                .min(0L)
+                .describe("Internal RF buffer capacity")
+                .register();
 
         public static final ConfigKey<Boolean> CRASH_REPORTING_ENABLED = reporting.defineBoolean("enabled", false)
                 .describe("Opt-in sanitized crash reporting via Sentry")
@@ -199,6 +217,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             LogisticsConfigMigrator.mapLegacy("crashReporting", "enabled", CRASH_REPORTING_ENABLED);
             LogisticsConfigMigrator.mapLegacy("crashReporting", "notifyOperators", CRASH_REPORTING_SHOW_NOTIFICATION);
             LogisticsConfigMigrator.mapLegacy("crashReporting", "dsnOverride", CRASH_REPORTING_DSN_OVERRIDE);
+            LogisticsConfigMigrator.mapLegacy("engine", "redstoneOutput", REDSTONE_OUTPUT);
         }
     }
 
@@ -294,6 +313,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block OIL_SAND;
         public static Block OIL_RED_SAND;
         public static Block OIL_SHALE;
+        public static Block REDSTONE_ENGINE;
 
         private BLOCK() {}
 
@@ -334,6 +354,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 props -> new Block(props.strength(0.5f).sound(SoundType.SAND)));
             OIL_SHALE = INSTANCE.registerBlockWithItem("oil_shale",
                 props -> new Block(props.strength(0.6f).sound(SoundType.GRAVEL)));
+            REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
+                props -> new RedstoneEngineBlock(props.strength(5.0f).sound(SoundType.WOOD).noOcclusion()));
         }
     }
 
@@ -519,9 +541,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         private ENTITY() {}
 
         public static BlockEntityType<MarkerBlockEntity> MARKER_BLOCK_ENTITY;
+        public static BlockEntityType<RedstoneEngineBlockEntity> REDSTONE_ENGINE_BLOCK_ENTITY;
 
         static void register() {
             MARKER_BLOCK_ENTITY = INSTANCE.registerBlockEntity("marker", MarkerBlockEntity::new, BLOCK.MARKER);
+            REDSTONE_ENGINE_BLOCK_ENTITY = INSTANCE.registerBlockEntity(
+                "redstone_engine", RedstoneEngineBlockEntity::new, BLOCK.REDSTONE_ENGINE);
         }
     }
 
@@ -540,6 +565,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             // Tools
             TAB.add(ITEM.WRENCH);
+            TAB.add(BLOCK.REDSTONE_ENGINE);
 
             // --- Misc & raw materials (kept contiguous) ---
             // Ores and storage blocks
@@ -674,6 +700,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Chips renamed to "chipset"; bridge the previously-released chip IDs.
             INSTANCE.registerItemAlias("core/redstone_chip", ITEM.REDSTONE_CHIPSET);
             INSTANCE.registerItemAlias("core/echo_chip", ITEM.ECHO_CHIPSET);
+
+            // Redstone Engine moved from the power domain to core.
+            INSTANCE.registerBlockAlias("power/redstone_engine", BLOCK.REDSTONE_ENGINE);
+            INSTANCE.registerBlockEntityAlias("power/redstone_engine", ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
+            INSTANCE.registerItemAlias("power/redstone_engine", BLOCK.REDSTONE_ENGINE.asItem());
 
             // Rubber and polymers moved from the power domain to core.
             INSTANCE.registerItemAlias("power/rubber", ITEM.RUBBER);

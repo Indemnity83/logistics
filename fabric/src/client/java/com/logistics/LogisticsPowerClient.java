@@ -1,9 +1,9 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.EngineHeatTint;
+import com.logistics.core.lib.power.HeatStage;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.model.CableUnbakedRoot;
@@ -47,7 +47,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         LOGGER.info("Registering power (client)");
 
         // Register engine block entity renderers
-        BlockEntityRenderers.register(LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
@@ -60,7 +60,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // drawn behind them in the BER. MC 1.21.1 vanilla doesn't honor the model "render_type"
         // field (added in 1.21.4+), so Fabric needs this explicit registration; NeoForge picks up
         // "render_type" from the static model JSON instead.
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.REDSTONE_ENGINE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsCore.BLOCK.REDSTONE_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, RenderType.cutout());
 
@@ -79,12 +79,12 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // color in code. Items have no live heat state, so they always show the idle COLD blue.
         ColorProviderRegistry.ITEM.register(
                 (stack, tintIndex) -> tintIndex == 0 ? EngineHeatTint.color(HeatStage.COLD) : -1,
-                LogisticsPower.BLOCK.REDSTONE_ENGINE,
+                LogisticsCore.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
 
         // Register cleanup callback for engine animation cache
-        AbstractEngineBlockEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
+        EngineEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
 
         // Clear all animation caches when disconnecting from server
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());

@@ -31,7 +31,7 @@ import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity.HeatStage;
+import com.logistics.core.lib.power.HeatStage;
 import com.logistics.core.lib.power.EngineHeatTint;
 import com.logistics.neoforge.NeoForgePacketRegistration;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
@@ -160,7 +160,7 @@ public final class NeoForgeClientSetup {
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(
-                LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY,
+                LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY,
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY,
@@ -229,7 +229,7 @@ public final class NeoForgeClientSetup {
         // Engine item: the in-inventory model tints its core (tintIndex 0). Items have no live heat
         // state, so they always show the idle COLD blue (matches 26.x's static engine item tint).
         event.register((stack, tintIndex) -> tintIndex == 0 ? EngineHeatTint.color(HeatStage.COLD) : -1,
-                LogisticsPower.BLOCK.REDSTONE_ENGINE,
+                LogisticsCore.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }

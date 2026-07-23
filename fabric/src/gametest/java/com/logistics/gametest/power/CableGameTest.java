@@ -2,6 +2,7 @@ package com.logistics.gametest.power;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsPower;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -10,7 +11,7 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
-import com.logistics.power.engine.block.entity.RedstoneEngineBlockEntity;
+import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
@@ -418,7 +419,7 @@ public class CableGameTest {
         BlockPos cablePos = new BlockPos(2, 1, 1);
 
         context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(enginePos, LogisticsPower.BLOCK.REDSTONE_ENGINE
+        context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)
                 .setValue(AbstractEngineBlock.POWERED, true));

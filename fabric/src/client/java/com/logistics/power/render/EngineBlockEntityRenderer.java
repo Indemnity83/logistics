@@ -2,7 +2,7 @@ package com.logistics.power.render;
 
 import com.logistics.core.lib.client.render.CodeModelRenderer;
 import com.logistics.core.lib.client.render.MachineModels;
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.EngineHeatTint;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * Uses code-generated quads with transformations for smooth animations.
  * Uses client-side animation cache for smooth piston movement independent of server updates.
  */
-public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEngineBlockEntity> {
+public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEntity> {
     // Animation cache - persists between frames, cleaned up when block entities are removed
     private static final java.util.Map<BlockPos, AnimationCache> ANIMATION_CACHE =
             new java.util.concurrent.ConcurrentHashMap<>();
@@ -57,7 +57,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
 
     @Override
     public void render(
-            AbstractEngineBlockEntity entity,
+            EngineEntity entity,
             float partialTick,
             PoseStack poseStack,
             MultiBufferSource bufferSource,
@@ -110,7 +110,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         poseStack.popPose();
     }
 
-    private String getBellowKey(AbstractEngineBlockEntity entity) {
+    private String getBellowKey(EngineEntity entity) {
         String engineName = getEngineName(entity);
         return switch (engineName) {
             case "redstone_engine" -> "redstone_engine_bellow";
@@ -120,7 +120,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         };
     }
 
-    private String getPistonKey(AbstractEngineBlockEntity entity) {
+    private String getPistonKey(EngineEntity entity) {
         String engineName = getEngineName(entity);
         return switch (engineName) {
             case "redstone_engine" -> "redstone_engine_piston";
@@ -130,7 +130,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
         };
     }
 
-    private String getCoreKey(AbstractEngineBlockEntity entity) {
+    private String getCoreKey(EngineEntity entity) {
         String engineName = getEngineName(entity);
         return switch (engineName) {
             case "redstone_engine" -> "redstone_engine_core";
@@ -144,11 +144,13 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
      * Gets the engine name from the block's registry key (e.g., "redstone_engine").
      * Strips the "power/" prefix if present.
      */
-    private String getEngineName(AbstractEngineBlockEntity entity) {
+    private String getEngineName(EngineEntity entity) {
         ResourceLocation location = BuiltInRegistries.BLOCK.getKey(entity.getBlockState().getBlock());
         String path = location.getPath();
-        // Strip "power/" prefix if present
-        return path.startsWith("power/") ? path.substring(6) : path;
+        // Strip the domain prefix ("power/" or "core/") so the switch cases match the bare name.
+        if (path.startsWith("power/")) return path.substring(6);
+        if (path.startsWith("core/")) return path.substring(5);
+        return path;
     }
 
     /**
@@ -203,7 +205,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<AbstractEn
      * sample from the block below the engine, which is often solid ground (light=0).
      */
     private void renderModel(
-            AbstractEngineBlockEntity entity,
+            EngineEntity entity,
             List<BakedQuad> model,
             PoseStack poseStack,
             MultiBufferSource bufferSource,

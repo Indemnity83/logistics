@@ -61,7 +61,7 @@ public final class NeoForgeCapabilityRegistration {
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         registerEnergy(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
-        registerEnergy(event, LogisticsPower.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY);

@@ -20,7 +20,7 @@
     }
   },
   "result": {
-    "count": 1,
-    "id": "logistics:power/redstone_engine"
+    "id": "logistics:core/redstone_engine",
+    "count": 1
   }
 }
