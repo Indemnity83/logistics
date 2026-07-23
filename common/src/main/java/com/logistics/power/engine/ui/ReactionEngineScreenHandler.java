@@ -2,7 +2,6 @@ package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
 import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
-import com.logistics.power.engine.reaction.ReactionEngineReactions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -60,7 +59,9 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
         checkContainerSize(inventory, 1);
         inventory.startOpen(playerInventory.player);
 
-        addSlot(new CatalystSlot(inventory, 0, CATALYST_SLOT_X, CATALYST_SLOT_Y));
+        // Plain slot: recipe-based validity is enforced server-side (the client has no RecipeManager), so
+        // the GUI doesn't hard-filter placement — matching the Macerator and the other item-input machines.
+        addSlot(new Slot(inventory, 0, CATALYST_SLOT_X, CATALYST_SLOT_Y));
         addInventorySlots(playerInventory);
         addDataSlots(propertyDelegate);
     }
@@ -95,14 +96,14 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
         ItemStack originalStack = slot.getItem();
         ItemStack newStack = originalStack.copy();
 
-        // Slot 0: catalyst slot, 1-27: player main inventory, 28-36: hotbar
+        // Slot 0: catalyst slot, 1-27: player main inventory, 28-36: hotbar. Shift-clicking from the
+        // inventory targets the catalyst slot first (the server rejects non-reagent items on ignition).
         if (slotIndex == 0) {
             if (!moveItemStackTo(originalStack, 1, 37, true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (ReactionEngineReactions.isCatalyst(originalStack)
-                && moveItemStackTo(originalStack, 0, 1, false)) {
-            // moved catalyst into the catalyst slot
+        } else if (moveItemStackTo(originalStack, 0, 1, false)) {
+            // moved into the catalyst slot
         } else if (!moveWithinInventory(originalStack, slotIndex)) {
             return ItemStack.EMPTY;
         }
@@ -213,16 +214,5 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
             return 0;
         }
         return Math.min(maxPixels, Math.max(0, getReactantAmount()) * maxPixels / capacity);
-    }
-
-    private static class CatalystSlot extends Slot {
-        CatalystSlot(Container inventory, int index, int x, int y) {
-            super(inventory, index, x, y);
-        }
-
-        @Override
-        public boolean mayPlace(ItemStack stack) {
-            return ReactionEngineReactions.isCatalyst(stack);
-        }
     }
 }

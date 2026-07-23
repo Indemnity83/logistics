@@ -24,12 +24,17 @@ import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import com.logistics.power.engine.reaction.ReactionRecipe;
+import com.logistics.power.engine.reaction.ReactionRecipeSerializer;
 import com.logistics.power.engine.ui.ReactionEngineScreenHandler;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -67,6 +72,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         BLOCK.register();
         ENTITY.register();
         SCREEN.register();
+        RECIPE.register();
         CREATIVE.register();
     }
 
@@ -103,23 +109,12 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .describe("Internal RF buffer capacity")
                 .register();
 
-        // Reaction engine — bufferless: a liquid reactant + solid catalyst produce a huge burst pushed
-        // straight to the network (no buffer_capacity knob; unaccepted RF is discarded).
-        public static final ConfigKey<Long> REACTION_OUTPUT = reaction.defineLong("output_per_tick", 200L)
-                .min(0L)
-                .describe("RF/t generated during a reaction")
-                .register();
-        public static final ConfigKey<Long> REACTION_DURATION = reaction.defineLong("reaction_ticks", 500L)
-                .min(1L)
-                .describe("Duration in ticks of one committed reaction")
-                .register();
+        // Reaction engine — bufferless: a liquid reactant + solid reagent produce a huge burst pushed
+        // straight to the network (no buffer_capacity knob; unaccepted RF is discarded). Reactant, reagent,
+        // energy, and duration are datapack recipe values; only the tank size is a machine property.
         public static final ConfigKey<Long> REACTION_TANK_CAPACITY = reaction.defineLong("reactant_tank_capacity_mb", 4_000L)
                 .min(0L)
                 .describe("Reactant tank capacity in mB")
-                .register();
-        public static final ConfigKey<Long> REACTION_BATCH_MB = reaction.defineLong("reaction_batch_mb", 250L)
-                .min(1L)
-                .describe("Reactant consumed per reaction in mB (with 1 catalyst)")
                 .register();
 
         // Creative engine
@@ -240,6 +235,34 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("reaction_engine").toIdentifier(),
                     new MenuType<>(ReactionEngineScreenHandler::new, FeatureFlagSet.of()));
+        }
+    }
+
+    public static final class RECIPE {
+        private RECIPE() {}
+
+        public static RecipeType<ReactionRecipe> REACTION_RECIPE_TYPE;
+        public static RecipeSerializer<ReactionRecipe> REACTION_RECIPE_SERIALIZER;
+        public static RecipeBookCategory REACTION_CATEGORY;
+
+        static void register() {
+            REACTION_RECIPE_TYPE = Registry.register(
+                    BuiltInRegistries.RECIPE_TYPE,
+                    LogisticsMod.modId("reaction").toIdentifier(),
+                    new RecipeType<ReactionRecipe>() {
+                        @Override
+                        public String toString() {
+                            return "logistics:reaction";
+                        }
+                    });
+            REACTION_RECIPE_SERIALIZER = Registry.register(
+                    BuiltInRegistries.RECIPE_SERIALIZER,
+                    LogisticsMod.modId("reaction").toIdentifier(),
+                    ReactionRecipeSerializer.INSTANCE);
+            REACTION_CATEGORY = Registry.register(
+                    BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                    LogisticsMod.modId("reaction").toIdentifier(),
+                    new RecipeBookCategory());
         }
     }
 

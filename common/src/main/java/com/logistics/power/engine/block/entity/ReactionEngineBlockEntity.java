@@ -23,7 +23,6 @@ import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
 import com.logistics.power.engine.block.ReactionEngineBlock;
 import com.logistics.power.engine.reaction.ReactionEngineComponent;
-import com.logistics.power.engine.reaction.ReactionEngineProfile;
 import com.logistics.power.engine.reaction.ReactionEngineReactions;
 import com.logistics.power.engine.ui.ReactionEngineScreenHandler;
 import net.minecraft.core.BlockPos;
@@ -106,7 +105,6 @@ public class ReactionEngineBlockEntity extends EngineEntity
     private ItemInventoryComponent catalystInventory;
     private FluidStoreComponent reactantTank;
     private ReactionEngineComponent reactionSim;
-    private IFluidStorage fluidView;
 
     // Throwaway transport adapter for EngineEnergyPusher — never persisted, never exposed, never stores RF.
     private final EnergyComponent conduit = new EnergyComponent(Long.MAX_VALUE, 0, Long.MAX_VALUE, () -> {});
@@ -123,22 +121,16 @@ public class ReactionEngineBlockEntity extends EngineEntity
     protected void configure(EngineBuilder engine) {
         catalystInventory = new ItemInventoryComponent(1, this::setChanged);
 
-        ReactionEngineProfile profile = ReactionEngineProfile.of(
-                LogisticsConfigHost.get(LogisticsPower.CONFIG.REACTION_OUTPUT),
-                (int) (long) LogisticsConfigHost.get(LogisticsPower.CONFIG.REACTION_DURATION),
-                (int) (long) LogisticsConfigHost.get(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY),
-                (int) (long) LogisticsConfigHost.get(LogisticsPower.CONFIG.REACTION_BATCH_MB));
-
         reactantTank = engine.fluids("reactantTank")
                 .capacity(FluidUnits.mb(LogisticsConfigHost.get(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY)))
                 .build();
         engine.add(new FluidSyncComponent(reactantTank));
         // No energyOutput, no pistonCycle — bufferless. The sim pushes directly and drives the piston itself.
+        // Reactant, reagent, energy, and duration all come from the matched datapack recipe (ignition looks
+        // it up via ReactionEngineReactions against the level's RecipeManager).
         reactionSim = engine.add(new ReactionEngineComponent(
                 "reactionSim", this::pushEnergy, reactantTank, catalystInventory,
-                ReactionEngineReactions::lookup, this::isPowered, profile, this::setChanged));
-
-        fluidView = new ReactionEngineFluidView(reactantTank);
+                ReactionEngineReactions::find, this::isPowered, this::setChanged));
     }
 
     /** Push generated RF straight into the output-face network via a throwaway conduit; discard the rest. */
@@ -165,26 +157,24 @@ public class ReactionEngineBlockEntity extends EngineEntity
     @Override
     @Nullable
     public IFluidStorage fluidStorage(@Nullable Direction side) {
-        return fluidView;
-    }
+        return new IFluidStorage() {
+            @Override
+            public long insert(IFluidKey fluid, long maxAmount, boolean simulate) {
+                return ReactionEngineReactions.isReactant(recipeManager(), fluid.getFluid())
+                        ? reactantTank.tank().insert(fluid, maxAmount, simulate)
+                        : 0;
+            }
 
-    private record ReactionEngineFluidView(FluidStoreComponent reactantTank) implements IFluidStorage {
-        @Override
-        public long insert(IFluidKey fluid, long maxAmount, boolean simulate) {
-            return ReactionEngineReactions.isReactant(fluid.getFluid())
-                    ? reactantTank.tank().insert(fluid, maxAmount, simulate)
-                    : 0;
-        }
+            @Override
+            public long extract(IFluidKey fluid, long maxAmount, boolean simulate) {
+                return 0; // the reaction consumes the reactant internally; not pipe-drainable
+            }
 
-        @Override
-        public long extract(IFluidKey fluid, long maxAmount, boolean simulate) {
-            return 0; // the reaction consumes the reactant internally; not pipe-drainable
-        }
-
-        @Override
-        public Iterable<IFluidView> contents() {
-            return reactantTank.tank().contents();
-        }
+            @Override
+            public Iterable<IFluidView> contents() {
+                return reactantTank.tank().contents();
+            }
+        };
     }
 
     // ==================== HasItemStorage (catalyst slot, hidden on the output face) ====================
@@ -198,7 +188,7 @@ public class ReactionEngineBlockEntity extends EngineEntity
         return new IItemStorage() {
             @Override
             public long insert(IItemKey item, long maxAmount, boolean simulate) {
-                if (!ReactionEngineReactions.isCatalyst(item.toStack(1))) {
+                if (!ReactionEngineReactions.isCatalyst(recipeManager(), item.toStack(1))) {
                     return 0;
                 }
                 ItemStack current = catalystInventory.getItem(0);
@@ -291,7 +281,10 @@ public class ReactionEngineBlockEntity extends EngineEntity
     }
 
     public boolean isValid(int slot, ItemStack stack) {
-        return ReactionEngineReactions.isCatalyst(stack);
+        // Server-side filter only (hoppers/automation): with no RecipeManager (client), stay permissive so
+        // the GUI slot isn't wrongly blocked — matching the Macerator/other item-input machines.
+        var recipes = recipeManager();
+        return recipes == null || ReactionEngineReactions.isCatalyst(recipes, stack);
     }
 
     @Override

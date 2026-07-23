@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.recipe.FluidResult;
 import com.logistics.core.machine.FakeMachineContext;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.test.MinecraftTestEnvironment;
-import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
@@ -19,6 +19,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
@@ -26,18 +27,21 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Behavior of the bufferless Reaction Engine simulation. Uses vanilla lava as the "reactant" and blaze
- * powder as the "catalyst" via an injected recipe lookup (so no mod fluids need registering), and injected
- * {@link ReactionOutput} fakes for the network.
+ * powder as the "reagent" via an injected {@link ReactionLookup} that returns a recipe of 250 mB + 1 item →
+ * 100,000 RF over 500 ticks (so no mod fluids or RecipeManager need registering), plus injected
+ * {@link ReactionOutput} fakes for the network. Derived RF/t = 100000 / 500 = 200.
  */
 class ReactionEngineComponentTest extends MinecraftTestEnvironment {
-
-    private static final ReactionEngineProfile PROFILE = ReactionEngineProfile.of(200, 500, 4_000, 250);
 
     private final HolderLookup.Provider registries =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
-    private final BiFunction<Fluid, ItemStack, ReactionRecipe> lookup = (f, i) ->
-            (f == Fluids.LAVA && i.is(Items.BLAZE_POWDER)) ? new ReactionRecipe(f, Items.BLAZE_POWDER, null, null) : null;
+    private static final MachineContext CTX = new FakeMachineContext();
+
+    private final ReactionLookup lookup = (ctx, f, i) ->
+            (f == Fluids.LAVA && i.is(Items.BLAZE_POWDER))
+                    ? new ReactionRecipe(new FluidResult(Fluids.LAVA, 250), Ingredient.of(Items.BLAZE_POWDER), 1, 100_000, 500)
+                    : null;
 
     private static final ReactionOutput NONE = (ctx, amount) -> 0;
     private static final ReactionOutput FULL = (ctx, amount) -> amount;
@@ -76,18 +80,19 @@ class ReactionEngineComponentTest extends MinecraftTestEnvironment {
 
     private ReactionEngineComponent engine(
             ReactionOutput out, FluidStoreComponent tank, Container catalyst, BooleanSupplier powered) {
-        return new ReactionEngineComponent("reaction", out, tank, catalyst, lookup, powered, PROFILE, () -> {});
+        return new ReactionEngineComponent("reaction", out, tank, catalyst, lookup, powered, () -> {});
     }
 
     private void seed(ReactionEngineComponent c, int remaining, long committedOutput) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("RemainingReactionTicks", remaining);
+        tag.putInt("CommittedTotalTicks", remaining);
         tag.putLong("CommittedOutputPerTick", committedOutput);
         c.load(tag, registries);
     }
 
     private void tick(ReactionEngineComponent c) {
-        c.serverTick(new FakeMachineContext());
+        c.serverTick(CTX);
     }
 
     private void tick(ReactionEngineComponent c, int n) {
@@ -151,11 +156,11 @@ class ReactionEngineComponentTest extends MinecraftTestEnvironment {
     @Test
     void canStartReactionReflectsPowerAndValidPair() {
         assertThat(engine(FULL, tank(Fluids.LAVA, 1000), catalyst(Items.BLAZE_POWDER, 1), () -> true)
-                .canStartReaction()).isTrue();
+                .canStartReaction(CTX)).isTrue();
         assertThat(engine(FULL, tank(Fluids.LAVA, 1000), catalyst(Items.BLAZE_POWDER, 1), () -> false)
-                .canStartReaction()).isFalse();
+                .canStartReaction(CTX)).isFalse();
         assertThat(engine(FULL, tank(Fluids.LAVA, 1000), catalyst(Items.DIAMOND, 1), () -> true)
-                .canStartReaction()).isFalse();
+                .canStartReaction(CTX)).isFalse();
     }
 
     // ==================== Committed reaction ====================
@@ -238,6 +243,7 @@ class ReactionEngineComponentTest extends MinecraftTestEnvironment {
         CompoundTag tag = new CompoundTag();
         r.save(tag, registries);
         assertThat(tag.contains("RemainingReactionTicks")).isTrue();
+        assertThat(tag.contains("CommittedTotalTicks")).isTrue();
         assertThat(tag.contains("CommittedOutputPerTick")).isTrue();
         assertThat(tag.contains("StoredEnergy")).isFalse();
         assertThat(tag.contains("Energy")).isFalse();

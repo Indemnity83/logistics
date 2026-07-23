@@ -1,14 +1,10 @@
 package com.logistics.power.engine.reaction;
 
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.IFluidKey;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.EngineComponent;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.FluidStoreComponent;
-import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -17,14 +13,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 
 /**
- * The Reaction Engine simulation — the smallest engine in the mod. It consumes a liquid reactant + a solid
- * catalyst in one committed reaction, then generates a fixed RF/t for a fixed duration, pushing it
- * <b>directly to the network with no buffer</b> and discarding whatever the network can't take. There is
- * no heat, no coolant, no pressure, no stored energy.
+ * The Reaction Engine simulation — the smallest engine in the mod. It consumes a datapack-defined liquid
+ * reactant + solid reagent in one committed reaction, then generates a fixed RF/t for a fixed duration,
+ * pushing it <b>directly to the network with no buffer</b> and discarding whatever the network can't take.
+ * There is no heat, no coolant, no pressure, no stored energy — and no hardcoded materials, amounts,
+ * energy, or duration: every value comes from the matched {@link ReactionRecipe}.
  *
  * <p>Once committed, a reaction <b>cannot pause, throttle, or cancel</b> — it runs to completion regardless
  * of redstone or network acceptance. Redstone only gates <em>starting</em> a new reaction. The injected
- * {@link ReactionOutput} + reaction-lookup seams make it unit-testable without a live level.
+ * {@link ReactionOutput} + {@link ReactionLookup} seams make it unit-testable without a live level.
  */
 public final class ReactionEngineComponent implements MachineComponent, EngineComponent.PistonState {
 
@@ -34,15 +31,15 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
     private final String id;
     private final ReactionOutput output;
     private final FluidStoreComponent reactantStore;
-    private final Container catalystInventory;
-    private final BiFunction<Fluid, ItemStack, ReactionRecipe> reactionLookup;
+    private final Container reagentInventory;
+    private final ReactionLookup reactionLookup;
     private final BooleanSupplier powered;
-    private final ReactionEngineProfile profile;
     private final Runnable onChanged;
 
-    // Persisted: the reaction countdown + the rate committed at ignition (so a mid-reaction reload resumes
-    // at the right rate once recipes vary). Never any stored RF — the engine is bufferless.
+    // Persisted: the reaction countdown + the rate/total committed at ignition from the recipe (so a
+    // mid-reaction reload resumes at the right rate and drives the progress bar). Never any stored RF.
     private int remainingReactionTicks;
+    private int committedTotalTicks;
     private long committedOutputPerTick;
 
     // Transient.
@@ -54,18 +51,16 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
             String id,
             ReactionOutput output,
             FluidStoreComponent reactantStore,
-            Container catalystInventory,
-            BiFunction<Fluid, ItemStack, ReactionRecipe> reactionLookup,
+            Container reagentInventory,
+            ReactionLookup reactionLookup,
             BooleanSupplier powered,
-            ReactionEngineProfile profile,
             Runnable onChanged) {
         this.id = id;
         this.output = output;
         this.reactantStore = reactantStore;
-        this.catalystInventory = catalystInventory;
+        this.reagentInventory = reagentInventory;
         this.reactionLookup = reactionLookup;
         this.powered = powered;
-        this.profile = profile;
         this.onChanged = onChanged;
     }
 
@@ -93,8 +88,8 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
         if (!isReacting()) {
             lastAttempted = 0;
             lastAccepted = 0;
-            if (!tryIgnite()) {
-                return; // idle: redstone off, no valid reactant+catalyst, or not a full batch
+            if (!tryIgnite(ctx)) {
+                return; // idle: redstone off, no matching recipe, or not a full batch
             }
             // fall through — a newly committed reaction generates its first tick immediately (matches the
             // Fuel/Magmatic commit-then-generate convention)
@@ -107,25 +102,25 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
         remainingReactionTicks--;
     }
 
-    /** Attempt to commit a new reaction; returns whether one started. Redstone-gated. */
-    private boolean tryIgnite() {
+    /** Attempt to commit a new reaction from the datapack recipes; returns whether one started. */
+    private boolean tryIgnite(MachineContext ctx) {
         if (!powered.getAsBoolean()) {
             return false; // redstone only blocks STARTING a reaction
         }
         Fluid reactant = currentReactant();
-        ReactionRecipe rxn = reactionLookup.apply(reactant, currentCatalyst());
-        if (rxn == null) {
+        ReactionRecipe recipe = reactionLookup.find(ctx, reactant, currentReagent());
+        if (recipe == null) {
             return false;
         }
-        IFluidKey key = SimpleFluidKey.of(reactant);
-        long batch = FluidUnits.mb(profile.batchMb());
-        if (reactantStore.tank().extract(key, batch, true) != batch) {
+        long batch = recipe.reactant().nativeAmount();
+        if (reactantStore.tank().extract(recipe.reactant().key(), batch, true) != batch) {
             return false; // not a full batch present — atomic
         }
-        reactantStore.tank().extract(key, batch, false); // commit reactant
-        catalystInventory.removeItem(0, 1); // commit 1 catalyst
-        remainingReactionTicks = rxn.durationTicks(profile);
-        committedOutputPerTick = rxn.outputPerTick(profile);
+        reactantStore.tank().extract(recipe.reactant().key(), batch, false); // commit reactant
+        reagentInventory.removeItem(0, recipe.reagentCount()); // commit the reagent(s)
+        remainingReactionTicks = recipe.time();
+        committedTotalTicks = recipe.time();
+        committedOutputPerTick = recipe.outputPerTick();
         return true;
     }
 
@@ -133,17 +128,17 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
         return reactantStore.tank().getFluidKey().getFluid();
     }
 
-    private ItemStack currentCatalyst() {
-        return catalystInventory.getItem(0);
+    private ItemStack currentReagent() {
+        return reagentInventory.getItem(0);
     }
 
     public boolean isReacting() {
         return remainingReactionTicks > 0;
     }
 
-    /** Whether a fresh reaction could start right now (powered + a valid reactant+catalyst pair present). */
-    public boolean canStartReaction() {
-        return powered.getAsBoolean() && reactionLookup.apply(currentReactant(), currentCatalyst()) != null;
+    /** Whether a fresh reaction could start right now (powered + a matching recipe present). */
+    public boolean canStartReaction(MachineContext ctx) {
+        return powered.getAsBoolean() && reactionLookup.find(ctx, currentReactant(), currentReagent()) != null;
     }
 
     @Override
@@ -157,10 +152,9 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
         return remainingReactionTicks;
     }
 
-    /** Total ticks of the current/last reaction for the progress bar. (Per-recipe duration overrides would
-     * need a committed-duration field; launch recipes all use the profile duration.) */
+    /** Total ticks of the current/last reaction for the progress bar (committed at ignition per recipe). */
     public int reactionDurationTicks() {
-        return profile.reactionDurationTicks();
+        return committedTotalTicks;
     }
 
     public long lastAttempted() {
@@ -176,13 +170,15 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
     @Override
     public void save(CompoundTag tag, HolderLookup.Provider registries) {
         tag.putInt("RemainingReactionTicks", remainingReactionTicks);
+        tag.putInt("CommittedTotalTicks", committedTotalTicks);
         tag.putLong("CommittedOutputPerTick", committedOutputPerTick);
     }
 
     @Override
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
         remainingReactionTicks = Math.max(0, NbtCompat.getInt(tag, "RemainingReactionTicks", 0));
-        committedOutputPerTick = NbtCompat.getLong(tag, "CommittedOutputPerTick", profile.outputPerTick());
+        committedTotalTicks = Math.max(0, NbtCompat.getInt(tag, "CommittedTotalTicks", 0));
+        committedOutputPerTick = NbtCompat.getLong(tag, "CommittedOutputPerTick", 0L);
         lastAttempted = 0;
         lastAccepted = 0;
         syncedReacting = isReacting();
