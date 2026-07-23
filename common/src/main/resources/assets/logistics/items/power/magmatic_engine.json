@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "logistics:item/power/magmatic_engine",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": [0.95, 0.4, 0.1]
+      }
+    ]
+  }
+}

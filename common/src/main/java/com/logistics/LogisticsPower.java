@@ -19,9 +19,12 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.engine.block.CreativeEngineBlock;
+import com.logistics.power.engine.block.MagmaticEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
@@ -75,6 +78,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
+        private static final Config magmatic = configFor(LogisticsConfigHost.MOD_ID, "engines.magmatic");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
         private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
 
@@ -103,6 +107,24 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static final ConfigKey<Long> CREATIVE_BUFFER_CAPACITY = creative.defineLong("buffer_capacity", 10_000L)
                 .min(0L)
                 .describe("Internal RF buffer capacity")
+                .register();
+
+        // Magmatic engine — burns liquid lava as a fixed-duration heat source; output rises with heat soak.
+        public static final ConfigKey<Long> MAGMATIC_OUTPUT = magmatic.defineLong("base_output", 10L)
+                .min(1L)
+                .describe("Warm (furnace-parity) RF/t; cold is 50% and fully heat-soaked is 150% of this")
+                .register();
+        public static final ConfigKey<Long> MAGMATIC_BUFFER_CAPACITY = magmatic.defineLong("buffer_capacity", 40_000L)
+                .min(0L)
+                .describe("Internal RF buffer capacity (holds one full hot batch plus headroom)")
+                .register();
+        public static final ConfigKey<Long> MAGMATIC_TANK_CAPACITY = magmatic.defineLong("lava_tank_capacity_mb", 4_000L)
+                .min(100L)
+                .describe("Lava tank capacity (mB)")
+                .register();
+        public static final ConfigKey<Long> MAGMATIC_BUCKET_BURN_TICKS = magmatic.defineLong("bucket_burn_ticks", 20_000L)
+                .min(1L)
+                .describe("Powered burn ticks a full bucket (1,000 mB) of lava lasts")
                 .register();
 
         // Battery
@@ -144,6 +166,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private BLOCK() {}
 
         public static Block STIRLING_ENGINE;
+        public static Block MAGMATIC_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
         public static Block BATTERY;
@@ -154,6 +177,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+            MAGMATIC_ENGINE = INSTANCE.registerBlockWithItem("magmatic_engine",
+                props -> new MagmaticEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
                 props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
@@ -176,6 +201,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private ENTITY() {}
 
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<MagmaticEngineBlockEntity> MAGMATIC_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
         public static BlockEntityType<BatteryBlockEntity> BATTERY_BLOCK_ENTITY;
@@ -184,6 +210,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
+            MAGMATIC_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("magmatic_engine", MagmaticEngineBlockEntity::new, BLOCK.MAGMATIC_ENGINE);
             CREATIVE_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
             CREATIVE_SINK_BLOCK_ENTITY =
@@ -200,12 +228,17 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private SCREEN() {}
 
         public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
+        public static MenuType<MagmaticEngineScreenHandler> MAGMATIC_ENGINE;
 
         static void register() {
             STIRLING_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("stirling_engine").toIdentifier(),
                     new MenuType<>(StirlingEngineScreenHandler::new, FeatureFlagSet.of()));
+            MAGMATIC_ENGINE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPower.resource("magmatic_engine").toIdentifier(),
+                    new MenuType<>(MagmaticEngineScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 
@@ -220,6 +253,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.MAGMATIC_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
             TAB.add(BLOCK.BATTERY);
