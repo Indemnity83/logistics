@@ -173,6 +173,9 @@ public final class NeoForgeClientSetup {
                 LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY,
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.REACTION_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY,
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(

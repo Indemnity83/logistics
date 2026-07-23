@@ -4,6 +4,7 @@ import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
+import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -80,6 +81,8 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             state.engineType = EngineRenderState.EngineType.REDSTONE;
         } else if (entity instanceof StirlingEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.STIRLING;
+        } else if (entity instanceof ReactionEngineBlockEntity) {
+            state.engineType = EngineRenderState.EngineType.REACTION;
         } else if (entity instanceof CreativeEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.CREATIVE;
         }
@@ -136,6 +139,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
         return switch (type) {
             case REDSTONE -> "redstone_engine_bellow";
             case STIRLING -> "stirling_engine_bellow";
+            case REACTION -> "reaction_engine_bellow";
             case CREATIVE -> "creative_engine_bellow";
         };
     }
@@ -144,6 +148,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
         return switch (type) {
             case REDSTONE -> "redstone_engine_piston";
             case STIRLING -> "stirling_engine_piston";
+            case REACTION -> "reaction_engine_piston";
             case CREATIVE -> "creative_engine_piston";
         };
     }
