@@ -2,9 +2,11 @@ package com.logistics.power.engine.block;
 
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.core.lib.power.HeatStage;
 import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +31,12 @@ public class ReactionEngineBlock extends AbstractEngineBlock<ReactionEngineBlock
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
+    }
+
+    /** Place in the "off" (dark) tint immediately; the tick flips it to HOT once a reaction starts. */
+    @Override
+    protected BlockState applyAdditionalPlacementState(BlockState base, BlockPlaceContext ctx) {
+        return base.setValue(HeatStage.STAGE, HeatStage.OVERHEAT);
     }
 
     @Nullable @Override
