@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["OOO", " G ", "gpg"],
+  "key": {
+    "O": "minecraft:obsidian",
+    "G": "minecraft:glass",
+    "g": "logistics:core/diamond_gear",
+    "p": "minecraft:piston"
+  },
+  "result": {
+    "id": "logistics:power/reaction_engine",
+    "count": 1
+  }
+}

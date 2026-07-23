@@ -19,9 +19,12 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.engine.block.CreativeEngineBlock;
+import com.logistics.power.engine.block.ReactionEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import com.logistics.power.engine.ui.ReactionEngineScreenHandler;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
@@ -74,6 +77,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
+        private static final Config reaction = configFor(LogisticsConfigHost.MOD_ID, "engines.reaction");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
         private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
@@ -97,6 +101,25 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static final ConfigKey<Long> STIRLING_BUFFER_CAPACITY = stirling.defineLong("buffer_capacity", 10_000L)
                 .min(0L)
                 .describe("Internal RF buffer capacity")
+                .register();
+
+        // Reaction engine — bufferless: a liquid reactant + solid catalyst produce a huge burst pushed
+        // straight to the network (no buffer_capacity knob; unaccepted RF is discarded).
+        public static final ConfigKey<Long> REACTION_OUTPUT = reaction.defineLong("output_per_tick", 200L)
+                .min(0L)
+                .describe("RF/t generated during a reaction")
+                .register();
+        public static final ConfigKey<Long> REACTION_DURATION = reaction.defineLong("reaction_ticks", 500L)
+                .min(1L)
+                .describe("Duration in ticks of one committed reaction")
+                .register();
+        public static final ConfigKey<Long> REACTION_TANK_CAPACITY = reaction.defineLong("reactant_tank_capacity_mb", 4_000L)
+                .min(0L)
+                .describe("Reactant tank capacity in mB")
+                .register();
+        public static final ConfigKey<Long> REACTION_BATCH_MB = reaction.defineLong("reaction_batch_mb", 250L)
+                .min(1L)
+                .describe("Reactant consumed per reaction in mB (with 1 catalyst)")
                 .register();
 
         // Creative engine
@@ -144,6 +167,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private BLOCK() {}
 
         public static Block STIRLING_ENGINE;
+        public static Block REACTION_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
         public static Block BATTERY;
@@ -154,6 +178,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+            REACTION_ENGINE = INSTANCE.registerBlockWithItem("reaction_engine",
+                props -> new ReactionEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
                 props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
@@ -176,6 +202,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private ENTITY() {}
 
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<ReactionEngineBlockEntity> REACTION_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
         public static BlockEntityType<BatteryBlockEntity> BATTERY_BLOCK_ENTITY;
@@ -184,6 +211,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
+            REACTION_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("reaction_engine", ReactionEngineBlockEntity::new, BLOCK.REACTION_ENGINE);
             CREATIVE_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("creative_engine", CreativeEngineBlockEntity::new, BLOCK.CREATIVE_ENGINE);
             CREATIVE_SINK_BLOCK_ENTITY =
@@ -200,12 +229,17 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private SCREEN() {}
 
         public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
+        public static MenuType<ReactionEngineScreenHandler> REACTION_ENGINE;
 
         static void register() {
             STIRLING_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("stirling_engine").toIdentifier(),
                     new MenuType<>(StirlingEngineScreenHandler::new, FeatureFlagSet.of()));
+            REACTION_ENGINE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPower.resource("reaction_engine").toIdentifier(),
+                    new MenuType<>(ReactionEngineScreenHandler::new, FeatureFlagSet.of()));
         }
     }
 
@@ -220,6 +254,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.REACTION_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
             TAB.add(BLOCK.BATTERY);
