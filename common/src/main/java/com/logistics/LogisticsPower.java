@@ -77,8 +77,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
-        private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config fuel = configFor(LogisticsConfigHost.MOD_ID, "engines.fuel");
+        private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
         private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
 
@@ -112,10 +112,12 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         // Fuel engine
         public static final ConfigKey<Long> FUEL_MIN_OUTPUT = fuel.defineLong("min_output", 10L)
                 .min(0L)
+                .maxValueOf(() -> CONFIG.FUEL_MAX_OUTPUT)
                 .describe("Minimum RF/t generated while a fuel batch is burning")
                 .register();
         public static final ConfigKey<Long> FUEL_MAX_OUTPUT = fuel.defineLong("max_output", 40L)
                 .min(1L)
+                .minValueOf(() -> CONFIG.FUEL_MIN_OUTPUT)
                 .describe("Maximum RF/t generated")
                 .register();
         public static final ConfigKey<Long> FUEL_BUFFER_CAPACITY = fuel.defineLong("buffer_capacity", 10_000L)
@@ -171,6 +173,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             stirling.registerSanitizeHook(() -> stirling.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
+            fuel.registerSanitizeHook(() -> fuel.repairMinMax(FUEL_MIN_OUTPUT, FUEL_MAX_OUTPUT));
             LogisticsConfigMigrator.mapLegacyPair(
                     "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
         }

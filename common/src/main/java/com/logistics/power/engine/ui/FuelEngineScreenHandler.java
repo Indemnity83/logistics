@@ -18,6 +18,11 @@ import net.minecraft.world.item.ItemStack;
  */
 public class FuelEngineScreenHandler extends AbstractContainerMenu {
 
+    private static final int SLOT_SIZE = 18;
+    private static final int SLOT_START_X = 8;
+    private static final int PLAYER_INV_START_Y = 84;
+    private static final int HOTBAR_Y = 142;
+
     private final ContainerData data;
     private final ContainerLevelAccess access;
 
@@ -37,11 +42,12 @@ public class FuelEngineScreenHandler extends AbstractContainerMenu {
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                addSlot(new Slot(playerInventory, col + row * 9 + 9,
+                        SLOT_START_X + col * SLOT_SIZE, PLAYER_INV_START_Y + row * SLOT_SIZE));
             }
         }
         for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+            addSlot(new Slot(playerInventory, col, SLOT_START_X + col * SLOT_SIZE, HOTBAR_Y));
         }
 
         addDataSlots(data);
