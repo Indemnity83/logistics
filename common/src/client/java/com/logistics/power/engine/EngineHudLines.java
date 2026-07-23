@@ -54,7 +54,7 @@ public final class EngineHudLines {
                 ? NbtCompat.getLong(data, EngineHudData.KEY_ATTEMPTED, 0)
                 : NbtCompat.getLong(data, EngineHudData.KEY_OUTPUT, 0);
         lines.add(row(
-                reaction ? "jade.logistics.reaction.generating" : "jade.logistics.engine.output",
+                reaction ? "jade.logistics.engine.generating" : "jade.logistics.engine.output",
                 String.format("%d RF/t", outputValue),
                 ChatFormatting.LIGHT_PURPLE));
 
@@ -94,21 +94,21 @@ public final class EngineHudLines {
         int remaining = NbtCompat.getInt(data, EngineHudData.KEY_PROGRESS_REMAINING, 0);
         int total = NbtCompat.getInt(data, EngineHudData.KEY_PROGRESS_TOTAL, 0);
         float progress = total > 0 ? (1f - (float) remaining / total) * 100f : 0f;
-        lines.add(row("jade.logistics.reaction.progress", String.format("%.0f%%", progress), ChatFormatting.AQUA));
+        lines.add(row("jade.logistics.engine.progress", String.format("%.0f%%", progress), ChatFormatting.AQUA));
 
         if (!showDetails) {
             return;
         }
         long attempted = NbtCompat.getLong(data, EngineHudData.KEY_ATTEMPTED, 0);
         long accepted = NbtCompat.getLong(data, EngineHudData.KEY_ACCEPTED, 0);
-        lines.add(row("jade.logistics.reaction.delivered",
+        lines.add(row("jade.logistics.engine.delivered",
                 String.format("%d RF/t", accepted), ChatFormatting.GREEN));
-        lines.add(row("jade.logistics.reaction.wasted",
+        lines.add(row("jade.logistics.engine.wasted",
                 String.format("%d RF/t", Math.max(0, attempted - accepted)), ChatFormatting.RED));
 
         int reactantId = NbtCompat.getInt(data, EngineHudData.KEY_REACTANT_ID, -1);
         if (reactantId >= 0) {
-            lines.add(labelled("jade.logistics.reaction.reactant")
+            lines.add(labelled("jade.logistics.engine.reactant")
                     .append(FluidDisplay.name(BuiltInRegistries.FLUID.byId(reactantId))));
         }
     }

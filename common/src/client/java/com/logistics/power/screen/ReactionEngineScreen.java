@@ -40,6 +40,11 @@ public class ReactionEngineScreen extends AbstractContainerScreen<ReactionEngine
     private static final int TANK_HEIGHT = 58;
     private static final int TANK_BOTTOM = TANK_TOP + TANK_HEIGHT;
     private static final int TANK_WIDTH = 16;
+    // Hover-test the full 18x60 texture frame (not just the fluid interior), matching the other engines.
+    private static final int TANK_FRAME_LEFT = 108;
+    private static final int TANK_FRAME_TOP = 13;
+    private static final int TANK_FRAME_WIDTH = 18;
+    private static final int TANK_FRAME_HEIGHT = 60;
 
     public ReactionEngineScreen(ReactionEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
@@ -48,7 +53,7 @@ public class ReactionEngineScreen extends AbstractContainerScreen<ReactionEngine
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        hoverTooltip(graphics, mouseX, mouseY, TANK_LEFT, TANK_TOP, TANK_WIDTH, TANK_HEIGHT,
+        hoverTooltip(graphics, mouseX, mouseY, TANK_FRAME_LEFT, TANK_FRAME_TOP, TANK_FRAME_WIDTH, TANK_FRAME_HEIGHT,
                 tankTooltip(menu.getReactantFluidId(), menu.getReactantAmount()));
     }
 
