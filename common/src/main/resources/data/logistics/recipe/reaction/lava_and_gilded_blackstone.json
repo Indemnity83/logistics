@@ -1,0 +1,7 @@
+{
+  "type": "logistics:reaction",
+  "reactant": { "fluid": "minecraft:lava", "amount": 1000 },
+  "reagent": "minecraft:gilded_blackstone",
+  "energy": 80000,
+  "time": 800
+}
