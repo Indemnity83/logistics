@@ -1,11 +1,15 @@
 package com.logistics.power.engine;
 
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.fluids.FluidDisplay;
+import com.logistics.core.lib.resource.ResourceId;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.material.Fluid;
 
 /**
  * Builds the engine HUD lines from the synced diagnostics tag written by {@code EngineHudData}. Pure
@@ -68,12 +72,40 @@ public final class EngineHudLines {
             }
         }
 
+        if (NbtCompat.getBoolean(data, EngineHudData.KEY_MAGMATIC_ENGINE, false)) {
+            lines.add(row(
+                    "jade.logistics.engine.generation",
+                    String.format("%d RF/t", NbtCompat.getLong(data, EngineHudData.KEY_MAGMATIC_ATTEMPTED, 0)),
+                    ChatFormatting.LIGHT_PURPLE));
+            lines.add(row("jade.logistics.engine.temperature",
+                    String.format("%d°C", NbtCompat.getInt(data, EngineHudData.KEY_MAGMATIC_TEMP, 0)),
+                    ChatFormatting.RED));
+            if (showDetails) {
+                lines.add(fluidRow("jade.logistics.engine.lava",
+                        NbtCompat.getString(data, EngineHudData.KEY_LAVA_FLUID, ""),
+                        NbtCompat.getInt(data, EngineHudData.KEY_LAVA_AMOUNT, 0)));
+            }
+        }
+
         if (NbtCompat.getBoolean(data, EngineHudData.KEY_OVERHEATED, false)) {
             lines.add(Component.translatable("jade.logistics.engine.overheated")
                     .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
         }
 
         return lines;
+    }
+
+    private static Component fluidRow(String labelKey, String fluidId, int amountMb) {
+        if (fluidId.isEmpty() || amountMb <= 0) {
+            return labelled(labelKey)
+                    .append(Component.translatable("jade.logistics.common.none").withStyle(ChatFormatting.GRAY));
+        }
+        ResourceId id = ResourceId.tryParse(fluidId);
+        Fluid fluid = id == null ? null : BuiltInRegistries.FLUID.getValue(id.toIdentifier());
+        Component name = fluid == null ? Component.literal(fluidId) : FluidDisplay.name(fluid);
+        return labelled(labelKey)
+                .append(name.copy().withStyle(ChatFormatting.AQUA))
+                .append(Component.literal(String.format(" (%d mB)", amountMb)).withStyle(ChatFormatting.GRAY));
     }
 
     private static Component row(String labelKey, String value, ChatFormatting valueColor) {
