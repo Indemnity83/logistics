@@ -32,8 +32,6 @@ public final class EngineHudData {
     public static final String KEY_FUEL_TIME = "fuelTime";
     public static final String KEY_GENERATION = "generation";
     public static final String KEY_MAGMATIC_ENGINE = "magmaticEngine";
-    public static final String KEY_MAGMATIC_ATTEMPTED = "magmaAttempted";
-    public static final String KEY_MAGMATIC_WASTED = "magmaWasted";
     public static final String KEY_MAGMATIC_TEMP = "magmaTemp";
     public static final String KEY_LAVA_FLUID = "lavaFluid";
     public static final String KEY_LAVA_AMOUNT = "lavaAmount";
@@ -63,8 +61,6 @@ public final class EngineHudData {
         if (engine instanceof MagmaticEngineBlockEntity magma) {
             data.putBoolean(KEY_MAGMATIC_ENGINE, true);
             data.putLong(KEY_GENERATION, magma.simulation().lastAccepted());
-            data.putLong(KEY_MAGMATIC_ATTEMPTED, magma.simulation().lastAttempted());
-            data.putLong(KEY_MAGMATIC_WASTED, magma.simulation().lastWasted());
             data.putInt(KEY_MAGMATIC_TEMP, magma.simulation().temperatureCelsius());
             writeTank(data, KEY_LAVA_FLUID, KEY_LAVA_AMOUNT, magma.lavaTank());
         }

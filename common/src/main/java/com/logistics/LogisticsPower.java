@@ -77,8 +77,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
-        private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config magmatic = configFor(LogisticsConfigHost.MOD_ID, "engines.magmatic");
+        private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
         private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
 

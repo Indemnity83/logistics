@@ -17,7 +17,6 @@
 
 	"entrypoints": {
 		"fabric-gametest": [
-			"com.logistics.gametest.power.MagmaticEngineGameTest",
 			"com.logistics.gametest.core.OreGenerationGameTest",
 			"com.logistics.gametest.core.MaceratorGameTest",
 			"com.logistics.gametest.pipe.PipeInfrastructureGameTest",
@@ -30,6 +29,7 @@
 			"com.logistics.gametest.power.BatteryGameTest",
 			"com.logistics.gametest.power.CableGameTest",
 			"com.logistics.gametest.power.EngineGameTest",
+			"com.logistics.gametest.power.MagmaticEngineGameTest",
 			"com.logistics.gametest.automation.QuarryGameTest",
 			"com.logistics.gametest.automation.KilnGameTest",
 			"com.logistics.gametest.automation.SawmillGameTest",
