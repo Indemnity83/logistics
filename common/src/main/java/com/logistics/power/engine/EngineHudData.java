@@ -1,6 +1,6 @@
 package com.logistics.power.engine;
 
-import com.logistics.core.lib.power.AbstractEngineBlockEntity;
+import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +29,7 @@ public final class EngineHudData {
 
     private EngineHudData() {}
 
-    public static void write(CompoundTag data, AbstractEngineBlockEntity engine) {
+    public static void write(CompoundTag data, EngineEntity engine) {
         // Energy is intentionally omitted — Jade's built-in energy bar already shows the buffer. We only
         // add what Jade doesn't surface on its own.
         data.putString(KEY_STAGE, engine.getHeatStage().name());

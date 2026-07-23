@@ -1,4 +1,4 @@
-package com.logistics.power.engine.block.entity;
+package com.logistics.core.engine.block.entity;
 
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
 import net.minecraft.core.Direction;

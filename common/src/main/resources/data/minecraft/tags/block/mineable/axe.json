@@ -1,6 +1,6 @@
 {
   "replace": false,
   "values": [
-    "logistics:power/redstone_engine"
+    "logistics:core/redstone_engine"
   ]
 }
