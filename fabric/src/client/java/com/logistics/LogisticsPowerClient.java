@@ -61,6 +61,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
             List.of(EngineHeatTintSource.INSTANCE),
             LogisticsCore.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
+            LogisticsPower.BLOCK.REACTION_ENGINE,
             LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 }

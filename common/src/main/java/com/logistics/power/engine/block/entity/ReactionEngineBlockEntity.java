@@ -14,6 +14,7 @@ import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.lib.power.EngineBuilder;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.EngineEnergyPusher;
+import com.logistics.core.lib.power.HeatStage;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
@@ -39,6 +40,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.ticks.ContainerSingleItem;
@@ -115,6 +117,26 @@ public class ReactionEngineBlockEntity extends EngineEntity
 
     public static void tick(Level level, BlockPos pos, BlockState state, ReactionEngineBlockEntity entity) {
         EngineEntity.tick(level, pos, state, entity);
+        entity.updateStageTint(level, pos);
+    }
+
+    /**
+     * Binary tint via the STAGE property (no heat model): HOT (red) while reacting, OVERHEAT (dark, reads as
+     * "off") otherwise. The blockstate change re-renders the block so the color flips — twice per reaction,
+     * so no oscillating chunk churn.
+     */
+    private void updateStageTint(Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        BlockState current = level.getBlockState(pos);
+        if (!current.hasProperty(HeatStage.STAGE)) {
+            return;
+        }
+        HeatStage desired = reactionSim.isReacting() ? HeatStage.HOT : HeatStage.OVERHEAT;
+        if (current.getValue(HeatStage.STAGE) != desired) {
+            level.setBlock(pos, current.setValue(HeatStage.STAGE, desired), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override
