@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.8.3](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.2...mc26.2-v0.8.3) (2026-07-20)
+
+
+### Added
+
+* **automation:** add the refinery ([#714](https://github.com/Indemnity83/logistics/issues/714)) ([0ace76c](https://github.com/Indemnity83/logistics/commit/0ace76c237ec785f898573e70dbc64f32feaca14))
+* **automation:** add the sequential fabricator ([#719](https://github.com/Indemnity83/logistics/issues/719)) ([ae6321b](https://github.com/Indemnity83/logistics/commit/ae6321bc4008dac305767cdaa0176726ff54a153))
+* **automation:** add the sequential fabricator ([#719](https://github.com/Indemnity83/logistics/issues/719)) ([ae6321b](https://github.com/Indemnity83/logistics/commit/ae6321bc4008dac305767cdaa0176726ff54a153))
+* **automation:** fabricate chipsets in the sequential fabricator ([#720](https://github.com/Indemnity83/logistics/issues/720)) ([a07c428](https://github.com/Indemnity83/logistics/commit/a07c428d5cbc65baec7384b2b7e9b79cbe6c0474))
+* **automation:** fabricate chipsets in the sequential fabricator ([#720](https://github.com/Indemnity83/logistics/issues/720)) ([a07c428](https://github.com/Indemnity83/logistics/commit/a07c428d5cbc65baec7384b2b7e9b79cbe6c0474))
+* **automation:** make machine tuning configurable per machine ([#713](https://github.com/Indemnity83/logistics/issues/713)) ([1c48581](https://github.com/Indemnity83/logistics/commit/1c48581a6431fdbf98004c6c098af01e798b942b))
+* **compat:** add Jade HUD support for refinery and sequential fabricator ([#744](https://github.com/Indemnity83/logistics/issues/744)) ([c3ff99c](https://github.com/Indemnity83/logistics/commit/c3ff99c57cdff308521eb707c6fcbd61695ef499))
+* **core:** add a copper nugget ([#722](https://github.com/Indemnity83/logistics/issues/722)) ([9629b47](https://github.com/Indemnity83/logistics/commit/9629b4714885dab8439b4dc8ab7795e8938f0dd7))
+* **crafting:** add tin, rubber, amethyst, and echo valves ([139d341](https://github.com/Indemnity83/logistics/commit/139d341ed2bc9dc8fec1e1ea9ab0fcdfb43b70ab))
+* **crafting:** rework the valve lineup with a bench recipe ([#727](https://github.com/Indemnity83/logistics/issues/727)) ([139d341](https://github.com/Indemnity83/logistics/commit/139d341ed2bc9dc8fec1e1ea9ab0fcdfb43b70ab))
+* **crafting:** show sequential fabricator recipes in JEI ([#745](https://github.com/Indemnity83/logistics/issues/745)) ([9fa46ea](https://github.com/Indemnity83/logistics/commit/9fa46eae97629bfa06b1e5f131b62013c4ce5f57))
+* **energy:** add natural and synthetic polymers for rubber ([#716](https://github.com/Indemnity83/logistics/issues/716)) ([07b678a](https://github.com/Indemnity83/logistics/commit/07b678a533396180ed561b217934a6dfbf9b6eee))
+* **fluids:** add bio fuel and fuel oil fluids ([0ace76c](https://github.com/Indemnity83/logistics/commit/0ace76c237ec785f898573e70dbc64f32feaca14))
+* **fluids:** add tar as an alternative fluid pipe sealant ([#715](https://github.com/Indemnity83/logistics/issues/715)) ([a6c2fba](https://github.com/Indemnity83/logistics/commit/a6c2fba82c57dd78e35c1995c23d40736d8373f9))
+* **routing:** add chipset crafting alternatives for pipes and modules ([5747612](https://github.com/Indemnity83/logistics/commit/5747612932b87783645baac039558ecd3b0f2f65))
+* **ui:** split creative menu into domain tabs ([#738](https://github.com/Indemnity83/logistics/issues/738)) ([74a0f99](https://github.com/Indemnity83/logistics/commit/74a0f991e0ac046647e7066dd4b608fa0b6280f8))
+
+
+### Changed
+
+* **crafting:** craft valves from quartz, redstone, and a base material ([139d341](https://github.com/Indemnity83/logistics/commit/139d341ed2bc9dc8fec1e1ea9ab0fcdfb43b70ab))
+* **crafting:** restyle every valve with a distinct electron-tube texture ([139d341](https://github.com/Indemnity83/logistics/commit/139d341ed2bc9dc8fec1e1ea9ab0fcdfb43b70ab))
+* **fluids:** restyle the fluid pipe textures ([#740](https://github.com/Indemnity83/logistics/issues/740)) ([4351016](https://github.com/Indemnity83/logistics/commit/4351016da8e408a7f4e66a5dc5fb58f01eb86513))
+* **macerator:** recycle netherite dust to and from ingots ([#734](https://github.com/Indemnity83/logistics/issues/734)) ([3022ce0](https://github.com/Indemnity83/logistics/commit/3022ce07b8d50a52b93fd2969313f4bdcce1cbe4))
+* **routing:** rework logistics pipe recipes with chipset alternatives ([#721](https://github.com/Indemnity83/logistics/issues/721)) ([5747612](https://github.com/Indemnity83/logistics/commit/5747612932b87783645baac039558ecd3b0f2f65))
+* **routing:** use a copper nugget in the blank module recipe ([9629b47](https://github.com/Indemnity83/logistics/commit/9629b4714885dab8439b4dc8ab7795e8938f0dd7))
+* **transport:** lighten the item extractor pipe to distinguish it from oxidized copper ([4351016](https://github.com/Indemnity83/logistics/commit/4351016da8e408a7f4e66a5dc5fb58f01eb86513))
+
+
+### Removed
+
+* **crafting:** drop the wooden and ender valves ([139d341](https://github.com/Indemnity83/logistics/commit/139d341ed2bc9dc8fec1e1ea9ab0fcdfb43b70ab))
+
+
+### Fixed
+
+* **automation:** make the refinery and sequential fabricator harvestable ([31dfc5d](https://github.com/Indemnity83/logistics/commit/31dfc5df8de2d497f4f55f518931ca6468d54b54))
+* **automation:** show machine recipes in JEI on multiplayer clients ([#735](https://github.com/Indemnity83/logistics/issues/735)) ([57b2901](https://github.com/Indemnity83/logistics/commit/57b2901b5c59761ffc74581541d74486cf44a373))
+* **compat:** register Crucible with NeoForge Jade plugin ([#744](https://github.com/Indemnity83/logistics/issues/744)) ([c3ff99c](https://github.com/Indemnity83/logistics/commit/c3ff99c57cdff308521eb707c6fcbd61695ef499))
+* **compat:** show values in the Jade HUD instead of only labels ([#757](https://github.com/Indemnity83/logistics/issues/757)) ([8aff490](https://github.com/Indemnity83/logistics/commit/8aff490a58dabf10718f15ecd2fe4fb501970a06))
+* **neoforge:** let pipes and cables interact with the refinery and sawmill ([#733](https://github.com/Indemnity83/logistics/issues/733)) ([0da9eee](https://github.com/Indemnity83/logistics/commit/0da9eeeecf48debd2cf9a121dcf5a23a1c29a8f0))
+
 ## [0.8.2](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.1...mc26.2-v0.8.2) (2026-07-04)
 
 
