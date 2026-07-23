@@ -54,7 +54,7 @@ jobs:
       component: ${{ steps.version.outputs.component }}
       tag: ${{ steps.version.outputs.tag }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           # Full history + tags so the merge and the tag-collision check are accurate.
           fetch-depth: 0
@@ -217,7 +217,7 @@ jobs:
       matrix:
         loader: [fabric, neoforge]
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -310,7 +310,7 @@ jobs:
       FABRIC_FULL: ${{ needs.prepare.outputs.rc_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.fabric
       NEOFORGE_FULL: ${{ needs.prepare.outputs.rc_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.neoforge
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           # Check out the real, published base SHA (full history) so Sentry's set_commits
           # can walk actual GitHub commits instead of the unpushed local merge commit.
