@@ -61,8 +61,7 @@ public final class EngineHudData {
         // Energy is intentionally omitted — Jade's built-in energy bar already shows the buffer. We only
         // add what Jade doesn't surface on its own.
         data.putString(KEY_STAGE, engine.getHeatStage().name());
-        // The Creative, Magmatic, and Steam engines hide the generic heat readout: Creative has no heat, the
-        // Magmatic Engine shows its own temperature line, and the Steam engine is pressure-based.
+        // Creative, Magmatic, and Steam engines omit the generic heat readout.
         data.putBoolean(
                 KEY_HAS_HEAT,
                 !(engine instanceof CreativeEngineBlockEntity)

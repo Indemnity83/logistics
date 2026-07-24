@@ -13,10 +13,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Screen handler for the Magmatic Engine GUI. The engine has no item slots (lava arrives by fluid pipe),
- * so this is a display container: the player inventory plus a {@link ContainerData} carrying the RF buffer,
- * attempted/accepted/wasted generation, burn progress, thermal stage + temperature, the lava tank, and the
- * powered/lit flags the screen renders as a status line.
+ * Display-only screen handler for the Magmatic Engine (no machine slots): the player inventory plus a
+ * {@link ContainerData} the screen renders.
  */
 public class MagmaticEngineScreenHandler extends AbstractContainerMenu {
 

@@ -31,9 +31,9 @@ public record MagmaticEngineProfile(
                 0.0025, 0.0010, 0.27, 0.23, 0.77, 0.73);
     }
 
-    /** Powered burn ticks a single committed batch lasts (2,000 for 100 mB of 20,000-tick lava). */
+    /** Powered burn ticks a single committed batch lasts (2,000 for 100 mB of 20,000-tick lava); never below 1. */
     public int batchBurnTicks() {
-        return bucketBurnTicks * batchMb / 1000;
+        return Math.max(1, bucketBurnTicks * batchMb / 1000);
     }
 
     /** RF/t at ambient (t=0). */

@@ -21,9 +21,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Client-side GUI for the Magmatic Engine: a lava tank, an RF-buffer gauge, and a status readout (thermal
- * state, heat soak, attempted/delivered/wasted generation, burn time). Numeric detail is shown as hover
- * tooltips. Simpler than the Fuel Engine — no coolant, no temperature bar, no shutdown UI.
+ * Client-side GUI for the Magmatic Engine: a lava tank, an RF-buffer gauge, and a status readout, with
+ * numeric detail shown as hover tooltips.
  */
 public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngineScreenHandler> {
 
