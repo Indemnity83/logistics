@@ -30,8 +30,8 @@ Valves are not used in any recipe yet — they are reserved for future [[Logisti
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Netherite Valve.png|32px]] Added '''Netherite Valve'''.}}
-{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Netherite Ingot}} — no longer built from a core.}}
+{{History|head=1|v0.2.0|[[File:Grid Netherite Valve (v0.2.0).png|32px]] Added '''Netherite Valve'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Netherite Valve.png|32px]] The texture of the Netherite Valve has been changed. Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Netherite Ingot}} — no longer built from a core.}}
 
 == See also ==
 
