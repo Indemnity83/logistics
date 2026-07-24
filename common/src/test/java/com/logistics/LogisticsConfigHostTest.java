@@ -100,6 +100,7 @@ class LogisticsConfigHostTest {
                 "logistics.engines.stirling",
                 "logistics.engines.steam",
                 "logistics.engines.creative",
+                "logistics.engines.magmatic",
                 "logistics.engines.fuel",
                 "logistics.power.battery",
                 "logistics.power.cables",
