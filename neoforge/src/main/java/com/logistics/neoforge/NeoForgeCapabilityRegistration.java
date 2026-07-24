@@ -63,6 +63,10 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerEnergy(event, LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY);
+        // The Steam Engine has no RF buffer (pressure is its store); it pushes RF directly, so it exposes
+        // no energy capability.
+        registerEnergy(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.BATTERY_BLOCK_ENTITY);
@@ -84,6 +88,7 @@ public final class NeoForgeCapabilityRegistration {
         // Reaction engine catalyst slot (item) + reactant tank (fluid). NOT energy — it is bufferless and
         // exposes no energy capability; it only pushes generated RF and discards whatever isn't accepted.
         registerItems(event, LogisticsPower.ENTITY.REACTION_ENGINE_BLOCK_ENTITY);
+        registerItems(event, LogisticsPower.ENTITY.STEAM_ENGINE_BLOCK_ENTITY);
         registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.SAWMILL_BLOCK_ENTITY);
@@ -92,6 +97,9 @@ public final class NeoForgeCapabilityRegistration {
         registerItems(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Fabricator material pool, so item pipes can feed materials in from the top.
         registerItems(event, LogisticsAutomation.ENTITY.SEQUENTIAL_FABRICATOR_BLOCK_ENTITY);
+
+        // The steam engine accepts water into its boiler tank.
+        registerFluids(event, LogisticsPower.ENTITY.STEAM_ENGINE_BLOCK_ENTITY);
 
         // Fluid pipes expose their buffer tank as a fluid handler on every enabled side.
         registerFluids(event, LogisticsPipe.ENTITY.FLUID_PIPE_BLOCK_ENTITY);
@@ -104,6 +112,8 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Refinery exposes input+output tanks: pipes fill the input fluid and drain the output.
         registerFluids(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
+        registerFluids(event, LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY);
+        registerFluids(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
         // FullItemFluidStorage). Empty-bucket -> filled is handled by vanilla BucketResourceHandler via the

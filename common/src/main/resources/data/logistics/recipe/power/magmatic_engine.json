@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["NNN", " G ", "gpg"],
+  "key": {
+    "N": "minecraft:nether_bricks",
+    "G": "minecraft:glass",
+    "g": "logistics:core/gold_gear",
+    "p": "minecraft:piston"
+  },
+  "result": {
+    "id": "logistics:power/magmatic_engine",
+    "count": 1
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["III", " G ", "gpg"],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:glass",
+    "g": "logistics:core/iron_gear",
+    "p": "minecraft:piston"
+  },
+  "result": {
+    "id": "logistics:power/fuel_engine",
+    "count": 1
+  }
+}

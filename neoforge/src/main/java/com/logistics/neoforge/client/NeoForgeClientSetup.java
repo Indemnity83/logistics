@@ -36,6 +36,9 @@ import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
 import com.logistics.power.screen.ReactionEngineScreen;
+import com.logistics.power.screen.MagmaticEngineScreen;
+import com.logistics.power.screen.SteamEngineScreen;
+import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.fluids.NeoForgeFluids;
@@ -158,6 +161,9 @@ public final class NeoForgeClientSetup {
 
         event.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
         event.register(LogisticsPower.SCREEN.REACTION_ENGINE, ReactionEngineScreen::new);
+        event.register(LogisticsPower.SCREEN.MAGMATIC_ENGINE, MagmaticEngineScreen::new);
+        event.register(LogisticsPower.SCREEN.STEAM_ENGINE, SteamEngineScreen::new);
+        event.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
         event.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
         event.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
@@ -176,6 +182,15 @@ public final class NeoForgeClientSetup {
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.REACTION_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.STEAM_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY,
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY,
@@ -215,6 +230,9 @@ public final class NeoForgeClientSetup {
                 LogisticsCore.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
                 LogisticsPower.BLOCK.REACTION_ENGINE,
+                LogisticsPower.BLOCK.MAGMATIC_ENGINE,
+                LogisticsPower.BLOCK.STEAM_ENGINE,
+                LogisticsPower.BLOCK.FUEL_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 
