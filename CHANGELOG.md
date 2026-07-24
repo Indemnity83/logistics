@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.8.4](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.3...mc26.2-v0.8.4) (2026-07-24)
+
+
+### Added
+
+* **energy:** add the Fuel Engine ([#759](https://github.com/Indemnity83/logistics/issues/759)) ([3ead98b](https://github.com/Indemnity83/logistics/commit/3ead98bb07a20b4ba1dbb8f9d60a2f8ace46f6a1))
+* **energy:** add the Magmatic Engine ([#776](https://github.com/Indemnity83/logistics/issues/776)) ([8cb6069](https://github.com/Indemnity83/logistics/commit/8cb60697f0459297d3ccf789166c47e453a656a0))
+* **energy:** add the Reaction Engine ([#777](https://github.com/Indemnity83/logistics/issues/777)) ([0e31e65](https://github.com/Indemnity83/logistics/commit/0e31e6512a7460c5050b2af1c8ce0abc67859b95))
+* **energy:** add the Steam Engine ([#765](https://github.com/Indemnity83/logistics/issues/765)) ([8f7d8fd](https://github.com/Indemnity83/logistics/commit/8f7d8fda95acf33c1adfafcd6b427c65eb7cb971))
+
+
+### Changed
+
+* **core:** retexture the bronze and tin metal blocks and items ([#766](https://github.com/Indemnity83/logistics/issues/766)) ([3b2a686](https://github.com/Indemnity83/logistics/commit/3b2a686d24728b4c66449f9cb2344a68602f35d8))
+* **energy:** restyle the Stirling Engine GUI ([#763](https://github.com/Indemnity83/logistics/issues/763)) ([901cf64](https://github.com/Indemnity83/logistics/commit/901cf64aa9370d14e975e71da0baeebcce821628))
+
 ## [0.8.3](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.2...mc26.2-v0.8.3) (2026-07-20)
 
 
