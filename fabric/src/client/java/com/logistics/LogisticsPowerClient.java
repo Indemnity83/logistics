@@ -7,6 +7,7 @@ import com.logistics.core.lib.power.HeatStage;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.model.CableUnbakedRoot;
+import com.logistics.power.screen.SteamEngineScreen;
 import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -50,6 +51,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsPower.ENTITY.STEAM_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
@@ -64,6 +66,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // "render_type" from the static model JSON instead.
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsCore.BLOCK.REDSTONE_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.STEAM_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.FUEL_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, RenderType.cutout());
 
@@ -73,6 +76,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
+        MenuScreens.register(LogisticsPower.SCREEN.STEAM_ENGINE, SteamEngineScreen::new);
         MenuScreens.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
         // Engine heat tinting is rendered in EngineBlockEntityRenderer (the heat core is drawn and
@@ -85,6 +89,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
                 (stack, tintIndex) -> tintIndex == 0 ? EngineHeatTint.color(HeatStage.COLD) : -1,
                 LogisticsCore.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
+                LogisticsPower.BLOCK.STEAM_ENGINE,
                 LogisticsPower.BLOCK.FUEL_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
 

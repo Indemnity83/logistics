@@ -4,6 +4,7 @@ import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,8 +31,19 @@ public final class EngineHudData {
     public static final String KEY_STIRLING = "stirling";
     public static final String KEY_BURN_TIME = "burnTime";
     public static final String KEY_FUEL_TIME = "fuelTime";
-    public static final String KEY_FUEL_ENGINE = "fuelEngine";
+    public static final String KEY_STEAM = "steam";
+    public static final String KEY_PRESSURE = "pressure";
+    public static final String KEY_MAX_PRESSURE = "maxPressure";
     public static final String KEY_GENERATION = "generation";
+    public static final String KEY_WATER_FLUID = "waterFluid";
+    public static final String KEY_WATER_AMOUNT = "waterAmount";
+    public static final String KEY_BURN_RESERVE = "burnReserve";
+    public static final String KEY_FIREBOX = "firebox";
+    public static final String KEY_STATUS = "status";
+    public static final String KEY_BOILER_HEAT = "boilerHeat";
+    public static final String KEY_MAX_HEAT = "maxHeat";
+    public static final String KEY_SAFETY_VALVE = "safetyValve";
+    public static final String KEY_FUEL_ENGINE = "fuelEngine";
     public static final String KEY_COMMITTED_FUEL = "committedFuel";
     public static final String KEY_FUEL_FLUID = "fuelFluid";
     public static final String KEY_FUEL_AMOUNT = "fuelAmount";
@@ -44,9 +56,11 @@ public final class EngineHudData {
         // Energy is intentionally omitted — Jade's built-in energy bar already shows the buffer. We only
         // add what Jade doesn't surface on its own.
         data.putString(KEY_STAGE, engine.getHeatStage().name());
-        // The Creative engine is the odd man out: its stage is hardwired to COLD and its temperature is
-        // meaningless, so the readout hides both for it.
-        data.putBoolean(KEY_HAS_HEAT, !(engine instanceof CreativeEngineBlockEntity));
+        // The Creative and Steam engines have no meaningful heat: the Creative stage is hardwired to COLD,
+        // and the Steam engine cannot overheat (pressure, not temperature, is its state), so both hide it.
+        data.putBoolean(
+                KEY_HAS_HEAT,
+                !(engine instanceof CreativeEngineBlockEntity) && !(engine instanceof SteamEngineBlockEntity));
         data.putDouble(KEY_TEMP, engine.getTemperature());
         data.putDouble(KEY_MAX_TEMP, engine.getMaxTemperature());
         data.putLong(KEY_OUTPUT, engine.getCurrentOutputPower());
@@ -59,6 +73,24 @@ public final class EngineHudData {
             data.putInt(KEY_FUEL_TIME, stirling.getFuelTime());
         }
 
+        if (engine instanceof SteamEngineBlockEntity steam) {
+            data.putBoolean(KEY_STEAM, true);
+            data.putDouble(KEY_PRESSURE, steam.simulation().pressure());
+            data.putDouble(KEY_MAX_PRESSURE, steam.simulation().maxPressure());
+            data.putLong(KEY_GENERATION, steam.simulation().lastGenerationRate());
+            data.putInt(KEY_BURN_RESERVE, steam.simulation().committedBurnTicks());
+            data.putString(KEY_FIREBOX, steam.simulation().fireboxState().name());
+            data.putString(KEY_STATUS, steam.simulation().status().name());
+            data.putDouble(KEY_BOILER_HEAT, steam.simulation().boilerHeat());
+            data.putDouble(KEY_MAX_HEAT, steam.simulation().maxBoilerHeat());
+            data.putBoolean(KEY_SAFETY_VALVE, steam.simulation().isSafetyValveActive());
+            if (!steam.waterTank().tank().isEmpty()) {
+                data.putString(KEY_WATER_FLUID,
+                        BuiltInRegistries.FLUID.getKey(steam.waterTank().tank().getFluidKey().getFluid()).toString());
+                data.putInt(KEY_WATER_AMOUNT,
+                        (int) Math.min(FluidUnits.toMillibuckets(steam.waterTank().tank().getAmount()), Integer.MAX_VALUE));
+            }
+        }
         if (engine instanceof FuelEngineBlockEntity fuel) {
             data.putBoolean(KEY_FUEL_ENGINE, true);
             data.putLong(KEY_GENERATION, fuel.simulation().lastGenerationRate());

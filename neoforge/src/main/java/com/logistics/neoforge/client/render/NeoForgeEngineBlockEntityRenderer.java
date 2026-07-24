@@ -57,6 +57,8 @@ public class NeoForgeEngineBlockEntityRenderer
             type = EngineType.REDSTONE;
         } else if (entity instanceof StirlingEngineBlockEntity) {
             type = EngineType.STIRLING;
+        } else if (entity instanceof com.logistics.power.engine.block.entity.SteamEngineBlockEntity) {
+            type = EngineType.STEAM;
         } else if (entity instanceof CreativeEngineBlockEntity) {
             type = EngineType.CREATIVE;
         } else if (entity instanceof FuelEngineBlockEntity) {
@@ -111,13 +113,14 @@ public class NeoForgeEngineBlockEntityRenderer
     }
 
     private enum EngineType {
-        REDSTONE, STIRLING, CREATIVE, FUEL
+        REDSTONE, STIRLING, CREATIVE, FUEL, STEAM
     }
 
     private String getBellowKey(EngineType type) {
         return switch (type) {
             case REDSTONE -> "redstone_engine_bellow";
             case STIRLING -> "stirling_engine_bellow";
+            case STEAM -> "steam_engine_bellow";
             case CREATIVE -> "creative_engine_bellow";
             case FUEL -> "fuel_engine_bellow";
         };
@@ -127,6 +130,7 @@ public class NeoForgeEngineBlockEntityRenderer
         return switch (type) {
             case REDSTONE -> "redstone_engine_piston";
             case STIRLING -> "stirling_engine_piston";
+            case STEAM -> "steam_engine_piston";
             case CREATIVE -> "creative_engine_piston";
             case FUEL -> "fuel_engine_piston";
         };
@@ -136,6 +140,7 @@ public class NeoForgeEngineBlockEntityRenderer
         return switch (type) {
             case REDSTONE -> "redstone_engine_core";
             case STIRLING -> "stirling_engine_core";
+            case STEAM -> "steam_engine_core";
             case CREATIVE -> "creative_engine_core";
             case FUEL -> "fuel_engine_core";
         };
