@@ -48,6 +48,7 @@ import com.logistics.neoforge.fluids.NeoForgeFluids;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.HashMap;
 import java.util.Map;
+import com.logistics.core.lib.compat.ClientScreenCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -259,14 +260,14 @@ public final class NeoForgeClientSetup {
     }
 
     private static void handleSyncRequesterInventory(SyncRequesterInventoryPacket packet) {
-        var screen = Minecraft.getInstance().screen;
+        var screen = ClientScreenCompat.currentScreen();
         if (screen instanceof RequesterScreen requesterScreen) {
             requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
         }
     }
 
     private static void handleSyncFabricatorOutputs(SyncFabricatorOutputsPacket packet) {
-        var screen = Minecraft.getInstance().screen;
+        var screen = ClientScreenCompat.currentScreen();
         if (screen instanceof SequentialFabricatorScreen fabricatorScreen) {
             fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
         }

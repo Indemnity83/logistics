@@ -10,7 +10,7 @@ import com.logistics.core.DebugLog;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.minecraft.client.Minecraft;
+import com.logistics.core.lib.compat.ClientScreenCompat;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -81,7 +81,7 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
         ClientPlayNetworking.registerGlobalReceiver(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
             context.client().execute(() -> {
                 // Update the requester screen if it's open
-                if (Minecraft.getInstance().screen instanceof RequesterScreen requesterScreen) {
+                if (ClientScreenCompat.currentScreen() instanceof RequesterScreen requesterScreen) {
                     requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
                 }
             });
