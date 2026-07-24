@@ -1,4 +1,4 @@
-{{Removed|v0.8.3|page|[[Chipsets]]}}
+{{Removed|v0.8.3|page}}
 '''Chips''' are advanced electronic components used to craft [[Modules|modules]]. The chip tier determines the module's mark (MK1, MK2, or MK3). All chips are built on a [[#Silicon Wafer|Silicon Wafer]] base.
 
 == Variants ==

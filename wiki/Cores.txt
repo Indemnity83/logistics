@@ -1,4 +1,4 @@
-{{Removed|v0.8.3|page|[[Chipsets]]}}
+{{Removed|v0.8.3|page}}
 '''Cores''' are intermediate crafting components used to craft [[Valves]]. Each valve needs its matching core, paired with a [[Quartz Crystal]]. Every core is crafted from a base material and a binder (usually Redstone) and yields four per craft.
 
 == Variants ==

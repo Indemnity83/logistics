@@ -1,4 +1,4 @@
-{{Removed|v0.8.3|item|[[Chipsets]]}}
+{{Removed|v0.8.3|item}}
 {{Item
 |image     = Grid Redstone Chip.png
 |type      = Item (Chip)
@@ -84,7 +84,7 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Redstone Chip.png|32px]] Added '''Redstone Chip'''.}}
-{{History|foot=1|v0.8.3|Removed. Superseded by [[Chipsets]].}}
+{{History|foot=1|v0.8.3|Removed.}}
 
 == See also ==
 

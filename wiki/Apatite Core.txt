@@ -1,4 +1,4 @@
-{{Removed|v0.8.3|item|[[Chipsets]]}}
+{{Removed|v0.8.3|item}}
 {{Item
 |image     = Grid Apatite Core.png
 |type      = Item (Core)
@@ -41,7 +41,7 @@
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Apatite Core.png|32px]] Added '''Apatite Core'''.}}
-{{History|foot=1|v0.8.3|Removed. Superseded by [[Chipsets]].}}
+{{History|foot=1|v0.8.3|Removed.}}
 
 == See also ==
 

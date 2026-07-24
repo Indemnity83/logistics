@@ -1,17 +1,17 @@
-<includeonly><div class="logi-removed" role="note"><templatestyles src="Removed/styles.css" />'''This {{{2|item}}} was removed in {{{1|a later version}}}.'''{{#if:{{{3|}}}| It has been superseded by {{{3}}}.}}</div></includeonly><noinclude>
+<includeonly><div class="logi-removed" role="note"><templatestyles src="Removed/styles.css" />'''This {{{2|item}}} was removed in {{{1|a later version}}}.'''</div></includeonly><noinclude>
 Renders a prominent "removed content" notice box at the top of a page whose subject no longer
 exists in the current version of the mod. The page body is kept (describing the item as it last
 existed) but flagged as historical; pair this with <code>[[Category:Removed]]</code> and a final
-<code>{{History}}</code> row noting the removal.
+<code>{{History}}</code> row noting the removal. Deliberately does '''not''' point at a
+replacement — a removed item does not necessarily have one, and implying it is misleading.
 
 Usage:
- {{Removed|v0.8.3|item|[[Chipsets]]}}
- {{Removed|v0.8.3|valve|[[Valves]]}}
+ {{Removed|v0.8.3|item}}
+ {{Removed|v0.8.3|valve}}
 
 Parameters:
  1 — the version the subject was removed in, e.g. "v0.8.3"
  2 — the noun for the subject: "item", "block", "machine", "valve", … (default: "item")
- 3 — the replacement to point readers at (optional), e.g. "[[Chipsets]]"
 
 Styling lives in [[Template:Removed/styles.css]].
 
