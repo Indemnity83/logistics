@@ -50,8 +50,23 @@ public final class EngineEnergyPusher {
         return sent;
     }
 
+    /**
+     * Offer freshly generated RF directly to the neighbor at the output face and return the amount
+     * accepted. Unlike {@link #push} there is no buffer to draw from or debit — the caller generates
+     * the energy on the fly (e.g. the Steam Engine, whose only store is pressure). Covers both the
+     * {@link DirectEnergyReceiver} path and the loader grid.
+     *
+     * @return the amount accepted ({@code >= 0}, {@code <= amount})
+     */
+    public static long pushGenerated(@Nullable Level level, BlockPos pos, Direction outputDir, long amount) {
+        if (level == null || amount <= 0) {
+            return 0L;
+        }
+        return sendTo(level, pos.relative(outputDir), outputDir.getOpposite(), null, amount);
+    }
+
     private static long sendTo(
-            Level level, BlockPos targetPos, Direction fromDirection, EnergyComponent source, long maxSend) {
+            Level level, BlockPos targetPos, Direction fromDirection, @Nullable EnergyComponent source, long maxSend) {
         if (level.getBlockEntity(targetPos) instanceof DirectEnergyReceiver receiver
                 && receiver instanceof HasEnergyStorage hasStorage) {
             IEnergyStorage storage = hasStorage.energyStorage(fromDirection);

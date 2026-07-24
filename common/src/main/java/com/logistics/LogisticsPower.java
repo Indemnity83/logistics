@@ -19,11 +19,14 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.engine.block.CreativeEngineBlock;
-import com.logistics.power.engine.block.FuelEngineBlock;
+import com.logistics.power.engine.block.SteamEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
+import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import com.logistics.power.engine.ui.SteamEngineScreenHandler;
+import com.logistics.power.engine.block.FuelEngineBlock;
+import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.power.engine.ui.FuelEngineScreenHandler;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -77,6 +80,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
+        private static final Config steam = configFor(LogisticsConfigHost.MOD_ID, "engines.steam");
         private static final Config fuel = configFor(LogisticsConfigHost.MOD_ID, "engines.fuel");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
         private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
@@ -101,6 +105,91 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static final ConfigKey<Long> STIRLING_BUFFER_CAPACITY = stirling.defineLong("buffer_capacity", 10_000L)
                 .min(0L)
                 .describe("Internal RF buffer capacity")
+                .register();
+
+        // Steam engine — a thermal-mass boiler: fuel -> boiler heat -> steam -> pressure -> RF.
+        public static final ConfigKey<Long> STEAM_MAX_OUTPUT = steam.defineLong("max_output", 40L)
+                .min(1L)
+                .describe("Maximum RF/t generated (flat at/above operating pressure)")
+                .register();
+        public static final ConfigKey<Long> STEAM_WATER_TANK_CAPACITY = steam.defineLong("water_tank_capacity_mb", 4_000L)
+                .min(100L)
+                .describe("Water tank capacity (mB)")
+                .register();
+        public static final ConfigKey<Long> STEAM_FIRING_RATE = steam.defineLong("firing_rate", 16L)
+                .min(1L)
+                .max((long) Integer.MAX_VALUE)
+                .describe("Furnace burn ticks consumed per game tick while a committed reserve is firing")
+                .register();
+        public static final ConfigKey<Double> STEAM_MAX_PRESSURE = steam.defineDouble("max_pressure", 1000.0)
+                .min(1.0)
+                .finite()
+                .describe("Safety pressure ceiling (clamp); the boiler never targets this")
+                .register();
+        public static final ConfigKey<Double> STEAM_OPERATING_PRESSURE = steam.defineDouble("operating_pressure", 400.0)
+                .min(0.0)
+                .finite()
+                .describe("Pressure at/above which the engine outputs full RF/t")
+                .register();
+        public static final ConfigKey<Double> STEAM_TARGET_PRESSURE = steam.defineDouble("target_pressure", 800.0)
+                .min(1.0)
+                .finite()
+                .describe("Pressure the boiler produces steam up to before pausing")
+                .register();
+        public static final ConfigKey<Double> STEAM_STEAM_RATE = steam.defineDouble("steam_rate", 12.0)
+                .min(0.0)
+                .finite()
+                .describe("Maximum pressure produced per tick, at full steam quality (target heat)")
+                .register();
+        public static final ConfigKey<Double> STEAM_PRESSURE_PER_RF = steam.defineDouble("pressure_per_rf", 0.25)
+                .min(0.0)
+                .finite()
+                .describe("Pressure consumed per RF generated")
+                .register();
+        public static final ConfigKey<Double> STEAM_WATER_CONVERSION = steam.defineDouble("water_conversion", 6.0)
+                .min(0.0)
+                .finite()
+                .describe("Pressure produced per mB of water boiled")
+                .register();
+        public static final ConfigKey<Double> STEAM_CONDENSATION_RATE = steam.defineDouble("condensation_rate", 0.5)
+                .min(0.0)
+                .finite()
+                .describe("Pressure lost per tick while the boiler is below the boiling point (steam condensing)")
+                .register();
+        public static final ConfigKey<Double> STEAM_MAX_BOILER_HEAT = steam.defineDouble("max_boiler_heat", 20_000.0)
+                .min(1.0)
+                .finite()
+                .describe("Boiler thermal capacity (abstract heat units); heat past this is discarded")
+                .register();
+        public static final ConfigKey<Double> STEAM_BOILING_HEAT = steam.defineDouble("boiling_heat", 8_000.0)
+                .min(0.0)
+                .finite()
+                .describe("Boiler heat at/above which steam begins to form")
+                .register();
+        public static final ConfigKey<Double> STEAM_REFUEL_HEAT = steam.defineDouble("refuel_heat", 14_000.0)
+                .min(0.0)
+                .finite()
+                .describe("Commit the next fuel item once boiler heat falls to/below this")
+                .register();
+        public static final ConfigKey<Double> STEAM_TARGET_HEAT = steam.defineDouble("target_heat", 16_000.0)
+                .min(1.0)
+                .finite()
+                .describe("Boiler heat at which steam reaches full quality (nominal operating temperature)")
+                .register();
+        public static final ConfigKey<Double> STEAM_HEAT_PER_BURN_TICK = steam.defineDouble("heat_per_burn_tick", 1.0)
+                .min(0.0)
+                .finite()
+                .describe("Boiler heat added per furnace burn tick consumed")
+                .register();
+        public static final ConfigKey<Double> STEAM_PASSIVE_HEAT_LOSS = steam.defineDouble("passive_heat_loss", 0.1)
+                .min(0.0)
+                .finite()
+                .describe("Boiler heat lost per tick in every state (keeps idle cheap, cooldown slow)")
+                .register();
+        public static final ConfigKey<Double> STEAM_LATENT_HEAT = steam.defineDouble("latent_heat", 0.5)
+                .min(0.0)
+                .finite()
+                .describe("Boiler heat consumed per unit of pressure (steam) produced")
                 .register();
 
         // Creative engine
@@ -173,6 +262,13 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             stirling.registerSanitizeHook(() -> stirling.repairMinMax(STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT));
+            steam.registerSanitizeHook(() -> {
+                steam.repairMinMax(STEAM_OPERATING_PRESSURE, STEAM_TARGET_PRESSURE);
+                steam.repairMinMax(STEAM_TARGET_PRESSURE, STEAM_MAX_PRESSURE);
+                steam.repairMinMax(STEAM_BOILING_HEAT, STEAM_REFUEL_HEAT);
+                steam.repairMinMax(STEAM_REFUEL_HEAT, STEAM_TARGET_HEAT);
+                steam.repairMinMax(STEAM_TARGET_HEAT, STEAM_MAX_BOILER_HEAT);
+            });
             fuel.registerSanitizeHook(() -> fuel.repairMinMax(FUEL_MIN_OUTPUT, FUEL_MAX_OUTPUT));
             LogisticsConfigMigrator.mapLegacyPair(
                     "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
@@ -183,6 +279,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private BLOCK() {}
 
         public static Block STIRLING_ENGINE;
+        public static Block STEAM_ENGINE;
         public static Block FUEL_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
@@ -194,6 +291,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+            STEAM_ENGINE = INSTANCE.registerBlockWithItem("steam_engine",
+                props -> new SteamEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             FUEL_ENGINE = INSTANCE.registerBlockWithItem("fuel_engine",
                 props -> new FuelEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
@@ -218,6 +317,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private ENTITY() {}
 
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<SteamEngineBlockEntity> STEAM_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<FuelEngineBlockEntity> FUEL_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeEngineBlockEntity> CREATIVE_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<CreativeSinkBlockEntity> CREATIVE_SINK_BLOCK_ENTITY;
@@ -227,6 +327,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
+            STEAM_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("steam_engine", SteamEngineBlockEntity::new, BLOCK.STEAM_ENGINE);
             FUEL_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("fuel_engine", FuelEngineBlockEntity::new, BLOCK.FUEL_ENGINE);
             CREATIVE_ENGINE_BLOCK_ENTITY =
@@ -245,6 +347,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private SCREEN() {}
 
         public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
+        public static MenuType<SteamEngineScreenHandler> STEAM_ENGINE;
         public static MenuType<FuelEngineScreenHandler> FUEL_ENGINE;
 
         static void register() {
@@ -252,6 +355,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("stirling_engine").toIdentifier(),
                     new MenuType<>(StirlingEngineScreenHandler::new, FeatureFlagSet.of()));
+            STEAM_ENGINE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPower.resource("steam_engine").toIdentifier(),
+                    new MenuType<>(SteamEngineScreenHandler::new, FeatureFlagSet.of()));
             FUEL_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("fuel_engine").toIdentifier(),
@@ -270,6 +377,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.STEAM_ENGINE);
             TAB.add(BLOCK.FUEL_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
