@@ -42,8 +42,8 @@ Copper fluid pipes passively carry fluid at '''10 mB/t''' and form most of a flu
 
 == History ==
 
-{{History|head=1|v0.7.3|[[File:Grid Copper Fluid Pipe.png|32px]] Added '''Copper Fluid Pipe'''.}}
-{{History|foot=1|v0.8.3|The texture was restyled, and the pipe can now be sealed with [[Tar]] in place of a slime ball.}}
+{{History|head=1|v0.7.3|[[File:Grid Copper Fluid Pipe (v0.7.3).png|32px]] Added '''Copper Fluid Pipe'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Copper Fluid Pipe.png|32px]] The texture was restyled, and the pipe can now be sealed with [[Tar]] in place of a slime ball.}}
 
 == See also ==
 

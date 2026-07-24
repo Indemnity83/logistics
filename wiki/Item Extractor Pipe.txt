@@ -39,7 +39,8 @@ Extraction must be powered by an adjacent engine: a [[Redstone Engine]] moves on
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Item Extractor Pipe.png|32px]] Added '''Item Extractor Pipe'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Item Extractor Pipe (v0.1.0).png|32px]] Added '''Item Extractor Pipe'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Item Extractor Pipe.png|32px]] The texture has been restyled.}}
 
 == See also ==
 

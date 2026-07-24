@@ -42,8 +42,8 @@ The Bypass Fluid Pipe connects only to other fluid pipes, never to tanks or mach
 
 == History ==
 
-{{History|head=1|v0.7.3|[[File:Grid Bypass Fluid Pipe.png|32px]] Added '''Bypass Fluid Pipe'''.}}
-{{History|foot=1|v0.8.3|The texture was restyled, and the pipe can now be sealed with [[Tar]] in place of a slime ball.}}
+{{History|head=1|v0.7.3|[[File:Grid Bypass Fluid Pipe (v0.7.3).png|32px]] Added '''Bypass Fluid Pipe'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Bypass Fluid Pipe.png|32px]] The texture was restyled, and the pipe can now be sealed with [[Tar]] in place of a slime ball.}}
 
 == See also ==
 
