@@ -316,7 +316,11 @@ public final class FuelEngineComponent
         if (committedFuelType == null || committedFuelEnergy <= 0) {
             return 0.0;
         }
-        long full = fuelLookup.apply(committedFuelType).energyPerBatch(profile.fuelBatchMb());
+        FuelEngineFuel props = fuelLookup.apply(committedFuelType);
+        if (props == null) {
+            return 0.0;
+        }
+        long full = props.energyPerBatch(profile.fuelBatchMb());
         return full <= 0 ? 0.0 : Math.min(1.0, (double) committedFuelEnergy / (double) full);
     }
 

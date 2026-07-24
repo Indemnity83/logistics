@@ -5,9 +5,8 @@ import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The Fuel Engine's supported coolants and their properties. Water (by the {@link FluidTags#WATER}
- * tag, so modded water variants also qualify) is the only coolant for now; extensible later without
- * touching the engine tick logic.
+ * The Fuel Engine's supported coolants and their properties. Water — matched by the
+ * {@link FluidTags#WATER} tag, so modded water variants also qualify — is the only coolant.
  */
 public final class FuelEngineCoolants {
 

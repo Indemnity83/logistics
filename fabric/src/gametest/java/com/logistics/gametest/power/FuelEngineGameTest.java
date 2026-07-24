@@ -87,8 +87,13 @@ public class FuelEngineGameTest {
                 context.fail("Fuel remaining in the tank should be preserved through overheat");
                 return;
             }
+            long fuelBeforeReset = e.fuelTank().tank().getAmount();
             if (!e.resetOverheat() || e.isOverheated()) {
                 context.fail("Wrench reset should clear the thermal shutdown");
+                return;
+            }
+            if (e.fuelTank().tank().getAmount() != fuelBeforeReset) {
+                context.fail("Wrench reset should not change the fuel tank contents");
                 return;
             }
             context.succeed();
