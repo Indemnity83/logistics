@@ -113,6 +113,21 @@ public final class EngineHudLines {
             }
         }
 
+        if (NbtCompat.getBoolean(data, EngineHudData.KEY_FUEL_ENGINE, false)) {
+            lines.add(row(
+                    "jade.logistics.engine.generation",
+                    String.format("%d RF/t", NbtCompat.getLong(data, EngineHudData.KEY_GENERATION, 0)),
+                    ChatFormatting.LIGHT_PURPLE));
+            if (showDetails) {
+                lines.add(fluidRow("jade.logistics.engine.fuel",
+                        NbtCompat.getString(data, EngineHudData.KEY_FUEL_FLUID, ""),
+                        NbtCompat.getInt(data, EngineHudData.KEY_FUEL_AMOUNT, 0)));
+                lines.add(fluidRow("jade.logistics.engine.coolant",
+                        NbtCompat.getString(data, EngineHudData.KEY_COOLANT_FLUID, ""),
+                        NbtCompat.getInt(data, EngineHudData.KEY_COOLANT_AMOUNT, 0)));
+            }
+        }
+
         if (NbtCompat.getBoolean(data, EngineHudData.KEY_OVERHEATED, false)) {
             lines.add(Component.translatable("jade.logistics.engine.overheated")
                     .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));

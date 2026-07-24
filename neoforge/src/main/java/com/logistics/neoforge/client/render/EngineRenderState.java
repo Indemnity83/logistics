@@ -16,6 +16,7 @@ public class EngineRenderState extends BlockEntityRenderState {
         REDSTONE,
         STIRLING,
         STEAM,
+        FUEL,
         CREATIVE
     }
 

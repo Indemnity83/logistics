@@ -6,6 +6,7 @@ import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.EngineHeatTintSource;
 import com.logistics.power.screen.SteamEngineScreen;
+import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
@@ -26,6 +27,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STEAM_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
         // Cables render fully in code via the shared vanilla CableBlockEntityRenderer
@@ -35,6 +37,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
         MenuScreens.register(LogisticsPower.SCREEN.STEAM_ENGINE, SteamEngineScreen::new);
+        MenuScreens.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
         // Register block color providers for engine heat stage tinting
         registerEngineBlockColors();
@@ -62,6 +65,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
             LogisticsCore.BLOCK.REDSTONE_ENGINE,
             LogisticsPower.BLOCK.STIRLING_ENGINE,
             LogisticsPower.BLOCK.STEAM_ENGINE,
+            LogisticsPower.BLOCK.FUEL_ENGINE,
             LogisticsPower.BLOCK.CREATIVE_ENGINE);
     }
 }
