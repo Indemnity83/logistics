@@ -4,8 +4,9 @@ import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
+import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
+import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -31,10 +32,14 @@ public final class EngineHudData {
     public static final String KEY_STIRLING = "stirling";
     public static final String KEY_BURN_TIME = "burnTime";
     public static final String KEY_FUEL_TIME = "fuelTime";
+    public static final String KEY_GENERATION = "generation";
+    public static final String KEY_MAGMATIC_ENGINE = "magmaticEngine";
+    public static final String KEY_MAGMATIC_TEMP = "magmaTemp";
+    public static final String KEY_LAVA_FLUID = "lavaFluid";
+    public static final String KEY_LAVA_AMOUNT = "lavaAmount";
     public static final String KEY_STEAM = "steam";
     public static final String KEY_PRESSURE = "pressure";
     public static final String KEY_MAX_PRESSURE = "maxPressure";
-    public static final String KEY_GENERATION = "generation";
     public static final String KEY_WATER_FLUID = "waterFluid";
     public static final String KEY_WATER_AMOUNT = "waterAmount";
     public static final String KEY_BURN_RESERVE = "burnReserve";
@@ -56,11 +61,12 @@ public final class EngineHudData {
         // Energy is intentionally omitted — Jade's built-in energy bar already shows the buffer. We only
         // add what Jade doesn't surface on its own.
         data.putString(KEY_STAGE, engine.getHeatStage().name());
-        // The Creative and Steam engines have no meaningful heat: the Creative stage is hardwired to COLD,
-        // and the Steam engine cannot overheat (pressure, not temperature, is its state), so both hide it.
+        // Creative, Magmatic, and Steam engines omit the generic heat readout.
         data.putBoolean(
                 KEY_HAS_HEAT,
-                !(engine instanceof CreativeEngineBlockEntity) && !(engine instanceof SteamEngineBlockEntity));
+                !(engine instanceof CreativeEngineBlockEntity)
+                        && !(engine instanceof MagmaticEngineBlockEntity)
+                        && !(engine instanceof SteamEngineBlockEntity));
         data.putDouble(KEY_TEMP, engine.getTemperature());
         data.putDouble(KEY_MAX_TEMP, engine.getMaxTemperature());
         data.putLong(KEY_OUTPUT, engine.getCurrentOutputPower());
@@ -71,6 +77,13 @@ public final class EngineHudData {
             data.putBoolean(KEY_STIRLING, true);
             data.putInt(KEY_BURN_TIME, stirling.getBurnTime());
             data.putInt(KEY_FUEL_TIME, stirling.getFuelTime());
+        }
+
+        if (engine instanceof MagmaticEngineBlockEntity magma) {
+            data.putBoolean(KEY_MAGMATIC_ENGINE, true);
+            data.putLong(KEY_GENERATION, magma.simulation().lastAccepted());
+            data.putInt(KEY_MAGMATIC_TEMP, magma.simulation().temperatureCelsius());
+            writeTank(data, KEY_LAVA_FLUID, KEY_LAVA_AMOUNT, magma.lavaTank());
         }
 
         if (engine instanceof SteamEngineBlockEntity steam) {
@@ -91,6 +104,7 @@ public final class EngineHudData {
                         (int) Math.min(FluidUnits.toMillibuckets(steam.waterTank().tank().getAmount()), Integer.MAX_VALUE));
             }
         }
+
         if (engine instanceof FuelEngineBlockEntity fuel) {
             data.putBoolean(KEY_FUEL_ENGINE, true);
             data.putLong(KEY_GENERATION, fuel.simulation().lastGenerationRate());

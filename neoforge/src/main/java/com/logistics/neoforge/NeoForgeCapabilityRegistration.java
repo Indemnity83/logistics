@@ -63,6 +63,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerEnergy(event, LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY);
         // The Steam Engine has no RF buffer (pressure is its store); it pushes RF directly, so it exposes
         // no energy capability.
         registerEnergy(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
@@ -106,6 +107,7 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Refinery exposes input+output tanks: pipes fill the input fluid and drain the output.
         registerFluids(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
+        registerFluids(event, LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY);
         registerFluids(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
