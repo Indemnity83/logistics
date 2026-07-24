@@ -74,6 +74,21 @@ public final class EngineHudLines {
             }
         }
 
+        if (NbtCompat.getBoolean(data, EngineHudData.KEY_MAGMATIC_ENGINE, false)) {
+            lines.add(row(
+                    "jade.logistics.engine.generation",
+                    String.format("%d RF/t", NbtCompat.getLong(data, EngineHudData.KEY_GENERATION, 0)),
+                    ChatFormatting.LIGHT_PURPLE));
+            lines.add(row("jade.logistics.engine.temperature",
+                    String.format("%d°C", NbtCompat.getInt(data, EngineHudData.KEY_MAGMATIC_TEMP, 0)),
+                    ChatFormatting.RED));
+            if (showDetails) {
+                lines.add(fluidRow("jade.logistics.engine.lava",
+                        NbtCompat.getString(data, EngineHudData.KEY_LAVA_FLUID, ""),
+                        NbtCompat.getInt(data, EngineHudData.KEY_LAVA_AMOUNT, 0)));
+            }
+        }
+
         if (NbtCompat.getBoolean(data, EngineHudData.KEY_STEAM, false)) {
             double pressure = NbtCompat.getDouble(data, EngineHudData.KEY_PRESSURE, 0);
             double maxPressure = NbtCompat.getDouble(data, EngineHudData.KEY_MAX_PRESSURE, 0);
