@@ -4,6 +4,7 @@ import com.logistics.core.lib.client.render.MachineModels;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.EngineHeatTint;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
@@ -84,6 +85,8 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             state.engineType = EngineRenderState.EngineType.STEAM;
         } else if (entity instanceof CreativeEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.CREATIVE;
+        } else if (entity instanceof MagmaticEngineBlockEntity) {
+            state.engineType = EngineRenderState.EngineType.MAGMATIC;
         } else if (entity instanceof FuelEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.FUEL;
         }
@@ -170,6 +173,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             case STIRLING -> "stirling_engine_bellow";
             case STEAM -> "steam_engine_bellow";
             case CREATIVE -> "creative_engine_bellow";
+            case MAGMATIC -> "magmatic_engine_bellow";
             case FUEL -> "fuel_engine_bellow";
         };
     }
@@ -180,6 +184,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             case STIRLING -> "stirling_engine_core";
             case STEAM -> "steam_engine_core";
             case CREATIVE -> "creative_engine_core";
+            case MAGMATIC -> "magmatic_engine_core";
             case FUEL -> "fuel_engine_core";
         };
     }
@@ -190,6 +195,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             case STIRLING -> "stirling_engine_piston";
             case STEAM -> "steam_engine_piston";
             case CREATIVE -> "creative_engine_piston";
+            case MAGMATIC -> "magmatic_engine_piston";
             case FUEL -> "fuel_engine_piston";
         };
     }
