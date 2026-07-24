@@ -116,6 +116,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             case "redstone_engine" -> "redstone_engine_bellow";
             case "stirling_engine" -> "stirling_engine_bellow";
             case "creative_engine" -> "creative_engine_bellow";
+            case "fuel_engine" -> "fuel_engine_bellow";
             default -> "redstone_engine_bellow";
         };
     }
@@ -126,6 +127,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             case "redstone_engine" -> "redstone_engine_piston";
             case "stirling_engine" -> "stirling_engine_piston";
             case "creative_engine" -> "creative_engine_piston";
+            case "fuel_engine" -> "fuel_engine_piston";
             default -> "redstone_engine_piston";
         };
     }
@@ -136,6 +138,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             case "redstone_engine" -> "redstone_engine_core";
             case "stirling_engine" -> "stirling_engine_core";
             case "creative_engine" -> "creative_engine_core";
+            case "fuel_engine" -> "fuel_engine_core";
             default -> "redstone_engine_core";
         };
     }

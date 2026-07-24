@@ -7,6 +7,7 @@ import com.logistics.core.lib.power.HeatStage;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.render.EngineBlockEntityRenderer;
 import com.logistics.power.render.model.CableUnbakedRoot;
+import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -49,6 +50,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
         // Register cable blocks for cutout rendering (transparent textures)
@@ -62,6 +64,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // "render_type" from the static model JSON instead.
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsCore.BLOCK.REDSTONE_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.FUEL_ENGINE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, RenderType.cutout());
 
         // Battery charge overlay uses a transparent texture and needs the cutout layer (NeoForge
@@ -70,6 +73,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
+        MenuScreens.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
         // Engine heat tinting is rendered in EngineBlockEntityRenderer (the heat core is drawn and
         // tinted per-frame from the live STAGE), so no BlockColors provider is needed here.
@@ -81,6 +85,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
                 (stack, tintIndex) -> tintIndex == 0 ? EngineHeatTint.color(HeatStage.COLD) : -1,
                 LogisticsCore.BLOCK.REDSTONE_ENGINE,
                 LogisticsPower.BLOCK.STIRLING_ENGINE,
+                LogisticsPower.BLOCK.FUEL_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
 
         // Register cleanup callback for engine animation cache

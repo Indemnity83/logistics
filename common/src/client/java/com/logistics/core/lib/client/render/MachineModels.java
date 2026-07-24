@@ -49,7 +49,21 @@ public final class MachineModels {
                     new Face(Direction.EAST, 0.5f, 12f, 3.5f, 14f, 0),
                     new Face(Direction.SOUTH, 0.5f, 12f, 3.5f, 14f, 0),
                     new Face(Direction.WEST, 0.5f, 12f, 3.5f, 14f, 0)))))),
+        Map.entry("fuel_engine_bellow", new Model("power/fuel_engine", List.of(
+            new Element(2f, 0f, 2f, 14f, 8f, 14f, List.of(
+                    new Face(Direction.NORTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.EAST, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.SOUTH, 0.5f, 12f, 3.5f, 14f, 0),
+                    new Face(Direction.WEST, 0.5f, 12f, 3.5f, 14f, 0)))))),
         Map.entry("stirling_engine_piston", new Model("power/stirling_engine", List.of(
+            new Element(0f, 0f, 0f, 16f, 4f, 16f, List.of(
+                    new Face(Direction.NORTH, 4f, 14f, 8f, 15f, 0),
+                    new Face(Direction.EAST, 0f, 14f, 4f, 15f, 0),
+                    new Face(Direction.SOUTH, 12f, 14f, 16f, 15f, 0),
+                    new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
+                    new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
+                    new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
+        Map.entry("fuel_engine_piston", new Model("power/fuel_engine", List.of(
             new Element(0f, 0f, 0f, 16f, 4f, 16f, List.of(
                     new Face(Direction.NORTH, 4f, 14f, 8f, 15f, 0),
                     new Face(Direction.EAST, 0f, 14f, 4f, 15f, 0),
@@ -88,6 +102,14 @@ public final class MachineModels {
                     new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
                     new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
         Map.entry("creative_engine_core", new Model("power/creative_engine", List.of(
+            new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
+                    new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
+                    new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
+                    new Face(Direction.SOUTH, 14f, 7f, 16f, 10f, 0),
+                    new Face(Direction.WEST, 12f, 7f, 14f, 10f, 0),
+                    new Face(Direction.UP, 12f, 7f, 10f, 5f, 0),
+                    new Face(Direction.DOWN, 14f, 5f, 12f, 7f, 0)))))),
+        Map.entry("fuel_engine_core", new Model("power/fuel_engine", List.of(
             new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
                     new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
                     new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
