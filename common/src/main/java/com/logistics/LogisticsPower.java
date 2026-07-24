@@ -19,11 +19,16 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.cable.CableTier;
 import com.logistics.power.engine.block.CreativeEngineBlock;
-import com.logistics.power.engine.block.MagmaticEngineBlock;
+import com.logistics.power.engine.block.ReactionEngineBlock;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
+import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
+import com.logistics.power.engine.reaction.ReactionRecipe;
+import com.logistics.power.engine.reaction.ReactionRecipeSerializer;
+import com.logistics.power.engine.ui.ReactionEngineScreenHandler;
+import com.logistics.power.engine.block.MagmaticEngineBlock;
+import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
 import com.logistics.power.engine.block.SteamEngineBlock;
 import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
@@ -36,6 +41,9 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -73,6 +81,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         BLOCK.register();
         ENTITY.register();
         SCREEN.register();
+        RECIPE.register();
         CREATIVE.register();
     }
 
@@ -83,6 +92,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config stirling = configFor(LogisticsConfigHost.MOD_ID, "engines.stirling");
+        private static final Config reaction = configFor(LogisticsConfigHost.MOD_ID, "engines.reaction");
         private static final Config magmatic = configFor(LogisticsConfigHost.MOD_ID, "engines.magmatic");
         private static final Config steam = configFor(LogisticsConfigHost.MOD_ID, "engines.steam");
         private static final Config fuel = configFor(LogisticsConfigHost.MOD_ID, "engines.fuel");
@@ -111,6 +121,13 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .describe("Internal RF buffer capacity")
                 .register();
 
+        // Reaction engine — bufferless: a liquid reactant + solid reagent produce a huge burst pushed
+        // straight to the network (no buffer_capacity knob; unaccepted RF is discarded). Reactant, reagent,
+        // energy, and duration are datapack recipe values; only the tank size is a machine property.
+        public static final ConfigKey<Long> REACTION_TANK_CAPACITY = reaction.defineLong("reactant_tank_capacity_mb", 4_000L)
+                .min(0L)
+                .describe("Reactant tank capacity in mB")
+                .register();
         // Steam engine — a thermal-mass boiler: fuel -> boiler heat -> steam -> pressure -> RF.
         public static final ConfigKey<Long> STEAM_MAX_OUTPUT = steam.defineLong("max_output", 40L)
                 .min(1L)
@@ -300,6 +317,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private BLOCK() {}
 
         public static Block STIRLING_ENGINE;
+        public static Block REACTION_ENGINE;
         public static Block MAGMATIC_ENGINE;
         public static Block STEAM_ENGINE;
         public static Block FUEL_ENGINE;
@@ -313,6 +331,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+            REACTION_ENGINE = INSTANCE.registerBlockWithItem("reaction_engine",
+                props -> new ReactionEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             MAGMATIC_ENGINE = INSTANCE.registerBlockWithItem("magmatic_engine",
                 props -> new MagmaticEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
             STEAM_ENGINE = INSTANCE.registerBlockWithItem("steam_engine",
@@ -341,6 +361,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private ENTITY() {}
 
         public static BlockEntityType<StirlingEngineBlockEntity> STIRLING_ENGINE_BLOCK_ENTITY;
+        public static BlockEntityType<ReactionEngineBlockEntity> REACTION_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<MagmaticEngineBlockEntity> MAGMATIC_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<SteamEngineBlockEntity> STEAM_ENGINE_BLOCK_ENTITY;
         public static BlockEntityType<FuelEngineBlockEntity> FUEL_ENGINE_BLOCK_ENTITY;
@@ -352,6 +373,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             STIRLING_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("stirling_engine", StirlingEngineBlockEntity::new, BLOCK.STIRLING_ENGINE);
+            REACTION_ENGINE_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("reaction_engine", ReactionEngineBlockEntity::new, BLOCK.REACTION_ENGINE);
             MAGMATIC_ENGINE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("magmatic_engine", MagmaticEngineBlockEntity::new, BLOCK.MAGMATIC_ENGINE);
             STEAM_ENGINE_BLOCK_ENTITY =
@@ -374,6 +397,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private SCREEN() {}
 
         public static MenuType<StirlingEngineScreenHandler> STIRLING_ENGINE;
+        public static MenuType<ReactionEngineScreenHandler> REACTION_ENGINE;
         public static MenuType<MagmaticEngineScreenHandler> MAGMATIC_ENGINE;
         public static MenuType<SteamEngineScreenHandler> STEAM_ENGINE;
         public static MenuType<FuelEngineScreenHandler> FUEL_ENGINE;
@@ -383,6 +407,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("stirling_engine").toIdentifier(),
                     new MenuType<>(StirlingEngineScreenHandler::new, FeatureFlagSet.of()));
+            REACTION_ENGINE = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPower.resource("reaction_engine").toIdentifier(),
+                    new MenuType<>(ReactionEngineScreenHandler::new, FeatureFlagSet.of()));
             MAGMATIC_ENGINE = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPower.resource("magmatic_engine").toIdentifier(),
@@ -398,6 +426,34 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         }
     }
 
+    public static final class RECIPE {
+        private RECIPE() {}
+
+        public static RecipeType<ReactionRecipe> REACTION_RECIPE_TYPE;
+        public static RecipeSerializer<ReactionRecipe> REACTION_RECIPE_SERIALIZER;
+        public static RecipeBookCategory REACTION_CATEGORY;
+
+        static void register() {
+            REACTION_RECIPE_TYPE = Registry.register(
+                    BuiltInRegistries.RECIPE_TYPE,
+                    LogisticsMod.modId("reaction").toIdentifier(),
+                    new RecipeType<ReactionRecipe>() {
+                        @Override
+                        public String toString() {
+                            return "logistics:reaction";
+                        }
+                    });
+            REACTION_RECIPE_SERIALIZER = Registry.register(
+                    BuiltInRegistries.RECIPE_SERIALIZER,
+                    LogisticsMod.modId("reaction").toIdentifier(),
+                    ReactionRecipeSerializer.INSTANCE);
+            REACTION_CATEGORY = Registry.register(
+                    BuiltInRegistries.RECIPE_BOOK_CATEGORY,
+                    LogisticsMod.modId("reaction").toIdentifier(),
+                    new RecipeBookCategory());
+        }
+    }
+
     public static final class CREATIVE {
         public static final LogisticsCreativeTab TAB = LogisticsCreativeTab.create(
             LogisticsMod.modId("3_power"),
@@ -409,6 +465,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             TAB.add(BLOCK.STIRLING_ENGINE);
+            TAB.add(BLOCK.REACTION_ENGINE);
             TAB.add(BLOCK.MAGMATIC_ENGINE);
             TAB.add(BLOCK.STEAM_ENGINE);
             TAB.add(BLOCK.FUEL_ENGINE);

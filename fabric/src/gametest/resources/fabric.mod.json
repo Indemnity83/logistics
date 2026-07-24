@@ -29,6 +29,7 @@
 			"com.logistics.gametest.power.BatteryGameTest",
 			"com.logistics.gametest.power.CableGameTest",
 			"com.logistics.gametest.power.EngineGameTest",
+			"com.logistics.gametest.power.ReactionEngineGameTest",
 			"com.logistics.gametest.power.MagmaticEngineGameTest",
 			"com.logistics.gametest.power.SteamEngineGameTest",
 			"com.logistics.gametest.power.FuelEngineGameTest",

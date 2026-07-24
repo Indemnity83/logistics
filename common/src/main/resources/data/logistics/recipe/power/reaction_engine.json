@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["OOO", " G ", "gpg"],
+  "key": {
+    "O": "minecraft:crying_obsidian",
+    "G": "minecraft:heavy_core",
+    "g": "logistics:core/netherite_gear",
+    "p": "minecraft:piston"
+  },
+  "result": {
+    "id": "logistics:power/reaction_engine",
+    "count": 1
+  }
+}
