@@ -39,5 +39,4 @@
 
 {{Navbox Logistics}}
 
-[[Category:Materials]]
 [[Category:Removed]]

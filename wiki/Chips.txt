@@ -37,5 +37,4 @@ The Silicon Wafer is the substrate for every chip, made in two steps:
 
 {{Navbox Logistics}}
 
-[[Category:Materials]]
 [[Category:Removed]]

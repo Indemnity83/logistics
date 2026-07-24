@@ -81,5 +81,4 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 
 {{Navbox Logistics}}
 
-[[Category:Materials]]
 [[Category:Removed]]
