@@ -5,13 +5,16 @@
 * [[File:Grid Oil Sand.png|24px|link=Oil Sand]] '''[[Oil Sand]]''' — an oil-soaked sand block that generates in sandy biomes
 * [[File:Grid Oil Red Sand.png|24px|link=Oil Red Sand]] '''[[Oil Red Sand]]''' — the badlands red-sand variant
 * [[File:Grid Oil Shale.png|24px|link=Oil Shale]] '''[[Oil Shale]]''' — an oil-bearing rock that generates underground
-* [[File:Grid Crude Oil.png|24px|link=Crude Oil]] '''[[Crude Oil]]''' — a placeable fluid, melted from the oil blocks or [[Bitumen]] in a [[Crucible]]
-* [[File:Grid Bitumen.png|24px|link=Bitumen]] '''[[Bitumen]]''' — a solid oil product ground from the oil blocks; melts to Crude Oil and burns as fuel
+* [[File:Grid Bitumen.png|24px|link=Bitumen]] '''[[Bitumen]]''' — a solid oil product ground from the oil blocks; melts to [[Crude Oil]] and burns as fuel
 * [[File:Grid Tar.png|24px|link=Tar]] '''[[Tar]]''' — a sticky product ground from the sandy oil blocks, also a [[Refinery]] byproduct
+
+== Fluids ==
+
+* [[File:Fluid Crude Oil.gif|24px|link=Crude Oil]] '''[[Crude Oil]]''' — a placeable fluid, melted from the oil blocks or [[Bitumen]] in a [[Crucible]]
+* [[File:Fluid Fuel Oil.gif|24px|link=Fuel Oil]] '''[[Fuel Oil]]''' — refined from Crude Oil in a [[Refinery]]
 
 == Uses ==
 
-* [[File:Grid Fuel Oil.png|24px|link=Fuel Oil]] '''[[Fuel Oil]]''' — refined from [[Crude Oil]] in a [[Refinery]]
 * [[File:Grid Synthetic Polymer.png|24px|link=Synthetic Polymer]] '''[[Synthetic Polymer]]''' — crafted from [[Tar]] and [[Coal Dust]] on the way to [[Rubber]]
 * [[File:Grid Copper Fluid Pipe.png|24px|link=Fluid Pipes]] '''Pipe sealant''' — [[Tar]] seals a transport pipe into a [[Fluid Pipes|fluid pipe]], like a slime ball
 
