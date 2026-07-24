@@ -136,9 +136,17 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
         return remainingReactionTicks > 0;
     }
 
-    /** Whether a fresh reaction could start right now (powered + a matching recipe present). */
+    /** Whether a fresh reaction could start right now (powered + a matching recipe + a full reactant batch). */
     public boolean canStartReaction(MachineContext ctx) {
-        return powered.getAsBoolean() && reactionLookup.find(ctx, currentReactant(), currentReagent()) != null;
+        if (!powered.getAsBoolean()) {
+            return false;
+        }
+        ReactionRecipe recipe = reactionLookup.find(ctx, currentReactant(), currentReagent());
+        if (recipe == null) {
+            return false;
+        }
+        long batch = recipe.reactant().nativeAmount();
+        return reactantStore.tank().extract(recipe.reactant().key(), batch, true) == batch;
     }
 
     @Override

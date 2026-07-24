@@ -68,6 +68,9 @@ public class ReactionEngineScreen extends AbstractContainerScreen<ReactionEngine
             return List.of(Component.translatable("tooltip.logistics.fluid.tank_empty"));
         }
         Fluid fluid = BuiltInRegistries.FLUID.byId(fluidId);
+        if (fluid == null || fluid == Fluids.EMPTY) {
+            return List.of(Component.translatable("tooltip.logistics.fluid.tank_empty"));
+        }
         var id = BuiltInRegistries.FLUID.getKey(fluid);
         Component amount = Component.translatable("tooltip.logistics.fluid.tank_amount", amountMb)
                 .withStyle(ChatFormatting.GRAY);
@@ -108,7 +111,7 @@ public class ReactionEngineScreen extends AbstractContainerScreen<ReactionEngine
             return;
         }
         Fluid fluid = BuiltInRegistries.FLUID.byId(fluidId);
-        if (fluid == Fluids.EMPTY) {
+        if (fluid == null || fluid == Fluids.EMPTY) {
             return;
         }
         FluidBoxRenderer.Appearance appearance = FluidBoxRenderer.resolveForGui(fluid);
