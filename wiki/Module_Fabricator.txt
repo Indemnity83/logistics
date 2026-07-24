@@ -1,0 +1,136 @@
+-- Module:Fabricator — builds Sequential Fabricator recipe tables (Name / Ingredients / recipe).
+-- Clean-room implementation, structured like [[Module:AlloySmelter]] but for a machine that consumes
+-- an ORDERED list of ingredients (up to six slots) and assembles a single item output: the Recipe
+-- cell reuses our own {{Grid Fabricator Table}} widget. head=1 opens the table + header, foot=1 closes it.
+
+local p = {}
+
+local NSLOTS = 6
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function truthy(v)
+	v = trim(v)
+	return v ~= nil and v ~= '0'
+end
+
+-- key names for slot i: Input, Input2 .. Input6 (+ ...Count); first slot has no number, like AlloySmelter.
+local function slotKey(i) return (i == 1) and 'Input' or ('Input' .. i) end
+
+local function argSlot(args, i)
+	local k = slotKey(i)
+	return trim(args[k]) or trim(args[k:lower()])
+end
+
+local function argSlotCount(args, i)
+	local k = slotKey(i) .. 'Count'
+	return trim(args[k]) or trim(args[k:lower()])
+end
+
+-- "Name,Count" -> name, count (also honours an explicit OutputCount)
+local function parseOutput(args)
+	local out = trim(args.Output) or trim(args.output) or ''
+	local count = trim(args.OutputCount) or trim(args.outputcount)
+	local n, c = out:match('^(.-)%s*,%s*(%d+)$')
+	if n then
+		out = n
+		count = count or c
+	end
+	return out, count
+end
+
+-- one item, linked if it names a wiki page, else plain text
+local function linkItem(v)
+	local t = mw.title.new(v)
+	return (t and t.exists) and ('[[' .. v .. ']]') or v
+end
+
+-- one slot's ingredient text: its ";"-separated alternatives joined with "or", prefixed by a count
+local function slotText(key, count)
+	if not key then return nil end
+	local alts = {}
+	for part in key:gmatch('[^;]+') do
+		local v = trim(part)
+		if v then alts[#alts + 1] = linkItem(v) end
+	end
+	local text = table.concat(alts, ' or ')
+	if count then text = count .. ' ' .. text end
+	return text
+end
+
+-- Ingredients column: explicit |ingredients=, else the ordered inputs joined with "+".
+local function ingredientsCell(args)
+	local ing = trim(args.ingredients)
+	if ing then return ing end
+	local inputs = {}
+	for i = 1, NSLOTS do
+		local t = slotText(argSlot(args, i), argSlotCount(args, i))
+		if t then inputs[#inputs + 1] = t end
+	end
+	local out = {}
+	for i, item in ipairs(inputs) do
+		out[#out + 1] = '<span class="logi-recipes-ingredient">' .. item .. ((i < #inputs) and ' +' or '') .. '</span>'
+	end
+	return table.concat(out)
+end
+
+-- Recipe column: our fabricator widget (ordered inputs -> output + optional count).
+local function recipeCell(frame, args, outName, outCount)
+	local g = { Output = outName }
+	if outCount then g.OutputCount = outCount end
+	for i = 1, NSLOTS do
+		local v = argSlot(args, i)
+		if v then g[slotKey(i)] = v end
+		local c = argSlotCount(args, i)
+		if c then g[slotKey(i) .. 'Count'] = c end
+	end
+	local grid = frame:expandTemplate{ title = 'Grid Fabricator Table', args = g }
+	grid = grid:gsub('<templatestyles.-/>', '')
+	return mw.text.trim(grid)
+end
+
+function p.fabricator(frame)
+	local args = frame:getParent().args
+	local outName, outCount = parseOutput(args)
+	local showName = trim(args.showname) ~= '0'
+	local head = truthy(args.head)
+	local foot = truthy(args.foot)
+
+	local out = {}
+
+	if head then
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Crafting/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Crafting Table/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Fabricator Table/styles.css' } }
+		out[#out + 1] = '\n{| class="logi-recipes"'
+		out[#out + 1] = '\n|- class="logi-recipes-head"'
+		if showName then out[#out + 1] = '\n! Name' end
+		out[#out + 1] = '\n! Ingredients\n! Sequential Fabricator recipe'
+	end
+
+	out[#out + 1] = '\n|-'
+	if showName then
+		local nm = trim(args.name) or ('[[' .. outName .. ']]')
+		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
+	end
+	local ingredients = ingredientsCell(args)
+	local notes = trim(args.notes)
+	if notes then
+		ingredients = ingredients .. '<div class="logi-recipes-note">' .. notes .. '</div>'
+	end
+	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredients
+	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, outName, outCount)
+
+	if foot then
+		out[#out + 1] = '\n|}'
+	end
+
+	return table.concat(out)
+end
+
+return p

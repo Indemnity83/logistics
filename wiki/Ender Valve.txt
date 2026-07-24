@@ -1,3 +1,4 @@
+{{Removed|v0.8.3|valve|[[Valves]]}}
 {{Item
 |image     = Grid Ender Valve.png
 |type      = Item (Valve)
@@ -27,7 +28,8 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Ender Valve.png|32px]] Added '''Ender Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Ender Valve.png|32px]] Added '''Ender Valve'''.}}
+{{History|foot=1|v0.8.3|Removed. Superseded by [[Valves]].}}
 
 == See also ==
 
@@ -38,3 +40,4 @@
 {{Navbox Logistics}}
 
 [[Category:Materials]]
+[[Category:Removed]]

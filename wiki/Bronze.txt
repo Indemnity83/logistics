@@ -10,8 +10,7 @@
 == Uses ==
 
 * [[File:Grid Bronze Gear.png|24px|link=Bronze Gear]] '''[[Bronze Gear]]''' — a mid-tier crafting component in the gear progression
-* [[File:Grid Bronze Valve.png|24px|link=Bronze Valve]] '''[[Bronze Valve]]''' — a fluid valve crafted via a Bronze [[Cores|Core]]
-* [[File:Grid Bronze Core.png|24px|link=Cores]] '''[[Bronze Core]]''' — an intermediate component for valve crafting
+* [[File:Grid Bronze Valve.png|24px|link=Bronze Valve]] '''[[Bronze Valve]]''' — a fluid-network valve crafted from bronze ingots
 * [[File:Grid Machine Frame.png|24px|link=Machine Frame]] '''[[Machine Frame]]''' — the heart of every machine, built around a [[Bronze Gear]]
 
 {{Disambig}}

@@ -1,0 +1,130 @@
+-- Module:Refinery — builds Refinery recipe tables (Name / Ingredients / Refinery recipe).
+-- Clean-room implementation, structured like [[Module:Crucible]] but for a machine that distills a
+-- single FLUID input into a fluid output plus an optional chance item byproduct (byproduct handled
+-- like [[Module:AlloySmelter]]): the Recipe cell reuses our own {{Grid Refinery Table}} widget
+-- (fluid in + mB → fluid out + mB, plus a byproduct slot with its chance). head=1 opens the table +
+-- header, foot=1 closes it.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function truthy(v)
+	v = trim(v)
+	return v ~= nil and v ~= '0'
+end
+
+-- "Name,Amount" -> name, amount (also honours an explicit InputAmount)
+local function parseInput(args)
+	local inp = trim(args.Input) or trim(args.input) or ''
+	local amount = trim(args.InputAmount) or trim(args.inputamount)
+	local n, a = inp:match('^(.-)%s*,%s*(%d+)$')
+	if n then
+		inp = n
+		amount = amount or a
+	end
+	return inp, amount
+end
+
+-- "Name,Amount" -> name, amount (also honours an explicit Amount)
+local function parseOutput(args)
+	local out = trim(args.Output) or trim(args.output) or ''
+	local amount = trim(args.Amount) or trim(args.amount)
+	local n, a = out:match('^(.-)%s*,%s*(%d+)$')
+	if n then
+		out = n
+		amount = amount or a
+	end
+	return out, amount
+end
+
+-- "Name,Chance" -> name, chance (also honours an explicit ByproductChance)
+local function parseByproduct(args)
+	local bp = trim(args.Byproduct) or trim(args.byproduct)
+	if not bp then return nil, nil end
+	local chance = trim(args.ByproductChance) or trim(args.byproductchance)
+	local n, c = bp:match('^(.-)%s*,%s*([%d%.]+%%?)$')
+	if n then
+		bp = n
+		chance = chance or c
+	end
+	return bp, chance
+end
+
+-- one item/fluid, linked if it names a wiki page, else plain text
+local function linkItem(v)
+	local t = mw.title.new(v)
+	return (t and t.exists) and ('[[' .. v .. ']]') or v
+end
+
+-- Ingredients column: explicit |ingredients=, else the input fluid prefixed by its mB amount.
+local function ingredientsCell(args, inName, inAmount)
+	local ing = trim(args.ingredients)
+	if ing then return ing end
+	local text = linkItem(inName)
+	if inAmount then text = inAmount .. ' mB ' .. text end
+	return '<span class="logi-recipes-ingredient">' .. text .. '</span>'
+end
+
+-- Recipe column: our refinery widget (fluid in -> fluid out + optional byproduct).
+local function recipeCell(frame, args, inName, inAmount, outName, amount)
+	local g = { Output = outName }
+	if amount then g.Amount = amount end
+	if inName and inName ~= '' then g.Input = inName end
+	if inAmount then g.InputAmount = inAmount end
+	local bp, bpc = parseByproduct(args)
+	if bp then
+		g.Byproduct = bp
+		if bpc then g.ByproductChance = bpc end
+	end
+	local grid = frame:expandTemplate{ title = 'Grid Refinery Table', args = g }
+	grid = grid:gsub('<templatestyles.-/>', '')
+	return mw.text.trim(grid)
+end
+
+function p.refinery(frame)
+	local args = frame:getParent().args
+	local inName, inAmount = parseInput(args)
+	local outName, amount = parseOutput(args)
+	local showName = trim(args.showname) ~= '0'
+	local head = truthy(args.head)
+	local foot = truthy(args.foot)
+
+	local out = {}
+
+	if head then
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Crafting/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Crafting Table/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Refinery Table/styles.css' } }
+		out[#out + 1] = '\n{| class="logi-recipes"'
+		out[#out + 1] = '\n|- class="logi-recipes-head"'
+		if showName then out[#out + 1] = '\n! Name' end
+		out[#out + 1] = '\n! Ingredients\n! Refinery recipe'
+	end
+
+	out[#out + 1] = '\n|-'
+	if showName then
+		local nm = trim(args.name) or ('[[' .. outName .. ']]')
+		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
+	end
+	local ingredients = ingredientsCell(args, inName, inAmount)
+	local notes = trim(args.notes)
+	if notes then
+		ingredients = ingredients .. '<div class="logi-recipes-note">' .. notes .. '</div>'
+	end
+	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredients
+	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, inName, inAmount, outName, amount)
+
+	if foot then
+		out[#out + 1] = '\n|}'
+	end
+
+	return table.concat(out)
+end
+
+return p

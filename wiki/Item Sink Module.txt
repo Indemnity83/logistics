@@ -12,10 +12,13 @@ The '''Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accepts a
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Copper Dust |B1=Carbon Chip |C1=Copper Dust
+|A1=Green Dye |B1=Iron Gear |C1=Green Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Green Dye |B3=Redstone |C3=Green Dye
 |Output=Item Sink Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset]] in place of the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -42,7 +45,8 @@ Install several Item Sink Modules in one chassis to make a multi-item sorting st
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Item Sink Module.png|32px]] Added '''Item Sink Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Item Sink Module.png|32px]] Added '''Item Sink Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Polymorphic Sink Module]] - Accepts any item type that already exists in the adjacent inventory
@@ -50,8 +54,8 @@ Install several Item Sink Modules in one chassis to make a multi-item sorting st
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Copper Dust]] - Crafting component
-* [[Carbon Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

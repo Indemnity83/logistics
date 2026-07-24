@@ -12,10 +12,13 @@ The '''Mod Item Sink Module''' is a [[Chassis Logistics Pipe]] module that accep
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Copper Dust |B1=Redstone Chip |C1=Copper Dust
+|A1=Green Dye |B1=Gold Gear |C1=Green Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Green Dye |B3=Redstone |C3=Green Dye
 |Output=Mod Item Sink Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use a [[Gold Chipset]] in place of the [[Gold Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -42,7 +45,8 @@ It is most useful in large modpacks for keeping a mod's resources together in de
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Mod Item Sink Module.png|32px]] Added '''Mod Item Sink Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Mod Item Sink Module.png|32px]] Added '''Mod Item Sink Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specific configured item type
@@ -51,8 +55,8 @@ It is most useful in large modpacks for keeping a mod's resources together in de
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Copper Dust]] - Crafting component
-* [[Redstone Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

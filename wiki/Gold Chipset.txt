@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Gold Chipset.png
+|type      = Item (Chipset)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Gold Chipset''' is a fabricated component built in the [[Sequential Fabricator]]. Chipsets are an alternative to [[Gears|gears]] for crafting [[Modules|modules]] and [[Logistics Pipes|logistics pipes]].
+
+== Obtaining ==
+
+=== Sequential Fabricator ===
+
+{{Sequential Fabricator|head=1|foot=1 |Input=Redstone |Input2=Gold Ingot |Output=Gold Chipset |notes=30,000 RF}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+A Gold Chipset can stand in for its gear when crafting:
+
+* [[Active Supplier Module]]
+* [[Basic Logistics Pipe]]
+* [[Chassis Logistics Pipe MK3]]
+* [[Crafter Module|Crafter MKII Module]]
+* [[Enchantment Sink Module]]
+* [[Extractor Module|Extractor Module MKII]]
+* [[Mod Item Sink Module]]
+* [[Provider Logistics Pipe]]
+* [[Provider Module]]
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/gold_chipset|item.logistics.core.gold_chipset}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Gold Chipset.png|32px]] Added '''Gold Chipset'''.}}
+
+== See also ==
+
+* [[Chipsets]] - All chipsets
+* [[Sequential Fabricator]] - Builds chipsets
+* [[Gears]] - The alternative crafting path
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

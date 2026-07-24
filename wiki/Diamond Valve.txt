@@ -5,37 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Diamond Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Diamond Core]] and a frame of [[Quartz Crystal]].
+'''Diamond Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Diamond}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Diamond Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Diamond |C1=Quartz Crystal
+|A2=Redstone |B2=Diamond |C2=Redstone
+|A3=Diamond |B3=Diamond |C3=Diamond
 |Output=Diamond Valve
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1
-|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK4]]
-|B1=Diamond Valve
-|A2=Diamond Valve |B2=Basic Logistics Pipe |C2=Diamond Valve
-|B3=Diamond Valve
-|Output=Chassis Logistics Pipe MK4
-}}
-
-{{Crafting|foot=1
-|name=[[Requester Logistics Pipe]]
-|A1=Diamond Valve |B1=Basic Logistics Pipe |C1=Diamond Valve
-|Output=Requester Logistics Pipe
-}}
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -45,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Diamond Valve.png|32px]] Added '''Diamond Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Diamond Valve.png|32px]] Added '''Diamond Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Diamond}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Diamond Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Diamond}} - Tier material
 
 {{Navbox Logistics}}
 

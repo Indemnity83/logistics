@@ -37,7 +37,7 @@ Grinding the source ore in the [[Macerator]] grants the same experience the furn
 * [[Kiln]] - Smelts metal dusts into ingots and Quartz Dust into Quartz Crystal
 * [[Quicksilver]] - Another material the Macerator produces (liquid metal, not a dust)
 * [[Sawdust]] - Wood byproduct from the [[Sawmill]]
-* [[Cores]], [[Chips]], [[Modules]] - Components crafted from dusts
+* [[Chipsets]], [[Modules]] - Components crafted from dusts
 
 {{Navbox Logistics}}
 

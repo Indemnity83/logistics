@@ -6,18 +6,18 @@
 |added     = v0.2.0
 }}
 
-The '''Provider Module''' is a [[Chassis Logistics Pipe]] module that advertises adjacent inventory contents to the [[Pipe Networks|logistics network]] and fulfills item requests — the same function as a standalone [[Provider Logistics Pipe]], in module form. Two mark variants exist: MK1 (Redstone Chip) and MK2 (Amethyst Chip).
+The '''Provider Module''' is a [[Chassis Logistics Pipe]] module that advertises adjacent inventory contents to the [[Pipe Networks|logistics network]] and fulfills item requests — the same function as a standalone [[Provider Logistics Pipe]], in module form. A base module can be upgraded to a MkII variant with a higher-tier [[Gears|gear]] for larger quantities per request cycle.
 
 == Obtaining ==
 
 === Crafting ===
 
-The two marks share a recipe, differing only by the [[Chips|chip]] — MK2 provides larger quantities per request cycle:
+The base module, plus a higher-tier [[Gears|gear]] to upgrade it:
 
 {{Crafting|head=1|showdescription=1
-|name=Provider Module |A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Provider Module |description=MK1 — uses a [[Redstone Chip]].}}
-{{Crafting|foot=1
-|name=Provider MkII Module |A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Provider MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
+|name=Provider Module |A1=Red Dye |B1=Gold Gear |C1=Red Dye |A2=Redstone |B2=Blank Module |C2=Redstone |A3=Red Dye |B3=Redstone |C3=Red Dye |Output=Provider Module |description=Base module — or use a [[Gold Chipset]] in place of the gear.}}
+{{Crafting|foot=1|showdescription=1
+|name=Provider MkII Module |B1=Diamond Gear |B2=Provider Module |Output=Provider MkII Module |description=Upgrade — a [[Diamond Gear]] (or [[Diamond Chipset]]) atop a Provider Module.}}
 
 == Usage ==
 
@@ -33,7 +33,8 @@ Use this module when you want provider behavior combined with other module funct
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Provider Module.png|32px]] Added '''Provider Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Provider Module.png|32px]] Added '''Provider Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Provider Logistics Pipe]] - Standalone version of this behavior
@@ -41,9 +42,8 @@ Use this module when you want provider behavior combined with other module funct
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Extractor Module]] - Pairs well in a chassis
-* [[Iron Dust]] - Crafting component
-* [[Redstone Chip]] - MK1 chip
-* [[Amethyst Chip]] - MK2 chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

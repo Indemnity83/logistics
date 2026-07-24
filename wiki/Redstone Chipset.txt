@@ -1,0 +1,42 @@
+{{Item
+|image     = Grid Redstone Chipset.png
+|type      = Item (Chipset)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Redstone Chipset''' is a fabricated component built in the [[Sequential Fabricator]]. Chipsets are an alternative to [[Gears|gears]] for crafting [[Modules|modules]] and [[Logistics Pipes|logistics pipes]].
+
+== Obtaining ==
+
+=== Sequential Fabricator ===
+
+{{Sequential Fabricator|head=1|foot=1 |Input=Redstone |Output=Redstone Chipset |notes=10,000 RF}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+A Redstone Chipset can stand in for its gear when crafting:
+
+* [[Chassis Logistics Pipe MK1]]
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/redstone_chipset|item.logistics.core.redstone_chipset}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Redstone Chipset.png|32px]] Added '''Redstone Chipset'''.}}
+
+== See also ==
+
+* [[Chipsets]] - All chipsets
+* [[Sequential Fabricator]] - Builds chipsets
+* [[Gears]] - The alternative crafting path
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

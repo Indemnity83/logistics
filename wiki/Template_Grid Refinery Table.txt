@@ -1,0 +1,41 @@
+<includeonly>{| class="logi-grid"
+|-
+| class="logi-grid-cell" |
+{| class="logi-refinery-grid"
+|-
+| class="logi-grid-slot" rowspan="2" | {{#if:{{{Input|}}}|{{#ifexist:File:Fluid {{{Input}}}.gif|[[File:Fluid {{{Input}}}.gif|32px|link={{{Input}}}|{{{Input}}}]]|{{Grid|{{{Input}}}}}}}|&nbsp;}}
+| class="logi-refinery-amount" rowspan="2" | {{#if:{{{InputAmount|}}}|{{{InputAmount}}}&nbsp;mB}}
+| class="logi-grid-arrow" rowspan="2" | →
+| class="logi-grid-slot" | {{#if:{{{Output|}}}|{{#ifexist:File:Fluid {{{Output}}}.gif|[[File:Fluid {{{Output}}}.gif|32px|link={{{Output}}}|{{{Output}}}]]|{{Grid|{{{Output}}}}}}}|&nbsp;}}
+| class="logi-refinery-amount" | {{#if:{{{Amount|}}}|{{{Amount}}}&nbsp;mB}}
+|-
+| class="logi-grid-slot" | {{#if:{{{Byproduct|}}}|{{Grid|{{{Byproduct}}}}}|&nbsp;}}
+| class="logi-refinery-chance" | {{#if:{{{Byproduct|}}}|{{{ByproductChance|}}}}}
+|}
+|}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Refinery Table/styles.css" /></includeonly><noinclude>
+Renders a [[Refinery]] recipe: a '''fluid''' input on the left (its animated ''Fluid <name>.gif'',
+falling back to a {{Grid}} swatch) with the millibuckets consumed beside it, an arrow, the '''fluid'''
+output top-right with the millibuckets produced, and an optional '''chance byproduct''' item in a
+slot below it with its drop chance — the way the machine distills one fluid into another and vents a
+solid byproduct. The byproduct slot is always shown (empty when a recipe has none) so the machine's
+second output is clear. Styling reuses [[Template:Grid Crafting Table/styles.css]] for the panel,
+slots, and arrow, plus [[Template:Grid Refinery Table/styles.css]] for the mB amounts and chance.
+
+Usage:
+ {{Grid Refinery Table
+ |Input=Crude Oil |InputAmount=200 |Output=Fuel Oil |Amount=150
+ |Byproduct=Tar |ByproductChance=50%
+ }}
+
+Parameters:
+ Input           — the input fluid (rendered as its Fluid <name>.gif, else a {{Grid}} swatch)
+ InputAmount     — millibuckets consumed, e.g. "200"
+ Output          — the resulting fluid
+ Amount          — millibuckets produced, e.g. "150"
+ Byproduct       — a secondary chance item output (optional)
+ ByproductChance — its drop chance, e.g. "50%" (optional)
+
+Depends on [[Template:Grid]].
+
+[[Category:Templates]]
+</noinclude>

@@ -14,13 +14,13 @@ The '''Crafting Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that c
 
 === Crafting ===
 
-{{Crafting
-|head=1
-|foot=1
-|showname=0
-|A1=Bronze Valve |B1=Basic Logistics Pipe |C1=Bronze Valve
+{{Crafting|head=1|foot=1|showname=0
+|B1=Iron Gear
+|A2=Amethyst Dust |B2=Basic Logistics Pipe |C2=Amethyst Dust
 |Output=Crafting Logistics Pipe
 }}
+
+Substitute an [[Iron Chipset]] for the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -38,7 +38,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Crafting Logistics Pipe.png|32px]] Added '''Crafting Logistics Pipe'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Crafting Logistics Pipe.png|32px]] Added '''Crafting Logistics Pipe'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
 
 == See also ==
 
@@ -47,6 +48,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 * [[Process Logistics Pipe]] - Automates machines instead of crafting tables
 * [[Power Junction]] - Powers the network
 * [[Pipe Networks]] - How the network routes items
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

@@ -12,10 +12,13 @@ The '''Terminus Module''' is a [[Chassis Logistics Pipe]] module that marks the 
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Ender Dust |B1=Redstone Chip |C1=Ender Dust
+|A1=Black Dye |B1=Iron Gear |C1=Purple Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Purple Dye |B3=Redstone |C3=Black Dye
 |Output=Terminus Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset]] in place of the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -36,7 +39,8 @@ Place it at the physical end of a pipe run to stop items from bouncing back into
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Terminus Module.png|32px]] Added '''Terminus Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Terminus Module.png|32px]] Added '''Terminus Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Modules]] - All available modules
@@ -45,8 +49,8 @@ Place it at the physical end of a pipe run to stop items from bouncing back into
 * [[Item Sink Module]] - Accept specific items at the terminus
 * [[Satellite Logistics Pipe]] - Named remote destinations
 * [[Pipe Networks]] - Network topology concepts
-* [[Ender Dust]] - Crafting component
-* [[Redstone Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

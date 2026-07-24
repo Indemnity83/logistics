@@ -13,11 +13,8 @@ The '''Satellite Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that 
 
 === Crafting ===
 
-{{Crafting
-|head=1
-|foot=1
-|showname=0
-|A1=Lapis Valve |B1=Basic Logistics Pipe |C1=Lapis Valve
+{{Crafting|head=1|foot=1|showname=0
+|A1=Redstone |B1=Basic Logistics Pipe |C1=Redstone
 |Output=Satellite Logistics Pipe
 }}
 
@@ -37,7 +34,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Satellite Logistics Pipe.png|32px]] Added '''Satellite Logistics Pipe'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Satellite Logistics Pipe.png|32px]] Added '''Satellite Logistics Pipe'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — no longer crafted from a valve.}}
 
 == See also ==
 
@@ -45,6 +43,7 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 * [[Requester Logistics Pipe]] - Routes items to satellites by name
 * [[Power Junction]] - Powers the network
 * [[Pipe Networks]] - How the network routes items
+* [[Gears]] - Crafting component
 
 {{Navbox Logistics}}
 

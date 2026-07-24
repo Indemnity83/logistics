@@ -1,0 +1,74 @@
+{{Block
+|image           = Grid Sequential Fabricator.png
+|type            = Block (Machine)
+|function        = Chipset fabrication
+|stackable       = Yes (64)
+|tool            = Pickaxe
+|hardness        = 3.5
+|blastresistance = 3.5
+|added           = v0.8.3
+}}
+
+The '''Sequential Fabricator''' is an RF-powered machine that assembles [[Chipsets|chipsets]] from a sequence of ingredients. Each chipset is a fixed recipe of {{Mcw|Redstone Dust|redstone}} plus one tier material, and the machine's output is selected in its GUI.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Sequential Fabricator is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Sequential Fabricator |icon1=Grid Sequential Fabricator.png |hardness1=3.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Netherite Gear
+|A2=Obsidian |B2=Machine Frame |C2=Obsidian
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+}}
+
+Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with a [[Netherite Gear]] and {{Mcw|Obsidian|obsidian}} on top.
+
+== Usage ==
+
+Choose the [[Chipsets|chipset]] to build from the machine's GUI, then feed it the ingredients; the Sequential Fabricator consumes them in order and produces the selected chipset. Every recipe appears in the Just Enough Items (JEI) viewer.
+
+=== Power ===
+
+The Sequential Fabricator runs on [[RF Energy|RF]]. It holds 100,000 RF and accepts up to 128 RF/t, spending 80 RF/t while working. Each chipset carries its own RF cost — from 10,000 RF for a [[Redstone Chipset]] up to 120,000 RF for a [[Netherite Chipset]] — so connect a strong RF source.
+
+=== Recipes ===
+
+Chipsets are built from redstone and one tier material; the RF cost climbs with the tier:
+
+{{Sequential Fabricator|head=1 |Input=Redstone |Output=Redstone Chipset |notes=10,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Copper Ingot |Output=Copper Chipset |notes=15,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Iron Ingot |Output=Iron Chipset |notes=20,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Gold Ingot |Output=Gold Chipset |notes=30,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Echo Shard |Output=Echo Chipset |notes=40,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Diamond |Output=Diamond Chipset |notes=80,000 RF}}
+{{Sequential Fabricator|foot=1 |Input=Redstone |Input2=Netherite Ingot |Output=Netherite Chipset |notes=120,000 RF}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/sequential_fabricator|block.logistics.automation.sequential_fabricator}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Sequential Fabricator.png|32px]] Added '''Sequential Fabricator'''.}}
+
+== See also ==
+
+* [[Chipsets]] - What the machine builds
+* [[Modules]], [[Logistics Pipes]] - Built with chipsets as an alternative to gears
+* [[Machine Frame]], [[Redstone Reception Coil]], [[Netherite Gear]] - Crafting components
+* [[Stirling Engine]] - Recommended power source
+
+{{Navbox Logistics}}
+
+[[Category:Machines]]

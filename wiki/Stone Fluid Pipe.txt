@@ -15,13 +15,18 @@ The '''Stone Fluid Pipe''' is the cheapest [[Fluid Pipes|fluid pipe]] — passiv
 
 === Crafting ===
 
-Combine the [[Stone Transport Pipe]] with a {{Mcw|Slime Ball}} (shapeless):
+Seal the [[Stone Transport Pipe]] with a {{Mcw|Slime Ball|slime ball}} or [[Tar]] (shapeless):
 
 {{Crafting
 |head=1
-|foot=1
 |showname=0
 |A1=Stone Transport Pipe |B1=Slime Ball
+|Output=Stone Fluid Pipe
+}}
+{{Crafting
+|foot=1
+|showname=0
+|A1=Stone Transport Pipe |B1=Tar
 |Output=Stone Fluid Pipe
 }}
 
@@ -33,11 +38,12 @@ Stone fluid pipes passively move fluid between tanks, machines, and other pipes 
 
 === ID ===
 
-{{ID|head=1|foot=1|logistics:fluid/stone_fluid_pipe|block.logistics.fluid.stone_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/stone_fluid_pipe|block.logistics.pipe.stone_fluid_pipe}}
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.3|[[File:Grid Stone Fluid Pipe.png|32px]] Added '''Stone Fluid Pipe'''.}}
+{{History|head=1|v0.7.3|[[File:Grid Stone Fluid Pipe.png|32px]] Added '''Stone Fluid Pipe'''.}}
+{{History|foot=1|v0.8.3|The texture was restyled, and the pipe can now be sealed with [[Tar]] in place of a slime ball.}}
 
 == See also ==
 

@@ -5,37 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Iron Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Iron Core]] and a frame of [[Quartz Crystal]].
+'''Iron Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Iron Ingot}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Iron Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Iron Ingot |C1=Quartz Crystal
+|A2=Redstone |B2=Iron Ingot |C2=Redstone
+|A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot
 |Output=Iron Valve
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1
-|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK1]]
-|B1=Iron Valve
-|A2=Iron Valve |B2=Basic Logistics Pipe |C2=Iron Valve
-|B3=Iron Valve
-|Output=Chassis Logistics Pipe MK1
-}}
-
-{{Crafting|foot=1
-|name=[[Provider Logistics Pipe]]
-|A1=Iron Valve |B1=Basic Logistics Pipe |C1=Iron Valve
-|Output=Provider Logistics Pipe
-}}
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -45,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Iron Valve.png|32px]] Added '''Iron Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Iron Valve.png|32px]] Added '''Iron Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Iron Ingot}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Iron Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Iron Ingot}} - Tier material
 
 {{Navbox Logistics}}
 

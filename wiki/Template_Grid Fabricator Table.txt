@@ -1,0 +1,33 @@
+<includeonly>{| class="logi-grid"
+|-
+| class="logi-grid-cell" |
+{| class="logi-fabricator-grid"
+|-
+| class="logi-grid-slot" | {{#if:{{{InputCount|}}}|{{Grid|{{{Input}}}|{{{InputCount}}}}}|{{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}}}|&nbsp;}}}}{{#if:{{{Input2|}}}|{{!}}{{!}} class="logi-grid-slot" {{!}} {{#if:{{{Input2Count|}}}|{{Grid|{{{Input2}}}|{{{Input2Count}}}}}|{{Grid Cycle|{{{Input2}}}}}}}}}{{#if:{{{Input3|}}}|{{!}}{{!}} class="logi-grid-slot" {{!}} {{#if:{{{Input3Count|}}}|{{Grid|{{{Input3}}}|{{{Input3Count}}}}}|{{Grid Cycle|{{{Input3}}}}}}}}}{{#if:{{{Input4|}}}|{{!}}{{!}} class="logi-grid-slot" {{!}} {{#if:{{{Input4Count|}}}|{{Grid|{{{Input4}}}|{{{Input4Count}}}}}|{{Grid Cycle|{{{Input4}}}}}}}}}{{#if:{{{Input5|}}}|{{!}}{{!}} class="logi-grid-slot" {{!}} {{#if:{{{Input5Count|}}}|{{Grid|{{{Input5}}}|{{{Input5Count}}}}}|{{Grid Cycle|{{{Input5}}}}}}}}}{{#if:{{{Input6|}}}|{{!}}{{!}} class="logi-grid-slot" {{!}} {{#if:{{{Input6Count|}}}|{{Grid|{{{Input6}}}|{{{Input6Count}}}}}|{{Grid Cycle|{{{Input6}}}}}}}}}
+| class="logi-grid-arrow" | →
+| class="logi-grid-slot" | {{Grid|{{{Output}}}}}
+| class="logi-fabricator-count" | {{#if:{{{OutputCount|}}}|×{{{OutputCount}}}}}
+|}
+|}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Fabricator Table/styles.css" /></includeonly><noinclude>
+Renders a [[Sequential Fabricator]] recipe: an ordered row of ingredient slots on the left, an arrow,
+and the assembled item output on the right with its ×count — the way the machine consumes a sequence
+of ingredients to build one item. Only the ingredient slots that are supplied are drawn (slots 2–6
+appear as needed), so the widget grows to the recipe's length. Styling reuses
+[[Template:Grid Crafting Table/styles.css]] for the panel, slots, and arrow, plus
+[[Template:Grid Fabricator Table/styles.css]] for the ×count.
+
+Usage:
+ {{Grid Fabricator Table
+ |Input=Redstone |Input2=Iron Ingot |Output=Iron Chipset
+ }}
+
+Parameters:
+ Input .. Input6 — the ordered ingredients (rendered via {{Grid Cycle}}; ";"-separated alternatives cycle)
+ InputCount ..   — a count for the matching slot (optional; disables cycling for that slot)
+ Output          — the assembled output item
+ OutputCount     — quantity produced (optional)
+
+Depends on [[Template:Grid]], [[Template:Grid Cycle]].
+
+[[Category:Templates]]
+</noinclude>

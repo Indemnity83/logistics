@@ -12,10 +12,13 @@ The '''Enchantment Sink Module''' is a [[Chassis Logistics Pipe]] module that ac
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Copper Dust |B1=Amethyst Chip |C1=Copper Dust
+|A1=Gray Dye |B1=Gold Gear |C1=Gray Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Gray Dye |B3=Redstone |C3=Gray Dye
 |Output=Enchantment Sink Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use a [[Gold Chipset]] in place of the [[Gold Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -36,7 +39,8 @@ Place it next to an enchanted-item storage chest to collect enchanted drops from
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Enchantment Sink Module.png|32px]] Added '''Enchantment Sink Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Enchantment Sink Module.png|32px]] Added '''Enchantment Sink Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specific configured item type
@@ -44,8 +48,8 @@ Place it next to an enchanted-item storage chest to collect enchanted drops from
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Copper Dust]] - Crafting component
-* [[Amethyst Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

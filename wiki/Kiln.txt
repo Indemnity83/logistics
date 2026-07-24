@@ -54,8 +54,7 @@ The Kiln smelts continuously as long as it has power and input items.
 
 * Smelting ore → ingot in automated pipelines
 * Processing raw metals extracted by the [[Laser Quarry]]
-* Smelting [[Quartz Dust]] into [[Quartz Crystal]] (required for [[Materials#Valves|Valve]] crafting)
-* Smelting [[Chips#Silicon Wafer|Silicon Mix]] into [[Chips#Silicon Wafer|Silicon Wafer]] (required for [[Chips]])
+* Smelting [[Quartz Dust]] into [[Quartz Crystal]] (required for [[Valves|valve]] crafting)
 * Pairing with the [[Macerator]]: grind ores into dust, then smelt the dust into ingots for higher yields
 
 == Data values ==

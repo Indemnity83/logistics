@@ -1,0 +1,47 @@
+{{Item
+|image     = Grid Diamond Chipset.png
+|type      = Item (Chipset)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Diamond Chipset''' is a fabricated component built in the [[Sequential Fabricator]]. Chipsets are an alternative to [[Gears|gears]] for crafting [[Modules|modules]] and [[Logistics Pipes|logistics pipes]].
+
+== Obtaining ==
+
+=== Sequential Fabricator ===
+
+{{Sequential Fabricator|head=1|foot=1 |Input=Redstone |Input2=Diamond |Output=Diamond Chipset |notes=80,000 RF}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+A Diamond Chipset can stand in for its gear when crafting:
+
+* [[Chassis Logistics Pipe MK4]]
+* [[Crafter Module|Crafter MKIII Module]]
+* [[Extractor Module|Extractor Module MKIII]]
+* [[Provider Module|Provider MKII Module]]
+* [[Quicksort Module]]
+* [[Requester Logistics Pipe]]
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/diamond_chipset|item.logistics.core.diamond_chipset}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Diamond Chipset.png|32px]] Added '''Diamond Chipset'''.}}
+
+== See also ==
+
+* [[Chipsets]] - All chipsets
+* [[Sequential Fabricator]] - Builds chipsets
+* [[Gears]] - The alternative crafting path
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

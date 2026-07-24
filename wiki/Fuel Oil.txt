@@ -1,0 +1,50 @@
+{{Item
+|image     = Fluid Fuel Oil.gif
+|image2    = Bucket of Fuel Oil.png
+|imagesize = 96
+|caption   = Fuel Oil
+|caption2  = Fuel Oil Bucket
+|type      = Fluid
+|renewable = No
+|added     = v0.8.3
+}}
+
+'''Fuel Oil''' is a fluid refined from [[Crude Oil]] in a [[Refinery]]. Refining also vents [[Tar]] as a byproduct.
+
+== Obtaining ==
+
+=== Refinery ===
+
+{{Refinery|head=1|foot=1 |Input=Crude Oil |InputAmount=200 |Output=Fuel Oil |Amount=150 |Byproduct=Tar |ByproductChance=50%}}
+
+== Usage ==
+
+Fuel Oil has no processing use yet — it is stored and piped like any other fluid. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+
+=== Bucket ===
+
+The '''Fuel Oil Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary {{Mcw|Bucket|bucket}}.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/fuel_oil|fluid.logistics.core.fuel_oil|name=Fuel Oil}}
+{{ID|foot=1|logistics:core/fuel_oil|item.logistics.core.fuel_oil|name=Fuel Oil Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Fuel Oil.png|32px]] Added '''Fuel Oil'''.}}
+
+== See also ==
+
+* [[Crude Oil]] - Refined into Fuel Oil
+* [[Refinery]] - Refines crude oil into Fuel Oil
+* [[Tar]] - Byproduct of refining Crude Oil
+* [[Bio Fuel]] - The Refinery's other product
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+{{Navbox Logistics}}
+
+[[Category:Fluids]]

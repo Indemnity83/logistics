@@ -48,7 +48,7 @@ Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it on
 
 === ID ===
 
-{{ID|head=1|foot=1|logistics:fluid/glass_tank|block.logistics.fluid.glass_tank}}
+{{ID|head=1|foot=1|logistics:pipe/glass_tank|block.logistics.pipe.glass_tank}}
 
 == History ==
 

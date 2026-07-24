@@ -1,65 +1,53 @@
 {{Item
-|image     = Grid Rubber Chunk.png
+|image     = Grid Rubber.png
 |type      = Item (Component)
 |stackable = Yes (64)
 |added     = v0.6.0
 }}
 
-'''Rubber''' is a flexible crafting component used to insulate [[Cables|power cables]]. It is made in two steps: a '''Rubber Mix''' is crafted from a {{Mcw|Slime Ball|slime ball}} and [[Coal Dust]], then smelted to cure it into finished '''Rubber Chunks'''.
+'''Rubber''' is a flexible crafting component used to insulate [[Cables|power cables]]. It is smelted in an [[Alloy Smelter]] from a [[Natural Polymer]] or [[Synthetic Polymer]] together with [[Sulfur Dust]].
 
 == Obtaining ==
 
-=== Crafting ===
+=== Alloy Smelter ===
 
-Combine a slime ball with one [[Coal Dust]] (shapeless) to make a Rubber Mix:
+Smelting either polymer with [[Sulfur Dust]] yields '''two''' Rubber:
 
-{{Crafting|head=1|foot=1|showname=0
-|A2=Slime Ball |B2=Coal Dust
-|Output=Rubber Mix
-}}
+{{Alloy Smelter|head=1 |Input=Natural Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2}}
+{{Alloy Smelter|foot=1 |Input=Synthetic Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2}}
 
-=== Smelting ===
-
-Smelt a Rubber Mix in a furnace, blast furnace, or a [[Kiln]] to cure it into '''two''' Rubber Chunks:
-
-{{Smelting|head=1|foot=1|showname=0
-|Input=Rubber Mix
-|Output=Rubber Chunk,2
-|XP=0.1
-}}
+The two polymers give a renewable ([[Natural Polymer|slime-based]]) and a mineral ([[Synthetic Polymer|tar-based]]) route to the same Rubber.
 
 == Usage ==
 
 === Crafting ingredient ===
 
-Rubber Chunks insulate every [[Cables|power cable]] — six chunks wrapped around a conductive core, crafted '''8 at a time''':
+Rubber insulates every [[Cables|power cable]] — six pieces wrapped around a conductive core, crafted '''8 at a time''':
 
 {{Crafting|head=1|showdescription=1
-|name=[[Cables|Copper Cable]] |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
+|name=[[Cables|Copper Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
 {{Crafting
-|name=[[Cables|Gold Cable]] |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
+|name=[[Cables|Gold Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
 {{Crafting|foot=1
-|name=[[Cables|Ender Cable]] |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
-
-A single Rubber Mix smelts into two chunks, so a [[Macerator]] → [[Kiln]] line — grinding {{Mcw|Coal|coal}} into [[Coal Dust]] — turns out rubber cheaply in bulk.
+|name=[[Cables|Ender Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber |B3=Rubber |C3=Rubber |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
 
 == Data values ==
 
 === ID ===
 
-{{ID|head=1|logistics:power/rubber_mix|item.logistics.power.rubber_mix|name=Rubber Mix}}
-{{ID|foot=1|logistics:power/rubber_chunk|item.logistics.power.rubber_chunk|name=Rubber Chunk}}
+{{ID|head=1|foot=1|logistics:core/rubber|item.logistics.core.rubber}}
 
 == History ==
 
-{{History|head=1|foot=1|v0.6.0|[[File:Grid Rubber Chunk.png|32px]] Added '''Rubber Mix''' and '''Rubber Chunk''' alongside the power cables.}}
+{{History|head=1|v0.6.0|[[File:Grid Rubber Chunk.png|32px]] Added '''Rubber Mix''' and '''Rubber Chunk''' alongside the power cables.}}
+{{History|foot=1|v0.8.3|[[File:Grid Rubber.png|32px]] Replaced Rubber Mix and Rubber Chunk with '''Rubber''', now smelted in the [[Alloy Smelter]] from a [[Natural Polymer]] or [[Synthetic Polymer]] and [[Sulfur Dust]].}}
 
 == See also ==
 
-* [[Cables]] - Crafted with Rubber Chunks
-* [[Coal Dust]] - Crafting ingredient, from the [[Macerator]]
-* [[Macerator]] - Produces Coal Dust
-* [[Kiln]] - Smelts Rubber Mix into Rubber Chunks
+* [[Natural Polymer]], [[Synthetic Polymer]] - Smelted into Rubber
+* [[Cables]] - Insulated with Rubber
+* [[Alloy Smelter]] - Smelts polymers into Rubber
+* [[Sulfur Dust]] - Co-ingredient
 
 {{Navbox Logistics}}
 

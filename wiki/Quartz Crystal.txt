@@ -27,7 +27,7 @@ Smelt [[Quartz Dust]] in a [[Kiln]] or furnace:
 
 === Crafting ingredient ===
 
-Quartz Crystal forms the frame of every [[Valves|valve]] — eight crystals around a [[Cores|core]], with iron and gold nuggets along the bottom. See [[Valves]] for the full recipe.
+Quartz Crystal forms the frame of every [[Valves|valve]] — crystals paired with {{Mcw|Redstone Dust|redstone}} around a tier material. See [[Valves]] for the full recipe.
 
 == Data values ==
 
@@ -43,7 +43,6 @@ Quartz Crystal forms the frame of every [[Valves|valve]] — eight crystals arou
 
 * [[Quartz Dust]] - Smelted into Quartz Crystal
 * [[Valves]] - What Quartz Crystal builds
-* [[Cores]] - The other valve ingredient
 * [[Kiln]] - Smelts the dust
 
 {{Navbox Logistics}}

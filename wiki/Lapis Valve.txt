@@ -5,29 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Lapis Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Lapis Core]] and a frame of [[Quartz Crystal]].
+'''Lapis Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Lapis Lazuli}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Lapis Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Lapis Lazuli |C1=Quartz Crystal
+|A2=Redstone |B2=Lapis Lazuli |C2=Redstone
+|A3=Lapis Lazuli |B3=Lapis Lazuli |C3=Lapis Lazuli
 |Output=Lapis Valve
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1|foot=1
-|name=[[Satellite Logistics Pipe]]
-|A1=Lapis Valve |B1=Basic Logistics Pipe |C1=Lapis Valve
-|Output=Satellite Logistics Pipe
-}}
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -37,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Lapis Valve.png|32px]] Added '''Lapis Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Lapis Valve.png|32px]] Added '''Lapis Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Lapis Lazuli}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Lapis Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Lapis Lazuli}} - Tier material
 
 {{Navbox Logistics}}
 

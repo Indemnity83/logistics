@@ -1,0 +1,38 @@
+{{Item
+|image     = Grid Echo Chipset.png
+|type      = Item (Chipset)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Echo Chipset''' is a fabricated component built in the [[Sequential Fabricator]]. Chipsets are an alternative to [[Gears|gears]] for crafting [[Modules|modules]] and [[Logistics Pipes|logistics pipes]].
+
+== Obtaining ==
+
+=== Sequential Fabricator ===
+
+{{Sequential Fabricator|head=1|foot=1 |Input=Redstone |Input2=Echo Shard |Output=Echo Chipset |notes=40,000 RF}}
+
+== Usage ==
+
+The Echo Chipset is not used in any recipe yet — it is reserved for future content.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/echo_chipset|item.logistics.core.echo_chipset}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Echo Chipset.png|32px]] Added '''Echo Chipset'''.}}
+
+== See also ==
+
+* [[Chipsets]] - All chipsets
+* [[Sequential Fabricator]] - Builds chipsets
+* [[Gears]] - The alternative crafting path
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

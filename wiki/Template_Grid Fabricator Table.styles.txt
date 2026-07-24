@@ -1,0 +1,20 @@
+/* Sequential-Fabricator-widget styling, loaded via <templatestyles> from
+   [[Template:Grid Fabricator Table]] and [[Module:Fabricator]]. Complements
+   [[Template:Grid Crafting Table/styles.css]] (the shared .logi-grid panel, slots, and arrow).
+   Layout: an ordered row of ingredient slots on the left, the arrow, and the output on the right
+   with its ×count. */
+.logi-fabricator-grid {
+	border-collapse: separate;
+	border-spacing: 3px;
+	background: transparent;
+}
+/* ×count sits to the right of the output; fixed-width so the widget keeps a consistent size with
+   or without a count. */
+.logi-fabricator-count {
+	width: 2.6em;
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 4px;
+	font-weight: bold;
+	white-space: nowrap;
+}

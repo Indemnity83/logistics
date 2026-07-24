@@ -12,10 +12,13 @@ The '''Quicksort Module''' is a [[Chassis Logistics Pipe]] module that '''automa
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Diamond Dust |B1=Echo Chip |C1=Diamond Dust
+|A1=Light Blue Dye |B1=Diamond Gear |C1=Light Blue Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Light Blue Dye |B3=Redstone |C3=Light Blue Dye
 |Output=Quicksort Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use a [[Diamond Chipset]] in place of the [[Diamond Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -36,7 +39,8 @@ Place it in a chassis near your main storage array so items are sorted as they a
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Quicksort Module.png|32px]] Added '''Quicksort Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Quicksort Module.png|32px]] Added '''Quicksort Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Modules]] - All available modules
@@ -45,8 +49,8 @@ Place it in a chassis near your main storage array so items are sorted as they a
 * [[Item Sink Module]] - Accept specific item types as fallback
 * [[Polymorphic Sink Module]] - Fills existing stacks of any type
 * [[Provider Logistics Pipe]] - Provides location information for sorting
-* [[Diamond Dust]] - Crafting component
-* [[Echo Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

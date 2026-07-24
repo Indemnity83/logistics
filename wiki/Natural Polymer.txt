@@ -1,0 +1,49 @@
+{{Item
+|image     = Grid Natural Polymer.png
+|type      = Item (Component)
+|renewable = Yes
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Natural Polymer''' is a crafting component made from a {{Mcw|Slime Ball|slime ball}} and [[Coal Dust]]. It is smelted with [[Sulfur Dust]] in an [[Alloy Smelter]] to make [[Rubber]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A2=Slime Ball |B2=Coal Dust
+|Output=Natural Polymer
+}}
+
+== Usage ==
+
+=== Alloy Smelter ===
+
+Smelt a Natural Polymer with [[Sulfur Dust]] to make '''two''' [[Rubber]]:
+
+{{Alloy Smelter|head=1|foot=1
+|name=[[Rubber]]
+|Input=Natural Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/natural_polymer|item.logistics.core.natural_polymer}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Natural Polymer.png|32px]] Added '''Natural Polymer'''.}}
+
+== See also ==
+
+* [[Rubber]] - Smelted from polymers
+* [[Synthetic Polymer]] - The tar-based alternative
+* [[Coal Dust]] - Crafting ingredient, from the [[Macerator]]
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

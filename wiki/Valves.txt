@@ -1,30 +1,32 @@
-'''Valves''' are crafting components that pair with [[Cores]] to build the [[Logistics Pipes]]. Every valve shares one recipe — a frame of [[Quartz Crystal]] with iron and gold nuggets along the bottom, around a [[Cores|core]] — and differs only by which core sits in the center, which determines the pipe it builds.
+'''Valves''' are crafting components for the fluid network. Every valve shares one workbench recipe — a frame of [[Quartz Crystal|quartz crystals]] and {{Mcw|Redstone Dust|redstone}} around a tier material — and differs only by that material.
 
 == Variants ==
 
-* [[File:Grid Wooden Valve.png|24px|link=Wooden Valve]] '''[[Wooden Valve]]'''
+* [[File:Grid Tin Valve.png|24px|link=Tin Valve]] '''[[Tin Valve]]'''
 * [[File:Grid Copper Valve.png|24px|link=Copper Valve]] '''[[Copper Valve]]'''
-* [[File:Grid Iron Valve.png|24px|link=Iron Valve]] '''[[Iron Valve]]'''
+* [[File:Grid Rubber Valve.png|24px|link=Rubber Valve]] '''[[Rubber Valve]]'''
 * [[File:Grid Bronze Valve.png|24px|link=Bronze Valve]] '''[[Bronze Valve]]'''
+* [[File:Grid Iron Valve.png|24px|link=Iron Valve]] '''[[Iron Valve]]'''
 * [[File:Grid Gold Valve.png|24px|link=Gold Valve]] '''[[Gold Valve]]'''
 * [[File:Grid Lapis Valve.png|24px|link=Lapis Valve]] '''[[Lapis Valve]]'''
-* [[File:Grid Diamond Valve.png|24px|link=Diamond Valve]] '''[[Diamond Valve]]'''
-* [[File:Grid Emerald Valve.png|24px|link=Emerald Valve]] '''[[Emerald Valve]]'''
 * [[File:Grid Apatite Valve.png|24px|link=Apatite Valve]] '''[[Apatite Valve]]'''
 * [[File:Grid Obsidian Valve.png|24px|link=Obsidian Valve]] '''[[Obsidian Valve]]'''
-* [[File:Grid Netherite Valve.png|24px|link=Netherite Valve]] '''[[Netherite Valve]]'''
-* [[File:Grid Ender Valve.png|24px|link=Ender Valve]] '''[[Ender Valve]]'''
+* [[File:Grid Amethyst Valve.png|24px|link=Amethyst Valve]] '''[[Amethyst Valve]]'''
+* [[File:Grid Emerald Valve.png|24px|link=Emerald Valve]] '''[[Emerald Valve]]'''
 * [[File:Grid Blazing Valve.png|24px|link=Blazing Valve]] '''[[Blazing Valve]]'''
+* [[File:Grid Diamond Valve.png|24px|link=Diamond Valve]] '''[[Diamond Valve]]'''
+* [[File:Grid Echo Valve.png|24px|link=Echo Valve]] '''[[Echo Valve]]'''
+* [[File:Grid Netherite Valve.png|24px|link=Netherite Valve]] '''[[Netherite Valve]]'''
 
 == Usage ==
 
-Valves are ingredients only. Each [[Logistics Pipes|logistics pipe]] and Chassis mark calls for a specific valve, which in turn needs the matching [[Cores|core]] and a supply of [[Quartz Crystal]]. Several valves (Wooden, Copper, Apatite, Obsidian, Ender, Blazing) are reserved for pipes planned in future updates.
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == See also ==
 
-* [[Cores]] — the center ingredient that defines each valve
-* [[Logistics Pipes]] — what valves are used to build
-* [[Gears]], [[Chips]] — other crafting components
+* [[Quartz Crystal]] — the shared frame ingredient
+* [[Logistics Pipes]] — planned to use valves
+* [[Gears]], [[Chipsets]] — other crafting components
 
 {{Navbox Logistics}}
 

@@ -5,29 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Emerald Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Emerald Core]] and a frame of [[Quartz Crystal]].
+'''Emerald Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Emerald}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Emerald Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Emerald |C1=Quartz Crystal
+|A2=Redstone |B2=Emerald |C2=Redstone
+|A3=Emerald |B3=Emerald |C3=Emerald
 |Output=Emerald Valve
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1|foot=1
-|name=[[Supplier Logistics Pipe]]
-|A1=Emerald Valve |B1=Basic Logistics Pipe |C1=Emerald Valve
-|Output=Supplier Logistics Pipe
-}}
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -37,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Emerald Valve.png|32px]] Added '''Emerald Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Emerald Valve.png|32px]] Added '''Emerald Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Emerald}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Emerald Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Emerald}} - Tier material
 
 {{Navbox Logistics}}
 

@@ -1,0 +1,38 @@
+{{Item
+|image     = Grid Copper Chipset.png
+|type      = Item (Chipset)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Copper Chipset''' is a fabricated component built in the [[Sequential Fabricator]]. Chipsets are an alternative to [[Gears|gears]] for crafting [[Modules|modules]] and [[Logistics Pipes|logistics pipes]].
+
+== Obtaining ==
+
+=== Sequential Fabricator ===
+
+{{Sequential Fabricator|head=1|foot=1 |Input=Redstone |Input2=Copper Ingot |Output=Copper Chipset |notes=15,000 RF}}
+
+== Usage ==
+
+The Copper Chipset is not used in any recipe yet — it is reserved for future content.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/copper_chipset|item.logistics.core.copper_chipset}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Copper Chipset.png|32px]] Added '''Copper Chipset'''.}}
+
+== See also ==
+
+* [[Chipsets]] - All chipsets
+* [[Sequential Fabricator]] - Builds chipsets
+* [[Gears]] - The alternative crafting path
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

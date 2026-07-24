@@ -6,20 +6,20 @@
 |added     = v0.2.0
 }}
 
-The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. Three mark variants exist, with higher marks extracting at greater speed or quantity.
+The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. A base module can be upgraded to MkII and MkIII variants — each a separate upgrade craft with a higher-tier [[Gears|gear]] — extracting at greater speed or quantity.
 
 == Obtaining ==
 
 === Crafting ===
 
-The three marks share a recipe, differing only by the [[Chips|chip]] — higher marks extract faster or in larger quantities:
+The base module, plus a higher-tier [[Gears|gear]] to upgrade it:
 
 {{Crafting|head=1|showdescription=1
-|name=Extractor Module |A1=Sawdust |B1=Redstone Chip |C1=Sawdust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor Module |description=MK1 — uses a [[Redstone Chip]].}}
-{{Crafting
-|name=Extractor MkII Module |A1=Sawdust |B1=Amethyst Chip |C1=Sawdust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
-{{Crafting|foot=1
-|name=Extractor MkIII Module |A1=Sawdust |B1=Echo Chip |C1=Sawdust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Extractor MkIII Module |description=MK3 — uses an [[Echo Chip]].}}
+|name=Extractor Module |A1=Cyan Dye |B1=Iron Gear |C1=Cyan Dye |A2=Redstone |B2=Blank Module |C2=Redstone |A3=Cyan Dye |B3=Redstone |C3=Cyan Dye |Output=Extractor Module |description=Base module — or use an [[Iron Chipset]] in place of the gear.}}
+{{Crafting|showdescription=1
+|name=Extractor MkII Module |B1=Gold Gear |B2=Extractor Module |Output=Extractor MkII Module |description=Upgrade — a [[Gold Gear]] (or [[Gold Chipset]]) atop an Extractor Module.}}
+{{Crafting|foot=1|showdescription=1
+|name=Extractor MkIII Module |B1=Diamond Gear |B2=Extractor Module |Output=Extractor MkIII Module |description=Upgrade — a [[Diamond Gear]] (or [[Diamond Chipset]]) atop an Extractor Module.}}
 
 == Usage ==
 
@@ -40,7 +40,8 @@ Pair it with a [[Provider Module]] in the same chassis to both extract from and 
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Extractor Module.png|32px]] Added '''Extractor Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Extractor Module.png|32px]] Added '''Extractor Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Item Extractor Pipe]] - Standalone extractor (simpler, cheaper)
@@ -48,10 +49,8 @@ Pair it with a [[Provider Module]] in the same chassis to both extract from and 
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Sawdust]] - Crafting component, from the [[Sawmill]]
-* [[Redstone Chip]] - MK1 chip
-* [[Amethyst Chip]] - MK2 chip
-* [[Echo Chip]] - MK3 chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

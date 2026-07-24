@@ -5,37 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Gold Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Gold Core]] and a frame of [[Quartz Crystal]].
+'''Gold Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Gold Ingot}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Gold Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Gold Ingot |C1=Quartz Crystal
+|A2=Redstone |B2=Gold Ingot |C2=Redstone
+|A3=Gold Ingot |B3=Gold Ingot |C3=Gold Ingot
 |Output=Gold Valve
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1
-|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK3]]
-|B1=Gold Valve
-|A2=Gold Valve |B2=Basic Logistics Pipe |C2=Gold Valve
-|B3=Gold Valve
-|Output=Chassis Logistics Pipe MK3
-}}
-
-{{Crafting|foot=1
-|name=[[Process Logistics Pipe]]
-|A1=Gold Valve |B1=Basic Logistics Pipe |C1=Gold Valve
-|Output=Process Logistics Pipe
-}}
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -45,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Gold Valve.png|32px]] Added '''Gold Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Gold Valve.png|32px]] Added '''Gold Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Gold Ingot}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Gold Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Gold Ingot}} - Tier material
 
 {{Navbox Logistics}}
 

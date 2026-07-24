@@ -13,13 +13,13 @@ The '''Process Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that au
 
 === Crafting ===
 
-{{Crafting
-|head=1
-|foot=1
-|showname=0
-|A1=Gold Valve |B1=Basic Logistics Pipe |C1=Gold Valve
+{{Crafting|head=1|foot=1|showname=0
+|B1=Iron Gear
+|A2=Redstone |B2=Basic Logistics Pipe |C2=Redstone
 |Output=Process Logistics Pipe
 }}
+
+Substitute an [[Iron Chipset]] for the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -37,7 +37,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Process Logistics Pipe.png|32px]] Added '''Process Logistics Pipe'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Process Logistics Pipe.png|32px]] Added '''Process Logistics Pipe'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
 
 == See also ==
 
@@ -46,6 +47,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 * [[Kiln]] - A common machine to automate
 * [[Power Junction]] - Powers the network
 * [[Pipe Networks]] - How the network routes items
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

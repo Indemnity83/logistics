@@ -1,0 +1,43 @@
+{{Item
+|image     = Grid Tin Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Tin Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and [[Tin Ingot]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Tin Ingot |C1=Quartz Crystal
+|A2=Redstone |B2=Tin Ingot |C2=Redstone
+|A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
+|Output=Tin Valve
+}}
+
+== Usage ==
+
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/tin_valve|item.logistics.core.tin_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Tin Valve.png|32px]] Added '''Tin Valve'''.}}
+
+== See also ==
+
+* [[Valves]] - All valves
+* [[Quartz Crystal]] - Shared valve ingredient
+* [[Tin Ingot]] - Tier material
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

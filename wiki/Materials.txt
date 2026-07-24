@@ -3,13 +3,12 @@
 == Crafting components ==
 
 * [[File:Grid Iron Gear.png|24px|link=Gears]] '''[[Gears]]''' — the gear progression, Wooden through Netherite
-* [[File:Grid Diamond Core.png|24px|link=Cores]] '''[[Cores]]''' — the cores that craft valves
-* [[File:Grid Bronze Valve.png|24px|link=Valves]] '''[[Valves]]''' — the valves that build logistics pipes
-* [[File:Grid Redstone Chip.png|24px|link=Chips]] '''[[Chips]]''' — electronic components for modules
+* [[File:Grid Iron Chipset.png|24px|link=Chipsets]] '''[[Chipsets]]''' — fabricated components for modules and pipes
+* [[File:Grid Bronze Valve.png|24px|link=Valves]] '''[[Valves]]''' — fluid-network valves
 * [[File:Grid Iron Dust.png|24px|link=Dusts]] '''[[Dusts]]''' — ground materials from the [[Macerator]]
 * [[File:Grid Quartz Crystal.png|24px|link=Quartz Crystal]] '''[[Quartz Crystal]]''' — the frame of every valve
 * [[File:Grid Machine Frame.png|24px|link=Machine Frame]] '''[[Machine Frame]]''' and '''[[Redstone Reception Coil]]''' — machine components
-* [[File:Grid Rubber Chunk.png|24px|link=Rubber]] '''[[Rubber]]''' — insulates power cables
+* [[File:Grid Rubber.png|24px|link=Rubber]] '''[[Rubber]]''' — insulates power cables
 
 == Ores & metals ==
 
@@ -33,7 +32,7 @@
 
 * [[Fluids]] — the mod's liquids
 * [[Macerator]], [[Kiln]], [[Alloy Smelter]], [[Crucible]] — process raw materials
-* [[Modules]] — built from chips and dusts
+* [[Modules]] — built from gears, chipsets, and dusts
 
 {{Navbox Logistics}}
 

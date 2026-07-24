@@ -2,14 +2,14 @@
 
 == Variants ==
 
-All cables are crafted '''8 at a time''' from [[Rubber|Rubber Chunks]] wrapped around a conductive core:
+All cables are crafted '''8 at a time''' from [[Rubber]] wrapped around a conductive core:
 
 {{Crafting|head=1|showdescription=1
-|name=Copper Cable |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
+|name=Copper Cable |A1=Rubber |B1=Rubber |C1=Rubber |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
 {{Crafting
-|name=Gold Cable   |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
+|name=Gold Cable   |A1=Rubber |B1=Rubber |C1=Rubber |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
 {{Crafting|foot=1
-|name=Ender Cable  |A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
+|name=Ender Cable  |A1=Rubber |B1=Rubber |C1=Rubber |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber |B3=Rubber |C3=Rubber |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
 
 == Usage ==
 
@@ -20,7 +20,7 @@ Cables connect to each other and to adjacent power blocks, forming a power netwo
 * [[RF Energy]] — how the power system works
 * [[Battery]] — stores RF for the logistics network
 * [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] — generate RF
-* [[Rubber|Rubber Chunk]] — crafting component
+* [[Rubber]] — crafting component
 
 {{Navbox Logistics}}
 

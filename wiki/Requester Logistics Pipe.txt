@@ -13,13 +13,13 @@ The '''Requester Logistics Pipe''' is a [[Logistics Pipes|logistics pipe]] that 
 
 === Crafting ===
 
-{{Crafting
-|head=1
-|foot=1
-|showname=0
-|A1=Diamond Valve |B1=Basic Logistics Pipe |C1=Diamond Valve
+{{Crafting|head=1|foot=1|showname=0
+|B1=Diamond Gear
+|A2=Redstone |B2=Basic Logistics Pipe |C2=Redstone
 |Output=Requester Logistics Pipe
 }}
+
+Substitute a [[Diamond Chipset]] for the [[Diamond Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -37,7 +37,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Requester Logistics Pipe.png|32px]] Added '''Requester Logistics Pipe'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Requester Logistics Pipe.png|32px]] Added '''Requester Logistics Pipe'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
 
 == See also ==
 
@@ -46,6 +47,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 * [[Supplier Logistics Pipe]] - Automated restocking
 * [[Power Junction]] - Powers the network
 * [[Pipe Networks]] - How the network routes items
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

@@ -14,52 +14,20 @@ The '''Chassis Logistics Pipe''' is a modular [[Logistics Pipes|logistics pipe]]
 
 === Crafting ===
 
-Each mark is built from a [[Basic Logistics Pipe]] surrounded by four [[Valves|valves]] — a richer valve for each higher mark:
+Each mark is a [[Basic Logistics Pipe]] surrounded by a plain material — a richer material for each higher mark:
 
 {{Crafting|head=1|showdescription=1
-|name=Chassis MK1
-|B1=Iron Valve
-|A2=Iron Valve |B2=Basic Logistics Pipe |C2=Iron Valve
-|B3=Iron Valve
-|Output=Chassis Logistics Pipe MK1
-|description=1 module slot.
-}}
+|name=Chassis MK1 |A1=Redstone |B1=Redstone |C1=Redstone |A2=Redstone |B2=Basic Logistics Pipe |C2=Redstone |A3=Redstone |B3=Redstone |C3=Redstone |Output=Chassis Logistics Pipe MK1 |description=1 module slot.}}
+{{Crafting|showdescription=1
+|name=Chassis MK2 |A1=Iron Ingot |B1=Iron Ingot |C1=Iron Ingot |A2=Iron Ingot |B2=Basic Logistics Pipe |C2=Iron Ingot |A3=Iron Ingot |B3=Iron Ingot |C3=Iron Ingot |Output=Chassis Logistics Pipe MK2 |description=2 module slots.}}
+{{Crafting|showdescription=1
+|name=Chassis MK3 |A1=Gold Ingot |B1=Gold Ingot |C1=Gold Ingot |A2=Gold Ingot |B2=Basic Logistics Pipe |C2=Gold Ingot |A3=Gold Ingot |B3=Gold Ingot |C3=Gold Ingot |Output=Chassis Logistics Pipe MK3 |description=3 module slots.}}
+{{Crafting|showdescription=1
+|name=Chassis MK4 |A1=Diamond |B1=Diamond |C1=Diamond |A2=Diamond |B2=Basic Logistics Pipe |C2=Diamond |A3=Diamond |B3=Diamond |C3=Diamond |Output=Chassis Logistics Pipe MK4 |description=4 module slots.}}
+{{Crafting|foot=1|showdescription=1
+|name=Chassis MK5 |A1=Netherite Ingot |B1=Netherite Ingot |C1=Netherite Ingot |A2=Netherite Ingot |B2=Basic Logistics Pipe |C2=Netherite Ingot |A3=Netherite Ingot |B3=Netherite Ingot |C3=Netherite Ingot |Output=Chassis Logistics Pipe MK5 |description=5 module slots.}}
 
-{{Crafting
-|name=Chassis MK2
-|B1=Bronze Valve
-|A2=Bronze Valve |B2=Basic Logistics Pipe |C2=Bronze Valve
-|B3=Bronze Valve
-|Output=Chassis Logistics Pipe MK2
-|description=2 module slots.
-}}
-
-{{Crafting
-|name=Chassis MK3
-|B1=Gold Valve
-|A2=Gold Valve |B2=Basic Logistics Pipe |C2=Gold Valve
-|B3=Gold Valve
-|Output=Chassis Logistics Pipe MK3
-|description=3 module slots.
-}}
-
-{{Crafting
-|name=Chassis MK4
-|B1=Diamond Valve
-|A2=Diamond Valve |B2=Basic Logistics Pipe |C2=Diamond Valve
-|B3=Diamond Valve
-|Output=Chassis Logistics Pipe MK4
-|description=4 module slots.
-}}
-
-{{Crafting|foot=1
-|name=Chassis MK5
-|B1=Netherite Valve
-|A2=Netherite Valve |B2=Basic Logistics Pipe |C2=Netherite Valve
-|B3=Netherite Valve
-|Output=Chassis Logistics Pipe MK5
-|description=5 module slots.
-}}
+Each mark also has a cheaper [[Chipsets|chipset]] recipe — two matching chipsets (Redstone, Iron, Gold, Diamond, or Netherite) and two of the same material around the pipe — crafted with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -81,13 +49,14 @@ Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Chassis Logistics Pipe MK1.png|32px]] Added the '''Chassis Logistics Pipe''' (MK1–MK5).}}
+{{History|head=1|v0.2.0|[[File:Grid Chassis Logistics Pipe MK1.png|32px]] Added the '''Chassis Logistics Pipe''' (MK1–MK5).}}
+{{History|foot=1|v0.8.3|Recipe reworked — each mark is now a plain material ring (or a [[Chipsets|chipset]] recipe) instead of valves.}}
 
 == See also ==
 
 * [[Modules]] - Installable behaviors for the chassis
 * [[Logistics Pipes]] - All logistics pipes
-* [[Valves]] - The crafting components for each mark
+* [[Chipsets]], [[Gears]] - Crafting components
 * [[Power Junction]] - Powers the network
 
 {{Navbox Logistics}}

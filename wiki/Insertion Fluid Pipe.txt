@@ -15,13 +15,18 @@ The '''Insertion Fluid Pipe''' is a [[Fluid Pipes|fluid pipe]] that fills adjace
 
 === Crafting ===
 
-Combine the [[Item Insertion Pipe]] with a {{Mcw|Slime Ball}} (shapeless):
+Seal the [[Item Insertion Pipe]] with a {{Mcw|Slime Ball|slime ball}} or [[Tar]] (shapeless):
 
 {{Crafting
 |head=1
-|foot=1
 |showname=0
 |A1=Item Insertion Pipe |B1=Slime Ball
+|Output=Insertion Fluid Pipe
+}}
+{{Crafting
+|foot=1
+|showname=0
+|A1=Item Insertion Pipe |B1=Tar
 |Output=Insertion Fluid Pipe
 }}
 
@@ -33,11 +38,12 @@ The Insertion Fluid Pipe fills adjacent tanks and machines before passing fluid 
 
 === ID ===
 
-{{ID|head=1|foot=1|logistics:fluid/insertion_fluid_pipe|block.logistics.fluid.insertion_fluid_pipe}}
+{{ID|head=1|foot=1|logistics:pipe/insertion_fluid_pipe|block.logistics.pipe.insertion_fluid_pipe}}
 
 == History ==
 
-{{History|head=1|foot=1|v0.7.3|[[File:Grid Insertion Fluid Pipe.png|32px]] Added '''Insertion Fluid Pipe'''.}}
+{{History|head=1|v0.7.3|[[File:Grid Insertion Fluid Pipe.png|32px]] Added '''Insertion Fluid Pipe'''.}}
+{{History|foot=1|v0.8.3|The texture was restyled, and the pipe can now be sealed with [[Tar]] in place of a slime ball.}}
 
 == See also ==
 

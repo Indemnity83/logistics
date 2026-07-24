@@ -1,0 +1,50 @@
+{{Item
+|image     = Grid Synthetic Polymer.png
+|type      = Item (Component)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Synthetic Polymer''' is a crafting component made from [[Tar]] and [[Coal Dust]]. It is smelted with [[Sulfur Dust]] in an [[Alloy Smelter]] to make [[Rubber]] — a fully mineral route that needs no {{Mcw|Slime Ball|slime balls}}.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A2=Tar |B2=Coal Dust
+|Output=Synthetic Polymer
+}}
+
+== Usage ==
+
+=== Alloy Smelter ===
+
+Smelt a Synthetic Polymer with [[Sulfur Dust]] to make '''two''' [[Rubber]]:
+
+{{Alloy Smelter|head=1|foot=1
+|name=[[Rubber]]
+|Input=Synthetic Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/synthetic_polymer|item.logistics.core.synthetic_polymer}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Synthetic Polymer.png|32px]] Added '''Synthetic Polymer'''.}}
+
+== See also ==
+
+* [[Rubber]] - Smelted from polymers
+* [[Natural Polymer]] - The slime-based alternative
+* [[Tar]] - Crafting ingredient, from the [[Refinery]] and [[Macerator]]
+* [[Coal Dust]] - Crafting ingredient, from the [[Macerator]]
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

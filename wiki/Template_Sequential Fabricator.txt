@@ -1,0 +1,32 @@
+<includeonly>{{#invoke:Fabricator|fabricator}}</includeonly><noinclude>
+Builds a row of a [[Sequential Fabricator]] recipe table (Name / Ingredients / Sequential Fabricator
+recipe), powered by [[Module:Fabricator]]. The Sequential Fabricator consumes an '''ordered list''' of
+ingredients and assembles a single item output. Each call is one row; group several into one table
+with <code>head=1</code> on the first and <code>foot=1</code> on the last. A standalone single recipe
+sets both. The '''Sequential Fabricator recipe''' column reuses [[Template:Grid Fabricator Table]].
+
+Usage (a 2-recipe table):
+ {{Sequential Fabricator
+ |head=1
+ |Input=Redstone |Output=Redstone Chipset
+ }}
+ {{Sequential Fabricator
+ |foot=1
+ |Input=Redstone |Input2=Iron Ingot |Output=Iron Chipset
+ }}
+
+Parameters:
+ Input .. Input6 — the ordered ingredients (";"-separated alternatives cycle)
+ InputCount ..   — a count for the matching slot, e.g. "2" (optional; disables cycling for it)
+ Output          — the assembled output; "Name,Count" is accepted (or use OutputCount)
+ OutputCount     — quantity produced (optional)
+ notes           — a small per-recipe annotation under the ingredient (optional)
+ head/foot       — open / close the table
+ name            — override the Name cell (default: a link to the Output)
+ ingredients     — override the Ingredients cell (default: the inputs joined with "+")
+ showname=0      — hide the Name column
+
+Depends on [[Module:Fabricator]] and [[Template:Grid Fabricator Table]].
+
+[[Category:Templates]]
+</noinclude>

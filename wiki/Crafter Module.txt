@@ -6,20 +6,20 @@
 |added     = v0.2.0
 }}
 
-The '''Crafter Module''' is a [[Chassis Logistics Pipe]] module that enables '''automated crafting''' within a chassis pipe. When installed, the chassis can fulfill network requests for a specific crafted item by sourcing ingredients from the network and performing the crafting operation. Three mark variants exist (MK1/II/III), with higher marks supporting more complex recipes or faster crafting cycles.
+The '''Crafter Module''' is a [[Chassis Logistics Pipe]] module that enables '''automated crafting''' within a chassis pipe. When installed, the chassis can fulfill network requests for a specific crafted item by sourcing ingredients from the network and performing the crafting operation. A base module can be upgraded to MkII and MkIII variants — each a separate upgrade craft with a higher-tier [[Gears|gear]] — supporting more complex recipes or faster crafting cycles.
 
 == Obtaining ==
 
 === Crafting ===
 
-The three marks share a recipe, differing only by the [[Chips|chip]] — higher marks handle more demanding crafting workloads:
+The base module, plus a higher-tier [[Gears|gear]] to upgrade it:
 
 {{Crafting|head=1|showdescription=1
-|name=Crafter Module |A1=Bronze Dust |B1=Redstone Chip |C1=Bronze Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Crafter Module |description=MK1 — uses a [[Redstone Chip]].}}
-{{Crafting
-|name=Crafter MkII Module |A1=Bronze Dust |B1=Amethyst Chip |C1=Bronze Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Crafter MkII Module |description=MK2 — uses an [[Amethyst Chip]].}}
-{{Crafting|foot=1
-|name=Crafter MkIII Module |A1=Bronze Dust |B1=Echo Chip |C1=Bronze Dust |A2=Redstone |B2=Blank Module |C2=Redstone |Output=Crafter MkIII Module |description=MK3 — uses an [[Echo Chip]].}}
+|name=Crafter Module |A1=Brown Dye |B1=Iron Gear |C1=Brown Dye |A2=Redstone |B2=Blank Module |C2=Redstone |A3=Brown Dye |B3=Redstone |C3=Brown Dye |Output=Crafter Module |description=Base module — or use an [[Iron Chipset]] in place of the gear.}}
+{{Crafting|showdescription=1
+|name=Crafter MkII Module |B1=Gold Gear |B2=Crafter Module |Output=Crafter MkII Module |description=Upgrade — a [[Gold Gear]] (or [[Gold Chipset]]) atop a Crafter Module.}}
+{{Crafting|foot=1|showdescription=1
+|name=Crafter MkIII Module |B1=Diamond Gear |B2=Crafter Module |Output=Crafter MkIII Module |description=Upgrade — a [[Diamond Gear]] (or [[Diamond Chipset]]) atop a Crafter Module.}}
 
 == Usage ==
 
@@ -40,7 +40,8 @@ Combine a Crafter Module with a [[Provider Module]] in one chassis for a station
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Crafter Module.png|32px]] Added '''Crafter Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Crafter Module.png|32px]] Added '''Crafter Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Crafting Logistics Pipe]] - Standalone crafting pipe (simpler setup)
@@ -48,10 +49,8 @@ Combine a Crafter Module with a [[Provider Module]] in one chassis for a station
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
 * [[Provider Module]] - Pairs well to provide crafted output
-* [[Bronze Dust]] - Crafting component
-* [[Redstone Chip]] - MK1 chip
-* [[Amethyst Chip]] - MK2 chip
-* [[Echo Chip]] - MK3 chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

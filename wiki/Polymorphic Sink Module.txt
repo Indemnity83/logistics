@@ -12,10 +12,13 @@ The '''Polymorphic Sink Module''' is a [[Chassis Logistics Pipe]] module that ac
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Copper Dust |B1=Echo Chip |C1=Copper Dust
+|A1=Orange Dye |B1=Iron Gear |C1=Orange Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Orange Dye |B3=Redstone |C3=Orange Dye
 |Output=Polymorphic Sink Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset]] in place of the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -36,7 +39,8 @@ Seed the adjacent inventory with one of each item type you want it to accept and
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Polymorphic Sink Module.png|32px]] Added '''Polymorphic Sink Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Polymorphic Sink Module.png|32px]] Added '''Polymorphic Sink Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specifically configured item type
@@ -45,8 +49,8 @@ Seed the adjacent inventory with one of each item type you want it to accept and
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Copper Dust]] - Crafting component
-* [[Echo Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

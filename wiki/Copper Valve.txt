@@ -5,19 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Copper Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Copper Core]] and a frame of [[Quartz Crystal]].
+'''Copper Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Copper Ingot}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Copper Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Copper Ingot |C1=Quartz Crystal
+|A2=Redstone |B2=Copper Ingot |C2=Redstone
+|A3=Copper Ingot |B3=Copper Ingot |C3=Copper Ingot
 |Output=Copper Valve
 }}
+
+== Usage ==
+
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -27,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Copper Valve.png|32px]] Added '''Copper Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Copper Valve.png|32px]] Added '''Copper Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Copper Ingot}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Copper Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Copper Ingot}} - Tier material
 
 {{Navbox Logistics}}
 

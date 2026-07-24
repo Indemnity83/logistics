@@ -5,37 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Bronze Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Bronze Core]] and a frame of [[Quartz Crystal]].
+'''Bronze Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and [[Bronze Ingot]].
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Bronze Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Bronze Ingot |C1=Quartz Crystal
+|A2=Redstone |B2=Bronze Ingot |C2=Redstone
+|A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
 |Output=Bronze Valve
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1
-|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK2]]
-|B1=Bronze Valve
-|A2=Bronze Valve |B2=Basic Logistics Pipe |C2=Bronze Valve
-|B3=Bronze Valve
-|Output=Chassis Logistics Pipe MK2
-}}
-
-{{Crafting|foot=1
-|name=[[Crafting Logistics Pipe]]
-|A1=Bronze Valve |B1=Basic Logistics Pipe |C1=Bronze Valve
-|Output=Crafting Logistics Pipe
-}}
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -45,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Bronze Valve.png|32px]] Added '''Bronze Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Bronze Valve.png|32px]] Added '''Bronze Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and [[Bronze Ingot]] — no longer built from a core.}}
 
 == See also ==
 
-* [[Bronze Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* [[Bronze Ingot]] - Tier material
 
 {{Navbox Logistics}}
 

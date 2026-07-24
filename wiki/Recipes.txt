@@ -10,7 +10,7 @@ The recipe-heavy overview pages are the quickest way to browse what's craftable:
 
 * '''Pipes''' — [[Transport Pipes]], [[Logistics Pipes]], [[Fluid Pipes]]
 * '''Power''' — [[Cables]], and the engines and [[Battery]] under [[Energy]]
-* '''Components''' — [[Gears]], [[Valves]], [[Cores]], [[Chips]], [[Dusts]]
+* '''Components''' — [[Gears]], [[Valves]], [[Chipsets]], [[Dusts]]
 
 Individual machine, tool, and module pages each show their own recipe as well.
 

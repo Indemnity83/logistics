@@ -15,10 +15,13 @@ Because it never requests, it adds no ordering load to the network and draws no 
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Emerald Dust |B1=Redstone Chip |C1=Emerald Dust
+|A1=Purple Dye |B1=Iron Gear |C1=Purple Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Purple Dye |B3=Redstone |C3=Purple Dye
 |Output=Passive Supplier Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset]] in place of the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -43,7 +46,8 @@ Use it for backup stockpiles or low-priority storage that fills opportunisticall
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Passive Supplier Module.png|32px]] Added '''Passive Supplier Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Passive Supplier Module.png|32px]] Added '''Passive Supplier Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Active Supplier Module]] - Actively orders replenishment (uses power)
@@ -52,8 +56,8 @@ Use it for backup stockpiles or low-priority storage that fills opportunisticall
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Emerald Dust]] - Crafting component
-* [[Redstone Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

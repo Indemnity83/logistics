@@ -1,0 +1,51 @@
+{{Item
+|image     = Grid Iron Chipset.png
+|type      = Item (Chipset)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Iron Chipset''' is a fabricated component built in the [[Sequential Fabricator]]. Chipsets are an alternative to [[Gears|gears]] for crafting [[Modules|modules]] and [[Logistics Pipes|logistics pipes]].
+
+== Obtaining ==
+
+=== Sequential Fabricator ===
+
+{{Sequential Fabricator|head=1|foot=1 |Input=Redstone |Input2=Iron Ingot |Output=Iron Chipset |notes=20,000 RF}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+An Iron Chipset can stand in for its gear when crafting:
+
+* [[Chassis Logistics Pipe MK2]]
+* [[Crafter Module]]
+* [[Crafting Logistics Pipe]]
+* [[Extractor Module]]
+* [[Item Sink Module]]
+* [[Passive Supplier Module]]
+* [[Polymorphic Sink Module]]
+* [[Process Logistics Pipe]]
+* [[Supplier Logistics Pipe]]
+* [[Terminus Module]]
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/iron_chipset|item.logistics.core.iron_chipset}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Iron Chipset.png|32px]] Added '''Iron Chipset'''.}}
+
+== See also ==
+
+* [[Chipsets]] - All chipsets
+* [[Sequential Fabricator]] - Builds chipsets
+* [[Gears]] - The alternative crafting path
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

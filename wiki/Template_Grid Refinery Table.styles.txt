@@ -1,0 +1,30 @@
+/* Refinery-widget styling, loaded via <templatestyles> from [[Template:Grid Refinery Table]] and
+   [[Module:Refinery]]. Complements [[Template:Grid Crafting Table/styles.css]] (the shared
+   .logi-grid panel, slots, and arrow). Layout: a fluid input on the left with the mB consumed, the
+   arrow, the fluid output top-right with the mB produced, and a byproduct slot below it with its
+   chance. The mB and chance cells are fixed-width so the widget keeps a consistent size across
+   recipes, with or without a byproduct. */
+.logi-refinery-grid {
+	border-collapse: separate;
+	border-spacing: 3px;
+	background: transparent;
+}
+.logi-refinery-amount {
+	width: 4.2em;
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 4px;
+	/* "Minecraft" must be installed site-wide (MediaWiki:Common.css @font-face); falls back to monospace */
+	font-family: "Minecraft", monospace;
+	color: #4d4d4d;
+	white-space: nowrap;
+}
+.logi-refinery-chance {
+	width: 2.6em;
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 4px;
+	font-family: "Minecraft", monospace;
+	color: #4d4d4d;
+	white-space: nowrap;
+}

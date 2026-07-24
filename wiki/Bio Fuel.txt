@@ -1,0 +1,49 @@
+{{Item
+|image     = Fluid Bio Fuel.gif
+|image2    = Bucket of Bio Fuel.png
+|imagesize = 96
+|caption   = Bio Fuel
+|caption2  = Bio Fuel Bucket
+|type      = Fluid
+|renewable = Yes
+|added     = v0.8.3
+}}
+
+'''Bio Fuel''' is a fluid refined from [[Liquid Biomass]] in a [[Refinery]]. Because liquid biomass is made from renewable plant matter, Bio Fuel is fully renewable.
+
+== Obtaining ==
+
+=== Refinery ===
+
+{{Refinery|head=1|foot=1 |Input=Liquid Biomass |InputAmount=200 |Output=Bio Fuel |Amount=100}}
+
+== Usage ==
+
+Bio Fuel has no processing use yet — it is stored and piped like any other fluid. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+
+=== Bucket ===
+
+The '''Bio Fuel Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary {{Mcw|Bucket|bucket}}.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/bio_fuel|fluid.logistics.core.bio_fuel|name=Bio Fuel}}
+{{ID|foot=1|logistics:core/bio_fuel|item.logistics.core.bio_fuel|name=Bio Fuel Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Bio Fuel.png|32px]] Added '''Bio Fuel'''.}}
+
+== See also ==
+
+* [[Liquid Biomass]] - Refined into Bio Fuel
+* [[Refinery]] - Refines liquid biomass into Bio Fuel
+* [[Fuel Oil]] - The Refinery's other product
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+{{Navbox Logistics}}
+
+[[Category:Fluids]]

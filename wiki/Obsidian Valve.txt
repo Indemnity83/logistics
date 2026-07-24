@@ -5,19 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Obsidian Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Obsidian Core]] and a frame of [[Quartz Crystal]].
+'''Obsidian Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Obsidian}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Obsidian Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Obsidian |C1=Quartz Crystal
+|A2=Redstone |B2=Obsidian |C2=Redstone
+|A3=Obsidian |B3=Obsidian |C3=Obsidian
 |Output=Obsidian Valve
 }}
+
+== Usage ==
+
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -27,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Obsidian Valve.png|32px]] Added '''Obsidian Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Obsidian Valve.png|32px]] Added '''Obsidian Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Obsidian}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Obsidian Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Obsidian}} - Tier material
 
 {{Navbox Logistics}}
 

@@ -1,0 +1,12 @@
+/* Styling for the {{Removed}} notice box, loaded via <templatestyles> from [[Template:Removed]].
+   A bordered, tinted banner set under the page title marking content that no longer exists in the
+   current version of the mod. */
+.logi-removed {
+	border: 1px solid #d0a0a0;
+	border-left: 4px solid #b03030;
+	background: #fbeaea;
+	padding: 0.5em 0.9em;
+	margin: 0.3em 0 0.9em 0;
+	color: #5a2a2a;
+	border-radius: 2px;
+}

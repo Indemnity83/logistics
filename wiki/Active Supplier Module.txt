@@ -15,10 +15,13 @@ Unlike the [[Passive Supplier Module]] — which only skims items already in tra
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
-|A1=Emerald Dust |B1=Amethyst Chip |C1=Emerald Dust
+|A1=Purple Dye |B1=Gold Gear |C1=Purple Dye
 |A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Purple Dye |B3=Redstone |C3=Purple Dye
 |Output=Active Supplier Module
 }}
+
+The matching [[Chipsets|chipset]] can replace the gear — use a [[Gold Chipset]] in place of the [[Gold Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -46,7 +49,8 @@ Use it for machine input buffers (furnaces, kilns) that must never run dry, and 
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Active Supplier Module.png|32px]] Added '''Active Supplier Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Active Supplier Module.png|32px]] Added '''Active Supplier Module'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Passive Supplier Module]] - Skims in-transit items instead of ordering (no power)
@@ -56,8 +60,8 @@ Use it for machine input buffers (furnaces, kilns) that must never run dry, and 
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Emerald Dust]] - Crafting component
-* [[Amethyst Chip]] - Module chip
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

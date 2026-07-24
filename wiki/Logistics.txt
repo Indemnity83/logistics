@@ -92,7 +92,9 @@ Engines generate RF energy, which cables carry to machines and to a [[Power Junc
 Machines that automate tasks - some use RF power, others use fuel and temperature.
 
 * '''[[Laser Quarry]]''' - Automated 16×16 mining (RF powered)
-* '''[[Kiln]]''' - Temperature-controlled crafting for valves
+* '''[[Kiln]]''' - RF-powered electric furnace
+* '''[[Refinery]]''' - Distills fluids into [[Bio Fuel]] and [[Fuel Oil]]
+* '''[[Sequential Fabricator]]''' - Builds [[Chipsets|chipsets]]
 
 [[Machines|Browse all automation →]]
 
@@ -114,11 +116,14 @@ Gears, valves, ores, and crafting components.
 * '''[[Iron Gear]]''' | '''[[Copper Gear]]''' | '''[[Bronze Gear]]'''
 * '''[[Gold Gear]]''' | '''[[Diamond Gear]]''' | '''[[Netherite Gear]]'''
 
-'''[[Valves]] ([[Kiln]]-Crafted):'''
-* [[Wooden Valve|Wooden]] | [[Copper Valve|Copper]] (low heat)
-* [[Iron Valve|Iron]] | [[Bronze Valve|Bronze]] (coal at limit/fails)
-* [[Gold Valve|Gold]] | [[Apatite Valve|Apatite]] (blaze rod/lava)
-* [[Diamond Valve|Diamond]] | [[Ender Valve|Ender]] | [[Emerald Valve|Emerald]] | [[Lapis Valve|Lapis]] | [[Obsidian Valve|Obsidian]] | [[Netherite Valve|Netherite]] | [[Blazing Valve|Blazing]] (lava required)
+'''[[Valves]] (workbench-crafted from [[Quartz Crystal|quartz]], redstone, and a tier material):'''
+* [[Tin Valve|Tin]] | [[Copper Valve|Copper]] | [[Rubber Valve|Rubber]] | [[Bronze Valve|Bronze]] | [[Iron Valve|Iron]]
+* [[Gold Valve|Gold]] | [[Lapis Valve|Lapis]] | [[Apatite Valve|Apatite]] | [[Obsidian Valve|Obsidian]] | [[Amethyst Valve|Amethyst]]
+* [[Emerald Valve|Emerald]] | [[Blazing Valve|Blazing]] | [[Diamond Valve|Diamond]] | [[Echo Valve|Echo]] | [[Netherite Valve|Netherite]]
+
+'''[[Chipsets]] (built in the [[Sequential Fabricator]]):'''
+* [[Redstone Chipset|Redstone]] | [[Copper Chipset|Copper]] | [[Iron Chipset|Iron]] | [[Gold Chipset|Gold]]
+* [[Echo Chipset|Echo]] | [[Diamond Chipset|Diamond]] | [[Netherite Chipset|Netherite]]
 
 '''Ores & Metals:'''
 * '''[[Tin Ore]]''' → '''[[Tin Ingot]]''' - Common metal
@@ -136,7 +141,7 @@ Gears, valves, ores, and crafting components.
 * '''Automated mining:''' [[Laser Quarry]]
 * '''Extracting items:''' [[Item Extractor Pipe]]
 * '''Controlling flow:''' [[Item Merger Pipe]]
-* '''Crafting valves:''' [[Kiln]] + fuel + molten glass
+* '''Fabricating chipsets:''' [[Sequential Fabricator]] + RF
 
 ===By Material===
 * '''Stone:''' [[Stone Transport Pipe]], [[Stone Gear]]

@@ -1,0 +1,74 @@
+{{Block
+|image           = Grid Refinery.png
+|type            = Block (Machine)
+|function        = Fluid refining
+|stackable       = Yes (64)
+|tool            = Pickaxe
+|hardness        = 3.5
+|blastresistance = 3.5
+|added           = v0.8.3
+}}
+
+The '''Refinery''' is an RF-powered machine that distills one [[Fluids|fluid]] into another, drawing from an input tank and depositing the product in a separate output tank. It refines [[Liquid Biomass]] into [[Bio Fuel]] and [[Crude Oil]] into [[Fuel Oil]], venting [[Tar]] as a byproduct.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Refinery is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Refinery |icon1=Grid Refinery.png |hardness1=3.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Bucket
+|A2=Glass Tank |B2=Machine Frame |C2=Glass Tank
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Refinery
+}}
+
+Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with a {{Mcw|Bucket|bucket}} and two [[Glass Tank|glass tanks]] on top.
+
+== Usage ==
+
+Pipe a fluid into the input tank; the Refinery processes it over time and deposits the product into its output tank, from which a [[Fluid Extractor Pipe]] or [[Pump]] can draw it. Recipes that carry a byproduct also drop a solid item into the machine's output. Every recipe appears in the Just Enough Items (JEI) viewer.
+
+=== Power ===
+
+The Refinery runs on [[RF Energy|RF]]. It holds 20,000 RF and accepts up to 128 RF/t, spending 20 RF/t while working. Each recipe costs a total of 5,000 RF; connect a [[Stirling Engine]] or any RF source. Its input tank holds 4,000 mB and its output tank 10,000 mB.
+
+=== Recipes ===
+
+Amounts are the millibuckets consumed and produced per cycle:
+
+{{Refinery|head=1 |Input=Liquid Biomass |InputAmount=200 |Output=Bio Fuel |Amount=100}}
+{{Refinery|foot=1 |Input=Crude Oil |InputAmount=200 |Output=Fuel Oil |Amount=150 |Byproduct=Tar |ByproductChance=50%}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/refinery|block.logistics.automation.refinery}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Refinery.png|32px]] Added '''Refinery'''.}}
+
+== See also ==
+
+* [[Bio Fuel]], [[Fuel Oil]] - The fluids it refines
+* [[Crude Oil]], [[Liquid Biomass]] - Its fluid inputs
+* [[Tar]] - Byproduct of refining Crude Oil
+* [[Crucible]] - Produces the raw fluids the Refinery processes
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move its fluids
+* [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
+* [[Stirling Engine]] - Recommended power source
+
+{{Navbox Logistics}}
+
+[[Category:Machines]]
+[[Category:Fluids]]

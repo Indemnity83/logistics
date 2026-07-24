@@ -13,15 +13,14 @@ The '''Basic Logistics Pipe''' is the network's sink and the base for every othe
 
 === Crafting ===
 
-{{Crafting
-|head=1
-|foot=1
-|showname=0
+{{Crafting|head=1|foot=1|showname=0
 |A1=Glass |B1=Redstone Torch |C1=Glass
-|A2=Copper Transport Pipe |B2=Item Filter Pipe |C2=Copper Transport Pipe
-|B3=Gold Gear
+|A2=Gold Gear |B2=Item Filter Pipe |C2=Gold Gear
+|A3=Glass |B3=Redstone Torch |C3=Glass
 |Output=Basic Logistics Pipe,8
 }}
+
+Substitute a [[Gold Chipset]] for the [[Gold Gear]] to craft it with a [[Sequential Fabricator]].
 
 == Usage ==
 
@@ -44,7 +43,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Basic Logistics Pipe.png|32px]] Added '''Basic Logistics Pipe'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Basic Logistics Pipe.png|32px]] Added '''Basic Logistics Pipe'''.}}
+{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
 
 == See also ==
 
@@ -52,6 +52,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 * [[Chassis Logistics Pipe]] - The modular pipe built on the same base
 * [[Power Junction]] - Powers the network
 * [[Pipe Networks]] - How the network routes items
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
 
 {{Navbox Logistics}}
 

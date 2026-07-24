@@ -1,0 +1,43 @@
+{{Item
+|image     = Grid Echo Valve.png
+|type      = Item (Valve)
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Echo Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Echo Shard}}.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Echo Shard |C1=Quartz Crystal
+|A2=Redstone |B2=Echo Shard |C2=Redstone
+|A3=Echo Shard |B3=Echo Shard |C3=Echo Shard
+|Output=Echo Valve
+}}
+
+== Usage ==
+
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/echo_valve|item.logistics.core.echo_valve}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Echo Valve.png|32px]] Added '''Echo Valve'''.}}
+
+== See also ==
+
+* [[Valves]] - All valves
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Echo Shard}} - Tier material
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

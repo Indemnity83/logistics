@@ -5,27 +5,26 @@
 |added     = v0.2.0
 }}
 
-'''Netherite Dust''' is ground from ancient debris (or netherite scrap) in a [[Macerator]], and is used to craft the [[Netherite Core]].
+'''Netherite Dust''' is ground from a {{Mcw|Netherite Ingot|netherite ingot}} in a [[Macerator]], and smelts back into an ingot — a lossless way to store or split netherite.
 
 == Obtaining ==
 
 === Grinding ===
 
 {{Grinding|head=1|showname=0|foot=1
-|Input=Ancient Debris;Netherite Scrap
+|Input=Netherite Ingot
 |Output=Netherite Dust,1
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
+=== Smelting ===
 
-{{Crafting|head=1|foot=1
-|name=[[Netherite Core]]
-|B1=Netherite Dust
-|B2=Blaze Rod
-|B3=Netherite Dust
-|Output=Netherite Core,4
+Smelt Netherite Dust in a furnace, blast furnace, or a [[Kiln]] to recover a {{Mcw|Netherite Ingot|netherite ingot}}:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Netherite Dust
+|Output=Netherite Ingot
 }}
 
 == Data values ==
@@ -37,13 +36,14 @@
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Netherite Dust.png|32px]] Added '''Netherite Dust'''.}}
-{{History|foot=1|v0.7.4|Now obtainable — added a grinding recipe from ancient debris and netherite scrap.}}
+{{History|v0.7.4|Now obtainable — added a grinding recipe from ancient debris and netherite scrap.}}
+{{History|foot=1|v0.8.3|Grinding now takes a netherite ingot, and Netherite Dust smelts back into an ingot for lossless recycling.}}
 
 == See also ==
 
 * [[Dusts]] - All dusts
-* [[Macerator]] - Produces dusts
-* [[Netherite Core]]
+* [[Macerator]] - Grinds ingots into dust
+* [[Kiln]] - Smelts dust back into an ingot
 
 {{Navbox Logistics}}
 

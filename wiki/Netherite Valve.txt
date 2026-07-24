@@ -5,31 +5,22 @@
 |added     = v0.2.0
 }}
 
-'''Netherite Valve''' is a fluid-network [[Valves|valve]], crafted from a [[Netherite Core]] and a frame of [[Quartz Crystal]].
+'''Netherite Valve''' is a fluid-network [[Valves|valve]], crafted at a workbench from [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Netherite Ingot}}.
 
 == Obtaining ==
 
 === Crafting ===
 
-{{Crafting|head=1|foot=1
-|showname=0
-|A1=Quartz Crystal |B1=Quartz Crystal |C1=Quartz Crystal
-|A2=Quartz Crystal |B2=Netherite Core |C2=Quartz Crystal
-|A3=Iron Nugget |B3=Gold Nugget |C3=Iron Nugget
+{{Crafting|head=1|foot=1|showname=0
+|A1=Quartz Crystal |B1=Netherite Ingot |C1=Quartz Crystal
+|A2=Redstone |B2=Netherite Ingot |C2=Redstone
+|A3=Netherite Ingot |B3=Netherite Ingot |C3=Netherite Ingot
 |Output=Netherite Valve
 }}
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1|foot=1
-|name=[[Chassis Logistics Pipe|Chassis Logistics Pipe MK5]]
-|B1=Netherite Valve
-|A2=Netherite Valve |B2=Basic Logistics Pipe |C2=Netherite Valve
-|B3=Netherite Valve
-|Output=Chassis Logistics Pipe MK5
-}}
+Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
 
 == Data values ==
 
@@ -39,13 +30,14 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Netherite Valve.png|32px]] Added '''Netherite Valve'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Netherite Valve.png|32px]] Added '''Netherite Valve'''.}}
+{{History|foot=1|v0.8.3|Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and {{Mcw|Netherite Ingot}} — no longer built from a core.}}
 
 == See also ==
 
-* [[Netherite Core]] - The center ingredient
 * [[Valves]] - All valves
-* [[Logistics Pipes]] - What valves build
+* [[Quartz Crystal]] - Shared valve ingredient
+* {{Mcw|Netherite Ingot}} - Tier material
 
 {{Navbox Logistics}}
 

@@ -1,0 +1,62 @@
+{{Item
+|image     = Grid Copper Nugget.png
+|type      = Item
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.3
+}}
+
+'''Copper nuggets''' are pieces of copper worth one-ninth of a {{Mcw|Copper Ingot|copper ingot}}, handy for fine crafting and storage.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting
+|head=1
+|foot=1
+|showname=0
+|B2=Copper Ingot
+|Output=Copper Nugget,9
+}}
+
+== Usage ==
+
+Nine copper nuggets craft back into a {{Mcw|Copper Ingot|copper ingot}}.
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name={{Mcw|Copper Ingot}}
+|A1=Copper Nugget |B1=Copper Nugget |C1=Copper Nugget
+|A2=Copper Nugget |B2=Copper Nugget |C2=Copper Nugget
+|A3=Copper Nugget |B3=Copper Nugget |C3=Copper Nugget
+|Output=Copper Ingot
+}}
+
+{{Crafting|foot=1
+|name=[[Blank Module]]
+|A1=Paper |B1=Redstone |C1=Paper
+|A2=Paper |B2=Redstone |C2=Paper
+|A3=Paper |B3=Copper Nugget |C3=Paper
+|Output=Blank Module
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/copper_nugget|item.logistics.core.copper_nugget}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.3|[[File:Grid Copper Nugget.png|32px]] Added '''Copper Nugget'''.}}
+
+== See also ==
+
+* [[Blank Module]] - Crafted with a copper nugget
+* [[Tin Nugget]], [[Bronze Nugget]] - Other mod nuggets
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

@@ -1,0 +1,35 @@
+<includeonly>{{#invoke:Refinery|refinery}}</includeonly><noinclude>
+Builds a row of a [[Refinery]] recipe table (Name / Ingredients / Refinery recipe), powered by
+[[Module:Refinery]]. The Refinery distills a single '''fluid''' input into a '''fluid''' output plus
+an optional chance item byproduct. Each call is one row; group several into one table with
+<code>head=1</code> on the first and <code>foot=1</code> on the last. A standalone single recipe
+sets both. The '''Refinery recipe''' column reuses [[Template:Grid Refinery Table]] (fluid → fluid,
+each shown with its mB amount, plus an optional byproduct slot).
+
+Usage (a 2-recipe table):
+ {{Refinery
+ |head=1
+ |Input=Liquid Biomass |InputAmount=200 |Output=Bio Fuel |Amount=100
+ }}
+ {{Refinery
+ |foot=1
+ |Input=Crude Oil |InputAmount=200 |Output=Fuel Oil |Amount=150 |Byproduct=Tar |ByproductChance=50%
+ }}
+
+Parameters:
+ Input           — input fluid; "Name,Amount" is accepted (or use InputAmount)
+ InputAmount     — millibuckets consumed, e.g. "200"
+ Output          — result fluid; "Name,Amount" is accepted (or use Amount)
+ Amount          — millibuckets produced, e.g. "100"
+ Byproduct       — a secondary chance item output (optional; "Name,Chance" accepted)
+ ByproductChance — its drop chance, e.g. "50%" (optional)
+ notes           — a small per-recipe annotation under the ingredient (optional)
+ head/foot       — open / close the table
+ name            — override the Name cell (default: a link to the Output fluid)
+ ingredients     — override the Ingredients cell (default: the input fluid + its mB)
+ showname=0      — hide the Name column
+
+Depends on [[Module:Refinery]] and [[Template:Grid Refinery Table]].
+
+[[Category:Templates]]
+</noinclude>

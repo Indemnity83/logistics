@@ -1,0 +1,35 @@
+'''Chipsets''' are fabricated components built in the [[Sequential Fabricator]] from {{Mcw|Redstone Dust|redstone}} and one tier material. Each chipset is an alternative to the matching [[Gears|gear]] when crafting [[Modules|modules]] and [[Logistics Pipes|logistics pipes]] — an automation-powered path that trades a machine and RF for the hand-crafted gear.
+
+== Variants ==
+
+* [[File:Grid Redstone Chipset.png|24px|link=Redstone Chipset]] '''[[Redstone Chipset]]'''
+* [[File:Grid Copper Chipset.png|24px|link=Copper Chipset]] '''[[Copper Chipset]]'''
+* [[File:Grid Iron Chipset.png|24px|link=Iron Chipset]] '''[[Iron Chipset]]'''
+* [[File:Grid Gold Chipset.png|24px|link=Gold Chipset]] '''[[Gold Chipset]]'''
+* [[File:Grid Echo Chipset.png|24px|link=Echo Chipset]] '''[[Echo Chipset]]'''
+* [[File:Grid Diamond Chipset.png|24px|link=Diamond Chipset]] '''[[Diamond Chipset]]'''
+* [[File:Grid Netherite Chipset.png|24px|link=Netherite Chipset]] '''[[Netherite Chipset]]'''
+
+== Fabrication ==
+
+Every chipset is made in the [[Sequential Fabricator]], which consumes redstone plus one tier material and a growing amount of [[RF Energy|RF]]. Select the chipset to build from the machine's GUI:
+
+{{Sequential Fabricator|head=1 |Input=Redstone |Output=Redstone Chipset |notes=10,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Copper Ingot |Output=Copper Chipset |notes=15,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Iron Ingot |Output=Iron Chipset |notes=20,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Gold Ingot |Output=Gold Chipset |notes=30,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Echo Shard |Output=Echo Chipset |notes=40,000 RF}}
+{{Sequential Fabricator |Input=Redstone |Input2=Diamond |Output=Diamond Chipset |notes=80,000 RF}}
+{{Sequential Fabricator|foot=1 |Input=Redstone |Input2=Netherite Ingot |Output=Netherite Chipset |notes=120,000 RF}}
+
+The [[Copper Chipset]] and [[Echo Chipset]] are not used in any recipe yet — they are reserved for future content.
+
+== See also ==
+
+* [[Sequential Fabricator]] — builds every chipset
+* [[Gears]] — the hand-crafted alternative
+* [[Modules]], [[Logistics Pipes]] — what chipsets build
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

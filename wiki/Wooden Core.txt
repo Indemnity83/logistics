@@ -1,3 +1,4 @@
+{{Removed|v0.8.3|item|[[Chipsets]]}}
 {{Item
 |image     = Grid Wooden Core.png
 |type      = Item (Core)
@@ -39,7 +40,8 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Wooden Core.png|32px]] Added '''Wooden Core'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Wooden Core.png|32px]] Added '''Wooden Core'''.}}
+{{History|foot=1|v0.8.3|Removed. Superseded by [[Chipsets]].}}
 
 == See also ==
 
@@ -51,3 +53,4 @@
 {{Navbox Logistics}}
 
 [[Category:Materials]]
+[[Category:Removed]]

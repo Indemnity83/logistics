@@ -13,7 +13,7 @@
 
 == See also ==
 
-* [[Cores]], [[Valves]], [[Chips]] — other crafting components
+* [[Valves]], [[Chipsets]] — other crafting components
 * [[Materials]] — all crafting components
 * [[Machines]] — what gears help build
 
