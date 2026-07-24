@@ -10,7 +10,7 @@
 |added           = v0.8.2
 }}
 
-'''Oil Red Sand''' is the badlands variant of [[Oil Sand]] — an oil-soaked red sand block. Grind it for [[Bitumen]] or melt it down for [[Crude Oil]].
+'''Oil Red Sand''' is the badlands variant of [[Oil Sand]] — an oil-soaked red sand block. Extract [[Bitumen]] from it, or liquefy it into [[Crude Oil]].
 
 == Obtaining ==
 
@@ -32,13 +32,13 @@ Oil Red Sand generates in large surface blobs throughout '''badlands''' biomes, 
 
 === Crucible ===
 
-The [[Crucible]] melts Oil Red Sand into [[Crude Oil]]:
+The [[Crucible]] liquefies Oil Red Sand into [[Crude Oil]]:
 
 {{Crucible|head=1|foot=1 |Input=Oil Red Sand |Output=Crude Oil |Amount=1000}}
 
 === Grinding ===
 
-The [[Macerator]] grinds it into [[Bitumen]], with a chance of [[Tar]]:
+The [[Macerator]] extracts [[Bitumen]] from it, with a chance of [[Tar]]:
 
 {{Grinding|head=1|foot=1 |Input=Oil Red Sand |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
 
@@ -55,8 +55,8 @@ The [[Macerator]] grinds it into [[Bitumen]], with a chance of [[Tar]]:
 == See also ==
 
 * [[Oil Sand]], [[Oil Shale]] - Other oil-bearing blocks
-* [[Crude Oil]] - Melted form
-* [[Bitumen]], [[Tar]] - Ground products
+* [[Crude Oil]] - Liquefied form
+* [[Bitumen]], [[Tar]] - Extracted products
 * [[Crucible]], [[Macerator]] - Process oil blocks
 
 {{Navbox Logistics}}

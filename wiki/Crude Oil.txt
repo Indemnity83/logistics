@@ -19,7 +19,7 @@ Crude Oil pools naturally in rare '''oil seeps''' — small surface lakes that g
 
 === Crucible ===
 
-The [[Crucible]] melts oil-bearing blocks and [[Bitumen]] into Crude Oil:
+The [[Crucible]] liquefies oil-bearing blocks and [[Bitumen]] into Crude Oil:
 
 {{Crucible|head=1 |Input=Oil Sand;Oil Red Sand;Oil Shale |ingredients=[[Oil Sand]], [[Oil Red Sand]], or [[Oil Shale]] |Output=Crude Oil |Amount=1000}}
 {{Crucible |foot=1 |Input=Bitumen |Output=Crude Oil |Amount=250}}
@@ -46,8 +46,8 @@ The '''Crude Oil Bucket''' places and picks up the fluid like a {{Mcw|Water|wate
 == See also ==
 
 * [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Oil-bearing blocks
-* [[Bitumen]], [[Tar]] - Ground oil products from the [[Macerator]]
-* [[Crucible]] - Melts oil blocks into Crude Oil
+* [[Bitumen]], [[Tar]] - Extracted oil products from the [[Macerator]]
+* [[Crucible]] - Liquefies oil blocks into Crude Oil
 * [[Fluids]] - All mod fluids
 * [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
 

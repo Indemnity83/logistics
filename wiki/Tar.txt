@@ -12,7 +12,7 @@
 
 === Grinding ===
 
-Tar drops as a 50% byproduct when the [[Macerator]] grinds [[Oil Sand]] or [[Oil Red Sand]] into [[Bitumen]]:
+Tar drops as a 50% byproduct when the [[Macerator]] extracts [[Bitumen]] from [[Oil Sand]] or [[Oil Red Sand]]:
 
 {{Grinding|head=1|foot=1 |Input=Oil Sand;Oil Red Sand |ingredients=[[Oil Sand]] or [[Oil Red Sand]] |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
 
@@ -56,8 +56,8 @@ Tar is a furnace fuel and powers the [[Stirling Engine]], burning for 800 ticks 
 
 == See also ==
 
-* [[Oil Sand]], [[Oil Red Sand]] - Ground to recover Tar
-* [[Bitumen]] - The main grind product
+* [[Oil Sand]], [[Oil Red Sand]] - Extracted to recover Tar
+* [[Bitumen]] - The main extraction product
 * [[Macerator]] - Produces Tar as a byproduct
 * [[Materials]] - Material overview
 

@@ -10,7 +10,7 @@
 |added           = v0.8.2
 }}
 
-'''Oil Sand''' is an oil-soaked sand block that generates in sandy biomes. Grind it for [[Bitumen]] or melt it down for [[Crude Oil]].
+'''Oil Sand''' is an oil-soaked sand block that generates in sandy biomes. Extract [[Bitumen]] from it, or liquefy it into [[Crude Oil]].
 
 == Obtaining ==
 
@@ -32,13 +32,13 @@ Oil Sand generates in large surface blobs throughout '''sandy''' biomes such as 
 
 === Crucible ===
 
-The [[Crucible]] melts Oil Sand into [[Crude Oil]]:
+The [[Crucible]] liquefies Oil Sand into [[Crude Oil]]:
 
 {{Crucible|head=1|foot=1 |Input=Oil Sand |Output=Crude Oil |Amount=1000}}
 
 === Grinding ===
 
-The [[Macerator]] grinds it into [[Bitumen]], with a chance of [[Tar]]:
+The [[Macerator]] extracts [[Bitumen]] from it, with a chance of [[Tar]]:
 
 {{Grinding|head=1|foot=1 |Input=Oil Sand |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
 
@@ -55,8 +55,8 @@ The [[Macerator]] grinds it into [[Bitumen]], with a chance of [[Tar]]:
 == See also ==
 
 * [[Oil Red Sand]], [[Oil Shale]] - Other oil-bearing blocks
-* [[Crude Oil]] - Melted form
-* [[Bitumen]], [[Tar]] - Ground products
+* [[Crude Oil]] - Liquefied form
+* [[Bitumen]], [[Tar]] - Extracted products
 * [[Crucible]], [[Macerator]] - Process oil blocks
 
 {{Navbox Logistics}}

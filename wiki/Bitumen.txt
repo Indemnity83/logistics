@@ -6,13 +6,13 @@
 |added     = v0.8.2
 }}
 
-'''Bitumen''' is a solid oil product ground out of oil-bearing blocks in a [[Macerator]]. It melts down into [[Crude Oil]] and burns as a long-lasting furnace fuel.
+'''Bitumen''' is a solid oil product extracted from oil-bearing blocks in a [[Macerator]]. It liquefies into [[Crude Oil]] and burns as a long-lasting furnace fuel.
 
 == Obtaining ==
 
 === Grinding ===
 
-The [[Macerator]] grinds the oil blocks into three Bitumen apiece, with a chance of a secondary drop — [[Tar]] from the sands, flint from shale:
+The [[Macerator]] extracts three Bitumen from each oil block, with a chance of a secondary drop — [[Tar]] from the sands, flint from shale:
 
 {{Grinding|head=1 |Input=Oil Sand;Oil Red Sand |ingredients=[[Oil Sand]] or [[Oil Red Sand]] |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
 {{Grinding |foot=1 |Input=Oil Shale |Output=Bitumen,3 |Byproduct=Flint |ByproductChance=50%}}
@@ -21,7 +21,7 @@ The [[Macerator]] grinds the oil blocks into three Bitumen apiece, with a chance
 
 === Crucible ===
 
-The [[Crucible]] melts Bitumen into [[Crude Oil]]:
+The [[Crucible]] liquefies Bitumen into [[Crude Oil]]:
 
 {{Crucible|head=1|foot=1 |Input=Bitumen |Output=Crude Oil |Amount=250}}
 
@@ -41,10 +41,10 @@ Bitumen is a furnace fuel and powers the [[Stirling Engine]]. Each piece burns f
 
 == See also ==
 
-* [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Ground into Bitumen
-* [[Tar]] - The other ground oil product
-* [[Crude Oil]] - Melted form
-* [[Macerator]] - Grinds oil blocks into Bitumen
+* [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Extracted for Bitumen
+* [[Tar]] - The other extracted oil product
+* [[Crude Oil]] - Liquefied form
+* [[Macerator]] - Extracts Bitumen from oil blocks
 * [[Materials]] - Material overview
 
 {{Navbox Logistics}}
