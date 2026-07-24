@@ -26,8 +26,9 @@ public class EngineRenderState extends BlockEntityRenderState {
     public enum EngineType {
         REDSTONE,
         STIRLING,
-        CREATIVE,
-        FUEL
+        STEAM,
+        FUEL,
+        CREATIVE
     }
 
     /**

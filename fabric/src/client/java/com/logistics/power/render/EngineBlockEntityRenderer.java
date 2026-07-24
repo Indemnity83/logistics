@@ -81,6 +81,8 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
             state.engineType = EngineRenderState.EngineType.REDSTONE;
         } else if (entity instanceof StirlingEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.STIRLING;
+        } else if (entity instanceof com.logistics.power.engine.block.entity.SteamEngineBlockEntity) {
+            state.engineType = EngineRenderState.EngineType.STEAM;
         } else if (entity instanceof CreativeEngineBlockEntity) {
             state.engineType = EngineRenderState.EngineType.CREATIVE;
         } else if (entity instanceof FuelEngineBlockEntity) {
@@ -139,6 +141,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
         return switch (type) {
             case REDSTONE -> "redstone_engine_bellow";
             case STIRLING -> "stirling_engine_bellow";
+            case STEAM -> "steam_engine_bellow";
             case CREATIVE -> "creative_engine_bellow";
             case FUEL -> "fuel_engine_bellow";
         };
@@ -148,6 +151,7 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
         return switch (type) {
             case REDSTONE -> "redstone_engine_piston";
             case STIRLING -> "stirling_engine_piston";
+            case STEAM -> "steam_engine_piston";
             case CREATIVE -> "creative_engine_piston";
             case FUEL -> "fuel_engine_piston";
         };
