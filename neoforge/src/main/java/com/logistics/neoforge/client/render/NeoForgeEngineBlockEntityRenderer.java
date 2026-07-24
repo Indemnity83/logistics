@@ -8,6 +8,7 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
+import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -58,6 +59,8 @@ public class NeoForgeEngineBlockEntityRenderer
             type = EngineType.REDSTONE;
         } else if (entity instanceof StirlingEngineBlockEntity) {
             type = EngineType.STIRLING;
+        } else if (entity instanceof ReactionEngineBlockEntity) {
+            type = EngineType.REACTION;
         } else if (entity instanceof com.logistics.power.engine.block.entity.SteamEngineBlockEntity) {
             type = EngineType.STEAM;
         } else if (entity instanceof CreativeEngineBlockEntity) {
@@ -116,13 +119,14 @@ public class NeoForgeEngineBlockEntityRenderer
     }
 
     private enum EngineType {
-        REDSTONE, STIRLING, CREATIVE, FUEL, STEAM, MAGMATIC
+        REDSTONE, STIRLING, CREATIVE, FUEL, STEAM, MAGMATIC, REACTION
     }
 
     private String getBellowKey(EngineType type) {
         return switch (type) {
             case REDSTONE -> "redstone_engine_bellow";
             case STIRLING -> "stirling_engine_bellow";
+            case REACTION -> "reaction_engine_bellow";
             case STEAM -> "steam_engine_bellow";
             case CREATIVE -> "creative_engine_bellow";
             case MAGMATIC -> "magmatic_engine_bellow";
@@ -134,6 +138,7 @@ public class NeoForgeEngineBlockEntityRenderer
         return switch (type) {
             case REDSTONE -> "redstone_engine_piston";
             case STIRLING -> "stirling_engine_piston";
+            case REACTION -> "reaction_engine_piston";
             case STEAM -> "steam_engine_piston";
             case CREATIVE -> "creative_engine_piston";
             case MAGMATIC -> "magmatic_engine_piston";
@@ -145,6 +150,7 @@ public class NeoForgeEngineBlockEntityRenderer
         return switch (type) {
             case REDSTONE -> "redstone_engine_core";
             case STIRLING -> "stirling_engine_core";
+            case REACTION -> "reaction_engine_core";
             case STEAM -> "steam_engine_core";
             case CREATIVE -> "creative_engine_core";
             case MAGMATIC -> "magmatic_engine_core";

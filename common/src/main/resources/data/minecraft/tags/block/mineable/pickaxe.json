@@ -4,6 +4,7 @@
     "logistics:automation/laser_quarry",
     "logistics:power/creative_engine",
     "logistics:power/stirling_engine",
+    "logistics:power/reaction_engine",
     "logistics:power/magmatic_engine",
     "logistics:power/steam_engine",
     "logistics:power/fuel_engine",

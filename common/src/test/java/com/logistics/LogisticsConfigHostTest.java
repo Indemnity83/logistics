@@ -98,6 +98,7 @@ class LogisticsConfigHostTest {
         assertThat(ids).containsExactlyInAnyOrder(
                 "logistics.engines.redstone",
                 "logistics.engines.stirling",
+                "logistics.engines.reaction",
                 "logistics.engines.steam",
                 "logistics.engines.creative",
                 "logistics.engines.magmatic",
