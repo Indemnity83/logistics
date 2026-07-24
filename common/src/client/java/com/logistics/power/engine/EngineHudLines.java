@@ -86,10 +86,10 @@ public final class EngineHudLines {
                     String.format("%d RF/t", NbtCompat.getLong(data, EngineHudData.KEY_GENERATION, 0)),
                     ChatFormatting.LIGHT_PURPLE));
             lines.add(labelled("jade.logistics.engine.firebox")
-                    .append(Component.translatable(fireboxKey(NbtCompat.getInt(data, EngineHudData.KEY_FIREBOX, 0)))
+                    .append(Component.translatable(fireboxKey(NbtCompat.getString(data, EngineHudData.KEY_FIREBOX, "")))
                             .withStyle(ChatFormatting.GOLD)));
             lines.add(labelled("jade.logistics.engine.status")
-                    .append(Component.translatable(statusKey(NbtCompat.getInt(data, EngineHudData.KEY_STATUS, 0)))
+                    .append(Component.translatable(statusKey(NbtCompat.getString(data, EngineHudData.KEY_STATUS, "")))
                             .withStyle(ChatFormatting.GRAY)));
             if (showDetails) {
                 double heat = NbtCompat.getDouble(data, EngineHudData.KEY_BOILER_HEAT, 0);
@@ -136,16 +136,24 @@ public final class EngineHudLines {
         return lines;
     }
 
-    private static String fireboxKey(int ordinal) {
-        SteamFireboxState[] values = SteamFireboxState.values();
-        SteamFireboxState state = ordinal >= 0 && ordinal < values.length ? values[ordinal] : values[0];
-        return "jade.logistics.engine.firebox." + state.name().toLowerCase(java.util.Locale.ROOT);
+    /** Firebox HUD key from the synced state name; an unknown/absent name maps to a distinct unknown key. */
+    private static String fireboxKey(String name) {
+        for (SteamFireboxState state : SteamFireboxState.values()) {
+            if (state.name().equals(name)) {
+                return "jade.logistics.engine.firebox." + name.toLowerCase(java.util.Locale.ROOT);
+            }
+        }
+        return "jade.logistics.engine.firebox.unknown";
     }
 
-    private static String statusKey(int ordinal) {
-        SteamEngineStatus[] values = SteamEngineStatus.values();
-        SteamEngineStatus status = ordinal >= 0 && ordinal < values.length ? values[ordinal] : values[0];
-        return "jade.logistics.engine.status." + status.name().toLowerCase(java.util.Locale.ROOT);
+    /** Status HUD key from the synced state name; an unknown/absent name maps to a distinct unknown key. */
+    private static String statusKey(String name) {
+        for (SteamEngineStatus status : SteamEngineStatus.values()) {
+            if (status.name().equals(name)) {
+                return "jade.logistics.engine.status." + name.toLowerCase(java.util.Locale.ROOT);
+            }
+        }
+        return "jade.logistics.engine.status.unknown";
     }
 
     private static Component fluidRow(String labelKey, String fluidId, int amountMb) {

@@ -79,8 +79,8 @@ public final class EngineHudData {
             data.putDouble(KEY_MAX_PRESSURE, steam.simulation().maxPressure());
             data.putLong(KEY_GENERATION, steam.simulation().lastGenerationRate());
             data.putInt(KEY_BURN_RESERVE, steam.simulation().committedBurnTicks());
-            data.putInt(KEY_FIREBOX, steam.simulation().fireboxState().ordinal());
-            data.putInt(KEY_STATUS, steam.simulation().status().ordinal());
+            data.putString(KEY_FIREBOX, steam.simulation().fireboxState().name());
+            data.putString(KEY_STATUS, steam.simulation().status().name());
             data.putDouble(KEY_BOILER_HEAT, steam.simulation().boilerHeat());
             data.putDouble(KEY_MAX_HEAT, steam.simulation().maxBoilerHeat());
             data.putBoolean(KEY_SAFETY_VALVE, steam.simulation().isSafetyValveActive());
