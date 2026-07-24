@@ -114,6 +114,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .register();
         public static final ConfigKey<Long> STEAM_FIRING_RATE = steam.defineLong("firing_rate", 16L)
                 .min(1L)
+                .max((long) Integer.MAX_VALUE)
                 .describe("Furnace burn ticks consumed per game tick while a committed reserve is firing")
                 .register();
         public static final ConfigKey<Double> STEAM_MAX_PRESSURE = steam.defineDouble("max_pressure", 1000.0)

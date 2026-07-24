@@ -142,23 +142,7 @@ public final class SteamEngineComponent
 
         // 6. Fuel: a lit reserve burns continuously to completion; only when it is spent AND heat has
         // fallen to/below refuelHeat do we commit the next item (dry-firing is allowed — no water gate).
-        boolean noFuelToCommit = false;
-        if (committedBurnTicks > 0) {
-            int burned = Math.min(profile.firingRate(), committedBurnTicks);
-            committedBurnTicks -= burned;
-            boilerHeat += burned * profile.heatPerBurnTick();
-            if (committedBurnTicks <= 0) {
-                totalFuelTicks = 0;
-            }
-        } else if (boilerHeat <= profile.refuelHeat()) {
-            int ticks = fuel.ignite(ctx);
-            if (ticks > 0) {
-                committedBurnTicks = ticks;
-                totalFuelTicks = ticks;
-            } else {
-                noFuelToCommit = true;
-            }
-        }
+        boolean noFuelToCommit = advanceFuel(ctx);
 
         // 7. Derive the firebox purely from committed fuel + heat.
         if (committedBurnTicks > 0) {
@@ -179,6 +163,32 @@ public final class SteamEngineComponent
 
         // 11. Status (GUI/tint/sync happen in serverTick around this).
         status = deriveStatus(offered, accepted, noFuelToCommit, waterAvailable, steam);
+    }
+
+    /**
+     * Burns the committed reserve toward completion, or — once it is spent and the boiler has cooled to/below
+     * refuelHeat — commits the next fuel item. Returns whether nothing could be committed (empty fuel slot).
+     */
+    private boolean advanceFuel(MachineContext ctx) {
+        if (committedBurnTicks > 0) {
+            int burned = Math.min(profile.firingRate(), committedBurnTicks);
+            committedBurnTicks -= burned;
+            boilerHeat += burned * profile.heatPerBurnTick();
+            if (committedBurnTicks <= 0) {
+                totalFuelTicks = 0;
+            }
+            return false;
+        }
+        if (boilerHeat <= profile.refuelHeat()) {
+            int ticks = fuel.ignite(ctx);
+            if (ticks > 0) {
+                committedBurnTicks = ticks;
+                totalFuelTicks = ticks;
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     /** Steam condenses back to water only once the boiler has cooled below the boiling point. */
