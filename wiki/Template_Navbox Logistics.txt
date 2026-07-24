@@ -59,7 +59,18 @@
   | list1  = [[File:Grid Wrench.png|20px|link=Wrench]]&nbsp;[[Wrench]] · [[File:Grid Marker.png|20px|link=Marker]]&nbsp;[[Marker]] · [[File:Grid Blue Marking Fluid.png|20px|link=Marking Fluid]]&nbsp;[[Marking Fluid]]
   }}
 
-| below = [[Special:AllPages|All pages]] · [[Special:Categories|Categories]]
+| list5 = {{Navbox
+  | state = collapsed
+  | title = [[:Category:Removed|Removed]]
+  | group1 = [[Cores]]
+  | list1  = [[File:Grid Wooden Core.png|20px|link=Wooden Core]]&nbsp;[[Wooden Core|Wooden]] · [[File:Grid Copper Core.png|20px|link=Copper Core]]&nbsp;[[Copper Core|Copper]] · [[File:Grid Iron Core.png|20px|link=Iron Core]]&nbsp;[[Iron Core|Iron]] · [[File:Grid Bronze Core.png|20px|link=Bronze Core]]&nbsp;[[Bronze Core|Bronze]] · [[File:Grid Gold Core.png|20px|link=Gold Core]]&nbsp;[[Gold Core|Gold]] · [[File:Grid Lapis Core.png|20px|link=Lapis Core]]&nbsp;[[Lapis Core|Lapis]] · [[File:Grid Apatite Core.png|20px|link=Apatite Core]]&nbsp;[[Apatite Core|Apatite]] · [[File:Grid Diamond Core.png|20px|link=Diamond Core]]&nbsp;[[Diamond Core|Diamond]] · [[File:Grid Emerald Core.png|20px|link=Emerald Core]]&nbsp;[[Emerald Core|Emerald]] · [[File:Grid Blazing Core.png|20px|link=Blazing Core]]&nbsp;[[Blazing Core|Blazing]] · [[File:Grid Netherite Core.png|20px|link=Netherite Core]]&nbsp;[[Netherite Core|Netherite]] · [[File:Grid Obsidian Core.png|20px|link=Obsidian Core]]&nbsp;[[Obsidian Core|Obsidian]] · [[File:Grid Ender Core.png|20px|link=Ender Core]]&nbsp;[[Ender Core|Ender]]
+  | group2 = [[Chips]]
+  | list2  = [[File:Grid Redstone Chip.png|20px|link=Redstone Chip]]&nbsp;[[Redstone Chip|Redstone]] · [[File:Grid Carbon Chip.png|20px|link=Carbon Chip]]&nbsp;[[Carbon Chip|Carbon]] · [[File:Grid Amethyst Chip.png|20px|link=Amethyst Chip]]&nbsp;[[Amethyst Chip|Amethyst]] · [[File:Grid Echo Chip.png|20px|link=Echo Chip]]&nbsp;[[Echo Chip|Echo]]
+  | group3 = Valves
+  | list3  = [[File:Grid Wooden Valve.png|20px|link=Wooden Valve]]&nbsp;[[Wooden Valve|Wooden]] · [[File:Grid Ender Valve.png|20px|link=Ender Valve]]&nbsp;[[Ender Valve|Ender]]
+  }}
+
+| below = [[Special:AllPages|All pages]] · [[Special:Categories|Categories]] · [[:Category:Removed|Removed content]]
 }}</includeonly><noinclude>
 The site-wide '''footer navigation box''' — a quick reference to every block and item, built on the
 standard Fandom [[Template:Navbox]] ([[Module:Navbox]] → Dev:Navbox). Drop it at the very bottom of a
