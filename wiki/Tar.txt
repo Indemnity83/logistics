@@ -51,7 +51,8 @@ Tar is a furnace fuel and powers the [[Stirling Engine]], burning for 800 ticks 
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.2|[[File:Grid Tar.png|32px]] Added '''Tar'''.}}
+{{History|head=1|v0.8.2|[[File:Grid Tar (v0.8.2).png|32px]] Added '''Tar'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Tar.png|32px]] The texture of Tar has been changed.}}
 
 == See also ==
 

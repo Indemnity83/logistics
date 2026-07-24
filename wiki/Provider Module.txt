@@ -33,8 +33,8 @@ Use this module when you want provider behavior combined with other module funct
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Provider Module.png|32px]] Added '''Provider Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
+{{History|head=1|v0.2.0|[[File:Grid Provider Module (v0.2.0).png|32px]] Added '''Provider Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Provider Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Provider Logistics Pipe]] - Standalone version of this behavior

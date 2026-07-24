@@ -39,8 +39,8 @@ Seed the adjacent inventory with one of each item type you want it to accept and
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Polymorphic Sink Module.png|32px]] Added '''Polymorphic Sink Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|head=1|v0.2.0|[[File:Grid Polymorphic Sink Module (v0.2.0).png|32px]] Added '''Polymorphic Sink Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Polymorphic Sink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specifically configured item type

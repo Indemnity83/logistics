@@ -45,8 +45,8 @@ It is most useful in large modpacks for keeping a mod's resources together in de
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Mod Item Sink Module.png|32px]] Added '''Mod Item Sink Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|head=1|v0.2.0|[[File:Grid Mod Item Sink Module (v0.2.0).png|32px]] Added '''Mod Item Sink Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Mod Item Sink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Item Sink Module]] - Accept a specific configured item type

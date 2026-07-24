@@ -40,8 +40,8 @@ Combine a Crafter Module with a [[Provider Module]] in one chassis for a station
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Crafter Module.png|32px]] Added '''Crafter Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
+{{History|head=1|v0.2.0|[[File:Grid Crafter Module (v0.2.0).png|32px]] Added '''Crafter Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Crafter Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Crafting Logistics Pipe]] - Standalone crafting pipe (simpler setup)

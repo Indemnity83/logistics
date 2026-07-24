@@ -46,8 +46,8 @@ Use it for backup stockpiles or low-priority storage that fills opportunisticall
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Passive Supplier Module.png|32px]] Added '''Passive Supplier Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|head=1|v0.2.0|[[File:Grid Passive Supplier Module (v0.2.0).png|32px]] Added '''Passive Supplier Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Passive Supplier Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Active Supplier Module]] - Actively orders replenishment (uses power)

@@ -40,8 +40,8 @@ Pair it with a [[Provider Module]] in the same chassis to both extract from and 
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Extractor Module.png|32px]] Added '''Extractor Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
+{{History|head=1|v0.2.0|[[File:Grid Extractor Module (v0.2.0).png|32px]] Added '''Extractor Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Extractor Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Item Extractor Pipe]] - Standalone extractor (simpler, cheaper)

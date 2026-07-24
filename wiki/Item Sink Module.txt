@@ -45,8 +45,8 @@ Install several Item Sink Modules in one chassis to make a multi-item sorting st
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Item Sink Module.png|32px]] Added '''Item Sink Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|head=1|v0.2.0|[[File:Grid Item Sink Module (v0.2.0).png|32px]] Added '''Item Sink Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Item Sink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Polymorphic Sink Module]] - Accepts any item type that already exists in the adjacent inventory

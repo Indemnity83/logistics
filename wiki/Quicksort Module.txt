@@ -39,8 +39,8 @@ Place it in a chassis near your main storage array so items are sorted as they a
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Quicksort Module.png|32px]] Added '''Quicksort Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|head=1|v0.2.0|[[File:Grid Quicksort Module (v0.2.0).png|32px]] Added '''Quicksort Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Quicksort Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
 * [[Modules]] - All available modules

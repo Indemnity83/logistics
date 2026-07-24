@@ -30,7 +30,8 @@ The Blank Module is consumed when crafting any other module type. Craft it in ba
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Blank Module.png|32px]] Added '''Blank Module'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Blank Module (v0.2.0).png|32px]] Added '''Blank Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Blank Module.png|32px]] The texture of the Blank Module has been changed.}}
 
 == See also ==
 * [[Modules]] - All available modules

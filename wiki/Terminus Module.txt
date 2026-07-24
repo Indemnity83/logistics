@@ -39,8 +39,8 @@ Place it at the physical end of a pipe run to stop items from bouncing back into
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Terminus Module.png|32px]] Added '''Terminus Module'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
+{{History|head=1|v0.2.0|[[File:Grid Terminus Module (v0.2.0).png|32px]] Added '''Terminus Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Terminus Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
 
 == See also ==
 * [[Modules]] - All available modules
