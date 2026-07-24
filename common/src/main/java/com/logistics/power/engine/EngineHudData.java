@@ -6,6 +6,7 @@ import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
+import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -55,18 +56,27 @@ public final class EngineHudData {
     public static final String KEY_COOLANT_FLUID = "coolantFluid";
     public static final String KEY_COOLANT_AMOUNT = "coolantAmount";
 
+    // Reaction engine (bufferless): attempted vs accepted output, reaction progress, and the reactant.
+    public static final String KEY_REACTION = "reaction";
+    public static final String KEY_ATTEMPTED = "attempted";
+    public static final String KEY_ACCEPTED = "accepted";
+    public static final String KEY_PROGRESS_REMAINING = "progressRemaining";
+    public static final String KEY_PROGRESS_TOTAL = "progressTotal";
+    public static final String KEY_REACTANT_ID = "reactantId";
+
     private EngineHudData() {}
 
     public static void write(CompoundTag data, EngineEntity engine) {
         // Energy is intentionally omitted — Jade's built-in energy bar already shows the buffer. We only
         // add what Jade doesn't surface on its own.
         data.putString(KEY_STAGE, engine.getHeatStage().name());
-        // Creative, Magmatic, and Steam engines omit the generic heat readout.
+        // Creative, Magmatic, Steam, and Reaction engines omit the generic heat readout.
         data.putBoolean(
                 KEY_HAS_HEAT,
                 !(engine instanceof CreativeEngineBlockEntity)
                         && !(engine instanceof MagmaticEngineBlockEntity)
-                        && !(engine instanceof SteamEngineBlockEntity));
+                        && !(engine instanceof SteamEngineBlockEntity)
+                        && !(engine instanceof ReactionEngineBlockEntity));
         data.putDouble(KEY_TEMP, engine.getTemperature());
         data.putDouble(KEY_MAX_TEMP, engine.getMaxTemperature());
         data.putLong(KEY_OUTPUT, engine.getCurrentOutputPower());
@@ -77,6 +87,16 @@ public final class EngineHudData {
             data.putBoolean(KEY_STIRLING, true);
             data.putInt(KEY_BURN_TIME, stirling.getBurnTime());
             data.putInt(KEY_FUEL_TIME, stirling.getFuelTime());
+        }
+
+        if (engine instanceof ReactionEngineBlockEntity reaction) {
+            data.putBoolean(KEY_REACTION, true);
+            data.putLong(KEY_ATTEMPTED, reaction.simulation().lastAttempted());
+            data.putLong(KEY_ACCEPTED, reaction.simulation().lastAccepted());
+            data.putInt(KEY_PROGRESS_REMAINING, reaction.simulation().remainingReactionTicks());
+            data.putInt(KEY_PROGRESS_TOTAL, reaction.simulation().reactionDurationTicks());
+            var tank = reaction.reactantTank().tank();
+            data.putInt(KEY_REACTANT_ID, tank.isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(tank.getFluidKey().getFluid()));
         }
 
         if (engine instanceof MagmaticEngineBlockEntity magma) {

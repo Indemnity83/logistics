@@ -85,6 +85,9 @@ public final class NeoForgeCapabilityRegistration {
 
         registerItems(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerItems(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
+        // Reaction engine catalyst slot (item) + reactant tank (fluid). NOT energy — it is bufferless and
+        // exposes no energy capability; it only pushes generated RF and discards whatever isn't accepted.
+        registerItems(event, LogisticsPower.ENTITY.REACTION_ENGINE_BLOCK_ENTITY);
         registerItems(event, LogisticsPower.ENTITY.STEAM_ENGINE_BLOCK_ENTITY);
         registerItems(event, LogisticsPipe.ENTITY.PIPE_BLOCK_ENTITY);
         registerItems(event, LogisticsAutomation.ENTITY.KILN_BLOCK_ENTITY);
@@ -103,6 +106,8 @@ public final class NeoForgeCapabilityRegistration {
         // Glass tanks expose their whole vertical column as a fluid handler.
         registerFluids(event, LogisticsPipe.ENTITY.GLASS_TANK_BLOCK_ENTITY);
         registerFluids(event, LogisticsAutomation.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+        // Reaction engine reactant tank, so fluid pipes can feed the liquid reactant in.
+        registerFluids(event, LogisticsPower.ENTITY.REACTION_ENGINE_BLOCK_ENTITY);
         // Crucible exposes its output tank as a fluid handler so pipes can pull the product.
         registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Refinery exposes input+output tanks: pipes fill the input fluid and drain the output.

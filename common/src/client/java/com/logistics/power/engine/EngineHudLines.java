@@ -50,15 +50,26 @@ public final class EngineHudLines {
             lines.add(row("jade.logistics.engine.temperature", tempText, stageColor(stage)));
         }
 
+        boolean reaction = NbtCompat.getBoolean(data, EngineHudData.KEY_REACTION, false);
+
+        // "Generating" is the attempted output for the bufferless reaction engine; a normal engine reports
+        // its buffer output.
+        long outputValue = reaction
+                ? NbtCompat.getLong(data, EngineHudData.KEY_ATTEMPTED, 0)
+                : NbtCompat.getLong(data, EngineHudData.KEY_OUTPUT, 0);
         lines.add(row(
-                "jade.logistics.engine.output",
-                String.format("%d RF/t", NbtCompat.getLong(data, EngineHudData.KEY_OUTPUT, 0)),
+                reaction ? "jade.logistics.engine.generating" : "jade.logistics.engine.output",
+                String.format("%d RF/t", outputValue),
                 ChatFormatting.LIGHT_PURPLE));
 
         boolean running = NbtCompat.getBoolean(data, EngineHudData.KEY_RUNNING, false);
         lines.add(labelled("jade.logistics.engine.running")
                 .append(Component.translatable(running ? "jade.logistics.common.yes" : "jade.logistics.common.no")
                         .withStyle(running ? ChatFormatting.GREEN : ChatFormatting.GRAY)));
+
+        if (reaction) {
+            appendReactionLines(lines, data, showDetails);
+        }
 
         if (showDetails && NbtCompat.getBoolean(data, EngineHudData.KEY_STIRLING, false)) {
             int burnTime = NbtCompat.getInt(data, EngineHudData.KEY_BURN_TIME, 0);
@@ -149,6 +160,30 @@ public final class EngineHudLines {
         }
 
         return lines;
+    }
+
+    /** Reaction-engine extras: progress always, then delivered/wasted split and reactant under details. */
+    private static void appendReactionLines(List<Component> lines, CompoundTag data, boolean showDetails) {
+        int remaining = NbtCompat.getInt(data, EngineHudData.KEY_PROGRESS_REMAINING, 0);
+        int total = NbtCompat.getInt(data, EngineHudData.KEY_PROGRESS_TOTAL, 0);
+        float progress = total > 0 ? (1f - (float) remaining / total) * 100f : 0f;
+        lines.add(row("jade.logistics.engine.progress", String.format("%.0f%%", progress), ChatFormatting.AQUA));
+
+        if (!showDetails) {
+            return;
+        }
+        long attempted = NbtCompat.getLong(data, EngineHudData.KEY_ATTEMPTED, 0);
+        long accepted = NbtCompat.getLong(data, EngineHudData.KEY_ACCEPTED, 0);
+        lines.add(row("jade.logistics.engine.delivered",
+                String.format("%d RF/t", accepted), ChatFormatting.GREEN));
+        lines.add(row("jade.logistics.engine.wasted",
+                String.format("%d RF/t", Math.max(0, attempted - accepted)), ChatFormatting.RED));
+
+        int reactantId = NbtCompat.getInt(data, EngineHudData.KEY_REACTANT_ID, -1);
+        if (reactantId >= 0) {
+            lines.add(labelled("jade.logistics.engine.reactant")
+                    .append(FluidDisplay.name(BuiltInRegistries.FLUID.byId(reactantId))));
+        }
     }
 
     /** Firebox HUD key from the synced state name; an unknown/absent name maps to a distinct unknown key. */
