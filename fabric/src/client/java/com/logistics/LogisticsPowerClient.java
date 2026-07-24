@@ -4,6 +4,7 @@ import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
+import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
@@ -22,6 +23,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         // Register engine block entity renderers
         BlockEntityRenderers.register(LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
+        BlockEntityRenderers.register(LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
         // Cables render fully in code via the shared vanilla CableBlockEntityRenderer
@@ -34,6 +36,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         BlockRenderLayerMap.putBlock(LogisticsCore.BLOCK.REDSTONE_ENGINE, ChunkSectionLayer.CUTOUT);
         BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.STIRLING_ENGINE, ChunkSectionLayer.CUTOUT);
         BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.CREATIVE_ENGINE, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.FUEL_ENGINE, ChunkSectionLayer.CUTOUT);
 
         // Battery charge overlay uses a transparent texture and needs the cutout layer (NeoForge
         // picks this up from "render_type" in the battery_charge_* models).
@@ -41,6 +44,7 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
+        MenuScreens.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
         // Register cleanup callback for engine animation cache
         EngineEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);

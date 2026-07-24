@@ -63,6 +63,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsAutomation.ENTITY.MACERATOR_BLOCK_ENTITY);
         registerEnergy(event, LogisticsCore.ENTITY.REDSTONE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.CREATIVE_SINK_BLOCK_ENTITY);
         registerEnergy(event, LogisticsPower.ENTITY.BATTERY_BLOCK_ENTITY);
@@ -99,6 +100,7 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Refinery exposes input+output tanks: pipes fill the input fluid and drain the output.
         registerFluids(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
+        registerFluids(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
         // FullItemFluidStorage). Empty-bucket -> filled is handled by vanilla BucketResourceHandler via the

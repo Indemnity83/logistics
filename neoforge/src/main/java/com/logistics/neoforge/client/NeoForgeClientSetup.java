@@ -36,6 +36,7 @@ import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.power.render.CableBlockEntityRenderer;
+import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import net.minecraft.client.Minecraft;
@@ -142,6 +143,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsPipe.SCREEN.MOD_SINK, ModSinkScreen::new);
 
         event.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);
+        event.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
         event.register(LogisticsAutomation.MENU.KILN, KilnScreen::new);
         event.register(LogisticsAutomation.MENU.SAWMILL, SawmillScreen::new);
@@ -157,6 +159,9 @@ public final class NeoForgeClientSetup {
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY,
+                NeoForgeEngineBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(
+                LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY,
                 NeoForgeEngineBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(
                 LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY,
