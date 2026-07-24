@@ -15,8 +15,10 @@ public class EngineRenderState extends BlockEntityRenderState {
     public enum EngineType {
         REDSTONE,
         STIRLING,
-        CREATIVE,
-        MAGMATIC
+        MAGMATIC,
+        STEAM,
+        FUEL,
+        CREATIVE
     }
 
     public void setAnimationProgress(float progress) {

@@ -88,6 +88,7 @@ class LogisticsConfigHostTest {
                 LogisticsAutomation.CONFIG.QUARRY_AREA,
                 LogisticsPipe.CONFIG.PIPE_MAX_SPEED,
                 LogisticsPipe.CONFIG.FLUID_PUMP_SEARCH_RADIUS,
+                LogisticsPower.CONFIG.FUEL_MIN_OUTPUT,
                 LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED);
         assertThat(ignored).isNotEmpty();
 
@@ -97,8 +98,10 @@ class LogisticsConfigHostTest {
         assertThat(ids).containsExactlyInAnyOrder(
                 "logistics.engines.redstone",
                 "logistics.engines.stirling",
+                "logistics.engines.steam",
                 "logistics.engines.creative",
                 "logistics.engines.magmatic",
+                "logistics.engines.fuel",
                 "logistics.power.battery",
                 "logistics.power.cables",
                 "logistics.machines.macerator",
