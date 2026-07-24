@@ -42,6 +42,7 @@ import com.logistics.power.screen.SteamEngineScreen;
 import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
+import com.logistics.core.lib.compat.ClientScreenCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
@@ -212,13 +213,13 @@ public final class NeoForgeClientSetup {
 
     private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
         event.register(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
-            var screen = Minecraft.getInstance().screen;
+            var screen = ClientScreenCompat.currentScreen();
             if (screen instanceof RequesterScreen requesterScreen) {
                 requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
             }
         });
         event.register(SyncFabricatorOutputsPacket.TYPE, (packet, context) -> {
-            var screen = Minecraft.getInstance().screen;
+            var screen = ClientScreenCompat.currentScreen();
             if (screen instanceof SequentialFabricatorScreen fabricatorScreen) {
                 fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
             }
