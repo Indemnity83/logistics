@@ -46,7 +46,7 @@ import com.logistics.core.lib.resource.ResourceId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.client.Minecraft;
+import com.logistics.core.lib.compat.ClientScreenCompat;
 import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -238,13 +238,13 @@ public final class NeoForgeClientSetup {
 
     private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
         event.register(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
-            var screen = Minecraft.getInstance().gui.screen();
+            var screen = ClientScreenCompat.currentScreen();
             if (screen instanceof RequesterScreen requesterScreen) {
                 requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
             }
         });
         event.register(SyncFabricatorOutputsPacket.TYPE, (packet, context) -> {
-            var screen = Minecraft.getInstance().gui.screen();
+            var screen = ClientScreenCompat.currentScreen();
             if (screen instanceof SequentialFabricatorScreen fabricatorScreen) {
                 fabricatorScreen.updateOutputs(packet.pos(), packet.toOutputs());
             }

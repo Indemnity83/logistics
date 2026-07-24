@@ -21,7 +21,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.minecraft.client.Minecraft;
+import com.logistics.core.lib.compat.ClientScreenCompat;
 import net.minecraft.client.gui.screens.MenuScreens;
 
 import static com.logistics.LogisticsMod.LOGGER;
@@ -48,7 +48,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
 
         ClientPlayNetworking.registerGlobalReceiver(SyncFabricatorOutputsPacket.TYPE, (packet, context) ->
                 context.client().execute(() -> {
-                    if (Minecraft.getInstance().gui.screen() instanceof SequentialFabricatorScreen screen) {
+                    if (ClientScreenCompat.currentScreen() instanceof SequentialFabricatorScreen screen) {
                         screen.updateOutputs(packet.pos(), packet.toOutputs());
                     }
                 }));
