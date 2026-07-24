@@ -1,0 +1,7 @@
+{
+  "type": "logistics:reaction",
+  "reactant": { "fluid": "logistics:core/liquid_glowstone", "amount": 1000 },
+  "reagent": "minecraft:enchanted_golden_apple",
+  "energy": 200000,
+  "time": 500
+}
