@@ -1,0 +1,29 @@
+'''Oil''' is a family of fuels and materials that comes from oil-bearing blocks generated around the world. The blocks are ground in a [[Macerator]] into [[Bitumen]] and [[Tar]], or melted in a [[Crucible]] into [[Crude Oil]] — which a [[Refinery]] distills into [[Fuel Oil]].
+
+== Blocks and items ==
+
+* [[File:Grid Oil Sand.png|24px|link=Oil Sand]] '''[[Oil Sand]]''' — an oil-soaked sand block that generates in sandy biomes
+* [[File:Grid Oil Red Sand.png|24px|link=Oil Red Sand]] '''[[Oil Red Sand]]''' — the badlands red-sand variant
+* [[File:Grid Oil Shale.png|24px|link=Oil Shale]] '''[[Oil Shale]]''' — an oil-bearing rock that generates underground
+* [[File:Grid Crude Oil.png|24px|link=Crude Oil]] '''[[Crude Oil]]''' — a placeable fluid, melted from the oil blocks or [[Bitumen]] in a [[Crucible]]
+* [[File:Grid Bitumen.png|24px|link=Bitumen]] '''[[Bitumen]]''' — a solid oil product ground from the oil blocks; melts to Crude Oil and burns as fuel
+* [[File:Grid Tar.png|24px|link=Tar]] '''[[Tar]]''' — a sticky product ground from the sandy oil blocks, also a [[Refinery]] byproduct
+
+== Uses ==
+
+* [[File:Grid Fuel Oil.png|24px|link=Fuel Oil]] '''[[Fuel Oil]]''' — refined from [[Crude Oil]] in a [[Refinery]]
+* [[File:Grid Synthetic Polymer.png|24px|link=Synthetic Polymer]] '''[[Synthetic Polymer]]''' — crafted from [[Tar]] and [[Coal Dust]] on the way to [[Rubber]]
+* [[File:Grid Copper Fluid Pipe.png|24px|link=Fluid Pipes]] '''Pipe sealant''' — [[Tar]] seals a transport pipe into a [[Fluid Pipes|fluid pipe]], like a slime ball
+
+{{Disambig}}
+
+== See also ==
+
+* [[Fluids]] — the mod's liquids, including [[Crude Oil]] and [[Fuel Oil]]
+* [[Tin]], [[Apatite]] — other world-generated material families
+* [[Macerator]], [[Crucible]], [[Refinery]] — process the oil chain
+* [[Materials]] — all crafting components
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

@@ -1,4 +1,4 @@
-'''Apatite''' is a gem found underground in the Overworld. It is mined from apatite ore, which drops the gem directly, and is used mainly to craft [[Apatite Valve|apatite valves]] — or ground in a [[Macerator]] for apatite dust.
+'''Apatite''' is a gem found underground in the Overworld. It is mined from apatite ore, which drops the gem directly, and is used to craft [[Apatite Valve|apatite valves]] — or ground in a [[Macerator]] for apatite dust.
 
 == Blocks and items ==
 
@@ -9,8 +9,7 @@
 
 == Uses ==
 
-* [[File:Grid Apatite Core.png|24px|link=Cores]] '''[[Apatite Core]]''' — an intermediate component for valve crafting
-* [[File:Grid Apatite Valve.png|24px|link=Apatite Valve]] '''[[Apatite Valve]]''' — the gem's main use, crafted via an Apatite Core
+* [[File:Grid Apatite Valve.png|24px|link=Apatite Valve]] '''[[Apatite Valve]]''' — the gem's main use, a fluid-network valve crafted from apatite
 
 {{Disambig}}
 
