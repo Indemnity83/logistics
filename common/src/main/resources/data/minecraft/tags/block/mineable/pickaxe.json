@@ -4,6 +4,7 @@
     "logistics:automation/laser_quarry",
     "logistics:power/creative_engine",
     "logistics:power/stirling_engine",
+    "logistics:power/fuel_engine",
     "logistics:power/creative_sink",
     "logistics:core/tin_ore",
     "logistics:core/deepslate_tin_ore",
