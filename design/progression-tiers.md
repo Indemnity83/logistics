@@ -47,7 +47,7 @@ Item display names can derive from **either** label. Default to the **material**
 
 The spine lists only **progression-bearing** tiers. The system is *total*: every other material — vanilla or ours — falls into exactly one of these, so nothing is ambiguous about "what tier is this?"
 
-- **Alloy feedstock (no rank):** **Tin**, **Nickel** — exist only to craft alloys (Bronze, Invar); never a tier on their own. (Macerator-byproduct nickel feeds Invar — see [`features/0105-alloy-smelter.md`](features/0105-alloy-smelter.md).)
+- **Alloy feedstock (no rank):** **Tin** (shipped) — and, if the alloy set later expands, **Nickel** — exist only to craft alloys (Bronze; Invar later); never a tier on their own. (Nickel/Invar are **not implemented yet** — Bronze is the only alloy today. See [`features/0105-alloy-smelter.md`](features/0105-alloy-smelter.md).)
 - **Our alloys (occupy a rank):** **Bronze** = rank 3 (Industrial). **Invar** = a structural/precision alloy sitting around rank 3–4 (between Industrial and Conductive); its job is machine frames / precision components, so it participates as a *component material*, not a separate visual tier. New alloys take the rank of their role, keep their own name, and respect the ordering.
 - **Function accents (no rank):** carry a *function*, not a progression step — use them for the system they evoke, not as tiers: **Redstone** → signal/logic (reserve for gates/circuits; *not* power cables), **Lapis** → enchant, **Emerald** → trade, **Blaze / Quartz / Glowstone** → nether components, **Obsidian** → containment/blast.
 - **Out of scope:** purely decorative/world materials define no tier.

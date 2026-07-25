@@ -32,7 +32,7 @@ The automation core has come a long way. Since the fluid foundation landed, most
 
 ## Now
 
-Work currently active or near-term — the remaining run at the 1.0 bar (Phase 1 complete, on both loaders, polished).
+Work currently active or near-term — the remaining run at the 1.0 bar (the bar is Phase 1 *feature-complete* on both loaders and polished; a few items below are still open).
 
 | Area                 | Status  | Notes                                                                     |
 |----------------------|---------|---------------------------------------------------------------------------|

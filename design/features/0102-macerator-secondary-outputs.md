@@ -4,7 +4,7 @@
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Pulverizer secondary output) · **Depends on:** nothing
 > **Maps to (roadmap):** Phase 1 — macerator outputs · **Reused by:** [`0104-sawmill.md`](0104-sawmill.md) (sawdust), [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (slag)
 
-The classic Pulverizer didn't just double ore — it had a *chance* at a bonus byproduct (e.g. ore → 2 dust + sometimes a second metal's dust or a gem). The Macerator currently produces a single deterministic output. This adds the chance-based second output, and in doing so builds a **reusable chance-output mechanism** the Sawmill and Alloy Smelter also want.
+The classic Pulverizer didn't just double ore — it had a *chance* at a bonus byproduct (e.g. ore → 2 dust + sometimes a second metal's dust or a gem). The Macerator originally produced a single deterministic output; this brief added the chance-based second output, and with it a **reusable chance-output mechanism** the Sawmill and Alloy Smelter also use.
 
 ## Problem & goal
 

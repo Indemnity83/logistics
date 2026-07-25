@@ -1,10 +1,12 @@
 # Alloy Smelter
 
 > **Status:** ✅ **Shipped** (v0.8.2, #656) — the Alloy Smelter with a custom `logistics:alloy_smelter` recipe type; produces **Bronze** today (Invar/Electrum not yet added — introduce only as a tier needs them) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`automation` domain) + materials in `core`
-> **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Induction Smelter) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (Nickel as an iron-ore Macerator byproduct) · **Companion:** [`0103-hand-grinder.md`](0103-hand-grinder.md) — manual, powerless ore→dust; ungates the dust/alloy economy from energy (built early — prerequisite for the no-power Bronze path)
+> **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Induction Smelter) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (`ChanceResult`) · **Companion:** [`0103-hand-grinder.md`](0103-hand-grinder.md) — optional no-power ore→dust on-ramp (**not built**; the Alloy Smelter shipped without it)
 > **Maps to (roadmap):** Phase 1 — Alloy Smelter; materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md)
+>
+> **Shipped delta:** only **Bronze** shipped (no Nickel/Invar — neither is implemented yet), and the machine shipped **without** the Hand Grinder. The Nickel / Invar / Hand-Grinder design below is original intent, retained for when the alloy set expands.
 
-A two-input RF machine that combines two metals into an alloy. This feature is **machine + a small materials expansion**: it adds **Nickel + Invar** (the first new metal/alloy since Bronze), introduces an **alloy-via-dust crafting path** so alloys feel like *alloying* and aren't hard-gated on power, and gives alloys a machine + energy cost as the automation tier. Right now Bronze exists but has no production machine; this makes the alloy set coherent. Pairs with the materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md).
+A two-input RF machine that combines two metals into an alloy. As shipped it gives alloys a machine + energy cost as the automation tier and an **alloy-via-dust crafting path** so alloys feel like *alloying*. Before this, Bronze existed but had no production machine. The original scope also proposed **Nickel + Invar** (the first new metal/alloy since Bronze) — not yet built (see the Shipped delta above). Pairs with the materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md).
 
 ## Problem & goal
 

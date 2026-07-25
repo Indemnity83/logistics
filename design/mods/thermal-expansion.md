@@ -13,7 +13,7 @@ See [`../principles.md`](../principles.md) for the table legend.
 | Feature | What it did (1.7.10–1.12.2) | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
 | Pulverizer | Ore → 2 dust + chance secondary | Modernize | **Macerator** (RF grinder, custom recipes, JEI) with a chance-based byproduct output | ✅ Done | `core` / Macerator |
-| — secondary/byproduct outputs | Chance bonus dust per recipe | Modernize | Chance byproduct shipped (v0.8.0) — ore→dust recipes drop a chance byproduct dust; slag/rich-slag/nickel-style outputs feed alloys | ✅ Done | `automation` / macerator byproducts |
+| — secondary/byproduct outputs | Chance bonus dust per recipe | Modernize | Chance byproduct shipped (v0.8.0) — recipes can drop one optional chance byproduct (resolved as a `ChanceOutput`), tunable per recipe. Also used by the Alloy Smelter's recycling recipes (e.g. slag) | ✅ Done | `automation` / macerator byproducts |
 | Redstone Furnace | RF-powered smelting | Modernize | **Kiln** (reuses vanilla smelting recipes) | ✅ Done | `automation` / Kiln |
 | Sawmill | Logs → extra planks + sawdust | Port | Shipped (v0.8.0) — logs → planks + sawdust + pulped biomass; recipe type + JEI + Jade | ✅ Done | `automation` / Sawmill |
 | Induction Smelter | Alloying: 2 inputs → alloy (+ slag) | Port | Shipped as the **Alloy Smelter** (v0.8.2). Only the **Bronze** alloy exists today; Invar/Electrum are candidates as the tier needs them | ✅ Done | `automation` / Alloy Smelter |

@@ -24,12 +24,12 @@ The first batch covers the **[Fluids foundation](0101-fluids-foundation.md)** (t
 | 0102 | [Macerator Secondary Outputs](0102-macerator-secondary-outputs.md) | Machines | Modernize | — |
 | 0103 | [Hand Grinder](0103-hand-grinder.md) | Machines (no-power on-ramp) | Modernize | Macerator recipes |
 | 0104 | [Sawmill](0104-sawmill.md) | Machines | Port | `ChanceResult` (0102) |
-| 0105 | [Alloy Smelter](0105-alloy-smelter.md) | Machines + materials | Port/Modernize | `ChanceResult` (0102), Hand Grinder (0103) |
+| 0105 | [Alloy Smelter](0105-alloy-smelter.md) ✅ *shipped (Bronze)* | Machines + materials | Port/Modernize | `ChanceResult` (0102); Hand Grinder (0103) *optional, not built* |
 | 0106 | [Machine Upgrades / Augments](0106-machine-upgrades.md) 🔍 *exploratory — not committed for 1.0* | Machines (cross-cutting) | Modernize | the machines (0102 / 0104 / 0105) |
 | 0107 | [Tiered Batteries](0107-tiered-batteries.md) | Power | Modernize | — (extends Battery) |
 | 0108 | [Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) ❌ *not planned — hoppers cover it* | Pipes | Skip | — |
 | 0109 | [Remote Orderer](0109-remote-orderer.md) 🔍 *exploratory — not committed* | Logistics QoL | Modernize | — |
-| 0110 | [Firewall Pipe](0110-firewall-pipe.md) | Logistics advanced | Port | — |
+| 0110 | [Firewall Pipe](0110-firewall-pipe.md) ⏸️ *deferred — no use case yet* | Logistics advanced | Port | — |
 
 ### Reading the order
 
