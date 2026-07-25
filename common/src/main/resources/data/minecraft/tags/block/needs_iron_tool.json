@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "logistics:power/fuel_engine",
+    "logistics:power/steam_engine",
+    "logistics:power/magmatic_engine"
+  ]
+}
