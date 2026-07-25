@@ -52,7 +52,8 @@ The Redstone Engine produces low RF, suitable for light-duty machines, early-gam
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Redstone Engine.png|32px]] Added '''Redstone Engine'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Redstone Engine (v0.1.0).png|32px]] Added '''Redstone Engine'''.}}
+{{History|foot=1|v0.8.4|[[File:Grid Redstone Engine.png|32px]] The texture has been refreshed.}}
 
 == See also ==
 * [[RF Energy]] - Understanding the power system
