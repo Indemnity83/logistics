@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "logistics:power/stirling_engine",
     "logistics:core/tin_ore",
     "logistics:core/deepslate_tin_ore",
     "logistics:core/tin_block",
