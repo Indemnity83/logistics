@@ -1,6 +1,6 @@
 # Firewall Pipe
 
-> **Status:** 🚧 Planned · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`pipe` domain)
+> **Status:** ⏸️ **Deferred** — no solid use case established yet (maintainer, Jul 2026); parked until network segmentation earns its place. **Not a 1.0 item.** This brief captures the design if/when it's revisited · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`pipe` domain)
 > **Source:** [`../mods/logistics-pipes.md`](../mods/logistics-pipes.md) (Firewall pipe — network segmentation) · **Depends on:** nothing
 > **Maps to (roadmap):** Phase 1 — logistics advanced (Firewall pipe)
 
