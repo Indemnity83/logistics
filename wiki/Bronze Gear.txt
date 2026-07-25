@@ -39,7 +39,8 @@
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Bronze Gear.png|32px]] Added '''Bronze Gear'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Bronze Gear (v0.1.0).png|32px]] Added '''Bronze Gear'''.}}
+{{History|foot=1|v0.8.4|[[File:Grid Bronze Gear.png|32px]] The texture has been changed.}}
 
 == See also ==
 

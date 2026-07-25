@@ -1,0 +1,67 @@
+{{Block
+|image            = Grid Steam Engine.png
+|type             = Block (Engine)
+|function         = RF generation
+|stackable        = No
+|transparent      = Partial
+|hardness         = 5.0
+|blastresistance  = 5.0
+|added            = v0.8.4
+}}
+
+The '''Steam Engine''' is a boiler that burns solid fuel to heat water into steam, building pressure that it converts into [[RF Energy|RF]]. It needs both a fuel supply and a steady feed of water.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Steam Engine can be broken with any tool, though a pickaxe is fastest.
+
+{{Breaking
+|tier=none
+|name1=Steam Engine |icon1=Grid Steam Engine.png |hardness1=5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Copper Ingot |B1=Copper Ingot |C1=Copper Ingot
+|B2=Glass
+|A3=Bronze Gear |B3=Piston |C3=Bronze Gear
+|Output=Steam Engine
+}}
+
+== Usage ==
+
+Load solid fuel into the firebox and pipe water into the boiler with a [[Fluid Pipes|fluid pipe]]. The firebox heats the boiler; once it reaches boiling temperature the water flashes to steam and pressure climbs. At its operating pressure the engine outputs a flat '''40 RF/t''' from a configurable face. Output stops if it runs out of either fuel or water, and the boiler slowly cools when idle. A [[Jade]] readout shows the firebox state, boiler heat, pressure, and output.
+
+=== Fuel ===
+
+The firebox accepts any furnace fuel — coal, charcoal, wood, and the mod's [[Peat]], [[Bitumen]], and [[Tar]]. Water is drawn from its internal tank (4,000 mB), so keep it fed from a [[Pump]] or [[Glass Tank]].
+
+=== Configuration ===
+
+Use a [[Wrench]] to rotate the output face.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/steam_engine|block.logistics.power.steam_engine}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.4|[[File:Grid Steam Engine.png|32px]] Added '''Steam Engine'''.}}
+
+== See also ==
+
+* [[RF Energy]] - Understanding the power system
+* [[Engines]] - All engines
+* [[Magmatic Engine]], [[Fuel Engine]] - Other fuel-driven engines
+* [[Fluid Pipes]], [[Pump]] - Feed water to the boiler
+* [[Wrench]] - Rotates the output face
+* [[Bronze Gear]] - Crafting component
+
+{{Navbox Logistics}}
+
+[[Category:Power]]

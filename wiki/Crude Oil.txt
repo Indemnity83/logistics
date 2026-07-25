@@ -26,7 +26,7 @@ The [[Crucible]] liquefies oil-bearing blocks and [[Bitumen]] into Crude Oil:
 
 == Usage ==
 
-Crude Oil has no processing use yet — it is collected, piped, and stored. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+Crude Oil is refined into [[Fuel Oil]] in a [[Refinery]], or burned directly in a [[Fuel Engine]] for [[RF Energy|RF]]. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
 
 === Bucket ===
 

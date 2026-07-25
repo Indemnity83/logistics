@@ -19,7 +19,7 @@
 
 == Usage ==
 
-Bio Fuel has no processing use yet — it is stored and piped like any other fluid. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+Bio Fuel is burned in a [[Fuel Engine]] to generate [[RF Energy|RF]] — a renewable power source. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
 
 === Bucket ===
 
@@ -34,10 +34,12 @@ The '''Bio Fuel Bucket''' is a container-only item: it fills and drains tanks an
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.3|[[File:Grid Bio Fuel.png|32px]] Added '''Bio Fuel'''.}}
+{{History|head=1|v0.8.3|[[File:Grid Bio Fuel.png|32px]] Added '''Bio Fuel'''.}}
+{{History|foot=1|v0.8.4|Now burned in the [[Fuel Engine]] to generate power.}}
 
 == See also ==
 
+* [[Fuel Engine]] - Burns Bio Fuel for power
 * [[Liquid Biomass]] - Refined into Bio Fuel
 * [[Refinery]] - Refines liquid biomass into Bio Fuel
 * [[Fuel Oil]] - The Refinery's other product

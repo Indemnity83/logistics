@@ -1,9 +1,13 @@
-'''Engines''' are [[RF Energy|RF]] generators that power machines, the logistics network (through a [[Power Junction]]), and the [[Fluid Extractor Pipe|fluid extractor]]. The mod has three, from a trickle of power to an unlimited supply.
+'''Engines''' are [[RF Energy|RF]] generators that power machines, the logistics network (through a [[Power Junction]]), and the [[Fluid Extractor Pipe|fluid extractor]]. They range from a trickle of redstone power up to a fluid-fed burst reactor.
 
 == Engines ==
 
 * [[File:Grid Redstone Engine.png|24px|link=Redstone Engine]] '''[[Redstone Engine]]''' — a basic generator that converts a redstone signal into a small, steady RF output; cannot overheat
-* [[File:Grid Stirling Engine.png|24px|link=Stirling Engine]] '''[[Stirling Engine]]''' — a high-power generator that burns fuel for substantial RF; can overheat without cooling
+* [[File:Grid Stirling Engine.png|24px|link=Stirling Engine]] '''[[Stirling Engine]]''' — burns solid fuel for RF; can overheat without cooling
+* [[File:Grid Steam Engine.png|24px|link=Steam Engine]] '''[[Steam Engine]]''' — a boiler that burns solid fuel to turn water into steam for RF
+* [[File:Grid Magmatic Engine.png|24px|link=Magmatic Engine]] '''[[Magmatic Engine]]''' — burns liquid lava, running more efficiently the longer it stays hot
+* [[File:Grid Fuel Engine.png|24px|link=Fuel Engine]] '''[[Fuel Engine]]''' — burns liquid fuels ([[Crude Oil]], [[Bio Fuel]], [[Fuel Oil]]) with water coolant
+* [[File:Grid Reaction Engine.png|24px|link=Reaction Engine]] '''[[Reaction Engine]]''' — combines a reactant fluid and a reagent for a huge bufferless RF burst
 * [[File:Grid Creative Engine.png|24px|link=Creative Engine]] '''[[Creative Engine]]''' — an unlimited RF source for testing and creative-mode builds
 
 {{Disambig}}

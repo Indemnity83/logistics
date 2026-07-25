@@ -1,0 +1,77 @@
+{{Block
+|image            = Grid Fuel Engine.png
+|type             = Block (Engine)
+|function         = RF generation
+|stackable        = No
+|transparent      = Partial
+|hardness         = 5.0
+|blastresistance  = 5.0
+|added            = v0.8.4
+}}
+
+The '''Fuel Engine''' burns liquid fuels — [[Crude Oil]], [[Bio Fuel]], and [[Fuel Oil]] — to generate [[RF Energy|RF]]. It runs hot, so it needs a water coolant supply to avoid a thermal shutdown.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Fuel Engine can be broken with any tool, though a pickaxe is fastest.
+
+{{Breaking
+|tier=none
+|name1=Fuel Engine |icon1=Grid Fuel Engine.png |hardness1=5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Iron Ingot |B1=Iron Ingot |C1=Iron Ingot
+|B2=Glass
+|A3=Iron Gear |B3=Piston |C3=Iron Gear
+|Output=Fuel Engine
+}}
+
+== Usage ==
+
+Pipe a liquid fuel into the fuel tank and water into the coolant tank (4,000 mB each) with [[Fluid Pipes|fluid pipes]]. While burning it generates '''10–40 RF/t''' from a configurable face. Generation produces waste heat; the coolant carries it away. If the engine overheats past 250&nbsp;°C it triggers a '''thermal shutdown''' — right-click it with a [[Wrench]] to reset. A [[Jade]] readout shows its temperature, output, and fuel and coolant levels.
+
+=== Fuels ===
+
+Each fuel carries a different amount of energy and burns at a different heat:
+
+{| class="wikitable"
+! Fuel !! Energy per bucket !! Heat
+|-
+| [[Crude Oil]] || 40,000 RF || Hot
+|-
+| [[Bio Fuel]] || 80,000 RF || Cool
+|-
+| [[Fuel Oil]] || 150,000 RF || Moderate
+|}
+
+=== Configuration ===
+
+Use a [[Wrench]] to rotate the output face and to reset a thermal shutdown.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/fuel_engine|block.logistics.power.fuel_engine}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.4|[[File:Grid Fuel Engine.png|32px]] Added '''Fuel Engine'''.}}
+
+== See also ==
+
+* [[RF Energy]] - Understanding the power system
+* [[Engines]] - All engines
+* [[Crude Oil]], [[Bio Fuel]], [[Fuel Oil]] - Its fuels
+* [[Refinery]] - Refines the fuels
+* [[Fluid Pipes]], [[Pump]] - Supply fuel and coolant
+* [[Wrench]] - Rotates the output face and resets overheats
+
+{{Navbox Logistics}}
+
+[[Category:Power]]

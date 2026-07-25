@@ -1,0 +1,77 @@
+{{Block
+|image            = Grid Reaction Engine.png
+|type             = Block (Engine)
+|function         = RF generation
+|stackable        = No
+|transparent      = Partial
+|hardness         = 5.0
+|blastresistance  = 5.0
+|added            = v0.8.4
+}}
+
+The '''Reaction Engine''' combines a liquid reactant with a solid reagent to release a huge burst of [[RF Energy|RF]] over a short reaction. It is '''bufferless''' — the energy is pushed straight into the network as it is produced, and any that the network cannot accept is lost — so pair it with a [[Battery]] or a large draw.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Reaction Engine can be broken with any tool, though a pickaxe is fastest.
+
+{{Breaking
+|tier=none
+|name1=Reaction Engine |icon1=Grid Reaction Engine.png |hardness1=5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Crying Obsidian |B1=Crying Obsidian |C1=Crying Obsidian
+|B2=Heavy Core
+|A3=Netherite Gear |B3=Piston |C3=Netherite Gear
+|Output=Reaction Engine
+}}
+
+== Usage ==
+
+Pipe a reactant fluid into the tank (4,000 mB) with a [[Fluid Pipes|fluid pipe]] and supply the matching solid reagent. When both are present the engine consumes them and generates its full energy across the reaction time, delivering it to the network as it goes. Because there is no internal buffer, size your cabling and storage to absorb the burst. A [[Jade]] readout shows the reactant, pressure, and generation.
+
+=== Reactions ===
+
+Each reaction consumes 1,000 mB of the reactant plus one reagent:
+
+{| class="wikitable"
+! Reactant !! Reagent !! Energy !! Time
+|-
+| {{Mcw|Lava}} || {{Mcw|Gilded Blackstone}} || 80,000 RF || 800 ticks
+|-
+| [[Liquid Ender]] || {{Mcw|Echo Shard}} || 100,000 RF || 500 ticks
+|-
+| [[Liquid Glowstone]] || {{Mcw|Enchanted Golden Apple}} || 200,000 RF || 500 ticks
+|}
+
+=== Configuration ===
+
+Use a [[Wrench]] to rotate the output face.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/reaction_engine|block.logistics.power.reaction_engine}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.4|[[File:Grid Reaction Engine.png|32px]] Added '''Reaction Engine'''.}}
+
+== See also ==
+
+* [[RF Energy]] - Understanding the power system
+* [[Engines]] - All engines
+* [[Battery]] - Absorbs the energy burst
+* [[Liquid Ender]], [[Liquid Glowstone]] - Reactant fluids from the [[Crucible]]
+* [[Fluid Pipes]] - Supply the reactant
+* [[Netherite Gear]] - Crafting component
+
+{{Navbox Logistics}}
+
+[[Category:Power]]

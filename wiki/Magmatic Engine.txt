@@ -1,0 +1,63 @@
+{{Block
+|image            = Grid Magmatic Engine.png
+|type             = Block (Engine)
+|function         = RF generation
+|stackable        = No
+|transparent      = Partial
+|hardness         = 5.0
+|blastresistance  = 5.0
+|added            = v0.8.4
+}}
+
+The '''Magmatic Engine''' burns liquid {{Mcw|Lava|lava}} as a heat source to generate [[RF Energy|RF]]. It runs hotter and more efficiently the longer it stays fed, so a continuous lava supply gets the most out of it.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Magmatic Engine can be broken with any tool, though a pickaxe is fastest.
+
+{{Breaking
+|tier=none
+|name1=Magmatic Engine |icon1=Grid Magmatic Engine.png |hardness1=5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Nether Bricks |B1=Nether Bricks |C1=Nether Bricks
+|B2=Glass
+|A3=Gold Gear |B3=Piston |C3=Gold Gear
+|Output=Magmatic Engine
+}}
+
+== Usage ==
+
+Pipe {{Mcw|Lava|lava}} into the engine's tank (4,000 mB) with a [[Fluid Pipes|fluid pipe]] — or feed it from a [[Crucible]]. It draws lava in small batches and heat-soaks as it runs: a cold engine generates about '''5 RF/t''', a warmed one '''10 RF/t''', and a fully heat-soaked one up to '''15 RF/t'''. A bucket of lava (1,000 mB) lasts roughly 20,000 powered ticks. Output flows from a configurable face; if the buffer fills, excess generation is wasted. A [[Jade]] readout shows its temperature, output, and lava level.
+
+=== Configuration ===
+
+Use a [[Wrench]] to rotate the output face.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:power/magmatic_engine|block.logistics.power.magmatic_engine}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.4|[[File:Grid Magmatic Engine.png|32px]] Added '''Magmatic Engine'''.}}
+
+== See also ==
+
+* [[RF Energy]] - Understanding the power system
+* [[Engines]] - All engines
+* [[Crucible]] - Produces lava to feed the engine
+* [[Fluid Pipes]], [[Pump]] - Supply the lava
+* [[Wrench]] - Rotates the output face
+* [[Gold Gear]] - Crafting component
+
+{{Navbox Logistics}}
+
+[[Category:Power]]

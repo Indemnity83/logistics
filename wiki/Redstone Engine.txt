@@ -48,7 +48,7 @@ The Redstone Engine produces low RF, suitable for light-duty machines, early-gam
 
 === ID ===
 
-{{ID|head=1|foot=1|logistics:power/redstone_engine|block.logistics.power.redstone_engine}}
+{{ID|head=1|foot=1|logistics:core/redstone_engine|block.logistics.core.redstone_engine}}
 
 == History ==
 

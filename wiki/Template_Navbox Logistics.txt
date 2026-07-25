@@ -9,7 +9,7 @@
   | group1 = Crafting
   | list1  = [[File:Grid Macerator.png|20px|link=Macerator]]&nbsp;[[Macerator]] · [[File:Grid Alloy Smelter.png|20px|link=Alloy Smelter]]&nbsp;[[Alloy Smelter]] · [[File:Grid Crucible.png|20px|link=Crucible]]&nbsp;[[Crucible]] · [[File:Grid Refinery.png|20px|link=Refinery]]&nbsp;[[Refinery]] · [[File:Grid Kiln.png|20px|link=Kiln]]&nbsp;[[Kiln]] · [[File:Grid Sawmill.png|20px|link=Sawmill]]&nbsp;[[Sawmill]] · [[File:Grid Sequential Fabricator.png|20px|link=Sequential Fabricator]]&nbsp;[[Sequential Fabricator]]
   | group2 = [[Engines]]
-  | list2  = [[File:Grid Redstone Engine.png|20px|link=Redstone Engine]]&nbsp;[[Redstone Engine]] · [[File:Grid Stirling Engine.png|20px|link=Stirling Engine]]&nbsp;[[Stirling Engine]] · [[File:Grid Creative Engine.png|20px|link=Creative Engine]]&nbsp;[[Creative Engine]]
+  | list2  = [[File:Grid Redstone Engine.png|20px|link=Redstone Engine]]&nbsp;[[Redstone Engine]] · [[File:Grid Stirling Engine.png|20px|link=Stirling Engine]]&nbsp;[[Stirling Engine]] · [[File:Grid Steam Engine.png|20px|link=Steam Engine]]&nbsp;[[Steam Engine]] · [[File:Grid Magmatic Engine.png|20px|link=Magmatic Engine]]&nbsp;[[Magmatic Engine]] · [[File:Grid Fuel Engine.png|20px|link=Fuel Engine]]&nbsp;[[Fuel Engine]] · [[File:Grid Reaction Engine.png|20px|link=Reaction Engine]]&nbsp;[[Reaction Engine]] · [[File:Grid Creative Engine.png|20px|link=Creative Engine]]&nbsp;[[Creative Engine]]
   | group3 = Other
   | list3  = [[File:Grid Laser Quarry.png|20px|link=Laser Quarry]]&nbsp;[[Laser Quarry]] · [[File:Grid Pump.png|20px|link=Pump]]&nbsp;[[Pump]]
   }}

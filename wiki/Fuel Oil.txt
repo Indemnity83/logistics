@@ -19,7 +19,7 @@
 
 == Usage ==
 
-Fuel Oil has no processing use yet — it is stored and piped like any other fluid. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+Fuel Oil is burned in a [[Fuel Engine]] to generate [[RF Energy|RF]] — the most energy-dense of the engine's fuels. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
 
 === Bucket ===
 
@@ -34,10 +34,12 @@ The '''Fuel Oil Bucket''' is a container-only item: it fills and drains tanks an
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.3|[[File:Grid Fuel Oil.png|32px]] Added '''Fuel Oil'''.}}
+{{History|head=1|v0.8.3|[[File:Grid Fuel Oil.png|32px]] Added '''Fuel Oil'''.}}
+{{History|foot=1|v0.8.4|Now burned in the [[Fuel Engine]] to generate power.}}
 
 == See also ==
 
+* [[Fuel Engine]] - Burns Fuel Oil for power
 * [[Crude Oil]] - Refined into Fuel Oil
 * [[Refinery]] - Refines crude oil into Fuel Oil
 * [[Tar]] - Byproduct of refining Crude Oil
