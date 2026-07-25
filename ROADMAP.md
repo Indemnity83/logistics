@@ -21,17 +21,24 @@ This phase focuses on the core automation loop:
 - Material progression
 - Loader parity for Fabric and NeoForge
 
+## Recently shipped
+
+The automation core has come a long way. Since the fluid foundation landed, most of Phase 1 has shipped:
+
+- **Machines** — Alloy Smelter, Sawmill, Crucible, Refinery, and the Sequential Fabricator, plus macerator byproduct outputs.
+- **Power** — the Fuel (combustion), Steam, Magmatic, and Reaction engines join the Redstone/Stirling line; the Power Junction powers logistics networks; cables/batteries no longer power pipes directly.
+- **Fuel chain** — crude oil worldgen and the oil → fuel refining chain; biomass/biofuel fluids seeded.
+- **Materials** — the Bronze alloy line, chipsets, the reworked valve lineup, rubber, and an expanded dust/byproduct chain.
+
 ## Now
 
-Work currently active, planned, or near-term.
+Work currently active or near-term — the remaining run at the 1.0 bar (the bar is Phase 1 *feature-complete* on both loaders and polished; a few items below are still open).
 
-| Area                 | Status  | Notes                                               |
-|----------------------|---------|-----------------------------------------------------|
-| Fluid foundation     | Shipped | Fluid pipes, tanks, pump, and machine fluid I/O     |
-| Core machines        | Planned | Macerator improvements, Alloy Smelter, Sawmill      |
-| Power progression    | Planned | Combustion engine, fuel chain, and tiered batteries |
-| Material progression | Planned | Bronze, alloys, and machine crafting progression    |
-| Loader parity        | Ongoing | Keep Fabric and NeoForge aligned                    |
+| Area                 | Status  | Notes                                                                     |
+|----------------------|---------|---------------------------------------------------------------------------|
+| Tiered batteries     | Planned | Copper/Gold/Ender energy-storage line with configurable I/O               |
+| Fluid logistics      | Planned | Liquid provider/supplier/request over the network (via a fluid↔item step) |
+| Loader parity        | Ongoing | Keep Fabric and NeoForge aligned; hold both to the 1.0 bar                |
 
 ## Next
 
@@ -40,8 +47,8 @@ Likely after the current automation core is stable.
 | Area                      | Status    | Notes                                                                                                               |
 |---------------------------|-----------|---------------------------------------------------------------------------------------------------------------------|
 | Crafting logistics        | Planned   | A Logistics crafting table or related crafting-request system may become the next major logistics-network expansion |
-| Firewall Pipe             | Exploring | Needs design validation around routing behavior and network boundaries                                              |
-| Pipe based power delivery | Exploring | Sending power through logistics pipes to allow one connection to provide items and power to machines.               |
+| Firewall Pipe             | Deferred  | No solid use case yet — parked until network segmentation earns its place; also needs routing/boundary design work   |
+| Pipe based power delivery | Exploring | The Power Junction is a first step; the broader goal is one connection that feeds a machine both items and power     |
 
 ## Later
 

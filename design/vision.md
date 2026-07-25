@@ -14,10 +14,10 @@ That era's tech identity came from a handful of mods, **all now abandoned**. The
 
 | Source mod | What it contributed | Status in Logistics |
 |---|---|---|
-| **BuildCraft** | Pipes, engines, the quarry, gates/automation | Largely covered (pipes, engines, laser quarry) |
-| **Logistics Pipes** | Request/provider/supplier network logistics — *the* glue that tied a base together | **Done** (3-tier pipe network, chassis + modules) |
-| **Thermal Expansion** | RF machines, ore processing (pulverizer/dusts), energy cells, fluid handling | Partially covered (macerator, kiln, dusts, cables) |
-| **Forestry** | Bees, trees, butterflies, farms/multifarms, electron tubes, the worktable | Not started — **industrial side only** (farms, processing, electronics); genetics (bees/trees/butterflies) is out of scope |
+| **BuildCraft** | Pipes, engines, the quarry, gates/automation | Largely covered (pipes, engine line incl. the Fuel Engine, laser quarry, fluids + oil/Refinery); gates still deferred |
+| **Logistics Pipes** | Request/provider/supplier network logistics — *the* glue that tied a base together | **Done** (3-tier pipe network, chassis + modules, Power Junction) |
+| **Thermal Expansion** | RF machines, ore processing (pulverizer/dusts), energy cells, fluid handling | Largely covered (macerator + byproducts, kiln, alloy smelter, sawmill, crucible, dusts, cables, dynamo-style engines); gaps: tiered energy cells, fluid transposer |
+| **Forestry** | Bees, trees, butterflies, farms/multifarms, electron tubes, the worktable | Not started as a phase — **industrial side only**; some seeds landed early (peat, biomass/biofuel fluids, Sequential Fabricator electronics). Genetics (bees/trees/butterflies) is out of scope |
 | **Railcraft** | Rails, advanced minecarts, tanks, signals, coke ovens, boilers | Not started |
 
 See each breakdown in [`mods/`](mods/).
