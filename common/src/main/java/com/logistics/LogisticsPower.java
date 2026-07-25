@@ -329,15 +329,20 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         static void register() {
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
-                props -> new StirlingEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+                props -> new StirlingEngineBlock(
+                    props.strength(1.5f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
             REACTION_ENGINE = INSTANCE.registerBlockWithItem("reaction_engine",
-                props -> new ReactionEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+                props -> new ReactionEngineBlock(
+                    props.strength(50.0f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
             MAGMATIC_ENGINE = INSTANCE.registerBlockWithItem("magmatic_engine",
-                props -> new MagmaticEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+                props -> new MagmaticEngineBlock(
+                    props.strength(2.0f).sound(SoundType.NETHER_BRICKS).noOcclusion().requiresCorrectToolForDrops()));
             STEAM_ENGINE = INSTANCE.registerBlockWithItem("steam_engine",
-                props -> new SteamEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+                props -> new SteamEngineBlock(
+                    props.strength(3.0f).sound(SoundType.COPPER).noOcclusion().requiresCorrectToolForDrops()));
             FUEL_ENGINE = INSTANCE.registerBlockWithItem("fuel_engine",
-                props -> new FuelEngineBlock(props.strength(5.0f).sound(SoundType.COPPER).noOcclusion()));
+                props -> new FuelEngineBlock(
+                    props.strength(5.0f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
                 props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",

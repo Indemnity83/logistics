@@ -355,7 +355,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             OIL_SHALE = INSTANCE.registerBlockWithItem("oil_shale",
                 props -> new Block(props.strength(0.6f).sound(SoundType.GRAVEL)));
             REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
-                props -> new RedstoneEngineBlock(props.strength(5.0f).sound(SoundType.WOOD).noOcclusion()));
+                props -> new RedstoneEngineBlock(
+                    props.strength(2.0f).sound(SoundType.WOOD).noOcclusion().requiresCorrectToolForDrops()));
         }
     }
 
