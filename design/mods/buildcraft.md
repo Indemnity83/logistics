@@ -1,6 +1,6 @@
 # BuildCraft
 
-*The foundation of classic tech: pipes, engines, the quarry, and gate-based automation. Logistics already covers the pipe and engine core, a modernized quarry, and the fluids foundation (pipes/tank/pump, v0.7.3); the open frontier is combustion-tier power and gate automation.*
+*The foundation of classic tech: pipes, engines, the quarry, and gate-based automation. Logistics covers the pipe and engine core (now including the combustion-tier Fuel Engine and the dynamo-style Steam/Magmatic/Reaction engines), a modernized quarry, the fluids foundation (pipes/tank/pump, v0.7.3), and the oil→fuel chain (Refinery). The open frontier is **gate-based automation** (deferred, RFC 0001).*
 
 **Source era:** 1.7.10–1.12.2 (BuildCraft).
 **Logistics module:** `logistics-automation` (pipe + power + automation domains).
@@ -25,7 +25,8 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 |---|---|---|---|---|---|
 | Redstone Engine | Weak power from redstone; safe | Port | Implemented; never overheats | ✅ Done | `power` / Redstone Engine |
 | Stirling Engine | Burns solid fuel; medium power; heat | Port | Implemented with heat stages | ✅ Done | `power` / Stirling Engine |
-| Combustion Engine | Burns liquid fuel + needs water cooling; high power; explodes if mismanaged | Modernize | The big power-tier gap. Needs fluid fuel + coolant; keep the "manage or it blows" tension | — | Phase 1 — engines |
+| Combustion Engine | Burns liquid fuel + needs water cooling; high power; explodes if mismanaged | Modernize | Shipped as the **Fuel Engine** (`power/fuel_engine`, v0.8.4) — liquid fuel + coolant, overheats and explodes if mismanaged | ✅ Done | `power` / Fuel Engine |
+| Dynamo-style generators (steam / magmatic / reactant) | TE-adjacent modular RF generators | Modernize | Unified into the engine line rather than a parallel dynamo family: **Steam** (boiler/pressure), **Magmatic** (lava/fluid), and **Reaction** (custom reactant recipes) engines, all v0.8.4 | ✅ Done | `power` / Steam·Magmatic·Reaction engines |
 | Engine heat / overheat | Visual heat stages, safe shutdown vs explosion | Port | Implemented (COLD→OVERHEAT) | ✅ Done | `power` / engine heat |
 | MJ power unit | BuildCraft's energy currency | Modernize | Standardized on **RF** via `core.lib` energy abstraction | ✅ Done | `power` / energy API |
 
@@ -36,7 +37,7 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 | Quarry | Frame-bounded automatic mining | Modernize | **Laser Quarry**: marker-bounded, energy-scaled, no monolithic frame build | ✅ Done | `automation` / Laser Quarry |
 | Landmarks / markers | Define work areas | Modernize | Marker blocks (solo + connected bounds) | ✅ Done | `automation` / Marker |
 | Pump | Pump fluids from world into pipes/tanks | Port | **Shipped** (v0.7.3) — extracts world fluid sources into adjacent tanks/pipes, 100 RF/source | ✅ Done | `pipe` / Fluid Pump |
-| Oil & Refinery & Fuel | Oil lakes → refine to fuel for combustion engines | Port | Bring it over as-is: oil world-gen → Refinery → fuel. Couples to the Combustion Engine; Forestry biofuel is a *parallel* fuel, not a replacement | — | Phase 1 — fuels |
+| Oil & Refinery & Fuel | Oil lakes → refine to fuel for combustion engines | Port | Shipped (v0.8.2–v0.8.3): crude-oil worldgen (oil sand/shale) → **Refinery** → fuel oil, feeding the Fuel Engine. Forestry biomass/biofuel is the *parallel* fuel (seeded) | ✅ Done | `automation` / Refinery + oil chain |
 | Filler | Auto-fill/clear areas with patterns | Skip | Handy, but **terrain/construction automation isn't this mod's job** — it belongs in its own dedicated mod (and modern Create/Schematica-likes already cover the niche). A simplified clear/flatten Filler was floated in review; the call is to keep it out of Logistics' scope | ❌ | — |
 | Builder / Architect / Blueprints / Library | Save & auto-build structures | Skip | Heavy; modern Schematica-likes cover this; out of scope | ❌ | — |
 
@@ -47,10 +48,10 @@ See [`../principles.md`](../principles.md) for the table legend. Pipe transport 
 | Gates (basic/iron/gold/diamond) | Programmable trigger→action logic on pipes/machines | TBD | High value but complex. Possible modern take: a compact "logic gate" pluggable reading machine/pipe state. Big design effort — needs a Discussion | — | Phase 1 — automation (RFC) |
 | Pipe wiring (red/blue/green/yellow) | Carry gate signals between pipes | TBD | Only meaningful if gates are ported; could lean on vanilla redstone instead | — | Phase 1 — automation (RFC) |
 | Autarchic gate | Self-pulsing redstone engine | Modernize | Could fold into engine/extractor config rather than a separate gate | — | — |
-| Assembly Table + Laser | Laser-powered crafting of BC chipsets/gates | TBD | Revisit as we approach the recipes it produced — parts already changed, but the balance is still uncertain. Decide Port vs. Modernize closer in | — | Phase 1 — revisit |
+| Assembly Table + Laser | Laser-powered crafting of BC chipsets/gates | Modernize | Shipped as the **Sequential Fabricator** (`automation/sequential_fabricator`, v0.8.3) — the consolidated end-game manufacturer that sequentially crafts the electronics tier (chipsets, valves). Also fills Forestry's Thermionic Fabricator role — see [`forestry.md`](forestry.md) | ✅ Done | `automation` / Sequential Fabricator |
 | Facades | Cosmetic covers over pipes | Port | Strong feature — camouflage pipes/cables with block appearances via a data component. Scheduled **post-1.0** | — | Post-1.0 |
 | Robots & stations | Programmable mobile workers | Skip | Very complex; out of scope | ❌ | — |
 | Wrench | Configure/rotate machines | Port | Implemented | ✅ Done | `core` / Wrench |
 
-> TODO: confirm the exact combustion-engine coolant/explosion behavior we want to mirror (water-cooled vs. simplified), and decide oil sourcing (world-gen vs. crafted) — these two couple together and gate the fluids epic.
-> TODO: the gates question is the biggest open design call from BuildCraft — flag for an Ideas/Polls Discussion before scheduling. See [RFC 0001 — Programmable Behavior](../rfcs/0001-programmable-behavior.md).
+> Resolved: the Fuel Engine ships with a fluid coolant + overheat/explosion model, and oil is world-gen sourced (oil sand/shale → Refinery). The combustion + fuels epic is done.
+> TODO: the gates question is the biggest open design call from BuildCraft — flag for an Ideas/Polls Discussion before scheduling. See [RFC 0001 — Programmable Behavior](../rfcs/0001-programmable-behavior.md). *(Note: the Sequential Fabricator ships the chipset/electronics **crafting** the gates would consume, but the programmable-gate **logic layer** itself is still deferred.)*

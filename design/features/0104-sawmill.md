@@ -1,6 +1,6 @@
 # Sawmill
 
-> **Status:** 🚧 Planned — **design settled, ready to build** · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`automation` domain)
+> **Status:** ✅ **Shipped** (v0.8.0, #580) — logs → planks + sawdust (+ pulped biomass); custom `logistics:sawmill` recipe type, recipe book, JEI + Jade · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`automation` domain)
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Sawmill) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (`ChanceResult` for sawdust)
 > **Maps to (roadmap):** Phase 1 — Sawmill
 

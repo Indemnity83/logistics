@@ -1,6 +1,6 @@
 # Macerator Secondary / Byproduct Outputs
 
-> **Status:** 🚧 Planned — **mechanism design settled, ready to build** (byproduct content map deferred to `0105`) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`core` domain — Macerator)
+> **Status:** ✅ **Shipped** (v0.8.0, #643) — chance-based byproduct output on ore→dust recipes (one byproduct per recipe, resolved as a `ChanceOutput`); shown in the Macerator's secondary-chance slot · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`core` domain — Macerator)
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Pulverizer secondary output) · **Depends on:** nothing
 > **Maps to (roadmap):** Phase 1 — macerator outputs · **Reused by:** [`0104-sawmill.md`](0104-sawmill.md) (sawdust), [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (slag)
 

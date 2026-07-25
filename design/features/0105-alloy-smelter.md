@@ -1,6 +1,6 @@
 # Alloy Smelter
 
-> **Status:** 🚧 Planned — **mostly settled** (one open item: confirm Invar's use) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`automation` domain) + materials in `core`
+> **Status:** ✅ **Shipped** (v0.8.2, #656) — the Alloy Smelter with a custom `logistics:alloy_smelter` recipe type; produces **Bronze** today (Invar/Electrum not yet added — introduce only as a tier needs them) · **Phase:** 1 — Automation core · **Module:** `logistics-automation` (`automation` domain) + materials in `core`
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Induction Smelter) · **Depends on:** [`0102-macerator-secondary-outputs.md`](0102-macerator-secondary-outputs.md) (Nickel as an iron-ore Macerator byproduct) · **Companion:** [`0103-hand-grinder.md`](0103-hand-grinder.md) — manual, powerless ore→dust; ungates the dust/alloy economy from energy (built early — prerequisite for the no-power Bronze path)
 > **Maps to (roadmap):** Phase 1 — Alloy Smelter; materials rows in [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md)
 
