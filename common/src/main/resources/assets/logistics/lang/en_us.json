@@ -127,6 +127,8 @@
   "block.logistics.automation.refinery": "Refinery",
   "container.logistics.crucible": "Crucible",
   "container.logistics.refinery": "Refinery",
+  "block.logistics.automation.transposer": "Transposer",
+  "container.logistics.transposer": "Transposer",
   "block.logistics.automation.sequential_fabricator": "Sequential Fabricator",
   "container.logistics.sequential_fabricator": "Sequential Fabricator",
   "block.logistics.core.tin_ore": "Tin Ore",
