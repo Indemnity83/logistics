@@ -115,6 +115,7 @@ class LogisticsConfigHostTest {
                 "logistics.machines.fabricator",
                 "logistics.pipes",
                 "logistics.fluids",
+                "logistics.fluid_logistics",
                 "logistics.reporting");
     }
 
