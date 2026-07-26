@@ -69,7 +69,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
      * {@code tint} stays {@code 0xFFFFFFFF} (untinted). {@code overlay} may be null.
      */
     public record FluidDef(
-            String name, int tint, int color, String still, String flow, String overlay, WorldFlow world,
+            String name, int tint, String still, String flow, String overlay, WorldFlow world,
             int luminance) {
 
         /** Flow tuning for a {@link #world()} fluid — a placeable {@code LiquidBlock} that spreads. */
@@ -86,29 +86,21 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
          */
         public static FluidDef tinted(String name, int rgb) {
             int argb = 0xFF000000 | rgb;
-            return new FluidDef(name, argb, argb,
+            return new FluidDef(name, argb,
                 "minecraft:block/water_still", "minecraft:block/water_flow", null, null, 0);
         }
 
         /** A {@link #core} fluid that emits {@code luminance} (0-15) when held in a pipe or tank. */
         public static FluidDef core(String name, int luminance) {
             String base = "logistics:block/core/fluid/" + name;
-            return new FluidDef(name, 0xFFFFFFFF, 0xFFFFFFFF, base + "_still", base + "_flow", null, null, luminance);
+            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null, null, luminance);
         }
 
         /** A {@link #core} fluid that also has a world block, spreading with the given flow tuning. */
         public static FluidDef world(String name, int slopeFindDistance, int dropOff, int tickDelay) {
             String base = "logistics:block/core/fluid/" + name;
-            return new FluidDef(name, 0xFFFFFFFF, 0xFFFFFFFF, base + "_still", base + "_flow", null,
+            return new FluidDef(name, 0xFFFFFFFF, base + "_still", base + "_flow", null,
                 new WorldFlow(slopeFindDistance, dropOff, tickDelay), 0);
-        }
-
-        /**
-         * A copy with an explicit representative {@code 0xRRGGBB} color (full alpha applied). Used where a
-         * fluid needs a flat swatch — e.g. the fluid-packet item — separate from the sprite {@link #tint()}.
-         */
-        public FluidDef withColor(int rgb) {
-            return new FluidDef(name, tint, 0xFF000000 | rgb, still, flow, overlay, world, luminance);
         }
 
         /** Whether this fluid can be placed in the world (has a {@code LiquidBlock}). */
@@ -119,11 +111,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
     /** The custom fluids. Most are tank/pipe/bucket contents only; crude oil also flows in the world. */
     public static final List<FluidDef> CUSTOM_FLUIDS = List.of(
-        FluidDef.core("liquid_redstone").withColor(0xC81E1E),
-        FluidDef.core("liquid_ender").withColor(0x107E6E),
-        FluidDef.core("liquid_glowstone", 15).withColor(0xFFBC4E),
-        FluidDef.world("crude_oil", 2, 2, 15).withColor(0x18140E),
-        FluidDef.core("liquid_biomass").withColor(0x6A8A2E),
+        FluidDef.core("liquid_redstone"),
+        FluidDef.core("liquid_ender"),
+        FluidDef.core("liquid_glowstone", 15),
+        FluidDef.world("crude_oil", 2, 2, 15),
+        FluidDef.core("liquid_biomass"),
         FluidDef.tinted("bio_fuel", 0xFFFC5C),
         FluidDef.tinted("fuel_oil", 0xFE8C01));
 

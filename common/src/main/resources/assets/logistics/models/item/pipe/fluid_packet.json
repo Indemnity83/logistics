@@ -1,7 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "logistics:item/pipe/fluid_packet",
-    "layer1": "logistics:item/pipe/fluid_packet_fluid"
+    "layer0": "logistics:item/pipe/fluid_packet"
   }
 }
