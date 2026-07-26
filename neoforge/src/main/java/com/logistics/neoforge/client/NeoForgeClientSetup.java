@@ -29,6 +29,7 @@ import com.logistics.pipe.screen.RequesterScreen;
 import com.logistics.pipe.screen.SatelliteScreen;
 import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
+import com.logistics.pipe.client.FluidPacketTintSource;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
@@ -72,6 +73,7 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
+        modBus.addListener(NeoForgeClientSetup::registerItemTintSources);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeClientSetup::registerFluidModels);
@@ -234,6 +236,10 @@ public final class NeoForgeClientSetup {
                 LogisticsPower.BLOCK.STEAM_ENGINE,
                 LogisticsPower.BLOCK.FUEL_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
+    }
+
+    private static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
+        event.register(FluidPacketTintSource.ID.toIdentifier(), FluidPacketTintSource.MAP_CODEC);
     }
 
     private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {

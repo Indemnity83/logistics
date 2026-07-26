@@ -1,6 +1,15 @@
 {
   "model": {
     "model": "logistics:item/pipe/fluid_packet",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": -1
+      },
+      {
+        "type": "logistics:fluid_packet"
+      }
+    ],
     "type": "minecraft:model"
   }
 }

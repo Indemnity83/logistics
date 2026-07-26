@@ -1,6 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "minecraft:item/bucket"
+    "layer0": "logistics:item/pipe/fluid_packet",
+    "layer1": "logistics:item/pipe/fluid_packet_fluid"
   }
 }
