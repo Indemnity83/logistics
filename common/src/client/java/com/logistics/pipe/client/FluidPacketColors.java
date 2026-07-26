@@ -53,7 +53,7 @@ public final class FluidPacketColors {
         if (map == null) {
             map = new HashMap<>();
             for (LogisticsCore.FluidDef def : LogisticsCore.CUSTOM_FLUIDS) {
-                int tint = def.tint() | 0xFF000000;
+                int tint = def.color() | 0xFF000000;
                 map.put(LogisticsCore.resource(def.name()).toString(), tint);
                 map.put(LogisticsCore.resource("flowing_" + def.name()).toString(), tint);
             }
