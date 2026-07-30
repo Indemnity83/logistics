@@ -1,5 +1,6 @@
 package com.logistics.pipe.client;
 
+import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.resource.ResourceId;
@@ -28,16 +29,23 @@ import org.jetbrains.annotations.Nullable;
 public final class FluidPacketRendering {
     private FluidPacketRendering() {}
 
-    /** Renderer id referenced by {@code assets/logistics/items/pipe/fluid_packet.json} and registered per loader. */
-    public static final ResourceId ID = LogisticsPipe.resource("fluid_packet");
+    /**
+     * Special-model-renderer id referenced by {@code assets/logistics/items/pipe/fluid_packet.json} and
+     * registered per loader. Plain {@code logistics:fluid_packet} (a free-form renderer id, NOT the
+     * pipe-domain {@code logistics:pipe/...} path) so it matches the id in the item model JSON.
+     */
+    public static final ResourceId ID = LogisticsMod.modId("fluid_packet");
 
-    /** The frame texture (item-atlas sprite), the bubble ring drawn in front of the fluid. */
-    public static final ResourceId FRAME_TEXTURE = LogisticsPipe.resource("item/pipe/fluid_packet");
+    /** The frame texture (item-atlas sprite id {@code logistics:item/pipe/fluid_packet}), drawn in front of the fluid. */
+    public static final ResourceId FRAME_TEXTURE = LogisticsMod.modId("item/pipe/fluid_packet");
 
-    // item/generated places the flat quad at z 7.5..8.5 (of 16); +z faces the viewer. The frame sits at the
-    // front face and the fluid a hair behind, so depth ordering reveals the fluid through the window.
-    public static final float FRAME_Z = 8.5F / 16.0F;
-    public static final float FLUID_Z = 8.0F / 16.0F;
+    // item/generated occupies z 7.5..8.5 (of 16); +z faces the viewer. The fluid sits in the middle with a
+    // frame plane on EACH side (front + back), so whichever face you view, the near frame is in front of the
+    // fluid and its transparent window reveals it. A single frame plane would be occluded by the fluid from
+    // the opposite side.
+    public static final float FRAME_Z = 8.5F / 16.0F;       // front frame plane
+    public static final float FRAME_BACK_Z = 7.5F / 16.0F;  // back frame plane
+    public static final float FLUID_Z = 8.0F / 16.0F;       // fluid, sandwiched between the two frames
 
     /** The fluid a packet stack carries, or {@code null} if it has no packet component. */
     @Nullable
