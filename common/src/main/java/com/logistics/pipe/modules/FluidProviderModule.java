@@ -54,6 +54,11 @@ public class FluidProviderModule implements Module, TickingModule, DispatchableM
     // ==================== Module Interface ====================
 
     @Override
+    public boolean connectsToFluidStorage(PipeContext ctx) {
+        return true; // connect to the adjacent tank so a connection arm renders toward it
+    }
+
+    @Override
     public void onTick(PipeContext ctx) {
         int ticks = ctx.getInt(this, TICKS_SINCE_SCAN, 0) + 1;
         ctx.saveInt(this, TICKS_SINCE_SCAN, ticks);
