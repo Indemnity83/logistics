@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.8.5](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.8.4...mc1.21.1-v0.8.5) (2026-08-03)
+
+
+### Changed
+
+* **energy:** gate engine harvesting by tool tier ([#784](https://github.com/Indemnity83/logistics/issues/784)) ([ad95ecd](https://github.com/Indemnity83/logistics/commit/ad95ecd15bf71c4ecf3dada0ea46cbefc468c77e))
+
+
+### Fixed
+
+* **energy:** correct cable connections to engines ([#801](https://github.com/Indemnity83/logistics/issues/801)) ([d51c67f](https://github.com/Indemnity83/logistics/commit/d51c67f9212e536921efefd0140c09df5f4b4cb4))
+* **quarry:** fix immediate crash on published Fabric builds ([#798](https://github.com/Indemnity83/logistics/issues/798)) ([ef3b00d](https://github.com/Indemnity83/logistics/commit/ef3b00d7852632f7e8e6c8cab302fa07b393064b)) — thanks @WerWebWer
+
+### New Contributors
+
+* @WerWebWer made their first contribution in #798
+
 ## [0.8.4](https://github.com/Indemnity83/logistics/compare/mc1.21.1-v0.8.3...mc1.21.1-v0.8.4) (2026-07-24)
 
 
