@@ -14,10 +14,9 @@ base {
 }
 
 repositories {
-    // Scope each repo to the groups it serves so Gradle never probes a repo for artifacts it lacks.
-    // Gradle does not fail over on a read *timeout* (only on a 404), so an unfiltered repo that goes
-    // down (e.g. a TerraformersMC outage) breaks resolution of unrelated deps it gets probed for.
-    // BlameJared is listed first so JEI resolves from the mirror when TerraformersMC is down.
+    // Scope each repo to the groups it serves: Gradle advances to the next repo only on a 404, not on
+    // a transport error (e.g. read timeout), so an unscoped unreachable repo would stall any dependency
+    // it gets probed for. BlameJared precedes TerraformersMC so JEI resolves from the mirror during an outage.
     maven { name = "Jared's maven"; url = "https://maven.blamejared.com/"; content { includeGroup "mezz.jei" } }
     maven { url = "https://maven.terraformersmc.com/releases/"; content { includeGroup "mezz.jei"; includeGroup "com.terraformersmc" } }
     maven {
