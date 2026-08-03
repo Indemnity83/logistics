@@ -14,8 +14,10 @@ base {
 }
 
 repositories {
-    maven { url = "https://maven.terraformersmc.com/releases/" }
+    // BlameJared first: it mirrors JEI, and Gradle does not fail over to the next repo on a read
+    // timeout (only on a 404), so a TerraformersMC outage must not sit first in line.
     maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
+    maven { url = "https://maven.terraformersmc.com/releases/" }
     maven {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
