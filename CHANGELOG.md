@@ -11,7 +11,11 @@
 ### Fixed
 
 * **energy:** correct cable connections to engines ([#801](https://github.com/Indemnity83/logistics/issues/801)) ([d260edc](https://github.com/Indemnity83/logistics/commit/d260edc5f40eff05832c45945ee556520172e38d))
-* **quarry:** fix immediate crash on published Fabric builds ([#798](https://github.com/Indemnity83/logistics/issues/798)) ([c59c02f](https://github.com/Indemnity83/logistics/commit/c59c02faa288325b46223c5b9ce222bea4baa270))
+* **quarry:** fix immediate crash on published Fabric builds ([#798](https://github.com/Indemnity83/logistics/issues/798)) ([c59c02f](https://github.com/Indemnity83/logistics/commit/c59c02faa288325b46223c5b9ce222bea4baa270)) — thanks @WerWebWer
+
+### New Contributors
+
+* @WerWebWer made their first contribution in #798
 
 ## [0.8.4](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.8.3...mc26.1-v0.8.4) (2026-07-24)
 
