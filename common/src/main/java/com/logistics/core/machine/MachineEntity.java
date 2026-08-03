@@ -201,8 +201,8 @@ public abstract class MachineEntity extends BaseBlockEntity
     }
 
     @Override
-    public void setChanged() {
-        super.setChanged();
+    public void markChanged() {
+        setChanged();
     }
 
     @Override
