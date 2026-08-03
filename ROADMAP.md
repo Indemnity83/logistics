@@ -66,7 +66,7 @@ Important to the long-term vision, but not part of the immediate core milestone.
 
 These ideas are under discussion and may change significantly.
 
-- Programmable pipe gates / pipe signaling
+- **Programmable automation (gates + pipe wiring)** — BuildCraft-style gates (trigger → action logic clipped onto pipes and machines) and the colored pipe wiring that carries their signals. The biggest open design question inherited from BuildCraft; deferred post-1.0 and tracked in RFC 0001 (`design/rfcs/0001-programmable-behavior.md`). Likely revisited when Forestry-style circuit boards need a logic layer.
 - Machine upgrades
 - Remote Orderer (handheld network access; really wants an Ender Chest-style companion to shine)
 - Railcraft-style multiblock steam boilers/engines
