@@ -12,8 +12,11 @@ plugins {
 }
 
 repositories {
-    maven { url = "https://maven.terraformersmc.com/releases/" }
-    maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" }
+    // Scope each repo to the groups it serves: Gradle advances to the next repo only on a 404, not on
+    // a transport error (e.g. read timeout), so an unscoped unreachable repo would stall any dependency
+    // it gets probed for. BlameJared precedes TerraformersMC so JEI resolves from the mirror during an outage.
+    maven { name = "Jared's maven"; url = "https://maven.blamejared.com/"; content { includeGroup "mezz.jei" } }
+    maven { url = "https://maven.terraformersmc.com/releases/"; content { includeGroup "mezz.jei"; includeGroup "com.terraformersmc" } }
     maven {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
