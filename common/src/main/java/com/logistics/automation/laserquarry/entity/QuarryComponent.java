@@ -226,7 +226,7 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
 
     @Override
     public void markChanged() {
-        ctx.setChanged();
+        ctx.markChanged();
     }
 
     @Override
