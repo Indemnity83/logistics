@@ -201,6 +201,11 @@ public abstract class MachineEntity extends BaseBlockEntity
     }
 
     @Override
+    public void markChanged() {
+        setChanged();
+    }
+
+    @Override
     public void setBlockState(BlockState state, int flags) {
         if (level != null) {
             level.setBlock(worldPosition, state, flags);

@@ -140,7 +140,7 @@ public final class FluidPumpComponent implements MachineComponent {
         if (stepped != armY) {
             armY = stepped;
             if (server) {
-                ctx.setChanged();
+                ctx.markChanged();
             }
         }
         if (targetY > pos.getY() - 1) {
