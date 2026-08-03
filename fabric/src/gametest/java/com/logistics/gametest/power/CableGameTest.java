@@ -449,6 +449,11 @@ public class CableGameTest {
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST));
 
+        RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
+        if (engine == null) {
+            context.fail("Expected redstone engine block entity");
+            return;
+        }
         CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
         if (cable == null) {
             context.fail("Expected cable block entity");
