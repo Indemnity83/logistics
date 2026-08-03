@@ -413,6 +413,63 @@ public class CableGameTest {
         context.succeed();
     }
 
+    @GameTest
+    public void testCableConnectsToBufferlessEngineOutputs(GameTestHelper context) {
+        BlockPos steamEnginePos = new BlockPos(1, 1, 1);
+        BlockPos steamCablePos = new BlockPos(2, 1, 1);
+        BlockPos reactionEnginePos = new BlockPos(4, 1, 1);
+        BlockPos reactionCablePos = new BlockPos(5, 1, 1);
+
+        context.setBlock(steamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(steamEnginePos, LogisticsPower.BLOCK.STEAM_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST));
+        context.setBlock(reactionCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(reactionEnginePos, LogisticsPower.BLOCK.REACTION_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST));
+
+        CableBlockEntity steamCable = context.getBlockEntity(steamCablePos, CableBlockEntity.class);
+        CableBlockEntity reactionCable = context.getBlockEntity(reactionCablePos, CableBlockEntity.class);
+        if (steamCable == null || reactionCable == null) {
+            context.fail("Expected cable block entities");
+            return;
+        }
+        if (steamCable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.DEVICE
+                || reactionCable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.DEVICE) {
+            context.fail("Cables should connect to bufferless engine output faces");
+            return;
+        }
+        context.succeed();
+    }
+
+    @GameTest
+    public void testCableDoesNotConnectToRedstoneEngine(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(1, 1, 1);
+        BlockPos cablePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST));
+
+        RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
+        if (engine == null) {
+            context.fail("Expected redstone engine block entity");
+            return;
+        }
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        if (cable == null) {
+            context.fail("Expected cable block entity");
+            return;
+        }
+        if (cable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.NONE) {
+            context.fail("Cable should not connect to redstone engine");
+            return;
+        }
+        context.succeed();
+    }
+
     @GameTest(maxTicks = 30)
     public void testRedstoneEngineIsNotPulledByCableNetwork(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(1, 1, 1);
