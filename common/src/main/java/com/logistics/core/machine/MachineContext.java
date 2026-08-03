@@ -29,8 +29,13 @@ public interface MachineContext {
     /** Registry access for ItemStack/codec deserialization; valid even when {@link #level()} is null. */
     HolderLookup.Provider registries();
 
-    /** Marks the host dirty for chunk saving. */
-    void setChanged();
+    /**
+     * Marks the host dirty for chunk saving. Named distinctly from {@code BlockEntity#setChanged()}
+     * on purpose: a mod interface method that shares a name with a Minecraft method is remapped
+     * inconsistently on obfuscated (Fabric intermediary) runtimes unless an implementor explicitly
+     * bridges it, which throws {@code AbstractMethodError} when called through this interface.
+     */
+    void markChanged();
 
     /** Marks dirty and pushes a block update to nearby clients. */
     void sync();
