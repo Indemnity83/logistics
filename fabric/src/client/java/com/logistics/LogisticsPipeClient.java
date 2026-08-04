@@ -1,12 +1,15 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
+import com.logistics.pipe.client.FluidPacketRendering;
+import com.logistics.pipe.client.FluidPacketSpecialRenderer;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.render.PipeBlockEntityRenderer;
 import com.logistics.pipe.screen.ItemFilterScreen;
 import com.logistics.pipe.screen.RequesterScreen;
 import com.logistics.core.DebugLog;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import com.logistics.core.lib.compat.ClientScreenCompat;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -24,9 +27,14 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
         // Fluid is part of the pipe domain; register its client renderers here.
         LogisticsFluidClient.registerClient();
 
+        // Render the fluid-packet item's carried fluid behind its frame's transparent window.
+        SpecialModelRenderers.ID_MAPPER.put(
+                FluidPacketRendering.ID.toIdentifier(), FluidPacketSpecialRenderer.Unbaked.MAP_CODEC);
+
         MenuScreens.register(LogisticsPipe.SCREEN.ITEM_FILTER, ItemFilterScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.REQUESTER, com.logistics.pipe.screen.RequesterScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.SUPPLIER, com.logistics.pipe.screen.SupplierScreen::new);
+        MenuScreens.register(LogisticsPipe.SCREEN.FLUID_SUPPLIER, com.logistics.pipe.screen.FluidSupplierScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.PROVIDER, com.logistics.pipe.screen.ProviderScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.SINK, com.logistics.pipe.screen.SinkScreen::new);
         MenuScreens.register(LogisticsPipe.SCREEN.CRAFTING, com.logistics.pipe.screen.CraftingScreen::new);

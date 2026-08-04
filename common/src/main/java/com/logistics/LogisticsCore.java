@@ -69,7 +69,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
      * {@code tint} stays {@code 0xFFFFFFFF} (untinted). {@code overlay} may be null.
      */
     public record FluidDef(
-            String name, int tint, String still, String flow, String overlay, WorldFlow world, int luminance) {
+            String name, int tint, String still, String flow, String overlay, WorldFlow world,
+            int luminance) {
 
         /** Flow tuning for a {@link #world()} fluid — a placeable {@code LiquidBlock} that spreads. */
         public record WorldFlow(int slopeFindDistance, int dropOff, int tickDelay) {}
@@ -84,7 +85,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
          * Full alpha is applied so NeoForge (which uses {@link #tint()} raw) renders it opaque.
          */
         public static FluidDef tinted(String name, int rgb) {
-            return new FluidDef(name, 0xFF000000 | rgb,
+            int argb = 0xFF000000 | rgb;
+            return new FluidDef(name, argb,
                 "minecraft:block/water_still", "minecraft:block/water_flow", null, null, 0);
         }
 

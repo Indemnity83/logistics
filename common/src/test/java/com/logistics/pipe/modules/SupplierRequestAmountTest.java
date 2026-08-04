@@ -18,6 +18,9 @@ class SupplierRequestAmountTest {
         throw new AssertionError("supplier evaluated on a branch that should not need it");
     };
 
+    /** Effectively-unbounded room, for cases only interested in the network/threshold behavior. */
+    private static final LongSupplier UNBOUNDED_SPACE = () -> Long.MAX_VALUE;
+
     private static SupplierModeConfig config(SupplyMode mode) {
         return SupplierModeConfig.forMode(mode, STACK);
     }
@@ -52,13 +55,13 @@ class SupplierRequestAmountTest {
     @Test
     @DisplayName("PARTIAL requests the shortfall regardless of network availability")
     void partial_requestsShortfall() {
-        assertThat(request(SupplyMode.PARTIAL, 64, 10, 0, NEVER, NEVER)).isEqualTo(54);
+        assertThat(request(SupplyMode.PARTIAL, 64, 10, 0, UNBOUNDED_SPACE, NEVER)).isEqualTo(54);
     }
 
     @Test
     @DisplayName("PARTIAL subtracts pending in-flight from the shortfall")
     void partial_accountsForPending() {
-        assertThat(request(SupplyMode.PARTIAL, 64, 50, 10, NEVER, NEVER)).isEqualTo(4);
+        assertThat(request(SupplyMode.PARTIAL, 64, 50, 10, UNBOUNDED_SPACE, NEVER)).isEqualTo(4);
     }
 
     @Test
@@ -67,24 +70,48 @@ class SupplierRequestAmountTest {
         assertThat(request(SupplyMode.PARTIAL, 64, 60, 10, NEVER, NEVER)).isZero();
     }
 
+    @Test
+    @DisplayName("PARTIAL caps the request at the destination's real room")
+    void partial_cappedByAvailableSpace() {
+        assertThat(request(SupplyMode.PARTIAL, 64, 10, 0, () -> 20, NEVER)).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("PARTIAL requests nothing when the destination has no real room")
+    void partial_nothingWhenNoRoom() {
+        assertThat(request(SupplyMode.PARTIAL, 64, 10, 0, () -> 0, NEVER)).isZero();
+    }
+
     // ==================== FULL (all-or-nothing) ====================
 
     @Test
     @DisplayName("FULL requests the shortfall only when the network can cover all of it")
     void full_requestsWhenFullyCovered() {
-        assertThat(request(SupplyMode.FULL, 64, 0, 0, NEVER, () -> 64)).isEqualTo(64);
+        assertThat(request(SupplyMode.FULL, 64, 0, 0, UNBOUNDED_SPACE, () -> 64)).isEqualTo(64);
     }
 
     @Test
     @DisplayName("FULL requests nothing when the network cannot cover the whole shortfall")
     void full_nothingWhenPartiallyCovered() {
-        assertThat(request(SupplyMode.FULL, 64, 0, 0, NEVER, () -> 30)).isZero();
+        assertThat(request(SupplyMode.FULL, 64, 0, 0, UNBOUNDED_SPACE, () -> 30)).isZero();
     }
 
     @Test
     @DisplayName("FULL accepts an on-demand craftable source (unbounded availability)")
     void full_acceptsCraftable() {
-        assertThat(request(SupplyMode.FULL, 64, 0, 0, NEVER, () -> Long.MAX_VALUE)).isEqualTo(64);
+        assertThat(request(SupplyMode.FULL, 64, 0, 0, UNBOUNDED_SPACE, () -> Long.MAX_VALUE)).isEqualTo(64);
+    }
+
+    @Test
+    @DisplayName("FULL treats room-capped shortfall as the whole request when the network covers it")
+    void full_cappedByAvailableSpace_networkCoversCappedAmount() {
+        assertThat(request(SupplyMode.FULL, 64, 0, 0, () -> 20, () -> 20)).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("FULL requests nothing when the network can't cover even the room-capped shortfall")
+    void full_cappedByAvailableSpace_networkCantCoverCappedAmount() {
+        assertThat(request(SupplyMode.FULL, 64, 0, 0, () -> 20, () -> 10)).isZero();
     }
 
     // ==================== Trigger thresholds (BULK modes) ====================
@@ -93,13 +120,25 @@ class SupplierRequestAmountTest {
     @DisplayName("BULK50 holds off until stock drops to at most half the target")
     void bulk50_waitsForHalf() {
         assertThat(request(SupplyMode.BULK50, 100, 60, 0, NEVER, NEVER)).isZero();
-        assertThat(request(SupplyMode.BULK50, 100, 40, 0, NEVER, NEVER)).isEqualTo(60);
+        assertThat(request(SupplyMode.BULK50, 100, 40, 0, UNBOUNDED_SPACE, NEVER)).isEqualTo(60);
+    }
+
+    @Test
+    @DisplayName("BULK50 caps the restock at the destination's real room")
+    void bulk50_cappedByAvailableSpace() {
+        assertThat(request(SupplyMode.BULK50, 100, 40, 0, () -> 10, NEVER)).isEqualTo(10);
     }
 
     @Test
     @DisplayName("BULK100 restocks only once the inventory is completely empty")
     void bulk100_waitsForEmpty() {
         assertThat(request(SupplyMode.BULK100, 100, 1, 0, NEVER, NEVER)).isZero();
-        assertThat(request(SupplyMode.BULK100, 100, 0, 0, NEVER, NEVER)).isEqualTo(100);
+        assertThat(request(SupplyMode.BULK100, 100, 0, 0, UNBOUNDED_SPACE, NEVER)).isEqualTo(100);
+    }
+
+    @Test
+    @DisplayName("BULK100 caps the restock at the destination's real room")
+    void bulk100_cappedByAvailableSpace() {
+        assertThat(request(SupplyMode.BULK100, 100, 0, 0, () -> 30, NEVER)).isEqualTo(30);
     }
 }

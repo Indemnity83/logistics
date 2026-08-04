@@ -24,6 +24,8 @@ import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.item.FluidPipeBlockItem;
 import com.logistics.pipe.item.GlassTankBlockItem;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
+import com.logistics.pipe.data.PipeDataComponents.FluidPacket;
+import com.logistics.pipe.item.FluidPacketItem;
 import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import com.logistics.pipe.item.ModuleItem;
@@ -82,13 +84,29 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     /**
      * Pipe tuning. Fluids are part of the pipe domain, so both files live here — item transport in
-     * {@code config/logistics/pipes.json}, fluid pipe/pump in {@code config/logistics/fluids.json}.
+     * {@code config/logistics/pipes.json}, fluid pipe/pump in {@code config/logistics/fluids.json}, and
+     * fluid logistics in {@code config/logistics/fluid_logistics.json}.
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config pipes = configFor(LogisticsConfigHost.MOD_ID, "pipes");
         private static final Config fluids = configFor(LogisticsConfigHost.MOD_ID, "fluids");
+        private static final Config fluidLogistics = configFor(LogisticsConfigHost.MOD_ID, "fluid_logistics");
 
         private CONFIG() {}
+
+        // ---- fluid logistics (fluid_logistics.json) ----
+
+        public static final ConfigKey<Long> FLUID_PACKET_QUANTUM_MB =
+                fluidLogistics.defineLong("fluid_packet_quantum_mb", 250L)
+                        .min(1L)
+                        .describe("mB of fluid per packet (restart required)")
+                        .register();
+
+        public static final ConfigKey<Long> FLUID_ENDPOINT_RF_PER_PACKET =
+                fluidLogistics.defineLong("fluid_endpoint_rf_per_packet", 10L)
+                        .min(0L)
+                        .describe("RF charged per packet at each endpoint")
+                        .register();
 
         // ---- item transport (pipes.json) ----
 
@@ -235,8 +253,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block ITEM_VOID_PIPE;
         public static Block BASIC_LOGISTICS_PIPE;
         public static Block PROVIDER_LOGISTICS_PIPE;
+        public static Block FLUID_PROVIDER_LOGISTICS_PIPE;
         public static Block REQUESTER_LOGISTICS_PIPE;
         public static Block SUPPLIER_LOGISTICS_PIPE;
+        public static Block FLUID_SUPPLIER_LOGISTICS_PIPE;
         public static Block CRAFTING_LOGISTICS_PIPE;
         public static Block PROCESS_LOGISTICS_PIPE;
         public static Block SATELLITE_LOGISTICS_PIPE;
@@ -300,10 +320,14 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(pipeProps(props), PipeTypes.BASIC_LOGISTICS_PIPE));
             PROVIDER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("provider_logistics_pipe",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.PROVIDER_LOGISTICS_PIPE));
+            FLUID_PROVIDER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("fluid_provider_pipe",
+                props -> new PipeBlock(pipeProps(props), PipeTypes.FLUID_PROVIDER_LOGISTICS_PIPE));
             REQUESTER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("requester_logistics_pipe",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.REQUESTER_LOGISTICS_PIPE));
             SUPPLIER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("supplier_logistics_pipe",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.SUPPLIER_LOGISTICS_PIPE));
+            FLUID_SUPPLIER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("fluid_supplier_pipe",
+                props -> new PipeBlock(pipeProps(props), PipeTypes.FLUID_SUPPLIER_LOGISTICS_PIPE));
             CRAFTING_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("crafting_logistics_pipe",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CRAFTING_LOGISTICS_PIPE));
             PROCESS_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("process_logistics_pipe",
@@ -366,6 +390,9 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Item QUICKSORT_MODULE;
         public static Item TERMINUS_MODULE;
 
+        // Hidden internal item — moves a fluid through the item network; never in a creative tab.
+        public static Item FLUID_PACKET;
+
         public static Item WHITE_MARKING_FLUID;
         public static Item ORANGE_MARKING_FLUID;
         public static Item MAGENTA_MARKING_FLUID;
@@ -420,6 +447,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
                     props -> new ModuleItem(props, () -> new TerminusModule(4)));
+
+            FLUID_PACKET = INSTANCE.registerItem("fluid_packet", FluidPacketItem::new);
 
             WHITE_MARKING_FLUID = markingFluid(DyeColor.WHITE);
             ORANGE_MARKING_FLUID = markingFluid(DyeColor.ORANGE);
@@ -478,8 +507,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.ITEM_VOID_PIPE,
                 BLOCK.BASIC_LOGISTICS_PIPE,
                 BLOCK.PROVIDER_LOGISTICS_PIPE,
+                BLOCK.FLUID_PROVIDER_LOGISTICS_PIPE,
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
                 BLOCK.SUPPLIER_LOGISTICS_PIPE,
+                BLOCK.FLUID_SUPPLIER_LOGISTICS_PIPE,
                 BLOCK.CRAFTING_LOGISTICS_PIPE,
                 BLOCK.PROCESS_LOGISTICS_PIPE,
                 BLOCK.SATELLITE_LOGISTICS_PIPE,
@@ -493,6 +524,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     public static final class DATA {
         public static DataComponentType<WeatheringState> WEATHERING_STATE;
+        public static DataComponentType<FluidPacket> FLUID_PACKET;
 
         private DATA() {}
 
@@ -503,6 +535,13 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     DataComponentType.<WeatheringState>builder()
                             .persistent(WeatheringState.CODEC)
                             .build());
+            FLUID_PACKET = Registry.register(
+                    BuiltInRegistries.DATA_COMPONENT_TYPE,
+                    LogisticsPipe.resource("fluid_packet").toIdentifier(),
+                    DataComponentType.<FluidPacket>builder()
+                            .persistent(FluidPacket.CODEC)
+                            .networkSynchronized(FluidPacket.STREAM_CODEC)
+                            .build());
         }
     }
 
@@ -510,6 +549,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<ItemFilterScreenHandler> ITEM_FILTER;
         public static MenuType<com.logistics.pipe.ui.RequesterScreenHandler> REQUESTER;
         public static MenuType<com.logistics.pipe.ui.SupplierScreenHandler> SUPPLIER;
+        public static MenuType<com.logistics.pipe.ui.FluidSupplierScreenHandler> FLUID_SUPPLIER;
         public static MenuType<com.logistics.pipe.ui.ProviderScreenHandler> PROVIDER;
         public static MenuType<com.logistics.pipe.ui.SinkScreenHandler> SINK;
         public static MenuType<com.logistics.pipe.ui.CraftingScreenHandler> CRAFTING;
@@ -549,6 +589,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("supplier").toIdentifier(),
                     new MenuType<>(com.logistics.pipe.ui.SupplierScreenHandler::new, FeatureFlagSet.of()));
+            FLUID_SUPPLIER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("fluid_supplier").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.FluidSupplierScreenHandler::new, FeatureFlagSet.of()));
             PROVIDER = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("provider").toIdentifier(),
@@ -638,8 +682,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             // Logistics Pipes
             TAB.add(BLOCK.BASIC_LOGISTICS_PIPE);
             TAB.add(BLOCK.PROVIDER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.FLUID_PROVIDER_LOGISTICS_PIPE);
             TAB.add(BLOCK.REQUESTER_LOGISTICS_PIPE);
             TAB.add(BLOCK.SUPPLIER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.FLUID_SUPPLIER_LOGISTICS_PIPE);
             TAB.add(BLOCK.CRAFTING_LOGISTICS_PIPE);
             TAB.add(BLOCK.PROCESS_LOGISTICS_PIPE);
             TAB.add(BLOCK.SATELLITE_LOGISTICS_PIPE);

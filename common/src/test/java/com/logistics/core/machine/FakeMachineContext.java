@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Minimal {@link MachineContext} for unit tests: no live {@link Level}, registries from the
- * bootstrapped built-in registry, and no-op world mutations. Records whether {@code setChanged}
+ * bootstrapped built-in registry, and no-op world mutations. Records whether {@code markChanged}
  * was called so tests can assert dirty-marking.
  */
 public final class FakeMachineContext implements MachineContext {
@@ -45,7 +45,7 @@ public final class FakeMachineContext implements MachineContext {
     }
 
     @Override
-    public void setChanged() {
+    public void markChanged() {
         changedCalls++;
     }
 

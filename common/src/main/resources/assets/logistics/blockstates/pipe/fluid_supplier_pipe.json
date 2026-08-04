@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "logistics:block/pipe/fluid_supplier_pipe_core"
+    }
+  }
+}

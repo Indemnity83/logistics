@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "logistics:item/pipe/fluid_packet",
+    "model": {
+      "type": "logistics:fluid_packet"
+    }
+  }
+}

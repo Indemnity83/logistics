@@ -58,6 +58,12 @@ public final class PipeTypes {
             new ProviderModule(8, 1))
             .withEnergy();
 
+    // Fluid Provider Logistics Pipe - mints fluid packets from an adjacent tank on demand.
+    public static final ItemPipe FLUID_PROVIDER_LOGISTICS_PIPE = new ItemPipe(
+            new NetworkRouterModule(),
+            new FluidProviderModule())
+            .withEnergy();
+
     // Requester Logistics Pipe - creates requests for items from the network.
     public static final ItemPipe REQUESTER_LOGISTICS_PIPE = new ItemPipe(
             new NetworkRouterModule(),
@@ -68,6 +74,12 @@ public final class PipeTypes {
     public static final ItemPipe SUPPLIER_LOGISTICS_PIPE = new ItemPipe(
             new NetworkRouterModule(),
             new SupplierModule())
+            .withEnergy();
+
+    // Fluid Supplier Logistics Pipe - keeps an adjacent machine tank stocked by ordering fluid packets.
+    public static final ItemPipe FLUID_SUPPLIER_LOGISTICS_PIPE = new ItemPipe(
+            new NetworkRouterModule(),
+            new FluidSupplierModule())
             .withEnergy();
 
     // Crafting Logistics Pipe - on-demand crafting via adjacent Autocrafter.
