@@ -60,6 +60,10 @@ public class GlassTankBucketGameTest {
 
         context.useBlock(tankPos, player);
 
+        ItemStack held = player.getItemInHand(InteractionHand.MAIN_HAND);
+        if (!held.is(Items.BUCKET) || held.getCount() != 1) {
+            throw context.assertionException("Expected the held item to remain a single empty bucket, got " + held);
+        }
         if (tank.tank().getAmount() != 0) {
             throw context.assertionException("Expected tank to be drained, still has " + tank.tank().getAmount());
         }
