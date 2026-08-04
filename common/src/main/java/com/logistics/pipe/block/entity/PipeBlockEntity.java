@@ -329,8 +329,18 @@ public class PipeBlockEntity extends BaseBlockEntity
     /**
      * Drop an item entity at the specified pipe position.
      * Static method for external callers (PipeBlock, PipeRuntime).
+     *
+     * <p>Fluid packets are a hidden internal representation of in-transit fluid — never crafted or
+     * shown to players (see {@link com.logistics.pipe.item.FluidPacketItem}) — so an undeliverable
+     * one is voided here instead of spawning a pickup-able entity. Every drop path in the pipe
+     * runtime (routing failure, transfer failure, insertion overflow, block removal) funnels through
+     * this single method, so gating it here covers all of them.
      */
     public static void dropItem(Level level, BlockPos pos, TravelingItem item) {
+        if (item.getStack().getItem() == LogisticsPipe.ITEM.FLUID_PACKET) {
+            return;
+        }
+
         // Create item entity at center of pipe
         Vec3 spawnPos = Vec3.atCenterOf(pos);
 
