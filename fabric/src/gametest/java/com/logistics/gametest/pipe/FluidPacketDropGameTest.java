@@ -19,12 +19,8 @@ import net.minecraft.world.phys.AABB;
 import java.util.List;
 
 /**
- * Fluid packets are a hidden internal representation of in-transit fluid (see
- * {@link com.logistics.pipe.item.FluidPacketItem}) — never crafted or shown to players — so an
- * undeliverable one must be voided rather than spawned as a pickup-able ground item. Every drop path
- * in the pipe runtime funnels through {@link PipeBlockEntity#dropItem}, so these tests exercise it via
- * the block-removal path (the simplest reliable way to force a drop) and confirm normal items are
- * unaffected by the fluid-packet gate.
+ * An undeliverable fluid packet must be voided rather than spawned as a pickup-able ground item, and
+ * normal items must still drop as usual.
  *
  * <p>Run in-game: /test run logistics-gametest.fluidpacketdropgametest.&lt;methodname&gt;
  */
@@ -49,8 +45,7 @@ public class FluidPacketDropGameTest {
     }
 
     /**
-     * A fluid packet stranded in a pipe that gets broken (player break, explosion, /setblock) must not
-     * spawn as a ground item — it's voided instead.
+     * A fluid packet stranded in a broken pipe must not spawn as a ground item — it's voided instead.
      */
     @GameTest
     public void testFluidPacketNeverDropsOnPipeBreak(GameTestHelper context) {
@@ -72,8 +67,7 @@ public class FluidPacketDropGameTest {
     }
 
     /**
-     * Control: a normal item stranded the same way must still drop as usual — confirms the fluid-packet
-     * gate in {@link PipeBlockEntity#dropItem} doesn't suppress drops in general.
+     * Control: a normal item stranded the same way must still drop as usual.
      */
     @GameTest
     public void testNormalItemStillDropsOnPipeBreak(GameTestHelper context) {
