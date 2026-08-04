@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.world.item.ItemStack;
@@ -20,14 +19,19 @@ import org.jetbrains.annotations.Nullable;
 /**
  * 26.2 item-render adapter for the hidden fluid-packet item. Wires the vanilla {@link SpecialModelRenderer}
  * {@code submit} path to the shared, version-agnostic {@link FluidPacketRendering} core. Draws the carried
- * fluid's still sprite (16px, animated) as a flat quad behind the frame texture (a bubble ring with a
- * transparent center window).
+ * fluid's still sprite (16px, animated) as a disc behind the frame texture (a round bubble whose transparent
+ * centre window reveals it), sized to tuck under the bubble's glass rim.
+ *
+ * <p>Both fluid and frame draw through {@code *MovingBlock} render types off the blocks atlas, NOT
+ * {@code itemCutout}: the item shader applies directional (diffuse) lighting, which shades the white frame to
+ * grey under the GUI's 3D item lighting. The movingBlock path skips that, so the frame stays full-bright.
  *
  * <p>Both sprites are resolved at RENDER time (in {@link #submit}) via the {@code AtlasManager}, never at
  * bake time — special-model bake runs before atlases are initialized, so a bake-time
- * {@code context.sprites().get(...)} throws "Atlas not initialized". The frame is stitched onto the blocks
- * atlas via {@code assets/logistics/atlases/blocks.json} and looked up the same way
- * {@link com.logistics.pipe.render.PipeBlockEntityRenderer} resolves its sprites.
+ * {@code context.sprites().get(...)} throws "Atlas not initialized". The frame lives under
+ * {@code textures/block/} so vanilla's default {@code block/} atlas source stitches it onto the blocks atlas,
+ * and it's looked up the same way {@link com.logistics.pipe.render.PipeBlockEntityRenderer} resolves its
+ * {@code block/pipe/...} sprites.
  */
 public final class FluidPacketSpecialRenderer implements SpecialModelRenderer<Fluid> {
     private static final float FRAME_Z = FluidPacketRendering.FRAME_Z;
@@ -42,10 +46,10 @@ public final class FluidPacketSpecialRenderer implements SpecialModelRenderer<Fl
         return FluidPacketRendering.fluidOf(stack);
     }
 
-    /** The frame sprite off the ITEMS atlas — resolved lazily at render, when atlases are initialized. */
+    /** The frame sprite off the BLOCKS atlas — resolved lazily at render, when atlases are initialized. */
     private static TextureAtlasSprite frameSprite() {
         return Minecraft.getInstance().getAtlasManager()
-                .getAtlasOrThrow(AtlasIds.ITEMS)
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
                 .getSprite(FluidPacketRendering.FRAME_TEXTURE.toIdentifier());
     }
 
@@ -66,14 +70,16 @@ public final class FluidPacketSpecialRenderer implements SpecialModelRenderer<Fl
                 collector.submitCustomGeometry(
                         poseStack,
                         RenderTypes.translucentMovingBlock(),
-                        (entry, buffer) -> FluidBoxRenderer.renderFaceQuad(
-                                entry, buffer, sprite, color, lightCoords, 0.0F, 0.0F, 1.0F, 1.0F, FLUID_Z));
+                        (entry, buffer) -> FluidBoxRenderer.renderFaceDisc(
+                                entry, buffer, sprite, color, lightCoords,
+                                FluidPacketRendering.FLUID_CENTER_X, FluidPacketRendering.FLUID_CENTER_Y,
+                                FluidPacketRendering.FLUID_RADIUS, FLUID_Z, FluidPacketRendering.FLUID_DISC_SEGMENTS));
             }
         }
         TextureAtlasSprite frame = frameSprite();
         collector.submitCustomGeometry(
                 poseStack,
-                RenderTypes.itemCutout(TextureAtlas.LOCATION_ITEMS),
+                RenderTypes.cutoutMovingBlock(),
                 (entry, buffer) -> {
                     // A frame plane in front of and behind the fluid, so it frames from either viewing side.
                     FluidBoxRenderer.renderFaceQuad(

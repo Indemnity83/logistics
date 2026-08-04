@@ -20,20 +20,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Tick-based game tests for the Fluid Provider Pipe: a logistics pipe placed on a fluid tank that
- * mints fluid packets on demand and dispatches them into the item logistics network.
- *
- * <p>Layout (y=1): [fluid_provider_pipe] → [transport_pipe] → [basic_logistics_pipe] → [chest]
- * with a glass tank above the provider and a charged power junction above the transport pipe.
- *
- * <p>Run in-game: /test run logistics-gametest.fluidprovidergametest.&lt;methodname&gt;
+ * Tick-based game tests for Fluid Provider Pipe packet delivery and insufficient-fluid handling.
  */
 public class FluidProviderGameTest {
 
-    /** Place a filled Power Junction so the network can pay module energy costs. */
+    /** Fill a Power Junction so the network can pay module energy costs. */
     private static void placeChargedPowerJunction(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsPipe.BLOCK.POWER_JUNCTION);
         PowerJunctionBlockEntity junction = context.getBlockEntity(pos, PowerJunctionBlockEntity.class);
@@ -66,11 +61,7 @@ public class FluidProviderGameTest {
         return ItemStorageLookup.of(packet);
     }
 
-    /**
-     * Happy path: a tank holding 4 quanta of water, an order for 4 packets. The provider mints and
-     * dispatches the packets; they route to the default-route sink and land in the chest; the tank is
-     * drained by 4×quantum and the network was charged for the packets.
-     */
+    /** Delivers four packets and charges the configured energy for each one. */
     @GameTest(maxTicks = 160)
     public void testFluidProviderMintsAndDeliversPackets(GameTestHelper context) {
         BlockPos providerPos = new BlockPos(0, 1, 0);
@@ -112,28 +103,32 @@ public class FluidProviderGameTest {
             network.placeOrder(waterPacketKey(), 4, context.absolutePos(sinkPos));
 
             context.succeedWhen(() -> {
-                context.assertContainerContains(chestPos, LogisticsPipe.ITEM.FLUID_PACKET);
+                ChestBlockEntity chest = context.getBlockEntity(chestPos, ChestBlockEntity.class);
+                int packetCount = 0;
+                for (int slot = 0; slot < chest.getContainerSize(); slot++) {
+                    ItemStack stack = chest.getItem(slot);
+                    if (stack.is(LogisticsPipe.ITEM.FLUID_PACKET)) packetCount += stack.getCount();
+                }
+                if (packetCount != 4) {
+                    throw context.assertionException("Chest should contain exactly 4 fluid packets, found " + packetCount);
+                }
 
                 GlassTankBlockEntity t = context.getBlockEntity(tankPos, GlassTankBlockEntity.class);
                 long remainingMb = FluidUnits.toMillibuckets(t.amount());
-                if (remainingMb > fillMb - quantum * 4) {
+                if (quantum > 1 && remainingMb > fillMb - quantum * 4) {
                     throw context.assertionException(
                             "Tank should be drained by 4 quanta, remaining mB: " + remainingMb);
                 }
 
                 long energyNow = junction.energyStorage(null).getAmount();
-                if (rf > 0 && energyNow >= startEnergy) {
-                    throw context.assertionException("Network energy should have been charged for the packets");
+                if (energyNow != startEnergy - 4 * rf) {
+                    throw context.assertionException("Network energy should be charged exactly 4 times per packet");
                 }
             });
         });
     }
 
-    /**
-     * Below one quantum: the tank holds less than a single packet's worth of fluid, so the provider
-     * advertises nothing. An order for a packet is never fulfilled — the chest stays empty, the tank is
-     * untouched, and no energy is charged.
-     */
+    /** A tank below one quantum does not advertise or dispatch a packet. */
     @GameTest(maxTicks = 120)
     public void testFluidProviderDoesNotDispatchBelowOneQuantum(GameTestHelper context) {
         BlockPos providerPos = new BlockPos(0, 1, 0);
@@ -151,7 +146,7 @@ public class FluidProviderGameTest {
         placeChargedPowerJunction(context, junctionPos);
 
         long quantum = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB);
-        long fillMb = Math.max(1, quantum - 1); // below one quantum
+        long fillMb = quantum - 1;
 
         GlassTankBlockEntity tank = context.getBlockEntity(tankPos, GlassTankBlockEntity.class);
         if (tank == null) {
@@ -173,7 +168,7 @@ public class FluidProviderGameTest {
             network.placeOrder(waterPacketKey(), 1, context.absolutePos(sinkPos));
         });
 
-        // Give the network ample time to (not) dispatch, then assert nothing changed.
+        // Give the network time to attempt dispatch before asserting that nothing changed.
         context.runAfterDelay(90, () -> {
             GlassTankBlockEntity t = context.getBlockEntity(tankPos, GlassTankBlockEntity.class);
             if (FluidUnits.toMillibuckets(t.amount()) != fillMb) {

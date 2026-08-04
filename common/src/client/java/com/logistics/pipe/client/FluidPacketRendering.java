@@ -36,8 +36,14 @@ public final class FluidPacketRendering {
      */
     public static final ResourceId ID = LogisticsMod.modId("fluid_packet");
 
-    /** The frame texture (item-atlas sprite id {@code logistics:item/pipe/fluid_packet}), drawn in front of the fluid. */
-    public static final ResourceId FRAME_TEXTURE = LogisticsMod.modId("item/pipe/fluid_packet");
+    /**
+     * The frame texture, drawn in front of the fluid. Lives under {@code textures/block/} (sprite id
+     * {@code logistics:block/pipe/fluid_packet}) so vanilla's default {@code block/} atlas source stitches it
+     * onto the BLOCKS atlas — the frame is drawn with a {@code *MovingBlock} render type (see
+     * {@code FluidPacketSpecialRenderer}), which binds that atlas. An {@code item/} texture would only reach
+     * the items atlas and render magenta under the blocks-atlas lookup.
+     */
+    public static final ResourceId FRAME_TEXTURE = LogisticsMod.modId("block/pipe/fluid_packet");
 
     // item/generated occupies z 7.5..8.5 (of 16); +z faces the viewer. The fluid sits in the middle with a
     // frame plane on EACH side (front + back), so whichever face you view, the near frame is in front of the
@@ -46,6 +52,15 @@ public final class FluidPacketRendering {
     public static final float FRAME_Z = 8.5F / 16.0F;       // front frame plane
     public static final float FRAME_BACK_Z = 7.5F / 16.0F;  // back frame plane
     public static final float FLUID_Z = 8.0F / 16.0F;       // fluid, sandwiched between the two frames
+
+    // The frame is a small round bubble: an opaque glass ring (~13px circle) with a transparent hole inside
+    // AND transparent slot outside it. A full-slot fluid quad would bleed through that outside, so the fluid
+    // is drawn as a disc matching the bubble — centred on the ring, radius tucking its rim under the glass.
+    // Coords are geometric (y already flipped by the vertex UV), so centre lands at 8.5/16 on both axes.
+    public static final float FLUID_CENTER_X = 8.5F / 16.0F;
+    public static final float FLUID_CENTER_Y = 8.5F / 16.0F;
+    public static final float FLUID_RADIUS = 5.5F / 16.0F;
+    public static final int FLUID_DISC_SEGMENTS = 32;
 
     /** The fluid a packet stack carries, or {@code null} if it has no packet component. */
     @Nullable

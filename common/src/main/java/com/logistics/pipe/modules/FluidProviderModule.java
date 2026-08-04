@@ -31,18 +31,13 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Fluid provider module - a logistics pipe placed on a fluid tank that mints fluid packets on demand
- * and dispatches them into the item logistics network (dynamic provider), draining the adjacent tank.
+ * A logistics pipe that mints fluid packets on demand from an adjacent tank.
  *
  * <p>Each dispatched packet carries a fixed quantum of fluid (see the {@code fluid_packet_quantum_mb}
- * config) baked into its data component, so the network key stays stable regardless of how much fluid
- * is left in the tank. Dispatch is transactional and energy-atomic: fluid is only extracted and energy
- * only charged when both succeed together, and any unpayable portion is returned to the tank so fluid
- * is never lost or duplicated.
+ * config) baked into its data component. Dispatch is transactional and energy-atomic: unpayable fluid is
+ * returned to the tank.
  *
- * <p>The tank is discovered by scanning all six faces for an {@link IFluidStorage} (a fluid-only tank
- * does not register as an item {@code INVENTORY} connection), mirroring how {@link CraftingModule}
- * locates its adjacent autocrafter.
+ * <p>The tank is discovered by scanning all six faces for an {@link IFluidStorage}.
  */
 public class FluidProviderModule implements Module, TickingModule, DispatchableModule {
     private static final String TICKS_SINCE_SCAN = "ticks_since_scan";
@@ -99,6 +94,7 @@ public class FluidProviderModule implements Module, TickingModule, DispatchableM
             long r = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET);
             Tank now = findTank(ctx);
             if (now == null) return List.of(packetKey);
+            if (!packetKey.matches(packetStack(now.fluid().getFluid(), q))) return List.of(packetKey);
             long availableMb = FluidUnits.toMillibuckets(now.amountNative());
             boolean fluidOk = availableMb >= amount * q;
             // No network energy-quantity API exists; isPowered() is a best-effort gate. The real

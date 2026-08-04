@@ -3,7 +3,10 @@ package com.logistics.power.cable;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.block.ConnectedShapeCache;
 import com.logistics.core.lib.block.capability.HasEnergyStorage;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.power.DirectEnergyReceiver;
+import com.logistics.core.lib.power.EngineEntity;
+import com.logistics.core.lib.power.LowTierEnergySource;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -230,6 +233,16 @@ public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         // Extraction pipes / pump are engine-powered only; cables never connect to them.
         if (neighbor instanceof DirectEnergyReceiver) {
             return ConnectionType.NONE;
+        }
+
+        // Bufferless engines still need a visual connection, but only on their output face.
+        // Low-tier engines are intentionally isolated from the cable network.
+        if (neighbor instanceof EngineEntity engine) {
+            if (engine instanceof LowTierEnergySource
+                    || AbstractEngineBlock.getOutputDirection(engine.getBlockState()) != direction.getOpposite()) {
+                return ConnectionType.NONE;
+            }
+            return ConnectionType.DEVICE;
         }
 
         if (neighbor instanceof HasEnergyStorage energyBlock
