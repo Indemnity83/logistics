@@ -97,6 +97,59 @@ public class TransposerGameTest {
         });
     }
 
+    /** Filled bucket of a custom mod fluid + room in the tank → empty bucket out, tank gains 1000 mB. */
+    @GameTest(maxTicks = 40)
+    public void emptyCustomFluidBucket(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        TransposerBlockEntity be = place(context, pos);
+
+        Fluid fluid = liquidRedstone();
+        Item bucket = LogisticsCore.BUCKET.forFluid("liquid_redstone");
+        be.setItem(INPUT_SLOT, new ItemStack(bucket));
+
+        context.runAfterDelay(5, () -> {
+            if (!be.getItem(OUTPUT_SLOT).is(Items.BUCKET)) {
+                context.fail("Expected an empty bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
+                return;
+            }
+            if (!be.getItem(INPUT_SLOT).isEmpty()) {
+                context.fail("Filled bucket should have been consumed");
+                return;
+            }
+            if (be.tank().getAmount() != FluidUnits.mb(1_000) || be.tank().getFluidKey().getFluid() != fluid) {
+                context.fail("Tank should hold 1000 mB of liquid redstone, got: " + be.tank().getAmount());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** Empty bucket + tank holding less than 1000 mB → rejected: input and tank untouched. */
+    @GameTest(maxTicks = 40)
+    public void insufficientTankAmountRejected(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        TransposerBlockEntity be = place(context, pos);
+
+        be.tank().insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(500), false);
+        be.setItem(INPUT_SLOT, new ItemStack(Items.BUCKET));
+
+        context.runAfterDelay(5, () -> {
+            if (!be.getItem(INPUT_SLOT).is(Items.BUCKET)) {
+                context.fail("Empty bucket should be untouched when the tank has too little fluid");
+                return;
+            }
+            if (!be.getItem(OUTPUT_SLOT).isEmpty()) {
+                context.fail("Nothing should have been produced from an under-full tank");
+                return;
+            }
+            if (be.tank().getAmount() != FluidUnits.mb(500)) {
+                context.fail("Tank should still hold 500 mB, got: " + be.tank().getAmount());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
     /** Lava bucket + room in the tank → empty bucket out, tank gains 1000 mB of lava. */
     @GameTest(maxTicks = 40)
     public void emptyLavaBucket(GameTestHelper context) {

@@ -18,8 +18,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Client-side GUI screen for the Transposer. Mirrors the Crucible's tank rendering; there is no progress
- * arrow or energy bar (the Transposer has no RF).
+ * Client-side GUI screen for the Transposer. No progress arrow or energy bar — the Transposer has no RF.
  */
 public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHandler> {
 

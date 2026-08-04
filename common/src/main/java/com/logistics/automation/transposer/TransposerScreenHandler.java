@@ -103,6 +103,12 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
         return this.inventory.stillValid(player);
     }
 
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        this.inventory.stopOpen(player);
+    }
+
     // ==================== Data getters for GUI rendering ====================
 
     /** Registry id of the fluid in the tank, or {@code -1} when empty. */
