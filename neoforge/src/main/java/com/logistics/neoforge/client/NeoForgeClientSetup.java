@@ -21,6 +21,7 @@ import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.pipe.screen.AdvancedExtractorScreen;
 import com.logistics.pipe.screen.ChassisScreen;
 import com.logistics.pipe.screen.CraftingScreen;
+import com.logistics.pipe.screen.FluidSupplierScreen;
 import com.logistics.pipe.screen.ItemFilterScreen;
 import com.logistics.pipe.screen.ModSinkScreen;
 import com.logistics.pipe.screen.ProcessScreen;
@@ -150,6 +151,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsPipe.SCREEN.ITEM_FILTER, ItemFilterScreen::new);
         event.register(LogisticsPipe.SCREEN.REQUESTER, RequesterScreen::new);
         event.register(LogisticsPipe.SCREEN.SUPPLIER, SupplierScreen::new);
+        event.register(LogisticsPipe.SCREEN.FLUID_SUPPLIER, FluidSupplierScreen::new);
         event.register(LogisticsPipe.SCREEN.PROVIDER, ProviderScreen::new);
         event.register(LogisticsPipe.SCREEN.SINK, SinkScreen::new);
         event.register(LogisticsPipe.SCREEN.CRAFTING, CraftingScreen::new);

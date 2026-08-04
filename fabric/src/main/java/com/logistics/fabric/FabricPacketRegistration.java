@@ -6,6 +6,7 @@ import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
+import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
 import com.logistics.pipe.network.packet.SetSatelliteIdPacket;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -25,6 +26,10 @@ public final class FabricPacketRegistration {
 
         PayloadTypeRegistry.serverboundPlay().register(SetSatelliteIdPacket.TYPE, SetSatelliteIdPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(SetSatelliteIdPacket.TYPE,
+                (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
+
+        PayloadTypeRegistry.serverboundPlay().register(SetFluidSupplierPacket.TYPE, SetFluidSupplierPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(SetFluidSupplierPacket.TYPE,
                 (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
 
         PayloadTypeRegistry.serverboundPlay().register(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC);
