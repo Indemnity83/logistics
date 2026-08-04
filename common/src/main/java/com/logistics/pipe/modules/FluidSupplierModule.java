@@ -185,10 +185,20 @@ public class FluidSupplierModule implements Module, TickingModule, RoutingModule
 
         long availableResMb = Math.max(0, bufferCapacityMb - heldMb - pendingMb);
         long neededMb = Math.max(0, targetMb - tankMb - heldMb - pendingMb);
+        if (neededMb <= 0) return;
+
+        // Real room, not just target-vs-current arithmetic: a tank full of a different fluid, or
+        // physically smaller than the configured target, must stop ordering rather than requesting
+        // fluid it can never actually hold. Rounded up like neededPackets — the buffer already
+        // absorbs a packet's fractional remainder above the real room, so any nonzero room still
+        // clears a whole packet; only genuinely zero room (roomMb == 0) blocks ordering entirely.
+        SimpleFluidKey key = SimpleFluidKey.of(filter);
+        long roomMb = FluidUnits.toMillibuckets(storage.insert(key, FluidUnits.mb(neededMb), true));
 
         long neededPackets = ceilDiv(neededMb, quantum);
+        long roomPackets = ceilDiv(roomMb, quantum);
         long capacityPackets = availableResMb / quantum;
-        long orderCount = Math.min(neededPackets, Math.min(capacityPackets, BATCH_CAP));
+        long orderCount = Math.min(neededPackets, Math.min(capacityPackets, Math.min(roomPackets, BATCH_CAP)));
 
         if (orderCount > 0) {
             network.placeOrder(ItemStorageLookup.of(packet), orderCount, ctx.pos(), FulfillmentMode.PARTIAL);

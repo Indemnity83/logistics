@@ -221,16 +221,18 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
      * Decide how many items to order this cycle for one configured supply slot. Returns 0 when
      * nothing should be ordered.
      *
-     * <p>The two framework lookups are passed as suppliers so each is evaluated only on the branch
-     * that needs it: window-bounded (INFINITE) mode reads free inventory space and tops up toward it;
-     * threshold modes restock the shortfall once on-hand drops below the mode's trigger, and an
-     * all-or-nothing mode additionally waits until the network can cover the whole shortfall.
+     * <p>{@code availableSpace} is a real simulated-insert room probe against the supplied inventory,
+     * consulted on every branch so no mode ever requests more than the inventory can actually hold
+     * right now — window-bounded (INFINITE) mode tops up toward it directly; threshold modes restock
+     * the shortfall once on-hand drops below the mode's trigger, capped by real room, and an
+     * all-or-nothing mode additionally waits until the network can cover the whole (room-capped)
+     * shortfall.
      *
      * @param modeConfig       resolved supplier mode (trigger threshold, fulfillment mode, window)
      * @param targetAmount     configured stock target for the item
      * @param currentAmount    amount already on hand in the supplied inventory
      * @param pendingAmount    amount ordered but not yet delivered
-     * @param availableSpace   free room for the item in the supplied inventory (window-bounded only)
+     * @param availableSpace   free room for the item in the supplied inventory (simulated insert)
      * @param networkAvailable network-wide available amount (all-or-nothing only)
      */
     static long requestAmount(SupplierModeConfig modeConfig, long targetAmount, long currentAmount,
@@ -244,10 +246,14 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
         if (needed <= 0 || !modeConfig.isTriggerMet(currentAmount, targetAmount)) {
             return 0;
         }
+        // A target above the inventory's real capacity must stop ordering rather than requesting
+        // items the inventory can never actually hold.
+        needed = Math.min(needed, availableSpace.getAsLong());
+        if (needed <= 0) return 0;
         if (modeConfig.fulfillmentMode() == FulfillmentMode.FULL) {
             return networkAvailable.getAsLong() >= needed ? needed : 0;
         }
-        return needed; // PARTIAL: dispatch validation handles fulfillability
+        return needed; // PARTIAL/BULK: dispatch validation handles provider-side fulfillability
     }
 
     /**
