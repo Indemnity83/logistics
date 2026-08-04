@@ -14,6 +14,7 @@ import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.pipe.block.entity.PipeItemStorage;
 import com.logistics.pipe.network.NetworkRegistry;
@@ -494,6 +495,15 @@ public final class PipeRuntime {
                 }
                 return;
             }
+        }
+
+        // No item storage, but the target may expose FLUID storage (a tank or a fluid-only machine like
+        // the magmatic engine). Give modules first refusal — the fluid supplier drains the packet into its
+        // buffer here — before dropping. Return null = fully handled; the module calls notifyDelivery itself.
+        if (ctx.hasPipe() && FluidStorageLookup.find(world, targetPos, direction.getOpposite()) != null) {
+            TravelingItem remaining = ctx.pipe().handleTransfer(ctx.pipeContext(), item, direction);
+            if (remaining == null) return;
+            item = remaining;
         }
 
         // Item could not enter any storage — drop it.
