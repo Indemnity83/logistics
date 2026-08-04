@@ -1,7 +1,6 @@
 package com.logistics.automation.transposer;
 
 import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsConfigHost;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -119,7 +118,7 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
     /** Tank fill as a 0..1 fraction of the tank's capacity. */
     public float getTankFillFraction() {
         int amount = data.get(TransposerBlockEntity.DATA_FLUID_AMOUNT);
-        long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.TRANSPOSER_TANK_CAPACITY_MB);
+        int capacity = data.get(TransposerBlockEntity.DATA_FLUID_CAPACITY);
         if (amount <= 0 || capacity <= 0) {
             return 0f;
         }

@@ -35,7 +35,10 @@ public class TransposerBlockEntity extends MachineEntity {
 
     static final int DATA_FLUID_ID = 0;
     static final int DATA_FLUID_AMOUNT = 1;
-    static final int DATA_COUNT = 2;
+    // Capacity is synced from the server so the GUI gauge doesn't read the client's own config, which
+    // can diverge from the server's in multiplayer.
+    static final int DATA_FLUID_CAPACITY = 2;
+    static final int DATA_COUNT = 3;
 
     private FluidStoreComponent fluidStore;
 
@@ -48,6 +51,8 @@ public class TransposerBlockEntity extends MachineEntity {
                         : BuiltInRegistries.FLUID.getId(fluidStore.tank().getFluidKey().getFluid());
                 case DATA_FLUID_AMOUNT -> (int) Math.min(
                         FluidUnits.toMillibuckets(fluidStore.tank().getAmount()), Integer.MAX_VALUE);
+                case DATA_FLUID_CAPACITY -> (int) Math.min(
+                        FluidUnits.toMillibuckets(fluidStore.tank().getCapacity()), Integer.MAX_VALUE);
                 default -> 0;
             };
         }

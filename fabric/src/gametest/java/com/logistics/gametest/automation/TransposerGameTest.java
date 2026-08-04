@@ -142,8 +142,8 @@ public class TransposerGameTest {
                 context.fail("Nothing should have been produced from an under-full tank");
                 return;
             }
-            if (be.tank().getAmount() != FluidUnits.mb(500)) {
-                context.fail("Tank should still hold 500 mB, got: " + be.tank().getAmount());
+            if (be.tank().getAmount() != FluidUnits.mb(500) || be.tank().getFluidKey().getFluid() != Fluids.LAVA) {
+                context.fail("Tank should still hold 500 mB of lava, got: " + be.tank().getAmount());
                 return;
             }
             context.succeed();
