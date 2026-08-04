@@ -1,0 +1,90 @@
+package com.logistics.gametest.pipe;
+
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.pipe.TravelingItem;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.data.PipeDataComponents.FluidPacket;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+
+import java.util.List;
+
+/**
+ * An undeliverable fluid packet must be voided rather than spawned as a pickup-able ground item, and
+ * normal items must still drop as usual.
+ *
+ * <p>Run in-game: /test run logistics-gametest.fluidpacketdropgametest.&lt;methodname&gt;
+ */
+public class FluidPacketDropGameTest {
+
+    private static final BlockPos FLUID_PIPE = new BlockPos(0, 1, 0);
+    private static final BlockPos ITEM_PIPE = new BlockPos(2, 1, 0);
+
+    private static ItemStack fluidPacketStack() {
+        long quantum = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB);
+        ItemStack stack = new ItemStack(LogisticsPipe.ITEM.FLUID_PACKET);
+        stack.set(LogisticsPipe.DATA.FLUID_PACKET, new FluidPacket(Fluids.WATER, quantum));
+        return stack;
+    }
+
+    private static PipeBlockEntity placePipeCarrying(GameTestHelper context, BlockPos pos, ItemStack stack) {
+        context.setBlock(pos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        PipeBlockEntity pipe = context.getBlockEntity(pos, PipeBlockEntity.class);
+        TravelingItem item = new TravelingItem(stack, Direction.WEST, 0.1f);
+        pipe.forceAddItem(item, Direction.WEST);
+        return pipe;
+    }
+
+    /**
+     * A fluid packet stranded in a broken pipe must not spawn as a ground item — it's voided instead.
+     */
+    @GameTest
+    public void testFluidPacketNeverDropsOnPipeBreak(GameTestHelper context) {
+        placePipeCarrying(context, FLUID_PIPE, fluidPacketStack());
+
+        ServerLevel level = context.getLevel();
+        BlockPos absPos = context.absolutePos(FLUID_PIPE);
+        level.destroyBlock(absPos, false);
+
+        List<ItemEntity> drops = level.getEntitiesOfClass(
+                ItemEntity.class,
+                new AABB(absPos).inflate(2.0),
+                e -> e.getItem().is(LogisticsPipe.ITEM.FLUID_PACKET));
+
+        if (!drops.isEmpty()) {
+            context.fail("Fluid packet should never spawn as a ground item, found " + drops.size());
+        }
+        context.succeed();
+    }
+
+    /**
+     * Control: a normal item stranded the same way must still drop as usual.
+     */
+    @GameTest
+    public void testNormalItemStillDropsOnPipeBreak(GameTestHelper context) {
+        placePipeCarrying(context, ITEM_PIPE, new ItemStack(Items.COBBLESTONE, 3));
+
+        ServerLevel level = context.getLevel();
+        BlockPos absPos = context.absolutePos(ITEM_PIPE);
+        level.destroyBlock(absPos, false);
+
+        List<ItemEntity> drops = level.getEntitiesOfClass(
+                ItemEntity.class,
+                new AABB(absPos).inflate(2.0),
+                e -> e.getItem().is(Items.COBBLESTONE));
+
+        if (drops.size() != 1 || drops.get(0).getItem().getCount() != 3) {
+            context.fail("Expected exactly one dropped stack of 3 cobblestone, found " + drops.size());
+        }
+        context.succeed();
+    }
+}
