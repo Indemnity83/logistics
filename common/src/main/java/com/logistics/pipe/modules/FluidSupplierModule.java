@@ -228,6 +228,11 @@ public class FluidSupplierModule implements Module, TickingModule, RoutingModule
             return item; // not ours — let it fall through to the default insertion
         }
 
+        BlockPos destination = item.getDestination();
+        if (destination == null || !destination.equals(ctx.pos())) {
+            return item; // addressed to another pipe — don't claim it or mis-notify its delivery
+        }
+
         int count = stack.getCount();
         ctx.saveLong(this, BUFFER_MB, ctx.getLong(this, BUFFER_MB, 0) + (long) count * quantum);
         ctx.saveInt(this, UNPAID_PACKETS, ctx.getInt(this, UNPAID_PACKETS, 0) + count);
