@@ -42,6 +42,9 @@ import com.logistics.automation.sawmill.SawmillRecipe;
 import com.logistics.automation.sawmill.SawmillRecipeDisplay;
 import com.logistics.automation.sawmill.SawmillRecipeSerializer;
 import com.logistics.automation.sawmill.SawmillScreenHandler;
+import com.logistics.automation.transposer.TransposerBlock;
+import com.logistics.automation.transposer.TransposerBlockEntity;
+import com.logistics.automation.transposer.TransposerScreenHandler;
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigEntries;
 import com.indemnity83.configory.ConfigKey;
@@ -118,6 +121,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         private static final Config quarry = configFor(LogisticsConfigHost.MOD_ID, "machines.quarry");
         private static final Config refinery = configFor(LogisticsConfigHost.MOD_ID, "machines.refinery");
         private static final Config fabricator = configFor(LogisticsConfigHost.MOD_ID, "machines.fabricator");
+        private static final Config transposer = configFor(LogisticsConfigHost.MOD_ID, "machines.transposer");
 
         private CONFIG() {}
 
@@ -184,6 +188,10 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 fabricator.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> FABRICATOR_ENERGY_PER_TICK =
                 fabricator.defineLong("energy_per_tick", 80L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+
+        // Transposer
+        public static final ConfigKey<Long> TRANSPOSER_TANK_CAPACITY_MB =
+                transposer.defineLong("tank_capacity_mb", 16_000L).min(1_000L).describe("Internal fluid tank capacity (mB)").register();
 
         // Laser Quarry
         public static final ConfigKey<Integer> QUARRY_AREA = quarry.defineInt("area", 16)
@@ -263,6 +271,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block REFINERY;
         public static Block SEQUENTIAL_FABRICATOR;
         public static Block FLUID_PUMP;
+        public static Block TRANSPOSER;
 
         static void register() {
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
@@ -293,6 +302,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             FLUID_PUMP = INSTANCE.registerBlockWithItem("fluid_pump",
                 props -> new FluidPumpBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+            TRANSPOSER = INSTANCE.registerBlockWithItem("transposer",
+                props -> new TransposerBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
         }
     }
 
@@ -308,6 +319,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static BlockEntityType<RefineryBlockEntity> REFINERY_BLOCK_ENTITY;
         public static BlockEntityType<SequentialFabricatorBlockEntity> SEQUENTIAL_FABRICATOR_BLOCK_ENTITY;
         public static BlockEntityType<FluidPumpBlockEntity> FLUID_PUMP_BLOCK_ENTITY;
+        public static BlockEntityType<TransposerBlockEntity> TRANSPOSER_BLOCK_ENTITY;
 
         static void register() {
             LASER_QUARRY_BLOCK_ENTITY =
@@ -328,6 +340,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 "sequential_fabricator", SequentialFabricatorBlockEntity::new, BLOCK.SEQUENTIAL_FABRICATOR);
             FLUID_PUMP_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("fluid_pump", FluidPumpBlockEntity::new, BLOCK.FLUID_PUMP);
+            TRANSPOSER_BLOCK_ENTITY =
+                INSTANCE.registerBlockEntity("transposer", TransposerBlockEntity::new, BLOCK.TRANSPOSER);
         }
     }
 
@@ -341,6 +355,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static MenuType<CrucibleScreenHandler> CRUCIBLE;
         public static MenuType<RefineryScreenHandler> REFINERY;
         public static MenuType<SequentialFabricatorScreenHandler> SEQUENTIAL_FABRICATOR;
+        public static MenuType<TransposerScreenHandler> TRANSPOSER;
 
         static void register() {
             KILN = INSTANCE.registerMenuType("kiln", KilnScreenHandler::new);
@@ -351,6 +366,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             REFINERY = INSTANCE.registerMenuType("refinery", RefineryScreenHandler::new);
             SEQUENTIAL_FABRICATOR =
                 INSTANCE.registerMenuType("sequential_fabricator", SequentialFabricatorScreenHandler::new);
+            TRANSPOSER = INSTANCE.registerMenuType("transposer", TransposerScreenHandler::new);
         }
     }
 
@@ -543,6 +559,7 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
             TAB.add(BLOCK.CRUCIBLE);
             TAB.add(BLOCK.REFINERY);
             TAB.add(BLOCK.SEQUENTIAL_FABRICATOR);
+            TAB.add(BLOCK.TRANSPOSER);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }

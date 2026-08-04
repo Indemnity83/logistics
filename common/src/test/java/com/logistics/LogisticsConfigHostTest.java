@@ -133,6 +133,7 @@ class LogisticsConfigHostTest {
                 "logistics.machines.quarry",
                 "logistics.machines.refinery",
                 "logistics.machines.fabricator",
+                "logistics.machines.transposer",
                 "logistics.pipes",
                 "logistics.fluids",
                 "logistics.fluid_logistics",
