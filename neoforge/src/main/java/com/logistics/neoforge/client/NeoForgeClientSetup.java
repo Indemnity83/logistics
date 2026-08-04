@@ -29,6 +29,8 @@ import com.logistics.pipe.screen.RequesterScreen;
 import com.logistics.pipe.screen.SatelliteScreen;
 import com.logistics.pipe.screen.SinkScreen;
 import com.logistics.pipe.screen.SupplierScreen;
+import com.logistics.pipe.client.FluidPacketRendering;
+import com.logistics.pipe.client.FluidPacketSpecialRenderer;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.core.render.MarkerBlockEntityRenderer;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
@@ -58,6 +60,7 @@ import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -72,6 +75,7 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
         modBus.addListener(NeoForgeClientSetup::registerBlockColors);
+        modBus.addListener(NeoForgeClientSetup::registerSpecialModelRenderers);
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeClientSetup::registerFluidModels);
@@ -234,6 +238,10 @@ public final class NeoForgeClientSetup {
                 LogisticsPower.BLOCK.STEAM_ENGINE,
                 LogisticsPower.BLOCK.FUEL_ENGINE,
                 LogisticsPower.BLOCK.CREATIVE_ENGINE);
+    }
+
+    private static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(FluidPacketRendering.ID.toIdentifier(), FluidPacketSpecialRenderer.Unbaked.MAP_CODEC);
     }
 
     private static void registerClientPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
