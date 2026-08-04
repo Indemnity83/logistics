@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" B ", "BMB", "GCG"],
+  "key": {
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "M": {
+      "item": "logistics:core/machine_core"
+    },
+    "G": {
+      "item": "logistics:core/copper_gear"
+    },
+    "C": {
+      "item": "logistics:core/redstone_reception_coil"
+    }
+  },
+  "result": { "id": "logistics:automation/transposer", "count": 1 }
+}

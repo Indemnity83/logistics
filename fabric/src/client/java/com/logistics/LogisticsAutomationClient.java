@@ -12,6 +12,7 @@ import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.automation.refinery.RefineryBlockEntityRenderer;
 import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
+import com.logistics.automation.transposer.TransposerScreen;
 import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
@@ -49,6 +50,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         MenuScreens.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
         MenuScreens.register(LogisticsAutomation.MENU.SEQUENTIAL_FABRICATOR, SequentialFabricatorScreen::new);
+        MenuScreens.register(LogisticsAutomation.MENU.TRANSPOSER, TransposerScreen::new);
 
         ClientPlayNetworking.registerGlobalReceiver(SyncFabricatorOutputsPacket.TYPE, (packet, context) ->
                 context.client().execute(() -> {

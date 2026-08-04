@@ -97,6 +97,8 @@ public final class NeoForgeCapabilityRegistration {
         registerItems(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Fabricator material pool, so item pipes can feed materials in from the top.
         registerItems(event, LogisticsAutomation.ENTITY.SEQUENTIAL_FABRICATOR_BLOCK_ENTITY);
+        // Transposer input/output slots, so item pipes can feed buckets in from the top and pull results out.
+        registerItems(event, LogisticsAutomation.ENTITY.TRANSPOSER_BLOCK_ENTITY);
 
         // The steam engine accepts water into its boiler tank.
         registerFluids(event, LogisticsPower.ENTITY.STEAM_ENGINE_BLOCK_ENTITY);
@@ -112,6 +114,8 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsAutomation.ENTITY.CRUCIBLE_BLOCK_ENTITY);
         // Refinery exposes input+output tanks: pipes fill the input fluid and drain the output.
         registerFluids(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
+        // Transposer exposes its tank so pipes can fill it and drain it.
+        registerFluids(event, LogisticsAutomation.ENTITY.TRANSPOSER_BLOCK_ENTITY);
         registerFluids(event, LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY);
         registerFluids(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
 

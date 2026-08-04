@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "logistics:block/automation/transposer" },
+    "facing=south": { "model": "logistics:block/automation/transposer", "y": 180 },
+    "facing=east":  { "model": "logistics:block/automation/transposer", "y": 90 },
+    "facing=west":  { "model": "logistics:block/automation/transposer", "y": 270 }
+  }
+}
