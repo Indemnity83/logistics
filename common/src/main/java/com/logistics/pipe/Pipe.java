@@ -361,4 +361,14 @@ public abstract class Pipe implements ModularPipe {
         }
         return candidate;
     }
+
+    /** True if any module wants this pipe to connect to an adjacent fluid tank (renders an arm toward it). */
+    public boolean connectsToFluidStorage(@Nullable PipeContext ctx) {
+        for (Module module : (ctx != null ? getModules(ctx) : modules)) {
+            if (module.connectsToFluidStorage(ctx)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

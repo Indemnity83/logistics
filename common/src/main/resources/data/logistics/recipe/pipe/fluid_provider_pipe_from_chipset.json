@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "BCB"
+  ],
+  "key": {
+    "A": {
+      "item": "logistics:core/gold_chipset"
+    },
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "C": {
+      "item": "logistics:pipe/basic_logistics_pipe"
+    }
+  },
+  "result": {
+    "id": "logistics:pipe/fluid_provider_pipe"
+  }
+}

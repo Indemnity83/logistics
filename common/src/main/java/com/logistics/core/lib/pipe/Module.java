@@ -122,6 +122,15 @@ public interface Module {
     }
 
     /**
+     * Return true if this module wants its pipe to connect to adjacent <em>fluid</em> storage (tanks,
+     * machine fluid tanks) even when the neighbor exposes no item storage — so a connection arm renders
+     * toward it. Used by the fluid provider/supplier pipes, which read/write an adjacent tank.
+     */
+    default boolean connectsToFluidStorage(@Nullable PipeContext ctx) {
+        return false;
+    }
+
+    /**
      * Called randomly on the client for display effects like particles.
      * Modules can override this to add visual effects.
      */

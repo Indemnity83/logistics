@@ -15,6 +15,7 @@ import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
 import com.mojang.serialization.MapCodec;
+import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -397,9 +398,35 @@ public class PipeBlock extends BaseEntityBlock
             // Connect to blocks with item storage (chests, furnaces, hoppers, etc.)
             result = checkItemStorage(actualWorld, pos, neighborPos, direction, neighborBlock);
             if (result != null) return result;
+
+            // Fluid provider/supplier pipes also connect to an adjacent fluid tank (renders an arm to it).
+            result = checkFluidStorage(actualWorld, pos, neighborPos, direction, neighborBlock);
+            if (result != null) return result;
         }
 
         return PipeConnection.Type.NONE;
+    }
+
+    /**
+     * Connect to a neighbor exposing fluid storage, but only when this pipe opts in
+     * ({@link Pipe#connectsToFluidStorage}). Returns INVENTORY (so an arm renders) or null.
+     */
+    @Nullable private PipeConnection.Type checkFluidStorage(
+            Level world, BlockPos pos, BlockPos neighborPos, Direction direction, Block neighborBlock) {
+        if (pipe == null) {
+            return null;
+        }
+        PipeBlockEntity pipeEntity =
+                world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
+        PipeContext context =
+                pipeEntity != null ? new PipeContext(world, pos, world.getBlockState(pos), pipeEntity) : null;
+        if (!pipe.connectsToFluidStorage(context)) {
+            return null;
+        }
+        if (FluidStorageLookup.find(world, neighborPos, direction.getOpposite()) == null) {
+            return null;
+        }
+        return pipe.filterConnection(context, direction, neighborBlock, PipeConnection.Type.INVENTORY);
     }
 
     /**

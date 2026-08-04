@@ -72,6 +72,7 @@
   "block.logistics.pipe.stone_transport_pipe": "Stone Transport Pipe",
   "block.logistics.pipe.basic_logistics_pipe": "Basic Logistics Pipe",
   "block.logistics.pipe.provider_logistics_pipe": "Provider Logistics Pipe",
+  "block.logistics.pipe.fluid_provider_pipe": "Fluid Provider Pipe",
   "block.logistics.pipe.requester_logistics_pipe": "Requester Logistics Pipe",
   "block.logistics.pipe.supplier_logistics_pipe": "Supplier Logistics Pipe",
   "block.logistics.pipe.crafting_logistics_pipe": "Crafting Logistics Pipe",
