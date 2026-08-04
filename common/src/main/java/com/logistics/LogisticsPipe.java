@@ -256,6 +256,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block FLUID_PROVIDER_LOGISTICS_PIPE;
         public static Block REQUESTER_LOGISTICS_PIPE;
         public static Block SUPPLIER_LOGISTICS_PIPE;
+        public static Block FLUID_SUPPLIER_LOGISTICS_PIPE;
         public static Block CRAFTING_LOGISTICS_PIPE;
         public static Block PROCESS_LOGISTICS_PIPE;
         public static Block SATELLITE_LOGISTICS_PIPE;
@@ -325,6 +326,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(pipeProps(props), PipeTypes.REQUESTER_LOGISTICS_PIPE));
             SUPPLIER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("supplier_logistics_pipe",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.SUPPLIER_LOGISTICS_PIPE));
+            FLUID_SUPPLIER_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("fluid_supplier_pipe",
+                props -> new PipeBlock(pipeProps(props), PipeTypes.FLUID_SUPPLIER_LOGISTICS_PIPE));
             CRAFTING_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("crafting_logistics_pipe",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CRAFTING_LOGISTICS_PIPE));
             PROCESS_LOGISTICS_PIPE = INSTANCE.registerBlockWithItem("process_logistics_pipe",
@@ -507,6 +510,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 BLOCK.FLUID_PROVIDER_LOGISTICS_PIPE,
                 BLOCK.REQUESTER_LOGISTICS_PIPE,
                 BLOCK.SUPPLIER_LOGISTICS_PIPE,
+                BLOCK.FLUID_SUPPLIER_LOGISTICS_PIPE,
                 BLOCK.CRAFTING_LOGISTICS_PIPE,
                 BLOCK.PROCESS_LOGISTICS_PIPE,
                 BLOCK.SATELLITE_LOGISTICS_PIPE,
@@ -545,6 +549,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static MenuType<ItemFilterScreenHandler> ITEM_FILTER;
         public static MenuType<com.logistics.pipe.ui.RequesterScreenHandler> REQUESTER;
         public static MenuType<com.logistics.pipe.ui.SupplierScreenHandler> SUPPLIER;
+        public static MenuType<com.logistics.pipe.ui.FluidSupplierScreenHandler> FLUID_SUPPLIER;
         public static MenuType<com.logistics.pipe.ui.ProviderScreenHandler> PROVIDER;
         public static MenuType<com.logistics.pipe.ui.SinkScreenHandler> SINK;
         public static MenuType<com.logistics.pipe.ui.CraftingScreenHandler> CRAFTING;
@@ -584,6 +589,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("supplier").toIdentifier(),
                     new MenuType<>(com.logistics.pipe.ui.SupplierScreenHandler::new, FeatureFlagSet.of()));
+            FLUID_SUPPLIER = Registry.register(
+                    BuiltInRegistries.MENU,
+                    LogisticsPipe.resource("fluid_supplier").toIdentifier(),
+                    new MenuType<>(com.logistics.pipe.ui.FluidSupplierScreenHandler::new, FeatureFlagSet.of()));
             PROVIDER = Registry.register(
                     BuiltInRegistries.MENU,
                     LogisticsPipe.resource("provider").toIdentifier(),
@@ -676,6 +685,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             TAB.add(BLOCK.FLUID_PROVIDER_LOGISTICS_PIPE);
             TAB.add(BLOCK.REQUESTER_LOGISTICS_PIPE);
             TAB.add(BLOCK.SUPPLIER_LOGISTICS_PIPE);
+            TAB.add(BLOCK.FLUID_SUPPLIER_LOGISTICS_PIPE);
             TAB.add(BLOCK.CRAFTING_LOGISTICS_PIPE);
             TAB.add(BLOCK.PROCESS_LOGISTICS_PIPE);
             TAB.add(BLOCK.SATELLITE_LOGISTICS_PIPE);
