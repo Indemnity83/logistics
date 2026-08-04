@@ -84,7 +84,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     /**
      * Pipe tuning. Fluids are part of the pipe domain, so both files live here — item transport in
-     * {@code config/logistics/pipes.json}, fluid pipe/pump in {@code config/logistics/fluids.json}.
+     * {@code config/logistics/pipes.json}, fluid pipe/pump in {@code config/logistics/fluids.json}, and
+     * fluid logistics in {@code config/logistics/fluid_logistics.json}.
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config pipes = configFor(LogisticsConfigHost.MOD_ID, "pipes");
