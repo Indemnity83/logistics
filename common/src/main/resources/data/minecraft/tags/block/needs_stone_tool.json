@@ -16,6 +16,7 @@
     "logistics:automation/alloy_smelter",
     "logistics:automation/crucible",
     "logistics:automation/refinery",
-    "logistics:automation/sequential_fabricator"
+    "logistics:automation/sequential_fabricator",
+    "logistics:automation/transposer"
   ]
 }
