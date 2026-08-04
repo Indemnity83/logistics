@@ -1,7 +1,7 @@
 {
   "parent": "logistics:block/pipe/copper_transport_pipe_core",
   "textures": {
-    "particle": "logistics:block/pipe/supplier_logistics_pipe_core",
-    "texture": "logistics:block/pipe/supplier_logistics_pipe_core"
+    "particle": "logistics:block/pipe/fluid_supplier_pipe_core",
+    "texture": "logistics:block/pipe/fluid_supplier_pipe_core"
   }
 }

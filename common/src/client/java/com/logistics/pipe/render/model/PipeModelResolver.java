@@ -14,7 +14,7 @@ import java.util.List;
  *   <li>arm and arm_extended share one texture (geometry differs, texture does not) — drop {@code _extended};</li>
  *   <li>{@code item_*} pipes drop the {@code item_} prefix ({@code passthrough}→{@code passthru});</li>
  *   <li>{@code *_transport_pipe} → {@code *_pipe};</li>
- *   <li>logistics arms/features all use the shared {@code logistics_pipe_arm} texture; logistics cores keep their own name.</li>
+ *   <li>logistics arms/features (including the fluid provider/supplier pipes) all use the shared {@code logistics_pipe_arm} texture; logistics cores keep their own name.</li>
  * </ul>
  * The two filter arms additionally carry a tinted {@code filter_pipe_overlay} layer.
  */
@@ -72,9 +72,19 @@ public final class PipeModelResolver {
         if (t.contains("_transport_pipe")) {
             return t.replace("_transport_pipe", "_pipe");
         }
-        if (t.contains("_logistics_pipe")) {
+        if (isLogisticsPipe(t)) {
             return (t.endsWith("_arm") || t.endsWith("_feature")) ? "logistics_pipe_arm" : t;
         }
         return t;
+    }
+
+    /**
+     * Logistics-network pipes share one arm texture. Most are named {@code <role>_logistics_pipe}; the fluid
+     * provider/supplier pipes keep a shorter name but belong to the same family, so match them explicitly.
+     */
+    private static boolean isLogisticsPipe(String texture) {
+        return texture.contains("_logistics_pipe")
+                || texture.startsWith("fluid_provider_pipe")
+                || texture.startsWith("fluid_supplier_pipe");
     }
 }
