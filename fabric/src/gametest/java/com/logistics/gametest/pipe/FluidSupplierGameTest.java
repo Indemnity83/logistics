@@ -226,6 +226,40 @@ public class FluidSupplierGameTest {
     }
 
     /**
+     * No real room: the machine tank is already full to its physical capacity, but the configured
+     * target is set higher than that capacity. The supplier must stop ordering rather than
+     * perpetually re-requesting fluid the tank can never actually hold.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
+    public void testStopsOrderingWhenTankHasNoRealRoom(GameTestHelper context) {
+        long quantum = quantum();
+        long inputCapacityMb = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_INPUT_TANK_MB);
+
+        placeNetwork(context, quantum * 40);
+        placeJunction(context, PowerJunctionBlockEntity.CAPACITY);
+
+        context.runAfterDelay(5, () -> {
+            RefineryBlockEntity refinery = (RefineryBlockEntity) context.getBlockEntity(REFINERY);
+            IFluidStorage input = refinery.fluidStorage(null);
+            input.insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(inputCapacityMb), false);
+        });
+
+        // Target well above the tank's real capacity, so the arithmetic shortfall never closes.
+        context.runAfterDelay(15, () -> configureSupplier(context, inputCapacityMb * 2));
+
+        // Poll for a while; ordering must stay at zero the whole time since the tank has no real room.
+        for (long tick = 30; tick <= 180; tick += 20) {
+            long checkTick = tick;
+            context.runAfterDelay(checkTick, () -> {
+                if (pendingPackets(context) != 0) {
+                    context.fail("Supplier should not order fluid the full tank has no room for, tick " + checkTick);
+                }
+            });
+        }
+        context.runAfterDelay(190, context::succeed);
+    }
+
+    /**
      * Dry restock: an empty machine tank with a set filter restocks up to exactly the target.
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 260)
