@@ -24,6 +24,8 @@ import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.item.FluidPipeBlockItem;
 import com.logistics.pipe.item.GlassTankBlockItem;
 import com.logistics.pipe.data.PipeDataComponents.WeatheringState;
+import com.logistics.pipe.data.PipeDataComponents.FluidPacket;
+import com.logistics.pipe.item.FluidPacketItem;
 import com.logistics.pipe.item.MarkingFluidItem;
 import com.logistics.pipe.item.ModularPipeBlockItem;
 import com.logistics.pipe.item.ModuleItem;
@@ -366,6 +368,9 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Item QUICKSORT_MODULE;
         public static Item TERMINUS_MODULE;
 
+        // Hidden internal item — moves a fluid through the item network; never in a creative tab.
+        public static Item FLUID_PACKET;
+
         public static Item WHITE_MARKING_FLUID;
         public static Item ORANGE_MARKING_FLUID;
         public static Item MAGENTA_MARKING_FLUID;
@@ -420,6 +425,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
                     props -> new ModuleItem(props, () -> new TerminusModule(4)));
+
+            FLUID_PACKET = INSTANCE.registerItem("fluid_packet", FluidPacketItem::new);
 
             WHITE_MARKING_FLUID = markingFluid(DyeColor.WHITE);
             ORANGE_MARKING_FLUID = markingFluid(DyeColor.ORANGE);
@@ -493,6 +500,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
     public static final class DATA {
         public static DataComponentType<WeatheringState> WEATHERING_STATE;
+        public static DataComponentType<FluidPacket> FLUID_PACKET;
 
         private DATA() {}
 
@@ -502,6 +510,13 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     LogisticsPipe.resource("weathering_state").toIdentifier(),
                     DataComponentType.<WeatheringState>builder()
                             .persistent(WeatheringState.CODEC)
+                            .build());
+            FLUID_PACKET = Registry.register(
+                    BuiltInRegistries.DATA_COMPONENT_TYPE,
+                    LogisticsPipe.resource("fluid_packet").toIdentifier(),
+                    DataComponentType.<FluidPacket>builder()
+                            .persistent(FluidPacket.CODEC)
+                            .networkSynchronized(FluidPacket.STREAM_CODEC)
                             .build());
         }
     }
