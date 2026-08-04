@@ -187,11 +187,7 @@ public class FluidSupplierModule implements Module, TickingModule, RoutingModule
         long neededMb = Math.max(0, targetMb - tankMb - heldMb - pendingMb);
         if (neededMb <= 0) return;
 
-        // Real room, not just target-vs-current arithmetic: a tank full of a different fluid, or
-        // physically smaller than the configured target, must stop ordering rather than requesting
-        // fluid it can never actually hold. Rounded up like neededPackets — the buffer already
-        // absorbs a packet's fractional remainder above the real room, so any nonzero room still
-        // clears a whole packet; only genuinely zero room (roomMb == 0) blocks ordering entirely.
+        // Simulated insertion caps packet orders at the tank's real physical room.
         SimpleFluidKey key = SimpleFluidKey.of(filter);
         long roomMb = FluidUnits.toMillibuckets(storage.insert(key, FluidUnits.mb(neededMb), true));
 

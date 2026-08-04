@@ -182,6 +182,12 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
         Map<ItemStack, Long> currentStock = scanInventory(ctx, supplierDir);
         SupplyMode mode = getMode(ctx);
 
+        // Per-item room probes are independent, real-time reads of the same physical inventory, so
+        // two configs for different items can each see the same free slots as available. Track what
+        // this cycle has already committed and subtract it from later probes — a conservative shared
+        // budget that stops the cycle's total orders from exceeding the room a single probe reported.
+        long reservedThisCycle = 0;
+
         for (SupplyConfig config : configs) {
             if (config.itemId().isEmpty() || config.amount() <= 0) continue;
 
@@ -207,12 +213,14 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
                     ctx.pos(), config.itemId(), mode, config.amount(), currentAmount, pendingAmount, needed);
 
             SupplierModeConfig modeConfig = SupplierModeConfig.forMode(mode, stack.getMaxStackSize());
+            long reserved = reservedThisCycle;
             long toRequest = requestAmount(modeConfig, config.amount(), currentAmount, pendingAmount,
-                    () -> getAvailableSpace(ctx, supplierDir, stack),
+                    () -> Math.max(0, getAvailableSpace(ctx, supplierDir, stack) - reserved),
                     () -> network.getAvailableAmount(stack));
 
             if (toRequest > 0) {
                 network.placeOrder(ItemStorageLookup.of(stack), toRequest, ctx.pos(), modeConfig.fulfillmentMode());
+                reservedThisCycle += toRequest;
             }
         }
     }
@@ -221,12 +229,9 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
      * Decide how many items to order this cycle for one configured supply slot. Returns 0 when
      * nothing should be ordered.
      *
-     * <p>{@code availableSpace} is a real simulated-insert room probe against the supplied inventory,
-     * consulted on every branch so no mode ever requests more than the inventory can actually hold
-     * right now — window-bounded (INFINITE) mode tops up toward it directly; threshold modes restock
-     * the shortfall once on-hand drops below the mode's trigger, capped by real room, and an
-     * all-or-nothing mode additionally waits until the network can cover the whole (room-capped)
-     * shortfall.
+     * <p>{@code availableSpace} is a real simulated-insert room probe against the supplied inventory:
+     * window-bounded (INFINITE) mode tops up toward it directly, and threshold modes cap the shortfall
+     * by it once on-hand drops below the mode's trigger.
      *
      * @param modeConfig       resolved supplier mode (trigger threshold, fulfillment mode, window)
      * @param targetAmount     configured stock target for the item
