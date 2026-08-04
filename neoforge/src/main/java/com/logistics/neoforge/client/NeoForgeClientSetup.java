@@ -16,6 +16,7 @@ import com.logistics.automation.jei.ClientMachineRecipes;
 import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
+import com.logistics.automation.transposer.TransposerScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.pipe.screen.AdvancedExtractorScreen;
@@ -177,6 +178,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsAutomation.MENU.CRUCIBLE, CrucibleScreen::new);
         event.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
         event.register(LogisticsAutomation.MENU.SEQUENTIAL_FABRICATOR, SequentialFabricatorScreen::new);
+        event.register(LogisticsAutomation.MENU.TRANSPOSER, TransposerScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
