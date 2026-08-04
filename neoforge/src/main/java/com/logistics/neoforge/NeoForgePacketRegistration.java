@@ -6,6 +6,7 @@ import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
+import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
 import com.logistics.pipe.network.packet.SetSatelliteIdPacket;
 import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,6 +47,8 @@ public final class NeoForgePacketRegistration {
         registrar.playToServer(RequestItemPacket.TYPE, RequestItemPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
         registrar.playToServer(SetSatelliteIdPacket.TYPE, SetSatelliteIdPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
+        registrar.playToServer(SetFluidSupplierPacket.TYPE, SetFluidSupplierPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
         registrar.playToServer(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));

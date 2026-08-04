@@ -76,6 +76,12 @@ public final class PipeTypes {
             new SupplierModule())
             .withEnergy();
 
+    // Fluid Supplier Logistics Pipe - keeps an adjacent machine tank stocked by ordering fluid packets.
+    public static final ItemPipe FLUID_SUPPLIER_LOGISTICS_PIPE = new ItemPipe(
+            new NetworkRouterModule(),
+            new FluidSupplierModule())
+            .withEnergy();
+
     // Crafting Logistics Pipe - on-demand crafting via adjacent Autocrafter.
     public static final ItemPipe CRAFTING_LOGISTICS_PIPE = new ItemPipe(
             new CraftingModule(1, 1),
