@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -173,6 +174,118 @@ public interface ILogisticsNetwork {
     default void notifyDeliveryFailedNoId(BlockPos requester, IItemKey item, long amount) {
         // Optional for implementations that do not track requester accounting.
     }
+
+    // ===== Fluid Order Operations =====
+    //
+    // A parallel bookkeeping path (see FluidOrderBook) for the fluid logistics network — deliberately
+    // not a generalization of the item-keyed operations above. Network identity here is a Fluid alone;
+    // the physical FLUID_PACKET item that actually transports fluid never doubles as a bookkeeping key.
+    // Fluids have no crafting concept, so there is no fluid equivalent of ProviderCanFulfill/
+    // CrafterSnapshot/getMissingIngredients.
+
+    /**
+     * Register (or replace) a provider's advertised fluid supply.
+     *
+     * @param pos        position of the provider pipe
+     * @param fluid      the fluid currently available (never {@code null} — call
+     *                   {@link #removeFluidSupply} instead of registering an absent/empty fluid)
+     * @param availableMb raw mB currently held by the provider's tank
+     * @param priority   dispatch priority (lower = preferred)
+     */
+    void registerFluidSupply(BlockPos pos, Fluid fluid, long availableMb, int priority);
+
+    /**
+     * Remove all advertised fluid supply for a provider position (no tank found, tank emptied, or
+     * pipe removed).
+     *
+     * @param pos position of the provider pipe
+     */
+    void removeFluidSupply(BlockPos pos);
+
+    /**
+     * Place a standing fluid order with explicit fulfillment mode.
+     *
+     * <p>{@link FulfillmentMode#FULL} means the requested mB was available from source stock at the
+     * moment the order was evaluated for dispatch — not an absolute delivery guarantee. Endpoint power
+     * can drop after an order is accepted for dispatch; guaranteeing final delivery would require
+     * reservation infrastructure well beyond what this feature needs. This mirrors exactly what the
+     * item network's existing {@code FULL} branch already does (it is not re-checked continuously
+     * through delivery there either).
+     *
+     * @param fluid           the fluid to request
+     * @param amountMb        mB needed
+     * @param requester       position of the requesting pipe
+     * @param fulfillmentMode whether partial dispatch is acceptable
+     * @return UUID of the order (store for cancellation)
+     */
+    UUID placeFluidOrder(Fluid fluid, long amountMb, BlockPos requester, FulfillmentMode fulfillmentMode);
+
+    /**
+     * Place a standing fluid order with default {@link FulfillmentMode#PARTIAL} fulfillment.
+     *
+     * @param fluid     the fluid to request
+     * @param amountMb  mB needed
+     * @param requester position of the requesting pipe
+     * @return UUID of the order (store for cancellation)
+     */
+    default UUID placeFluidOrder(Fluid fluid, long amountMb, BlockPos requester) {
+        return placeFluidOrder(fluid, amountMb, requester, FulfillmentMode.PARTIAL);
+    }
+
+    /**
+     * Cancel a standing or in-transit fluid order by ID.
+     *
+     * @param orderId order to cancel
+     */
+    void cancelFluidOrder(UUID orderId);
+
+    /**
+     * Cancel all standing and in-transit fluid orders for a requester (e.g. pipe removal).
+     *
+     * @param requester position of the requester
+     */
+    void cancelFluidOrdersFor(BlockPos requester);
+
+    /**
+     * Get the total mB of a fluid currently ordered for a requester (queued + in-transit) but not yet
+     * delivered or failed. Used by the fluid supplier to avoid placing duplicate orders while packets
+     * are still traveling.
+     *
+     * @param requester position of the requester
+     * @param fluid     fluid to query
+     * @return total outstanding mB
+     */
+    long getFluidOrderedMbFor(BlockPos requester, Fluid fluid);
+
+    /**
+     * Record physical delivery of a tracked fluid dispatch.
+     *
+     * @param deliveryId order/dispatch id carried by the physical packet
+     * @param requester  destination the fluid was delivered to
+     * @param fluid      fluid delivered
+     * @param amountMb   mB delivered
+     */
+    void notifyFluidDelivery(UUID deliveryId, BlockPos requester, Fluid fluid, long amountMb);
+
+    /**
+     * Record failed delivery of a tracked fluid dispatch (packet dropped, expired, or misrouted).
+     *
+     * @param deliveryId order/dispatch id carried by the physical packet
+     * @param requester  destination the fluid was intended for
+     * @param fluid      fluid that failed delivery
+     * @param amountMb   mB that failed delivery
+     */
+    void notifyFluidDeliveryFailed(UUID deliveryId, BlockPos requester, Fluid fluid, long amountMb);
+
+    /**
+     * Record failed fluid delivery when no delivery id is available. Fallback for the legacy/untracked
+     * drop path; only releases requester accounting.
+     *
+     * @param requester destination the fluid was intended for
+     * @param fluid     fluid that failed delivery
+     * @param amountMb  mB that failed delivery
+     */
+    void notifyFluidDeliveryFailedNoId(BlockPos requester, Fluid fluid, long amountMb);
 
     // ===== Crafter Snapshot =====
 

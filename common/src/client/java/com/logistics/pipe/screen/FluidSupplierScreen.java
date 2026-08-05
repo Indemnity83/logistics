@@ -2,14 +2,17 @@ package com.logistics.pipe.screen;
 
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.fluids.FluidDisplay;
+import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.FluidSupplierModule;
+import com.logistics.pipe.modules.FluidSupplierModule.MinThreshold;
 import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
 import com.logistics.pipe.ui.FluidSupplierScreenHandler;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -61,12 +64,19 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int MB_LABEL_X = 122;
     private static final int MB_LABEL_Y = 41;
 
+    // Bottom row holds three small buttons side by side: Clear | Fulfillment mode | Min. threshold.
+    private static final int BOTTOM_ROW_Y = 54;
+    private static final int BOTTOM_BUTTON_HEIGHT = 13;
     private static final int CLEAR_BUTTON_X = 8;
-    private static final int CLEAR_BUTTON_Y = 54;
-    private static final int CLEAR_BUTTON_WIDTH = 90;
-    private static final int CLEAR_BUTTON_HEIGHT = 13;
+    private static final int CLEAR_BUTTON_WIDTH = 52;
+    private static final int FULFILLMENT_BUTTON_X = 62;
+    private static final int FULFILLMENT_BUTTON_WIDTH = 52;
+    private static final int MIN_THRESHOLD_BUTTON_X = 116;
+    private static final int MIN_THRESHOLD_BUTTON_WIDTH = 52;
 
     private EditBox amountField;
+    private Button fulfillmentModeButton;
+    private Button minThresholdButton;
 
     public FluidSupplierScreen(FluidSupplierScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title, 176, 166);
@@ -95,8 +105,18 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
 
         addRenderableWidget(Button.builder(
                         Component.translatable("gui.logistics.fluid_supplier.clear"), b -> clearFluid())
-                .bounds(leftPos + CLEAR_BUTTON_X, topPos + CLEAR_BUTTON_Y, CLEAR_BUTTON_WIDTH, CLEAR_BUTTON_HEIGHT)
+                .bounds(leftPos + CLEAR_BUTTON_X, topPos + BOTTOM_ROW_Y, CLEAR_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT)
                 .build());
+
+        fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
+                .bounds(leftPos + FULFILLMENT_BUTTON_X, topPos + BOTTOM_ROW_Y, FULFILLMENT_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT)
+                .build();
+        addRenderableWidget(fulfillmentModeButton);
+
+        minThresholdButton = Button.builder(minThresholdText(), b -> cycleMinThreshold())
+                .bounds(leftPos + MIN_THRESHOLD_BUTTON_X, topPos + BOTTOM_ROW_Y, MIN_THRESHOLD_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT)
+                .build();
+        addRenderableWidget(minThresholdButton);
     }
 
     private int parseField() {
@@ -110,7 +130,7 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private void applyTarget(int target) {
         int clamped = Math.max(0, Math.min(MAX_TARGET, target));
         amountField.setValue(String.valueOf(clamped));
-        ClientNetworking.send(new SetFluidSupplierPacket(clamped, false));
+        sendState(clamped, false, menu.getFulfillmentModeOrdinal(), menu.getMinThresholdOrdinal());
     }
 
     private void step(int delta) {
@@ -118,7 +138,32 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     }
 
     private void clearFluid() {
-        ClientNetworking.send(new SetFluidSupplierPacket(menu.getTargetMb(), true));
+        sendState(menu.getTargetMb(), true, menu.getFulfillmentModeOrdinal(), menu.getMinThresholdOrdinal());
+    }
+
+    private void cycleFulfillmentMode() {
+        int next = (menu.getFulfillmentModeOrdinal() + 1) % FulfillmentMode.values().length;
+        sendState(menu.getTargetMb(), false, next, menu.getMinThresholdOrdinal());
+    }
+
+    private void cycleMinThreshold() {
+        int next = (menu.getMinThresholdOrdinal() + 1) % MinThreshold.values().length;
+        sendState(menu.getTargetMb(), false, menu.getFulfillmentModeOrdinal(), next);
+    }
+
+    private void sendState(int targetMb, boolean clearFluid, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
+        ClientNetworking.send(new SetFluidSupplierPacket(targetMb, clearFluid, fulfillmentModeOrdinal, minThresholdOrdinal));
+    }
+
+    private Component fulfillmentModeText() {
+        FulfillmentMode mode = FulfillmentMode.values()[menu.getFulfillmentModeOrdinal()];
+        return Component.translatable("gui.logistics.mode." + mode.name().toLowerCase(Locale.ROOT));
+    }
+
+    private Component minThresholdText() {
+        MinThreshold threshold = MinThreshold.values()[menu.getMinThresholdOrdinal()];
+        return Component.translatable(
+                "gui.logistics.fluid_supplier.min_threshold." + threshold.name().toLowerCase(Locale.ROOT));
     }
 
     @Override
@@ -192,6 +237,10 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
                 amountField.setValue(synced);
             }
         }
+
+        // Keep the mode button labels in sync in case another client changed them.
+        fulfillmentModeButton.setMessage(fulfillmentModeText());
+        minThresholdButton.setMessage(minThresholdText());
 
         // Tooltip over the fluid gauge: name, target, buffer.
         if (mouseX >= leftPos + GAUGE_X - 1 && mouseX < leftPos + GAUGE_X + GAUGE_SIZE + 1

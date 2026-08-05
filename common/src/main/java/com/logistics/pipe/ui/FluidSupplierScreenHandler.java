@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.FluidSupplierModule;
@@ -40,12 +41,14 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
     private static final int DATA_TARGET = 0;
     private static final int DATA_BUFFER = 1;
     private static final int DATA_FLUID_ID = 2;
+    private static final int DATA_FULFILLMENT_MODE = 3;
+    private static final int DATA_MIN_THRESHOLD = 4;
 
     private final ContainerLevelAccess context;
     @Nullable private final PipeBlockEntity pipeEntity;
     @Nullable private final String targetModuleStateKey;
 
-    private final int[] syncedData = new int[3];
+    private final int[] syncedData = new int[5];
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -54,6 +57,8 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
                     case DATA_TARGET -> clampShort(readLong(FluidSupplierModule::getTargetMb));
                     case DATA_BUFFER -> clampShort(readLong(FluidSupplierModule::getBufferMb));
                     case DATA_FLUID_ID -> readFluidId();
+                    case DATA_FULFILLMENT_MODE -> readInt(FluidSupplierModule::getFulfillmentModeOrdinal);
+                    case DATA_MIN_THRESHOLD -> readInt(FluidSupplierModule::getMinThresholdOrdinal);
                     default -> 0;
                 };
             }
@@ -121,13 +126,26 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
         return data.get(DATA_FLUID_ID);
     }
 
+    /** Current {@link FulfillmentMode} ordinal (Partial/Full toggle). */
+    public int getFulfillmentModeOrdinal() {
+        return data.get(DATA_FULFILLMENT_MODE);
+    }
+
+    /** Current {@link FluidSupplierModule.MinThreshold} ordinal. */
+    public int getMinThresholdOrdinal() {
+        return data.get(DATA_MIN_THRESHOLD);
+    }
+
     // ==================== Server-side edits ====================
 
     /**
      * Apply a client edit. When {@code clearFluid} is set the filter is cleared unless the module is
      * locked (fluid held or on order), in which case the player is told; otherwise the target is set.
+     * The two mode ordinals are applied unconditionally alongside target/clear (see
+     * {@link com.logistics.pipe.network.packet.SetFluidSupplierPacket}'s "always send full state" note).
      */
-    public void applyFromClient(ServerPlayer player, long targetMb, boolean clearFluid) {
+    public void applyFromClient(
+            ServerPlayer player, long targetMb, boolean clearFluid, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
         if (pipeEntity == null) return;
         PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey, (ctx, module) -> {
             if (clearFluid) {
@@ -140,6 +158,8 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
             } else {
                 module.setTargetMb(ctx, targetMb);
             }
+            module.setFulfillmentModeFromOrdinal(ctx, fulfillmentModeOrdinal);
+            module.setMinThresholdFromOrdinal(ctx, minThresholdOrdinal);
         });
         broadcastChanges();
     }
@@ -164,6 +184,15 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
         long[] out = {0};
         PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey,
                 (ctx, module) -> out[0] = reader.applyAsLong(module, ctx));
+        return out[0];
+    }
+
+    /** Reads an {@code int} state value from the module through a fresh scoped context. */
+    private int readInt(java.util.function.ToIntBiFunction<FluidSupplierModule, PipeContext> reader) {
+        if (pipeEntity == null) return 0;
+        int[] out = {0};
+        PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey,
+                (ctx, module) -> out[0] = reader.applyAsInt(module, ctx));
         return out[0];
     }
 
