@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.6](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.5...mc26.2-v0.8.6) (2026-08-05)
+
+
+### Added
+
+* **automation:** add the Transposer ([#792](https://github.com/Indemnity83/logistics/issues/792)) ([831477e](https://github.com/Indemnity83/logistics/commit/831477e4cdccb86592ed8a432799165cb3974f33))
+* **fluids:** add the fluid provider pipe ([#790](https://github.com/Indemnity83/logistics/issues/790)) ([5804080](https://github.com/Indemnity83/logistics/commit/58040807ae5629fec79fffe72d5ffd88077f9ef0))
+* **fluids:** add the fluid supplier pipe ([#791](https://github.com/Indemnity83/logistics/issues/791)) ([64abf5c](https://github.com/Indemnity83/logistics/commit/64abf5c131453b9934a4b621a6ba710e67e60239))
+
+
+### Fixed
+
+* **fluids:** never drop fluid packets on the ground ([#805](https://github.com/Indemnity83/logistics/issues/805)) ([441befb](https://github.com/Indemnity83/logistics/commit/441befb759087362d45e85181e0dbddbd1d53191))
+* **fluids:** stop suppliers requesting fluid/items with no room ([#804](https://github.com/Indemnity83/logistics/issues/804)) ([a41190a](https://github.com/Indemnity83/logistics/commit/a41190ac5096919ce7e5e08eb2fd40a4e9e338dd))
+
 ## [0.8.5](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.4...mc26.2-v0.8.5) (2026-08-03)
 
 
