@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **FIRST:** Always check your current branch using `git branch --show-current` or by checking the working directory path (e.g., `../logistics-mc-1.21.11/` indicates mc/1.21.11 branch).
 
 This repository uses a multi-version strategy to support different Minecraft releases:
-- **`mc/26.2`** - **Main/default branch** (the branch `origin/HEAD` tracks). Newest MC release; new work starts here
+- **`mc/26.3`** - **Main/default branch** (the branch `origin/HEAD` tracks). Newest MC release; new work starts here
 - **`mc/26.1`** - Maintenance + backport target for MC 26.1
 - **`mc/1.21.11`** - Maintenance + backport target for MC 1.21.11
 - **`mc/1.21.1`** - Maintenance + backport target for MC 1.21.1
@@ -17,7 +17,7 @@ This repository uses a multi-version strategy to support different Minecraft rel
 ### Critical Understanding
 
 **Domain architecture enables cross-version cherry-picking.** After significant refactoring to isolate version-specific code:
-- ✅ **Can cherry-pick** commits between branches (mc/1.21.1 ↔ mc/1.21.11 ↔ mc/26.1 ↔ mc/26.2)
+- ✅ **Can cherry-pick** commits between branches (mc/1.21.1 ↔ mc/1.21.11 ↔ mc/26.1 ↔ mc/26.2 ↔ mc/26.3)
 - ✅ **Can share code** across versions via git operations
 - ✅ **Can maintain feature parity** with minimal manual intervention
 - ✅ **Cherry-pick is the primary porting mechanism**
@@ -30,7 +30,8 @@ For easier cross-version development, consider setting up git worktrees for each
 - `../logistics-mc-1.21.1/` - mc/1.21.1 branch worktree
 - `../logistics-mc-1.21.11/` - mc/1.21.11 branch worktree
 - `../logistics-mc-26.1/` - mc/26.1 branch worktree
-- `../logistics-mc-26.2/` - mc/26.2 (main) branch worktree
+- `../logistics-mc-26.2/` - mc/26.2 branch worktree
+- `../logistics-mc-26.3/` - mc/26.3 (main) branch worktree
 
 The current working directory path indicates which branch you're on.
 
@@ -43,14 +44,14 @@ If worktrees are detected at these paths, they may be referenced when working on
 
 ### Development Strategy
 
-- **`mc/26.2`**: Primary development target (main branch) — new features, refactors, and fixes start here
-- **`mc/26.1`**: Backport target (maintenance) — port player-facing features/fixes down from mc/26.2
+- **`mc/26.3`**: Primary development target (main branch) — new features, refactors, and fixes start here
+- **`mc/26.2`**: Backport target (maintenance) — port player-facing features/fixes down from mc/26.3
 - **`mc/1.21.11`**: Backport target (maintenance) — port player-facing features/fixes down
 - **`mc/1.21.1`**: Backport target (maintenance) — many tech-mod users still on this version
 
 ### Branch Protection Rules (CRITICAL)
 
-**Never push or commit directly to `mc/*` branches** (`mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected branches. All work — including in auto mode — must go through a feature branch and PR.
+**Never push or commit directly to `mc/*` branches** (`mc/26.3`, `mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected branches. All work — including in auto mode — must go through a feature branch and PR.
 
 **Required workflow for any new work:**
 1. Create a feature branch first: `git checkout -b descriptive-branch-name`
@@ -65,15 +66,15 @@ If worktrees are detected at these paths, they may be referenced when working on
 ### Cross-Version Workflow
 
 **When fixing bugs:**
-1. Fix on **mc/26.2** (main) when the bug exists there
+1. Fix on **mc/26.3** (main) when the bug exists there
 2. Check if the bug exists on the other branches
 3. **Cherry-pick** the fix down to affected branches (resolve conflicts if needed)
 4. Test on each target branch after cherry-pick
-5. Priority order for porting: mc/26.2 → mc/26.1 → mc/1.21.11 → mc/1.21.1
+5. Priority order for porting: mc/26.3 → mc/26.2 → mc/26.1 → mc/1.21.11 → mc/1.21.1
 6. **Legacy-only bugs** (don't reproduce on mc/26.x — e.g. 26.x auto-derives the cutout render layer from sprite transparency, so manual `BlockRenderLayerMap` registrations only matter on 1.21.x): originate the fix on the highest *affected* branch (mc/1.21.11) and cherry-pick down to mc/1.21.1
 
 **When adding features:**
-- Develop on **mc/26.2** (main), then backport to mc/26.1, mc/1.21.11 and mc/1.21.1 if the feature applies
+- Develop on **mc/26.3** (main), then backport to mc/26.2, mc/26.1, mc/1.21.11 and mc/1.21.1 if the feature applies
 - Internal/infra work is backported too — keep all branches as close to in sync as possible, since closer branches make every future cherry-pick apply cleanly
 - Keep changes minimal and tested
 - Avoid large refactorings unless coordinated across all branches
@@ -276,7 +277,7 @@ Prefer PRs that are reviewable by one concern, but do not split a commit that on
 - **Client rendering PR:** NeoForge client setup, block entity renderers, model loader wiring, shared client renderers/models, and render-only resources.
 - **Build/CI/docs PR:** Gradle wiring, non-blocking CI toggles, `.gitignore`, and architecture documentation.
 
-If the branch already contains all of these, open a draft PR first and explain that it is the integration branch. If maintainers want smaller PRs, split from the branch with stacked branches or interactive cherry-picks in the order above. The safest target for NeoForge implementation work is `mc/26.2` (main); backports should be cherry-picked after the implementation PR lands.
+If the branch already contains all of these, open a draft PR first and explain that it is the integration branch. If maintainers want smaller PRs, split from the branch with stacked branches or interactive cherry-picks in the order above. The safest target for NeoForge implementation work is `mc/26.3` (main); backports should be cherry-picked after the implementation PR lands.
 
 **Throughout the codebase, follow SOLID principles:**
 - **S**ingle Responsibility: Classes have one reason to change

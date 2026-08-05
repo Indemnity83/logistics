@@ -1,8 +1,8 @@
 {
   "packages": {
     ".": {
-      "package-name": "logistics-mc26.2",
-      "component": "mc26.2",
+      "package-name": "logistics-mc26.3",
+      "component": "mc26.3",
       "release-type": "simple",
       "include-component-in-tag": true,
       "pull-request-title-pattern": "chore(release): release ${version} for ${component}",

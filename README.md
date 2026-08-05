@@ -8,8 +8,8 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-indemnity83%2Flogistics-blue?logo=github)](https://github.com/indemnity83/logistics)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![codecov](https://codecov.io/gh/Indemnity83/logistics/branch/mc%2F26.2/graph/badge.svg)](https://codecov.io/gh/Indemnity83/logistics)
-[![Minecraft](https://img.shields.io/badge/Minecraft-26.2-brightgreen.svg)](https://www.minecraft.net/)
+[![codecov](https://codecov.io/gh/Indemnity83/logistics/branch/mc%2F26.3/graph/badge.svg)](https://codecov.io/gh/Indemnity83/logistics)
+[![Minecraft](https://img.shields.io/badge/Minecraft-26.3-brightgreen.svg)](https://www.minecraft.net/)
 [![Loaders](https://img.shields.io/badge/Loaders-Fabric%20%26%20NeoForge-orange.svg)](https://fabricmc.net/)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/94DP3CVNVt)
 
@@ -41,7 +41,7 @@ The full, always-current catalog of blocks, items, machines, and mechanics lives
 
 ## Install (players)
 
-**Requirements:** Minecraft 26.2 • Fabric (with Fabric API) or NeoForge • Java 25+
+**Requirements:** Minecraft 26.3 • Fabric (with Fabric API) or NeoForge • Java 25+
 
 The mod bundles its libraries — Team Reborn Energy, [Configory](https://modrinth.com/mod/configory), and (when crash reporting is enabled) the Sentry SDK — inside the jar, so there's nothing extra to install beyond the loader and Fabric API.
 
@@ -99,8 +99,8 @@ The repo supports several Minecraft versions in parallel. New work starts on the
 
 | Branch | Role |
 |---|---|
-| `mc/26.2` | Main / default — active development |
-| `mc/26.1`, `mc/1.21.11`, `mc/1.21.1` | Maintenance / backport targets |
+| `mc/26.3` | Main / default — active development |
+| `mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1` | Maintenance / backport targets |
 
 Details and the cross-version workflow are in [`CLAUDE.md`](CLAUDE.md).
 
