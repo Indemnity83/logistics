@@ -165,7 +165,9 @@ public class FluidSupplierGameTest {
 
         context.runAfterDelay(15, () -> configureSupplier(context, target));
 
-        // Shortly after the order is placed, it should read exactly 137 mB pending — not rounded.
+        // Shortly after the order is placed, the full 137 mB deficit should already be accounted for
+        // across pending + buffered + tank — not partially ordered or rounded down to a packet multiple.
+        // The final succeedWhen below checks the exact number lands only in the tank, with zero buffer.
         context.runAfterDelay(21, () -> {
             long pending = pendingMb(context);
             long buffered = supplierModule(context).getBufferMb(supplierCtx(context));
