@@ -146,9 +146,16 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
      * Apply a client edit: the target amount and the two mode ordinals, always applied together (see
      * {@link com.logistics.pipe.network.packet.SetFluidSupplierPacket}'s "always send full state" note).
      * The fluid filter itself is set/cleared separately — see {@link #onGaugeClicked}.
+     *
+     * <p>Both ordinals are validated up front — {@code SetFluidSupplierPacket} carries them as raw ints
+     * off the wire, and {@code FluidSupplierModule}'s ordinal setters throw on an out-of-range value
+     * rather than clamp. Checking first avoids a torn update (target applied, then an exception mid-way
+     * through the mode writes) from a malformed or stale packet.
      */
     public void applyFromClient(ServerPlayer player, long targetMb, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
         if (pipeEntity == null) return;
+        if (fulfillmentModeOrdinal < 0 || fulfillmentModeOrdinal >= FulfillmentMode.values().length) return;
+        if (minThresholdOrdinal < 0 || minThresholdOrdinal >= FluidSupplierModule.MinThreshold.values().length) return;
         PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey, (ctx, module) -> {
             module.setTargetMb(ctx, targetMb);
             module.setFulfillmentModeFromOrdinal(ctx, fulfillmentModeOrdinal);
