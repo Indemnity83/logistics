@@ -85,6 +85,15 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private Button minThresholdButton;
     private int labelColumnX;
 
+    // Locally-authoritative copies of the three fields SetFluidSupplierPacket always sends together,
+    // seeded once from the menu at open. Each cycle/step callback updates its own field here and reads
+    // the other two from here too — never from `menu` — so two rapid edits (e.g. a step click
+    // immediately followed by a mode click, before the server's echo lands) can't have the second
+    // packet clobber the first with a stale value read back from not-yet-updated menu state.
+    private int pendingTargetMb;
+    private int pendingFulfillmentMode;
+    private int pendingMinThreshold;
+
     public FluidSupplierScreen(FluidSupplierScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title, 176, FluidSupplierScreenHandler.PANEL_HEIGHT);
         this.titleLabelY = 6;
@@ -94,6 +103,10 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     @Override
     protected void init() {
         super.init();
+
+        pendingTargetMb = menu.getTargetMb();
+        pendingFulfillmentMode = menu.getFulfillmentModeOrdinal();
+        pendingMinThreshold = menu.getMinThresholdOrdinal();
 
         amountField = new EditBox(
                 this.font, leftPos + FIELD_X, topPos + FIELD_Y, FIELD_WIDTH, FIELD_HEIGHT, Component.literal("Amount"));
@@ -151,14 +164,14 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         try {
             return Math.max(0, Math.min(MAX_TARGET, Integer.parseInt(amountField.getValue().trim())));
         } catch (NumberFormatException e) {
-            return menu.getTargetMb();
+            return pendingTargetMb;
         }
     }
 
     private void applyTarget(int target) {
-        int clamped = Math.max(0, Math.min(MAX_TARGET, target));
-        amountField.setValue(String.valueOf(clamped));
-        sendState(clamped, menu.getFulfillmentModeOrdinal(), menu.getMinThresholdOrdinal());
+        pendingTargetMb = Math.max(0, Math.min(MAX_TARGET, target));
+        amountField.setValue(String.valueOf(pendingTargetMb));
+        sendState(pendingTargetMb, pendingFulfillmentMode, pendingMinThreshold);
     }
 
     private void step(int delta) {
@@ -166,13 +179,13 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     }
 
     private void cycleFulfillmentMode() {
-        int next = (menu.getFulfillmentModeOrdinal() + 1) % FulfillmentMode.values().length;
-        sendState(menu.getTargetMb(), next, menu.getMinThresholdOrdinal());
+        pendingFulfillmentMode = (pendingFulfillmentMode + 1) % FulfillmentMode.values().length;
+        sendState(pendingTargetMb, pendingFulfillmentMode, pendingMinThreshold);
     }
 
     private void cycleMinThreshold() {
-        int next = (menu.getMinThresholdOrdinal() + 1) % MinThreshold.values().length;
-        sendState(menu.getTargetMb(), menu.getFulfillmentModeOrdinal(), next);
+        pendingMinThreshold = (pendingMinThreshold + 1) % MinThreshold.values().length;
+        sendState(pendingTargetMb, pendingFulfillmentMode, pendingMinThreshold);
     }
 
     private void sendState(int targetMb, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
