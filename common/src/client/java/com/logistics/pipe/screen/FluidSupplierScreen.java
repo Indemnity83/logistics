@@ -7,9 +7,9 @@ import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.FluidSupplierModule;
 import com.logistics.pipe.modules.FluidSupplierModule.MinThreshold;
+import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
 import com.logistics.pipe.ui.FluidSupplierScreenHandler;
-import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +31,13 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * Client-side screen for the Fluid Supplier Pipe.
  *
- * <p>Header strip mimics the classic LogisticsPipes fluid-supplier layout: a slot showing the selected
- * fluid, its name and buffered amount, and a numeric target-amount field flanked by --/-/+/++ step
- * buttons. The fluid slot doubles as the filter control: click it while carrying a bucket-like item to
- * set (or replace) the filter, or click it with nothing relevant carried to clear an existing filter —
- * mirroring the in-world bucket interaction, so there is no separate fluid picker or Clear button.
- * Edits are sent with {@link SetFluidSupplierPacket} (target/modes) and
+ * <p>Layout (top to bottom): a fluid slot with the target-amount field to its right (no separate
+ * name/buffer text — that info moved into the gauge's tooltip); a "+" row of four buttons (1/10/100/1000)
+ * that add to the target; a "-" row mirroring it that subtracts; and a row with the Fulfillment and
+ * Min. Threshold mode buttons. The fluid slot doubles as the filter control: click it while carrying a
+ * bucket-like item to set (or replace) the filter, or click it with nothing relevant carried to clear an
+ * existing filter — mirroring the in-world bucket interaction, so there is no separate fluid picker or
+ * Clear button. Edits are sent with {@link SetFluidSupplierPacket} (target/modes) and
  * {@link ClickFluidSupplierGaugePacket} (fluid filter).
  */
 public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierScreenHandler> {
@@ -45,41 +46,39 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int TEXT_COLOR = 0xFF404040;
 
     private static final int MAX_TARGET = (int) FluidSupplierModule.MAX_TARGET_MB;
-    private static final int STEP_MB = 1;
-    private static final int STEP_MB_LARGE = 1000;
+    private static final int[] STEP_AMOUNTS = {1, 10, 100, 1000};
 
-    // Fluid slot is baked into the background texture with its border at (47, 18); the icon sits 1px in,
-    // centered on the two-line name/buffer text block to its right. Doubles as the filter control: click
-    // it (see #mouseClicked) to set/replace from a carried bucket, or to clear an existing filter.
+    // Fluid slot is baked into the background texture with its border at (47, 18); the icon sits 1px in.
+    // Doubles as the filter control: click it (see #mouseClicked) to set/replace from a carried bucket,
+    // or to clear an existing filter. The target field sits to its right in the freed-up space where a
+    // name/buffer text block used to be (that info now lives only in the gauge's tooltip).
     private static final int GAUGE_X = 48;
     private static final int GAUGE_Y = 19;
     private static final int GAUGE_SIZE = 16;
-
-    private static final int INFO_X = 70;
     private static final int FLUID_LABEL_X = 8;
     private static final int FLUID_LABEL_Y = 22;
-    private static final int NAME_Y = 18;
-    private static final int BUFFER_Y = 27;
 
-    // Target row: --  -  [field]  +  ++  mB — the double-step buttons flank the single-step ones.
-    private static final int TARGET_ROW_Y = 38;
-    private static final int TARGET_LABEL_X = 8;
-    private static final int TARGET_LABEL_Y = 41;
-    private static final int STEP_BUTTON_WIDTH = 14;
-    private static final int DOUBLE_MINUS_X = 46;
-    private static final int MINUS_X = 61;
-    private static final int FIELD_X = 76;
-    private static final int FIELD_WIDTH = 36;
-    private static final int PLUS_X = 113;
-    private static final int DOUBLE_PLUS_X = 128;
-    private static final int MB_LABEL_X = 144;
-    private static final int MB_LABEL_Y = 41;
+    private static final int FIELD_X = 70;
+    private static final int FIELD_Y = 20;
+    private static final int FIELD_WIDTH = 46;
+    private static final int FIELD_HEIGHT = 14;
+    private static final int MB_LABEL_X = 120;
+    private static final int MB_LABEL_Y = 23;
 
-    // Bottom row holds two buttons side by side: Fulfillment mode | Min. threshold. Starts at the same
-    // X as the target row's leftmost (--) button — freed-up space from removing the old Clear button
-    // goes entirely to widening the min-threshold button, not to extending further left.
-    private static final int BOTTOM_ROW_Y = 54;
-    private static final int BOTTOM_BUTTON_HEIGHT = 13;
+    // "+" row: adds each button's amount to the target. "-" row: subtracts it. Both share the same
+    // button column positions, one row apart.
+    private static final int ADD_ROW_Y = 38;
+    private static final int SUBTRACT_ROW_Y = 54;
+    private static final int SIGN_LABEL_X = 8;
+    private static final int SIGN_LABEL_Y_OFFSET = 3;
+    private static final int STEP_ROW_BUTTON_X = 22;
+    private static final int STEP_ROW_BUTTON_WIDTH = 34;
+    private static final int STEP_ROW_BUTTON_GAP = 2;
+    private static final int STEP_ROW_BUTTON_HEIGHT = 13;
+
+    // Mode row: Fulfillment | Min. threshold.
+    private static final int MODE_ROW_Y = 70;
+    private static final int MODE_BUTTON_HEIGHT = 13;
     private static final int FULFILLMENT_BUTTON_X = 46;
     private static final int FULFILLMENT_BUTTON_WIDTH = 52;
     private static final int MIN_THRESHOLD_BUTTON_X = 100;
@@ -90,45 +89,42 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private Button minThresholdButton;
 
     public FluidSupplierScreen(FluidSupplierScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, inventory, title, 176, 166);
+        super(handler, inventory, title, 176, 182);
         this.titleLabelY = 6;
-        this.inventoryLabelY = 72;
+        this.inventoryLabelY = 88;
     }
 
     @Override
     protected void init() {
         super.init();
 
-        addRenderableWidget(Button.builder(Component.literal("--"), b -> step(-STEP_MB_LARGE))
-                .bounds(leftPos + DOUBLE_MINUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
-                .build());
-
-        addRenderableWidget(Button.builder(Component.literal("-"), b -> step(-STEP_MB))
-                .bounds(leftPos + MINUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
-                .build());
-
         amountField = new EditBox(
-                this.font, leftPos + FIELD_X, topPos + TARGET_ROW_Y, FIELD_WIDTH, 14, Component.literal("Amount"));
+                this.font, leftPos + FIELD_X, topPos + FIELD_Y, FIELD_WIDTH, FIELD_HEIGHT, Component.literal("Amount"));
         amountField.setMaxLength(6);
         amountField.setCentered(true);
         amountField.setValue(String.valueOf(menu.getTargetMb()));
         addRenderableWidget(amountField);
 
-        addRenderableWidget(Button.builder(Component.literal("+"), b -> step(STEP_MB))
-                .bounds(leftPos + PLUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
-                .build());
+        for (int i = 0; i < STEP_AMOUNTS.length; i++) {
+            int amount = STEP_AMOUNTS[i];
+            int x = leftPos + STEP_ROW_BUTTON_X + i * (STEP_ROW_BUTTON_WIDTH + STEP_ROW_BUTTON_GAP);
 
-        addRenderableWidget(Button.builder(Component.literal("++"), b -> step(STEP_MB_LARGE))
-                .bounds(leftPos + DOUBLE_PLUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
-                .build());
+            addRenderableWidget(Button.builder(Component.literal(String.valueOf(amount)), b -> step(amount))
+                    .bounds(x, topPos + ADD_ROW_Y, STEP_ROW_BUTTON_WIDTH, STEP_ROW_BUTTON_HEIGHT)
+                    .build());
+
+            addRenderableWidget(Button.builder(Component.literal(String.valueOf(amount)), b -> step(-amount))
+                    .bounds(x, topPos + SUBTRACT_ROW_Y, STEP_ROW_BUTTON_WIDTH, STEP_ROW_BUTTON_HEIGHT)
+                    .build());
+        }
 
         fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
-                .bounds(leftPos + FULFILLMENT_BUTTON_X, topPos + BOTTOM_ROW_Y, FULFILLMENT_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT)
+                .bounds(leftPos + FULFILLMENT_BUTTON_X, topPos + MODE_ROW_Y, FULFILLMENT_BUTTON_WIDTH, MODE_BUTTON_HEIGHT)
                 .build();
         addRenderableWidget(fulfillmentModeButton);
 
         minThresholdButton = Button.builder(minThresholdText(), b -> cycleMinThreshold())
-                .bounds(leftPos + MIN_THRESHOLD_BUTTON_X, topPos + BOTTOM_ROW_Y, MIN_THRESHOLD_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT)
+                .bounds(leftPos + MIN_THRESHOLD_BUTTON_X, topPos + MODE_ROW_Y, MIN_THRESHOLD_BUTTON_WIDTH, MODE_BUTTON_HEIGHT)
                 .build();
         addRenderableWidget(minThresholdButton);
     }
@@ -234,19 +230,13 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         graphics.text(font, Component.translatable("gui.logistics.fluid_supplier.fluid_label"),
                 FLUID_LABEL_X, FLUID_LABEL_Y, TEXT_COLOR, false);
 
-        Fluid fluid = currentFluid();
-        Component name = fluid != Fluids.EMPTY
-                ? FluidDisplay.name(fluid)
-                : Component.translatable("message.logistics.fluid_supplier.no_fluid");
-        graphics.text(font, name, INFO_X, NAME_Y, TEXT_COLOR, false);
-
-        Component buffer = Component.translatable("gui.logistics.fluid_supplier.buffer", menu.getBufferMb());
-        graphics.text(font, buffer, INFO_X, BUFFER_Y, TEXT_COLOR, false);
-
-        graphics.text(font, Component.translatable("gui.logistics.fluid_supplier.target_label"),
-                TARGET_LABEL_X, TARGET_LABEL_Y, TEXT_COLOR, false);
         graphics.text(font, Component.translatable("gui.logistics.fluid_supplier.mb_unit"),
                 MB_LABEL_X, MB_LABEL_Y, TEXT_COLOR, false);
+
+        graphics.text(font, Component.literal("+"),
+                SIGN_LABEL_X, ADD_ROW_Y + SIGN_LABEL_Y_OFFSET, TEXT_COLOR, false);
+        graphics.text(font, Component.literal("-"),
+                SIGN_LABEL_X, SUBTRACT_ROW_Y + SIGN_LABEL_Y_OFFSET, TEXT_COLOR, false);
 
         graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT_COLOR, false);
     }
