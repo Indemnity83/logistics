@@ -32,8 +32,8 @@ import net.minecraft.world.level.material.Fluids;
  * Client-side screen for the Fluid Supplier Pipe.
  *
  * <p>Layout (top to bottom): a fluid slot with the target-amount field to its right (no label text —
- * that info lives in the gauge's tooltip); a "+" row of plain vanilla buttons (+1/+10/+100/+1000) that
- * add to the target; a "-" row mirroring it that subtracts; and a row with the Fulfillment and Min.
+ * that info lives in the gauge's tooltip); a row of plain vanilla buttons (1/10/100/1000) that add
+ * that amount to the target; a row mirroring it that subtracts; and a row with the Fulfillment and Min.
  * Threshold mode buttons. Every button here is a stock {@link Button} at {@link Button#DEFAULT_HEIGHT}
  * with no custom widget or text scaling — kept plain deliberately so the layout is easy to iterate on.
  * The fluid slot doubles as the filter control: click it while carrying a bucket-like item to set (or
@@ -50,7 +50,7 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int MAX_TARGET = (int) FluidSupplierModule.MAX_TARGET_MB;
     private static final int[] STEP_AMOUNTS = {1, 10, 100, 1000};
     // Sized to each label's text width plus consistent padding, rather than one uniform width.
-    private static final int[] STEP_BUTTON_WIDTHS = {25, 31, 37, 43};
+    private static final int[] STEP_BUTTON_WIDTHS = {19, 25, 31, 37};
 
     // Column every row below the title aligns to.
     private static final int ROW_START_X = 8;
@@ -68,8 +68,8 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int FIELD_WIDTH = 42;
     private static final int FIELD_HEIGHT = 14;
 
-    // "+" row: adds each button's amount to the target ("+1"/"+10"/.../"+1000" labels). "-" row mirrors
-    // it, subtracting. Both rows share the same button columns, one row apart.
+    // "+" row: adds each button's amount to the target ("1"/"10"/"100"/"1000" labels, no sign). "-" row
+    // mirrors it, subtracting. Both rows share the same button columns, one row apart.
     private static final int ADD_ROW_Y = 40;
     private static final int STEP_BUTTON_HEIGHT = Button.DEFAULT_HEIGHT - 6;
     private static final int SUBTRACT_ROW_Y = ADD_ROW_Y + STEP_BUTTON_HEIGHT + 2;
@@ -113,11 +113,11 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
             int amount = STEP_AMOUNTS[i];
             int width = STEP_BUTTON_WIDTHS[i];
 
-            addRenderableWidget(Button.builder(Component.literal("+" + amount), b -> step(amount))
+            addRenderableWidget(Button.builder(Component.literal(String.valueOf(amount)), b -> step(amount))
                     .bounds(x, topPos + ADD_ROW_Y, width, STEP_BUTTON_HEIGHT)
                     .build());
 
-            addRenderableWidget(Button.builder(Component.literal("-" + amount), b -> step(-amount))
+            addRenderableWidget(Button.builder(Component.literal(String.valueOf(amount)), b -> step(-amount))
                     .bounds(x, topPos + SUBTRACT_ROW_Y, width, STEP_BUTTON_HEIGHT)
                     .build());
 
