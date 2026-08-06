@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 
 import com.logistics.core.lib.fluids.FluidStorageLookup;
@@ -107,7 +108,7 @@ public class FluidProviderModule implements Module, TickingModule, FluidDispatch
         long gotNative = tank.storage().extract(tank.fluid(), FluidUnits.mb(deliverMb), false);
         long extractedMb = FluidUnits.toMillibuckets(gotNative);
         if (extractedMb <= 0) {
-            if (gotNative > 0) tank.storage().insert(tank.fluid(), gotNative, false);
+            if (gotNative > 0) refundToTank(ctx, tank, fluid, gotNative);
             return 0;
         }
 
@@ -125,7 +126,7 @@ public class FluidProviderModule implements Module, TickingModule, FluidDispatch
 
         long refundMb = extractedMb - keptMb;
         if (refundMb > 0) {
-            tank.storage().insert(tank.fluid(), FluidUnits.mb(refundMb), false);
+            refundToTank(ctx, tank, fluid, FluidUnits.mb(refundMb));
         }
         if (keptMb <= 0) return 0;
 
@@ -181,6 +182,21 @@ public class FluidProviderModule implements Module, TickingModule, FluidDispatch
             }
         }
         return null;
+    }
+
+    /**
+     * Inserts unpayable/unusable fluid back into the tank it came from, logging a warning if the tank
+     * can't re-accept all of it (e.g. another module filled it in the same tick) — that shortfall is
+     * fluid lost with no other signal, so it must not fail silently.
+     */
+    private static void refundToTank(PipeContext ctx, Tank tank, Fluid fluid, long refundNative) {
+        long refundedNative = tank.storage().insert(tank.fluid(), refundNative, false);
+        if (refundedNative < refundNative) {
+            long lostMb = FluidUnits.toMillibuckets(refundNative - refundedNative);
+            LogisticsMod.LOGGER.warn(
+                    "[FluidProvider @ {}] Tank refused {} mB of refunded {} — fluid lost",
+                    ctx.pos(), lostMb, fluid);
+        }
     }
 
     private static ItemStack packetStack(Fluid fluid, long amountMb) {
