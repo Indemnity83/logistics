@@ -67,14 +67,15 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int FIELD_HEIGHT = 14;
 
     // "+" row: adds each button's amount to the target ("+1"/"+10"/.../"+1000" labels). "-" row mirrors
-    // it, subtracting. Both rows share the same button columns, one row apart, all at normal button size.
+    // it, subtracting. Both rows share the same button columns, one row apart.
     private static final int ADD_ROW_Y = 40;
-    private static final int SUBTRACT_ROW_Y = ADD_ROW_Y + Button.DEFAULT_HEIGHT + 3;
+    private static final int SUBTRACT_ROW_Y = 63;
     private static final int STEP_BUTTON_WIDTH = 37;
+    private static final int STEP_BUTTON_HEIGHT = Button.DEFAULT_HEIGHT - 6;
     private static final int STEP_ROW_BUTTON_GAP = 4;
 
     // Mode row: Fulfillment | Min. threshold — equal width, same left edge as the rows above.
-    private static final int MODE_ROW_Y = SUBTRACT_ROW_Y + Button.DEFAULT_HEIGHT + 4;
+    private static final int MODE_ROW_Y = 87;
     private static final int MODE_BUTTON_WIDTH = 78;
     private static final int MODE_BUTTON_GAP = 4;
 
@@ -102,11 +103,11 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         int x = leftPos + ROW_START_X;
         for (int amount : STEP_AMOUNTS) {
             addRenderableWidget(Button.builder(Component.literal("+" + amount), b -> step(amount))
-                    .bounds(x, topPos + ADD_ROW_Y, STEP_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
+                    .bounds(x, topPos + ADD_ROW_Y, STEP_BUTTON_WIDTH, STEP_BUTTON_HEIGHT)
                     .build());
 
             addRenderableWidget(Button.builder(Component.literal("-" + amount), b -> step(-amount))
-                    .bounds(x, topPos + SUBTRACT_ROW_Y, STEP_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
+                    .bounds(x, topPos + SUBTRACT_ROW_Y, STEP_BUTTON_WIDTH, STEP_BUTTON_HEIGHT)
                     .build());
 
             x += STEP_BUTTON_WIDTH + STEP_ROW_BUTTON_GAP;
