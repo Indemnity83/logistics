@@ -101,7 +101,14 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         amountField.setValue(String.valueOf(menu.getTargetMb()));
         addRenderableWidget(amountField);
 
-        int x = leftPos + ROW_START_X;
+        // Right-align the step-button rows with the Min. Threshold button below them, rather than
+        // sharing the mode row's left edge.
+        int minButtonRight = leftPos + ROW_START_X + MODE_BUTTON_WIDTH + MODE_BUTTON_GAP + MODE_BUTTON_WIDTH;
+        int stepRowWidth = 0;
+        for (int width : STEP_BUTTON_WIDTHS) stepRowWidth += width;
+        stepRowWidth += (STEP_BUTTON_WIDTHS.length - 1) * STEP_ROW_BUTTON_GAP;
+
+        int x = minButtonRight - stepRowWidth;
         for (int i = 0; i < STEP_AMOUNTS.length; i++) {
             int amount = STEP_AMOUNTS[i];
             int width = STEP_BUTTON_WIDTHS[i];
