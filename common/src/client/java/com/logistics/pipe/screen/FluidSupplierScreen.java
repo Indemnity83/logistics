@@ -9,6 +9,7 @@ import com.logistics.pipe.modules.FluidSupplierModule;
 import com.logistics.pipe.modules.FluidSupplierModule.MinThreshold;
 import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
+import com.logistics.pipe.screen.widget.SmallStepButton;
 import com.logistics.pipe.ui.FluidSupplierScreenHandler;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayList;
@@ -72,9 +73,9 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int SIGN_LABEL_X = 8;
     private static final int SIGN_LABEL_Y_OFFSET = 3;
     private static final int STEP_ROW_BUTTON_X = 22;
-    private static final int STEP_ROW_BUTTON_WIDTH = 34;
+    private static final int STEP_ROW_BUTTON_WIDTH = 26;
     private static final int STEP_ROW_BUTTON_GAP = 2;
-    private static final int STEP_ROW_BUTTON_HEIGHT = 13;
+    private static final int STEP_ROW_BUTTON_HEIGHT = 11;
 
     // Mode row: Fulfillment | Min. threshold.
     private static final int MODE_ROW_Y = 70;
@@ -108,14 +109,13 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         for (int i = 0; i < STEP_AMOUNTS.length; i++) {
             int amount = STEP_AMOUNTS[i];
             int x = leftPos + STEP_ROW_BUTTON_X + i * (STEP_ROW_BUTTON_WIDTH + STEP_ROW_BUTTON_GAP);
+            Component label = Component.literal(String.valueOf(amount));
 
-            addRenderableWidget(Button.builder(Component.literal(String.valueOf(amount)), b -> step(amount))
-                    .bounds(x, topPos + ADD_ROW_Y, STEP_ROW_BUTTON_WIDTH, STEP_ROW_BUTTON_HEIGHT)
-                    .build());
+            addRenderableWidget(new SmallStepButton(x, topPos + ADD_ROW_Y,
+                    STEP_ROW_BUTTON_WIDTH, STEP_ROW_BUTTON_HEIGHT, this.font, label, () -> step(amount)));
 
-            addRenderableWidget(Button.builder(Component.literal(String.valueOf(amount)), b -> step(-amount))
-                    .bounds(x, topPos + SUBTRACT_ROW_Y, STEP_ROW_BUTTON_WIDTH, STEP_ROW_BUTTON_HEIGHT)
-                    .build());
+            addRenderableWidget(new SmallStepButton(x, topPos + SUBTRACT_ROW_Y,
+                    STEP_ROW_BUTTON_WIDTH, STEP_ROW_BUTTON_HEIGHT, this.font, label, () -> step(-amount)));
         }
 
         fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
