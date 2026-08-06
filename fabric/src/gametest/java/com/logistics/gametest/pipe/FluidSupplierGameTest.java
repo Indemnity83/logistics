@@ -123,9 +123,9 @@ public class FluidSupplierGameTest {
     // ==================== Tests ====================
 
     /**
-     * Exact fill, no rounding: with a 300 mB target the supplier orders exactly 300 mB (not rounded up
-     * to any packet multiple), fills the machine tank to exactly the target, and leaves an empty buffer.
-     * This directly replaces the old quantum-rounding behavior (packets no longer have a minimum size).
+     * Exact fill, no rounding: the supplier orders exactly the deficit (not rounded up to any packet
+     * multiple), fills the machine tank to exactly the target, and leaves an empty buffer. This
+     * directly replaces the old quantum-rounding behavior (packets no longer have a minimum size).
      */
     @GameTest(maxTicks = 260)
     public void testDryRestockFillsToTarget(GameTestHelper context) {
