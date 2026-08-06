@@ -5,6 +5,7 @@ import com.logistics.LogisticsPipe;
 
 import com.logistics.core.item.LogisticsBucketItem;
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidStorage;
@@ -398,9 +399,14 @@ public class FluidSupplierModule implements Module, TickingModule, RoutingModule
         return FulfillmentMode.values()[getFulfillmentModeOrdinal(ctx)];
     }
 
-    /** The current fulfillment mode as an integer (for GUI sync). */
+    /**
+     * The current fulfillment mode as an integer (for GUI sync). Clamped into range in case stored NBT
+     * is stale or corrupted — {@link #getFulfillmentMode} indexes directly with this during pipe tick,
+     * so an out-of-range value here would otherwise throw.
+     */
     public int getFulfillmentModeOrdinal(PipeContext ctx) {
-        return ctx.getInt(this, FULFILLMENT_MODE, FulfillmentMode.PARTIAL.ordinal());
+        int raw = ctx.getInt(this, FULFILLMENT_MODE, FulfillmentMode.PARTIAL.ordinal());
+        return Math.max(0, Math.min(FulfillmentMode.values().length - 1, raw));
     }
 
     public void setFulfillmentMode(PipeContext ctx, FulfillmentMode mode) {
@@ -421,9 +427,14 @@ public class FluidSupplierModule implements Module, TickingModule, RoutingModule
         return MinThreshold.values()[getMinThresholdOrdinal(ctx)];
     }
 
-    /** The current minimum threshold as an integer (for GUI sync). */
+    /**
+     * The current minimum threshold as an integer (for GUI sync). Clamped into range in case stored
+     * NBT is stale or corrupted — {@link #getMinThreshold} indexes directly with this during pipe tick,
+     * so an out-of-range value here would otherwise throw.
+     */
     public int getMinThresholdOrdinal(PipeContext ctx) {
-        return ctx.getInt(this, MIN_THRESHOLD, MinThreshold.NONE.ordinal());
+        int raw = ctx.getInt(this, MIN_THRESHOLD, MinThreshold.NONE.ordinal());
+        return Math.max(0, Math.min(MinThreshold.values().length - 1, raw));
     }
 
     public void setMinThreshold(PipeContext ctx, MinThreshold threshold) {
@@ -504,7 +515,7 @@ public class FluidSupplierModule implements Module, TickingModule, RoutingModule
 
     /** Public so {@code FluidSupplierScreenHandler} can format the same "filter set" message. */
     public static Component fluidName(Fluid fluid) {
-        return Component.literal(BuiltInRegistries.FLUID.getKey(fluid).getPath());
+        return FluidDisplay.name(fluid);
     }
 
     /**
