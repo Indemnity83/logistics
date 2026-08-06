@@ -407,21 +407,28 @@ public class FluidOrderBook {
     // ===== Merge =====
 
     /**
-     * Merge another order book into this one (used when two networks join). Does not blindly sum
-     * {@code orderedForRequester} — an overlapping order UUID between the two books (e.g. from a
-     * network split-then-rejoin) would otherwise double-count that order's demand even though the
-     * queue/in-transit maps correctly deduplicate it. Instead, {@code orderedForRequester} is rebuilt
-     * from scratch from the merged, deduplicated order records.
+     * Merge another order book into this one (used when two networks join). Does not blindly combine
+     * state keyed by something that can collide across the two books — an overlapping order UUID (e.g.
+     * from a network split-then-rejoin) would otherwise double-count that order's demand, and the same
+     * provider position present in both books would otherwise be counted as supply twice and have its
+     * commitment summed instead of reconciled. {@code orderedForRequester} is rebuilt from scratch from
+     * the merged, deduplicated order records; supply entries are deduplicated by provider position; and
+     * commitments take the larger of the two books' values rather than summing.
      */
     public void merge(FluidOrderBook other) {
         for (Map.Entry<FluidResourceKey, List<FluidSupplyEntry>> entry : other.supplyTable.entrySet()) {
             List<FluidSupplyEntry> myList = supplyTable.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
-            myList.addAll(entry.getValue());
+            for (FluidSupplyEntry incoming : entry.getValue()) {
+                // One provider position advertises one tank; a position present in both books (e.g.
+                // both still remember it from before a split-then-rejoin) must not be counted twice.
+                myList.removeIf(e -> e.pos().equals(incoming.pos()));
+                myList.add(incoming);
+            }
             myList.sort(Comparator.comparingInt(FluidSupplyEntry::priority));
         }
 
         for (Map.Entry<BlockPos, Long> entry : other.committedMbByProvider.entrySet()) {
-            committedMbByProvider.merge(entry.getKey(), entry.getValue(), Long::sum);
+            committedMbByProvider.merge(entry.getKey(), entry.getValue(), Math::max);
         }
 
         for (Map.Entry<UUID, FluidOrder> entry : other.orderQueue.entrySet()) {

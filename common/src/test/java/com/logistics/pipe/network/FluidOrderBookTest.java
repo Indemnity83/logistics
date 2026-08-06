@@ -522,4 +522,20 @@ class FluidOrderBookTest extends MinecraftTestEnvironment {
         assertEquals(700L, bookA.getOrderedAmountFor(REQUESTER, Fluids.WATER),
                 "A shared order UUID present in both books must count once, not twice, after merge");
     }
+
+    @Test
+    void merge_sameProviderPositionInBothBooksIsNotDoubleCounted() {
+        // Same split-then-rejoin scenario as above, but for supply/commitment state: both books still
+        // remember PROVIDER1's tank from before the split.
+        FluidOrderBook bookA = new FluidOrderBook();
+        bookA.registerSupply(PROVIDER1, Fluids.WATER, 5000L, 1);
+
+        FluidOrderBook bookB = new FluidOrderBook();
+        bookB.registerSupply(PROVIDER1, Fluids.WATER, 5000L, 1);
+
+        bookA.merge(bookB);
+
+        assertEquals(5000L, bookA.getAvailableMbFor(Fluids.WATER),
+                "A provider position present in both books must be counted once, not twice, after merge");
+    }
 }
