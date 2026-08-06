@@ -21,9 +21,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Tick-based game tests for Fluid Provider Pipe packet delivery: max-capped, no-minimum packet sizing,
  * per-physical-packet energy accounting, and no packet ever stacking.
@@ -265,7 +262,11 @@ public class FluidProviderGameTest {
                     throw context.assertionException("Expected exactly 3 physical packets, found " + stacks.size());
                 }
 
-                Set<Long> amounts = new HashSet<>();
+                // A Set would collapse the two maxMb packets into one element and pass for any
+                // distribution containing at least one of each — including a regression that ships
+                // [maxMb, tailMb, tailMb] (less fluid than ordered). Sort into a List instead so the
+                // exact multiplicity is checked, not just membership.
+                java.util.List<Long> amounts = new java.util.ArrayList<>();
                 for (ItemStack stack : stacks) {
                     if (stack.getCount() != 1) {
                         throw context.assertionException("Every packet must be count=1 (packets never stack), found "
@@ -277,7 +278,8 @@ public class FluidProviderGameTest {
                     }
                     amounts.add(data.amountMb());
                 }
-                if (!amounts.contains(maxMb) || !amounts.contains(tailMb)) {
+                java.util.Collections.sort(amounts);
+                if (!amounts.equals(java.util.List.of(tailMb, maxMb, maxMb))) {
                     throw context.assertionException(
                             "Expected packets of " + maxMb + " mB (x2) and " + tailMb + " mB (x1), found " + amounts);
                 }
