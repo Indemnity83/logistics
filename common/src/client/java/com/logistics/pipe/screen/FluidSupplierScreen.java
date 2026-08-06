@@ -79,6 +79,8 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int MIN_MODE_ROW_Y = SUBTRACT_ROW_Y + STEP_BUTTON_HEIGHT + 4;
     private static final int PARTIAL_ROW_Y = MIN_MODE_ROW_Y + STEP_BUTTON_HEIGHT + 2;
     private static final int BUTTON_LABEL_GAP = 4;
+    // Floor so a long translated label can't push a mode button's computed width to zero/negative.
+    private static final int MIN_MODE_BUTTON_WIDTH = 20;
 
     private EditBox amountField;
     private Button fulfillmentModeButton;
@@ -146,14 +148,16 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         // Each mode button fills the row from right after its own label out to the shared right edge,
         // so a longer label ("Min. Mode:") naturally leaves its button narrower than "Partial:"'s.
         Component minLabel = Component.translatable("gui.logistics.fluid_supplier.min_threshold_label");
-        int minButtonX = labelColumnXAbs + font.width(minLabel) + BUTTON_LABEL_GAP;
+        int minButtonX = Math.min(
+                labelColumnXAbs + font.width(minLabel) + BUTTON_LABEL_GAP, rowRightAbs - MIN_MODE_BUTTON_WIDTH);
         minThresholdButton = Button.builder(minThresholdText(), b -> cycleMinThreshold())
                 .bounds(minButtonX, topPos + MIN_MODE_ROW_Y, rowRightAbs - minButtonX, STEP_BUTTON_HEIGHT)
                 .build();
         addRenderableWidget(minThresholdButton);
 
         Component partialLabel = Component.translatable("gui.logistics.fluid_supplier.fulfillment_label");
-        int partialButtonX = labelColumnXAbs + font.width(partialLabel) + BUTTON_LABEL_GAP;
+        int partialButtonX = Math.min(
+                labelColumnXAbs + font.width(partialLabel) + BUTTON_LABEL_GAP, rowRightAbs - MIN_MODE_BUTTON_WIDTH);
         fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
                 .bounds(partialButtonX, topPos + PARTIAL_ROW_Y, rowRightAbs - partialButtonX, STEP_BUTTON_HEIGHT)
                 .build();
@@ -178,12 +182,20 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         applyTarget(parseField() + delta);
     }
 
+    /** Commits whatever's currently typed in the field (even if Enter was never pressed) to pending. */
+    private void commitFieldToPending() {
+        pendingTargetMb = parseField();
+        amountField.setValue(String.valueOf(pendingTargetMb));
+    }
+
     private void cycleFulfillmentMode() {
+        commitFieldToPending();
         pendingFulfillmentMode = (pendingFulfillmentMode + 1) % FulfillmentMode.values().length;
         sendState(pendingTargetMb, pendingFulfillmentMode, pendingMinThreshold);
     }
 
     private void cycleMinThreshold() {
+        commitFieldToPending();
         pendingMinThreshold = (pendingMinThreshold + 1) % MinThreshold.values().length;
         sendState(pendingTargetMb, pendingFulfillmentMode, pendingMinThreshold);
     }
