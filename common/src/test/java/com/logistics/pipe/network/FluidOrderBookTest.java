@@ -362,6 +362,25 @@ class FluidOrderBookTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void cancelOrder_removesBothQueuedRemainderAndInTransitPortion() {
+        // A partial recordDispatched leaves one order ID in both maps at once: the undispatched
+        // remainder back in orderQueue, the shipped portion tracked in inTransitOrders. Cancelling
+        // must clear both, not stop after finding the first.
+        book.registerSupply(PROVIDER1, Fluids.WATER, 300L, 1);
+        UUID orderId = book.placeOrder(Fluids.WATER, 500L, REQUESTER);
+        FluidOrderBook.FluidDispatchCommand cmd = book.nextDispatchable();
+        book.recordDispatched(cmd, 300L); // ships 300 of 500; 200 stays queued, 300 goes in-transit
+
+        book.cancelOrder(orderId);
+
+        assertEquals(0L, book.getOrderedAmountFor(REQUESTER, Fluids.WATER));
+        // The in-transit portion must be gone too, or a late notifyDeliveryFailedNoId (no ID to
+        // validate against) would have nothing to reconcile and outstanding would stay inflated.
+        book.notifyDeliveryFailedNoId(REQUESTER, Fluids.WATER, 300L);
+        assertEquals(0L, book.getOrderedAmountFor(REQUESTER, Fluids.WATER));
+    }
+
+    @Test
     void cancelOrdersFor_removesAllOrdersForRequesterOnly() {
         book.placeOrder(Fluids.WATER, 500L, REQUESTER);
         book.placeOrder(Fluids.LAVA, 300L, REQUESTER);

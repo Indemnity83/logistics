@@ -149,16 +149,20 @@ public class FluidOrderBook {
     }
 
     /**
-     * Cancel a standing or in-transit order by ID. Decrements {@code orderedForRequester}. A queued
+     * Cancel a standing and/or in-transit order by ID. Decrements {@code orderedForRequester}. A queued
      * (not yet dispatched) order has no provider reservation to release, since reservations are only
      * created at dispatch time.
+     *
+     * <p>An order can hold entries in <em>both</em> maps at once — a partial {@link #recordDispatched}
+     * puts the undispatched remainder back in {@code orderQueue} while the shipped portion tracks in
+     * {@code inTransitOrders} under the same ID — so both must be checked and removed, not just the
+     * first one found.
      */
     public void cancelOrder(UUID id) {
         FluidOrder order = orderQueue.remove(id);
         if (order != null) {
             decrementOrdered(order.requester(), order.fluid(), order.amountMb());
             NetDbg.out("Fluid order cancelled: {}", id.toString().substring(0, 8));
-            return;
         }
         FluidOrder inTransit = inTransitOrders.remove(id);
         if (inTransit != null) {
