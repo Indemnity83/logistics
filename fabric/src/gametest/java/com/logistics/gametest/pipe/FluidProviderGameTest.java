@@ -142,8 +142,7 @@ public class FluidProviderGameTest {
 
     /**
      * No minimum: a tank holding less than one max-size packet's worth still dispatches — its full
-     * remainder ships as a single, correctly-sized packet, draining the tank to zero. This is the
-     * direct inverse of the old "below one quantum never dispatches" behavior.
+     * remainder ships as a single, correctly-sized packet, draining the tank to zero.
      */
     @GameTest(maxTicks = 120)
     public void testFluidProviderDispatchesBelowOnePacketSize(GameTestHelper context) {
