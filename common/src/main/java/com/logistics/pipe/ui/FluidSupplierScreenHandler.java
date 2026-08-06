@@ -33,8 +33,12 @@ import org.jetbrains.annotations.Nullable;
 public class FluidSupplierScreenHandler extends AbstractContainerMenu {
     private static final int SLOT_SIZE = 18;
     private static final int SLOT_START_X = 8;
-    private static final int PLAYER_INV_START_Y = 84;
-    private static final int HOTBAR_Y = 142;
+
+    // Below the target field, two 20px step-button rows, and the mode-button row (see FluidSupplierScreen).
+    public static final int INVENTORY_LABEL_Y = 115;
+    private static final int PLAYER_INV_START_Y = 125;
+    private static final int HOTBAR_Y = 183;
+    public static final int PANEL_HEIGHT = HOTBAR_Y + SLOT_SIZE + 6;
 
     private static final int SHORT_MAX = 32767;
 
