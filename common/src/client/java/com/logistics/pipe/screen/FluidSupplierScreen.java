@@ -52,9 +52,6 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     // Sized to each label's text width plus consistent padding, rather than one uniform width.
     private static final int[] STEP_BUTTON_WIDTHS = {19, 25, 31, 37};
 
-    // Column every row below the title aligns to.
-    private static final int ROW_START_X = 8;
-
     // Fluid slot is baked into the background texture with its border at (47, 18); the icon sits 1px in.
     // Doubles as the filter control: click it (see #mouseClicked) to set/replace from a carried bucket,
     // or to clear an existing filter. The target field sits to its right, with no label — the name is
@@ -74,15 +71,19 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int STEP_BUTTON_HEIGHT = Button.DEFAULT_HEIGHT - 6;
     private static final int SUBTRACT_ROW_Y = ADD_ROW_Y + STEP_BUTTON_HEIGHT + 2;
     private static final int STEP_ROW_BUTTON_GAP = 1;
+    private static final int SIGN_LABEL_GAP = 10;
+    private static final int SIGN_LABEL_Y_NUDGE = 2;
 
-    // Mode row: Fulfillment | Min. threshold — equal width, same left edge as the rows above.
-    private static final int MODE_ROW_Y = 87;
-    private static final int MODE_BUTTON_WIDTH = 78;
-    private static final int MODE_BUTTON_GAP = 4;
+    // Mode rows: "Min. Mode: [ button ]" then "Partial: [ button ]" — label at the same left column as
+    // the "+"/"-" signs above, button filling the rest of the row out to the shared right edge.
+    private static final int MIN_MODE_ROW_Y = SUBTRACT_ROW_Y + STEP_BUTTON_HEIGHT + 4;
+    private static final int PARTIAL_ROW_Y = MIN_MODE_ROW_Y + STEP_BUTTON_HEIGHT + 2;
+    private static final int BUTTON_LABEL_GAP = 4;
 
     private EditBox amountField;
     private Button fulfillmentModeButton;
     private Button minThresholdButton;
+    private int labelColumnX;
 
     public FluidSupplierScreen(FluidSupplierScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title, 176, FluidSupplierScreenHandler.PANEL_HEIGHT);
@@ -101,14 +102,19 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         amountField.setValue(String.valueOf(menu.getTargetMb()));
         addRenderableWidget(amountField);
 
-        // Right-align the step-button rows with the Min. Threshold button below them, rather than
-        // sharing the mode row's left edge.
-        int minButtonRight = leftPos + ROW_START_X + MODE_BUTTON_WIDTH + MODE_BUTTON_GAP + MODE_BUTTON_WIDTH;
+        // All four rows below share one footprint — sign/label column, then buttons out to a right edge
+        // — sized to the step rows' content, then centered as a single block in the panel (rather than
+        // right-aligned, which left a lopsided gap on the left).
         int stepRowWidth = 0;
         for (int width : STEP_BUTTON_WIDTHS) stepRowWidth += width;
         stepRowWidth += (STEP_BUTTON_WIDTHS.length - 1) * STEP_ROW_BUTTON_GAP;
+        int blockWidth = stepRowWidth + SIGN_LABEL_GAP;
 
-        int x = minButtonRight - stepRowWidth;
+        labelColumnX = (imageWidth - blockWidth) / 2;
+        int labelColumnXAbs = leftPos + labelColumnX;
+        int rowRightAbs = labelColumnXAbs + blockWidth;
+
+        int x = labelColumnXAbs + SIGN_LABEL_GAP;
         for (int i = 0; i < STEP_AMOUNTS.length; i++) {
             int amount = STEP_AMOUNTS[i];
             int width = STEP_BUTTON_WIDTHS[i];
@@ -124,16 +130,21 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
             x += width + STEP_ROW_BUTTON_GAP;
         }
 
-        fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
-                .bounds(leftPos + ROW_START_X, topPos + MODE_ROW_Y, MODE_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
-                .build();
-        addRenderableWidget(fulfillmentModeButton);
-
+        // Each mode button fills the row from right after its own label out to the shared right edge,
+        // so a longer label ("Min. Mode:") naturally leaves its button narrower than "Partial:"'s.
+        Component minLabel = Component.translatable("gui.logistics.fluid_supplier.min_threshold_label");
+        int minButtonX = labelColumnXAbs + font.width(minLabel) + BUTTON_LABEL_GAP;
         minThresholdButton = Button.builder(minThresholdText(), b -> cycleMinThreshold())
-                .bounds(leftPos + ROW_START_X + MODE_BUTTON_WIDTH + MODE_BUTTON_GAP, topPos + MODE_ROW_Y,
-                        MODE_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
+                .bounds(minButtonX, topPos + MIN_MODE_ROW_Y, rowRightAbs - minButtonX, STEP_BUTTON_HEIGHT)
                 .build();
         addRenderableWidget(minThresholdButton);
+
+        Component partialLabel = Component.translatable("gui.logistics.fluid_supplier.fulfillment_label");
+        int partialButtonX = labelColumnXAbs + font.width(partialLabel) + BUTTON_LABEL_GAP;
+        fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
+                .bounds(partialButtonX, topPos + PARTIAL_ROW_Y, rowRightAbs - partialButtonX, STEP_BUTTON_HEIGHT)
+                .build();
+        addRenderableWidget(fulfillmentModeButton);
     }
 
     private int parseField() {
@@ -168,9 +179,12 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         ClientNetworking.send(new SetFluidSupplierPacket(targetMb, fulfillmentModeOrdinal, minThresholdOrdinal));
     }
 
+    // "Allow partial delivery?" — Yes/No, distinct from the shared gui.logistics.mode.partial/.full
+    // keys the item Supplier's mode button uses, since that button cycles a different, longer set of
+    // modes (Bulk 50%/100%, Infinite, ...) where "Partial"/"Full" reads correctly on their own.
     private Component fulfillmentModeText() {
         FulfillmentMode mode = FulfillmentMode.values()[menu.getFulfillmentModeOrdinal()];
-        return Component.translatable("gui.logistics.mode." + mode.name().toLowerCase(Locale.ROOT));
+        return Component.translatable("gui.logistics.fluid_supplier.fulfillment." + mode.name().toLowerCase(Locale.ROOT));
     }
 
     private Component minThresholdText() {
@@ -234,6 +248,14 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         graphics.text(font, title, titleLabelX, titleLabelY, TEXT_COLOR, false);
         graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT_COLOR, false);
+
+        int rowLabelYOffset = (STEP_BUTTON_HEIGHT - font.lineHeight) / 2 + SIGN_LABEL_Y_NUDGE;
+        graphics.text(font, Component.literal("+"), labelColumnX, ADD_ROW_Y + rowLabelYOffset, TEXT_COLOR, false);
+        graphics.text(font, Component.literal("-"), labelColumnX, SUBTRACT_ROW_Y + rowLabelYOffset, TEXT_COLOR, false);
+        graphics.text(font, Component.translatable("gui.logistics.fluid_supplier.min_threshold_label"),
+                labelColumnX, MIN_MODE_ROW_Y + rowLabelYOffset, TEXT_COLOR, false);
+        graphics.text(font, Component.translatable("gui.logistics.fluid_supplier.fulfillment_label"),
+                labelColumnX, PARTIAL_ROW_Y + rowLabelYOffset, TEXT_COLOR, false);
     }
 
     @Override
