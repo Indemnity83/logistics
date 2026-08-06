@@ -243,7 +243,6 @@
   "message.logistics.fluid_supplier.status": "%s — target %s mB, buffer %s mB",
   "gui.logistics.fluid_supplier.target": "Target: %s mB",
   "gui.logistics.fluid_supplier.buffer": "Buffer: %s mB",
-  "gui.logistics.fluid_supplier.clear": "Clear Fluid",
   "gui.logistics.fluid_supplier.min_threshold.none": "Min: None",
   "gui.logistics.fluid_supplier.min_threshold.one_bucket": "Min: 1 Bucket",
   "gui.logistics.fluid_supplier.min_threshold.two_bucket": "Min: 2 Buckets",

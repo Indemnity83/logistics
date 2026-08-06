@@ -9,6 +9,7 @@ import com.logistics.pipe.modules.FluidSupplierModule;
 import com.logistics.pipe.modules.FluidSupplierModule.MinThreshold;
 import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
 import com.logistics.pipe.ui.FluidSupplierScreenHandler;
+import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,9 +32,12 @@ import net.minecraft.world.level.material.Fluids;
  * Client-side screen for the Fluid Supplier Pipe.
  *
  * <p>Header strip mimics the classic LogisticsPipes fluid-supplier layout: a slot showing the selected
- * fluid, its name and buffered amount, a numeric target-amount field flanked by -/+ step buttons, and a
- * Clear button for the fluid filter. Edits are sent with {@link SetFluidSupplierPacket}; the fluid itself
- * is set in-world by right-clicking the pipe with a filled bucket, so there is no fluid picker here.
+ * fluid, its name and buffered amount, and a numeric target-amount field flanked by --/-/+/++ step
+ * buttons. The fluid slot doubles as the filter control: click it while carrying a bucket-like item to
+ * set (or replace) the filter, or click it with nothing relevant carried to clear an existing filter —
+ * mirroring the in-world bucket interaction, so there is no separate fluid picker or Clear button.
+ * Edits are sent with {@link SetFluidSupplierPacket} (target/modes) and
+ * {@link ClickFluidSupplierGaugePacket} (fluid filter).
  */
 public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierScreenHandler> {
     private static final ResourceId BACKGROUND_TEXTURE =
@@ -40,10 +45,12 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int TEXT_COLOR = 0xFF404040;
 
     private static final int MAX_TARGET = (int) FluidSupplierModule.MAX_TARGET_MB;
-    private static final int STEP_MB = 250;
+    private static final int STEP_MB = 1;
+    private static final int STEP_MB_LARGE = 1000;
 
     // Fluid slot is baked into the background texture with its border at (47, 18); the icon sits 1px in,
-    // centered on the two-line name/buffer text block to its right.
+    // centered on the two-line name/buffer text block to its right. Doubles as the filter control: click
+    // it (see #mouseClicked) to set/replace from a carried bucket, or to clear an existing filter.
     private static final int GAUGE_X = 48;
     private static final int GAUGE_Y = 19;
     private static final int GAUGE_SIZE = 16;
@@ -54,25 +61,29 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int NAME_Y = 18;
     private static final int BUFFER_Y = 27;
 
+    // Target row: --  -  [field]  +  ++  mB — the double-step buttons flank the single-step ones.
     private static final int TARGET_ROW_Y = 38;
     private static final int TARGET_LABEL_X = 8;
     private static final int TARGET_LABEL_Y = 41;
-    private static final int MINUS_X = 46;
-    private static final int FIELD_X = 62;
-    private static final int FIELD_WIDTH = 40;
-    private static final int PLUS_X = 104;
-    private static final int MB_LABEL_X = 122;
+    private static final int STEP_BUTTON_WIDTH = 14;
+    private static final int DOUBLE_MINUS_X = 46;
+    private static final int MINUS_X = 61;
+    private static final int FIELD_X = 76;
+    private static final int FIELD_WIDTH = 36;
+    private static final int PLUS_X = 113;
+    private static final int DOUBLE_PLUS_X = 128;
+    private static final int MB_LABEL_X = 144;
     private static final int MB_LABEL_Y = 41;
 
-    // Bottom row holds three small buttons side by side: Clear | Fulfillment mode | Min. threshold.
+    // Bottom row holds two buttons side by side: Fulfillment mode | Min. threshold. Starts at the same
+    // X as the target row's leftmost (--) button — freed-up space from removing the old Clear button
+    // goes entirely to widening the min-threshold button, not to extending further left.
     private static final int BOTTOM_ROW_Y = 54;
     private static final int BOTTOM_BUTTON_HEIGHT = 13;
-    private static final int CLEAR_BUTTON_X = 8;
-    private static final int CLEAR_BUTTON_WIDTH = 52;
-    private static final int FULFILLMENT_BUTTON_X = 62;
+    private static final int FULFILLMENT_BUTTON_X = 46;
     private static final int FULFILLMENT_BUTTON_WIDTH = 52;
-    private static final int MIN_THRESHOLD_BUTTON_X = 116;
-    private static final int MIN_THRESHOLD_BUTTON_WIDTH = 52;
+    private static final int MIN_THRESHOLD_BUTTON_X = 100;
+    private static final int MIN_THRESHOLD_BUTTON_WIDTH = 68;
 
     private EditBox amountField;
     private Button fulfillmentModeButton;
@@ -88,8 +99,12 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     protected void init() {
         super.init();
 
+        addRenderableWidget(Button.builder(Component.literal("--"), b -> step(-STEP_MB_LARGE))
+                .bounds(leftPos + DOUBLE_MINUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
+                .build());
+
         addRenderableWidget(Button.builder(Component.literal("-"), b -> step(-STEP_MB))
-                .bounds(leftPos + MINUS_X, topPos + TARGET_ROW_Y, 14, 14)
+                .bounds(leftPos + MINUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
                 .build());
 
         amountField = new EditBox(
@@ -100,12 +115,11 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         addRenderableWidget(amountField);
 
         addRenderableWidget(Button.builder(Component.literal("+"), b -> step(STEP_MB))
-                .bounds(leftPos + PLUS_X, topPos + TARGET_ROW_Y, 14, 14)
+                .bounds(leftPos + PLUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
                 .build());
 
-        addRenderableWidget(Button.builder(
-                        Component.translatable("gui.logistics.fluid_supplier.clear"), b -> clearFluid())
-                .bounds(leftPos + CLEAR_BUTTON_X, topPos + BOTTOM_ROW_Y, CLEAR_BUTTON_WIDTH, BOTTOM_BUTTON_HEIGHT)
+        addRenderableWidget(Button.builder(Component.literal("++"), b -> step(STEP_MB_LARGE))
+                .bounds(leftPos + DOUBLE_PLUS_X, topPos + TARGET_ROW_Y, STEP_BUTTON_WIDTH, 14)
                 .build());
 
         fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
@@ -130,29 +144,25 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private void applyTarget(int target) {
         int clamped = Math.max(0, Math.min(MAX_TARGET, target));
         amountField.setValue(String.valueOf(clamped));
-        sendState(clamped, false, menu.getFulfillmentModeOrdinal(), menu.getMinThresholdOrdinal());
+        sendState(clamped, menu.getFulfillmentModeOrdinal(), menu.getMinThresholdOrdinal());
     }
 
     private void step(int delta) {
         applyTarget(parseField() + delta);
     }
 
-    private void clearFluid() {
-        sendState(menu.getTargetMb(), true, menu.getFulfillmentModeOrdinal(), menu.getMinThresholdOrdinal());
-    }
-
     private void cycleFulfillmentMode() {
         int next = (menu.getFulfillmentModeOrdinal() + 1) % FulfillmentMode.values().length;
-        sendState(menu.getTargetMb(), false, next, menu.getMinThresholdOrdinal());
+        sendState(menu.getTargetMb(), next, menu.getMinThresholdOrdinal());
     }
 
     private void cycleMinThreshold() {
         int next = (menu.getMinThresholdOrdinal() + 1) % MinThreshold.values().length;
-        sendState(menu.getTargetMb(), false, menu.getFulfillmentModeOrdinal(), next);
+        sendState(menu.getTargetMb(), menu.getFulfillmentModeOrdinal(), next);
     }
 
-    private void sendState(int targetMb, boolean clearFluid, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
-        ClientNetworking.send(new SetFluidSupplierPacket(targetMb, clearFluid, fulfillmentModeOrdinal, minThresholdOrdinal));
+    private void sendState(int targetMb, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
+        ClientNetworking.send(new SetFluidSupplierPacket(targetMb, fulfillmentModeOrdinal, minThresholdOrdinal));
     }
 
     private Component fulfillmentModeText() {
@@ -164,6 +174,21 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         MinThreshold threshold = MinThreshold.values()[menu.getMinThresholdOrdinal()];
         return Component.translatable(
                 "gui.logistics.fluid_supplier.min_threshold." + threshold.name().toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
+        if (isOverGauge(event.x(), event.y())) {
+            ClientNetworking.send(new ClickFluidSupplierGaugePacket());
+            return true;
+        }
+        return super.mouseClicked(event, consumed);
+    }
+
+    private boolean isOverGauge(double mouseX, double mouseY) {
+        int gx = leftPos + GAUGE_X;
+        int gy = topPos + GAUGE_Y;
+        return mouseX >= gx && mouseX < gx + GAUGE_SIZE && mouseY >= gy && mouseY < gy + GAUGE_SIZE;
     }
 
     @Override

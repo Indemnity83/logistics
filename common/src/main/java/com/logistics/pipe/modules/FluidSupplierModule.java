@@ -502,16 +502,18 @@ public class FluidSupplierModule implements Module, TickingModule, RoutingModule
         return total;
     }
 
-    private static Component fluidName(Fluid fluid) {
+    /** Public so {@code FluidSupplierScreenHandler} can format the same "filter set" message. */
+    public static Component fluidName(Fluid fluid) {
         return Component.literal(BuiltInRegistries.FLUID.getKey(fluid).getPath());
     }
 
     /**
      * Read the fluid held by a filled bucket. Handles vanilla water/lava buckets and the mod's
-     * {@link LogisticsBucketItem}; returns {@code null} for anything else.
+     * {@link LogisticsBucketItem}; returns {@code null} for anything else. Public so
+     * {@code FluidSupplierScreenHandler} can reuse this to resolve a GUI-carried item.
      */
     @Nullable
-    private static Fluid fluidFromBucket(ItemStack stack) {
+    public static Fluid fluidFromBucket(ItemStack stack) {
         if (stack.isEmpty()) return null;
         if (stack.is(Items.WATER_BUCKET)) return Fluids.WATER;
         if (stack.is(Items.LAVA_BUCKET)) return Fluids.LAVA;

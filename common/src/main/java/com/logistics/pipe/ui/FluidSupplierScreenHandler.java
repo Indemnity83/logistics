@@ -139,27 +139,47 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
     // ==================== Server-side edits ====================
 
     /**
-     * Apply a client edit. When {@code clearFluid} is set the filter is cleared unless the module is
-     * locked (fluid held or on order), in which case the player is told; otherwise the target is set.
-     * The two mode ordinals are applied unconditionally alongside target/clear (see
+     * Apply a client edit: the target amount and the two mode ordinals, always applied together (see
      * {@link com.logistics.pipe.network.packet.SetFluidSupplierPacket}'s "always send full state" note).
+     * The fluid filter itself is set/cleared separately — see {@link #onGaugeClicked}.
      */
-    public void applyFromClient(
-            ServerPlayer player, long targetMb, boolean clearFluid, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
+    public void applyFromClient(ServerPlayer player, long targetMb, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
         if (pipeEntity == null) return;
         PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey, (ctx, module) -> {
-            if (clearFluid) {
-                if (module.isFilterLocked(ctx)) {
-                    player.sendOverlayMessage(
-                            Component.translatable("message.logistics.fluid_supplier.locked"));
-                } else {
-                    module.setFilterFluid(ctx, null);
-                }
-            } else {
-                module.setTargetMb(ctx, targetMb);
-            }
+            module.setTargetMb(ctx, targetMb);
             module.setFulfillmentModeFromOrdinal(ctx, fulfillmentModeOrdinal);
             module.setMinThresholdFromOrdinal(ctx, minThresholdOrdinal);
+        });
+        broadcastChanges();
+    }
+
+    /**
+     * Handle a click on the fluid gauge (see {@link com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket}).
+     * If the player is carrying a bucket-like item that resolves to a fluid, the filter is set or
+     * replaced from it — mirroring {@code FluidSupplierModule#onUseWithItem}'s in-world bucket
+     * interaction. Otherwise, if a filter is currently set, it is cleared. Both actions are refused
+     * (with a message) while the filter is locked (fluid held or on order).
+     */
+    public void onGaugeClicked(ServerPlayer player) {
+        if (pipeEntity == null) return;
+        Fluid fromCarried = FluidSupplierModule.fluidFromBucket(getCarried());
+        PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey, (ctx, module) -> {
+            if (fromCarried != null) {
+                if (module.isFilterLocked(ctx)) {
+                    player.sendOverlayMessage(Component.translatable("message.logistics.fluid_supplier.locked"));
+                } else if (module.getFilterFluid(ctx) != fromCarried) {
+                    module.setFilterFluid(ctx, fromCarried);
+                    player.sendOverlayMessage(Component.translatable(
+                            "message.logistics.fluid_supplier.filter_set", FluidSupplierModule.fluidName(fromCarried)));
+                }
+            } else if (module.getFilterFluid(ctx) != null) {
+                if (module.isFilterLocked(ctx)) {
+                    player.sendOverlayMessage(Component.translatable("message.logistics.fluid_supplier.locked"));
+                } else {
+                    module.setFilterFluid(ctx, null);
+                    player.sendOverlayMessage(Component.translatable("message.logistics.fluid_supplier.cleared"));
+                }
+            }
         });
         broadcastChanges();
     }
