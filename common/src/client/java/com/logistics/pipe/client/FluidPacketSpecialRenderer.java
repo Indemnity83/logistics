@@ -19,8 +19,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * 26.2 item-render adapter for the hidden fluid-packet item. Wires the vanilla {@link SpecialModelRenderer}
  * {@code submit} path to the shared, version-agnostic {@link FluidPacketRendering} core. Draws the carried
- * fluid's still sprite (16px, animated) as a disc behind the frame texture (a round bubble whose transparent
- * centre window reveals it), sized to tuck under the bubble's glass rim.
+ * fluid's still sprite (16px, animated) as a small quad behind the frame texture, sized to exactly the
+ * frame's rectangular transparent window so the fluid shows through cleanly.
  *
  * <p>Both fluid and frame draw through {@code *MovingBlock} render types off the blocks atlas, NOT
  * {@code itemCutout}: the item shader applies directional (diffuse) lighting, which shades the white frame to
@@ -70,10 +70,10 @@ public final class FluidPacketSpecialRenderer implements SpecialModelRenderer<Fl
                 collector.submitCustomGeometry(
                         poseStack,
                         RenderTypes.translucentMovingBlock(),
-                        (entry, buffer) -> FluidBoxRenderer.renderFaceDisc(
+                        (entry, buffer) -> FluidBoxRenderer.renderFaceQuad(
                                 entry, buffer, sprite, color, lightCoords,
-                                FluidPacketRendering.FLUID_CENTER_X, FluidPacketRendering.FLUID_CENTER_Y,
-                                FluidPacketRendering.FLUID_RADIUS, FLUID_Z, FluidPacketRendering.FLUID_DISC_SEGMENTS));
+                                FluidPacketRendering.FLUID_WINDOW_X0, FluidPacketRendering.FLUID_WINDOW_Y0,
+                                FluidPacketRendering.FLUID_WINDOW_X1, FluidPacketRendering.FLUID_WINDOW_Y1, FLUID_Z));
             }
         }
         TextureAtlasSprite frame = frameSprite();
