@@ -69,9 +69,9 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     // "+" row: adds each button's amount to the target ("+1"/"+10"/.../"+1000" labels). "-" row mirrors
     // it, subtracting. Both rows share the same button columns, one row apart.
     private static final int ADD_ROW_Y = 40;
-    private static final int SUBTRACT_ROW_Y = 63;
     private static final int STEP_BUTTON_WIDTH = 37;
     private static final int STEP_BUTTON_HEIGHT = Button.DEFAULT_HEIGHT - 6;
+    private static final int SUBTRACT_ROW_Y = ADD_ROW_Y + STEP_BUTTON_HEIGHT + 2;
     private static final int STEP_ROW_BUTTON_GAP = 4;
 
     // Mode row: Fulfillment | Min. threshold — equal width, same left edge as the rows above.
