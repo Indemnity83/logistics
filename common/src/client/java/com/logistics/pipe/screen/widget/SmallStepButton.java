@@ -19,9 +19,11 @@ public class SmallStepButton extends AbstractWidget {
     // ~12px-tall button rather than being shrunk down further than necessary.
     private static final float TEXT_SCALE = 7.0f / 9.0f;
     private static final int BORDER_COLOR = 0xFF000000;
-    private static final int FILL_COLOR = 0xFFC6C6C6;
-    private static final int FILL_COLOR_HOVERED = 0xFFDCDCDC;
-    private static final int TEXT_COLOR = 0xFF404040;
+    // Deliberately darker than the vanilla panel background (0xC6C6C6) so the fill actually reads as
+    // a button against the panel instead of disappearing into it.
+    private static final int FILL_COLOR = 0xFF8B8B8B;
+    private static final int FILL_COLOR_HOVERED = 0xFFA9A9A9;
+    private static final int TEXT_COLOR = 0xFFFFFFFF;
 
     private final Font font;
     private final Runnable onPress;
