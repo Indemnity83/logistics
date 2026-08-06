@@ -49,6 +49,8 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
 
     private static final int MAX_TARGET = (int) FluidSupplierModule.MAX_TARGET_MB;
     private static final int[] STEP_AMOUNTS = {1, 10, 100, 1000};
+    // Sized to each label's text width plus consistent padding, rather than one uniform width.
+    private static final int[] STEP_BUTTON_WIDTHS = {25, 31, 37, 43};
 
     // Column every row below the title aligns to.
     private static final int ROW_START_X = 8;
@@ -69,7 +71,6 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     // "+" row: adds each button's amount to the target ("+1"/"+10"/.../"+1000" labels). "-" row mirrors
     // it, subtracting. Both rows share the same button columns, one row apart.
     private static final int ADD_ROW_Y = 40;
-    private static final int STEP_BUTTON_WIDTH = 37;
     private static final int STEP_BUTTON_HEIGHT = Button.DEFAULT_HEIGHT - 6;
     private static final int SUBTRACT_ROW_Y = ADD_ROW_Y + STEP_BUTTON_HEIGHT + 2;
     private static final int STEP_ROW_BUTTON_GAP = 4;
@@ -101,16 +102,19 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
         addRenderableWidget(amountField);
 
         int x = leftPos + ROW_START_X;
-        for (int amount : STEP_AMOUNTS) {
+        for (int i = 0; i < STEP_AMOUNTS.length; i++) {
+            int amount = STEP_AMOUNTS[i];
+            int width = STEP_BUTTON_WIDTHS[i];
+
             addRenderableWidget(Button.builder(Component.literal("+" + amount), b -> step(amount))
-                    .bounds(x, topPos + ADD_ROW_Y, STEP_BUTTON_WIDTH, STEP_BUTTON_HEIGHT)
+                    .bounds(x, topPos + ADD_ROW_Y, width, STEP_BUTTON_HEIGHT)
                     .build());
 
             addRenderableWidget(Button.builder(Component.literal("-" + amount), b -> step(-amount))
-                    .bounds(x, topPos + SUBTRACT_ROW_Y, STEP_BUTTON_WIDTH, STEP_BUTTON_HEIGHT)
+                    .bounds(x, topPos + SUBTRACT_ROW_Y, width, STEP_BUTTON_HEIGHT)
                     .build());
 
-            x += STEP_BUTTON_WIDTH + STEP_ROW_BUTTON_GAP;
+            x += width + STEP_ROW_BUTTON_GAP;
         }
 
         fulfillmentModeButton = Button.builder(fulfillmentModeText(), b -> cycleFulfillmentMode())
