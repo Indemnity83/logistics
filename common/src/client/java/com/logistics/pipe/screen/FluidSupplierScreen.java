@@ -73,7 +73,7 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int ADD_ROW_Y = 40;
     private static final int STEP_BUTTON_HEIGHT = Button.DEFAULT_HEIGHT - 6;
     private static final int SUBTRACT_ROW_Y = ADD_ROW_Y + STEP_BUTTON_HEIGHT + 2;
-    private static final int STEP_ROW_BUTTON_GAP = 4;
+    private static final int STEP_ROW_BUTTON_GAP = 1;
 
     // Mode row: Fulfillment | Min. threshold — equal width, same left edge as the rows above.
     private static final int MODE_ROW_Y = 87;
