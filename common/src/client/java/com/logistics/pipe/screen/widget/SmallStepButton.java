@@ -15,7 +15,9 @@ import org.joml.Matrix3x2fStack;
  * default font size via a pushed/scaled pose transform.
  */
 public class SmallStepButton extends AbstractWidget {
-    private static final float TEXT_SCALE = 0.6f;
+    // Targets a ~7px-tall glyph (default font lineHeight is 9) so text reads clearly inside a compact,
+    // ~12px-tall button rather than being shrunk down further than necessary.
+    private static final float TEXT_SCALE = 7.0f / 9.0f;
     private static final int BORDER_COLOR = 0xFF000000;
     private static final int FILL_COLOR = 0xFFC6C6C6;
     private static final int FILL_COLOR_HOVERED = 0xFFDCDCDC;

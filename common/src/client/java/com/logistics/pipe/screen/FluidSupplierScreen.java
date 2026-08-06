@@ -76,7 +76,7 @@ public class FluidSupplierScreen extends AbstractContainerScreen<FluidSupplierSc
     private static final int SIGN_LABEL_X = 38;
     private static final int SIGN_LABEL_Y_OFFSET = 2;
     private static final int STEP_ROW_BUTTON_GAP = 3;
-    private static final int STEP_ROW_BUTTON_HEIGHT = 10;
+    private static final int STEP_ROW_BUTTON_HEIGHT = 12;
 
     // Mode row: Fulfillment | Min. threshold — roughly equal width, same left edge as the rows above.
     private static final int MODE_ROW_Y = 70;
