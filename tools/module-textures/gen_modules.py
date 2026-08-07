@@ -31,7 +31,7 @@ OUT = os.path.normpath(os.path.join(
 BASES = {
     "purple": "#8932B8", "brown": "#835432", "gray": "#474F52", "cyan": "#169C9C",
     "green": "#5E7C16", "orange": "#F9801D", "red": "#B02E26", "light_blue": "#3AB3DA",
-    "black": "#1D1D21", "white": "#F9FFFE",
+    "black": "#1D1D21", "white": "#F9FFFE", "blue": "#3C44AA",
 }
 # Bright shiny copper connector, used everywhere it reads. A slightly deeper copper is
 # only substituted on bases that sit right on the copper tone (orange, light blue), so
@@ -60,6 +60,8 @@ FAMILIES = {
 STANDALONE = [
     ("active_supplier_module.png", ["purple"], "gold"),
     ("enchantment_sink_module.png", ["gray"], "gold"),
+    ("fluid_provider_module.png", ["blue"], "iron"),
+    ("fluid_supplier_module.png", ["light_blue"], "iron"),
     ("item_sink_module.png", ["green"], "iron"),
     ("mod_item_sink_module.png", ["green"], "gold"),
     ("passive_supplier_module.png", ["purple"], "iron"),
