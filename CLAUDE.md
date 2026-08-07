@@ -7,17 +7,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **FIRST:** Always check your current branch using `git branch --show-current` or by checking the working directory path (e.g., `../logistics-mc-1.21.11/` indicates mc/1.21.11 branch).
 
 This repository uses a multi-version strategy to support different Minecraft releases:
-- **`mc/26.2`** - **Main/default branch** (the branch `origin/HEAD` tracks). Newest MC release; new work starts here
+- **`mc/26.3`** - **Pre-release.** Newest MC release, not yet stable. Forward-port target — receives cherry-picks from `mc/26.2`, does not originate new work
+- **`mc/26.2`** - **Main/default branch** (the branch `origin/HEAD` tracks). Newest *stable* MC release; new work starts here
 - **`mc/26.1`** - Maintenance + backport target for MC 26.1
 - **`mc/1.21.11`** - Maintenance + backport target for MC 1.21.11
 - **`mc/1.21.1`** - Maintenance + backport target for MC 1.21.1
 
-**Roles advance over time:** when a newer MC release ships, `main` moves to the newest `mc/2x.y` branch and the previous one becomes a backport target. Don't hardcode which branch is main — confirm with `git rev-parse --abbrev-ref origin/HEAD`.
+**Roles advance over time:** when a newer MC release ships *and is stable*, `main` moves to that `mc/2x.y` branch and the previous one becomes a backport target. A pre-release branch (like `mc/26.3` today) does **not** become main and does not shift the backport chain until it ships — it just trails main as a forward-port target. Don't hardcode which branch is main — confirm with `git rev-parse --abbrev-ref origin/HEAD`.
 
 ### Critical Understanding
 
 **Domain architecture enables cross-version cherry-picking.** After significant refactoring to isolate version-specific code:
-- ✅ **Can cherry-pick** commits between branches (mc/1.21.1 ↔ mc/1.21.11 ↔ mc/26.1 ↔ mc/26.2)
+- ✅ **Can cherry-pick** commits between branches (mc/1.21.1 ↔ mc/1.21.11 ↔ mc/26.1 ↔ mc/26.2 ↔ mc/26.3)
 - ✅ **Can share code** across versions via git operations
 - ✅ **Can maintain feature parity** with minimal manual intervention
 - ✅ **Cherry-pick is the primary porting mechanism**
@@ -31,6 +32,7 @@ For easier cross-version development, consider setting up git worktrees for each
 - `../logistics-mc-1.21.11/` - mc/1.21.11 branch worktree
 - `../logistics-mc-26.1/` - mc/26.1 branch worktree
 - `../logistics-mc-26.2/` - mc/26.2 (main) branch worktree
+- `../logistics-mc-26.3/` - mc/26.3 (pre-release) branch worktree
 
 The current working directory path indicates which branch you're on.
 
@@ -44,37 +46,54 @@ If worktrees are detected at these paths, they may be referenced when working on
 ### Development Strategy
 
 - **`mc/26.2`**: Primary development target (main branch) — new features, refactors, and fixes start here
+- **`mc/26.3`**: Pre-release forward-port target — cherry-pick player-facing features/fixes up from mc/26.2 once they're stable there; never originate work here
 - **`mc/26.1`**: Backport target (maintenance) — port player-facing features/fixes down from mc/26.2
 - **`mc/1.21.11`**: Backport target (maintenance) — port player-facing features/fixes down
 - **`mc/1.21.1`**: Backport target (maintenance) — many tech-mod users still on this version
 
 ### Branch Protection Rules (CRITICAL)
 
-**Never push or commit directly to `mc/*` branches** (`mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected branches. All work — including in auto mode — must go through a feature branch and PR.
+**Never push or commit directly to `mc/*` branches** (`mc/26.3`, `mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected branches (configured as Git Town perennial branches — see [Git Town](#git-town) below). All work — including in auto mode — must go through a feature branch and PR.
 
 **Required workflow for any new work:**
-1. Create a feature branch first: `git checkout -b descriptive-branch-name`
+1. Create a feature branch first: `git town hack descriptive-branch-name`
 2. Make commits on the feature branch
-3. Push the feature branch: `git push origin descriptive-branch-name`
-4. Open a PR targeting the appropriate `mc/*` branch
+3. Sync/push the feature branch: `git town sync` (or let `propose` do it)
+4. Open a PR targeting the appropriate `mc/*` branch: `git town propose`
 
 **The only exception** is cherry-picking between `mc/*` branches for porting already-merged commits. Even then, confirm with the user before pushing.
 
-**In auto mode:** Still pause and confirm before any `git push` when the current branch is `mc/*` or when no feature branch has been created yet. A wrong push to a protected branch is very hard to undo cleanly.
+**In auto mode:** Still pause and confirm before any push when the current branch is `mc/*` or when no feature branch has been created yet. A wrong push to a protected branch is very hard to undo cleanly.
+
+### Git Town
+
+Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as perennial) and is used headlessly — no interactive prompts, safe to run from scripts/agents. Prefer these over plain `git` for the standard feature-branch flow:
+
+| Instead of… | Use |
+|---|---|
+| `git checkout -b <branch>` (off main) | `git town hack <branch>` |
+| `git checkout -b <branch>` (off current branch, stacked) | `git town append <branch>` |
+| `git pull` / manually merging main into a feature branch | `git town sync` |
+| Opening a PR by hand | `git town propose` |
+| Squash-merging a PR | `git town ship` |
+| Deleting a merged/obsolete feature branch | `git town delete` |
+| `git checkout <branch>` when you don't remember the name | `git town switch` |
+
+**Exceptions that stay plain `git`:** cherry-picks between `mc/*` branches (perennial-to-perennial, not a Git Town workflow), the tag-based hotfix branch in [Hotfix Workflow](#hotfix-workflow) below (branches off a tag, not main, so `git town hack` doesn't apply), and read-only inspection commands (`git status`, `git log`, `git branch --show-current`, `git diff`).
 
 ### Cross-Version Workflow
 
 **When fixing bugs:**
 1. Fix on **mc/26.2** (main) when the bug exists there
-2. Check if the bug exists on the other branches
-3. **Cherry-pick** the fix down to affected branches (resolve conflicts if needed)
+2. Check if the bug exists on the other branches, **including the pre-release mc/26.3**
+3. **Cherry-pick** the fix to affected branches (resolve conflicts if needed) — down to mc/26.1, mc/1.21.11, mc/1.21.1, and *up* to mc/26.3
 4. Test on each target branch after cherry-pick
-5. Priority order for porting: mc/26.2 → mc/26.1 → mc/1.21.11 → mc/1.21.1
+5. Priority order for porting: mc/26.2 → mc/26.1 → mc/1.21.11 → mc/1.21.1 (backports), and separately mc/26.2 → mc/26.3 (forward-port)
 6. **Legacy-only bugs** (don't reproduce on mc/26.x — e.g. 26.x auto-derives the cutout render layer from sprite transparency, so manual `BlockRenderLayerMap` registrations only matter on 1.21.x): originate the fix on the highest *affected* branch (mc/1.21.11) and cherry-pick down to mc/1.21.1
 
 **When adding features:**
-- Develop on **mc/26.2** (main), then backport to mc/26.1, mc/1.21.11 and mc/1.21.1 if the feature applies
-- Internal/infra work is backported too — keep all branches as close to in sync as possible, since closer branches make every future cherry-pick apply cleanly
+- Develop on **mc/26.2** (main), then backport to mc/26.1, mc/1.21.11 and mc/1.21.1 if the feature applies, and forward-port to mc/26.3 once it's stable on main
+- Internal/infra work is backported (and forward-ported to mc/26.3) too — keep all branches as close to in sync as possible, since closer branches make every future cherry-pick apply cleanly
 - Keep changes minimal and tested
 - Avoid large refactorings unless coordinated across all branches
 
@@ -151,6 +170,8 @@ After 1.0.0, `feat:` → minor and `feat!:` → major (standard SemVer).
 ### Hotfix Workflow
 
 When a critical bug needs a patch release *after* feature development has already started on the primary development branch, use this process to bypass release-please and publish a clean hotfix.
+
+This branches off a tag rather than main, so it's the plain-`git` exception noted in [Git Town](#git-town) above — don't use `git town hack` here.
 
 **Steps:**
 1. Branch from the last release tag:
