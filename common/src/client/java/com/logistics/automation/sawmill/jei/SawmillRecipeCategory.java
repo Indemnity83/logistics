@@ -12,6 +12,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
+import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -79,8 +80,13 @@ public class SawmillRecipeCategory implements IRecipeCategory<SawmillRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SawmillRecipe recipe, IFocusGroup focuses) {
+        // Counted stacks so JEI renders the real per-craft amount (e.g. 8x Kelp), not just 1 each.
+        int count = recipe.ingredientCount();
+        List<ItemStack> inputStacks = recipe.ingredient().items()
+                .map(holder -> new ItemStack(holder, count))
+                .toList();
         builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, INPUT_Y)
-            .add(recipe.ingredient());
+            .addItemStacks(inputStacks);
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .add(recipe.getResultItem());
 
