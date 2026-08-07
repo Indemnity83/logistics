@@ -58,10 +58,12 @@ If worktrees are detected at these paths, they may be referenced when working on
 **Required workflow for any new work:**
 1. Create a feature branch first: `git town hack descriptive-branch-name`
 2. Make commits on the feature branch
-3. Sync/push the feature branch: `git town sync` (or let `propose` do it)
+3. Sync/push the feature branch: `git town sync --push` (the explicit `--push` guarantees the branch reaches the remote regardless of the user's Git Town push defaults; or let `propose` do it)
 4. Open a PR targeting the appropriate `mc/*` branch: `git town propose`
 
-**The only exception** is cherry-picking between `mc/*` branches for porting already-merged commits. Even then, confirm with the user before pushing.
+**Exceptions:**
+- Cherry-picking between `mc/*` branches for porting already-merged commits. Confirm with the user before pushing.
+- The tag-based [Hotfix Workflow](#hotfix-workflow): its branch comes off a release tag, not main, and is pushed/tagged directly with no PR by design. Confirm with the user before pushing there too.
 
 **In auto mode:** Still pause and confirm before any push when the current branch is `mc/*` or when no feature branch has been created yet. A wrong push to a protected branch is very hard to undo cleanly.
 
@@ -88,8 +90,8 @@ Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as p
 2. Check if the bug exists on the other branches, **including the pre-release mc/26.3**
 3. **Cherry-pick** the fix to affected branches (resolve conflicts if needed) — down to mc/26.1, mc/1.21.11, mc/1.21.1, and *up* to mc/26.3
 4. Test on each target branch after cherry-pick
-5. Priority order for porting: mc/26.2 → mc/26.1 → mc/1.21.11 → mc/1.21.1 (backports), and separately mc/26.2 → mc/26.3 (forward-port)
-6. **Legacy-only bugs** (don't reproduce on mc/26.x — e.g. 26.x auto-derives the cutout render layer from sprite transparency, so manual `BlockRenderLayerMap` registrations only matter on 1.21.x): originate the fix on the highest *affected* branch (mc/1.21.11) and cherry-pick down to mc/1.21.1
+5. Priority order for porting **when mc/26.2 is the origin** (the common case): mc/26.2 → mc/26.1 → mc/1.21.11 → mc/1.21.1 (backports), and separately mc/26.2 → mc/26.3 (forward-port)
+6. **Legacy-only bugs** (don't reproduce on mc/26.x — e.g. 26.x auto-derives the cutout render layer from sprite transparency, so manual `BlockRenderLayerMap` registrations only matter on 1.21.x): this is the exception to #5 — mc/26.2 is not the origin. Originate the fix on the highest *affected* branch (mc/1.21.11) instead and cherry-pick down to mc/1.21.1
 
 **When adding features:**
 - Develop on **mc/26.2** (main), then backport to mc/26.1, mc/1.21.11 and mc/1.21.1 if the feature applies, and forward-port to mc/26.3 once it's stable on main
@@ -171,7 +173,7 @@ After 1.0.0, `feat:` → minor and `feat!:` → major (standard SemVer).
 
 When a critical bug needs a patch release *after* feature development has already started on the primary development branch, use this process to bypass release-please and publish a clean hotfix.
 
-This branches off a tag rather than main, so it's the plain-`git` exception noted in [Git Town](#git-town) above — don't use `git town hack` here.
+This branches off a tag rather than main, so it's the plain-`git` exception noted in [Git Town](#git-town) above — don't use `git town hack` here. It's also the documented exception in [Branch Protection Rules](#branch-protection-rules-critical) — the hotfix branch is pushed and tagged directly, with no feature branch or PR. Still confirm with the user before pushing.
 
 **Steps:**
 1. Branch from the last release tag:
