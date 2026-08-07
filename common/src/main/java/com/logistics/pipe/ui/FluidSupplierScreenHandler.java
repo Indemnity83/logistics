@@ -1,6 +1,7 @@
 package com.logistics.pipe.ui;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.modules.FluidSupplierModule;
@@ -32,20 +33,26 @@ import org.jetbrains.annotations.Nullable;
 public class FluidSupplierScreenHandler extends AbstractContainerMenu {
     private static final int SLOT_SIZE = 18;
     private static final int SLOT_START_X = 8;
-    private static final int PLAYER_INV_START_Y = 84;
-    private static final int HOTBAR_Y = 142;
+
+    // Below the target field, two 20px step-button rows, and the mode-button row (see FluidSupplierScreen).
+    public static final int INVENTORY_LABEL_Y = 115;
+    private static final int PLAYER_INV_START_Y = 125;
+    private static final int HOTBAR_Y = 183;
+    public static final int PANEL_HEIGHT = HOTBAR_Y + SLOT_SIZE + 6;
 
     private static final int SHORT_MAX = 32767;
 
     private static final int DATA_TARGET = 0;
     private static final int DATA_BUFFER = 1;
     private static final int DATA_FLUID_ID = 2;
+    private static final int DATA_FULFILLMENT_MODE = 3;
+    private static final int DATA_MIN_THRESHOLD = 4;
 
     private final ContainerLevelAccess context;
     @Nullable private final PipeBlockEntity pipeEntity;
     @Nullable private final String targetModuleStateKey;
 
-    private final int[] syncedData = new int[3];
+    private final int[] syncedData = new int[5];
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -54,6 +61,8 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
                     case DATA_TARGET -> clampShort(readLong(FluidSupplierModule::getTargetMb));
                     case DATA_BUFFER -> clampShort(readLong(FluidSupplierModule::getBufferMb));
                     case DATA_FLUID_ID -> readFluidId();
+                    case DATA_FULFILLMENT_MODE -> readInt(FluidSupplierModule::getFulfillmentModeOrdinal);
+                    case DATA_MIN_THRESHOLD -> readInt(FluidSupplierModule::getMinThresholdOrdinal);
                     default -> 0;
                 };
             }
@@ -121,24 +130,69 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
         return data.get(DATA_FLUID_ID);
     }
 
+    /** Current {@link FulfillmentMode} ordinal (Partial/Full toggle). */
+    public int getFulfillmentModeOrdinal() {
+        return data.get(DATA_FULFILLMENT_MODE);
+    }
+
+    /** Current {@link FluidSupplierModule.MinThreshold} ordinal. */
+    public int getMinThresholdOrdinal() {
+        return data.get(DATA_MIN_THRESHOLD);
+    }
+
     // ==================== Server-side edits ====================
 
     /**
-     * Apply a client edit. When {@code clearFluid} is set the filter is cleared unless the module is
-     * locked (fluid held or on order), in which case the player is told; otherwise the target is set.
+     * Apply a client edit: the target amount and the two mode ordinals, always applied together (see
+     * {@link com.logistics.pipe.network.packet.SetFluidSupplierPacket}'s "always send full state" note).
+     * The fluid filter itself is set/cleared separately — see {@link #onGaugeClicked}.
+     *
+     * <p>Both ordinals are validated up front — {@code SetFluidSupplierPacket} carries them as raw ints
+     * off the wire, and {@code FluidSupplierModule}'s ordinal setters throw on an out-of-range value
+     * rather than clamp. Checking first avoids a torn update (target applied, then an exception mid-way
+     * through the mode writes) from a malformed or stale packet.
      */
-    public void applyFromClient(ServerPlayer player, long targetMb, boolean clearFluid) {
+    public void applyFromClient(ServerPlayer player, long targetMb, int fulfillmentModeOrdinal, int minThresholdOrdinal) {
         if (pipeEntity == null) return;
+        if (fulfillmentModeOrdinal < 0 || fulfillmentModeOrdinal >= FulfillmentMode.values().length) return;
+        if (minThresholdOrdinal < 0 || minThresholdOrdinal >= FluidSupplierModule.MinThreshold.values().length) return;
         PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey, (ctx, module) -> {
-            if (clearFluid) {
+            module.setTargetMb(ctx, targetMb);
+            module.setFulfillmentModeFromOrdinal(ctx, fulfillmentModeOrdinal);
+            module.setMinThresholdFromOrdinal(ctx, minThresholdOrdinal);
+        });
+        broadcastChanges();
+    }
+
+    /**
+     * Handle a click on the fluid gauge (see {@link com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket}).
+     * If the player is carrying a bucket-like item that resolves to a fluid, the filter is set or
+     * replaced from it — mirroring {@code FluidSupplierModule#onUseWithItem}'s in-world bucket
+     * interaction. Otherwise, if a filter is currently set, it is cleared. Both actions are refused
+     * (with a message) while the filter is locked (fluid held or on order).
+     */
+    public void onGaugeClicked(ServerPlayer player) {
+        if (pipeEntity == null) return;
+        Fluid fromCarried = FluidSupplierModule.fluidFromBucket(getCarried());
+        PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey, (ctx, module) -> {
+            if (fromCarried != null) {
+                if (module.isFilterLocked(ctx)) {
+                    player.displayClientMessage(
+                            Component.translatable("message.logistics.fluid_supplier.locked"), true);
+                } else if (module.getFilterFluid(ctx) != fromCarried) {
+                    module.setFilterFluid(ctx, fromCarried);
+                    player.displayClientMessage(Component.translatable(
+                            "message.logistics.fluid_supplier.filter_set", FluidSupplierModule.fluidName(fromCarried)), true);
+                }
+            } else if (module.getFilterFluid(ctx) != null) {
                 if (module.isFilterLocked(ctx)) {
                     player.displayClientMessage(
                             Component.translatable("message.logistics.fluid_supplier.locked"), true);
                 } else {
                     module.setFilterFluid(ctx, null);
+                    player.displayClientMessage(
+                            Component.translatable("message.logistics.fluid_supplier.cleared"), true);
                 }
-            } else {
-                module.setTargetMb(ctx, targetMb);
             }
         });
         broadcastChanges();
@@ -164,6 +218,15 @@ public class FluidSupplierScreenHandler extends AbstractContainerMenu {
         long[] out = {0};
         PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey,
                 (ctx, module) -> out[0] = reader.applyAsLong(module, ctx));
+        return out[0];
+    }
+
+    /** Reads an {@code int} state value from the module through a fresh scoped context. */
+    private int readInt(java.util.function.ToIntBiFunction<FluidSupplierModule, PipeContext> reader) {
+        if (pipeEntity == null) return 0;
+        int[] out = {0};
+        PipeModuleHelper.withModule(pipeEntity, FluidSupplierModule.class, targetModuleStateKey,
+                (ctx, module) -> out[0] = reader.applyAsInt(module, ctx));
         return out[0];
     }
 

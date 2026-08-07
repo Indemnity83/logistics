@@ -49,19 +49,19 @@ class LogisticsConfigHostTest {
     @Test
     @DisplayName("fluid packet keys expose defaults and reject values below their minimums")
     void fluidPacketKeysDefaultsAndValidation() {
-        Config fluidLogistics = ConfigRegistry.config(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB.configId());
+        Config fluidLogistics = ConfigRegistry.config(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB.configId());
 
-        assertThat(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB)).isEqualTo(250L);
+        assertThat(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB)).isEqualTo(5000L);
         assertThat(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET)).isEqualTo(10L);
 
         try {
-            assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB, 1L)).isTrue();
-            assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB, 0L)).isFalse();
+            assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB, 1L)).isTrue();
+            assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB, 0L)).isFalse();
 
             assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET, 0L)).isTrue();
             assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET, -1L)).isFalse();
         } finally {
-            fluidLogistics.set(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB, 250L);
+            fluidLogistics.set(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB, 5000L);
             fluidLogistics.set(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET, 10L);
         }
     }

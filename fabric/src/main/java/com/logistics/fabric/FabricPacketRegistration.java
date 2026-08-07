@@ -4,6 +4,7 @@ import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
 import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
+import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
 import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
@@ -30,6 +31,11 @@ public final class FabricPacketRegistration {
 
         PayloadTypeRegistry.playC2S().register(SetFluidSupplierPacket.TYPE, SetFluidSupplierPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(SetFluidSupplierPacket.TYPE,
+                (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
+
+        PayloadTypeRegistry.playC2S().register(
+                ClickFluidSupplierGaugePacket.TYPE, ClickFluidSupplierGaugePacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ClickFluidSupplierGaugePacket.TYPE,
                 (packet, context) -> context.server().execute(() -> packet.handle(context.player())));
 
         PayloadTypeRegistry.playC2S().register(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC);

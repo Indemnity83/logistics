@@ -4,6 +4,7 @@ import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
 import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
+import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
 import com.logistics.pipe.network.packet.RequestItemPacket;
 import com.logistics.pipe.network.packet.SetFluidSupplierPacket;
@@ -31,6 +32,8 @@ public final class NeoForgePacketRegistration {
         registrar.playToServer(SetSatelliteIdPacket.TYPE, SetSatelliteIdPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
         registrar.playToServer(SetFluidSupplierPacket.TYPE, SetFluidSupplierPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
+        registrar.playToServer(ClickFluidSupplierGaugePacket.TYPE, ClickFluidSupplierGaugePacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
         registrar.playToServer(OpenChassisSlotPacket.TYPE, OpenChassisSlotPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> packet.handle((ServerPlayer) context.player())));
