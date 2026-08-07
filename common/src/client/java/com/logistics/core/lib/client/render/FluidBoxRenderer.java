@@ -92,29 +92,6 @@ public final class FluidBoxRenderer {
         quad(entry, buffer, sprite, color, light, 0, 0, -1, x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z);
     }
 
-    /**
-     * Render a filled disc on the {@code -Z} (north) plane at depth {@code z}, centred at {@code (cx, cy)}
-     * with radius {@code radius}, approximated by {@code segments} triangles fanned from the centre. Uses
-     * the same position-based UV as {@link #renderFaceQuad}; because that mapping is affine, the fan samples
-     * the sprite exactly (no distortion), so a round frame window reveals the fluid cleanly where a rectangle
-     * would poke past the rim. Double-sided, so it shows from either viewing side.
-     */
-    public static void renderFaceDisc(
-            PoseStack.Pose entry, VertexConsumer buffer, TextureAtlasSprite sprite, int color, int light,
-            float cx, float cy, float radius, float z, int segments) {
-        float prevX = cx + radius;
-        float prevY = cy;
-        for (int i = 1; i <= segments; i++) {
-            double angle = 2.0 * Math.PI * i / segments;
-            float x = cx + radius * (float) Math.cos(angle);
-            float y = cy + radius * (float) Math.sin(angle);
-            // A degenerate quad (last vertex repeats the centre) renders as the triangle centre→prev→rim.
-            quad(entry, buffer, sprite, color, light, 0, 0, -1, cx, cy, z, prevX, prevY, z, x, y, z, cx, cy, z);
-            prevX = x;
-            prevY = y;
-        }
-    }
-
     private static void quad(
             PoseStack.Pose entry, VertexConsumer buffer, TextureAtlasSprite sprite, int color, int light,
             float nx, float ny, float nz,
