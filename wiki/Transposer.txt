@@ -1,0 +1,63 @@
+{{Block
+|image            = Grid Transposer.png
+|type             = Block (Machine)
+|function         = Converts buckets ⇄ fluid
+|stackable        = Yes (64)
+|transparent      = Partial
+|tool             = Pickaxe
+|hardness         = 3.5
+|blastresistance  = 3.5
+|added            = v0.8.6
+}}
+
+The '''Transposer''' is a fluid ⇄ bucket station: it fills empty buckets from its internal tank and empties filled buckets into it. It runs on no power at all — just buckets in, buckets out.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Transposer is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Transposer |icon1=Grid Transposer.png |hardness1=3.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Bucket
+|A2=Bucket |B2=Machine Frame |C2=Bucket
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Transposer
+}}
+
+== Usage ==
+
+Drop an item into the input slot and the Transposer converts it in a single tick:
+
+* An '''empty bucket''' plus at least 1,000 mB in the tank becomes a filled bucket of that fluid; the tank loses 1,000 mB.
+* A '''filled bucket''' — water, lava, or any Logistics fluid bucket — plus room for 1,000 mB becomes a plain empty bucket; the tank gains 1,000 mB.
+
+The conversion is atomic: if the output slot can't hold the result, nothing is consumed and the tank is untouched. The tank holds '''16,000 mB (16 buckets)''' by default. Pipe fluid in and out with a [[Fluid Pipes|fluid pipe]], and automate the item side with [[Item Pipes|item pipes]] or a hopper. Breaking the Transposer drops its slot contents but voids whatever fluid remains in the tank.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:automation/transposer|block.logistics.automation.transposer}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.6|[[File:Grid Transposer.png|32px]] Added '''Transposer'''.}}
+
+== See also ==
+* [[Fluid Pipes]] - Overview of the fluid system
+* [[Pump]] - Draws fluid from the world instead of a bucket
+* [[Glass Tank]] - Buffer fluid before or after the Transposer
+* [[Machine Frame]], [[Redstone Reception Coil]] - Recipe components
+
+{{Navbox Logistics}}
+
+[[Category:Machines]]
+[[Category:Fluids]]

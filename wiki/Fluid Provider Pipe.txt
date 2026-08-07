@@ -1,0 +1,62 @@
+{{About|the standalone logistics pipe|the equivalent chassis module|Fluid Provider Module}}
+{{Block
+|image     = Grid Fluid Provider Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
+|added     = v0.8.6
+}}
+
+The '''Fluid Provider Pipe''' is a [[Logistics Pipes|logistics pipe]] that mints [[Fluid Packet|fluid packets]] on demand from an adjacent tank, advertising its contents to the network the same way a [[Provider Logistics Pipe]] advertises an inventory.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Gold Gear
+|A2=Bucket |B2=Basic Logistics Pipe |C2=Bucket
+|Output=Fluid Provider Pipe
+}}
+
+Substitute a [[Gold Chipset]] for the [[Gold Gear]] to craft it with a [[Sequential Fabricator]].
+
+== Usage ==
+
+The Fluid Provider Pipe scans all six adjacent faces for a fluid tank and, several times a second, registers its contents with the network. When a [[Fluid Supplier Pipe|fluid supplier]] orders that fluid, the provider extracts it, splits it into physical '''fluid packets''' — hidden items that carry a fluid and amount through the ordinary item pipe network — and ships them toward the requester, just like any other item.
+
+* Each dispatch caps every packet at '''5,000 mB'''; a delivery that doesn't divide evenly ships one smaller tail packet instead of leaving a remainder behind.
+* Packets never stack — one physical item per packet, so fluid delivery is visible and paced rather than instantaneous.
+* Dispatch is transactional: if the network can't afford the energy for a packet, that fluid is refunded to the tank rather than lost.
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through a [[Power Junction]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops. Undeliverable [[Fluid Packet|fluid packets]] are voided rather than dropped as ground items. Minting a packet additionally costs a flat RF charge per packet, regardless of its size.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/fluid_provider_pipe|block.logistics.pipe.fluid_provider_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.6|[[File:Grid Fluid Provider Pipe.png|32px]] Added '''Fluid Provider Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Fluid Supplier Pipe]] - Orders the fluid it provides
+* [[Fluid Provider Module]] - The same behavior in module form
+* [[Provider Logistics Pipe]] - The item-network equivalent
+* [[Power Junction]] - Powers the network
+* [[Glass Tank]] - A tank to advertise
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
+
+{{Navbox Logistics}}
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
+[[Category:Fluids]]

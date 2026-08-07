@@ -1,0 +1,35 @@
+{{Item
+|image     = Grid Fluid Packet.png
+|type      = Item (Internal)
+|stackable = No
+|added     = v0.8.6
+}}
+
+A '''Fluid Packet''' is the hidden item a [[Fluid Provider Pipe|fluid provider]] mints to carry a chunk of fluid through the ordinary item [[Pipe Networks|logistics network]] to a [[Fluid Supplier Pipe|fluid supplier]]. It is never crafted, never appears in the creative inventory, and can't be picked up or stored like a normal item — it exists only in transit.
+
+== Usage ==
+
+Fluid packets are how [[Fluid Provider Pipe|fluid provider]] and [[Fluid Supplier Pipe|fluid supplier]] pipes (and their module equivalents) move fluid across the item pipe network instead of a dedicated fluid pipe. Each packet carries one fluid type and an amount up to a configured maximum (5,000 mB by default); a delivery that doesn't divide evenly into full-size packets ships one smaller packet for the remainder. Packets never stack, so each one travels as its own visible item, rendered as the carried fluid behind a frame with a rectangular window.
+
+If a packet becomes undeliverable — the network loses power, or its destination disappears — it is '''voided''' instead of dropping as a ground item, since it can't be picked up or stored like a normal item.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/fluid_packet|item.logistics.pipe.fluid_packet}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.6|[[File:Grid Fluid Packet.png|32px]] Added '''Fluid Packet'''.}}
+
+== See also ==
+
+* [[Fluid Provider Pipe]], [[Fluid Provider Module]] - Mint fluid packets from a tank
+* [[Fluid Supplier Pipe]], [[Fluid Supplier Module]] - Consume fluid packets into a tank
+* [[Pipe Networks]] - How the network routes items
+* [[Fluids]] - The fluid system overview
+
+{{Navbox Logistics}}
+
+[[Category:Fluids]]

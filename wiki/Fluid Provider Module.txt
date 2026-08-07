@@ -1,0 +1,52 @@
+{{About|the chassis module|the standalone logistics pipe|Fluid Provider Pipe}}
+{{Item
+|image     = Grid Fluid Provider Module.png
+|type      = Item (Module)
+|stackable = Yes (64)
+|added     = v0.8.6
+}}
+
+The '''Fluid Provider Module''' is a [[Chassis Logistics Pipe]] module that mints [[Fluid Packet|fluid packets]] on demand from an adjacent tank and advertises them to the network — the same function as a standalone [[Fluid Provider Pipe]], in module form.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Blue Dye |B1=Iron Gear |C1=Blue Dye
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Blue Dye |B3=Redstone |C3=Blue Dye
+|Output=Fluid Provider Module
+}}
+
+The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset]] in place of the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
+
+== Usage ==
+
+When installed in a [[Chassis Logistics Pipe]], this module scans adjacent faces for a fluid tank and registers its contents with the network. When a [[Fluid Supplier Pipe|fluid supplier]] orders that fluid, it extracts and ships it as fluid packets, capped at 5,000 mB per packet.
+
+Use this module when you want fluid-providing behavior combined with other module functions in the same chassis.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/fluid_provider_module|item.logistics.pipe.fluid_provider_module}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.6|[[File:Grid Fluid Provider Module.png|32px]] Added '''Fluid Provider Module'''.}}
+
+== See also ==
+* [[Fluid Provider Pipe]] - Standalone version of this behavior
+* [[Fluid Supplier Module]] - Orders the fluid it provides
+* [[Modules]] - All available modules
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
+
+{{Navbox Logistics}}
+
+[[Category:Modules]]
+[[Category:Fluids]]

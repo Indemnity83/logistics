@@ -1,0 +1,68 @@
+{{About|the standalone logistics pipe|the equivalent chassis module|Fluid Supplier Module}}
+{{Block
+|image     = Grid Fluid Supplier Pipe.png
+|type      = Block (Pipe)
+|stackable = Yes (64)
+|hardness        = 0.3
+|blastresistance = 0.3
+|added     = v0.8.6
+}}
+
+The '''Fluid Supplier Pipe''' is a [[Logistics Pipes|logistics pipe]] that keeps an adjacent machine's fluid tank stocked by ordering [[Fluid Packet|fluid packets]] from the network — the fluid counterpart of a [[Supplier Logistics Pipe]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|B1=Gold Gear
+|A2=Bucket |B2=Supplier Logistics Pipe |C2=Bucket
+|Output=Fluid Supplier Pipe
+}}
+
+Substitute a [[Gold Chipset]] for the [[Gold Gear]] to craft it with a [[Sequential Fabricator]].
+
+== Usage ==
+
+Right-click the pipe with a bucket of the fluid you want to set the filter, or [[Wrench|shift-right-click]] with an empty hand to clear it. Every second it checks the adjacent tank against a configurable '''target amount''' and orders the shortfall as fluid packets from a [[Fluid Provider Pipe|provider]]; incoming packets are buffered internally and deposited into the tank as they're paid for with RF, never overfilling past the target.
+
+=== Configuration ===
+
+Right-click with a [[Wrench]] to open the Fluid Supplier's own GUI:
+
+* '''Target amount''' — type a value or use the +1/+10/+100/+1000 (and matching −) buttons, up to '''32,000 mB'''.
+* '''Fulfillment''' — '''Partial''' (default) accepts whatever's currently available; toggled off, it only orders when the network can supply the entire shortfall at once.
+* '''Min. Threshold''' — None (default), 1, 2, or 5 buckets: how large the deficit must be before it bothers placing an order at all, to avoid trickling in tiny top-ups.
+
+The filter locks — and can't be changed — while any fluid is held in the buffer or still on order.
+
+== Power ==
+
+Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through a [[Power Junction]] — it renders '''green''' while powered and '''red''' when the network has no charge, in which case routing stops. Undeliverable [[Fluid Packet|fluid packets]] are voided rather than dropped as ground items. Each fluid packet it accepts costs a flat RF charge, paid down one packet at a time as power allows; only paid-off fluid moves from the buffer into the tank.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/fluid_supplier_pipe|block.logistics.pipe.fluid_supplier_pipe}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.6|[[File:Grid Fluid Supplier Pipe.png|32px]] Added '''Fluid Supplier Pipe'''.}}
+
+== See also ==
+
+* [[Logistics Pipes]] - All logistics pipes
+* [[Fluid Provider Pipe]] - Supplies the fluid it orders
+* [[Fluid Supplier Module]] - The same behavior in module form
+* [[Supplier Logistics Pipe]] - The item-network equivalent
+* [[Power Junction]] - Powers the network
+* [[Wrench]] - Opens the configuration GUI
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
+
+{{Navbox Logistics}}
+
+[[Category:Pipes]]
+[[Category:Item Pipes]]
+[[Category:Fluids]]

@@ -33,8 +33,10 @@ Pull items from adjacent inventories into the logistics network.
 Advertise and supply items to the network.
 
 * [[File:Grid Provider Module.png|24px|link=Provider Module]] '''[[Provider Module]]''' (MK1/II) - Advertise adjacent inventory contents to the network; higher mark provides larger item counts
+* [[File:Grid Fluid Provider Module.png|24px|link=Fluid Provider Module]] '''[[Fluid Provider Module]]''' - Mint fluid packets from an adjacent tank and advertise them to the network
 * [[File:Grid Passive Supplier Module.png|24px|link=Passive Supplier Module]] '''[[Passive Supplier Module]]''' - Keep an inventory stocked by intercepting matching items already in transit (no power, never orders)
 * [[File:Grid Active Supplier Module.png|24px|link=Active Supplier Module]] '''[[Active Supplier Module]]''' - Keep an inventory stocked by actively requesting items from the network (draws power)
+* [[File:Grid Fluid Supplier Module.png|24px|link=Fluid Supplier Module]] '''[[Fluid Supplier Module]]''' - Keep a machine tank stocked by ordering fluid packets from the network
 
 ==Crafting Modules==
 

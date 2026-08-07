@@ -56,7 +56,7 @@ Every wood type works the same way; oak is shown as an example. Logs and bamboo 
 
 Loose plant matter pulps into [[Pulped Biomass]] — one per recipe, with denser plants taking more input:
 
-{{Milling|head=1 |Input=Oak Leaves |ingredients=Leaves, saplings, kelp, moss, seagrass (×8) |Output=Pulped Biomass}}
+{{Milling|head=1 |Input=Oak Leaves |ingredients=Leaves, saplings, kelp, moss, seagrass, seeds (×8) |Output=Pulped Biomass}}
 {{Milling |Input=Sugar Cane |ingredients=Cactus, sugar cane, vines, tall grass (×6) |Output=Pulped Biomass}}
 {{Milling |foot=1 |Input=Wheat |ingredients=Crops, flowers, mushrooms, fern (×4) |Output=Pulped Biomass}}
 
@@ -69,7 +69,8 @@ Loose plant matter pulps into [[Pulped Biomass]] — one per recipe, with denser
 == History ==
 
 {{History|head=1|v0.8.0|[[File:Grid Sawmill.png|32px]] Added '''Sawmill'''.}}
-{{History|foot=1|v0.8.2|Added pulping plant matter into [[Pulped Biomass]].}}
+{{History|v0.8.2|Added pulping plant matter into [[Pulped Biomass]].}}
+{{History|foot=1|v0.8.6|Fixed seeds being silently rejected by the plant-pulping recipes. Fixed pipes and hoppers being unable to deliver batched ingredients (like kelp or seeds) one item at a time.}}
 
 == See also ==
 

@@ -50,7 +50,8 @@ Use it for machine input buffers (furnaces, kilns) that must never run dry, and 
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Active Supplier Module (v0.2.0).png|32px]] Added '''Active Supplier Module'''.}}
-{{History|foot=1|v0.8.3|[[File:Grid Active Supplier Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|v0.8.3|[[File:Grid Active Supplier Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|foot=1|v0.8.6|Fixed it ordering more than the target inventory had room for.}}
 
 == See also ==
 * [[Passive Supplier Module]] - Skims in-transit items instead of ordering (no power)

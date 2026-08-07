@@ -51,7 +51,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Supplier Logistics Pipe.png|32px]] Added '''Supplier Logistics Pipe'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|foot=1|v0.8.6|Fixed it ordering more than the target inventory had room for.}}
 
 == See also ==
 

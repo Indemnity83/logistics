@@ -1,0 +1,52 @@
+{{About|the chassis module|the standalone logistics pipe|Fluid Supplier Pipe}}
+{{Item
+|image     = Grid Fluid Supplier Module.png
+|type      = Item (Module)
+|stackable = Yes (64)
+|added     = v0.8.6
+}}
+
+The '''Fluid Supplier Module''' is a [[Chassis Logistics Pipe]] module that keeps an adjacent machine's fluid tank stocked by ordering [[Fluid Packet|fluid packets]] from the network — the same function as a standalone [[Fluid Supplier Pipe]], in module form.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Light Blue Dye |B1=Iron Gear |C1=Light Blue Dye
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Light Blue Dye |B3=Redstone |C3=Light Blue Dye
+|Output=Fluid Supplier Module
+}}
+
+The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset]] in place of the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
+
+== Usage ==
+
+When installed in a [[Chassis Logistics Pipe]], set its fluid filter by right-clicking it with a bucket of the target fluid, then configure a target amount through the pipe's [[Wrench|wrench]]-opened GUI — the same '''Target''', '''Fulfillment''', and '''Min. Threshold''' controls as the standalone [[Fluid Supplier Pipe]]. It orders the shortfall as fluid packets and deposits paid-off fluid into the adjacent tank.
+
+Use this module when you want fluid-supplying behavior combined with other module functions in the same chassis.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/fluid_supplier_module|item.logistics.pipe.fluid_supplier_module}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.6|[[File:Grid Fluid Supplier Module.png|32px]] Added '''Fluid Supplier Module'''.}}
+
+== See also ==
+* [[Fluid Supplier Pipe]] - Standalone version of this behavior
+* [[Fluid Provider Module]] - Supplies the fluid it orders
+* [[Modules]] - All available modules
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
+
+{{Navbox Logistics}}
+
+[[Category:Modules]]
+[[Category:Fluids]]

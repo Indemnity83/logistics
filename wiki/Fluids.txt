@@ -18,7 +18,9 @@ The [[Crucible]] also produces vanilla '''Water''' (from ice, snow blocks, and s
 
 * [[Glass Tank]] — stores 16,000 mB of a single fluid; stack tanks to merge them
 * [[Fluid Pipes]] — carry fluids through a standalone network, one fluid type per line
+* [[Fluid Provider Pipe]], [[Fluid Supplier Pipe]] — move fluid across the item [[Logistics Pipes|logistics network]] instead, as [[Fluid Packet|fluid packets]]
 * [[Pump]] — pull fluid source blocks out of the world
+* [[Transposer]] — convert buckets to fluid and back
 * [[Crucible]] — melt blocks and items into fluid
 
 == See also ==

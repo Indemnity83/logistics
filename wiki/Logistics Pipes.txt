@@ -4,8 +4,10 @@
 
 * [[File:Grid Basic Logistics Pipe.png|24px|link=Basic Logistics Pipe]] '''[[Basic Logistics Pipe]]'''
 * [[File:Grid Provider Logistics Pipe.png|24px|link=Provider Logistics Pipe]] '''[[Provider Logistics Pipe]]'''
+* [[File:Grid Fluid Provider Pipe.png|24px|link=Fluid Provider Pipe]] '''[[Fluid Provider Pipe]]'''
 * [[File:Grid Requester Logistics Pipe.png|24px|link=Requester Logistics Pipe]] '''[[Requester Logistics Pipe]]'''
 * [[File:Grid Supplier Logistics Pipe.png|24px|link=Supplier Logistics Pipe]] '''[[Supplier Logistics Pipe]]'''
+* [[File:Grid Fluid Supplier Pipe.png|24px|link=Fluid Supplier Pipe]] '''[[Fluid Supplier Pipe]]'''
 * [[File:Grid Crafting Logistics Pipe.png|24px|link=Crafting Logistics Pipe]] '''[[Crafting Logistics Pipe]]'''
 * [[File:Grid Process Logistics Pipe.png|24px|link=Process Logistics Pipe]] '''[[Process Logistics Pipe]]'''
 * [[File:Grid Satellite Logistics Pipe.png|24px|link=Satellite Logistics Pipe]] '''[[Satellite Logistics Pipe]]'''
