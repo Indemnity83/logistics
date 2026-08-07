@@ -4,8 +4,9 @@
 |function         = RF generation
 |stackable        = No
 |transparent      = Partial
-|hardness         = 5.0
-|blastresistance  = 5.0
+|tool             = Pickaxe
+|hardness         = 1.5
+|blastresistance  = 1.5
 |added            = v0.1.0
 }}
 
@@ -15,11 +16,11 @@ The '''Stirling Engine''' is a high-power generator that burns fuel to produce s
 
 === Breaking ===
 
-The Stirling Engine can be broken with any tool, though a pickaxe is fastest.
+The Stirling Engine is mined with a stone pickaxe or better; without one it drops nothing.
 
 {{Breaking
-|tier=none
-|name1=Stirling Engine |icon1=Grid Stirling Engine.png |hardness1=5
+|tier=stone
+|name1=Stirling Engine |icon1=Grid Stirling Engine.png |hardness1=1.5
 }}
 
 === Crafting ===
@@ -55,7 +56,8 @@ Use a [[Wrench]] to rotate the output face (cycle through directions) and to res
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Stirling Engine.png|32px]] Added '''Stirling Engine'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Stirling Engine.png|32px]] Added '''Stirling Engine'''.}}
+{{History|foot=1|v0.8.5|Now requires a stone pickaxe to drop; hardness lowered from 5.0 to 1.5.}}
 
 == See also ==
 * [[RF Energy]] - Understanding the power system

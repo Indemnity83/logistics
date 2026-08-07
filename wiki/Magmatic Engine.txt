@@ -4,8 +4,9 @@
 |function         = RF generation
 |stackable        = No
 |transparent      = Partial
-|hardness         = 5.0
-|blastresistance  = 5.0
+|tool             = Pickaxe
+|hardness         = 2.0
+|blastresistance  = 2.0
 |added            = v0.8.4
 }}
 
@@ -15,11 +16,11 @@ The '''Magmatic Engine''' burns liquid {{Mcw|Lava|lava}} as a heat source to gen
 
 === Breaking ===
 
-The Magmatic Engine can be broken with any tool, though a pickaxe is fastest.
+The Magmatic Engine is mined with an iron pickaxe or better; without one it drops nothing.
 
 {{Breaking
-|tier=none
-|name1=Magmatic Engine |icon1=Grid Magmatic Engine.png |hardness1=5
+|tier=iron
+|name1=Magmatic Engine |icon1=Grid Magmatic Engine.png |hardness1=2
 }}
 
 === Crafting ===
@@ -47,7 +48,8 @@ Use a [[Wrench]] to rotate the output face.
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.4|[[File:Grid Magmatic Engine.png|32px]] Added '''Magmatic Engine'''.}}
+{{History|head=1|v0.8.4|[[File:Grid Magmatic Engine.png|32px]] Added '''Magmatic Engine'''.}}
+{{History|foot=1|v0.8.5|Now requires an iron pickaxe to drop; hardness lowered from 5.0 to 2.0.}}
 
 == See also ==
 

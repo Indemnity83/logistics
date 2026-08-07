@@ -4,8 +4,9 @@
 |function         = RF generation
 |stackable        = No
 |transparent      = Partial
-|hardness         = 5.0
-|blastresistance  = 5.0
+|tool             = Pickaxe
+|hardness         = 50.0
+|blastresistance  = 50.0
 |added            = v0.8.4
 }}
 
@@ -15,11 +16,11 @@ The '''Reaction Engine''' combines a liquid reactant with a solid reagent to rel
 
 === Breaking ===
 
-The Reaction Engine can be broken with any tool, though a pickaxe is fastest.
+The Reaction Engine is mined with a diamond pickaxe or better; without one it drops nothing.
 
 {{Breaking
-|tier=none
-|name1=Reaction Engine |icon1=Grid Reaction Engine.png |hardness1=5
+|tier=diamond
+|name1=Reaction Engine |icon1=Grid Reaction Engine.png |hardness1=50
 }}
 
 === Crafting ===
@@ -61,7 +62,8 @@ Use a [[Wrench]] to rotate the output face.
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.4|[[File:Grid Reaction Engine.png|32px]] Added '''Reaction Engine'''.}}
+{{History|head=1|v0.8.4|[[File:Grid Reaction Engine.png|32px]] Added '''Reaction Engine'''.}}
+{{History|foot=1|v0.8.5|Now requires a diamond pickaxe to drop; hardness raised from 5.0 to 50.0.}}
 
 == See also ==
 

@@ -4,6 +4,7 @@
 |function         = RF generation
 |stackable        = No
 |transparent      = Partial
+|tool             = Pickaxe
 |hardness         = 5.0
 |blastresistance  = 5.0
 |added            = v0.8.4
@@ -15,10 +16,10 @@ The '''Fuel Engine''' burns liquid fuels — [[Crude Oil]], [[Bio Fuel]], and [[
 
 === Breaking ===
 
-The Fuel Engine can be broken with any tool, though a pickaxe is fastest.
+The Fuel Engine is mined with an iron pickaxe or better; without one it drops nothing.
 
 {{Breaking
-|tier=none
+|tier=iron
 |name1=Fuel Engine |icon1=Grid Fuel Engine.png |hardness1=5
 }}
 
@@ -61,7 +62,8 @@ Use a [[Wrench]] to rotate the output face and to reset a thermal shutdown.
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.4|[[File:Grid Fuel Engine.png|32px]] Added '''Fuel Engine'''.}}
+{{History|head=1|v0.8.4|[[File:Grid Fuel Engine.png|32px]] Added '''Fuel Engine'''.}}
+{{History|foot=1|v0.8.5|Now requires an iron pickaxe to drop.}}
 
 == See also ==
 

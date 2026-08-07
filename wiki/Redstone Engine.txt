@@ -4,8 +4,9 @@
 |function         = RF generation
 |stackable        = No
 |transparent      = Partial
-|hardness         = 5.0
-|blastresistance  = 5.0
+|tool             = Axe
+|hardness         = 2.0
+|blastresistance  = 2.0
 |added            = v0.1.0
 }}
 
@@ -15,12 +16,12 @@ The '''Redstone Engine''' is a basic power generator that converts a {{Mcw|Redst
 
 === Breaking ===
 
-The Redstone Engine is mined fastest with an axe, but breaks with any tool.
+The Redstone Engine requires an axe to drop.
 
 {{Breaking
 |tool=axe
-|tier=none
-|name1=Redstone Engine |icon1=Grid Redstone Engine.png |hardness1=5
+|tier=wood
+|name1=Redstone Engine |icon1=Grid Redstone Engine.png |hardness1=2
 }}
 
 === Crafting ===
@@ -53,7 +54,8 @@ The Redstone Engine produces low RF, suitable for light-duty machines, early-gam
 == History ==
 
 {{History|head=1|v0.1.0|[[File:Grid Redstone Engine (v0.1.0).png|32px]] Added '''Redstone Engine'''.}}
-{{History|foot=1|v0.8.4|[[File:Grid Redstone Engine.png|32px]] The texture has been refreshed.}}
+{{History|v0.8.4|[[File:Grid Redstone Engine.png|32px]] The texture has been refreshed.}}
+{{History|foot=1|v0.8.5|Now requires an axe to drop; hardness lowered from 5.0 to 2.0.}}
 
 == See also ==
 * [[RF Energy]] - Understanding the power system

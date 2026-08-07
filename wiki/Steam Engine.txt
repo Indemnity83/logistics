@@ -4,8 +4,9 @@
 |function         = RF generation
 |stackable        = No
 |transparent      = Partial
-|hardness         = 5.0
-|blastresistance  = 5.0
+|tool             = Pickaxe
+|hardness         = 3.0
+|blastresistance  = 3.0
 |added            = v0.8.4
 }}
 
@@ -15,11 +16,11 @@ The '''Steam Engine''' is a boiler that burns solid fuel to heat water into stea
 
 === Breaking ===
 
-The Steam Engine can be broken with any tool, though a pickaxe is fastest.
+The Steam Engine is mined with an iron pickaxe or better; without one it drops nothing.
 
 {{Breaking
-|tier=none
-|name1=Steam Engine |icon1=Grid Steam Engine.png |hardness1=5
+|tier=iron
+|name1=Steam Engine |icon1=Grid Steam Engine.png |hardness1=3
 }}
 
 === Crafting ===
@@ -51,7 +52,8 @@ Use a [[Wrench]] to rotate the output face.
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.4|[[File:Grid Steam Engine.png|32px]] Added '''Steam Engine'''.}}
+{{History|head=1|v0.8.4|[[File:Grid Steam Engine.png|32px]] Added '''Steam Engine'''.}}
+{{History|foot=1|v0.8.5|Now requires an iron pickaxe to drop; hardness lowered from 5.0 to 3.0.}}
 
 == See also ==
 
