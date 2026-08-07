@@ -6,6 +6,7 @@ import com.logistics.automation.fabricator.FabricatorRecipe;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import com.logistics.automation.refinery.RefineryRecipe;
 import com.logistics.automation.sawmill.SawmillRecipe;
+import com.logistics.automation.transposer.TransposerRecipe;
 import java.util.List;
 
 /**
@@ -21,6 +22,7 @@ public final class ClientMachineRecipes {
     private static volatile List<AlloySmelterRecipe> alloySmelter = List.of();
     private static volatile List<RefineryRecipe> refinery = List.of();
     private static volatile List<FabricatorRecipe> fabricator = List.of();
+    private static volatile List<TransposerRecipe> transposer = List.of();
 
     private ClientMachineRecipes() {}
 
@@ -31,6 +33,7 @@ public final class ClientMachineRecipes {
         alloySmelter = List.copyOf(packet.alloySmelter());
         refinery = List.copyOf(packet.refinery());
         fabricator = List.copyOf(packet.fabricator());
+        transposer = List.copyOf(packet.transposer());
         MachineRecipeJeiSync.pushToJei();
     }
 
@@ -42,6 +45,7 @@ public final class ClientMachineRecipes {
         alloySmelter = List.of();
         refinery = List.of();
         fabricator = List.of();
+        transposer = List.of();
     }
 
     public static List<MaceratorRecipeWrapper> macerator() {
@@ -66,5 +70,9 @@ public final class ClientMachineRecipes {
 
     public static List<FabricatorRecipe> fabricator() {
         return fabricator;
+    }
+
+    public static List<TransposerRecipe> transposer() {
+        return transposer;
     }
 }

@@ -117,7 +117,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         FluidDef.world("crude_oil", 2, 2, 15),
         FluidDef.core("liquid_biomass"),
         FluidDef.tinted("bio_fuel", 0xFFFC5C),
-        FluidDef.tinted("fuel_oil", 0xFE8C01));
+        FluidDef.tinted("fuel_oil", 0xFE8C01),
+        FluidDef.tinted("seed_oil", 0xD9C74A));
 
     private static Map<Fluid, Integer> fluidLuminance;
 
