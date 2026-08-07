@@ -12,6 +12,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
+import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -79,8 +80,15 @@ public class SawmillRecipeCategory implements IRecipeCategory<SawmillRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SawmillRecipe recipe, IFocusGroup focuses) {
+        // .add(Ingredient) always shows each matching item at count 1, silently dropping ingredientCount()
+        // for recipes that need more than one (e.g. 8x Kelp) — build the stacks ourselves so JEI shows the
+        // real count players need to gather, instead of implying "just 1 of this."
+        int count = recipe.ingredientCount();
+        List<ItemStack> inputStacks = recipe.ingredient().items()
+                .map(holder -> new ItemStack(holder, count))
+                .toList();
         builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, INPUT_Y)
-            .add(recipe.ingredient());
+            .addItemStacks(inputStacks);
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .add(recipe.getResultItem());
 
