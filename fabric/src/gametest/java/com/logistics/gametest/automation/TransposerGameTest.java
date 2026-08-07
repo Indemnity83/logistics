@@ -24,8 +24,7 @@ public class TransposerGameTest {
     private static final int INPUT_SLOT = 0;
     private static final int OUTPUT_SLOT = 1;
 
-    // Seeded to capacity before each positive-path test; keeps the delay generous without coupling
-    // tests to the exact default recipe cost.
+    // The transposer is precharged to capacity before each positive-path test.
     private static final long FULL_ENERGY = 1_000_000L;
     private static final int COMPLETE_DELAY = 45;
 
