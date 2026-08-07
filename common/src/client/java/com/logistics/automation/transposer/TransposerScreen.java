@@ -18,13 +18,35 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Client-side GUI screen for the Transposer. No progress arrow or energy bar — the Transposer has no RF.
+ * Client-side GUI screen for the Transposer: a small input slot over a larger output slot, a droplet
+ * progress gauge, an energy bar, and the tank.
  */
 public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHandler> {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/transposer.png");
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
+
+    // Shared static energy-gauge bar (gui/sprites/automation/charge.png), drawn dark for empty + bright for fill.
+    private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
+    private static final int CHARGE_EMPTY_TINT = 0xFF404040;
+
+    // Droplet progress gauge: a gray "empty" frame always drawn, with a white "filled" frame revealed
+    // left-to-right on top of it as progress advances (same technique as a growing progress arrow).
+    // For a Fill recipe (draining the tank) the whole gauge — both frames — is mirrored in place so it
+    // points left and the reveal sweeps right-to-left instead, showing the reversed material flow.
+    private static final int GAUGE_X = 82, GAUGE_Y = 24;
+    // The sprite itself is 23px wide (x199-221 inclusive), not the 24 it's easy to assume — grabbing 24
+    // pulled in one extra column of plain background padding, which lands on the opposite edge once
+    // mirrored and reads as the whole gauge shifting by a pixel between orientations.
+    //
+    // Height is 17, not 16: the filled frame's anti-aliased tip bleeds one row past the flat-colored
+    // empty frame's extent, so 16 rows clipped its bottom pixel. The empty frame's extra row just
+    // samples more of the surrounding panel background, which is seamless.
+    private static final int GAUGE_WIDTH = 23, GAUGE_HEIGHT = 17;
+    private static final int GAUGE_U = 199;
+    private static final int GAUGE_EMPTY_V = 24;
+    private static final int GAUGE_FILLED_V = 42;
 
     // Tank rectangle in the GUI (screen-local), matching the Crucible placeholder texture.
     private static final int TANK_LEFT = 116;
@@ -87,7 +109,76 @@ public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHa
             imageWidth, imageHeight,
             TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
+        renderProgressGauge(graphics);
+
+        // Energy gauge: dark "empty" bar full height, then the bright fill over the bottom `energyHeight` px.
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED,
+            CHARGE.toIdentifier(),
+            12, 30,
+            0, 0,
+            leftPos + 10, topPos + 19,
+            12, 30,
+            CHARGE_EMPTY_TINT);
+        int energyHeight = menu.getEnergyBarHeight();
+        if (energyHeight > 0) {
+            graphics.blitSprite(
+                RenderPipelines.GUI_TEXTURED,
+                CHARGE.toIdentifier(),
+                12, 30,
+                0, 30 - energyHeight,
+                leftPos + 10, topPos + 19 + (30 - energyHeight),
+                12, energyHeight);
+        }
+
         renderTank(graphics);
+    }
+
+    /**
+     * Draws the droplet gauge: the gray empty frame, then the white filled frame clipped to the current
+     * progress width. For a Fill recipe (draining the tank), both frames are mirrored in place so the
+     * droplet points left instead of right — done by sampling the source region in reverse (negative
+     * {@code srcWidth}) while the on-screen rectangle stays put, rather than transforming the pose
+     * stack, so the gauge's screen-space footprint never changes.
+     *
+     * <p>The fill always reveals starting at the droplet's point and growing toward its round end,
+     * regardless of orientation: unmirrored the point is the gauge's right edge (the sprite points
+     * right); mirrored it's the left edge, since mirroring swaps which screen edge shows which part of
+     * the shape.
+     */
+    private void renderProgressGauge(GuiGraphicsExtractor graphics) {
+        int x = leftPos + GAUGE_X;
+        int y = topPos + GAUGE_Y;
+        boolean mirrored = !menu.isFillMode();
+
+        blitGaugeSpan(graphics, x, GAUGE_WIDTH, y, GAUGE_EMPTY_V, mirrored, x);
+
+        int fillWidth = menu.getProgressFillWidth();
+        if (fillWidth > 0) {
+            int destX = mirrored ? x : x + GAUGE_WIDTH - fillWidth;
+            blitGaugeSpan(graphics, destX, fillWidth, y, GAUGE_FILLED_V, mirrored, x);
+        }
+    }
+
+    /**
+     * Blits a {@code destWidth}-wide slice of the gauge, {@code destOffsetFromLeft} pixels into the
+     * gauge's footprint (which starts at {@code gaugeLeft}). When {@code mirrored}, the source region is
+     * sampled in reverse (negative {@code srcWidth}) so the slice shows the corresponding mirrored
+     * portion of the sprite, while the destination rectangle's width stays positive.
+     */
+    private void blitGaugeSpan(GuiGraphicsExtractor graphics, int destX, int destWidth, int y, int srcV, boolean mirrored, int gaugeLeft) {
+        int offsetFromLeft = destX - gaugeLeft;
+        int srcU = mirrored ? GAUGE_U + GAUGE_WIDTH - offsetFromLeft : GAUGE_U + offsetFromLeft;
+        int srcWidth = mirrored ? -destWidth : destWidth;
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            TEXTURE.toIdentifier(),
+            destX, y,
+            srcU, srcV,
+            destWidth, GAUGE_HEIGHT,
+            srcWidth, GAUGE_HEIGHT,
+            TEXTURE_WIDTH, TEXTURE_HEIGHT,
+            -1);
     }
 
     private void renderTank(GuiGraphicsExtractor graphics) {

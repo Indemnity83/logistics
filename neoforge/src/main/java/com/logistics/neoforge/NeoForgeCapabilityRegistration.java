@@ -80,6 +80,7 @@ public final class NeoForgeCapabilityRegistration {
         registerEnergy(event, LogisticsAutomation.ENTITY.SEQUENTIAL_FABRICATOR_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY);
         registerEnergy(event, LogisticsAutomation.ENTITY.FLUID_PUMP_BLOCK_ENTITY);
+        registerEnergy(event, LogisticsAutomation.ENTITY.TRANSPOSER_BLOCK_ENTITY);
         // Extraction pipes (item + fluid) are DirectEnergyReceivers: kept off the energy grid so only
         // a directly-adjacent engine can power them (engines feed them directly).
 

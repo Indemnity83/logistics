@@ -1,6 +1,7 @@
 package com.logistics.automation.transposer;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.core.machine.MachineData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -12,8 +13,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Screen handler for the Transposer GUI: an input bucket slot and an output slot, the player inventory,
- * and the tank contents synced for the fluid gauge.
+ * Screen handler for the Transposer GUI: an input slot and an output slot, the player inventory, and
+ * progress, energy, and the tank contents synced for rendering.
  */
 public class TransposerScreenHandler extends AbstractContainerMenu {
 
@@ -41,9 +42,11 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
 
         inventory.startOpen(playerInventory.player);
 
-        // Input bucket slot (0) and output slot (1).
-        this.addSlot(new Slot(inventory, TransposerBlockEntity.INPUT_SLOT, 44, 35));
-        this.addSlot(new Slot(inventory, TransposerBlockEntity.OUTPUT_SLOT, 80, 35));
+        // Input slot (0, standard 18x18) and output slot (1, centered in the larger 26x26 frame the
+        // texture draws below it: box top-left (52,45) + (26-18)/2 = (56,49)), each nudged 1px right/down
+        // from the frame's outer border to center the 16x16 item icon inside it.
+        this.addSlot(new Slot(inventory, TransposerBlockEntity.INPUT_SLOT, 57, 24));
+        this.addSlot(new Slot(inventory, TransposerBlockEntity.OUTPUT_SLOT, 57, 50));
 
         // Player inventory (3 rows of 9)
         for (int row = 0; row < 3; row++) {
@@ -109,6 +112,21 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
     }
 
     // ==================== Data getters for GUI rendering ====================
+
+    /** Progress gauge fill width (0..24 px) from the synced progress fraction, or 0 if idle. */
+    public int getProgressFillWidth() {
+        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
+    }
+
+    /** Energy bar height (0..30 px) from the synced energy fill fraction. */
+    public int getEnergyBarHeight() {
+        return MachineData.barPixels(data, MachineData.ENERGY, 30);
+    }
+
+    /** Whether the active recipe drains the tank (Fill mode) — the GUI mirrors its gauge when true. */
+    public boolean isFillMode() {
+        return data.get(TransposerBlockEntity.DATA_FILL_MODE) != 0;
+    }
 
     /** Registry id of the fluid in the tank, or {@code -1} when empty. */
     public int getTankFluidId() {

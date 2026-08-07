@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "minecraft:bucket",
+  "result": { "id": "minecraft:water_bucket", "count": 1 },
+  "fluid": { "fluid": "minecraft:water", "amount": -1000 },
+  "energy": 800
+}

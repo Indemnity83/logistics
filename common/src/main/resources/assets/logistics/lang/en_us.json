@@ -46,6 +46,7 @@
   "jei.logistics.refinery.byproduct_chance": "%s%% chance",
   "jei.logistics.macerator.byproduct_chance": "%s%% chance",
   "jei.logistics.alloy_smelter.byproduct_chance": "%s%% chance",
+  "jei.logistics.transposer.byproduct_chance": "%s%% chance",
   "tooltip.logistics.fluid.tank_capacity": "Holds %s buckets",
   "tooltip.logistics.fluid.tank_empty": "Empty",
   "tooltip.logistics.fluid.tank_contents": "%1$s: %2$s / %3$s mB",

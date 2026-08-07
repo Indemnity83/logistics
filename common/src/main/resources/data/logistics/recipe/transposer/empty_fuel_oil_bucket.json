@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "logistics:core/fuel_oil",
+  "result": { "id": "minecraft:bucket", "count": 1 },
+  "fluid": { "fluid": "logistics:core/fuel_oil", "amount": 1000 },
+  "energy": 800
+}

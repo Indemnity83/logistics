@@ -15,20 +15,21 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Block for the Transposer: a fluid ⇄ bucket station. Facing-only (no lit state); conversions are
- * instantaneous per bucket so there is no distinct working animation.
+ * Block for the Transposer: a fluid ⇄ item station with RF-gated processing.
  */
 public class TransposerBlock extends MachineBlock {
     public static final MapCodec<TransposerBlock> CODEC = simpleCodec(TransposerBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     public TransposerBlock(Properties settings) {
         super(settings);
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LIT, false));
     }
 
     @Override
@@ -38,7 +39,7 @@ public class TransposerBlock extends MachineBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, LIT);
     }
 
     @Nullable
