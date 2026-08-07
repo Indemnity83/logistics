@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/pipe/fluid_supplier_module",
+    "type": "minecraft:model"
+  }
+}
