@@ -67,7 +67,7 @@ public final class TransposerRecipeResolver implements RecipeResolver {
         return new RecipePlan(
                 recipe.energy(),
                 new int[] {recipe.inputCount()},
-                recipe.result().toStack(),
+                recipe.resultStack(),
                 byproducts,
                 recipe.experience(),
                 recipe.fluid().isInput() ? null : fluidResult,

@@ -13,16 +13,17 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
- * Recipe serializer for transposer recipes (item + signed fluid → item). {@code energy} is the total
- * RF the machine spends; {@code fluid} is a {@link SignedFluidAmount} ({@code {"fluid": id, "amount":
- * <signed mB>}}) — negative drains the tank, positive fills it.
+ * Recipe serializer for transposer recipes (item + signed fluid → optional item). {@code energy} is the
+ * total RF the machine spends; {@code fluid} is a {@link SignedFluidAmount} ({@code {"fluid": id,
+ * "amount": <signed mB>}}) — negative drains the tank, positive fills it. {@code result} is omitted for
+ * a recipe that only consumes its input (e.g. cactus → water).
  */
 public class TransposerRecipeSerializer {
 
     public static final MapCodec<TransposerRecipe> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
         Ingredient.CODEC.fieldOf("input").forGetter(TransposerRecipe::input),
         Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", TransposerRecipe.DEFAULT_INGREDIENT_COUNT).forGetter(TransposerRecipe::inputCount),
-        ItemResult.CODEC.fieldOf("result").forGetter(TransposerRecipe::result),
+        ItemResult.CODEC.optionalFieldOf("result").forGetter(TransposerRecipe::result),
         SignedFluidAmount.CODEC.fieldOf("fluid").forGetter(TransposerRecipe::fluid),
         Codec.intRange(1, Integer.MAX_VALUE).fieldOf("energy").forGetter(TransposerRecipe::energy),
         Codec.FLOAT.optionalFieldOf("experience", TransposerRecipe.DEFAULT_EXPERIENCE).forGetter(TransposerRecipe::experience),
@@ -33,7 +34,7 @@ public class TransposerRecipeSerializer {
         StreamCodec.composite(
             Ingredient.CONTENTS_STREAM_CODEC, TransposerRecipe::input,
             ByteBufCodecs.VAR_INT, TransposerRecipe::inputCount,
-            ItemResult.STREAM_CODEC, TransposerRecipe::result,
+            ByteBufCodecs.optional(ItemResult.STREAM_CODEC), TransposerRecipe::result,
             SignedFluidAmount.STREAM_CODEC, TransposerRecipe::fluid,
             ByteBufCodecs.VAR_INT, TransposerRecipe::energy,
             ByteBufCodecs.FLOAT, TransposerRecipe::experience,

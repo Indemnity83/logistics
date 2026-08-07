@@ -86,8 +86,9 @@ public class TransposerRecipeCategory implements IRecipeCategory<TransposerRecip
         builder.addSlot(RecipeIngredientRole.INPUT, ITEM_IN_X, ITEM_IN_Y)
             .add(recipe.input());
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, ITEM_OUT_X, ITEM_OUT_Y)
-            .add(recipe.result().toStack());
+        // Absent for a recipe that only consumes its input (e.g. cactus -> water): no item slot to show.
+        recipe.result().ifPresent(result ->
+            builder.addSlot(RecipeIngredientRole.OUTPUT, ITEM_OUT_X, ITEM_OUT_Y).add(result.toStack()));
 
         boolean fluidIsInput = recipe.fluid().isInput();
         FluidResult fluid = recipe.fluid().toFluidResult();

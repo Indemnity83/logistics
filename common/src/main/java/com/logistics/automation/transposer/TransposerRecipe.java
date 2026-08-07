@@ -18,13 +18,15 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Transposer recipe: an item plus one signed fluid amount ({@link SignedFluidAmount}) converted into a
- * result item, using RF energy. Fill mode (negative amount) drains the fluid from the tank; Empty mode
- * (positive amount) deposits it — e.g. an empty bucket + −1000 mB lava → a lava bucket, or a lava bucket
- * + 1000 mB lava → an empty bucket. Integrated into Minecraft's recipe system via {@link RecipeType} and
- * {@link RecipeSerializer}. Because matching also depends on the tank's current fluid (not just the
- * input item), the machine never looks these up through the item-keyed {@code RecipeManager};
- * {@link TransposerRecipeResolver} scans them instead, the same approach the refinery uses.
+ * Transposer recipe: an item plus one signed fluid amount ({@link SignedFluidAmount}) converted into an
+ * optional result item, using RF energy. Fill mode (negative amount) drains the fluid from the tank;
+ * Empty mode (positive amount) deposits it — e.g. an empty bucket + −1000 mB lava → a lava bucket, or a
+ * lava bucket + 1000 mB lava → an empty bucket. The item result is absent for recipes that only consume
+ * an item (e.g. cactus + 2400 RF → 500 mB water, with the cactus simply gone). Integrated into
+ * Minecraft's recipe system via {@link RecipeType} and {@link RecipeSerializer}. Because matching also
+ * depends on the tank's current fluid (not just the input item), the machine never looks these up
+ * through the item-keyed {@code RecipeManager}; {@link TransposerRecipeResolver} scans them instead, the
+ * same approach the refinery uses.
  */
 public class TransposerRecipe extends AbstractLogisticsRecipe<SingleRecipeInput> {
 
@@ -33,7 +35,7 @@ public class TransposerRecipe extends AbstractLogisticsRecipe<SingleRecipeInput>
 
     private final Ingredient input;
     private final int inputCount;
-    private final ItemResult result;
+    private final Optional<ItemResult> result;
     private final SignedFluidAmount fluid;
     private final int energy;
     private final float experience;
@@ -42,7 +44,7 @@ public class TransposerRecipe extends AbstractLogisticsRecipe<SingleRecipeInput>
     public TransposerRecipe(
             Ingredient input,
             int inputCount,
-            ItemResult result,
+            Optional<ItemResult> result,
             SignedFluidAmount fluid,
             int energy,
             float experience,
@@ -74,8 +76,14 @@ public class TransposerRecipe extends AbstractLogisticsRecipe<SingleRecipeInput>
         return inputCount;
     }
 
-    public ItemResult result() {
+    /** The item result, absent for a recipe that only consumes its input (e.g. cactus → water). */
+    public Optional<ItemResult> result() {
         return result;
+    }
+
+    /** The result as a fresh stack, or {@link ItemStack#EMPTY} when this recipe has no item result. */
+    public ItemStack resultStack() {
+        return result.map(ItemResult::toStack).orElse(ItemStack.EMPTY);
     }
 
     /** The fluid side of this recipe, signed relative to the machine's tank. */
@@ -110,7 +118,7 @@ public class TransposerRecipe extends AbstractLogisticsRecipe<SingleRecipeInput>
 
     @Override
     protected @NotNull ItemStack assembleResult() {
-        return result.toStack();
+        return resultStack();
     }
 
     @Override
