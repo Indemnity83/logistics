@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/automation/transposer",
+  "textures": {
+    "front": "logistics:block/automation/transposer_on"
+  }
+}

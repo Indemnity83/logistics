@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "minecraft:bucket",
+  "result": { "id": "logistics:core/liquid_glowstone", "count": 1 },
+  "fluid": { "fluid": "logistics:core/liquid_glowstone", "amount": -1000 },
+  "energy": 800
+}

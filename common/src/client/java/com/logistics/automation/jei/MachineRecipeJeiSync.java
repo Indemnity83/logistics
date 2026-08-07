@@ -6,6 +6,7 @@ import com.logistics.automation.fabricator.jei.FabricatorRecipeCategory;
 import com.logistics.automation.macerator.jei.MaceratorRecipeCategory;
 import com.logistics.automation.refinery.jei.RefineryRecipeCategory;
 import com.logistics.automation.sawmill.jei.SawmillRecipeCategory;
+import com.logistics.automation.transposer.jei.TransposerRecipeCategory;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.runtime.IJeiRuntime;
 
@@ -42,5 +43,6 @@ public final class MachineRecipeJeiSync {
         recipes.addRecipes(AlloySmelterRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.alloySmelter());
         recipes.addRecipes(RefineryRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.refinery());
         recipes.addRecipes(FabricatorRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.fabricator());
+        recipes.addRecipes(TransposerRecipeCategory.RECIPE_TYPE, ClientMachineRecipes.transposer());
     }
 }
