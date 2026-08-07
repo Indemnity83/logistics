@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -70,6 +70,7 @@ public class SawmillBlockEntity extends MachineEntity {
         containerData = MachineData.source(processor, energy, capacity);
     }
 
+    /** Whether {@code stack} can serve as the input of some recipe (gates hopper/pipe insertion). */
     private boolean isSawable(ItemStack stack) {
         if (stack.isEmpty()) {
             return false;
@@ -77,9 +78,15 @@ public class SawmillBlockEntity extends MachineEntity {
         if (!(level instanceof ServerLevel serverLevel)) {
             return true; // permissive during load / on the client; validated again on the server tick
         }
-        return serverLevel.getServer().getRecipeManager()
-                .getRecipeFor(LogisticsAutomation.RECIPE.SAWMILL_RECIPE_TYPE, new SingleRecipeInput(stack), level)
-                .isPresent();
+        // Ingredient-only match: a single delivered stack rarely meets a recipe's full ingredientCount
+        // on its own (e.g. 8 kelp), so the insertion gate can't reuse the full matches() check — that
+        // would block every delivery smaller than the whole batch from ever entering the slot.
+        for (RecipeHolder<?> holder : serverLevel.getServer().getRecipeManager().getRecipes()) {
+            if (holder.value() instanceof SawmillRecipe recipe && recipe.acceptsAsInput(stack)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setLit(MachineContext ctx, boolean lit) {
