@@ -54,11 +54,6 @@
 	padding: 4px 10px;
 	text-align: left;
 }
-.navbox-list img,
-.navbox-group img,
-.navbox-title img {
-	vertical-align: middle;
-}
 th.navbox-group {
 	width: 1%;
 	white-space: nowrap;
