@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.8.6](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.5...mc1.21.11-v0.8.6) (2026-08-07)
+
+
+### Added
+
+* **automation:** add the Transposer ([#792](https://github.com/Indemnity83/logistics/issues/792)) ([07bd037](https://github.com/Indemnity83/logistics/commit/07bd037bf3113df67aca3463960c59d95f03b3c7))
+* **fluids:** add a dedicated fluid supplier GUI ([#811](https://github.com/Indemnity83/logistics/issues/811)) ([c7cbcf5](https://github.com/Indemnity83/logistics/commit/c7cbcf5689d46e1886705b5aa3b8080385af9204))
+* **fluids:** add fluid provider and supplier chassis modules ([#825](https://github.com/Indemnity83/logistics/issues/825)) ([f84fbca](https://github.com/Indemnity83/logistics/commit/f84fbca02b8b42d5565f115b40007d0fa913f78b))
+* **fluids:** add supplier partial/exact and minimum-deficit modes ([#822](https://github.com/Indemnity83/logistics/issues/822)) ([36f0320](https://github.com/Indemnity83/logistics/commit/36f0320a808990799293ce8c46d9b71d3cd18793))
+* **fluids:** add the fluid provider pipe ([#790](https://github.com/Indemnity83/logistics/issues/790)) ([2774bb1](https://github.com/Indemnity83/logistics/commit/2774bb14224b7aca32a705af52ffcac748d5b15f))
+* **fluids:** add the fluid supplier pipe ([#791](https://github.com/Indemnity83/logistics/issues/791)) ([973e643](https://github.com/Indemnity83/logistics/commit/973e643dd0acceb98287c51d38f571e882e75c48))
+
+
+### Changed
+
+* **fluids:** switch the fluid packet's frame window to a rectangle ([#823](https://github.com/Indemnity83/logistics/issues/823)) ([2474c31](https://github.com/Indemnity83/logistics/commit/2474c316ec502f89bbf1be4c7cb87533832d5a01))
+
+
+### Fixed
+
+* **automation:** show the sawmill's real ingredient count in JEI ([#824](https://github.com/Indemnity83/logistics/issues/824)) ([4e26216](https://github.com/Indemnity83/logistics/commit/4e262168b14a3d7a17b1409197aaa6ab1441ffae))
+* **automation:** stop the sawmill from silently rejecting seeds ([#824](https://github.com/Indemnity83/logistics/issues/824)) ([4e26216](https://github.com/Indemnity83/logistics/commit/4e262168b14a3d7a17b1409197aaa6ab1441ffae))
+* **fluids:** never drop fluid packets on the ground ([#805](https://github.com/Indemnity83/logistics/issues/805)) ([a1bab4a](https://github.com/Indemnity83/logistics/commit/a1bab4ad8126473a18352c5bef27d31e90d80559))
+* **fluids:** stop suppliers requesting fluid/items with no room ([#804](https://github.com/Indemnity83/logistics/issues/804)) ([eb93b8c](https://github.com/Indemnity83/logistics/commit/eb93b8ca0ab606e069fa3c7febfc20ebd171f4fb))
+* **sawmill:** accept single-item deliveries for batched recipes ([#827](https://github.com/Indemnity83/logistics/issues/827)) ([5a5c425](https://github.com/Indemnity83/logistics/commit/5a5c425d8b8027bcd2590bad1389a22765768e7a))
+
 ## [0.8.5](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.4...mc1.21.11-v0.8.5) (2026-08-03)
 
 
