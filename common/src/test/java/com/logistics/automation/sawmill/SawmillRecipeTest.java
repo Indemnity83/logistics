@@ -75,6 +75,26 @@ class SawmillRecipeTest extends MinecraftTestEnvironment {
         assertThat(twoLogs.matches(new SingleRecipeInput(new ItemStack(Items.OAK_LOG, 2)), null)).isTrue();
     }
 
+    // ==================== acceptsAsInput ====================
+
+    @Test
+    @DisplayName("acceptsAsInput: matches on ingredient alone, ignoring ingredientCount")
+    void acceptsAsInputIgnoresCount() {
+        SawmillRecipe eightKelp = new SawmillRecipe(
+                Ingredient.of(Items.KELP),
+                8,
+                ItemResult.of(Items.OAK_PLANKS, 1),
+                Optional.empty(),
+                2000,
+                SawmillRecipe.DEFAULT_EXPERIENCE);
+
+        // A single delivered item never satisfies matches() against a count-8 recipe, but it must
+        // still pass acceptsAsInput() or a hopper/pipe could never place kelp into the slot at all.
+        assertThat(eightKelp.matches(new SingleRecipeInput(new ItemStack(Items.KELP, 1)), null)).isFalse();
+        assertThat(eightKelp.acceptsAsInput(new ItemStack(Items.KELP, 1))).isTrue();
+        assertThat(eightKelp.acceptsAsInput(new ItemStack(Items.COAL, 1))).isFalse();
+    }
+
     // ==================== getters ====================
 
     @Test
