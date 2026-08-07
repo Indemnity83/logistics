@@ -140,6 +140,27 @@ public class SawmillGameTest {
         context.succeed();
     }
 
+    /**
+     * Pipes/hoppers probe insertion with a single-item template (see ContainerItemStorage), not a
+     * stack already sized to the recipe's ingredientCount. A kelp recipe needing 8 must still accept
+     * single-item deliveries so the slot can accumulate toward that count.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testAcceptsSingleKelpFromAPipeProbe(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
+        if (!(context.getBlockEntity(pos) instanceof WorldlyContainer sided)) {
+            context.fail("Sawmill should implement WorldlyContainer");
+            return;
+        }
+
+        if (!sided.canPlaceItemThroughFace(INPUT, new ItemStack(Items.KELP, 1), Direction.UP)) {
+            context.fail("A single kelp item should be insertable even though the recipe needs 8");
+            return;
+        }
+        context.succeed();
+    }
+
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 150)
     public void testPulpsKelpIntoBiomass(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);

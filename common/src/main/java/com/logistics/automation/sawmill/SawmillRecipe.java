@@ -83,6 +83,11 @@ public class SawmillRecipe extends AbstractLogisticsRecipe<SingleRecipeInput> {
         return ingredient.test(input.item()) && input.item().getCount() >= ingredientCount;
     }
 
+    /** Whether {@code stack} could ever feed this recipe, ignoring count (used to gate insertion). */
+    public boolean acceptsAsInput(ItemStack stack) {
+        return ingredient.test(stack);
+    }
+
     @Override
     protected @NotNull ItemStack assembleResult() {
         return result.toStack();
