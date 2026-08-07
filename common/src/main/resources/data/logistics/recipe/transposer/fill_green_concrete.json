@@ -1,0 +1,15 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "minecraft:green_concrete_powder"
+  },
+  "result": {
+    "id": "minecraft:green_concrete",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "minecraft:water",
+    "amount": -1000
+  },
+  "energy": 400
+}

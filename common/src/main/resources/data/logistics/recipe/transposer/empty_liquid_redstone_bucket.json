@@ -1,0 +1,15 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "logistics:core/liquid_redstone"
+  },
+  "result": {
+    "id": "minecraft:bucket",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "logistics:core/liquid_redstone",
+    "amount": 1000
+  },
+  "energy": 800
+}

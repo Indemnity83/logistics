@@ -1,0 +1,15 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "minecraft:mossy_stone_bricks",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "minecraft:water",
+    "amount": -250
+  },
+  "energy": 4000
+}

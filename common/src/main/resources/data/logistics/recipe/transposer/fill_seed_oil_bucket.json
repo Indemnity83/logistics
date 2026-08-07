@@ -1,0 +1,15 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "minecraft:bucket"
+  },
+  "result": {
+    "id": "logistics:core/seed_oil",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "logistics:core/seed_oil",
+    "amount": -1000
+  },
+  "energy": 800
+}

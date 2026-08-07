@@ -40,6 +40,8 @@ import com.logistics.automation.sawmill.SawmillRecipeSerializer;
 import com.logistics.automation.sawmill.SawmillScreenHandler;
 import com.logistics.automation.transposer.TransposerBlock;
 import com.logistics.automation.transposer.TransposerBlockEntity;
+import com.logistics.automation.transposer.TransposerRecipe;
+import com.logistics.automation.transposer.TransposerRecipeSerializer;
 import com.logistics.automation.transposer.TransposerScreenHandler;
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigEntries;
@@ -186,6 +188,12 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 fabricator.defineLong("energy_per_tick", 80L).min(1L).describe("RF/t spent processing (higher = faster)").register();
 
         // Transposer
+        public static final ConfigKey<Long> TRANSPOSER_ENERGY_CAPACITY =
+                transposer.defineLong("energy_capacity", 20_000L).min(1L).describe("Internal RF buffer capacity").register();
+        public static final ConfigKey<Long> TRANSPOSER_MAX_ENERGY_INPUT =
+                transposer.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+        public static final ConfigKey<Long> TRANSPOSER_ENERGY_PER_TICK =
+                transposer.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
         public static final ConfigKey<Long> TRANSPOSER_TANK_CAPACITY_MB =
                 transposer.defineLong("tank_capacity_mb", 16_000L).min(1_000L).describe("Internal fluid tank capacity (mB)").register();
 
@@ -381,6 +389,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static RecipeSerializer<RefineryRecipe> REFINERY_RECIPE_SERIALIZER;
         public static RecipeType<FabricatorRecipe> FABRICATOR_RECIPE_TYPE;
         public static RecipeSerializer<FabricatorRecipe> FABRICATOR_RECIPE_SERIALIZER;
+        public static RecipeType<TransposerRecipe> TRANSPOSER_RECIPE_TYPE;
+        public static RecipeSerializer<TransposerRecipe> TRANSPOSER_RECIPE_SERIALIZER;
 
         static void register() {
             MACERATOR_RECIPE_TYPE = Registry.register(
@@ -472,6 +482,21 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
                 BuiltInRegistries.RECIPE_SERIALIZER,
                 LogisticsMod.modId("fabricator").toIdentifier(),
                 FabricatorRecipeSerializer.INSTANCE
+            );
+            TRANSPOSER_RECIPE_TYPE = Registry.register(
+                BuiltInRegistries.RECIPE_TYPE,
+                LogisticsMod.modId("transposer").toIdentifier(),
+                new RecipeType<TransposerRecipe>() {
+                    @Override
+                    public String toString() {
+                        return "logistics:transposer";
+                    }
+                }
+            );
+            TRANSPOSER_RECIPE_SERIALIZER = Registry.register(
+                BuiltInRegistries.RECIPE_SERIALIZER,
+                LogisticsMod.modId("transposer").toIdentifier(),
+                TransposerRecipeSerializer.INSTANCE
             );
         }
     }

@@ -1,9 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [" B ", "BMB", "GCG"],
+  "pattern": [" B ", "SMS", "GCG"],
   "key": {
     "B": {
       "item": "minecraft:bucket"
+    },
+    "S": {
+      "item": "minecraft:glass"
     },
     "M": {
       "item": "logistics:core/machine_core"

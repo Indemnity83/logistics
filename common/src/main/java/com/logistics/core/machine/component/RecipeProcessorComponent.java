@@ -275,6 +275,11 @@ public final class RecipeProcessorComponent
         return activePlan != null ? activePlan.energyRequired() : 0;
     }
 
+    /** Whether the active recipe drains a fluid input, as opposed to producing one or neither. {@code false} when idle. */
+    public boolean activeRecipeHasFluidInput() {
+        return activePlan != null && activePlan.fluidInput() != null;
+    }
+
     // ----- persistence -----
 
     @Override

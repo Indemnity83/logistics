@@ -13,6 +13,8 @@ import com.logistics.automation.refinery.RefineryRecipe;
 import com.logistics.automation.refinery.RefineryRecipeSerializer;
 import com.logistics.automation.sawmill.SawmillRecipe;
 import com.logistics.automation.sawmill.SawmillRecipeSerializer;
+import com.logistics.automation.transposer.TransposerRecipe;
+import com.logistics.automation.transposer.TransposerRecipeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -32,11 +34,24 @@ public record SyncMachineRecipesPacket(
         List<CrucibleRecipe> crucible,
         List<AlloySmelterRecipe> alloySmelter,
         List<RefineryRecipe> refinery,
-        List<FabricatorRecipe> fabricator)
+        List<FabricatorRecipe> fabricator,
+        List<TransposerRecipe> transposer)
         implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SyncMachineRecipesPacket> TYPE =
             new CustomPacketPayload.Type<>(LogisticsAutomation.resource("sync_machine_recipes").toIdentifier());
+
+    // 1.21.1's StreamCodec.composite caps at 6 component pairs, so the last two lists (fabricator,
+    // transposer) collapse into one FabricatorAndTransposer pair to fit the arity.
+    private record FabricatorAndTransposer(List<FabricatorRecipe> fabricator, List<TransposerRecipe> transposer) {}
+
+    private static final StreamCodec<RegistryFriendlyByteBuf, FabricatorAndTransposer> FABRICATOR_AND_TRANSPOSER_STREAM_CODEC =
+            StreamCodec.composite(
+                    FabricatorRecipeSerializer.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                    FabricatorAndTransposer::fabricator,
+                    TransposerRecipeSerializer.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                    FabricatorAndTransposer::transposer,
+                    FabricatorAndTransposer::new);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncMachineRecipesPacket> CODEC =
             StreamCodec.composite(
@@ -50,16 +65,18 @@ public record SyncMachineRecipesPacket(
                     SyncMachineRecipesPacket::alloySmelter,
                     RefineryRecipeSerializer.STREAM_CODEC.apply(ByteBufCodecs.list()),
                     SyncMachineRecipesPacket::refinery,
-                    FabricatorRecipeSerializer.STREAM_CODEC.apply(ByteBufCodecs.list()),
-                    SyncMachineRecipesPacket::fabricator,
-                    SyncMachineRecipesPacket::new);
+                    FABRICATOR_AND_TRANSPOSER_STREAM_CODEC,
+                    packet -> new FabricatorAndTransposer(packet.fabricator(), packet.transposer()),
+                    (macerator, sawmill, crucible, alloySmelter, refinery, fabricatorAndTransposer) -> new SyncMachineRecipesPacket(
+                            macerator, sawmill, crucible, alloySmelter, refinery,
+                            fabricatorAndTransposer.fabricator(), fabricatorAndTransposer.transposer()));
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    /** Reads the server's loaded recipes and partitions the six machine recipe types into one packet. */
+    /** Reads the server's loaded recipes and partitions the seven machine recipe types into one packet. */
     public static SyncMachineRecipesPacket from(MinecraftServer server) {
         List<MaceratorRecipeWrapper> macerator = new ArrayList<>();
         List<SawmillRecipe> sawmill = new ArrayList<>();
@@ -67,6 +84,7 @@ public record SyncMachineRecipesPacket(
         List<AlloySmelterRecipe> alloySmelter = new ArrayList<>();
         List<RefineryRecipe> refinery = new ArrayList<>();
         List<FabricatorRecipe> fabricator = new ArrayList<>();
+        List<TransposerRecipe> transposer = new ArrayList<>();
 
         server.getRecipeManager().getRecipes().forEach(holder -> {
             var recipe = holder.value();
@@ -82,9 +100,11 @@ public record SyncMachineRecipesPacket(
                 refinery.add(r);
             } else if (recipe instanceof FabricatorRecipe r) {
                 fabricator.add(r);
+            } else if (recipe instanceof TransposerRecipe r) {
+                transposer.add(r);
             }
         });
 
-        return new SyncMachineRecipesPacket(macerator, sawmill, crucible, alloySmelter, refinery, fabricator);
+        return new SyncMachineRecipesPacket(macerator, sawmill, crucible, alloySmelter, refinery, fabricator, transposer);
     }
 }

@@ -1,0 +1,11 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "minecraft:cactus"
+  },
+  "fluid": {
+    "fluid": "minecraft:water",
+    "amount": 500
+  },
+  "energy": 2400
+}

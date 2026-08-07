@@ -1,0 +1,15 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "minecraft:red_concrete_powder"
+  },
+  "result": {
+    "id": "minecraft:red_concrete",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "minecraft:water",
+    "amount": -1000
+  },
+  "energy": 400
+}

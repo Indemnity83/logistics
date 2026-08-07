@@ -1,0 +1,15 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "minecraft:cobblestone"
+  },
+  "result": {
+    "id": "minecraft:mossy_cobblestone",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "minecraft:water",
+    "amount": -250
+  },
+  "energy": 4000
+}

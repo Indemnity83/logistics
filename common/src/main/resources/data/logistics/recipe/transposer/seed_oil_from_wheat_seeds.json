@@ -1,0 +1,11 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "minecraft:wheat_seeds"
+  },
+  "fluid": {
+    "fluid": "logistics:core/seed_oil",
+    "amount": 50
+  },
+  "energy": 1600
+}

@@ -1,0 +1,15 @@
+{
+  "type": "logistics:transposer",
+  "input": {
+    "item": "logistics:core/bio_fuel"
+  },
+  "result": {
+    "id": "minecraft:bucket",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "logistics:core/bio_fuel",
+    "amount": 1000
+  },
+  "energy": 800
+}
