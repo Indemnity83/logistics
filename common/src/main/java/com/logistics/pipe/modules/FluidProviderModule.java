@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 
 import com.logistics.core.lib.fluids.FluidStorageLookup;
@@ -9,13 +10,11 @@ import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.network.ILogisticsNetwork;
-import com.logistics.core.lib.pipe.DispatchableModule;
+import com.logistics.core.lib.pipe.FluidDispatchableModule;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.TickingModule;
 import com.logistics.core.lib.pipe.TravelingItem;
-import com.logistics.core.lib.storage.IItemKey;
-import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.pipe.data.PipeDataComponents.FluidPacket;
 import com.logistics.pipe.network.NetDbg;
 import com.logistics.pipe.network.NetworkRegistry;
@@ -25,21 +24,25 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * A logistics pipe that mints fluid packets on demand from an adjacent tank.
  *
- * <p>Each dispatched packet carries a fixed quantum of fluid (see the {@code fluid_packet_quantum_mb}
- * config) baked into its data component. Dispatch is transactional and energy-atomic: unpayable fluid is
+ * <p>Dispatched packets are capped at {@code fluid_packet_max_mb} but have no minimum — a dispatch
+ * ships as many max-size packets as fit plus, if the amount doesn't divide evenly, one smaller tail
+ * packet, instead of refunding the remainder. Every physical packet is its own {@link TravelingItem}
+ * (fluid packets never stack — see {@code FluidPacketItem}) and costs one flat endpoint-RF charge
+ * regardless of its mB payload. Dispatch is transactional and energy-atomic: unpayable fluid is
  * returned to the tank.
+ *
+ * <p>Network identity is the {@link Fluid} alone (see {@code FluidResourceKey}/{@code FluidOrderBook})
+ * — never the physical packet, which always carries a real, positive {@code amountMb}.
  *
  * <p>The tank is discovered by scanning all six faces for an {@link IFluidStorage}.
  */
-public class FluidProviderModule implements Module, TickingModule, DispatchableModule {
+public class FluidProviderModule implements Module, TickingModule, FluidDispatchableModule {
     private static final String TICKS_SINCE_SCAN = "ticks_since_scan";
 
     private static final int SCAN_INTERVAL = 6;   // Refresh supply every 6 ticks (~3x/second)
@@ -67,111 +70,83 @@ public class FluidProviderModule implements Module, TickingModule, DispatchableM
         ILogisticsNetwork network = NetworkRegistry.getOrCreateNetwork(ctx.world(), ctx.pos());
         if (network == null) return;
 
-        long quantumMb = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB);
-        long rf = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET);
-
         Tank tank = findTank(ctx);
         if (tank == null) {
-            clearSupply(ctx, network);
+            network.removeFluidSupply(ctx.pos());
             return;
         }
 
         long tankMb = FluidUnits.toMillibuckets(tank.amountNative());
-        if (tankMb < quantumMb) {
-            clearSupply(ctx, network);
+        if (tankMb <= 0) {
+            network.removeFluidSupply(ctx.pos());
             return;
         }
 
-        Fluid fluid = tank.fluid().getFluid();
-        IItemKey packetKey = ItemStorageLookup.of(packetStack(fluid, quantumMb));
-
-        Map<IItemKey, Long> supply = new HashMap<>();
-        supply.put(packetKey, tankMb / quantumMb);
-        network.registerSupply(ctx.pos(), supply, SUPPLY_PRIORITY);
-
-        network.registerProviderCheck(ctx.pos(), (amount, checker) -> {
-            long q = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB);
-            long r = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET);
-            Tank now = findTank(ctx);
-            if (now == null) return List.of(packetKey);
-            if (!packetKey.matches(packetStack(now.fluid().getFluid(), q))) return List.of(packetKey);
-            long availableMb = FluidUnits.toMillibuckets(now.amountNative());
-            boolean fluidOk = availableMb >= amount * q;
-            // No network energy-quantity API exists; isPowered() is a best-effort gate. The real
-            // per-packet energy cap is enforced atomically in onDispatch.
-            boolean energyOk = r <= 0 || network.isPowered();
-            return (fluidOk && energyOk) ? List.of() : List.of(packetKey);
-        });
-    }
-
-    private void clearSupply(PipeContext ctx, ILogisticsNetwork network) {
-        network.registerSupply(ctx.pos(), new HashMap<>(), SUPPLY_PRIORITY);
-        network.unregisterProviderCheck(ctx.pos());
+        network.registerFluidSupply(ctx.pos(), tank.fluid().getFluid(), tankMb, SUPPLY_PRIORITY);
     }
 
     // ==================== Dispatch ====================
 
     @Override
-    public long onDispatch(PipeContext ctx, BlockPos requester, IItemKey item, long amount, UUID deliveryId) {
+    public long onFluidDispatch(PipeContext ctx, BlockPos requester, Fluid fluid, long amountMb, UUID deliveryId) {
         if (ctx.world().isClientSide()) return 0;
-        if (amount <= 0) return 0;
+        if (amountMb <= 0) return 0;
 
-        long quantumMb = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB);
+        long maxMb = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB);
         long rf = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET);
-        if (quantumMb <= 0) return 0;
+        if (maxMb <= 0) return 0;
 
         Tank tank = findTank(ctx);
-        if (tank == null) return 0;
-
-        Fluid fluid = tank.fluid().getFluid();
-        ItemStack packetStack = packetStack(fluid, quantumMb);
-        // Only fulfill requests for our exact packet (same fluid + quantum).
-        if (!item.matches(packetStack)) return 0;
+        if (tank == null || tank.fluid().getFluid() != fluid) return 0;
 
         long tankMb = FluidUnits.toMillibuckets(tank.amountNative());
-        long count = Math.min(amount, Math.min(tankMb / quantumMb, MAX_PACKETS_PER_DISPATCH));
-        if (count <= 0) return 0;
+        long dispatchCap = Math.multiplyExact((long) MAX_PACKETS_PER_DISPATCH, maxMb);
+        long deliverMb = Math.min(amountMb, Math.min(tankMb, dispatchCap));
+        if (deliverMb <= 0) return 0;
 
         // ---- Extract fluid first (real), so energy is never charged without fluid on hand ----
-        long gotNative = tank.storage().extract(tank.fluid(), FluidUnits.mb(count * quantumMb), false);
-        long extractedCount = FluidUnits.toMillibuckets(gotNative) / quantumMb;
-        // Return any non-whole-packet remainder to the tank immediately.
-        long keepNative = FluidUnits.mb(extractedCount * quantumMb);
-        if (gotNative > keepNative) {
-            tank.storage().insert(tank.fluid(), gotNative - keepNative, false);
-        }
-        count = extractedCount;
-        if (count <= 0) {
-            if (gotNative > 0) tank.storage().insert(tank.fluid(), gotNative, false);
+        long gotNative = tank.storage().extract(tank.fluid(), FluidUnits.mb(deliverMb), false);
+        long extractedMb = FluidUnits.toMillibuckets(gotNative);
+        if (extractedMb <= 0) {
+            if (gotNative > 0) refundToTank(ctx, tank, fluid, gotNative);
             return 0;
         }
 
-        // ---- Charge energy atomically; consumeEnergy is all-or-nothing and non-destructive on
-        // failure, so probe downward for the largest affordable count and refund unpayable fluid. ----
-        long payable = count;
-        while (payable > 0 && !ctx.consumeEnergy(payable * rf)) {
-            payable--;
-        }
-        if (payable < count) {
-            long refundNative = FluidUnits.mb((count - payable) * quantumMb);
-            if (refundNative > 0) tank.storage().insert(tank.fluid(), refundNative, false);
-            count = payable;
-        }
-        if (count <= 0) return 0;
+        List<Long> chunks = FluidPacketChunker.chunk(extractedMb, maxMb);
+        int totalPackets = chunks.size();
 
-        // ---- Inject the minted packet toward the requester (packet enters from the tank face). ----
-        ItemStack out = packetStack.copyWithCount((int) count);
-        TravelingItem traveling = new TravelingItem(
-                out,
-                tank.dir().getOpposite(),
-                LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED),
-                requester);
-        traveling.setDeliveryId(deliveryId);
-        ctx.pipeAccess().forceAddItem(traveling, tank.dir());
+        // ---- Charge energy atomically, one flat RF unit per physical packet; consumeEnergy is
+        // non-destructive on failure, so probe downward for the largest affordable prefix (dropping
+        // the tail chunk first, then whole chunks from the end) and refund the rest. ----
+        int payableCount = FluidPacketChunker.probeAffordablePrefixCount(
+                totalPackets, count -> ctx.consumeEnergy((long) count * rf));
 
-        NetDbg.out("[FluidProvider @ {}] Dispatched {} packet(s) of {} ({} mB) → {}",
-                ctx.pos(), count, fluid, count * quantumMb, requester);
-        return count;
+        long keptMb = 0;
+        for (int i = 0; i < payableCount; i++) keptMb += chunks.get(i);
+
+        long refundMb = extractedMb - keptMb;
+        if (refundMb > 0) {
+            refundToTank(ctx, tank, fluid, FluidUnits.mb(refundMb));
+        }
+        if (keptMb <= 0) return 0;
+
+        // ---- Mint one TravelingItem per physical packet (packets never stack — see
+        // FluidPacketItem), all sharing this dispatch's deliveryId so the network sums them
+        // correctly toward the order. ----
+        for (int i = 0; i < payableCount; i++) {
+            ItemStack out = packetStack(fluid, chunks.get(i));
+            TravelingItem traveling = new TravelingItem(
+                    out,
+                    tank.dir().getOpposite(),
+                    LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED),
+                    requester);
+            traveling.setDeliveryId(deliveryId);
+            ctx.pipeAccess().forceAddItem(traveling, tank.dir());
+        }
+
+        NetDbg.out("[FluidProvider @ {}] Dispatched {} packet(s) ({} mB total) of {} → {}",
+                ctx.pos(), payableCount, keptMb, fluid, requester);
+        return keptMb;
     }
 
     // ==================== Lifecycle ====================
@@ -181,8 +156,7 @@ public class FluidProviderModule implements Module, TickingModule, DispatchableM
         if (ctx.world().isClientSide()) return;
         ILogisticsNetwork network = ctx.network();
         if (network != null) {
-            network.registerSupply(ctx.pos(), new HashMap<>(), SUPPLY_PRIORITY);
-            network.unregisterProviderCheck(ctx.pos());
+            network.removeFluidSupply(ctx.pos());
         }
     }
 
@@ -210,9 +184,24 @@ public class FluidProviderModule implements Module, TickingModule, DispatchableM
         return null;
     }
 
-    private static ItemStack packetStack(Fluid fluid, long quantumMb) {
+    /**
+     * Inserts unpayable/unusable fluid back into the tank it came from, logging a warning if the tank
+     * can't re-accept all of it (e.g. another module filled it in the same tick) — that shortfall is
+     * fluid lost with no other signal, so it must not fail silently.
+     */
+    private static void refundToTank(PipeContext ctx, Tank tank, Fluid fluid, long refundNative) {
+        long refundedNative = tank.storage().insert(tank.fluid(), refundNative, false);
+        if (refundedNative < refundNative) {
+            long lostMb = FluidUnits.toMillibuckets(refundNative - refundedNative);
+            LogisticsMod.LOGGER.warn(
+                    "[FluidProvider @ {}] Tank refused {} mB of refunded {} — fluid lost",
+                    ctx.pos(), lostMb, fluid);
+        }
+    }
+
+    private static ItemStack packetStack(Fluid fluid, long amountMb) {
         ItemStack s = new ItemStack(LogisticsPipe.ITEM.FLUID_PACKET);
-        s.set(LogisticsPipe.DATA.FLUID_PACKET, new FluidPacket(fluid, quantumMb));
+        s.set(LogisticsPipe.DATA.FLUID_PACKET, new FluidPacket(fluid, amountMb));
         return s;
     }
 }

@@ -4,6 +4,7 @@ import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.storage.IItemKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -44,6 +45,22 @@ public interface IWorldView {
      * @return actual amount dispatched (0 if provider could not fulfill)
      */
     long dispatch(BlockPos provider, BlockPos requester, IItemKey item, long amount, UUID deliveryId);
+
+    /**
+     * Ask the provider pipe at {@code provider} to extract and dispatch fluid to {@code requester} —
+     * the fluid analogue of {@link #dispatch}. Default no-op ({@code return 0}) so existing
+     * {@link IWorldView} test fakes don't need updating; the Minecraft implementation overrides it.
+     *
+     * @param provider   position of the provider pipe
+     * @param requester  position of the destination requester
+     * @param fluid      fluid to extract
+     * @param amountMb   requested mB
+     * @param deliveryId UUID to attach to the minted packet(s) for delivery accounting
+     * @return actual mB dispatched (0 if the provider could not fulfill)
+     */
+    default long dispatchFluid(BlockPos provider, BlockPos requester, Fluid fluid, long amountMb, UUID deliveryId) {
+        return 0;
+    }
 
     /**
      * Check if this is a client-side world.

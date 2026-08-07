@@ -1,15 +1,19 @@
 package com.logistics.pipe.network;
 
 import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.network.*;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.ItemStorageLookup;
+import com.logistics.pipe.data.PipeDataComponents.FluidPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,6 +37,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     private final INetworkGraph graph;
     private final IWorldView worldView;
     private final NetworkController controller;
+    private final FluidOrderBook fluidOrderBook = new FluidOrderBook();
     private final JobCoordinator jobCoordinator;
     private final SinkResolver sinkResolver;
 
@@ -112,6 +117,8 @@ public class PipeNetwork implements ILogisticsNetwork {
         controller.cancelOrdersFor(pos);
         controller.unregisterProviderCheck(pos);
         controller.unregisterCrafterSnapshot(pos);
+        fluidOrderBook.removeSupply(pos);
+        fluidOrderBook.cancelOrdersFor(pos);
         sinkResolver.remove(pos);
         satellites.entrySet().removeIf(e -> pos.equals(e.getValue()));
     }
@@ -202,27 +209,109 @@ public class PipeNetwork implements ILogisticsNetwork {
         return controller.getOrderedAmountFor(requester, ItemStorageLookup.of(stack));
     }
 
+    /**
+     * If {@code item} is a fluid packet, returns its carried {@link FluidPacket} data; otherwise
+     * {@code null}. Used to redirect generic item-shaped delivery/failure notifications (from
+     * {@code PipeRuntime}'s drop/TTL-expiry paths, which don't know fluid packets are special) to the
+     * fluid bookkeeping path instead of the item path — never both, since a fluid packet must never be
+     * double-acknowledged.
+     */
+    @Nullable
+    private static FluidPacket asFluidPacket(IItemKey item) {
+        ItemStack sample = item.toStack(1);
+        return sample.is(LogisticsPipe.ITEM.FLUID_PACKET) ? sample.get(LogisticsPipe.DATA.FLUID_PACKET) : null;
+    }
+
     @Override
     public void notifyDelivery(BlockPos requester, IItemKey item, long amount) {
+        // No fluid bridge here: fluid packets are only ever acknowledged through the deliveryId-tracked
+        // overloads below (every packet this network mints carries one — see FluidProviderModule), so
+        // this no-id path is never reached for a fluid packet. If it somehow were, falling through to
+        // the item path is a harmless no-op — fluid packets never register order state under IItemKey.
         controller.notifyDelivery(requester, item, amount);
         jobCoordinator.onDelivery(requester, item, amount);
     }
 
     @Override
     public void notifyDelivery(UUID deliveryId, BlockPos requester, IItemKey item, long amount) {
+        FluidPacket data = asFluidPacket(item);
+        if (data != null) {
+            long itemCount = amount; // packets in the stack, never mB directly — convert below.
+            notifyFluidDelivery(deliveryId, requester, data.fluid(), itemCount * data.amountMb());
+            return;
+        }
         controller.notifyDelivery(deliveryId, requester, item, amount);
         jobCoordinator.onDelivery(requester, item, amount);
     }
 
     @Override
     public void notifyDeliveryFailed(UUID deliveryId, BlockPos requester, IItemKey item, long amount) {
+        FluidPacket data = asFluidPacket(item);
+        if (data != null) {
+            long itemCount = amount; // packets in the stack, never mB directly — convert below.
+            notifyFluidDeliveryFailed(deliveryId, requester, data.fluid(), itemCount * data.amountMb());
+            return;
+        }
         UUID replacementOrderId = controller.notifyDeliveryFailed(deliveryId, requester, item, amount);
         jobCoordinator.onDeliveryFailed(deliveryId, replacementOrderId);
     }
 
     @Override
     public void notifyDeliveryFailedNoId(BlockPos requester, IItemKey item, long amount) {
+        FluidPacket data = asFluidPacket(item);
+        if (data != null) {
+            long itemCount = amount; // packets in the stack, never mB directly — convert below.
+            notifyFluidDeliveryFailedNoId(requester, data.fluid(), itemCount * data.amountMb());
+            return;
+        }
         controller.notifyDeliveryFailedNoId(requester, item, amount);
+    }
+
+    // ===== Fluid Order Operations =====
+
+    @Override
+    public void registerFluidSupply(BlockPos pos, Fluid fluid, long availableMb, int priority) {
+        fluidOrderBook.registerSupply(pos, fluid, availableMb, priority);
+    }
+
+    @Override
+    public void removeFluidSupply(BlockPos pos) {
+        fluidOrderBook.removeSupply(pos);
+    }
+
+    @Override
+    public UUID placeFluidOrder(Fluid fluid, long amountMb, BlockPos requester, FulfillmentMode fulfillmentMode) {
+        return fluidOrderBook.placeOrder(fluid, amountMb, requester, fulfillmentMode);
+    }
+
+    @Override
+    public void cancelFluidOrder(UUID orderId) {
+        fluidOrderBook.cancelOrder(orderId);
+    }
+
+    @Override
+    public void cancelFluidOrdersFor(BlockPos requester) {
+        fluidOrderBook.cancelOrdersFor(requester);
+    }
+
+    @Override
+    public long getFluidOrderedMbFor(BlockPos requester, Fluid fluid) {
+        return fluidOrderBook.getOrderedAmountFor(requester, fluid);
+    }
+
+    @Override
+    public void notifyFluidDelivery(UUID deliveryId, BlockPos requester, Fluid fluid, long amountMb) {
+        fluidOrderBook.notifyDelivery(deliveryId, requester, fluid, amountMb);
+    }
+
+    @Override
+    public void notifyFluidDeliveryFailed(UUID deliveryId, BlockPos requester, Fluid fluid, long amountMb) {
+        fluidOrderBook.notifyDeliveryFailed(deliveryId, requester, fluid, amountMb);
+    }
+
+    @Override
+    public void notifyFluidDeliveryFailedNoId(BlockPos requester, Fluid fluid, long amountMb) {
+        fluidOrderBook.notifyDeliveryFailedNoId(requester, fluid, amountMb);
     }
 
     /**
@@ -235,6 +324,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         LogisticsProfiler.push("network_dispatch");
         try {
             tickDispatch();
+            tickFluidDispatch();
         } finally {
             LogisticsProfiler.pop();
         }
@@ -271,6 +361,39 @@ public class PipeNetwork implements ILogisticsNetwork {
             }
         }
         jobCoordinator.tick(controller);
+    }
+
+    /**
+     * Tick fluid dispatch, mirroring {@link #tickDispatch()}'s try/catch and unavailable-supply
+     * handling. {@code recordDispatched} is always called exactly once per attempt (even {@code 0} or
+     * on a thrown exception) so a provider reservation never outlives the attempt that created it — see
+     * {@link FluidOrderBook#recordDispatched}.
+     */
+    private void tickFluidDispatch() {
+        FluidOrderBook.FluidDispatchCommand cmd;
+        while ((cmd = fluidOrderBook.nextDispatchable()) != null) {
+            NetDbg.out("[Network {}] Fluid dispatch: {} | provider={} -> requester={} | {} mB {}",
+                    getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8),
+                    cmd.provider(), cmd.requester(), cmd.amountMb(), cmd.fluid());
+            long shippedMb = 0;
+            try {
+                shippedMb = worldView.dispatchFluid(
+                        cmd.provider(), cmd.requester(), cmd.fluid(), cmd.amountMb(), cmd.orderId());
+                if (shippedMb > 0) {
+                    NetDbg.out("[Network {}] Fluid shipped: {} | {} mB",
+                            getNetworkIdShort(id), cmd.orderId().toString().substring(0, 8), shippedMb);
+                }
+            } catch (Exception e) {
+                LogisticsMod.LOGGER.error("[Network {}] Fluid dispatch failed for order {}: {}",
+                        getNetworkIdShort(id), cmd.orderId(), e.getMessage(), e);
+            } finally {
+                fluidOrderBook.recordDispatched(cmd, shippedMb);
+            }
+            if (shippedMb <= 0) {
+                // Broken/exhausted provider: don't retry every tick, wait for its next scan.
+                fluidOrderBook.removeSupply(cmd.provider());
+            }
+        }
     }
 
     @Override
@@ -440,6 +563,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     public void merge(PipeNetwork other) {
         graph.merge(other.graph);
         controller.merge(other.controller);
+        fluidOrderBook.merge(other.fluidOrderBook);
         jobCoordinator.merge(other.jobCoordinator);
         sinkResolver.merge(other.sinkResolver);
         energySources.addAll(other.energySources);

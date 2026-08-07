@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,6 +92,17 @@ public class MinecraftWorldView implements IWorldView {
         ItemPipe pipe = pipeBlock.getPipe();
         PipeContext ctx = pipeEntity.createContext();
         return pipe.dispatch(ctx, requester, item, amount, deliveryId);
+    }
+
+    @Override
+    public long dispatchFluid(BlockPos provider, BlockPos requester, Fluid fluid, long amountMb, UUID deliveryId) {
+        if (!(level.getBlockEntity(provider) instanceof PipeBlockEntity pipeEntity)) return 0;
+        BlockState state = level.getBlockState(provider);
+        if (!(state.getBlock() instanceof PipeBlock pipeBlock)) return 0;
+
+        ItemPipe pipe = pipeBlock.getPipe();
+        PipeContext ctx = pipeEntity.createContext();
+        return pipe.dispatchFluid(ctx, requester, fluid, amountMb, deliveryId);
     }
 
     @Override
