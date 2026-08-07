@@ -386,6 +386,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Item ACTIVE_SUPPLIER_MODULE;
         public static Item PROVIDER_MODULE;
         public static Item PROVIDER_MODULE_MKII;
+        public static Item FLUID_PROVIDER_MODULE;
+        public static Item FLUID_SUPPLIER_MODULE;
         public static Item EXTRACTOR_MODULE;
         public static Item EXTRACTOR_MODULE_MKII;
         public static Item EXTRACTOR_MODULE_MKIII;
@@ -436,6 +438,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     props -> new ModuleItem(props, () -> new ProviderModule(8, 1)));
             PROVIDER_MODULE_MKII = INSTANCE.registerItem("provider_mkii_module",
                     props -> new ModuleItem(props, () -> new ProviderModule(64, 4)));
+            FLUID_PROVIDER_MODULE = INSTANCE.registerItem("fluid_provider_module",
+                    props -> new ModuleItem(props, FluidProviderModule::new));
+            FLUID_SUPPLIER_MODULE = INSTANCE.registerItem("fluid_supplier_module",
+                    props -> new ModuleItem(props, FluidSupplierModule::new));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
                     props -> new ModuleItem(props, () -> new BasicExtractorModule(8, 80)));
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
@@ -711,6 +717,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.ACTIVE_SUPPLIER_MODULE);
             TAB.add(ITEM.PROVIDER_MODULE);
             TAB.add(ITEM.PROVIDER_MODULE_MKII);
+            TAB.add(ITEM.FLUID_PROVIDER_MODULE);
+            TAB.add(ITEM.FLUID_SUPPLIER_MODULE);
             TAB.add(ITEM.EXTRACTOR_MODULE);
             TAB.add(ITEM.EXTRACTOR_MODULE_MKII);
             TAB.add(ITEM.EXTRACTOR_MODULE_MKIII);
