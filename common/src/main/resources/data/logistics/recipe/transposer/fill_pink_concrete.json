@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "minecraft:pink_concrete_powder",
+  "result": { "id": "minecraft:pink_concrete", "count": 1 },
+  "fluid": { "fluid": "minecraft:water", "amount": -1000 },
+  "energy": 400
+}

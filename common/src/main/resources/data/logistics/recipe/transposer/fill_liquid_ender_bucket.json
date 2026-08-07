@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "minecraft:bucket",
+  "result": { "id": "logistics:core/liquid_ender", "count": 1 },
+  "fluid": { "fluid": "logistics:core/liquid_ender", "amount": -1000 },
+  "energy": 800
+}
