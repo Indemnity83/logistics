@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B ",
+    "CDC",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "B": {
+      "item": "logistics:core/iron_chipset"
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "D": {
+      "item": "logistics:pipe/blank_module"
+    }
+  },
+  "result": {
+    "id": "logistics:pipe/fluid_supplier_module"
+  }
+}
