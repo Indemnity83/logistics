@@ -29,6 +29,14 @@ public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandle
     private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
     private static final int CHARGE_EMPTY_TINT = 0xFF404040;
 
+    // Droplet progress gauge: the empty (gray) droplet is baked into the main background art itself at
+    // this position, always visible; only the filled (white) overlay needs drawing, revealed from the
+    // droplet's point (its left edge) growing toward its round end as progress advances. Unlike the
+    // Transposer's gauge, this one never reverses direction, so there's no mirroring.
+    private static final int GAUGE_X = 80, GAUGE_Y = 34;
+    private static final int GAUGE_WIDTH = 25, GAUGE_HEIGHT = 17;
+    private static final int GAUGE_U = 200, GAUGE_V = 34;
+
     // Tank rectangle in the GUI (screen-local): (116,18) top-left to (131,75) bottom-right
     // (nudged 5px down from the design origin so the title doesn't overlap the tank).
     private static final int TANK_LEFT = 116;
@@ -95,16 +103,7 @@ public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandle
             imageWidth, imageHeight,
             TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-        int arrowWidth = menu.getProgressArrowWidth();
-        if (arrowWidth > 0) {
-            graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
-                TEXTURE.toIdentifier(),
-                leftPos + 79, topPos + 35,
-                199, 35,
-                arrowWidth, 16,
-                TEXTURE_WIDTH, TEXTURE_HEIGHT);
-        }
+        renderProgressGauge(graphics);
 
         graphics.blitSprite(
             RenderPipelines.GUI_TEXTURED,
@@ -126,6 +125,25 @@ public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandle
         }
 
         renderTank(graphics);
+    }
+
+    /**
+     * Draws the filled portion of the droplet gauge on top of the empty droplet already baked into the
+     * background, revealed from its point (left edge) growing toward its round end (right edge) as
+     * progress advances.
+     */
+    private void renderProgressGauge(GuiGraphicsExtractor graphics) {
+        int fillWidth = menu.getProgressFillWidth();
+        if (fillWidth <= 0) {
+            return;
+        }
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            TEXTURE.toIdentifier(),
+            leftPos + GAUGE_X, topPos + GAUGE_Y,
+            GAUGE_U, GAUGE_V,
+            fillWidth, GAUGE_HEIGHT,
+            TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
     /**
