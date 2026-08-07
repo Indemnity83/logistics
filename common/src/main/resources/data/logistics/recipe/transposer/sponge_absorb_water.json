@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "minecraft:sponge",
+  "result": { "id": "minecraft:wet_sponge", "count": 1 },
+  "fluid": { "fluid": "minecraft:water", "amount": -1000 },
+  "energy": 1600
+}
