@@ -104,6 +104,16 @@ public final class NbtCompat {
         return tag.contains(key, Tag.TAG_INT_ARRAY) ? tag.getIntArray(key) : defaultValue;
     }
 
+    /**
+     * Read a long array from NBT with a default value.
+     *
+     * <p><b>mc/1.21.11 implementation:</b> Uses Optional-based API.
+     * <p><b>mc/1.21.1 backport:</b> Replace with {@code tag.contains(key, Tag.TAG_LONG_ARRAY) ? tag.getLongArray(key) : defaultValue}
+     */
+    public static long[] getLongArray(CompoundTag tag, String key, long[] defaultValue) {
+        return tag.contains(key, Tag.TAG_LONG_ARRAY) ? tag.getLongArray(key) : defaultValue;
+    }
+
     // ==================== Compound Tag Helpers ====================
 
     /**

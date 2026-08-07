@@ -14,18 +14,18 @@ import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
-import com.logistics.pipe.data.PipeDataComponents.FluidPacket;
 import com.logistics.pipe.modules.FluidSupplierModule;
+import com.logistics.pipe.network.NetworkRegistry;
+import com.logistics.pipe.network.PipeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 
 /**
  * Tick-based game tests for the Fluid Supplier Pipe: a logistics pipe placed on a machine tank that
- * keeps that tank stocked by ordering fluid packets from the item logistics network, draining them into
- * an internal buffer, and depositing paid fluid into the machine tank.
+ * keeps that tank stocked by ordering fluid from the fluid logistics network ({@code FluidOrderBook}),
+ * draining delivered packets into an internal buffer, and depositing paid fluid into the machine tank.
  *
  * <p>Layout (y=1): [refinery] ← [fluid_supplier_pipe] ← [transport_pipe] ← [fluid_provider_pipe]
  * with a glass tank (water source) above the provider and a power junction above the transport pipe.
@@ -109,48 +109,88 @@ public class FluidSupplierGameTest {
         return FluidUnits.toMillibuckets(total);
     }
 
-    private static long quantum() {
-        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB);
+    private static long maxMb() {
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB);
     }
 
-    private static long pendingPackets(GameTestHelper context) {
-        var network = com.logistics.pipe.network.NetworkRegistry.getNetwork(
-                context.getLevel(), context.absolutePos(SUPPLIER));
+    /** Outstanding mB (queued + in-transit) for water ordered by the supplier — already mB, no conversion. */
+    private static long pendingMb(GameTestHelper context) {
+        PipeNetwork network = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(SUPPLIER));
         if (network == null) return 0;
-        ItemStack packet = new ItemStack(LogisticsPipe.ITEM.FLUID_PACKET);
-        packet.set(LogisticsPipe.DATA.FLUID_PACKET, new FluidPacket(Fluids.WATER, quantum()));
-        return network.getOrderedAmountFor(context.absolutePos(SUPPLIER), packet);
+        return network.getFluidOrderedMbFor(context.absolutePos(SUPPLIER), Fluids.WATER);
     }
 
     // ==================== Tests ====================
 
     /**
-     * Target rounding: target 300 mB with a 250 mB quantum. The supplier orders two packets (500 mB),
-     * deposits 300 mB into the machine tank (stopping exactly at the target), and retains the remaining
-     * 200 mB in its buffer — then stops ordering.
+     * Exact fill, no rounding: the supplier orders exactly the deficit (not rounded up to any packet
+     * multiple), fills the machine tank to exactly the target, and leaves an empty buffer. This
+     * directly replaces the old quantum-rounding behavior (packets no longer have a minimum size).
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 260)
-    public void testTargetRoundingRetainsRemainderInBuffer(GameTestHelper context) {
-        long quantum = quantum();
-        long target = quantum + 50; // 300 with the default 250 quantum
-        long remainder = 2 * quantum - target; // 200
+    public void testDryRestockFillsToTarget(GameTestHelper context) {
+        // Capped by the refinery's real input tank capacity — a "full batch" (maxMb * BATCH_CAP) can
+        // exceed what any given machine can physically hold once maxMb is large (e.g. the default 5000
+        // mB packet max already exceeds the refinery's 4000 mB input tank on its own).
+        long inputCapacityMb = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_INPUT_TANK_MB);
+        long target = Math.min(maxMb() * FluidSupplierModule.BATCH_CAP, inputCapacityMb);
 
-        placeNetwork(context, quantum * 20);
+        placeNetwork(context, maxMb() * 20);
         placeJunction(context, PowerJunctionBlockEntity.CAPACITY);
 
         context.runAfterDelay(15, () -> configureSupplier(context, target));
 
         context.succeedWhen(() -> {
             long tankMb = machineWaterMb(context);
-            long bufferMb = supplierModule(context).getBufferMb(supplierCtx(context));
             context.assertTrue(tankMb == target,
-                    "Machine tank should stop at target " + target + " mB, was " + tankMb);
-            context.assertTrue(bufferMb == remainder,
-                    "Buffer should retain " + remainder + " mB, was " + bufferMb);
-            context.assertTrue(pendingPackets(context) == 0,
-                    "Supplier should stop ordering once satisfied");
+                    "Empty tank should restock to target " + target + " mB, was " + tankMb);
+            long bufferMb = supplierModule(context).getBufferMb(supplierCtx(context));
+            context.assertTrue(bufferMb == 0,
+                    "Buffer should be empty once the target is reached, was " + bufferMb);
         });
     }
+
+    /**
+     * A non-round deficit (e.g. 137 mB) is ordered and fulfilled exactly — proving "no minimum packet
+     * size" end to end at the consumer, not just rounded down to the nearest packet multiple.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 260)
+    public void testExactNonRoundDeficitIsOrderedAndFilled(GameTestHelper context) {
+        long target = 137; // deliberately not a multiple of anything packet-sized
+
+        placeNetwork(context, maxMb() * 5);
+        placeJunction(context, PowerJunctionBlockEntity.CAPACITY);
+
+        context.runAfterDelay(15, () -> configureSupplier(context, target));
+
+        // Shortly after the order is placed, the full 137 mB deficit should already be accounted for
+        // across pending + buffered + tank — not partially ordered or rounded down to a packet multiple.
+        // The final succeedWhen below checks the exact number lands only in the tank, with zero buffer.
+        context.runAfterDelay(21, () -> {
+            long pending = pendingMb(context);
+            long buffered = supplierModule(context).getBufferMb(supplierCtx(context));
+            if (pending + buffered + machineWaterMb(context) < target) {
+                context.fail("Deficit should be ordered promptly; pending=" + pending);
+            }
+        });
+
+        context.succeedWhen(() -> {
+            long tankMb = machineWaterMb(context);
+            context.assertTrue(tankMb == target,
+                    "Tank should reach the exact non-round target " + target + " mB, was " + tankMb);
+            long bufferMb = supplierModule(context).getBufferMb(supplierCtx(context));
+            context.assertTrue(bufferMb == 0,
+                    "Buffer should be empty, no stray remainder, was " + bufferMb);
+        });
+    }
+
+    // Note: "exactly-once acknowledgement across several physical packets sharing one delivery id" is
+    // deliberately NOT tested end-to-end against the refinery here — with the default 5000 mB packet
+    // max exceeding the refinery's 4000 mB input tank, a single order into this machine can never
+    // require more than one physical packet, so "two full + one tail" isn't reachable through this
+    // destination. That scenario is covered instead by `FluidProviderGameTest
+    // #testMixedFullPlusTailDispatchChargesPerPhysicalPacket` (a plain chest destination, unconstrained
+    // by machine tank capacity) and by `FluidOrderBookTest`'s multi-packet/multi-tick unit coverage.
 
     /**
      * No over-reserve: across many ticks the supplier never has more fluid held plus on order than its
@@ -158,19 +198,18 @@ public class FluidSupplierGameTest {
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testNeverOrdersMoreThanBufferCanHold(GameTestHelper context) {
-        long quantum = quantum();
-        long capacityMb = (long) FluidSupplierModule.BATCH_CAP * quantum;
+        long capacityMb = (long) FluidSupplierModule.BATCH_CAP * maxMb();
 
-        placeNetwork(context, quantum * 40);
+        placeNetwork(context, maxMb() * 40);
         placeJunction(context, PowerJunctionBlockEntity.CAPACITY);
 
-        context.runAfterDelay(15, () -> configureSupplier(context, quantum * 12));
+        context.runAfterDelay(15, () -> configureSupplier(context, maxMb() * 12));
 
         // Poll the invariant every 10 ticks; fail immediately if it is ever violated.
         for (long tick = 25; tick <= 170; tick += 10) {
             context.runAfterDelay(tick, () -> {
                 long heldMb = supplierModule(context).getBufferMb(supplierCtx(context));
-                long onOrderMb = pendingPackets(context) * quantum;
+                long onOrderMb = pendingMb(context);
                 if (heldMb + onOrderMb > capacityMb) {
                     context.fail("Over-reserved: held " + heldMb + " + pending " + onOrderMb
                             + " mB exceeds buffer capacity " + capacityMb + " mB");
@@ -188,13 +227,17 @@ public class FluidSupplierGameTest {
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 400)
     public void testInsufficientEnergyHoldsFluidThenDepositsWhenPowered(GameTestHelper context) {
-        long quantum = quantum();
         long rf = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_ENDPOINT_RF_PER_PACKET);
-        long target = quantum * FluidSupplierModule.BATCH_CAP; // 1000: one full batch
+        // Capped by the refinery's real input tank capacity — see testDryRestockFillsToTarget.
+        long inputCapacityMb = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_INPUT_TANK_MB);
+        long target = Math.min(maxMb() * FluidSupplierModule.BATCH_CAP, inputCapacityMb);
+        // How many physical packets a single order for `target` mB actually chunks into.
+        long packetsForTarget = target / maxMb() + (target % maxMb() > 0 ? 1 : 0);
 
-        placeNetwork(context, quantum * 20);
-        // Exactly enough for the provider to mint BATCH_CAP packets, nothing for the supplier to pay.
-        PowerJunctionBlockEntity junction = placeJunction(context, rf * FluidSupplierModule.BATCH_CAP);
+        placeNetwork(context, maxMb() * 20);
+        // Exactly enough for the provider to mint every packet for this target, nothing for the
+        // supplier to pay.
+        PowerJunctionBlockEntity junction = placeJunction(context, rf * packetsForTarget);
 
         context.runAfterDelay(15, () -> configureSupplier(context, target));
 
@@ -232,10 +275,9 @@ public class FluidSupplierGameTest {
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testStopsOrderingWhenTankHasNoRealRoom(GameTestHelper context) {
-        long quantum = quantum();
         long inputCapacityMb = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_INPUT_TANK_MB);
 
-        placeNetwork(context, quantum * 40);
+        placeNetwork(context, maxMb() * 40);
         placeJunction(context, PowerJunctionBlockEntity.CAPACITY);
 
         context.runAfterDelay(5, () -> {
@@ -251,7 +293,7 @@ public class FluidSupplierGameTest {
         for (long tick = 30; tick <= 180; tick += 20) {
             long checkTick = tick;
             context.runAfterDelay(checkTick, () -> {
-                if (pendingPackets(context) != 0) {
+                if (pendingMb(context) != 0) {
                     context.fail("Supplier should not order fluid the full tank has no room for, tick " + checkTick);
                 }
             });
@@ -259,23 +301,13 @@ public class FluidSupplierGameTest {
         context.runAfterDelay(190, context::succeed);
     }
 
-    /**
-     * Dry restock: an empty machine tank with a set filter restocks up to exactly the target.
-     */
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 260)
-    public void testDryRestockFillsToTarget(GameTestHelper context) {
-        long quantum = quantum();
-        long target = quantum * FluidSupplierModule.BATCH_CAP; // 1000
-
-        placeNetwork(context, quantum * 20);
-        placeJunction(context, PowerJunctionBlockEntity.CAPACITY);
-
-        context.runAfterDelay(15, () -> configureSupplier(context, target));
-
-        context.succeedWhen(() -> {
-            long tankMb = machineWaterMb(context);
-            context.assertTrue(tankMb == target,
-                    "Empty tank should restock to target " + target + " mB, was " + tankMb);
-        });
-    }
+    // Note: "changing fluid_packet_max_mb mid-flight doesn't corrupt accounting" is intentionally NOT
+    // covered by a gametest here. Gametest batches run many tests concurrently against the same JVM's
+    // static config state (confirmed via debug logging: a config mutation in one test measurably
+    // corrupted unrelated tests' packet chunking mid-run) — there is no safe way to mutate a global
+    // config value from within a single gametest without risking cross-test interference. The invariant
+    // itself is instead proven structurally: `PipeDataComponentsTest` verifies every `FluidPacket`
+    // always carries its own real, positive `amountMb`, and `FluidSupplierModule.onTransferToStorage`
+    // (see source) accepts any packet matching the filter fluid without comparing against the *current*
+    // config value at all — acceptance and bookkeeping are architecturally independent of live config.
 }

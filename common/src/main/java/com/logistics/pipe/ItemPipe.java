@@ -4,6 +4,7 @@ import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
 import com.logistics.core.lib.pipe.DispatchableModule;
+import com.logistics.core.lib.pipe.FluidDispatchableModule;
 import com.logistics.core.lib.pipe.IModuleHost;
 import com.logistics.core.lib.pipe.ItemAcceptingModule;
 import com.logistics.core.lib.pipe.Module;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -213,6 +215,23 @@ public class ItemPipe extends Pipe {
             if (module instanceof DispatchableModule dispatchable) {
                 long dispatched = dispatchable.onDispatch(ctx, requester, item, amount, deliveryId);
                 if (dispatched != 0) return dispatched; // propagate both success (>0) and deferred (<0)
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Dispatch fluid to a requester by asking the first module that can fulfill to extract — the fluid
+     * analogue of {@link #dispatch}.
+     *
+     * @return actual mB dispatched (0 if no module could fulfill)
+     */
+    public long dispatchFluid(PipeContext ctx, BlockPos requester, Fluid fluid, long amountMb, UUID deliveryId) {
+        if (ctx.world().isClientSide()) return 0;
+        for (Module module : getModules(ctx)) {
+            if (module instanceof FluidDispatchableModule dispatchable) {
+                long dispatched = dispatchable.onFluidDispatch(ctx, requester, fluid, amountMb, deliveryId);
+                if (dispatched != 0) return dispatched;
             }
         }
         return 0;

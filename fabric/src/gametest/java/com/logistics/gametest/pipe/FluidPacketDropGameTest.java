@@ -30,9 +30,9 @@ public class FluidPacketDropGameTest {
     private static final BlockPos ITEM_PIPE = new BlockPos(2, 1, 0);
 
     private static ItemStack fluidPacketStack() {
-        long quantum = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_QUANTUM_MB);
+        long maxMb = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB);
         ItemStack stack = new ItemStack(LogisticsPipe.ITEM.FLUID_PACKET);
-        stack.set(LogisticsPipe.DATA.FLUID_PACKET, new FluidPacket(Fluids.WATER, quantum));
+        stack.set(LogisticsPipe.DATA.FLUID_PACKET, new FluidPacket(Fluids.WATER, maxMb));
         return stack;
     }
 
