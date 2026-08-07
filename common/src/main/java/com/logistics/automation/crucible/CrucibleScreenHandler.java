@@ -22,6 +22,8 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
     private static final int MACHINE_SLOT_COUNT = 1;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INVENTORY_END = PLAYER_INVENTORY_START + 36;
+    // Must match CrucibleScreen.GAUGE_WIDTH (client-only, so duplicated here rather than shared).
+    private static final int GAUGE_WIDTH = 25;
 
     private final Container inventory;
     private final ContainerData data;
@@ -105,9 +107,9 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data Getters for GUI Rendering ====================
 
-    /** Progress arrow width (0..24 px) from the synced progress fraction. */
-    public int getProgressArrowWidth() {
-        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
+    /** Progress gauge fill width (0..{@link #GAUGE_WIDTH} px) from the synced progress fraction. */
+    public int getProgressFillWidth() {
+        return MachineData.barPixels(data, MachineData.PROGRESS, GAUGE_WIDTH);
     }
 
     /** Energy bar height (0..30 px) from the synced energy fill fraction. */
