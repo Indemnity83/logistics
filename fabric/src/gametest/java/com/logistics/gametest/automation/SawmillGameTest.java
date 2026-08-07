@@ -118,4 +118,83 @@ public class SawmillGameTest {
             context.succeed();
         });
     }
+
+    /**
+     * Regression coverage for the pulped-biomass recipe set (matched to vanilla composter chances —
+     * 0.3/0.5/0.65 tiers map to counts of 8/6/4 respectively): kelp and seeds are both 0.3-tier (count 8)
+     * and must accept insertion. Seeds previously never matched — {@code pulped_biomass_from_seeds.json}
+     * referenced the {@code #c:seeds} tag, which had no definition anywhere in the mod's data.
+     */
+    @GameTest
+    public void testAcceptsKelpAndSeedsAsInput(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
+        if (!(context.getBlockEntity(pos, SawmillBlockEntity.class) instanceof WorldlyContainer sided)) {
+            context.fail("Sawmill should implement WorldlyContainer");
+            return;
+        }
+
+        if (!sided.canPlaceItemThroughFace(INPUT, new ItemStack(Items.KELP, 8), Direction.UP)) {
+            context.fail("Kelp should be insertable as a sawmill input");
+            return;
+        }
+        if (!sided.canPlaceItemThroughFace(INPUT, new ItemStack(Items.WHEAT_SEEDS, 8), Direction.UP)) {
+            context.fail("Wheat seeds should be insertable as a sawmill input");
+            return;
+        }
+        context.succeed();
+    }
+
+    @GameTest(maxTicks = 150)
+    public void testPulpsKelpIntoBiomass(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
+        SawmillBlockEntity sawmill = context.getBlockEntity(pos, SawmillBlockEntity.class);
+
+        var energy = sawmill.energyStorage(null);
+        for (int i = 0; i < 200; i++) {
+            energy.insert(128, false);
+        }
+        sawmill.setItem(INPUT, new ItemStack(Items.KELP, 8));
+
+        // Pulped-biomass recipes cost 2,000 RF and saw in 100 ticks at 20 RF/t -> 1 pulped biomass.
+        context.runAfterDelay(120, () -> {
+            if (!sawmill.getItem(INPUT).isEmpty()) {
+                context.fail("Kelp input should be consumed, got " + sawmill.getItem(INPUT));
+                return;
+            }
+            ItemStack primary = sawmill.getItem(PRIMARY);
+            if (!primary.is(LogisticsCore.ITEM.PULPED_BIOMASS) || primary.getCount() != 1) {
+                context.fail("Primary output should be 1 pulped biomass, got " + primary);
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    @GameTest(maxTicks = 150)
+    public void testPulpsSeedsIntoBiomass(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
+        SawmillBlockEntity sawmill = context.getBlockEntity(pos, SawmillBlockEntity.class);
+
+        var energy = sawmill.energyStorage(null);
+        for (int i = 0; i < 200; i++) {
+            energy.insert(128, false);
+        }
+        sawmill.setItem(INPUT, new ItemStack(Items.WHEAT_SEEDS, 8));
+
+        context.runAfterDelay(120, () -> {
+            if (!sawmill.getItem(INPUT).isEmpty()) {
+                context.fail("Seeds input should be consumed, got " + sawmill.getItem(INPUT));
+                return;
+            }
+            ItemStack primary = sawmill.getItem(PRIMARY);
+            if (!primary.is(LogisticsCore.ITEM.PULPED_BIOMASS) || primary.getCount() != 1) {
+                context.fail("Primary output should be 1 pulped biomass, got " + primary);
+                return;
+            }
+            context.succeed();
+        });
+    }
 }
