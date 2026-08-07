@@ -24,9 +24,8 @@ public class TransposerGameTest {
     private static final int INPUT_SLOT = 0;
     private static final int OUTPUT_SLOT = 1;
 
-    // Default bucket recipes cost 800 RF at 20 RF/t (see LogisticsAutomation.CONFIG.TRANSPOSER_*):
-    // 40 ticks to complete. Seeding the buffer to capacity before each positive-path test keeps the
-    // delay generous without coupling the test to the exact default cost.
+    // Seeded to capacity before each positive-path test; keeps the delay generous without coupling
+    // tests to the exact default recipe cost.
     private static final long FULL_ENERGY = 1_000_000L;
     private static final int COMPLETE_DELAY = 45;
 
@@ -39,11 +38,7 @@ public class TransposerGameTest {
         return be;
     }
 
-    /**
-     * Fills the buffer to capacity. {@code insert} is rate-limited per call by {@code maxInsert} (the
-     * same limit a cable would hit), so this calls it repeatedly until the buffer stops accepting —
-     * either capacity is reached, or (if {@code maxInsert} were ever configured to 0) it never was.
-     */
+    /** Fills the buffer to capacity, looping since {@code insert} is rate-limited per call by {@code maxInsert}. */
     private static void chargeFully(TransposerBlockEntity be) {
         var energy = be.energyStorage(null);
         if (energy == null) {
@@ -56,6 +51,10 @@ public class TransposerGameTest {
 
     private static Fluid liquidRedstone() {
         return BuiltInRegistries.FLUID.getValue(LogisticsCore.resource("liquid_redstone").toIdentifier());
+    }
+
+    private static Fluid seedOil() {
+        return BuiltInRegistries.FLUID.getValue(LogisticsCore.resource("seed_oil").toIdentifier());
     }
 
     @GameTest
@@ -142,6 +141,63 @@ public class TransposerGameTest {
             }
             if (be.tank().getAmount() != FluidUnits.mb(1_000) || be.tank().getFluidKey().getFluid() != fluid) {
                 context.fail("Tank should hold 1000 mB of liquid redstone, got: " + be.tank().getAmount());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** Empty bucket + tank of seed oil + full energy → seed oil bucket out, tank drained by 1000 mB. */
+    @GameTest(maxTicks = 60)
+    public void fillSeedOilBucket(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        TransposerBlockEntity be = place(context, pos);
+
+        Fluid fluid = seedOil();
+        Item bucket = LogisticsCore.BUCKET.forFluid("seed_oil");
+        be.tank().insert(SimpleFluidKey.of(fluid), FluidUnits.mb(1_000), false);
+        be.setItem(INPUT_SLOT, new ItemStack(Items.BUCKET));
+        chargeFully(be);
+
+        context.runAfterDelay(COMPLETE_DELAY, () -> {
+            if (!be.getItem(OUTPUT_SLOT).is(bucket)) {
+                context.fail("Expected a seed oil bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
+                return;
+            }
+            if (!be.getItem(INPUT_SLOT).isEmpty()) {
+                context.fail("Input bucket should have been consumed");
+                return;
+            }
+            if (be.tank().getAmount() != 0) {
+                context.fail("Tank should be empty after filling one bucket, got: " + be.tank().getAmount());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** Seed oil bucket + room in the tank + full energy → empty bucket out, tank gains 1000 mB of seed oil. */
+    @GameTest(maxTicks = 60)
+    public void emptySeedOilBucket(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        TransposerBlockEntity be = place(context, pos);
+
+        Fluid fluid = seedOil();
+        Item bucket = LogisticsCore.BUCKET.forFluid("seed_oil");
+        be.setItem(INPUT_SLOT, new ItemStack(bucket));
+        chargeFully(be);
+
+        context.runAfterDelay(COMPLETE_DELAY, () -> {
+            if (!be.getItem(OUTPUT_SLOT).is(Items.BUCKET)) {
+                context.fail("Expected an empty bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
+                return;
+            }
+            if (!be.getItem(INPUT_SLOT).isEmpty()) {
+                context.fail("Filled bucket should have been consumed");
+                return;
+            }
+            if (be.tank().getAmount() != FluidUnits.mb(1_000) || be.tank().getFluidKey().getFluid() != fluid) {
+                context.fail("Tank should hold 1000 mB of seed oil, got: " + be.tank().getAmount());
                 return;
             }
             context.succeed();

@@ -19,14 +19,11 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Transposer recipe: an item plus one signed fluid amount ({@link SignedFluidAmount}) converted into an
- * optional result item, using RF energy. Fill mode (negative amount) drains the fluid from the tank;
- * Empty mode (positive amount) deposits it — e.g. an empty bucket + −1000 mB lava → a lava bucket, or a
- * lava bucket + 1000 mB lava → an empty bucket. The item result is absent for recipes that only consume
- * an item (e.g. cactus + 2400 RF → 500 mB water, with the cactus simply gone). Integrated into
- * Minecraft's recipe system via {@link RecipeType} and {@link RecipeSerializer}. Because matching also
- * depends on the tank's current fluid (not just the input item), the machine never looks these up
- * through the item-keyed {@code RecipeManager}; {@link TransposerRecipeResolver} scans them instead, the
- * same approach the refinery uses.
+ * optional result item, using RF energy — the result is absent for a recipe that only consumes its
+ * input. Integrated via {@link RecipeType} and {@link RecipeSerializer}; because matching also depends
+ * on the tank's current fluid, not just the input item, these are never looked up through the
+ * item-keyed {@code RecipeManager} — {@link TransposerRecipeResolver} scans them instead, the same
+ * approach the refinery uses.
  */
 public class TransposerRecipe extends AbstractLogisticsRecipe<SingleRecipeInput> {
 

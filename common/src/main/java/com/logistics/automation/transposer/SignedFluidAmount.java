@@ -11,20 +11,15 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
-/**
- * A transposer recipe's fluid side, signed relative to the machine's tank: negative drains the fluid
- * from the tank (Fill mode — the recipe needs it present to run), positive deposits it into the tank
- * (Empty mode — the recipe produces it). One field instead of separate input/output fluid fields, so a
- * recipe author never has to remember which of two names means "drains" vs "fills".
- */
+/** A recipe's fluid side, signed relative to the machine's tank: negative drains it, positive deposits into it. */
 public record SignedFluidAmount(Fluid fluid, int amount) {
 
     public SignedFluidAmount {
         if (fluid == Fluids.EMPTY) {
             throw new IllegalArgumentException("fluid must not be empty");
         }
-        if (amount == 0) {
-            throw new IllegalArgumentException("amount must not be zero");
+        if (amount == 0 || amount == Integer.MIN_VALUE) {
+            throw new IllegalArgumentException("amount must be nonzero and not Integer.MIN_VALUE, got " + amount);
         }
     }
 

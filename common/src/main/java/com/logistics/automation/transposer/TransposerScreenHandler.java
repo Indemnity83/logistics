@@ -21,6 +21,8 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
     private static final int MACHINE_SLOT_COUNT = 2;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INVENTORY_END = PLAYER_INVENTORY_START + 36;
+    // Must match TransposerScreen.GAUGE_WIDTH (client-only, so duplicated here rather than shared).
+    private static final int GAUGE_WIDTH = 23;
 
     private final Container inventory;
     private final ContainerData data;
@@ -113,9 +115,9 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
 
     // ==================== Data getters for GUI rendering ====================
 
-    /** Progress gauge fill width (0..24 px) from the synced progress fraction, or 0 if idle. */
+    /** Progress gauge fill width (0..{@link #GAUGE_WIDTH} px) from the synced progress fraction, or 0 if idle. */
     public int getProgressFillWidth() {
-        return MachineData.barPixels(data, MachineData.PROGRESS, 24);
+        return MachineData.barPixels(data, MachineData.PROGRESS, GAUGE_WIDTH);
     }
 
     /** Energy bar height (0..30 px) from the synced energy fill fraction. */

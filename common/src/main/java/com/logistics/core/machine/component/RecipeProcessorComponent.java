@@ -288,11 +288,7 @@ public final class RecipeProcessorComponent
         return activePlan != null ? activePlan.energyRequired() : 0;
     }
 
-    /**
-     * Whether the active recipe drains a fluid input (as opposed to producing a fluid output, or
-     * neither) — for machines whose GUI direction depends on which way fluid moves, e.g. the
-     * Transposer mirroring its gauge between Fill and Empty recipes. {@code false} when idle.
-     */
+    /** Whether the active recipe drains a fluid input, as opposed to producing one or neither. {@code false} when idle. */
     public boolean activeRecipeHasFluidInput() {
         return activePlan != null && activePlan.fluidInput() != null;
     }

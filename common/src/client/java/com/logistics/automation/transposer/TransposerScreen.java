@@ -31,18 +31,12 @@ public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHa
     private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
     private static final int CHARGE_EMPTY_TINT = 0xFF404040;
 
-    // Droplet progress gauge: a gray "empty" frame always drawn, with a white "filled" frame revealed
-    // left-to-right on top of it as progress advances (same technique as a growing progress arrow).
-    // For a Fill recipe (draining the tank) the whole gauge — both frames — is mirrored in place so it
-    // points left and the reveal sweeps right-to-left instead, showing the reversed material flow.
+    // Droplet progress gauge: gray "empty" frame always drawn, white "filled" frame revealed on top as
+    // progress advances. Mirrored in place (both frames) for an Empty recipe, so it points left instead
+    // of right.
     private static final int GAUGE_X = 82, GAUGE_Y = 24;
-    // The sprite itself is 23px wide (x199-221 inclusive), not the 24 it's easy to assume — grabbing 24
-    // pulled in one extra column of plain background padding, which lands on the opposite edge once
-    // mirrored and reads as the whole gauge shifting by a pixel between orientations.
-    //
-    // Height is 17, not 16: the filled frame's anti-aliased tip bleeds one row past the flat-colored
-    // empty frame's extent, so 16 rows clipped its bottom pixel. The empty frame's extra row just
-    // samples more of the surrounding panel background, which is seamless.
+    // Sprite is 23x17: 23px wide, not 24 (the extra column is background padding); 17px tall, not 16
+    // (the filled frame's anti-aliased tip bleeds one row past the flat-colored empty frame).
     private static final int GAUGE_WIDTH = 23, GAUGE_HEIGHT = 17;
     private static final int GAUGE_U = 199;
     private static final int GAUGE_EMPTY_V = 24;
@@ -136,15 +130,9 @@ public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHa
 
     /**
      * Draws the droplet gauge: the gray empty frame, then the white filled frame clipped to the current
-     * progress width. For a Fill recipe (draining the tank), both frames are mirrored in place so the
-     * droplet points left instead of right — done by sampling the source region in reverse (negative
-     * {@code srcWidth}) while the on-screen rectangle stays put, rather than transforming the pose
-     * stack, so the gauge's screen-space footprint never changes.
-     *
-     * <p>The fill always reveals starting at the droplet's point and growing toward its round end,
-     * regardless of orientation: unmirrored the point is the gauge's right edge (the sprite points
-     * right); mirrored it's the left edge, since mirroring swaps which screen edge shows which part of
-     * the shape.
+     * progress width. Mirrored in place (both frames, via reversed source sampling) for an Empty
+     * recipe, so the droplet points left instead of right. The fill always reveals from the droplet's
+     * point toward its round end, whichever edge that currently is.
      */
     private void renderProgressGauge(GuiGraphicsExtractor graphics) {
         int x = leftPos + GAUGE_X;
