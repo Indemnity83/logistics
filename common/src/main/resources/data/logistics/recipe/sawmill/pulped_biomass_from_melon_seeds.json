@@ -1,8 +1,6 @@
 {
   "type": "logistics:sawmill",
-  "ingredient": {
-    "tag": "c:seeds"
-  },
+  "ingredient": { "item": "minecraft:melon_seeds" },
   "count": 8,
   "result": {
     "id": "logistics:core/pulped_biomass",
