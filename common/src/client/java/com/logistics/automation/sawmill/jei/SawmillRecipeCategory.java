@@ -80,9 +80,7 @@ public class SawmillRecipeCategory implements IRecipeCategory<SawmillRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SawmillRecipe recipe, IFocusGroup focuses) {
-        // .add(Ingredient) always shows each matching item at count 1, silently dropping ingredientCount()
-        // for recipes that need more than one (e.g. 8x Kelp) — build the stacks ourselves so JEI shows the
-        // real count players need to gather, instead of implying "just 1 of this."
+        // Counted stacks so JEI renders the real per-craft amount (e.g. 8x Kelp), not just 1 each.
         int count = recipe.ingredientCount();
         List<ItemStack> inputStacks = recipe.ingredient().items()
                 .map(holder -> new ItemStack(holder, count))

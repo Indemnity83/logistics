@@ -119,12 +119,7 @@ public class SawmillGameTest {
         });
     }
 
-    /**
-     * Regression coverage for the pulped-biomass recipe set (matched to vanilla composter chances —
-     * 0.3/0.5/0.65 tiers map to counts of 8/6/4 respectively): kelp and seeds are both 0.3-tier (count 8)
-     * and must accept insertion. Seeds previously never matched — {@code pulped_biomass_from_seeds.json}
-     * referenced the {@code #c:seeds} tag, which had no definition anywhere in the mod's data.
-     */
+    /** Verifies kelp and wheat seeds are both accepted as sawmill input at their required 8-item count. */
     @GameTest
     public void testAcceptsKelpAndSeedsAsInput(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
