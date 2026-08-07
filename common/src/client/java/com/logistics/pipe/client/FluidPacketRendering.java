@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
  * Version-agnostic core of fluid-packet item rendering, shared by every branch's item-render adapter.
  *
  * <p>The packet draws the carried fluid's still sprite (16px, animated) as a flat quad behind the frame
- * texture (a bubble ring with a transparent center window). The two things that differ per MC version are
- * the render <em>entry point</em> and how a quad is submitted:
+ * texture (an opaque frame with a rectangular transparent window). The two things that differ per MC
+ * version are the render <em>entry point</em> and how a quad is submitted:
  * <ul>
  *   <li>26.2: {@code SpecialModelRenderer.submit(...)} via {@code SubmitNodeCollector.submitCustomGeometry}.</li>
  *   <li>26.1 / 1.21.11: the special-model system exists but draws through the classic
@@ -53,14 +53,16 @@ public final class FluidPacketRendering {
     public static final float FRAME_BACK_Z = 7.5F / 16.0F;  // back frame plane
     public static final float FLUID_Z = 8.0F / 16.0F;       // fluid, sandwiched between the two frames
 
-    // The frame is a small round bubble: an opaque glass ring (~13px circle) with a transparent hole inside
-    // AND transparent slot outside it. A full-slot fluid quad would bleed through that outside, so the fluid
-    // is drawn as a disc matching the bubble — centred on the ring, radius tucking its rim under the glass.
-    // Coords are geometric (y already flipped by the vertex UV), so centre lands at 8.5/16 on both axes.
-    public static final float FLUID_CENTER_X = 8.5F / 16.0F;
-    public static final float FLUID_CENTER_Y = 8.5F / 16.0F;
-    public static final float FLUID_RADIUS = 5.5F / 16.0F;
-    public static final int FLUID_DISC_SEGMENTS = 32;
+    // The frame has a rectangular transparent window — texture pixel columns 6-9 and rows 2-13 inclusive
+    // (16px canvas) — with opaque frame everywhere else. A full-slot fluid quad would bleed through that
+    // opaque area, so the fluid is drawn as a quad matching just the window; edges sit one pixel past the
+    // last inclusive column/row (10, 14). Geometric Y is flipped by the vertex UV (y=0 is the bottom of
+    // the quad, mapping to the texture's bottom row), so the pixel-row edges invert: geometric bottom
+    // (Y0) = 1 - (bottomRowEdge / 16), geometric top (Y1) = 1 - (topRowEdge / 16).
+    public static final float FLUID_WINDOW_X0 = 6.0F / 16.0F;
+    public static final float FLUID_WINDOW_X1 = 10.0F / 16.0F;
+    public static final float FLUID_WINDOW_Y0 = 1.0F - 14.0F / 16.0F;
+    public static final float FLUID_WINDOW_Y1 = 1.0F - 2.0F / 16.0F;
 
     /** The fluid a packet stack carries, or {@code null} if it has no packet component. */
     @Nullable
