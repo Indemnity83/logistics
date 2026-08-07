@@ -9,6 +9,8 @@ import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +21,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -41,6 +44,11 @@ public class SawmillBlockEntity extends MachineEntity {
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
     private ContainerData containerData;
+
+    // Cache of typed sawmill recipes for the insertion-probe check below, rebuilt only when the
+    // server's RecipeManager instance changes (e.g. on a data-pack reload).
+    private RecipeManager cachedRecipeManager;
+    private List<SawmillRecipe> cachedSawmillRecipes = List.of();
 
     public SawmillBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsAutomation.ENTITY.SAWMILL_BLOCK_ENTITY, pos, state);
@@ -81,12 +89,31 @@ public class SawmillBlockEntity extends MachineEntity {
         // Ingredient-only match: a single delivered stack rarely meets a recipe's full ingredientCount
         // on its own (e.g. 8 kelp), so the insertion gate can't reuse the full matches() check — that
         // would block every delivery smaller than the whole batch from ever entering the slot.
-        for (RecipeHolder<?> holder : serverLevel.getServer().getRecipeManager().getRecipes()) {
-            if (holder.value() instanceof SawmillRecipe recipe && recipe.acceptsAsInput(stack)) {
+        for (SawmillRecipe recipe : sawmillRecipes(serverLevel)) {
+            if (recipe.acceptsAsInput(stack)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Typed sawmill recipes, cached against the server's current RecipeManager. Rebuilding only on a
+     * RecipeManager change avoids rescanning every recipe in the game on each insertion probe.
+     */
+    private List<SawmillRecipe> sawmillRecipes(ServerLevel serverLevel) {
+        RecipeManager recipeManager = serverLevel.getServer().getRecipeManager();
+        if (recipeManager != cachedRecipeManager) {
+            cachedRecipeManager = recipeManager;
+            List<SawmillRecipe> recipes = new ArrayList<>();
+            for (RecipeHolder<?> holder : recipeManager.getRecipes()) {
+                if (holder.value() instanceof SawmillRecipe recipe) {
+                    recipes.add(recipe);
+                }
+            }
+            cachedSawmillRecipes = recipes;
+        }
+        return cachedSawmillRecipes;
     }
 
     private void setLit(MachineContext ctx, boolean lit) {
