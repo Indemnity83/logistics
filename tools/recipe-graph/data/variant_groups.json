@@ -1,0 +1,17 @@
+{
+  "oil_sand_variants": {
+    "display_name": "Oil Sand / Shale",
+    "members": [
+      "logistics:core/oil_sand",
+      "logistics:core/oil_red_sand",
+      "logistics:core/oil_shale"
+    ]
+  },
+  "tin_ore_variants": {
+    "display_name": "Tin Ore",
+    "members": [
+      "logistics:core/tin_ore",
+      "logistics:core/deepslate_tin_ore"
+    ]
+  }
+}

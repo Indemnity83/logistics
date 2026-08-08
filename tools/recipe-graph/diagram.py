@@ -45,6 +45,7 @@ fallback) to `render_blocks.py`.
 
 import argparse
 import base64
+import json
 import shlex
 import shutil
 import subprocess
@@ -53,7 +54,7 @@ from html import escape as html_escape
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from graph import RecipeGraph  # noqa: E402
+from graph import DATA_DIR, RecipeGraph  # noqa: E402
 
 TOOLS_DIR = Path(__file__).resolve().parents[1]
 RENDER_BLOCKS = TOOLS_DIR / "render_blocks.py"
@@ -183,9 +184,9 @@ def choose_primary_recipe(g, item_id, candidate_recipe_ids):
     return recipe, out_entry, is_byproduct, len(candidates) - 1
 
 
-def card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed):
-    name = html_escape(item_label(g, item_id))
-    icon = item_icon(g, item_id, assets_root)
+def card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed, name_override=None, icon_override=None):
+    name = html_escape(name_override if name_override else item_label(g, item_id))
+    icon = icon_override if name_override else item_icon(g, item_id, assets_root)
     # No repeating `name` here as a fallback -- the name already gets its own row below.
     icon_cell = f'<IMG SRC="{icon}" SCALE="TRUE"/>' if icon else ""
 
@@ -234,14 +235,25 @@ def card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_roo
     )
 
 
-def compute_chain(g, root, items, recipes, rate_rows):
+def load_variant_groups(data_dir):
+    path = data_dir / "variant_groups.json"
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def compute_chain(g, root, items, recipes, rate_rows, groups=None):
     """Shared by both renderers: pick each item's card face, its edges, and prune to what's connected.
 
-    Returns (connected_items, faces, edges, machines_needed) where faces is
-    item_id -> (recipe_or_None, out_entry, is_byproduct, alt_count) and edges
-    is [(from_id, to_id, amount_label), ...].
+    Returns (connected_items, faces, edges, machines_needed, group_members)
+    where faces is item_id -> (recipe_or_None, out_entry, is_byproduct,
+    alt_count), edges is [(from_id, to_id, amount_label), ...], and
+    group_members is group_node_id -> [member item_id, ...] for any variant
+    group that ended up in the render (see `variant_groups.json`).
+
+    `root` may itself land inside a returned group; callers should check
+    `group_members` before treating `root` as a plain item id.
     """
     machines_needed = {row["item"]: row["machines_needed"] for row in rate_rows} if rate_rows else {}
+    groups = groups or {}
 
     faces = {}
     for item_id in items:
@@ -258,14 +270,37 @@ def compute_chain(g, root, items, recipes, rate_rows):
                 continue
             edges.append((entry["id"], item_id, format_amount(entry)))
 
+    # Fold raw/leaf variant-group members (e.g. Oil Sand / Oil Red Sand /
+    # Oil Shale -- interchangeable inputs, not worth three near-duplicate
+    # cards) onto one synthetic "group:<id>" node before pruning, so a
+    # sibling with no edge of its own (its recipe lost the primary-recipe
+    # tie-break to another member -- see choose_primary_recipe) still shows
+    # up on the merged card rather than vanishing. Only raw items (no
+    # producing recipe in scope) are grouped -- merging items that *do* have
+    # their own recipe would need to reconcile differing footers too.
+    member_to_group = {}
+    for item_id in items:
+        if faces[item_id][0] is not None:
+            continue
+        for gid, group in groups.items():
+            if item_id in group["members"]:
+                member_to_group[item_id] = f"group:{gid}"
+                break
+
+    def remap(item_id):
+        return member_to_group.get(item_id, item_id)
+
+    edges = [(remap(a), remap(b), amt) for a, b, amt in edges]
+    edges = list(dict.fromkeys(edges))  # de-dupe while keeping first-seen order
+    root = remap(root)
+
     # An item pulled in by the raw ancestors()/descendants() BFS (which
     # explores *every* producer/consumer) can end up with no edge at all
-    # once each card settles on a single "primary" recipe -- e.g. Oil Sand
-    # and Oil Shale are alternate Bitumen sources, but if Oil Red Sand's
-    # recipe wins as Bitumen's primary, the other two would otherwise render
-    # as disconnected orphan cards. Keep only what's actually reachable from
-    # `root` through the edges we're drawing (undirected -- covers
-    # ancestors/descendants/both alike).
+    # once each card settles on a single "primary" recipe -- e.g. if Oil Red
+    # Sand's recipe wins as Bitumen's primary over its ungrouped siblings',
+    # they'd otherwise render as disconnected orphan cards. Keep only what's
+    # actually reachable from `root` through the edges we're drawing
+    # (undirected -- covers ancestors/descendants/both alike).
     adjacency = {}
     for a, b, _ in edges:
         adjacency.setdefault(a, set()).add(b)
@@ -278,16 +313,31 @@ def compute_chain(g, root, items, recipes, rate_rows):
         frontier = nxt
 
     edges = [(a, b, amt) for a, b, amt in edges if a in connected and b in connected]
-    return connected, faces, edges, machines_needed
+
+    group_members = {}
+    for item_id, gid in member_to_group.items():
+        if gid in connected:
+            group_members.setdefault(gid, []).append(item_id)
+    for gid in group_members:
+        faces[gid] = (None, None, None, 0)
+
+    return connected, faces, edges, machines_needed, group_members
 
 
-def build_dot_cards(g, root, items, recipes, rate_rows, assets_root):
-    connected, faces, edges, machines_needed = compute_chain(g, root, items, recipes, rate_rows)
+def build_dot_cards(g, root, items, recipes, rate_rows, assets_root, groups=None):
+    connected, faces, edges, machines_needed, group_members = compute_chain(g, root, items, recipes, rate_rows, groups)
 
     lines = ["digraph chain {", '  rankdir="LR";', "  node [fontname=Helvetica, fontsize=11, shape=plaintext];", "  edge [fontname=Helvetica, fontsize=9];"]
     for item_id in sorted(connected):
         recipe, out_entry, is_byproduct, alt_count = faces[item_id]
-        html = card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed)
+        if item_id in group_members:
+            gid = item_id.split(":", 1)[1]
+            members = group_members[item_id]
+            name = (groups or {}).get(gid, {}).get("display_name") or " / ".join(item_label(g, m) for m in members)
+            icon = item_icon(g, members[0], assets_root)  # first member's icon; the HTML renderer shows all of them
+            html = card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed, name, icon)
+        else:
+            html = card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed)
         lines.append(f'  "{item_id}" [label=<{html}>];')
     for a, b, amount in edges:
         lines.append(f'  "{a}" -> "{b}" [label="{html_escape(amount)}"];')
@@ -342,7 +392,18 @@ def card_content(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_
     return content
 
 
-def layout_chain(connected, edges, faces):
+def group_card_content(g, gid, group_def, member_ids, assets_root):
+    """Card data for a merged variant-group node (e.g. Oil Sand / Oil Red Sand / Oil Shale)."""
+    name = (group_def or {}).get("display_name") or " / ".join(item_label(g, m) for m in member_ids)
+    return {
+        "name": name,
+        "icons": [data_uri(item_icon(g, m, assets_root)) for m in member_ids],
+        "raw": True,
+        "group": True,
+    }
+
+
+def layout_chain(connected, edges, faces, group_members=None):
     """Run `dot -Tplain` on a minimal (unstyled, correctly-sized) graph to get real positions.
 
     Returns (nodes, edge_paths, width_px, height_px) where nodes is
@@ -352,11 +413,14 @@ def layout_chain(connected, edges, faces):
     dot_bin = shutil.which("dot")
     if not dot_bin:
         return None
+    group_members = group_members or {}
 
     lines = ["digraph g {", "  rankdir=LR;", "  nodesep=0.35;", "  ranksep=0.55;", "  node [shape=box, fixedsize=true, label=\"\"];"]
     for item_id in connected:
         recipe = faces[item_id][0]
         w, h = (RAW_W_IN, RAW_H_IN) if recipe is None else (CARD_W_IN, CARD_H_IN)
+        if item_id in group_members:
+            w += (len(group_members[item_id]) - 1) * (36 / DPI)  # room for each extra icon in the strip
         lines.append(f'  "{item_id}" [width={w:.3f}, height={h:.3f}];')
     for a, b, amount in edges:
         label = f' [label="{amount}"]' if amount else ""
@@ -462,14 +526,24 @@ img { image-rendering: pixelated; display: block; }
 .card .banner img { width: 16px; height: 16px; object-fit: contain; }
 .card .icon { width: 48px; height: 48px; margin: 10px auto 4px; flex: 0 0 auto; }
 .card .icon img { width: 100%; height: 100%; object-fit: contain; }
+.card .icon.icon-strip { width: auto; display: flex; gap: 4px; justify-content: center; }
+.card .icon.icon-strip img { width: 40px; height: 40px; flex: 0 0 auto; }
 .card .name { font-weight: 600; font-size: 0.86rem; padding: 0 6px; flex: 0 0 auto; }
 .card .footer { margin-top: auto; background: var(--surface-2); border-top: 1px solid var(--border); font-size: 11px; color: var(--ink-secondary); padding: 4px 6px; flex: 0 0 auto; }
 .card .alt { font-size: 9px; color: var(--ink-muted); padding-bottom: 4px; flex: 0 0 auto; }
 """
 
 
-def render_html_page(g, root, connected, faces, edges, machines_needed, assets_root, out_path):
-    layout = layout_chain(connected, edges, faces)
+def page_title(g, root, group_members, groups):
+    if root in group_members:
+        gid = root.split(":", 1)[1]
+        return (groups or {}).get(gid, {}).get("display_name") or " / ".join(item_label(g, m) for m in group_members[root])
+    return item_label(g, root)
+
+
+def render_html_page(g, root, connected, faces, edges, machines_needed, assets_root, out_path, group_members=None, groups=None):
+    group_members = group_members or {}
+    layout = layout_chain(connected, edges, faces, group_members)
     if layout is None:
         return False
     nodes, px_edges, width, height = layout
@@ -477,9 +551,20 @@ def render_html_page(g, root, connected, faces, edges, machines_needed, assets_r
     cards = []
     for item_id in connected:
         recipe, out_entry, is_byproduct, alt_count = faces[item_id]
-        content = card_content(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed)
         cx, cy, w, h = nodes[item_id]
         style = f"left:{cx - w / 2:.0f}px; top:{cy - h / 2:.0f}px; width:{w:.0f}px; height:{h:.0f}px;"
+
+        if item_id in group_members:
+            gid = item_id.split(":", 1)[1]
+            content = group_card_content(g, gid, (groups or {}).get(gid), group_members[item_id], assets_root)
+            icons = "".join(f'<img src="{icon}" alt="">' for icon in content["icons"] if icon)
+            cards.append(
+                f'<div class="card raw" style="{style}" title="{html_escape(content["name"])}">'
+                f'<div class="icon icon-strip">{icons}</div><div class="name">{html_escape(content["name"])}</div></div>'
+            )
+            continue
+
+        content = card_content(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed)
         icon_img = f'<img src="{content["icon"]}" alt="">' if content["icon"] else ""
         if content["raw"]:
             cards.append(
@@ -508,9 +593,10 @@ def render_html_page(g, root, connected, faces, edges, machines_needed, assets_r
         if label and lpos:
             edge_labels.append(f'<div class="edge-label" style="left:{lpos[0]:.0f}px; top:{lpos[1]:.0f}px;">{html_escape(label)}</div>')
 
-    html = f"""<title>{html_escape(item_label(g, root))} chain</title>
+    title = page_title(g, root, group_members, groups)
+    html = f"""<title>{html_escape(title)} chain</title>
 <style>{CARD_CSS}</style>
-<h1>{html_escape(item_label(g, root))} &mdash; recipe chain ({len(connected)} items)</h1>
+<h1>{html_escape(title)} &mdash; recipe chain ({len(connected)} items)</h1>
 <div class="canvas" style="width:{width:.0f}px; height:{height:.0f}px;">
   <svg class="edges" width="{width:.0f}" height="{height:.0f}">
     <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="var(--edge)"/></marker></defs>
@@ -572,10 +658,16 @@ def main():
     )
     p_chain.add_argument("--out", type=Path, required=True, help="output path, extension selects format (.svg/.png/...)")
     p_chain.add_argument("--dot-out", type=Path, default=None, help="also write the raw DOT source here")
+    p_chain.add_argument(
+        "--no-group", action="store_true",
+        help="don't merge variant-group items (see data/variant_groups.json) onto one card",
+    )
 
     args = parser.parse_args()
-    g = RecipeGraph.load(args.data_dir) if args.data_dir else RecipeGraph.load()
+    data_dir = args.data_dir or DATA_DIR
+    g = RecipeGraph.load(data_dir)
     assets_root = args.mod_root / "common/src/main/resources/assets/logistics"
+    groups = {} if args.no_group else load_variant_groups(data_dir)
 
     if args.item not in g.items:
         print(f"error: unknown item id {args.item!r} (see data/items.json)", file=sys.stderr)
@@ -596,13 +688,13 @@ def main():
     rate_rows = g.machine_ratios(args.item, args.rate) if args.rate else []
 
     if args.out.suffix.lower() == ".html":
-        connected, faces, chain_edges, machines_needed = compute_chain(g, args.item, items, recipes, rate_rows)
-        if not render_html_page(g, args.item, connected, faces, chain_edges, machines_needed, assets_root, args.out):
+        connected, faces, chain_edges, machines_needed, group_members = compute_chain(g, args.item, items, recipes, rate_rows, groups)
+        if not render_html_page(g, args.item, connected, faces, chain_edges, machines_needed, assets_root, args.out, group_members, groups):
             sys.exit(1)
         print(f"wrote {args.out} ({len(connected)} of {len(items)} traversed items rendered)", file=sys.stderr)
         return
 
-    dot_source, kept = build_dot_cards(g, args.item, items, recipes, rate_rows, assets_root)
+    dot_source, kept = build_dot_cards(g, args.item, items, recipes, rate_rows, assets_root, groups)
     if args.dot_out:
         args.dot_out.write_text(dot_source + "\n")
 

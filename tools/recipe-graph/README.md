@@ -87,6 +87,20 @@ those un-shown alternate recipes are dropped from the render entirely
 pass from the query's root item. A raw/base resource (no producing recipe
 in scope) renders as a plain icon + name card, no banner/footer.
 
+**Variant groups** (`data/variant_groups.json`) merge raw/leaf items that
+play the same role in a chain onto one card with a side-by-side icon strip
+-- e.g. Oil Sand / Oil Red Sand / Oil Shale are interchangeable macerator
+inputs, so seeing three near-duplicate cards adds nothing. This is a
+curated table, not an auto-detected heuristic: the mod's recipes for
+"equivalent" variants aren't always byproduct-identical (Oil Shale's
+macerator recipe drops Flint instead of Tar), so grouping is a deliberate
+simplification call per group, not a fact derivable purely from the data.
+Add entries as `{"group_id": {"display_name": "...", "members": ["id",
+...]}}`; only items with no producing recipe in the current query's scope
+are eligible (merging items that carry their own recipe/footer would need
+to reconcile differing stats too). Pass `--no-group` to see every card
+individually.
+
 ## Known limitations
 
 - **Hub-item fan-out.** Items with very wide fan-in/out (`minecraft:bucket`,
