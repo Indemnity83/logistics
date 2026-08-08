@@ -1,0 +1,5158 @@
+{
+  "#any:minecraft:andesite|minecraft:basalt|minecraft:blackstone|minecraft:cobbled_deepslate|minecraft:cobblestone|minecraft:deepslate|minecraft:diorite|minecraft:granite|minecraft:obsidian|minecraft:smooth_basalt|minecraft:stone|minecraft:tuff": {
+    "display_name": "Tag: any:minecraft:andesite|minecraft:basalt|minecraft:blackstone|minecraft:cobbled_deepslate|minecraft:cobblestone|minecraft:deepslate|minecraft:diorite|minecraft:granite|minecraft:obsidian|minecraft:smooth_basalt|minecraft:stone|minecraft:tuff",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#any:minecraft:andesite|minecraft:basalt|minecraft:blackstone|minecraft:cobbled_deepslate|minecraft:cobblestone|minecraft:deepslate|minecraft:diorite|minecraft:granite|minecraft:obsidian|minecraft:smooth_basalt|minecraft:stone|minecraft:tuff",
+    "kind": "tag",
+    "members": [
+      "minecraft:andesite",
+      "minecraft:basalt",
+      "minecraft:blackstone",
+      "minecraft:cobbled_deepslate",
+      "minecraft:cobblestone",
+      "minecraft:deepslate",
+      "minecraft:diorite",
+      "minecraft:granite",
+      "minecraft:obsidian",
+      "minecraft:smooth_basalt",
+      "minecraft:stone",
+      "minecraft:tuff"
+    ]
+  },
+  "#any:minecraft:red_sand|minecraft:sand": {
+    "display_name": "Tag: any:minecraft:red_sand|minecraft:sand",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#any:minecraft:red_sand|minecraft:sand",
+    "kind": "tag",
+    "members": [
+      "minecraft:red_sand",
+      "minecraft:sand"
+    ]
+  },
+  "#c:glass_blocks": {
+    "display_name": "Tag: c:glass_blocks",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:glass_blocks",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:glass_blocks/colorless": {
+    "display_name": "Tag: c:glass_blocks/colorless",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:glass_blocks/colorless",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:ingots/bronze": {
+    "display_name": "Tag: c:ingots/bronze",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:ingots/bronze",
+    "kind": "tag",
+    "members": [
+      "logistics:core/bronze_ingot"
+    ]
+  },
+  "#c:ingots/tin": {
+    "display_name": "Tag: c:ingots/tin",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:ingots/tin",
+    "kind": "tag",
+    "members": [
+      "logistics:core/tin_ingot"
+    ]
+  },
+  "#c:nuggets/bronze": {
+    "display_name": "Tag: c:nuggets/bronze",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:nuggets/bronze",
+    "kind": "tag",
+    "members": [
+      "logistics:core/bronze_nugget"
+    ]
+  },
+  "#c:nuggets/copper": {
+    "display_name": "Tag: c:nuggets/copper",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:nuggets/copper",
+    "kind": "tag",
+    "members": [
+      "logistics:core/copper_nugget"
+    ]
+  },
+  "#c:nuggets/tin": {
+    "display_name": "Tag: c:nuggets/tin",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:nuggets/tin",
+    "kind": "tag",
+    "members": [
+      "logistics:core/tin_nugget"
+    ]
+  },
+  "#c:ores/copper": {
+    "display_name": "Tag: c:ores/copper",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:ores/copper",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:ores/gold": {
+    "display_name": "Tag: c:ores/gold",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:ores/gold",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:ores/iron": {
+    "display_name": "Tag: c:ores/iron",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:ores/iron",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:ores/lapis": {
+    "display_name": "Tag: c:ores/lapis",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:ores/lapis",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:ores/quartz": {
+    "display_name": "Tag: c:ores/quartz",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:ores/quartz",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:ores/redstone": {
+    "display_name": "Tag: c:ores/redstone",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:ores/redstone",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:ores/tin": {
+    "display_name": "Tag: c:ores/tin",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:ores/tin",
+    "kind": "tag",
+    "members": [
+      "logistics:core/deepslate_tin_ore",
+      "logistics:core/tin_ore"
+    ]
+  },
+  "#c:raw_materials/tin": {
+    "display_name": "Tag: c:raw_materials/tin",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:raw_materials/tin",
+    "kind": "tag",
+    "members": [
+      "logistics:core/raw_tin"
+    ]
+  },
+  "#c:sands": {
+    "display_name": "Tag: c:sands",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#c:sands",
+    "kind": "tag",
+    "members": null
+  },
+  "#c:storage_blocks/bronze": {
+    "display_name": "Tag: c:storage_blocks/bronze",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:storage_blocks/bronze",
+    "kind": "tag",
+    "members": [
+      "logistics:core/bronze_block"
+    ]
+  },
+  "#c:storage_blocks/raw_tin": {
+    "display_name": "Tag: c:storage_blocks/raw_tin",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:storage_blocks/raw_tin",
+    "kind": "tag",
+    "members": [
+      "logistics:core/raw_tin_block"
+    ]
+  },
+  "#c:storage_blocks/tin": {
+    "display_name": "Tag: c:storage_blocks/tin",
+    "domain": null,
+    "external": false,
+    "icon_path": null,
+    "id": "#c:storage_blocks/tin",
+    "kind": "tag",
+    "members": [
+      "logistics:core/tin_block"
+    ]
+  },
+  "#minecraft:acacia_logs": {
+    "display_name": "Tag: minecraft:acacia_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:acacia_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:bamboo_blocks": {
+    "display_name": "Tag: minecraft:bamboo_blocks",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:bamboo_blocks",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:birch_logs": {
+    "display_name": "Tag: minecraft:birch_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:birch_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:cherry_logs": {
+    "display_name": "Tag: minecraft:cherry_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:cherry_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:crimson_stems": {
+    "display_name": "Tag: minecraft:crimson_stems",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:crimson_stems",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:dark_oak_logs": {
+    "display_name": "Tag: minecraft:dark_oak_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:dark_oak_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:jungle_logs": {
+    "display_name": "Tag: minecraft:jungle_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:jungle_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:leaves": {
+    "display_name": "Tag: minecraft:leaves",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:leaves",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:logs": {
+    "display_name": "Tag: minecraft:logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:mangrove_logs": {
+    "display_name": "Tag: minecraft:mangrove_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:mangrove_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:oak_logs": {
+    "display_name": "Tag: minecraft:oak_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:oak_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:pale_oak_logs": {
+    "display_name": "Tag: minecraft:pale_oak_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:pale_oak_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:planks": {
+    "display_name": "Tag: minecraft:planks",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:planks",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:saplings": {
+    "display_name": "Tag: minecraft:saplings",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:saplings",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:small_flowers": {
+    "display_name": "Tag: minecraft:small_flowers",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:small_flowers",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:spruce_logs": {
+    "display_name": "Tag: minecraft:spruce_logs",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:spruce_logs",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:warped_stems": {
+    "display_name": "Tag: minecraft:warped_stems",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:warped_stems",
+    "kind": "tag",
+    "members": null
+  },
+  "#minecraft:wool": {
+    "display_name": "Tag: minecraft:wool",
+    "domain": null,
+    "external": true,
+    "icon_path": null,
+    "id": "#minecraft:wool",
+    "kind": "tag",
+    "members": null
+  },
+  "logistics:automation/alloy_smelter": {
+    "also_item_form": false,
+    "display_name": "Alloy Smelter",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/alloy_smelter",
+    "kind": "item"
+  },
+  "logistics:automation/crucible": {
+    "also_item_form": false,
+    "display_name": "Crucible",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/crucible",
+    "kind": "item"
+  },
+  "logistics:automation/fluid_pump": {
+    "also_item_form": false,
+    "display_name": "Fluid Pump",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/fluid_pump",
+    "kind": "item"
+  },
+  "logistics:automation/kiln": {
+    "also_item_form": false,
+    "display_name": "Kiln",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/kiln",
+    "kind": "item"
+  },
+  "logistics:automation/laser_quarry": {
+    "also_item_form": false,
+    "display_name": "Laser Quarry",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/laser_quarry",
+    "kind": "item"
+  },
+  "logistics:automation/laser_quarry_frame": {
+    "also_item_form": false,
+    "display_name": "Laser Quarry Frame",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/laser_quarry_frame",
+    "kind": "item"
+  },
+  "logistics:automation/macerator": {
+    "also_item_form": false,
+    "display_name": "Macerator",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/macerator",
+    "kind": "item"
+  },
+  "logistics:automation/refinery": {
+    "also_item_form": false,
+    "display_name": "Refinery",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/refinery",
+    "kind": "item"
+  },
+  "logistics:automation/sawmill": {
+    "also_item_form": false,
+    "display_name": "Sawmill",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/sawmill",
+    "kind": "item"
+  },
+  "logistics:automation/sequential_fabricator": {
+    "also_item_form": false,
+    "display_name": "Sequential Fabricator",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/sequential_fabricator",
+    "kind": "item"
+  },
+  "logistics:automation/transposer": {
+    "also_item_form": false,
+    "display_name": "Transposer",
+    "domain": "automation",
+    "icon_path": null,
+    "id": "logistics:automation/transposer",
+    "kind": "item"
+  },
+  "logistics:core/amethyst_dust": {
+    "also_item_form": false,
+    "display_name": "Amethyst Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/amethyst_dust.png",
+    "id": "logistics:core/amethyst_dust",
+    "kind": "item"
+  },
+  "logistics:core/amethyst_valve": {
+    "also_item_form": false,
+    "display_name": "Amethyst Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/amethyst_valve.png",
+    "id": "logistics:core/amethyst_valve",
+    "kind": "item"
+  },
+  "logistics:core/apatite": {
+    "also_item_form": false,
+    "display_name": "Apatite",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/apatite.png",
+    "id": "logistics:core/apatite",
+    "kind": "item"
+  },
+  "logistics:core/apatite_block": {
+    "also_item_form": false,
+    "display_name": "Block of Apatite",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/apatite_block.png",
+    "id": "logistics:core/apatite_block",
+    "kind": "item"
+  },
+  "logistics:core/apatite_dust": {
+    "also_item_form": false,
+    "display_name": "Apatite Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/apatite_dust.png",
+    "id": "logistics:core/apatite_dust",
+    "kind": "item"
+  },
+  "logistics:core/apatite_ore": {
+    "also_item_form": false,
+    "display_name": "Apatite Ore",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/apatite_ore.png",
+    "id": "logistics:core/apatite_ore",
+    "kind": "item"
+  },
+  "logistics:core/apatite_valve": {
+    "also_item_form": false,
+    "display_name": "Apatite Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/apatite_valve.png",
+    "id": "logistics:core/apatite_valve",
+    "kind": "item"
+  },
+  "logistics:core/bio_fuel": {
+    "also_item_form": true,
+    "display_name": "Bio Fuel",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/bio_fuel.png",
+    "id": "logistics:core/bio_fuel",
+    "kind": "fluid"
+  },
+  "logistics:core/bitumen": {
+    "also_item_form": false,
+    "display_name": "Bitumen",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/bitumen.png",
+    "id": "logistics:core/bitumen",
+    "kind": "item"
+  },
+  "logistics:core/blazing_valve": {
+    "also_item_form": false,
+    "display_name": "Blazing Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/blazing_valve.png",
+    "id": "logistics:core/blazing_valve",
+    "kind": "item"
+  },
+  "logistics:core/bog_earth": {
+    "also_item_form": false,
+    "display_name": "Bog Earth",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/bog_earth.png",
+    "id": "logistics:core/bog_earth",
+    "kind": "item"
+  },
+  "logistics:core/bronze_block": {
+    "also_item_form": false,
+    "display_name": "Block of Bronze",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/bronze_block.png",
+    "id": "logistics:core/bronze_block",
+    "kind": "item"
+  },
+  "logistics:core/bronze_dust": {
+    "also_item_form": false,
+    "display_name": "Bronze Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/bronze_dust.png",
+    "id": "logistics:core/bronze_dust",
+    "kind": "item"
+  },
+  "logistics:core/bronze_gear": {
+    "also_item_form": false,
+    "display_name": "Bronze Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/bronze_gear.png",
+    "id": "logistics:core/bronze_gear",
+    "kind": "item"
+  },
+  "logistics:core/bronze_ingot": {
+    "also_item_form": false,
+    "display_name": "Bronze Ingot",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/bronze_ingot.png",
+    "id": "logistics:core/bronze_ingot",
+    "kind": "item"
+  },
+  "logistics:core/bronze_nugget": {
+    "also_item_form": false,
+    "display_name": "Bronze Nugget",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/bronze_nugget.png",
+    "id": "logistics:core/bronze_nugget",
+    "kind": "item"
+  },
+  "logistics:core/bronze_valve": {
+    "also_item_form": false,
+    "display_name": "Bronze Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/bronze_valve.png",
+    "id": "logistics:core/bronze_valve",
+    "kind": "item"
+  },
+  "logistics:core/coal_dust": {
+    "also_item_form": false,
+    "display_name": "Coal Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/coal_dust.png",
+    "id": "logistics:core/coal_dust",
+    "kind": "item"
+  },
+  "logistics:core/copper_chipset": {
+    "also_item_form": false,
+    "display_name": "Copper Chipset",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/copper_chipset.png",
+    "id": "logistics:core/copper_chipset",
+    "kind": "item"
+  },
+  "logistics:core/copper_dust": {
+    "also_item_form": false,
+    "display_name": "Copper Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/copper_dust.png",
+    "id": "logistics:core/copper_dust",
+    "kind": "item"
+  },
+  "logistics:core/copper_gear": {
+    "also_item_form": false,
+    "display_name": "Copper Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/copper_gear.png",
+    "id": "logistics:core/copper_gear",
+    "kind": "item"
+  },
+  "logistics:core/copper_nugget": {
+    "also_item_form": false,
+    "display_name": "Copper Nugget",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/copper_nugget.png",
+    "id": "logistics:core/copper_nugget",
+    "kind": "item"
+  },
+  "logistics:core/copper_valve": {
+    "also_item_form": false,
+    "display_name": "Copper Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/copper_valve.png",
+    "id": "logistics:core/copper_valve",
+    "kind": "item"
+  },
+  "logistics:core/crude_oil": {
+    "also_item_form": true,
+    "display_name": "Crude Oil",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/fluid/crude_oil_still.png",
+    "id": "logistics:core/crude_oil",
+    "kind": "fluid"
+  },
+  "logistics:core/deepslate_tin_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Tin Ore",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/deepslate_tin_ore.png",
+    "id": "logistics:core/deepslate_tin_ore",
+    "kind": "item"
+  },
+  "logistics:core/diamond_chipset": {
+    "also_item_form": false,
+    "display_name": "Diamond Chipset",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/diamond_chipset.png",
+    "id": "logistics:core/diamond_chipset",
+    "kind": "item"
+  },
+  "logistics:core/diamond_dust": {
+    "also_item_form": false,
+    "display_name": "Diamond Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/diamond_dust.png",
+    "id": "logistics:core/diamond_dust",
+    "kind": "item"
+  },
+  "logistics:core/diamond_gear": {
+    "also_item_form": false,
+    "display_name": "Diamond Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/diamond_gear.png",
+    "id": "logistics:core/diamond_gear",
+    "kind": "item"
+  },
+  "logistics:core/diamond_valve": {
+    "also_item_form": false,
+    "display_name": "Diamond Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/diamond_valve.png",
+    "id": "logistics:core/diamond_valve",
+    "kind": "item"
+  },
+  "logistics:core/echo_chipset": {
+    "also_item_form": false,
+    "display_name": "Echo Chipset",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/echo_chipset.png",
+    "id": "logistics:core/echo_chipset",
+    "kind": "item"
+  },
+  "logistics:core/echo_dust": {
+    "also_item_form": false,
+    "display_name": "Echo Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/echo_dust.png",
+    "id": "logistics:core/echo_dust",
+    "kind": "item"
+  },
+  "logistics:core/echo_valve": {
+    "also_item_form": false,
+    "display_name": "Echo Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/echo_valve.png",
+    "id": "logistics:core/echo_valve",
+    "kind": "item"
+  },
+  "logistics:core/emerald_dust": {
+    "also_item_form": false,
+    "display_name": "Emerald Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/emerald_dust.png",
+    "id": "logistics:core/emerald_dust",
+    "kind": "item"
+  },
+  "logistics:core/emerald_valve": {
+    "also_item_form": false,
+    "display_name": "Emerald Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/emerald_valve.png",
+    "id": "logistics:core/emerald_valve",
+    "kind": "item"
+  },
+  "logistics:core/ender_dust": {
+    "also_item_form": false,
+    "display_name": "Ender Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/ender_dust.png",
+    "id": "logistics:core/ender_dust",
+    "kind": "item"
+  },
+  "logistics:core/flour": {
+    "also_item_form": false,
+    "display_name": "Flour",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/flour.png",
+    "id": "logistics:core/flour",
+    "kind": "item"
+  },
+  "logistics:core/fuel_oil": {
+    "also_item_form": true,
+    "display_name": "Fuel Oil",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/fuel_oil.png",
+    "id": "logistics:core/fuel_oil",
+    "kind": "fluid"
+  },
+  "logistics:core/gold_chipset": {
+    "also_item_form": false,
+    "display_name": "Gold Chipset",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/gold_chipset.png",
+    "id": "logistics:core/gold_chipset",
+    "kind": "item"
+  },
+  "logistics:core/gold_dust": {
+    "also_item_form": false,
+    "display_name": "Gold Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/gold_dust.png",
+    "id": "logistics:core/gold_dust",
+    "kind": "item"
+  },
+  "logistics:core/gold_gear": {
+    "also_item_form": false,
+    "display_name": "Gold Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/gold_gear.png",
+    "id": "logistics:core/gold_gear",
+    "kind": "item"
+  },
+  "logistics:core/gold_valve": {
+    "also_item_form": false,
+    "display_name": "Gold Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/gold_valve.png",
+    "id": "logistics:core/gold_valve",
+    "kind": "item"
+  },
+  "logistics:core/iron_chipset": {
+    "also_item_form": false,
+    "display_name": "Iron Chipset",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/iron_chipset.png",
+    "id": "logistics:core/iron_chipset",
+    "kind": "item"
+  },
+  "logistics:core/iron_dust": {
+    "also_item_form": false,
+    "display_name": "Iron Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/iron_dust.png",
+    "id": "logistics:core/iron_dust",
+    "kind": "item"
+  },
+  "logistics:core/iron_gear": {
+    "also_item_form": false,
+    "display_name": "Iron Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/iron_gear.png",
+    "id": "logistics:core/iron_gear",
+    "kind": "item"
+  },
+  "logistics:core/iron_valve": {
+    "also_item_form": false,
+    "display_name": "Iron Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/iron_valve.png",
+    "id": "logistics:core/iron_valve",
+    "kind": "item"
+  },
+  "logistics:core/lapis_dust": {
+    "also_item_form": false,
+    "display_name": "Lapis Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/lapis_dust.png",
+    "id": "logistics:core/lapis_dust",
+    "kind": "item"
+  },
+  "logistics:core/lapis_valve": {
+    "also_item_form": false,
+    "display_name": "Lapis Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/lapis_valve.png",
+    "id": "logistics:core/lapis_valve",
+    "kind": "item"
+  },
+  "logistics:core/liquid_biomass": {
+    "also_item_form": true,
+    "display_name": "Liquid Biomass",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/fluid/liquid_biomass_still.png",
+    "id": "logistics:core/liquid_biomass",
+    "kind": "fluid"
+  },
+  "logistics:core/liquid_ender": {
+    "also_item_form": true,
+    "display_name": "Liquid Ender",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/fluid/liquid_ender_still.png",
+    "id": "logistics:core/liquid_ender",
+    "kind": "fluid"
+  },
+  "logistics:core/liquid_glowstone": {
+    "also_item_form": true,
+    "display_name": "Liquid Glowstone",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/fluid/liquid_glowstone_still.png",
+    "id": "logistics:core/liquid_glowstone",
+    "kind": "fluid"
+  },
+  "logistics:core/liquid_redstone": {
+    "also_item_form": true,
+    "display_name": "Liquid Redstone",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/fluid/liquid_redstone_still.png",
+    "id": "logistics:core/liquid_redstone",
+    "kind": "fluid"
+  },
+  "logistics:core/machine_core": {
+    "also_item_form": false,
+    "display_name": "Machine Frame",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/machine_core.png",
+    "id": "logistics:core/machine_core",
+    "kind": "item"
+  },
+  "logistics:core/marker": {
+    "also_item_form": false,
+    "display_name": "Marker",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/marker.png",
+    "id": "logistics:core/marker",
+    "kind": "item"
+  },
+  "logistics:core/natural_polymer": {
+    "also_item_form": false,
+    "display_name": "Natural Polymer",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/natural_polymer.png",
+    "id": "logistics:core/natural_polymer",
+    "kind": "item"
+  },
+  "logistics:core/netherite_chipset": {
+    "also_item_form": false,
+    "display_name": "Netherite Chipset",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/netherite_chipset.png",
+    "id": "logistics:core/netherite_chipset",
+    "kind": "item"
+  },
+  "logistics:core/netherite_dust": {
+    "also_item_form": false,
+    "display_name": "Netherite Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/netherite_dust.png",
+    "id": "logistics:core/netherite_dust",
+    "kind": "item"
+  },
+  "logistics:core/netherite_gear": {
+    "also_item_form": false,
+    "display_name": "Netherite Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/netherite_gear.png",
+    "id": "logistics:core/netherite_gear",
+    "kind": "item"
+  },
+  "logistics:core/netherite_valve": {
+    "also_item_form": false,
+    "display_name": "Netherite Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/netherite_valve.png",
+    "id": "logistics:core/netherite_valve",
+    "kind": "item"
+  },
+  "logistics:core/niter": {
+    "also_item_form": false,
+    "display_name": "Niter",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/niter.png",
+    "id": "logistics:core/niter",
+    "kind": "item"
+  },
+  "logistics:core/obsidian_dust": {
+    "also_item_form": false,
+    "display_name": "Obsidian Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/obsidian_dust.png",
+    "id": "logistics:core/obsidian_dust",
+    "kind": "item"
+  },
+  "logistics:core/obsidian_valve": {
+    "also_item_form": false,
+    "display_name": "Obsidian Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/obsidian_valve.png",
+    "id": "logistics:core/obsidian_valve",
+    "kind": "item"
+  },
+  "logistics:core/oil_red_sand": {
+    "also_item_form": false,
+    "display_name": "Oil Red Sand",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/oil_red_sand.png",
+    "id": "logistics:core/oil_red_sand",
+    "kind": "item"
+  },
+  "logistics:core/oil_sand": {
+    "also_item_form": false,
+    "display_name": "Oil Sand",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/oil_sand.png",
+    "id": "logistics:core/oil_sand",
+    "kind": "item"
+  },
+  "logistics:core/oil_shale": {
+    "also_item_form": false,
+    "display_name": "Oil Shale",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/oil_shale.png",
+    "id": "logistics:core/oil_shale",
+    "kind": "item"
+  },
+  "logistics:core/peat": {
+    "also_item_form": false,
+    "display_name": "Peat",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/peat.png",
+    "id": "logistics:core/peat",
+    "kind": "item"
+  },
+  "logistics:core/prismarine_dust": {
+    "also_item_form": false,
+    "display_name": "Prismarine Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/prismarine_dust.png",
+    "id": "logistics:core/prismarine_dust",
+    "kind": "item"
+  },
+  "logistics:core/pulped_biomass": {
+    "also_item_form": false,
+    "display_name": "Pulped Biomass",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/pulped_biomass.png",
+    "id": "logistics:core/pulped_biomass",
+    "kind": "item"
+  },
+  "logistics:core/quartz_crystal": {
+    "also_item_form": false,
+    "display_name": "Quartz Crystal",
+    "domain": "core",
+    "icon_path": null,
+    "id": "logistics:core/quartz_crystal",
+    "kind": "item"
+  },
+  "logistics:core/quartz_dust": {
+    "also_item_form": false,
+    "display_name": "Quartz Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/quartz_dust.png",
+    "id": "logistics:core/quartz_dust",
+    "kind": "item"
+  },
+  "logistics:core/quicksilver": {
+    "also_item_form": false,
+    "display_name": "Quicksilver",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/quicksilver.png",
+    "id": "logistics:core/quicksilver",
+    "kind": "item"
+  },
+  "logistics:core/raw_tin": {
+    "also_item_form": false,
+    "display_name": "Raw Tin",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/raw_tin.png",
+    "id": "logistics:core/raw_tin",
+    "kind": "item"
+  },
+  "logistics:core/raw_tin_block": {
+    "also_item_form": false,
+    "display_name": "Block of Raw Tin",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/raw_tin_block.png",
+    "id": "logistics:core/raw_tin_block",
+    "kind": "item"
+  },
+  "logistics:core/redstone_chipset": {
+    "also_item_form": false,
+    "display_name": "Redstone Chipset",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/redstone_chipset.png",
+    "id": "logistics:core/redstone_chipset",
+    "kind": "item"
+  },
+  "logistics:core/redstone_engine": {
+    "also_item_form": false,
+    "display_name": "Redstone Engine",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/redstone_engine.png",
+    "id": "logistics:core/redstone_engine",
+    "kind": "item"
+  },
+  "logistics:core/redstone_reception_coil": {
+    "also_item_form": false,
+    "display_name": "Redstone Reception Coil",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/redstone_reception_coil.png",
+    "id": "logistics:core/redstone_reception_coil",
+    "kind": "item"
+  },
+  "logistics:core/rich_slag": {
+    "also_item_form": false,
+    "display_name": "Rich Slag",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/rich_slag.png",
+    "id": "logistics:core/rich_slag",
+    "kind": "item"
+  },
+  "logistics:core/rubber": {
+    "also_item_form": false,
+    "display_name": "Rubber",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/rubber.png",
+    "id": "logistics:core/rubber",
+    "kind": "item"
+  },
+  "logistics:core/rubber_valve": {
+    "also_item_form": false,
+    "display_name": "Rubber Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/rubber_valve.png",
+    "id": "logistics:core/rubber_valve",
+    "kind": "item"
+  },
+  "logistics:core/sawdust": {
+    "also_item_form": false,
+    "display_name": "Sawdust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/sawdust.png",
+    "id": "logistics:core/sawdust",
+    "kind": "item"
+  },
+  "logistics:core/seed_oil": {
+    "also_item_form": true,
+    "display_name": "Seed Oil",
+    "domain": "core",
+    "icon_path": null,
+    "id": "logistics:core/seed_oil",
+    "kind": "fluid"
+  },
+  "logistics:core/silicon_mix": {
+    "also_item_form": false,
+    "display_name": "Silicon Mix",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/silicon_mix.png",
+    "id": "logistics:core/silicon_mix",
+    "kind": "item"
+  },
+  "logistics:core/silicon_wafer": {
+    "also_item_form": false,
+    "display_name": "Silicon Wafer",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/silicon_wafer.png",
+    "id": "logistics:core/silicon_wafer",
+    "kind": "item"
+  },
+  "logistics:core/slag": {
+    "also_item_form": false,
+    "display_name": "Slag",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/slag.png",
+    "id": "logistics:core/slag",
+    "kind": "item"
+  },
+  "logistics:core/stone_gear": {
+    "also_item_form": false,
+    "display_name": "Stone Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/stone_gear.png",
+    "id": "logistics:core/stone_gear",
+    "kind": "item"
+  },
+  "logistics:core/sulfur_dust": {
+    "also_item_form": false,
+    "display_name": "Sulfur Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/sulfur_dust.png",
+    "id": "logistics:core/sulfur_dust",
+    "kind": "item"
+  },
+  "logistics:core/synthetic_polymer": {
+    "also_item_form": false,
+    "display_name": "Synthetic Polymer",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/synthetic_polymer.png",
+    "id": "logistics:core/synthetic_polymer",
+    "kind": "item"
+  },
+  "logistics:core/tar": {
+    "also_item_form": false,
+    "display_name": "Tar",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/tar.png",
+    "id": "logistics:core/tar",
+    "kind": "item"
+  },
+  "logistics:core/tin_block": {
+    "also_item_form": false,
+    "display_name": "Block of Tin",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/tin_block.png",
+    "id": "logistics:core/tin_block",
+    "kind": "item"
+  },
+  "logistics:core/tin_dust": {
+    "also_item_form": false,
+    "display_name": "Tin Dust",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/tin_dust.png",
+    "id": "logistics:core/tin_dust",
+    "kind": "item"
+  },
+  "logistics:core/tin_ingot": {
+    "also_item_form": false,
+    "display_name": "Tin Ingot",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/tin_ingot.png",
+    "id": "logistics:core/tin_ingot",
+    "kind": "item"
+  },
+  "logistics:core/tin_nugget": {
+    "also_item_form": false,
+    "display_name": "Tin Nugget",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/tin_nugget.png",
+    "id": "logistics:core/tin_nugget",
+    "kind": "item"
+  },
+  "logistics:core/tin_ore": {
+    "also_item_form": false,
+    "display_name": "Tin Ore",
+    "domain": "core",
+    "icon_path": "logistics/textures/block/core/tin_ore.png",
+    "id": "logistics:core/tin_ore",
+    "kind": "item"
+  },
+  "logistics:core/tin_valve": {
+    "also_item_form": false,
+    "display_name": "Tin Valve",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/tin_valve.png",
+    "id": "logistics:core/tin_valve",
+    "kind": "item"
+  },
+  "logistics:core/wooden_gear": {
+    "also_item_form": false,
+    "display_name": "Wooden Gear",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/wooden_gear.png",
+    "id": "logistics:core/wooden_gear",
+    "kind": "item"
+  },
+  "logistics:core/wrench": {
+    "also_item_form": false,
+    "display_name": "Wrench",
+    "domain": "core",
+    "icon_path": "logistics/textures/item/core/wrench.png",
+    "id": "logistics:core/wrench",
+    "kind": "item"
+  },
+  "logistics:pipe/active_supplier_module": {
+    "also_item_form": false,
+    "display_name": "Active Supplier Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/active_supplier_module.png",
+    "id": "logistics:pipe/active_supplier_module",
+    "kind": "item"
+  },
+  "logistics:pipe/basic_logistics_pipe": {
+    "also_item_form": false,
+    "display_name": "Basic Logistics Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/basic_logistics_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/black_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Black Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/black_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/blank_module": {
+    "also_item_form": false,
+    "display_name": "Blank Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/blank_module.png",
+    "id": "logistics:pipe/blank_module",
+    "kind": "item"
+  },
+  "logistics:pipe/blue_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Blue Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/blue_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/brown_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Brown Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/brown_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/bypass_fluid_pipe": {
+    "also_item_form": false,
+    "display_name": "Bypass Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/bypass_fluid_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/chassis_logistics_pipe_mk1": {
+    "also_item_form": false,
+    "display_name": "Chassis Logistics Pipe MkI",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/chassis_logistics_pipe_mk1",
+    "kind": "item"
+  },
+  "logistics:pipe/chassis_logistics_pipe_mk2": {
+    "also_item_form": false,
+    "display_name": "Chassis Logistics Pipe MkII",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/chassis_logistics_pipe_mk2",
+    "kind": "item"
+  },
+  "logistics:pipe/chassis_logistics_pipe_mk3": {
+    "also_item_form": false,
+    "display_name": "Chassis Logistics Pipe MkIII",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/chassis_logistics_pipe_mk3",
+    "kind": "item"
+  },
+  "logistics:pipe/chassis_logistics_pipe_mk4": {
+    "also_item_form": false,
+    "display_name": "Chassis Logistics Pipe MkIV",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/chassis_logistics_pipe_mk4",
+    "kind": "item"
+  },
+  "logistics:pipe/chassis_logistics_pipe_mk5": {
+    "also_item_form": false,
+    "display_name": "Chassis Logistics Pipe MkV",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/chassis_logistics_pipe_mk5",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe": {
+    "also_item_form": false,
+    "display_name": "Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe.exposed": {
+    "also_item_form": false,
+    "display_name": "Exposed Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe.exposed",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe.oxidized": {
+    "also_item_form": false,
+    "display_name": "Oxidized Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe.oxidized",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe.waxed": {
+    "also_item_form": false,
+    "display_name": "Waxed Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe.waxed",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe.waxed.exposed": {
+    "also_item_form": false,
+    "display_name": "Waxed Exposed Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe.waxed.exposed",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe.waxed.oxidized": {
+    "also_item_form": false,
+    "display_name": "Waxed Oxidized Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe.waxed.oxidized",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe.waxed.weathered": {
+    "also_item_form": false,
+    "display_name": "Waxed Weathered Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe.waxed.weathered",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_fluid_pipe.weathered": {
+    "also_item_form": false,
+    "display_name": "Weathered Copper Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_fluid_pipe.weathered",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe": {
+    "also_item_form": false,
+    "display_name": "Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe.exposed": {
+    "also_item_form": false,
+    "display_name": "Exposed Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe.exposed",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe.oxidized": {
+    "also_item_form": false,
+    "display_name": "Oxidized Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe.oxidized",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe.waxed": {
+    "also_item_form": false,
+    "display_name": "Waxed Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe.waxed",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe.waxed.exposed": {
+    "also_item_form": false,
+    "display_name": "Waxed Exposed Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe.waxed.exposed",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe.waxed.oxidized": {
+    "also_item_form": false,
+    "display_name": "Waxed Oxidized Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe.waxed.oxidized",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe.waxed.weathered": {
+    "also_item_form": false,
+    "display_name": "Waxed Weathered Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe.waxed.weathered",
+    "kind": "item"
+  },
+  "logistics:pipe/copper_transport_pipe.weathered": {
+    "also_item_form": false,
+    "display_name": "Weathered Copper Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/copper_transport_pipe.weathered",
+    "kind": "item"
+  },
+  "logistics:pipe/crafter_mkii_module": {
+    "also_item_form": false,
+    "display_name": "Crafter MkII Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/crafter_mkii_module.png",
+    "id": "logistics:pipe/crafter_mkii_module",
+    "kind": "item"
+  },
+  "logistics:pipe/crafter_mkiii_module": {
+    "also_item_form": false,
+    "display_name": "Crafter MkIII Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/crafter_mkiii_module.png",
+    "id": "logistics:pipe/crafter_mkiii_module",
+    "kind": "item"
+  },
+  "logistics:pipe/crafter_module": {
+    "also_item_form": false,
+    "display_name": "Crafter Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/crafter_module.png",
+    "id": "logistics:pipe/crafter_module",
+    "kind": "item"
+  },
+  "logistics:pipe/crafting_logistics_pipe": {
+    "also_item_form": false,
+    "display_name": "Crafting Logistics Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/crafting_logistics_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/cyan_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Cyan Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/cyan_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/enchantment_sink_module": {
+    "also_item_form": false,
+    "display_name": "Enchantment Sink Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/enchantment_sink_module.png",
+    "id": "logistics:pipe/enchantment_sink_module",
+    "kind": "item"
+  },
+  "logistics:pipe/extractor_module": {
+    "also_item_form": false,
+    "display_name": "Extractor Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/extractor_module.png",
+    "id": "logistics:pipe/extractor_module",
+    "kind": "item"
+  },
+  "logistics:pipe/extractor_module_mkii": {
+    "also_item_form": false,
+    "display_name": "Extractor MkII Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/extractor_module_mkii.png",
+    "id": "logistics:pipe/extractor_module_mkii",
+    "kind": "item"
+  },
+  "logistics:pipe/extractor_module_mkiii": {
+    "also_item_form": false,
+    "display_name": "Extractor MkIII Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/extractor_module_mkiii.png",
+    "id": "logistics:pipe/extractor_module_mkiii",
+    "kind": "item"
+  },
+  "logistics:pipe/fluid_extractor_pipe": {
+    "also_item_form": false,
+    "display_name": "Fluid Extractor Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/fluid_extractor_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/fluid_packet": {
+    "also_item_form": false,
+    "display_name": "Fluid Packet",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/block/pipe/fluid_packet.png",
+    "id": "logistics:pipe/fluid_packet",
+    "kind": "item"
+  },
+  "logistics:pipe/fluid_provider_module": {
+    "also_item_form": false,
+    "display_name": "Fluid Provider Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/fluid_provider_module.png",
+    "id": "logistics:pipe/fluid_provider_module",
+    "kind": "item"
+  },
+  "logistics:pipe/fluid_provider_pipe": {
+    "also_item_form": false,
+    "display_name": "Fluid Provider Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/fluid_provider_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/fluid_supplier_module": {
+    "also_item_form": false,
+    "display_name": "Fluid Supplier Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/fluid_supplier_module.png",
+    "id": "logistics:pipe/fluid_supplier_module",
+    "kind": "item"
+  },
+  "logistics:pipe/fluid_supplier_pipe": {
+    "also_item_form": false,
+    "display_name": "Fluid Supplier Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/fluid_supplier_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/glass_tank": {
+    "also_item_form": false,
+    "display_name": "Glass Tank",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/glass_tank",
+    "kind": "item"
+  },
+  "logistics:pipe/gold_fluid_pipe": {
+    "also_item_form": false,
+    "display_name": "Golden Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/gold_fluid_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/gold_transport_pipe": {
+    "also_item_form": false,
+    "display_name": "Golden Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/gold_transport_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/gray_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Gray Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/gray_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/green_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Green Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/green_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/insertion_fluid_pipe": {
+    "also_item_form": false,
+    "display_name": "Insertion Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/insertion_fluid_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/item_extractor_pipe": {
+    "also_item_form": false,
+    "display_name": "Item Extractor Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/item_extractor_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/item_filter_pipe": {
+    "also_item_form": false,
+    "display_name": "Item Filter Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/item_filter_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/item_insertion_pipe": {
+    "also_item_form": false,
+    "display_name": "Item Insertion Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/item_insertion_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/item_merger_pipe": {
+    "also_item_form": false,
+    "display_name": "Item Merger Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/item_merger_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/item_passthrough_pipe": {
+    "also_item_form": false,
+    "display_name": "Item Passthrough Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/item_passthrough_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/item_sink_module": {
+    "also_item_form": false,
+    "display_name": "ItemSink Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/item_sink_module.png",
+    "id": "logistics:pipe/item_sink_module",
+    "kind": "item"
+  },
+  "logistics:pipe/item_void_pipe": {
+    "also_item_form": false,
+    "display_name": "Item Void Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/item_void_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/light_blue_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Light Blue Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/light_blue_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/light_gray_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Light Gray Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/light_gray_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/lime_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Lime Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/lime_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/magenta_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Magenta Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/magenta_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/merger_fluid_pipe": {
+    "also_item_form": false,
+    "display_name": "Merger Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/merger_fluid_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/mod_item_sink_module": {
+    "also_item_form": false,
+    "display_name": "Mod-Based ItemSink Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/mod_item_sink_module.png",
+    "id": "logistics:pipe/mod_item_sink_module",
+    "kind": "item"
+  },
+  "logistics:pipe/orange_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Orange Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/orange_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/passive_supplier_module": {
+    "also_item_form": false,
+    "display_name": "Passive Supplier Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/passive_supplier_module.png",
+    "id": "logistics:pipe/passive_supplier_module",
+    "kind": "item"
+  },
+  "logistics:pipe/pink_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Pink Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/pink_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/polymorphic_sink_module": {
+    "also_item_form": false,
+    "display_name": "Polymorphic ItemSink Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/polymorphic_sink_module.png",
+    "id": "logistics:pipe/polymorphic_sink_module",
+    "kind": "item"
+  },
+  "logistics:pipe/power_junction": {
+    "also_item_form": false,
+    "display_name": "Power Junction",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/power_junction",
+    "kind": "item"
+  },
+  "logistics:pipe/process_logistics_pipe": {
+    "also_item_form": false,
+    "display_name": "Process Logistics Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/process_logistics_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/provider_logistics_pipe": {
+    "also_item_form": false,
+    "display_name": "Provider Logistics Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/provider_logistics_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/provider_mkii_module": {
+    "also_item_form": false,
+    "display_name": "Provider MkII Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/provider_mkii_module.png",
+    "id": "logistics:pipe/provider_mkii_module",
+    "kind": "item"
+  },
+  "logistics:pipe/provider_module": {
+    "also_item_form": false,
+    "display_name": "Provider Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/provider_module.png",
+    "id": "logistics:pipe/provider_module",
+    "kind": "item"
+  },
+  "logistics:pipe/purple_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Purple Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/purple_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/quicksort_module": {
+    "also_item_form": false,
+    "display_name": "QuickSort Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/quicksort_module.png",
+    "id": "logistics:pipe/quicksort_module",
+    "kind": "item"
+  },
+  "logistics:pipe/red_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Red Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/red_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/requester_logistics_pipe": {
+    "also_item_form": false,
+    "display_name": "Requester Logistics Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/requester_logistics_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/satellite_logistics_pipe": {
+    "also_item_form": false,
+    "display_name": "Satellite Logistics Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/satellite_logistics_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/stone_fluid_pipe": {
+    "also_item_form": false,
+    "display_name": "Stone Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/stone_fluid_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/stone_transport_pipe": {
+    "also_item_form": false,
+    "display_name": "Stone Transport Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/stone_transport_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/supplier_logistics_pipe": {
+    "also_item_form": false,
+    "display_name": "Supplier Logistics Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/supplier_logistics_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/terminus_module": {
+    "also_item_form": false,
+    "display_name": "Terminus Module",
+    "domain": "pipe",
+    "icon_path": "logistics/textures/item/pipe/terminus_module.png",
+    "id": "logistics:pipe/terminus_module",
+    "kind": "item"
+  },
+  "logistics:pipe/void_fluid_pipe": {
+    "also_item_form": false,
+    "display_name": "Void Fluid Pipe",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/void_fluid_pipe",
+    "kind": "item"
+  },
+  "logistics:pipe/white_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "White Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/white_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:pipe/yellow_marking_fluid": {
+    "also_item_form": false,
+    "display_name": "Yellow Marking Fluid",
+    "domain": "pipe",
+    "icon_path": null,
+    "id": "logistics:pipe/yellow_marking_fluid",
+    "kind": "item"
+  },
+  "logistics:power/battery": {
+    "also_item_form": false,
+    "display_name": "Battery",
+    "domain": "power",
+    "icon_path": null,
+    "id": "logistics:power/battery",
+    "kind": "item"
+  },
+  "logistics:power/copper_cable": {
+    "also_item_form": false,
+    "display_name": "Copper Cable",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/copper_cable.png",
+    "id": "logistics:power/copper_cable",
+    "kind": "item"
+  },
+  "logistics:power/creative_engine": {
+    "also_item_form": false,
+    "display_name": "Creative Engine",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/creative_engine.png",
+    "id": "logistics:power/creative_engine",
+    "kind": "item"
+  },
+  "logistics:power/creative_sink": {
+    "also_item_form": false,
+    "display_name": "Creative Sink",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/creative_sink.png",
+    "id": "logistics:power/creative_sink",
+    "kind": "item"
+  },
+  "logistics:power/ender_cable": {
+    "also_item_form": false,
+    "display_name": "Ender Cable",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/ender_cable.png",
+    "id": "logistics:power/ender_cable",
+    "kind": "item"
+  },
+  "logistics:power/fuel_engine": {
+    "also_item_form": false,
+    "display_name": "Fuel Engine",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/fuel_engine.png",
+    "id": "logistics:power/fuel_engine",
+    "kind": "item"
+  },
+  "logistics:power/gold_cable": {
+    "also_item_form": false,
+    "display_name": "Gold Cable",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/gold_cable.png",
+    "id": "logistics:power/gold_cable",
+    "kind": "item"
+  },
+  "logistics:power/magmatic_engine": {
+    "also_item_form": false,
+    "display_name": "Magmatic Engine",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/magmatic_engine.png",
+    "id": "logistics:power/magmatic_engine",
+    "kind": "item"
+  },
+  "logistics:power/reaction_engine": {
+    "also_item_form": false,
+    "display_name": "Reaction Engine",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/reaction_engine.png",
+    "id": "logistics:power/reaction_engine",
+    "kind": "item"
+  },
+  "logistics:power/steam_engine": {
+    "also_item_form": false,
+    "display_name": "Steam Engine",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/steam_engine.png",
+    "id": "logistics:power/steam_engine",
+    "kind": "item"
+  },
+  "logistics:power/stirling_engine": {
+    "also_item_form": false,
+    "display_name": "Stirling Engine",
+    "domain": "power",
+    "icon_path": "logistics/textures/block/power/stirling_engine.png",
+    "id": "logistics:power/stirling_engine",
+    "kind": "item"
+  },
+  "minecraft:acacia_boat": {
+    "also_item_form": false,
+    "display_name": "Acacia Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:acacia_boat",
+    "kind": "item"
+  },
+  "minecraft:acacia_door": {
+    "also_item_form": false,
+    "display_name": "Acacia Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:acacia_door",
+    "kind": "item"
+  },
+  "minecraft:acacia_fence": {
+    "also_item_form": false,
+    "display_name": "Acacia Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:acacia_fence",
+    "kind": "item"
+  },
+  "minecraft:acacia_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Acacia Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:acacia_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:acacia_planks": {
+    "also_item_form": false,
+    "display_name": "Acacia Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:acacia_planks",
+    "kind": "item"
+  },
+  "minecraft:acacia_stairs": {
+    "also_item_form": false,
+    "display_name": "Acacia Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:acacia_stairs",
+    "kind": "item"
+  },
+  "minecraft:allium": {
+    "also_item_form": false,
+    "display_name": "Allium",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:allium",
+    "kind": "item"
+  },
+  "minecraft:amethyst_shard": {
+    "also_item_form": false,
+    "display_name": "Amethyst Shard",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:amethyst_shard",
+    "kind": "item"
+  },
+  "minecraft:anvil": {
+    "also_item_form": false,
+    "display_name": "Anvil",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:anvil",
+    "kind": "item"
+  },
+  "minecraft:apple": {
+    "also_item_form": false,
+    "display_name": "Apple",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:apple",
+    "kind": "item"
+  },
+  "minecraft:azalea": {
+    "also_item_form": false,
+    "display_name": "Azalea",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:azalea",
+    "kind": "item"
+  },
+  "minecraft:azure_bluet": {
+    "also_item_form": false,
+    "display_name": "Azure Bluet",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:azure_bluet",
+    "kind": "item"
+  },
+  "minecraft:bamboo_door": {
+    "also_item_form": false,
+    "display_name": "Bamboo Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bamboo_door",
+    "kind": "item"
+  },
+  "minecraft:bamboo_fence": {
+    "also_item_form": false,
+    "display_name": "Bamboo Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bamboo_fence",
+    "kind": "item"
+  },
+  "minecraft:bamboo_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Bamboo Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bamboo_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:bamboo_planks": {
+    "also_item_form": false,
+    "display_name": "Bamboo Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bamboo_planks",
+    "kind": "item"
+  },
+  "minecraft:bamboo_raft": {
+    "also_item_form": false,
+    "display_name": "Bamboo Raft",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bamboo_raft",
+    "kind": "item"
+  },
+  "minecraft:bamboo_stairs": {
+    "also_item_form": false,
+    "display_name": "Bamboo Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bamboo_stairs",
+    "kind": "item"
+  },
+  "minecraft:beetroot": {
+    "also_item_form": false,
+    "display_name": "Beetroot",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:beetroot",
+    "kind": "item"
+  },
+  "minecraft:beetroot_seeds": {
+    "also_item_form": false,
+    "display_name": "Beetroot Seeds",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:beetroot_seeds",
+    "kind": "item"
+  },
+  "minecraft:big_dripleaf": {
+    "also_item_form": false,
+    "display_name": "Big Dripleaf",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:big_dripleaf",
+    "kind": "item"
+  },
+  "minecraft:birch_boat": {
+    "also_item_form": false,
+    "display_name": "Birch Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:birch_boat",
+    "kind": "item"
+  },
+  "minecraft:birch_door": {
+    "also_item_form": false,
+    "display_name": "Birch Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:birch_door",
+    "kind": "item"
+  },
+  "minecraft:birch_fence": {
+    "also_item_form": false,
+    "display_name": "Birch Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:birch_fence",
+    "kind": "item"
+  },
+  "minecraft:birch_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Birch Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:birch_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:birch_planks": {
+    "also_item_form": false,
+    "display_name": "Birch Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:birch_planks",
+    "kind": "item"
+  },
+  "minecraft:birch_stairs": {
+    "also_item_form": false,
+    "display_name": "Birch Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:birch_stairs",
+    "kind": "item"
+  },
+  "minecraft:black_concrete": {
+    "also_item_form": false,
+    "display_name": "Black Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:black_concrete",
+    "kind": "item"
+  },
+  "minecraft:black_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Black Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:black_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:black_dye": {
+    "also_item_form": false,
+    "display_name": "Black Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:black_dye",
+    "kind": "item"
+  },
+  "minecraft:black_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Black Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:black_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:blaze_powder": {
+    "also_item_form": false,
+    "display_name": "Blaze Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:blaze_powder",
+    "kind": "item"
+  },
+  "minecraft:blaze_rod": {
+    "also_item_form": false,
+    "display_name": "Blaze Rod",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:blaze_rod",
+    "kind": "item"
+  },
+  "minecraft:blue_concrete": {
+    "also_item_form": false,
+    "display_name": "Blue Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:blue_concrete",
+    "kind": "item"
+  },
+  "minecraft:blue_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Blue Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:blue_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:blue_dye": {
+    "also_item_form": false,
+    "display_name": "Blue Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:blue_dye",
+    "kind": "item"
+  },
+  "minecraft:blue_orchid": {
+    "also_item_form": false,
+    "display_name": "Blue Orchid",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:blue_orchid",
+    "kind": "item"
+  },
+  "minecraft:blue_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Blue Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:blue_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:bone": {
+    "also_item_form": false,
+    "display_name": "Bone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bone",
+    "kind": "item"
+  },
+  "minecraft:bone_meal": {
+    "also_item_form": false,
+    "display_name": "Bone Meal",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bone_meal",
+    "kind": "item"
+  },
+  "minecraft:bread": {
+    "also_item_form": false,
+    "display_name": "Bread",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bread",
+    "kind": "item"
+  },
+  "minecraft:breeze_rod": {
+    "also_item_form": false,
+    "display_name": "Breeze Rod",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:breeze_rod",
+    "kind": "item"
+  },
+  "minecraft:brick": {
+    "also_item_form": false,
+    "display_name": "Brick",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:brick",
+    "kind": "item"
+  },
+  "minecraft:bricks": {
+    "also_item_form": false,
+    "display_name": "Bricks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bricks",
+    "kind": "item"
+  },
+  "minecraft:brown_concrete": {
+    "also_item_form": false,
+    "display_name": "Brown Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:brown_concrete",
+    "kind": "item"
+  },
+  "minecraft:brown_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Brown Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:brown_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:brown_dye": {
+    "also_item_form": false,
+    "display_name": "Brown Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:brown_dye",
+    "kind": "item"
+  },
+  "minecraft:brown_mushroom": {
+    "also_item_form": false,
+    "display_name": "Brown Mushroom",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:brown_mushroom",
+    "kind": "item"
+  },
+  "minecraft:brown_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Brown Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:brown_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:bucket": {
+    "also_item_form": false,
+    "display_name": "Bucket",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bucket",
+    "kind": "item"
+  },
+  "minecraft:bush": {
+    "also_item_form": false,
+    "display_name": "Bush",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:bush",
+    "kind": "item"
+  },
+  "minecraft:cactus": {
+    "also_item_form": false,
+    "display_name": "Cactus",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cactus",
+    "kind": "item"
+  },
+  "minecraft:cactus_flower": {
+    "also_item_form": false,
+    "display_name": "Cactus Flower",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cactus_flower",
+    "kind": "item"
+  },
+  "minecraft:cake": {
+    "also_item_form": false,
+    "display_name": "Cake",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cake",
+    "kind": "item"
+  },
+  "minecraft:carrot": {
+    "also_item_form": false,
+    "display_name": "Carrot",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:carrot",
+    "kind": "item"
+  },
+  "minecraft:carved_pumpkin": {
+    "also_item_form": false,
+    "display_name": "Carved Pumpkin",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:carved_pumpkin",
+    "kind": "item"
+  },
+  "minecraft:cauldron": {
+    "also_item_form": false,
+    "display_name": "Cauldron",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cauldron",
+    "kind": "item"
+  },
+  "minecraft:charcoal": {
+    "also_item_form": false,
+    "display_name": "Charcoal",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:charcoal",
+    "kind": "item"
+  },
+  "minecraft:cherry_boat": {
+    "also_item_form": false,
+    "display_name": "Cherry Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cherry_boat",
+    "kind": "item"
+  },
+  "minecraft:cherry_door": {
+    "also_item_form": false,
+    "display_name": "Cherry Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cherry_door",
+    "kind": "item"
+  },
+  "minecraft:cherry_fence": {
+    "also_item_form": false,
+    "display_name": "Cherry Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cherry_fence",
+    "kind": "item"
+  },
+  "minecraft:cherry_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Cherry Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cherry_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:cherry_planks": {
+    "also_item_form": false,
+    "display_name": "Cherry Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cherry_planks",
+    "kind": "item"
+  },
+  "minecraft:cherry_stairs": {
+    "also_item_form": false,
+    "display_name": "Cherry Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cherry_stairs",
+    "kind": "item"
+  },
+  "minecraft:chest_minecart": {
+    "also_item_form": false,
+    "display_name": "Chest Minecart",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:chest_minecart",
+    "kind": "item"
+  },
+  "minecraft:chipped_anvil": {
+    "also_item_form": false,
+    "display_name": "Chipped Anvil",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:chipped_anvil",
+    "kind": "item"
+  },
+  "minecraft:cinnabar": {
+    "also_item_form": false,
+    "display_name": "Cinnabar",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cinnabar",
+    "kind": "item"
+  },
+  "minecraft:cinnabar_slab": {
+    "also_item_form": false,
+    "display_name": "Cinnabar Slab",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cinnabar_slab",
+    "kind": "item"
+  },
+  "minecraft:cinnabar_stairs": {
+    "also_item_form": false,
+    "display_name": "Cinnabar Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cinnabar_stairs",
+    "kind": "item"
+  },
+  "minecraft:cinnabar_wall": {
+    "also_item_form": false,
+    "display_name": "Cinnabar Wall",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cinnabar_wall",
+    "kind": "item"
+  },
+  "minecraft:clay": {
+    "also_item_form": false,
+    "display_name": "Clay",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:clay",
+    "kind": "item"
+  },
+  "minecraft:clay_ball": {
+    "also_item_form": false,
+    "display_name": "Clay Ball",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:clay_ball",
+    "kind": "item"
+  },
+  "minecraft:clock": {
+    "also_item_form": false,
+    "display_name": "Clock",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:clock",
+    "kind": "item"
+  },
+  "minecraft:coal": {
+    "also_item_form": false,
+    "display_name": "Coal",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:coal",
+    "kind": "item"
+  },
+  "minecraft:coal_ore": {
+    "also_item_form": false,
+    "display_name": "Coal Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:coal_ore",
+    "kind": "item"
+  },
+  "minecraft:cobblestone": {
+    "also_item_form": false,
+    "display_name": "Cobblestone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cobblestone",
+    "kind": "item"
+  },
+  "minecraft:cocoa_beans": {
+    "also_item_form": false,
+    "display_name": "Cocoa Beans",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cocoa_beans",
+    "kind": "item"
+  },
+  "minecraft:compass": {
+    "also_item_form": false,
+    "display_name": "Compass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:compass",
+    "kind": "item"
+  },
+  "minecraft:cookie": {
+    "also_item_form": false,
+    "display_name": "Cookie",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cookie",
+    "kind": "item"
+  },
+  "minecraft:copper_block": {
+    "also_item_form": false,
+    "display_name": "Copper Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:copper_block",
+    "kind": "item"
+  },
+  "minecraft:copper_ingot": {
+    "also_item_form": false,
+    "display_name": "Copper Ingot",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:copper_ingot",
+    "kind": "item"
+  },
+  "minecraft:copper_ore": {
+    "also_item_form": false,
+    "display_name": "Copper Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:copper_ore",
+    "kind": "item"
+  },
+  "minecraft:cornflower": {
+    "also_item_form": false,
+    "display_name": "Cornflower",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cornflower",
+    "kind": "item"
+  },
+  "minecraft:crimson_door": {
+    "also_item_form": false,
+    "display_name": "Crimson Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crimson_door",
+    "kind": "item"
+  },
+  "minecraft:crimson_fence": {
+    "also_item_form": false,
+    "display_name": "Crimson Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crimson_fence",
+    "kind": "item"
+  },
+  "minecraft:crimson_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Crimson Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crimson_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:crimson_fungus": {
+    "also_item_form": false,
+    "display_name": "Crimson Fungus",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crimson_fungus",
+    "kind": "item"
+  },
+  "minecraft:crimson_planks": {
+    "also_item_form": false,
+    "display_name": "Crimson Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crimson_planks",
+    "kind": "item"
+  },
+  "minecraft:crimson_roots": {
+    "also_item_form": false,
+    "display_name": "Crimson Roots",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crimson_roots",
+    "kind": "item"
+  },
+  "minecraft:crimson_stairs": {
+    "also_item_form": false,
+    "display_name": "Crimson Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crimson_stairs",
+    "kind": "item"
+  },
+  "minecraft:crying_obsidian": {
+    "also_item_form": false,
+    "display_name": "Crying Obsidian",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:crying_obsidian",
+    "kind": "item"
+  },
+  "minecraft:cyan_concrete": {
+    "also_item_form": false,
+    "display_name": "Cyan Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cyan_concrete",
+    "kind": "item"
+  },
+  "minecraft:cyan_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Cyan Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cyan_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:cyan_dye": {
+    "also_item_form": false,
+    "display_name": "Cyan Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cyan_dye",
+    "kind": "item"
+  },
+  "minecraft:cyan_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Cyan Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:cyan_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:damaged_anvil": {
+    "also_item_form": false,
+    "display_name": "Damaged Anvil",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:damaged_anvil",
+    "kind": "item"
+  },
+  "minecraft:dandelion": {
+    "also_item_form": false,
+    "display_name": "Dandelion",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dandelion",
+    "kind": "item"
+  },
+  "minecraft:dark_oak_boat": {
+    "also_item_form": false,
+    "display_name": "Dark Oak Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dark_oak_boat",
+    "kind": "item"
+  },
+  "minecraft:dark_oak_door": {
+    "also_item_form": false,
+    "display_name": "Dark Oak Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dark_oak_door",
+    "kind": "item"
+  },
+  "minecraft:dark_oak_fence": {
+    "also_item_form": false,
+    "display_name": "Dark Oak Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dark_oak_fence",
+    "kind": "item"
+  },
+  "minecraft:dark_oak_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Dark Oak Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dark_oak_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:dark_oak_planks": {
+    "also_item_form": false,
+    "display_name": "Dark Oak Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dark_oak_planks",
+    "kind": "item"
+  },
+  "minecraft:dark_oak_stairs": {
+    "also_item_form": false,
+    "display_name": "Dark Oak Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dark_oak_stairs",
+    "kind": "item"
+  },
+  "minecraft:deepslate_coal_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Coal Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_coal_ore",
+    "kind": "item"
+  },
+  "minecraft:deepslate_copper_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Copper Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_copper_ore",
+    "kind": "item"
+  },
+  "minecraft:deepslate_diamond_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Diamond Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_diamond_ore",
+    "kind": "item"
+  },
+  "minecraft:deepslate_emerald_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Emerald Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_emerald_ore",
+    "kind": "item"
+  },
+  "minecraft:deepslate_gold_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Gold Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_gold_ore",
+    "kind": "item"
+  },
+  "minecraft:deepslate_iron_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Iron Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_iron_ore",
+    "kind": "item"
+  },
+  "minecraft:deepslate_lapis_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Lapis Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_lapis_ore",
+    "kind": "item"
+  },
+  "minecraft:deepslate_redstone_ore": {
+    "also_item_form": false,
+    "display_name": "Deepslate Redstone Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:deepslate_redstone_ore",
+    "kind": "item"
+  },
+  "minecraft:diamond": {
+    "also_item_form": false,
+    "display_name": "Diamond",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond",
+    "kind": "item"
+  },
+  "minecraft:diamond_axe": {
+    "also_item_form": false,
+    "display_name": "Diamond Axe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_axe",
+    "kind": "item"
+  },
+  "minecraft:diamond_boots": {
+    "also_item_form": false,
+    "display_name": "Diamond Boots",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_boots",
+    "kind": "item"
+  },
+  "minecraft:diamond_chestplate": {
+    "also_item_form": false,
+    "display_name": "Diamond Chestplate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_chestplate",
+    "kind": "item"
+  },
+  "minecraft:diamond_helmet": {
+    "also_item_form": false,
+    "display_name": "Diamond Helmet",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_helmet",
+    "kind": "item"
+  },
+  "minecraft:diamond_hoe": {
+    "also_item_form": false,
+    "display_name": "Diamond Hoe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_hoe",
+    "kind": "item"
+  },
+  "minecraft:diamond_leggings": {
+    "also_item_form": false,
+    "display_name": "Diamond Leggings",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_leggings",
+    "kind": "item"
+  },
+  "minecraft:diamond_ore": {
+    "also_item_form": false,
+    "display_name": "Diamond Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_ore",
+    "kind": "item"
+  },
+  "minecraft:diamond_pickaxe": {
+    "also_item_form": false,
+    "display_name": "Diamond Pickaxe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_pickaxe",
+    "kind": "item"
+  },
+  "minecraft:diamond_shovel": {
+    "also_item_form": false,
+    "display_name": "Diamond Shovel",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_shovel",
+    "kind": "item"
+  },
+  "minecraft:diamond_sword": {
+    "also_item_form": false,
+    "display_name": "Diamond Sword",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:diamond_sword",
+    "kind": "item"
+  },
+  "minecraft:dirt": {
+    "also_item_form": false,
+    "display_name": "Dirt",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dirt",
+    "kind": "item"
+  },
+  "minecraft:dried_kelp": {
+    "also_item_form": false,
+    "display_name": "Dried Kelp",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dried_kelp",
+    "kind": "item"
+  },
+  "minecraft:dried_kelp_block": {
+    "also_item_form": false,
+    "display_name": "Dried Kelp Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:dried_kelp_block",
+    "kind": "item"
+  },
+  "minecraft:echo_shard": {
+    "also_item_form": false,
+    "display_name": "Echo Shard",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:echo_shard",
+    "kind": "item"
+  },
+  "minecraft:egg": {
+    "also_item_form": false,
+    "display_name": "Egg",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:egg",
+    "kind": "item"
+  },
+  "minecraft:emerald": {
+    "also_item_form": false,
+    "display_name": "Emerald",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:emerald",
+    "kind": "item"
+  },
+  "minecraft:emerald_ore": {
+    "also_item_form": false,
+    "display_name": "Emerald Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:emerald_ore",
+    "kind": "item"
+  },
+  "minecraft:enchanted_golden_apple": {
+    "also_item_form": false,
+    "display_name": "Enchanted Golden Apple",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:enchanted_golden_apple",
+    "kind": "item"
+  },
+  "minecraft:ender_pearl": {
+    "also_item_form": false,
+    "display_name": "Ender Pearl",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:ender_pearl",
+    "kind": "item"
+  },
+  "minecraft:fern": {
+    "also_item_form": false,
+    "display_name": "Fern",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:fern",
+    "kind": "item"
+  },
+  "minecraft:firefly_bush": {
+    "also_item_form": false,
+    "display_name": "Firefly Bush",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:firefly_bush",
+    "kind": "item"
+  },
+  "minecraft:flint": {
+    "also_item_form": false,
+    "display_name": "Flint",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:flint",
+    "kind": "item"
+  },
+  "minecraft:flower_pot": {
+    "also_item_form": false,
+    "display_name": "Flower Pot",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:flower_pot",
+    "kind": "item"
+  },
+  "minecraft:furnace_minecart": {
+    "also_item_form": false,
+    "display_name": "Furnace Minecart",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:furnace_minecart",
+    "kind": "item"
+  },
+  "minecraft:gilded_blackstone": {
+    "also_item_form": false,
+    "display_name": "Gilded Blackstone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gilded_blackstone",
+    "kind": "item"
+  },
+  "minecraft:glass": {
+    "also_item_form": false,
+    "display_name": "Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:glass",
+    "kind": "item"
+  },
+  "minecraft:glass_bottle": {
+    "also_item_form": false,
+    "display_name": "Glass Bottle",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:glass_bottle",
+    "kind": "item"
+  },
+  "minecraft:glow_berries": {
+    "also_item_form": false,
+    "display_name": "Glow Berries",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:glow_berries",
+    "kind": "item"
+  },
+  "minecraft:glow_lichen": {
+    "also_item_form": false,
+    "display_name": "Glow Lichen",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:glow_lichen",
+    "kind": "item"
+  },
+  "minecraft:glowstone": {
+    "also_item_form": false,
+    "display_name": "Glowstone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:glowstone",
+    "kind": "item"
+  },
+  "minecraft:glowstone_dust": {
+    "also_item_form": false,
+    "display_name": "Glowstone Dust",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:glowstone_dust",
+    "kind": "item"
+  },
+  "minecraft:gold_block": {
+    "also_item_form": false,
+    "display_name": "Gold Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gold_block",
+    "kind": "item"
+  },
+  "minecraft:gold_ingot": {
+    "also_item_form": false,
+    "display_name": "Gold Ingot",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gold_ingot",
+    "kind": "item"
+  },
+  "minecraft:gold_nugget": {
+    "also_item_form": false,
+    "display_name": "Gold Nugget",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gold_nugget",
+    "kind": "item"
+  },
+  "minecraft:gold_ore": {
+    "also_item_form": false,
+    "display_name": "Gold Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gold_ore",
+    "kind": "item"
+  },
+  "minecraft:golden_axe": {
+    "also_item_form": false,
+    "display_name": "Golden Axe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_axe",
+    "kind": "item"
+  },
+  "minecraft:golden_boots": {
+    "also_item_form": false,
+    "display_name": "Golden Boots",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_boots",
+    "kind": "item"
+  },
+  "minecraft:golden_chestplate": {
+    "also_item_form": false,
+    "display_name": "Golden Chestplate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_chestplate",
+    "kind": "item"
+  },
+  "minecraft:golden_helmet": {
+    "also_item_form": false,
+    "display_name": "Golden Helmet",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_helmet",
+    "kind": "item"
+  },
+  "minecraft:golden_hoe": {
+    "also_item_form": false,
+    "display_name": "Golden Hoe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_hoe",
+    "kind": "item"
+  },
+  "minecraft:golden_horse_armor": {
+    "also_item_form": false,
+    "display_name": "Golden Horse Armor",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_horse_armor",
+    "kind": "item"
+  },
+  "minecraft:golden_leggings": {
+    "also_item_form": false,
+    "display_name": "Golden Leggings",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_leggings",
+    "kind": "item"
+  },
+  "minecraft:golden_pickaxe": {
+    "also_item_form": false,
+    "display_name": "Golden Pickaxe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_pickaxe",
+    "kind": "item"
+  },
+  "minecraft:golden_shovel": {
+    "also_item_form": false,
+    "display_name": "Golden Shovel",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_shovel",
+    "kind": "item"
+  },
+  "minecraft:golden_sword": {
+    "also_item_form": false,
+    "display_name": "Golden Sword",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:golden_sword",
+    "kind": "item"
+  },
+  "minecraft:gravel": {
+    "also_item_form": false,
+    "display_name": "Gravel",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gravel",
+    "kind": "item"
+  },
+  "minecraft:gray_concrete": {
+    "also_item_form": false,
+    "display_name": "Gray Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gray_concrete",
+    "kind": "item"
+  },
+  "minecraft:gray_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Gray Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gray_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:gray_dye": {
+    "also_item_form": false,
+    "display_name": "Gray Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gray_dye",
+    "kind": "item"
+  },
+  "minecraft:gray_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Gray Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gray_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:green_concrete": {
+    "also_item_form": false,
+    "display_name": "Green Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:green_concrete",
+    "kind": "item"
+  },
+  "minecraft:green_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Green Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:green_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:green_dye": {
+    "also_item_form": false,
+    "display_name": "Green Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:green_dye",
+    "kind": "item"
+  },
+  "minecraft:green_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Green Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:green_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:gunpowder": {
+    "also_item_form": false,
+    "display_name": "Gunpowder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:gunpowder",
+    "kind": "item"
+  },
+  "minecraft:hanging_roots": {
+    "also_item_form": false,
+    "display_name": "Hanging Roots",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:hanging_roots",
+    "kind": "item"
+  },
+  "minecraft:heavy_core": {
+    "also_item_form": false,
+    "display_name": "Heavy Core",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:heavy_core",
+    "kind": "item"
+  },
+  "minecraft:heavy_weighted_pressure_plate": {
+    "also_item_form": false,
+    "display_name": "Heavy Weighted Pressure Plate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:heavy_weighted_pressure_plate",
+    "kind": "item"
+  },
+  "minecraft:hopper": {
+    "also_item_form": false,
+    "display_name": "Hopper",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:hopper",
+    "kind": "item"
+  },
+  "minecraft:hopper_minecart": {
+    "also_item_form": false,
+    "display_name": "Hopper Minecart",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:hopper_minecart",
+    "kind": "item"
+  },
+  "minecraft:ice": {
+    "also_item_form": false,
+    "display_name": "Ice",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:ice",
+    "kind": "item"
+  },
+  "minecraft:iron_axe": {
+    "also_item_form": false,
+    "display_name": "Iron Axe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_axe",
+    "kind": "item"
+  },
+  "minecraft:iron_bars": {
+    "also_item_form": false,
+    "display_name": "Iron Bars",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_bars",
+    "kind": "item"
+  },
+  "minecraft:iron_block": {
+    "also_item_form": false,
+    "display_name": "Iron Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_block",
+    "kind": "item"
+  },
+  "minecraft:iron_boots": {
+    "also_item_form": false,
+    "display_name": "Iron Boots",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_boots",
+    "kind": "item"
+  },
+  "minecraft:iron_chestplate": {
+    "also_item_form": false,
+    "display_name": "Iron Chestplate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_chestplate",
+    "kind": "item"
+  },
+  "minecraft:iron_door": {
+    "also_item_form": false,
+    "display_name": "Iron Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_door",
+    "kind": "item"
+  },
+  "minecraft:iron_helmet": {
+    "also_item_form": false,
+    "display_name": "Iron Helmet",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_helmet",
+    "kind": "item"
+  },
+  "minecraft:iron_hoe": {
+    "also_item_form": false,
+    "display_name": "Iron Hoe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_hoe",
+    "kind": "item"
+  },
+  "minecraft:iron_horse_armor": {
+    "also_item_form": false,
+    "display_name": "Iron Horse Armor",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_horse_armor",
+    "kind": "item"
+  },
+  "minecraft:iron_ingot": {
+    "also_item_form": false,
+    "display_name": "Iron Ingot",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_ingot",
+    "kind": "item"
+  },
+  "minecraft:iron_leggings": {
+    "also_item_form": false,
+    "display_name": "Iron Leggings",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_leggings",
+    "kind": "item"
+  },
+  "minecraft:iron_nugget": {
+    "also_item_form": false,
+    "display_name": "Iron Nugget",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_nugget",
+    "kind": "item"
+  },
+  "minecraft:iron_ore": {
+    "also_item_form": false,
+    "display_name": "Iron Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_ore",
+    "kind": "item"
+  },
+  "minecraft:iron_pickaxe": {
+    "also_item_form": false,
+    "display_name": "Iron Pickaxe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_pickaxe",
+    "kind": "item"
+  },
+  "minecraft:iron_shovel": {
+    "also_item_form": false,
+    "display_name": "Iron Shovel",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_shovel",
+    "kind": "item"
+  },
+  "minecraft:iron_sword": {
+    "also_item_form": false,
+    "display_name": "Iron Sword",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_sword",
+    "kind": "item"
+  },
+  "minecraft:iron_trapdoor": {
+    "also_item_form": false,
+    "display_name": "Iron Trapdoor",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:iron_trapdoor",
+    "kind": "item"
+  },
+  "minecraft:jukebox": {
+    "also_item_form": false,
+    "display_name": "Jukebox",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:jukebox",
+    "kind": "item"
+  },
+  "minecraft:jungle_boat": {
+    "also_item_form": false,
+    "display_name": "Jungle Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:jungle_boat",
+    "kind": "item"
+  },
+  "minecraft:jungle_door": {
+    "also_item_form": false,
+    "display_name": "Jungle Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:jungle_door",
+    "kind": "item"
+  },
+  "minecraft:jungle_fence": {
+    "also_item_form": false,
+    "display_name": "Jungle Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:jungle_fence",
+    "kind": "item"
+  },
+  "minecraft:jungle_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Jungle Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:jungle_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:jungle_planks": {
+    "also_item_form": false,
+    "display_name": "Jungle Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:jungle_planks",
+    "kind": "item"
+  },
+  "minecraft:jungle_stairs": {
+    "also_item_form": false,
+    "display_name": "Jungle Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:jungle_stairs",
+    "kind": "item"
+  },
+  "minecraft:kelp": {
+    "also_item_form": false,
+    "display_name": "Kelp",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:kelp",
+    "kind": "item"
+  },
+  "minecraft:lapis_lazuli": {
+    "also_item_form": false,
+    "display_name": "Lapis Lazuli",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lapis_lazuli",
+    "kind": "item"
+  },
+  "minecraft:lapis_ore": {
+    "also_item_form": false,
+    "display_name": "Lapis Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lapis_ore",
+    "kind": "item"
+  },
+  "minecraft:large_fern": {
+    "also_item_form": false,
+    "display_name": "Large Fern",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:large_fern",
+    "kind": "item"
+  },
+  "minecraft:lava": {
+    "also_item_form": false,
+    "display_name": "Lava",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lava",
+    "kind": "fluid"
+  },
+  "minecraft:lava_bucket": {
+    "also_item_form": false,
+    "display_name": "Lava Bucket",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lava_bucket",
+    "kind": "item"
+  },
+  "minecraft:lead": {
+    "also_item_form": false,
+    "display_name": "Lead",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lead",
+    "kind": "item"
+  },
+  "minecraft:leaf_litter": {
+    "also_item_form": false,
+    "display_name": "Leaf Litter",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:leaf_litter",
+    "kind": "item"
+  },
+  "minecraft:light_blue_concrete": {
+    "also_item_form": false,
+    "display_name": "Light Blue Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_blue_concrete",
+    "kind": "item"
+  },
+  "minecraft:light_blue_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Light Blue Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_blue_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:light_blue_dye": {
+    "also_item_form": false,
+    "display_name": "Light Blue Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_blue_dye",
+    "kind": "item"
+  },
+  "minecraft:light_blue_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Light Blue Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_blue_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:light_gray_concrete": {
+    "also_item_form": false,
+    "display_name": "Light Gray Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_gray_concrete",
+    "kind": "item"
+  },
+  "minecraft:light_gray_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Light Gray Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_gray_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:light_gray_dye": {
+    "also_item_form": false,
+    "display_name": "Light Gray Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_gray_dye",
+    "kind": "item"
+  },
+  "minecraft:light_gray_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Light Gray Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_gray_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:light_weighted_pressure_plate": {
+    "also_item_form": false,
+    "display_name": "Light Weighted Pressure Plate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:light_weighted_pressure_plate",
+    "kind": "item"
+  },
+  "minecraft:lilac": {
+    "also_item_form": false,
+    "display_name": "Lilac",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lilac",
+    "kind": "item"
+  },
+  "minecraft:lily_of_the_valley": {
+    "also_item_form": false,
+    "display_name": "Lily Of The Valley",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lily_of_the_valley",
+    "kind": "item"
+  },
+  "minecraft:lily_pad": {
+    "also_item_form": false,
+    "display_name": "Lily Pad",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lily_pad",
+    "kind": "item"
+  },
+  "minecraft:lime_concrete": {
+    "also_item_form": false,
+    "display_name": "Lime Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lime_concrete",
+    "kind": "item"
+  },
+  "minecraft:lime_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Lime Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lime_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:lime_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Lime Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:lime_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:magenta_concrete": {
+    "also_item_form": false,
+    "display_name": "Magenta Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:magenta_concrete",
+    "kind": "item"
+  },
+  "minecraft:magenta_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Magenta Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:magenta_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:magenta_dye": {
+    "also_item_form": false,
+    "display_name": "Magenta Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:magenta_dye",
+    "kind": "item"
+  },
+  "minecraft:magenta_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Magenta Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:magenta_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:magma_block": {
+    "also_item_form": false,
+    "display_name": "Magma Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:magma_block",
+    "kind": "item"
+  },
+  "minecraft:magma_cream": {
+    "also_item_form": false,
+    "display_name": "Magma Cream",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:magma_cream",
+    "kind": "item"
+  },
+  "minecraft:mangrove_boat": {
+    "also_item_form": false,
+    "display_name": "Mangrove Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mangrove_boat",
+    "kind": "item"
+  },
+  "minecraft:mangrove_door": {
+    "also_item_form": false,
+    "display_name": "Mangrove Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mangrove_door",
+    "kind": "item"
+  },
+  "minecraft:mangrove_fence": {
+    "also_item_form": false,
+    "display_name": "Mangrove Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mangrove_fence",
+    "kind": "item"
+  },
+  "minecraft:mangrove_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Mangrove Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mangrove_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:mangrove_planks": {
+    "also_item_form": false,
+    "display_name": "Mangrove Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mangrove_planks",
+    "kind": "item"
+  },
+  "minecraft:mangrove_roots": {
+    "also_item_form": false,
+    "display_name": "Mangrove Roots",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mangrove_roots",
+    "kind": "item"
+  },
+  "minecraft:mangrove_stairs": {
+    "also_item_form": false,
+    "display_name": "Mangrove Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mangrove_stairs",
+    "kind": "item"
+  },
+  "minecraft:melon": {
+    "also_item_form": false,
+    "display_name": "Melon",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:melon",
+    "kind": "item"
+  },
+  "minecraft:melon_seeds": {
+    "also_item_form": false,
+    "display_name": "Melon Seeds",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:melon_seeds",
+    "kind": "item"
+  },
+  "minecraft:melon_slice": {
+    "also_item_form": false,
+    "display_name": "Melon Slice",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:melon_slice",
+    "kind": "item"
+  },
+  "minecraft:milk_bucket": {
+    "also_item_form": false,
+    "display_name": "Milk Bucket",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:milk_bucket",
+    "kind": "item"
+  },
+  "minecraft:minecart": {
+    "also_item_form": false,
+    "display_name": "Minecart",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:minecart",
+    "kind": "item"
+  },
+  "minecraft:moss_block": {
+    "also_item_form": false,
+    "display_name": "Moss Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:moss_block",
+    "kind": "item"
+  },
+  "minecraft:moss_carpet": {
+    "also_item_form": false,
+    "display_name": "Moss Carpet",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:moss_carpet",
+    "kind": "item"
+  },
+  "minecraft:mossy_cobblestone": {
+    "also_item_form": false,
+    "display_name": "Mossy Cobblestone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mossy_cobblestone",
+    "kind": "item"
+  },
+  "minecraft:mossy_stone_bricks": {
+    "also_item_form": false,
+    "display_name": "Mossy Stone Bricks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mossy_stone_bricks",
+    "kind": "item"
+  },
+  "minecraft:mushroom_stem": {
+    "also_item_form": false,
+    "display_name": "Mushroom Stem",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:mushroom_stem",
+    "kind": "item"
+  },
+  "minecraft:nether_brick": {
+    "also_item_form": false,
+    "display_name": "Nether Brick",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:nether_brick",
+    "kind": "item"
+  },
+  "minecraft:nether_bricks": {
+    "also_item_form": false,
+    "display_name": "Nether Bricks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:nether_bricks",
+    "kind": "item"
+  },
+  "minecraft:nether_gold_ore": {
+    "also_item_form": false,
+    "display_name": "Nether Gold Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:nether_gold_ore",
+    "kind": "item"
+  },
+  "minecraft:nether_quartz_ore": {
+    "also_item_form": false,
+    "display_name": "Nether Quartz Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:nether_quartz_ore",
+    "kind": "item"
+  },
+  "minecraft:nether_sprouts": {
+    "also_item_form": false,
+    "display_name": "Nether Sprouts",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:nether_sprouts",
+    "kind": "item"
+  },
+  "minecraft:nether_wart": {
+    "also_item_form": false,
+    "display_name": "Nether Wart",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:nether_wart",
+    "kind": "item"
+  },
+  "minecraft:netherite_ingot": {
+    "also_item_form": false,
+    "display_name": "Netherite Ingot",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:netherite_ingot",
+    "kind": "item"
+  },
+  "minecraft:netherrack": {
+    "also_item_form": false,
+    "display_name": "Netherrack",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:netherrack",
+    "kind": "item"
+  },
+  "minecraft:note_block": {
+    "also_item_form": false,
+    "display_name": "Note Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:note_block",
+    "kind": "item"
+  },
+  "minecraft:oak_boat": {
+    "also_item_form": false,
+    "display_name": "Oak Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:oak_boat",
+    "kind": "item"
+  },
+  "minecraft:oak_door": {
+    "also_item_form": false,
+    "display_name": "Oak Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:oak_door",
+    "kind": "item"
+  },
+  "minecraft:oak_fence": {
+    "also_item_form": false,
+    "display_name": "Oak Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:oak_fence",
+    "kind": "item"
+  },
+  "minecraft:oak_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Oak Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:oak_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:oak_planks": {
+    "also_item_form": false,
+    "display_name": "Oak Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:oak_planks",
+    "kind": "item"
+  },
+  "minecraft:oak_stairs": {
+    "also_item_form": false,
+    "display_name": "Oak Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:oak_stairs",
+    "kind": "item"
+  },
+  "minecraft:obsidian": {
+    "also_item_form": false,
+    "display_name": "Obsidian",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:obsidian",
+    "kind": "item"
+  },
+  "minecraft:orange_concrete": {
+    "also_item_form": false,
+    "display_name": "Orange Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:orange_concrete",
+    "kind": "item"
+  },
+  "minecraft:orange_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Orange Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:orange_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:orange_dye": {
+    "also_item_form": false,
+    "display_name": "Orange Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:orange_dye",
+    "kind": "item"
+  },
+  "minecraft:orange_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Orange Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:orange_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:orange_tulip": {
+    "also_item_form": false,
+    "display_name": "Orange Tulip",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:orange_tulip",
+    "kind": "item"
+  },
+  "minecraft:oxeye_daisy": {
+    "also_item_form": false,
+    "display_name": "Oxeye Daisy",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:oxeye_daisy",
+    "kind": "item"
+  },
+  "minecraft:pale_hanging_moss": {
+    "also_item_form": false,
+    "display_name": "Pale Hanging Moss",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_hanging_moss",
+    "kind": "item"
+  },
+  "minecraft:pale_moss_block": {
+    "also_item_form": false,
+    "display_name": "Pale Moss Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_moss_block",
+    "kind": "item"
+  },
+  "minecraft:pale_moss_carpet": {
+    "also_item_form": false,
+    "display_name": "Pale Moss Carpet",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_moss_carpet",
+    "kind": "item"
+  },
+  "minecraft:pale_oak_boat": {
+    "also_item_form": false,
+    "display_name": "Pale Oak Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_oak_boat",
+    "kind": "item"
+  },
+  "minecraft:pale_oak_door": {
+    "also_item_form": false,
+    "display_name": "Pale Oak Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_oak_door",
+    "kind": "item"
+  },
+  "minecraft:pale_oak_fence": {
+    "also_item_form": false,
+    "display_name": "Pale Oak Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_oak_fence",
+    "kind": "item"
+  },
+  "minecraft:pale_oak_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Pale Oak Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_oak_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:pale_oak_planks": {
+    "also_item_form": false,
+    "display_name": "Pale Oak Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_oak_planks",
+    "kind": "item"
+  },
+  "minecraft:pale_oak_stairs": {
+    "also_item_form": false,
+    "display_name": "Pale Oak Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pale_oak_stairs",
+    "kind": "item"
+  },
+  "minecraft:paper": {
+    "also_item_form": false,
+    "display_name": "Paper",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:paper",
+    "kind": "item"
+  },
+  "minecraft:peony": {
+    "also_item_form": false,
+    "display_name": "Peony",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:peony",
+    "kind": "item"
+  },
+  "minecraft:pink_concrete": {
+    "also_item_form": false,
+    "display_name": "Pink Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pink_concrete",
+    "kind": "item"
+  },
+  "minecraft:pink_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Pink Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pink_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:pink_dye": {
+    "also_item_form": false,
+    "display_name": "Pink Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pink_dye",
+    "kind": "item"
+  },
+  "minecraft:pink_petals": {
+    "also_item_form": false,
+    "display_name": "Pink Petals",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pink_petals",
+    "kind": "item"
+  },
+  "minecraft:pink_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Pink Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pink_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:pink_tulip": {
+    "also_item_form": false,
+    "display_name": "Pink Tulip",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pink_tulip",
+    "kind": "item"
+  },
+  "minecraft:piston": {
+    "also_item_form": false,
+    "display_name": "Piston",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:piston",
+    "kind": "item"
+  },
+  "minecraft:pitcher_plant": {
+    "also_item_form": false,
+    "display_name": "Pitcher Plant",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pitcher_plant",
+    "kind": "item"
+  },
+  "minecraft:polished_cinnabar": {
+    "also_item_form": false,
+    "display_name": "Polished Cinnabar",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:polished_cinnabar",
+    "kind": "item"
+  },
+  "minecraft:polished_sulfur": {
+    "also_item_form": false,
+    "display_name": "Polished Sulfur",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:polished_sulfur",
+    "kind": "item"
+  },
+  "minecraft:poppy": {
+    "also_item_form": false,
+    "display_name": "Poppy",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:poppy",
+    "kind": "item"
+  },
+  "minecraft:potato": {
+    "also_item_form": false,
+    "display_name": "Potato",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:potato",
+    "kind": "item"
+  },
+  "minecraft:powered_rail": {
+    "also_item_form": false,
+    "display_name": "Powered Rail",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:powered_rail",
+    "kind": "item"
+  },
+  "minecraft:prismarine": {
+    "also_item_form": false,
+    "display_name": "Prismarine",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:prismarine",
+    "kind": "item"
+  },
+  "minecraft:prismarine_bricks": {
+    "also_item_form": false,
+    "display_name": "Prismarine Bricks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:prismarine_bricks",
+    "kind": "item"
+  },
+  "minecraft:prismarine_shard": {
+    "also_item_form": false,
+    "display_name": "Prismarine Shard",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:prismarine_shard",
+    "kind": "item"
+  },
+  "minecraft:pumpkin": {
+    "also_item_form": false,
+    "display_name": "Pumpkin",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pumpkin",
+    "kind": "item"
+  },
+  "minecraft:pumpkin_seeds": {
+    "also_item_form": false,
+    "display_name": "Pumpkin Seeds",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:pumpkin_seeds",
+    "kind": "item"
+  },
+  "minecraft:purple_concrete": {
+    "also_item_form": false,
+    "display_name": "Purple Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:purple_concrete",
+    "kind": "item"
+  },
+  "minecraft:purple_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Purple Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:purple_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:purple_dye": {
+    "also_item_form": false,
+    "display_name": "Purple Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:purple_dye",
+    "kind": "item"
+  },
+  "minecraft:purple_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Purple Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:purple_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:quartz": {
+    "also_item_form": false,
+    "display_name": "Quartz",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:quartz",
+    "kind": "item"
+  },
+  "minecraft:quartz_block": {
+    "also_item_form": false,
+    "display_name": "Quartz Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:quartz_block",
+    "kind": "item"
+  },
+  "minecraft:rail": {
+    "also_item_form": false,
+    "display_name": "Rail",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:rail",
+    "kind": "item"
+  },
+  "minecraft:raw_copper_block": {
+    "also_item_form": false,
+    "display_name": "Raw Copper Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:raw_copper_block",
+    "kind": "item"
+  },
+  "minecraft:raw_gold_block": {
+    "also_item_form": false,
+    "display_name": "Raw Gold Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:raw_gold_block",
+    "kind": "item"
+  },
+  "minecraft:raw_iron_block": {
+    "also_item_form": false,
+    "display_name": "Raw Iron Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:raw_iron_block",
+    "kind": "item"
+  },
+  "minecraft:red_concrete": {
+    "also_item_form": false,
+    "display_name": "Red Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_concrete",
+    "kind": "item"
+  },
+  "minecraft:red_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Red Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:red_dye": {
+    "also_item_form": false,
+    "display_name": "Red Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_dye",
+    "kind": "item"
+  },
+  "minecraft:red_mushroom": {
+    "also_item_form": false,
+    "display_name": "Red Mushroom",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_mushroom",
+    "kind": "item"
+  },
+  "minecraft:red_sand": {
+    "also_item_form": false,
+    "display_name": "Red Sand",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_sand",
+    "kind": "item"
+  },
+  "minecraft:red_sandstone": {
+    "also_item_form": false,
+    "display_name": "Red Sandstone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_sandstone",
+    "kind": "item"
+  },
+  "minecraft:red_sandstone_slab": {
+    "also_item_form": false,
+    "display_name": "Red Sandstone Slab",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_sandstone_slab",
+    "kind": "item"
+  },
+  "minecraft:red_sandstone_stairs": {
+    "also_item_form": false,
+    "display_name": "Red Sandstone Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_sandstone_stairs",
+    "kind": "item"
+  },
+  "minecraft:red_sandstone_wall": {
+    "also_item_form": false,
+    "display_name": "Red Sandstone Wall",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_sandstone_wall",
+    "kind": "item"
+  },
+  "minecraft:red_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Red Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:red_tulip": {
+    "also_item_form": false,
+    "display_name": "Red Tulip",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:red_tulip",
+    "kind": "item"
+  },
+  "minecraft:redstone": {
+    "also_item_form": false,
+    "display_name": "Redstone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:redstone",
+    "kind": "item"
+  },
+  "minecraft:redstone_block": {
+    "also_item_form": false,
+    "display_name": "Redstone Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:redstone_block",
+    "kind": "item"
+  },
+  "minecraft:redstone_ore": {
+    "also_item_form": false,
+    "display_name": "Redstone Ore",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:redstone_ore",
+    "kind": "item"
+  },
+  "minecraft:redstone_torch": {
+    "also_item_form": false,
+    "display_name": "Redstone Torch",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:redstone_torch",
+    "kind": "item"
+  },
+  "minecraft:rose_bush": {
+    "also_item_form": false,
+    "display_name": "Rose Bush",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:rose_bush",
+    "kind": "item"
+  },
+  "minecraft:sand": {
+    "also_item_form": false,
+    "display_name": "Sand",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sand",
+    "kind": "item"
+  },
+  "minecraft:sandstone": {
+    "also_item_form": false,
+    "display_name": "Sandstone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sandstone",
+    "kind": "item"
+  },
+  "minecraft:sandstone_slab": {
+    "also_item_form": false,
+    "display_name": "Sandstone Slab",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sandstone_slab",
+    "kind": "item"
+  },
+  "minecraft:sandstone_stairs": {
+    "also_item_form": false,
+    "display_name": "Sandstone Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sandstone_stairs",
+    "kind": "item"
+  },
+  "minecraft:sandstone_wall": {
+    "also_item_form": false,
+    "display_name": "Sandstone Wall",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sandstone_wall",
+    "kind": "item"
+  },
+  "minecraft:sea_pickle": {
+    "also_item_form": false,
+    "display_name": "Sea Pickle",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sea_pickle",
+    "kind": "item"
+  },
+  "minecraft:seagrass": {
+    "also_item_form": false,
+    "display_name": "Seagrass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:seagrass",
+    "kind": "item"
+  },
+  "minecraft:shears": {
+    "also_item_form": false,
+    "display_name": "Shears",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:shears",
+    "kind": "item"
+  },
+  "minecraft:short_dry_grass": {
+    "also_item_form": false,
+    "display_name": "Short Dry Grass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:short_dry_grass",
+    "kind": "item"
+  },
+  "minecraft:short_grass": {
+    "also_item_form": false,
+    "display_name": "Short Grass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:short_grass",
+    "kind": "item"
+  },
+  "minecraft:shroomlight": {
+    "also_item_form": false,
+    "display_name": "Shroomlight",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:shroomlight",
+    "kind": "item"
+  },
+  "minecraft:slime_ball": {
+    "also_item_form": false,
+    "display_name": "Slime Ball",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:slime_ball",
+    "kind": "item"
+  },
+  "minecraft:small_dripleaf": {
+    "also_item_form": false,
+    "display_name": "Small Dripleaf",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:small_dripleaf",
+    "kind": "item"
+  },
+  "minecraft:snow_block": {
+    "also_item_form": false,
+    "display_name": "Snow Block",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:snow_block",
+    "kind": "item"
+  },
+  "minecraft:snowball": {
+    "also_item_form": false,
+    "display_name": "Snowball",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:snowball",
+    "kind": "item"
+  },
+  "minecraft:soul_sand": {
+    "also_item_form": false,
+    "display_name": "Soul Sand",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:soul_sand",
+    "kind": "item"
+  },
+  "minecraft:sponge": {
+    "also_item_form": false,
+    "display_name": "Sponge",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sponge",
+    "kind": "item"
+  },
+  "minecraft:spore_blossom": {
+    "also_item_form": false,
+    "display_name": "Spore Blossom",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:spore_blossom",
+    "kind": "item"
+  },
+  "minecraft:spruce_boat": {
+    "also_item_form": false,
+    "display_name": "Spruce Boat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:spruce_boat",
+    "kind": "item"
+  },
+  "minecraft:spruce_door": {
+    "also_item_form": false,
+    "display_name": "Spruce Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:spruce_door",
+    "kind": "item"
+  },
+  "minecraft:spruce_fence": {
+    "also_item_form": false,
+    "display_name": "Spruce Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:spruce_fence",
+    "kind": "item"
+  },
+  "minecraft:spruce_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Spruce Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:spruce_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:spruce_planks": {
+    "also_item_form": false,
+    "display_name": "Spruce Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:spruce_planks",
+    "kind": "item"
+  },
+  "minecraft:spruce_stairs": {
+    "also_item_form": false,
+    "display_name": "Spruce Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:spruce_stairs",
+    "kind": "item"
+  },
+  "minecraft:stick": {
+    "also_item_form": false,
+    "display_name": "Stick",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:stick",
+    "kind": "item"
+  },
+  "minecraft:sticky_piston": {
+    "also_item_form": false,
+    "display_name": "Sticky Piston",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sticky_piston",
+    "kind": "item"
+  },
+  "minecraft:stone": {
+    "also_item_form": false,
+    "display_name": "Stone",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:stone",
+    "kind": "item"
+  },
+  "minecraft:stone_bricks": {
+    "also_item_form": false,
+    "display_name": "Stone Bricks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:stone_bricks",
+    "kind": "item"
+  },
+  "minecraft:string": {
+    "also_item_form": false,
+    "display_name": "String",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:string",
+    "kind": "item"
+  },
+  "minecraft:sugar": {
+    "also_item_form": false,
+    "display_name": "Sugar",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sugar",
+    "kind": "item"
+  },
+  "minecraft:sugar_cane": {
+    "also_item_form": false,
+    "display_name": "Sugar Cane",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sugar_cane",
+    "kind": "item"
+  },
+  "minecraft:sulfur": {
+    "also_item_form": false,
+    "display_name": "Sulfur",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sulfur",
+    "kind": "item"
+  },
+  "minecraft:sulfur_slab": {
+    "also_item_form": false,
+    "display_name": "Sulfur Slab",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sulfur_slab",
+    "kind": "item"
+  },
+  "minecraft:sulfur_spike": {
+    "also_item_form": false,
+    "display_name": "Sulfur Spike",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sulfur_spike",
+    "kind": "item"
+  },
+  "minecraft:sulfur_stairs": {
+    "also_item_form": false,
+    "display_name": "Sulfur Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sulfur_stairs",
+    "kind": "item"
+  },
+  "minecraft:sulfur_wall": {
+    "also_item_form": false,
+    "display_name": "Sulfur Wall",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sulfur_wall",
+    "kind": "item"
+  },
+  "minecraft:sunflower": {
+    "also_item_form": false,
+    "display_name": "Sunflower",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sunflower",
+    "kind": "item"
+  },
+  "minecraft:sweet_berries": {
+    "also_item_form": false,
+    "display_name": "Sweet Berries",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:sweet_berries",
+    "kind": "item"
+  },
+  "minecraft:tall_dry_grass": {
+    "also_item_form": false,
+    "display_name": "Tall Dry Grass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:tall_dry_grass",
+    "kind": "item"
+  },
+  "minecraft:tall_grass": {
+    "also_item_form": false,
+    "display_name": "Tall Grass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:tall_grass",
+    "kind": "item"
+  },
+  "minecraft:terracotta": {
+    "also_item_form": false,
+    "display_name": "Terracotta",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:terracotta",
+    "kind": "item"
+  },
+  "minecraft:torch": {
+    "also_item_form": false,
+    "display_name": "Torch",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:torch",
+    "kind": "item"
+  },
+  "minecraft:torchflower": {
+    "also_item_form": false,
+    "display_name": "Torchflower",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:torchflower",
+    "kind": "item"
+  },
+  "minecraft:torchflower_seeds": {
+    "also_item_form": false,
+    "display_name": "Torchflower Seeds",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:torchflower_seeds",
+    "kind": "item"
+  },
+  "minecraft:twisting_vines": {
+    "also_item_form": false,
+    "display_name": "Twisting Vines",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:twisting_vines",
+    "kind": "item"
+  },
+  "minecraft:vine": {
+    "also_item_form": false,
+    "display_name": "Vine",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:vine",
+    "kind": "item"
+  },
+  "minecraft:warped_door": {
+    "also_item_form": false,
+    "display_name": "Warped Door",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:warped_door",
+    "kind": "item"
+  },
+  "minecraft:warped_fence": {
+    "also_item_form": false,
+    "display_name": "Warped Fence",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:warped_fence",
+    "kind": "item"
+  },
+  "minecraft:warped_fence_gate": {
+    "also_item_form": false,
+    "display_name": "Warped Fence Gate",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:warped_fence_gate",
+    "kind": "item"
+  },
+  "minecraft:warped_fungus": {
+    "also_item_form": false,
+    "display_name": "Warped Fungus",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:warped_fungus",
+    "kind": "item"
+  },
+  "minecraft:warped_planks": {
+    "also_item_form": false,
+    "display_name": "Warped Planks",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:warped_planks",
+    "kind": "item"
+  },
+  "minecraft:warped_roots": {
+    "also_item_form": false,
+    "display_name": "Warped Roots",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:warped_roots",
+    "kind": "item"
+  },
+  "minecraft:warped_stairs": {
+    "also_item_form": false,
+    "display_name": "Warped Stairs",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:warped_stairs",
+    "kind": "item"
+  },
+  "minecraft:water": {
+    "also_item_form": false,
+    "display_name": "Water",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:water",
+    "kind": "fluid"
+  },
+  "minecraft:water_bucket": {
+    "also_item_form": false,
+    "display_name": "Water Bucket",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:water_bucket",
+    "kind": "item"
+  },
+  "minecraft:weeping_vines": {
+    "also_item_form": false,
+    "display_name": "Weeping Vines",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:weeping_vines",
+    "kind": "item"
+  },
+  "minecraft:wet_sponge": {
+    "also_item_form": false,
+    "display_name": "Wet Sponge",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wet_sponge",
+    "kind": "item"
+  },
+  "minecraft:wheat": {
+    "also_item_form": false,
+    "display_name": "Wheat",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wheat",
+    "kind": "item"
+  },
+  "minecraft:wheat_seeds": {
+    "also_item_form": false,
+    "display_name": "Wheat Seeds",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wheat_seeds",
+    "kind": "item"
+  },
+  "minecraft:white_concrete": {
+    "also_item_form": false,
+    "display_name": "White Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:white_concrete",
+    "kind": "item"
+  },
+  "minecraft:white_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "White Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:white_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:white_dye": {
+    "also_item_form": false,
+    "display_name": "White Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:white_dye",
+    "kind": "item"
+  },
+  "minecraft:white_stained_glass": {
+    "also_item_form": false,
+    "display_name": "White Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:white_stained_glass",
+    "kind": "item"
+  },
+  "minecraft:white_tulip": {
+    "also_item_form": false,
+    "display_name": "White Tulip",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:white_tulip",
+    "kind": "item"
+  },
+  "minecraft:wildflowers": {
+    "also_item_form": false,
+    "display_name": "Wildflowers",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wildflowers",
+    "kind": "item"
+  },
+  "minecraft:wind_charge": {
+    "also_item_form": false,
+    "display_name": "Wind Charge",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wind_charge",
+    "kind": "item"
+  },
+  "minecraft:wither_rose": {
+    "also_item_form": false,
+    "display_name": "Wither Rose",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wither_rose",
+    "kind": "item"
+  },
+  "minecraft:wooden_axe": {
+    "also_item_form": false,
+    "display_name": "Wooden Axe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wooden_axe",
+    "kind": "item"
+  },
+  "minecraft:wooden_hoe": {
+    "also_item_form": false,
+    "display_name": "Wooden Hoe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wooden_hoe",
+    "kind": "item"
+  },
+  "minecraft:wooden_pickaxe": {
+    "also_item_form": false,
+    "display_name": "Wooden Pickaxe",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wooden_pickaxe",
+    "kind": "item"
+  },
+  "minecraft:wooden_shovel": {
+    "also_item_form": false,
+    "display_name": "Wooden Shovel",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wooden_shovel",
+    "kind": "item"
+  },
+  "minecraft:wooden_sword": {
+    "also_item_form": false,
+    "display_name": "Wooden Sword",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:wooden_sword",
+    "kind": "item"
+  },
+  "minecraft:yellow_concrete": {
+    "also_item_form": false,
+    "display_name": "Yellow Concrete",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:yellow_concrete",
+    "kind": "item"
+  },
+  "minecraft:yellow_concrete_powder": {
+    "also_item_form": false,
+    "display_name": "Yellow Concrete Powder",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:yellow_concrete_powder",
+    "kind": "item"
+  },
+  "minecraft:yellow_dye": {
+    "also_item_form": false,
+    "display_name": "Yellow Dye",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:yellow_dye",
+    "kind": "item"
+  },
+  "minecraft:yellow_stained_glass": {
+    "also_item_form": false,
+    "display_name": "Yellow Stained Glass",
+    "domain": "minecraft",
+    "icon_path": null,
+    "id": "minecraft:yellow_stained_glass",
+    "kind": "item"
+  }
+}
