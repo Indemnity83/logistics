@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render a recipe-chain diagram from the extracted recipe graph, via Graphviz.
+"""Render a recipe-chain diagram from the extracted recipe graph.
 
 Run `extract.py` first to (re)generate `data/items.json` / `data/recipes.json`.
 Requires the Graphviz `dot` binary on PATH (`brew install graphviz` on macOS;
@@ -7,14 +7,25 @@ Requires the Graphviz `dot` binary on PATH (`brew install graphviz` on macOS;
 depending on the `graphviz` PyPI package, so the only new dependency is the
 one system binary.
 
-Each item becomes one composite "card" node (a Graphviz HTML-like label):
-a machine banner on top (icon + name), the item's own icon in the middle,
-and a footer with RF cost / yield / byproduct chance. An item with more than
-one producing recipe in the current query picks the cheapest as its
-displayed face and notes "+N more recipes" in the footer -- edges are drawn
-only for that recipe's inputs, so what's on the card always matches what
-feeds it. A raw/base resource (no producing recipe in scope) renders as a
-plain icon + name, no banner/footer. Byproduct edges are drawn dashed.
+Two output modes, chosen by `--out`'s extension:
+
+- `.svg`/`.png`/... : `dot` renders the whole diagram itself, using its
+  (fairly limited) HTML-like node labels for the composite cards.
+- `.html`: `dot` is used ONLY to compute layout (`-Tplain`: node positions,
+  edge splines) -- the actual visual is real HTML/CSS (absolutely
+  positioned card `<div>`s, an SVG overlay for edges/arrows/labels),
+  self-contained with icons inlined as data URIs. Crisper text, hover
+  affordance, and full CSS control that Graphviz's own renderer can't give;
+  prefer this mode. `layout_chain()`/`render_html_page()` implement it.
+
+Each item becomes one composite "card": a machine banner on top (icon +
+name), the item's own icon in the middle, and a footer with RF cost /
+yield / byproduct chance. An item with more than one producing recipe in
+the current query picks the cheapest as its displayed face and notes "+N
+more recipes" in the footer -- edges are drawn only for that recipe's
+inputs, so what's on the card always matches what feeds it. A raw/base
+resource (no producing recipe in scope) renders as a plain icon + name, no
+banner/footer.
 
 Item icons come from the mod's own flat 16x16 textures where `items.json`
 found one; for ids with no flat texture (mostly machine blocks -- see
@@ -23,7 +34,7 @@ render via the sibling `render_blocks.py`, cached under `data/icon_cache/`.
 
 Usage:
     python3 tools/recipe-graph/diagram.py chain logistics:core/tar \\
-        --direction descendants --out tar_chain.svg
+        --direction descendants --out tar_chain.html
 
     python3 tools/recipe-graph/diagram.py chain logistics:core/fuel_oil \\
         --direction ancestors --rate 60 --out fuel_oil_chain.svg
@@ -33,6 +44,8 @@ fallback) to `render_blocks.py`.
 """
 
 import argparse
+import base64
+import shlex
 import shutil
 import subprocess
 import sys
@@ -221,16 +234,21 @@ def card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_roo
     )
 
 
-def build_dot_cards(g, root, items, recipes, rate_rows, assets_root):
-    lines = ["digraph chain {", '  rankdir="LR";', "  node [fontname=Helvetica, fontsize=11, shape=plaintext];", "  edge [fontname=Helvetica, fontsize=9];"]
+def compute_chain(g, root, items, recipes, rate_rows):
+    """Shared by both renderers: pick each item's card face, its edges, and prune to what's connected.
+
+    Returns (connected_items, faces, edges, machines_needed) where faces is
+    item_id -> (recipe_or_None, out_entry, is_byproduct, alt_count) and edges
+    is [(from_id, to_id, amount_label), ...].
+    """
     machines_needed = {row["item"]: row["machines_needed"] for row in rate_rows} if rate_rows else {}
 
-    faces = {}  # item_id -> (recipe_or_None, out_entry, is_byproduct, alt_count)
+    faces = {}
     for item_id in items:
         candidates = [rid for rid in recipes if _produces(g, rid, item_id)]
         faces[item_id] = choose_primary_recipe(g, item_id, candidates)
 
-    edges = []  # (from_id, to_id, amount_label)
+    edges = []
     for item_id in items:
         recipe, _, _, _ = faces[item_id]
         if recipe is None:
@@ -259,16 +277,251 @@ def build_dot_cards(g, root, items, recipes, rate_rows, assets_root):
         connected.update(nxt)
         frontier = nxt
 
+    edges = [(a, b, amt) for a, b, amt in edges if a in connected and b in connected]
+    return connected, faces, edges, machines_needed
+
+
+def build_dot_cards(g, root, items, recipes, rate_rows, assets_root):
+    connected, faces, edges, machines_needed = compute_chain(g, root, items, recipes, rate_rows)
+
+    lines = ["digraph chain {", '  rankdir="LR";', "  node [fontname=Helvetica, fontsize=11, shape=plaintext];", "  edge [fontname=Helvetica, fontsize=9];"]
     for item_id in sorted(connected):
         recipe, out_entry, is_byproduct, alt_count = faces[item_id]
         html = card_html(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed)
         lines.append(f'  "{item_id}" [label=<{html}>];')
     for a, b, amount in edges:
-        if a in connected and b in connected:
-            lines.append(f'  "{a}" -> "{b}" [label="{html_escape(amount)}"];')
-
+        lines.append(f'  "{a}" -> "{b}" [label="{html_escape(amount)}"];')
     lines.append("}")
     return "\n".join(lines), len(connected)
+
+
+DPI = 96  # px per inch, matching dot's -Tplain coordinate convention
+CARD_W_IN, CARD_H_IN = 190 / DPI, 210 / DPI
+RAW_W_IN, RAW_H_IN = 140 / DPI, 120 / DPI
+
+
+def data_uri(path):
+    if not path:
+        return None
+    try:
+        data = base64.b64encode(Path(path).read_bytes()).decode()
+        return f"data:image/png;base64,{data}"
+    except OSError:
+        return None
+
+
+def card_content(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed):
+    """Card data for the HTML renderer -- the same face-selection logic as card_html, real values not markup."""
+    content = {
+        "name": item_label(g, item_id),
+        "icon": data_uri(item_icon(g, item_id, assets_root)),
+        "raw": recipe is None,
+    }
+    if recipe is None:
+        return content
+
+    machine = recipe["machine"]
+    _, machine_name = MACHINE_INFO.get(machine, (None, machine))
+    content["machine_name"] = machine_name
+    content["machine_icon"] = data_uri(machine_icon(machine, assets_root))
+
+    rf = recipe["energy_rf"] or recipe["rf_output"]
+    footer_bits = []
+    if rf:
+        footer_bits.append(f"{rf:,} RF")
+    if is_byproduct:
+        footer_bits.append(f"{recipe['byproduct']['chance'] * 100:g}% byproduct")
+    elif out_entry:
+        amt = format_amount(out_entry)
+        if amt:
+            footer_bits.append(amt)
+    if item_id in machines_needed:
+        footer_bits.append(f"×{machines_needed[item_id]:g}")
+    content["footer"] = " · ".join(footer_bits)
+    content["alt_count"] = alt_count
+    return content
+
+
+def layout_chain(connected, edges, faces):
+    """Run `dot -Tplain` on a minimal (unstyled, correctly-sized) graph to get real positions.
+
+    Returns (nodes, edge_paths, width_px, height_px) where nodes is
+    item_id -> (cx, cy, w, h) in px (top-left origin, y down) and edge_paths
+    is [(from_id, to_id, [(x,y),...] spline points, label, (lx, ly) or None), ...].
+    """
+    dot_bin = shutil.which("dot")
+    if not dot_bin:
+        return None
+
+    lines = ["digraph g {", "  rankdir=LR;", "  nodesep=0.35;", "  ranksep=0.55;", "  node [shape=box, fixedsize=true, label=\"\"];"]
+    for item_id in connected:
+        recipe = faces[item_id][0]
+        w, h = (RAW_W_IN, RAW_H_IN) if recipe is None else (CARD_W_IN, CARD_H_IN)
+        lines.append(f'  "{item_id}" [width={w:.3f}, height={h:.3f}];')
+    for a, b, amount in edges:
+        label = f' [label="{amount}"]' if amount else ""
+        lines.append(f'  "{a}" -> "{b}"{label};')
+    lines.append("}")
+
+    result = subprocess.run([dot_bin, "-Tplain"], input="\n".join(lines), text=True, capture_output=True)
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        return None
+
+    graph_h_in = 0
+    nodes = {}
+    edge_paths = []
+    for line in result.stdout.splitlines():
+        if not line.strip():
+            continue
+        tokens = shlex.split(line)
+        kind = tokens[0]
+        if kind == "graph":
+            graph_h_in = float(tokens[3])
+        elif kind == "node":
+            name, x, y, w, h = tokens[1], *map(float, tokens[2:6])
+            nodes[name] = (x, y, w, h)
+        elif kind == "edge":
+            tail, head, n = tokens[1], tokens[2], int(tokens[3])
+            coords = list(map(float, tokens[4 : 4 + 2 * n]))
+            points = list(zip(coords[0::2], coords[1::2]))
+            rest = tokens[4 + 2 * n :]
+            label, lx, ly = None, None, None
+            if len(rest) >= 3 and rest[0] not in ("solid", "dashed", "bold"):
+                label, lx, ly = rest[0], float(rest[1]), float(rest[2])
+            edge_paths.append((tail, head, points, label, (lx, ly) if lx is not None else None))
+
+    def to_px(x, y):
+        return x * DPI, (graph_h_in - y) * DPI
+
+    px_nodes = {}
+    max_x = max_y = 0.0
+    for name, (x, y, w, h) in nodes.items():
+        cx, cy = to_px(x, y)
+        px_nodes[name] = (cx, cy, w * DPI, h * DPI)
+        max_x, max_y = max(max_x, cx + w * DPI / 2), max(max_y, cy + h * DPI / 2)
+
+    px_edges = []
+    for tail, head, points, label, lpos in edge_paths:
+        px_points = [to_px(x, y) for x, y in points]
+        px_lpos = to_px(*lpos) if lpos else None
+        px_edges.append((tail, head, px_points, label, px_lpos))
+
+    return px_nodes, px_edges, max_x + 40, max_y + 40
+
+
+def spline_path(points):
+    """dot -Tplain gives points as: 1 start point, then groups of 3 forming cubic Beziers."""
+    if not points:
+        return ""
+    path = f"M {points[0][0]:.1f} {points[0][1]:.1f} "
+    i = 1
+    while i + 2 < len(points):
+        p1, p2, p3 = points[i], points[i + 1], points[i + 2]
+        path += f"C {p1[0]:.1f} {p1[1]:.1f} {p2[0]:.1f} {p2[1]:.1f} {p3[0]:.1f} {p3[1]:.1f} "
+        i += 3
+    return path
+
+
+CARD_CSS = """
+:root {
+  --bg: #16181d; --surface: #1f232b; --surface-2: #262b35; --border: #343b47;
+  --ink: #e8eaed; --ink-secondary: #a8b0bd; --ink-muted: #707886; --accent: #e2a03f;
+  --edge: #566072;
+}
+:root[data-theme="light"] {
+  --bg: #f3f4f6; --surface: #ffffff; --surface-2: #f0f1f4; --border: #d8dbe1;
+  --ink: #1c1f26; --ink-secondary: #4b5261; --ink-muted: #7b8394; --accent: #b3720c;
+  --edge: #9aa3b2;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f3f4f6; --surface: #ffffff; --surface-2: #f0f1f4; --border: #d8dbe1;
+    --ink: #1c1f26; --ink-secondary: #4b5261; --ink-muted: #7b8394; --accent: #b3720c;
+    --edge: #9aa3b2;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+h1 { position: sticky; top: 0; margin: 0; padding: 14px 20px; font-size: 1.05rem; background: var(--bg); border-bottom: 1px solid var(--border); z-index: 2; }
+.canvas { position: relative; overflow: auto; }
+img { image-rendering: pixelated; display: block; }
+.edges { position: absolute; top: 0; left: 0; overflow: visible; }
+.edge-label {
+  position: absolute; transform: translate(-50%, -50%); background: var(--bg); color: var(--ink-secondary);
+  font-size: 11px; padding: 1px 5px; border-radius: 4px; white-space: nowrap;
+}
+.card {
+  position: absolute; display: flex; flex-direction: column; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden; text-align: center;
+  transition: transform 0.12s ease, box-shadow 0.12s ease; cursor: default;
+}
+.card:hover { transform: scale(1.04); box-shadow: 0 6px 18px rgba(0,0,0,0.35); z-index: 3; }
+.card.raw { align-items: center; justify-content: center; gap: 6px; padding: 8px; }
+.card .banner { display: flex; align-items: center; gap: 6px; background: var(--surface-2); padding: 4px 8px; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--ink-secondary); flex: 0 0 auto; }
+.card .banner img { width: 16px; height: 16px; object-fit: contain; }
+.card .icon { width: 48px; height: 48px; margin: 10px auto 4px; flex: 0 0 auto; }
+.card .icon img { width: 100%; height: 100%; object-fit: contain; }
+.card .name { font-weight: 600; font-size: 0.86rem; padding: 0 6px; flex: 0 0 auto; }
+.card .footer { margin-top: auto; background: var(--surface-2); border-top: 1px solid var(--border); font-size: 11px; color: var(--ink-secondary); padding: 4px 6px; flex: 0 0 auto; }
+.card .alt { font-size: 9px; color: var(--ink-muted); padding-bottom: 4px; flex: 0 0 auto; }
+"""
+
+
+def render_html_page(g, root, connected, faces, edges, machines_needed, assets_root, out_path):
+    layout = layout_chain(connected, edges, faces)
+    if layout is None:
+        return False
+    nodes, px_edges, width, height = layout
+
+    cards = []
+    for item_id in connected:
+        recipe, out_entry, is_byproduct, alt_count = faces[item_id]
+        content = card_content(g, item_id, recipe, out_entry, is_byproduct, alt_count, assets_root, machines_needed)
+        cx, cy, w, h = nodes[item_id]
+        style = f"left:{cx - w / 2:.0f}px; top:{cy - h / 2:.0f}px; width:{w:.0f}px; height:{h:.0f}px;"
+        icon_img = f'<img src="{content["icon"]}" alt="">' if content["icon"] else ""
+        if content["raw"]:
+            cards.append(
+                f'<div class="card raw" style="{style}" title="{html_escape(content["name"])}">'
+                f'<div class="icon">{icon_img}</div><div class="name">{html_escape(content["name"])}</div></div>'
+            )
+            continue
+        m_icon_img = f'<img src="{content["machine_icon"]}" alt="">' if content.get("machine_icon") else ""
+        alt_html = ""
+        if content.get("alt_count"):
+            n = content["alt_count"]
+            alt_html = f'<div class="alt">+{n} more recipe{"s" if n > 1 else ""}</div>'
+        cards.append(
+            f'<div class="card" style="{style}" title="{html_escape(content["name"])}">'
+            f'<div class="banner">{m_icon_img}<span>{html_escape(content["machine_name"])}</span></div>'
+            f'<div class="icon">{icon_img}</div>'
+            f'<div class="name">{html_escape(content["name"])}</div>'
+            f'<div class="footer">{html_escape(content.get("footer") or "&nbsp;")}</div>'
+            f'{alt_html}</div>'
+        )
+
+    edge_svg = []
+    edge_labels = []
+    for tail, head, points, label, lpos in px_edges:
+        edge_svg.append(f'<path d="{spline_path(points)}" fill="none" stroke="var(--edge)" stroke-width="1.6" marker-end="url(#arrow)"/>')
+        if label and lpos:
+            edge_labels.append(f'<div class="edge-label" style="left:{lpos[0]:.0f}px; top:{lpos[1]:.0f}px;">{html_escape(label)}</div>')
+
+    html = f"""<title>{html_escape(item_label(g, root))} chain</title>
+<style>{CARD_CSS}</style>
+<h1>{html_escape(item_label(g, root))} &mdash; recipe chain ({len(connected)} items)</h1>
+<div class="canvas" style="width:{width:.0f}px; height:{height:.0f}px;">
+  <svg class="edges" width="{width:.0f}" height="{height:.0f}">
+    <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="var(--edge)"/></marker></defs>
+    {''.join(edge_svg)}
+  </svg>
+  {''.join(edge_labels)}
+  {''.join(cards)}
+</div>
+"""
+    out_path.write_text(html)
+    return True
 
 
 def _produces(g, recipe_id, item_id):
@@ -341,6 +594,13 @@ def main():
         recipes |= d_recipes
 
     rate_rows = g.machine_ratios(args.item, args.rate) if args.rate else []
+
+    if args.out.suffix.lower() == ".html":
+        connected, faces, chain_edges, machines_needed = compute_chain(g, args.item, items, recipes, rate_rows)
+        if not render_html_page(g, args.item, connected, faces, chain_edges, machines_needed, assets_root, args.out):
+            sys.exit(1)
+        print(f"wrote {args.out} ({len(connected)} of {len(items)} traversed items rendered)", file=sys.stderr)
+        return
 
     dot_source, kept = build_dot_cards(g, args.item, items, recipes, rate_rows, assets_root)
     if args.dot_out:

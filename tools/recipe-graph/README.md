@@ -43,13 +43,15 @@ python3 tools/recipe-graph/balance.py cost logistics:core/fuel_oil
 python3 tools/recipe-graph/balance.py chain logistics:core/fuel_oil --rate 60
 python3 tools/recipe-graph/balance.py outliers --machine crucible
 
-# 3. Chain diagrams (--mod-root defaults to sibling ../logistics-mc-26.2, for icons/models)
+# 3. Chain diagrams (--mod-root defaults to sibling ../logistics-mc-26.2, for icons/models).
+#    --out's extension picks the renderer: .html is real HTML/CSS (recommended --
+#    dot only computes layout); .svg/.png let dot render its own cards.
 python3 tools/recipe-graph/diagram.py chain logistics:core/tar \
-    --direction descendants --out tar_chain.svg
+    --direction descendants --out tar_chain.html
 
 python3 tools/recipe-graph/diagram.py chain logistics:core/fuel_oil \
     --direction ancestors --depth 3 --rate 60 \
-    --exclude minecraft:bucket --out fuel_oil_chain.png
+    --exclude minecraft:bucket --out fuel_oil_chain.html
 ```
 
 Item/fluid ids match the mod's own `logistics:<domain>/<name>` convention
@@ -65,6 +67,15 @@ icon in the middle, and a footer with RF cost / yield / byproduct chance.
 Machine icons are rendered on demand via the sibling `render_blocks.py`
 (isometric renders straight from the mod's block models) and cached under
 `data/icon_cache/` (gitignored, regenerable — not checked in).
+
+**`.html` output is the recommended mode.** `dot` is still used, but only to
+compute layout (`-Tplain`: node positions + edge splines) — the actual
+card/edge visuals are real HTML/CSS/SVG, not Graphviz's own (fairly
+primitive) HTML-like node labels. That gets real fonts and kerning, a hover
+affordance, and full CSS control; icons are inlined as base64 data URIs so
+the page is a single self-contained file (portable — attach it, open it
+directly, or publish it as a Claude Artifact). `.svg`/`.png` still work
+(dot renders the whole thing itself) for a quick static snapshot.
 
 An item with more than one producing recipe in the current query picks the
 cheapest as its displayed face (excluding self-referential recipes like the
