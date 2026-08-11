@@ -45,6 +45,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public final class LogisticsPower extends LogisticsMod implements DomainBootstrap {
@@ -348,7 +349,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
                 props -> new CreativeSinkBlock(props.strength(5.0f).sound(SoundType.STONE)));
             BATTERY = INSTANCE.registerBlockWithItem("battery",
-                props -> new BatteryBlock(props.strength(3.0f).sound(SoundType.METAL)),
+                props -> new BatteryBlock(props.strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()),
                 BatteryBlockItem::new);
             COPPER_CABLE = registerCable("copper_cable", CableTier.COPPER, SoundType.COPPER);
             GOLD_CABLE = registerCable("gold_cable", CableTier.GOLD, SoundType.METAL);
@@ -357,7 +358,9 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         private static Block registerCable(String name, CableTier tier, SoundType soundType) {
             return INSTANCE.registerBlockWithItem(name,
-                    props -> new CableBlock(props.strength(1.5f).sound(soundType).noOcclusion().dynamicShape(), tier));
+                    props -> new CableBlock(
+                        props.mapColor(MapColor.NONE).strength(0.3f).sound(soundType).noOcclusion().dynamicShape(),
+                        tier));
         }
     }
 
