@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/raw_tin",
+  "result": {
+    "id": "logistics:core/tin_dust",
+    "count": 2
+  },
+  "energy": 2000,
+  "byproduct": {
+    "id": "logistics:core/iron_dust",
+    "chance": 0.1
+  }
+}
