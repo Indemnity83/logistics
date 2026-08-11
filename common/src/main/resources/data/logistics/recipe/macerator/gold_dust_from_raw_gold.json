@@ -1,0 +1,13 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "minecraft:raw_gold",
+  "result": {
+    "id": "logistics:core/gold_dust",
+    "count": 2
+  },
+  "energy": 2000,
+  "byproduct": {
+    "id": "logistics:core/quicksilver",
+    "chance": 0.1
+  }
+}
