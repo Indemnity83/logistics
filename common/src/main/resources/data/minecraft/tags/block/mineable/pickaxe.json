@@ -9,6 +9,7 @@
     "logistics:power/steam_engine",
     "logistics:power/fuel_engine",
     "logistics:power/creative_sink",
+    "logistics:power/battery",
     "logistics:core/tin_ore",
     "logistics:core/deepslate_tin_ore",
     "logistics:core/tin_block",
