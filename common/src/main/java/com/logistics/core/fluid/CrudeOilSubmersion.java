@@ -9,11 +9,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
-/**
- * Detects whether an entity is submerged in Crude Oil — the mod's one world-placeable custom fluid
- * (see {@link LogisticsCore#CUSTOM_FLUIDS}). Pure vanilla API, no loader imports, so it's usable from
- * both server tick logic and client-side rendering.
- */
+/** Detects whether an entity is submerged in Crude Oil, the mod's one world-placeable custom fluid. */
 public final class CrudeOilSubmersion {
     private static final String NAME = "crude_oil";
 

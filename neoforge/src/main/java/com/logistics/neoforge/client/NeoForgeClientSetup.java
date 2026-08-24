@@ -78,8 +78,7 @@ import org.joml.Vector4f;
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
 
-    // Crude Oil "vision" fog (issue #836) — mirrors LavaFogEnvironment's 0.25-1 block visibility, with a
-    // near-black oil tint instead of lava's orange. Anchors, not final — tune by playtest.
+    // Anchors, not final — tune by playtest.
     private static final float CRUDE_OIL_FOG_START = 0.25f;
     private static final float CRUDE_OIL_FOG_END = 1.0f;
     private static final Vector4f CRUDE_OIL_FOG_COLOR = new Vector4f(0.03f, 0.02f, 0.015f, 1.0f);
@@ -147,18 +146,7 @@ public final class NeoForgeClientSetup {
                     return def.tint();
                 }
 
-                /**
-                 * Camera-submersion "vision" for Crude Oil (issue #836) — via fog, the same mechanism
-                 * vanilla uses for lava, not a screen overlay. {@code IClientFluidTypeExtensions
-                 * .getRenderOverlayTexture} looks like the native per-fluid hook, but vanilla's overlay
-                 * call site only reaches it behind {@code player.isEyeInFluid(FluidTags.WATER)} — dead
-                 * for any fluid that isn't tagged water (confirmed by reading NeoForge's own
-                 * {@code ScreenEffectRenderer} patch), and a HUD-space quad draws over the crosshair/
-                 * hotbar besides. {@code ClientHooks#onSetupFog} calls this generically off the fluid
-                 * actually at the camera's block, gated on real submersion depth — no tag involved.
-                 * Values mirror {@code LavaFogEnvironment} (0.25-1 block visibility), color swapped for
-                 * a near-black oil tint instead of lava's orange.
-                 */
+                /** Shrinks and darkens fog to near-black while the camera is submerged in Crude Oil. */
                 @Override
                 public void modifyFogRender(
                         Camera camera, @Nullable FogEnvironment environment,
