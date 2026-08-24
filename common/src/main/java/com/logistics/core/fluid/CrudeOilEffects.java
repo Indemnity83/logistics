@@ -17,9 +17,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
  * continued exposure, and swim-speed damping while in the fluid.
  */
 public final class CrudeOilEffects {
-    // Refreshed every tick while submerged; left alone otherwise, so the effect naturally fades a few
-    // seconds after surfacing rather than needing an explicit on-exit clear.
+    // Re-applied periodically (not every tick) while submerged; left alone otherwise, so the effect
+    // naturally fades a few seconds after surfacing rather than needing an explicit on-exit clear. The
+    // refresh interval stays well under the duration so it never visibly lapses between refreshes.
     private static final int NAUSEA_DURATION_TICKS = 100; // 5s
+    private static final int NAUSEA_REFRESH_INTERVAL_TICKS = 60; // 3s
     private static final int POISON_DURATION_TICKS = 60; // 3s
     // How long a player must be continuously head-submerged before Poison kicks in on top of Nausea.
     private static final int POISON_EXPOSURE_THRESHOLD_TICKS = 100; // 5s
@@ -44,9 +46,10 @@ public final class CrudeOilEffects {
 
     private static void tick(ServerPlayer player) {
         if (CrudeOilSubmersion.isEyeInCrudeOil(player)) {
-            player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, NAUSEA_DURATION_TICKS, 0, true, false));
-
             int exposure = exposureTicks.merge(player.getUUID(), 1, Integer::sum);
+            if ((exposure - 1) % NAUSEA_REFRESH_INTERVAL_TICKS == 0) {
+                player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, NAUSEA_DURATION_TICKS, 0, true, false));
+            }
             if (exposure >= POISON_EXPOSURE_THRESHOLD_TICKS) {
                 player.addEffect(new MobEffectInstance(MobEffects.POISON, POISON_DURATION_TICKS, 0, true, false));
             }
