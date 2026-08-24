@@ -46,12 +46,12 @@ import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.fluids.NeoForgeFluids;
+import com.logistics.core.fluid.CrudeOilOverlayRenderer;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.logistics.core.lib.compat.ClientScreenCompat;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -60,6 +60,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -73,9 +74,6 @@ import net.neoforged.neoforge.common.NeoForge;
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
 
-    // Camera-submersion overlay for Crude Oil (issue #836) — shared asset with the Fabric overlay renderer.
-    private static final String CRUDE_OIL_OVERLAY = "logistics:textures/misc/crude_oil_overlay.png";
-
     public static void register(IEventBus modBus) {
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
@@ -85,6 +83,7 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeClientSetup::registerFluidModels);
+        modBus.addListener(NeoForgeClientSetup::registerCrudeOilOverlay);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientDisconnect);
     }
 
@@ -138,16 +137,26 @@ public final class NeoForgeClientSetup {
                 public int getTintColor() {
                     return def.tint();
                 }
-
-                // Camera-submersion overlay (issue #836): only crude_oil has one — a near-black screen
-                // while swimming in it. Vanilla's ScreenEffectRenderer consults this per fluid generically,
-                // so no mixin is needed on NeoForge.
-                @Override
-                public Identifier getRenderOverlayTexture(Minecraft mc) { // raw-id-ok
-                    return "crude_oil".equals(name) ? textureId(CRUDE_OIL_OVERLAY) : null;
-                }
             }, type);
         });
+    }
+
+    /**
+     * Camera-submersion overlay for Crude Oil (issue #836). {@code IClientFluidTypeExtensions
+     * .getRenderOverlayTexture} looks like the native per-fluid hook, but vanilla's overlay call site
+     * only reaches it behind {@code player.isEyeInFluid(FluidTags.WATER)} — dead for any fluid that
+     * isn't tagged water, confirmed by reading NeoForge's own {@code ScreenEffectRenderer} patch. A GUI
+     * layer is the mechanism that's actually generic: same shape as Fabric's {@code HudElement}
+     * ({@code render(GuiGraphicsExtractor, DeltaTracker)}), so it reuses the same shared renderer.
+     */
+    private static void registerCrudeOilOverlay(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(
+                Identifier.fromNamespaceAndPath("logistics", "crude_oil_overlay"), // raw-id-ok
+                (gui, deltaTracker) -> {
+                    if (CrudeOilOverlayRenderer.shouldRender()) {
+                        CrudeOilOverlayRenderer.render(gui, gui.guiWidth(), gui.guiHeight());
+                    }
+                });
     }
 
     private static Identifier textureId(String texture) { // raw-id-ok
