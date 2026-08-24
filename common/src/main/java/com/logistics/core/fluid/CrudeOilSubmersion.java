@@ -19,23 +19,9 @@ public final class CrudeOilSubmersion {
 
     private CrudeOilSubmersion() {}
 
-    /**
-     * {@code true} when the entity's eye position is inside Crude Oil (source or flowing). Drives the
-     * screen-darkening overlay and Nausea/Poison — matches the issue's "camera submerged" wording.
-     */
+    /** {@code true} when the entity's eye position is inside Crude Oil (source or flowing). */
     public static boolean isEyeInCrudeOil(Entity entity) {
         return isCrudeOilAt(entity.level(), BlockPos.containing(entity.getEyePosition(1f)));
-    }
-
-    /**
-     * {@code true} when either the entity's eye or feet position is inside Crude Oil. Broader than
-     * {@link #isEyeInCrudeOil}, matching the issue's "submerged or swimming in it" wording — drives
-     * movement damping.
-     */
-    public static boolean isBodyInCrudeOil(Entity entity) {
-        Level level = entity.level();
-        return isCrudeOilAt(level, BlockPos.containing(entity.getEyePosition(1f)))
-                || isCrudeOilAt(level, entity.blockPosition());
     }
 
     private static boolean isCrudeOilAt(Level level, BlockPos pos) {
