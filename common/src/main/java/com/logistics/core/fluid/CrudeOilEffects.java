@@ -1,6 +1,5 @@
 package com.logistics.core.fluid;
 
-import com.logistics.core.lib.resource.ResourceId;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,13 +7,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 
 /**
  * Per-tick gameplay effects for standing in Crude Oil: Nausea while the head is submerged, Poison after
- * continued exposure, and swim-speed damping while in the fluid.
+ * continued exposure, and Slowness while in the fluid.
  */
 public final class CrudeOilEffects {
     // Re-applied periodically (not every tick) while submerged; left alone otherwise, so the effect
@@ -25,16 +21,14 @@ public final class CrudeOilEffects {
     private static final int POISON_DURATION_TICKS = 60; // 3s
     // How long a player must be continuously head-submerged before Poison kicks in on top of Nausea.
     private static final int POISON_EXPOSURE_THRESHOLD_TICKS = 100; // 5s
-    // Anchor value, not final — tune by playtest.
-    private static final double MOVEMENT_SCALE = 0.6;
-    private static final ResourceId MOVEMENT_MODIFIER_ID = ResourceId.in("logistics", "crude_oil_swim_slow");
-    // ADD_MULTIPLIED_TOTAL applies once, multiplicatively, on top of every other modifier — a stable
-    // MOVEMENT_SCALE reduction that doesn't compound tick over tick like scaling velocity directly would.
-    private static final AttributeModifier MOVEMENT_MODIFIER = new AttributeModifier(
-            MOVEMENT_MODIFIER_ID.toIdentifier(), -(1 - MOVEMENT_SCALE), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+    private static final int SLOWNESS_DURATION_TICKS = 100; // 5s
+    private static final int SLOWNESS_REFRESH_INTERVAL_TICKS = 60; // 3s
+    // Amplifier 1 = Slowness II (~30% reduction). Anchor value, not final — tune by playtest.
+    private static final int SLOWNESS_AMPLIFIER = 1;
 
     // In-memory only; resets on logout/relog, which is fine for a transient environmental timer.
     private static final Map<UUID, Integer> exposureTicks = new ConcurrentHashMap<>();
+    private static final Map<UUID, Integer> submersionTicks = new ConcurrentHashMap<>();
 
     private CrudeOilEffects() {}
 
@@ -57,15 +51,14 @@ public final class CrudeOilEffects {
             exposureTicks.remove(player.getUUID());
         }
 
-        AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
-        if (speed != null) {
-            boolean submerged = CrudeOilSubmersion.isBodyInCrudeOil(player);
-            boolean hasModifier = speed.hasModifier(MOVEMENT_MODIFIER_ID.toIdentifier());
-            if (submerged && !hasModifier) {
-                speed.addTransientModifier(MOVEMENT_MODIFIER);
-            } else if (!submerged && hasModifier) {
-                speed.removeModifier(MOVEMENT_MODIFIER_ID.toIdentifier());
+        if (CrudeOilSubmersion.isBodyInCrudeOil(player)) {
+            int submersion = submersionTicks.merge(player.getUUID(), 1, Integer::sum);
+            if ((submersion - 1) % SLOWNESS_REFRESH_INTERVAL_TICKS == 0) {
+                player.addEffect(new MobEffectInstance(
+                        MobEffects.SLOWNESS, SLOWNESS_DURATION_TICKS, SLOWNESS_AMPLIFIER, true, false));
             }
+        } else {
+            submersionTicks.remove(player.getUUID());
         }
     }
 }
