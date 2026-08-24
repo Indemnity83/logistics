@@ -21,6 +21,7 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     private static final int MACHINE_SLOT_COUNT = 1;
     private static final int PLAYER_INVENTORY_START = MACHINE_SLOT_COUNT;
     private static final int PLAYER_INVENTORY_END = PLAYER_INVENTORY_START + 36;
+    private static final int PLAYER_MAIN_END = PLAYER_INVENTORY_START + 27;
 
     private final Container inventory;
     private final ContainerData data;
@@ -79,9 +80,14 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(stack, PLAYER_INVENTORY_START, PLAYER_INVENTORY_END, true)) {
                     return ItemStack.EMPTY;
                 }
+            } else if (index < PLAYER_MAIN_END) {
+                // Nothing goes into the machine from the player side; shuffle main inventory <-> hotbar
+                // (never the slot's own range, or moveItemStackTo merges the live stack with itself and dupes it).
+                if (!this.moveItemStackTo(stack, PLAYER_MAIN_END, PLAYER_INVENTORY_END, false)) {
+                    return ItemStack.EMPTY;
+                }
             } else {
-                // Nothing goes into the machine from the player side; shuffle within the inventory.
-                if (!this.moveItemStackTo(stack, PLAYER_INVENTORY_START, PLAYER_INVENTORY_END, false)) {
+                if (!this.moveItemStackTo(stack, PLAYER_INVENTORY_START, PLAYER_MAIN_END, false)) {
                     return ItemStack.EMPTY;
                 }
             }
