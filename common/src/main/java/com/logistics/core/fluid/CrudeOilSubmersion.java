@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 
 /** Detects whether an entity is submerged in Crude Oil, the mod's one world-placeable custom fluid. */
 public final class CrudeOilSubmersion {
@@ -19,27 +20,13 @@ public final class CrudeOilSubmersion {
 
     private CrudeOilSubmersion() {}
 
-    /** {@code true} when the entity's eye position is inside Crude Oil (source or flowing). */
+    /** {@code true} when the entity's eye is below the actual surface of the Crude Oil there. */
     public static boolean isEyeInCrudeOil(Entity entity) {
-        return isCrudeOilAt(entity.level(), BlockPos.containing(entity.getEyePosition(1f)));
+        Vec3 eyePos = entity.getEyePosition(1f);
+        return isCameraSubmerged(entity.level(), BlockPos.containing(eyePos), eyePos.y);
     }
 
-    private static boolean isCrudeOilAt(Level level, BlockPos pos) {
-        resolveFluids();
-        if (source == Fluids.EMPTY) {
-            return false; // not registered yet (or registration failed) — never treat as crude oil
-        }
-        Fluid fluid = level.getFluidState(pos).getType();
-        return fluid == source || fluid == flowing;
-    }
-
-    /**
-     * {@code true} when {@code eyeY} is below the actual surface of the Crude Oil at {@code pos} — the
-     * same "camera is really under the liquid's top, not just standing over a shallow flow" check
-     * vanilla and NeoForge use to gate fog/overlay hooks ({@code Camera#getFluidInCamera},
-     * {@code ClientHooks#getFogColor}). Used for fog manipulation, where a block-level check alone
-     * would trigger a frame too early/late at the surface.
-     */
+    /** {@code true} when {@code eyeY} is below the actual surface of the Crude Oil at {@code pos}. */
     public static boolean isCameraSubmerged(Level level, BlockPos pos, double eyeY) {
         resolveFluids();
         if (source == Fluids.EMPTY) {

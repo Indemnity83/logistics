@@ -78,7 +78,7 @@ import org.joml.Vector4f;
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
 
-    // Anchors, not final — tune by playtest.
+    // Crude Oil submersion fog visibility/color. Anchors, not final.
     private static final float CRUDE_OIL_FOG_START = 0.25f;
     private static final float CRUDE_OIL_FOG_END = 1.0f;
     private static final Vector4f CRUDE_OIL_FOG_COLOR = new Vector4f(0.03f, 0.02f, 0.015f, 1.0f);

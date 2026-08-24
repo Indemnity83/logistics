@@ -11,14 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Fabric has no equivalent to NeoForge's {@code IClientFluidTypeExtensions.modifyFogRender}, so this
- * mirrors NeoForge's own {@code ClientHooks#onSetupFog} patch directly: darken/shorten fog like lava
- * while the camera is submerged in Crude Oil (issue #836), rather than a screen-space HUD overlay
- * (which drew over the crosshair/hotbar — vanilla's actual submersion "vision" effect is a fog change,
- * not a quad). Values mirror {@code LavaFogEnvironment}'s 0.25-1 block visibility, color swapped for a
- * near-black oil tint instead of lava's orange.
- */
+/** Darkens and shortens fog while the camera is submerged in Crude Oil, mirroring {@code LavaFogEnvironment}. */
 @Mixin(FogRenderer.class)
 public abstract class FogRendererMixin {
     // Anchors, not final — tune by playtest.

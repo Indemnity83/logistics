@@ -13,15 +13,12 @@ import net.minecraft.world.effect.MobEffects;
  * together while the head is submerged.
  */
 public final class CrudeOilEffects {
-    // Re-applied periodically (not every tick) while submerged; left alone otherwise, so the effects
-    // naturally fade a few seconds after surfacing rather than needing an explicit on-exit clear. The
-    // refresh interval stays well under the duration so it never visibly lapses between refreshes.
+    // Re-applied periodically while submerged; fades naturally after surfacing.
     private static final int EFFECT_DURATION_TICKS = 100; // 5s
     private static final int EFFECT_REFRESH_INTERVAL_TICKS = 60; // 3s
-    // Amplifier 1 = Slowness II (~30% reduction). Anchor value, not final — tune by playtest.
-    private static final int SLOWNESS_AMPLIFIER = 1;
+    // Amplifier 2 = Slowness III (~45% reduction, close to the 50-70%-of-normal target).
+    private static final int SLOWNESS_AMPLIFIER = 2;
 
-    // In-memory only; resets on logout/relog, which is fine for a transient environmental timer.
     private static final Map<UUID, Integer> submersionTicks = new ConcurrentHashMap<>();
 
     private CrudeOilEffects() {}
@@ -32,9 +29,14 @@ public final class CrudeOilEffects {
         }
     }
 
+    /** Clears a player's timer, e.g. on disconnect, so relogging doesn't resume a stale one. */
+    public static void clearPlayer(UUID id) {
+        submersionTicks.remove(id);
+    }
+
     private static void tick(ServerPlayer player) {
         if (!CrudeOilSubmersion.isEyeInCrudeOil(player)) {
-            submersionTicks.remove(player.getUUID());
+            clearPlayer(player.getUUID());
             return;
         }
 
