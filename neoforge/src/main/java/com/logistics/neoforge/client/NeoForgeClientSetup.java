@@ -46,21 +46,23 @@ import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.client.render.NeoForgeEngineBlockEntityRenderer;
 import com.logistics.neoforge.fluids.NeoForgeFluids;
-import com.logistics.core.fluid.CrudeOilOverlayRenderer;
+import com.logistics.core.fluid.CrudeOilSubmersion;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.logistics.core.lib.compat.ClientScreenCompat;
+import net.minecraft.client.Camera;
 import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.fog.FogData;
+import net.minecraft.client.renderer.fog.environment.FogEnvironment;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier; // raw-id-ok
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -70,9 +72,17 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector4f;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
+
+    // Crude Oil "vision" fog (issue #836) — mirrors LavaFogEnvironment's 0.25-1 block visibility, with a
+    // near-black oil tint instead of lava's orange. Anchors, not final — tune by playtest.
+    private static final float CRUDE_OIL_FOG_START = 0.25f;
+    private static final float CRUDE_OIL_FOG_END = 1.0f;
+    private static final Vector4f CRUDE_OIL_FOG_COLOR = new Vector4f(0.03f, 0.02f, 0.015f, 1.0f);
 
     public static void register(IEventBus modBus) {
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
@@ -83,7 +93,6 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerClientPayloadHandlers);
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeClientSetup::registerFluidModels);
-        modBus.addListener(NeoForgeClientSetup::registerCrudeOilOverlay);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientDisconnect);
     }
 
@@ -137,26 +146,38 @@ public final class NeoForgeClientSetup {
                 public int getTintColor() {
                     return def.tint();
                 }
+
+                /**
+                 * Camera-submersion "vision" for Crude Oil (issue #836) — via fog, the same mechanism
+                 * vanilla uses for lava, not a screen overlay. {@code IClientFluidTypeExtensions
+                 * .getRenderOverlayTexture} looks like the native per-fluid hook, but vanilla's overlay
+                 * call site only reaches it behind {@code player.isEyeInFluid(FluidTags.WATER)} — dead
+                 * for any fluid that isn't tagged water (confirmed by reading NeoForge's own
+                 * {@code ScreenEffectRenderer} patch), and a HUD-space quad draws over the crosshair/
+                 * hotbar besides. {@code ClientHooks#onSetupFog} calls this generically off the fluid
+                 * actually at the camera's block, gated on real submersion depth — no tag involved.
+                 * Values mirror {@code LavaFogEnvironment} (0.25-1 block visibility), color swapped for
+                 * a near-black oil tint instead of lava's orange.
+                 */
+                @Override
+                public void modifyFogRender(
+                        Camera camera, @Nullable FogEnvironment environment,
+                        float renderDistance, float partialTick, FogData fogData) {
+                    if (!"crude_oil".equals(name)) {
+                        return;
+                    }
+                    if (!CrudeOilSubmersion.isCameraSubmerged(
+                            camera.entity().level(), camera.blockPosition(), camera.position().y)) {
+                        return;
+                    }
+                    fogData.environmentalStart = CRUDE_OIL_FOG_START;
+                    fogData.environmentalEnd = CRUDE_OIL_FOG_END;
+                    fogData.skyEnd = fogData.environmentalEnd;
+                    fogData.cloudEnd = fogData.environmentalEnd;
+                    fogData.color.set(CRUDE_OIL_FOG_COLOR);
+                }
             }, type);
         });
-    }
-
-    /**
-     * Camera-submersion overlay for Crude Oil (issue #836). {@code IClientFluidTypeExtensions
-     * .getRenderOverlayTexture} looks like the native per-fluid hook, but vanilla's overlay call site
-     * only reaches it behind {@code player.isEyeInFluid(FluidTags.WATER)} — dead for any fluid that
-     * isn't tagged water, confirmed by reading NeoForge's own {@code ScreenEffectRenderer} patch. A GUI
-     * layer is the mechanism that's actually generic: same shape as Fabric's {@code HudElement}
-     * ({@code render(GuiGraphicsExtractor, DeltaTracker)}), so it reuses the same shared renderer.
-     */
-    private static void registerCrudeOilOverlay(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(
-                Identifier.fromNamespaceAndPath("logistics", "crude_oil_overlay"), // raw-id-ok
-                (gui, deltaTracker) -> {
-                    if (CrudeOilOverlayRenderer.shouldRender()) {
-                        CrudeOilOverlayRenderer.render(gui, gui.guiWidth(), gui.guiHeight());
-                    }
-                });
     }
 
     private static Identifier textureId(String texture) { // raw-id-ok

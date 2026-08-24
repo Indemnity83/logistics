@@ -6,6 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 /**
@@ -48,6 +49,26 @@ public final class CrudeOilSubmersion {
         }
         Fluid fluid = level.getFluidState(pos).getType();
         return fluid == source || fluid == flowing;
+    }
+
+    /**
+     * {@code true} when {@code eyeY} is below the actual surface of the Crude Oil at {@code pos} — the
+     * same "camera is really under the liquid's top, not just standing over a shallow flow" check
+     * vanilla and NeoForge use to gate fog/overlay hooks ({@code Camera#getFluidInCamera},
+     * {@code ClientHooks#getFogColor}). Used for fog manipulation, where a block-level check alone
+     * would trigger a frame too early/late at the surface.
+     */
+    public static boolean isCameraSubmerged(Level level, BlockPos pos, double eyeY) {
+        resolveFluids();
+        if (source == Fluids.EMPTY) {
+            return false;
+        }
+        FluidState state = level.getFluidState(pos);
+        Fluid fluid = state.getType();
+        if (fluid != source && fluid != flowing) {
+            return false;
+        }
+        return eyeY < (double) pos.getY() + state.getHeight(level, pos);
     }
 
     /** Resolves the registered source/flowing fluid instances once, mirroring {@code LogisticsCore.buildFluidLuminance}. */
