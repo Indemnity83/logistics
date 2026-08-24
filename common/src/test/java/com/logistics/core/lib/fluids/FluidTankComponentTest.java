@@ -131,6 +131,25 @@ class FluidTankComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("NBT read clamps a saved amount that exceeds the current capacity")
+    void nbt_read_clampsOverCapacityAmount() {
+        // A capacity shrink (config, tier rework) since the tank was saved can leave the persisted
+        // amount above what the tank can currently hold. Loading it must clamp, not trust it blindly —
+        // an unclamped over-capacity amount crashes the column's next rebalance() (settle asserts
+        // total <= capacity), which is exactly what happened without this clamp.
+        FluidTankComponent written = tank(1000, () -> {});
+        written.insert(water(), 1000, false);
+        CompoundTag nbt = new CompoundTag();
+        written.writeNbt(nbt, "tank");
+
+        FluidTankComponent shrunk = tank(200, () -> {});
+        shrunk.readNbt(nbt, "tank");
+
+        assertThat(shrunk.getAmount()).isEqualTo(200);
+        assertThat(shrunk.getAmount()).isLessThanOrEqualTo(shrunk.getCapacity());
+    }
+
+    @Test
     @DisplayName("reading empty NBT clears stale contents (emptied-tank sync)")
     void nbt_empty_clearsStaleContents() {
         // An emptied tank writes no key; reading that must reset, not retain old fluid — otherwise the
