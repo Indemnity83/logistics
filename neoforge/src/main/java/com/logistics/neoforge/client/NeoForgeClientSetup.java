@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.logistics.core.lib.compat.ClientScreenCompat;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSources;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -71,6 +72,9 @@ import net.neoforged.neoforge.common.NeoForge;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
+
+    // Camera-submersion overlay for Crude Oil (issue #836) — shared asset with the Fabric overlay renderer.
+    private static final String CRUDE_OIL_OVERLAY = "logistics:textures/misc/crude_oil_overlay.png";
 
     public static void register(IEventBus modBus) {
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
@@ -133,6 +137,14 @@ public final class NeoForgeClientSetup {
 
                 public int getTintColor() {
                     return def.tint();
+                }
+
+                // Camera-submersion overlay (issue #836): only crude_oil has one — a near-black screen
+                // while swimming in it. Vanilla's ScreenEffectRenderer consults this per fluid generically,
+                // so no mixin is needed on NeoForge.
+                @Override
+                public Identifier getRenderOverlayTexture(Minecraft mc) { // raw-id-ok
+                    return "crude_oil".equals(name) ? textureId(CRUDE_OIL_OVERLAY) : null;
                 }
             }, type);
         });
