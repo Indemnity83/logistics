@@ -47,11 +47,14 @@ import com.logistics.power.screen.SteamEngineScreen;
 import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.neoforge.fluids.NeoForgeFluids;
+import com.logistics.core.fluid.CrudeOilSubmersion;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.HashMap;
 import java.util.Map;
 import com.logistics.core.lib.compat.ClientScreenCompat;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -63,14 +66,21 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import com.logistics.automation.jei.ClientMachineRecipes;
 import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import org.joml.Vector3f;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
+
+    // Crude Oil submersion fog visibility/color. Anchors, not final.
+    private static final float CRUDE_OIL_FOG_START = 0.25f;
+    private static final float CRUDE_OIL_FOG_END = 1.0f;
+    private static final Vector3f CRUDE_OIL_FOG_COLOR = new Vector3f(0.03f, 0.02f, 0.015f);
 
     public static void register(IEventBus modBus) {
         NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
@@ -83,6 +93,23 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeClientSetup::registerFluidExtensions);
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientDisconnect);
+        NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onRenderFog);
+    }
+
+    /**
+     * Shrinks fog to near-lava-tight visibility while the camera is submerged in Crude Oil.
+     * {@code IClientFluidTypeExtensions#modifyFogRender} on this version takes the near/far distance
+     * as plain (unmodifiable) primitives, so it can't actually change them — the real hook is this
+     * cancellable event, fired right after with the same values and applied back afterward.
+     */
+    private static void onRenderFog(ViewportEvent.RenderFog event) {
+        Camera camera = event.getCamera();
+        if (!CrudeOilSubmersion.isCameraSubmerged(
+                camera.getEntity().level(), camera.getBlockPosition(), camera.getPosition().y)) {
+            return;
+        }
+        event.setNearPlaneDistance(CRUDE_OIL_FOG_START);
+        event.setFarPlaneDistance(CRUDE_OIL_FOG_END);
     }
 
     /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
@@ -107,6 +134,21 @@ public final class NeoForgeClientSetup {
                 @Override
                 public int getTintColor() {
                     return def.tint();
+                }
+
+                /** Darkens fog color to near-black while the camera is submerged in Crude Oil. */
+                @Override
+                public Vector3f modifyFogColor(
+                        Camera camera, float partialTick, ClientLevel level,
+                        int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor) {
+                    if (!"crude_oil".equals(name)) {
+                        return fluidFogColor;
+                    }
+                    if (!CrudeOilSubmersion.isCameraSubmerged(
+                            camera.getEntity().level(), camera.getBlockPosition(), camera.getPosition().y)) {
+                        return fluidFogColor;
+                    }
+                    return CRUDE_OIL_FOG_COLOR;
                 }
             }, type);
         });
