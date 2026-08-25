@@ -52,9 +52,14 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.world.level.material.FluidState;
 import com.logistics.neoforge.fluids.NeoForgeFluids;
+import com.logistics.core.fluid.CrudeOilSubmersion;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.fog.FogData;
+import net.minecraft.client.renderer.fog.environment.FogEnvironment;
 import net.minecraft.resources.Identifier; // raw-id-ok
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -67,9 +72,16 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector4f;
 
 public final class NeoForgeClientSetup {
     private NeoForgeClientSetup() {}
+
+    // Crude Oil submersion fog visibility/color. Anchors, not final.
+    private static final float CRUDE_OIL_FOG_START = 0.25f;
+    private static final float CRUDE_OIL_FOG_END = 1.0f;
+    private static final Vector4f CRUDE_OIL_FOG_COLOR = new Vector4f(0.03f, 0.02f, 0.015f, 1.0f);
 
     public static void register(IEventBus modBus) {
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
@@ -104,6 +116,38 @@ public final class NeoForgeClientSetup {
 
                 public int getTintColor() {
                     return def.tint();
+                }
+
+                /** Shrinks fog to near-lava-tight visibility while the camera is submerged in Crude Oil. */
+                @Override
+                public void modifyFogRender(
+                        Camera camera, @Nullable FogEnvironment environment,
+                        float renderDistance, float partialTick, FogData fogData) {
+                    if (!"crude_oil".equals(name)) {
+                        return;
+                    }
+                    if (!CrudeOilSubmersion.isCameraSubmerged(
+                            camera.entity().level(), camera.blockPosition(), camera.position().y)) {
+                        return;
+                    }
+                    fogData.environmentalStart = CRUDE_OIL_FOG_START;
+                    fogData.environmentalEnd = CRUDE_OIL_FOG_END;
+                    fogData.skyEnd = fogData.environmentalEnd;
+                    fogData.cloudEnd = fogData.environmentalEnd;
+                }
+
+                /** Darkens fog color to near-black while the camera is submerged in Crude Oil. */
+                @Override
+                public Vector4f modifyFogColor(
+                        Camera camera, float partialTick, ClientLevel level,
+                        int renderDistance, float darkenWorldAmount, Vector4f fluidFogColor) {
+                    if (!"crude_oil".equals(name)) {
+                        return fluidFogColor;
+                    }
+                    if (!CrudeOilSubmersion.isCameraSubmerged(level, camera.blockPosition(), camera.position().y)) {
+                        return fluidFogColor;
+                    }
+                    return CRUDE_OIL_FOG_COLOR;
                 }
             }, type);
         });
