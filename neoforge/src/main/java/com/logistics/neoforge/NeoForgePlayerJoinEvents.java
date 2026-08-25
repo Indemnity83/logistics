@@ -12,7 +12,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 /**
  * Shows operators the crash-reporting status line on join, resetting the once-per-session dedup when
  * a server starts, ships the machine recipes so JEI can display them on multiplayer clients, and clears
- * per-player timers on disconnect. Pure wiring — the gate and message live in {@link CrashReportNotifier}.
+ * per-player timers on disconnect.
  */
 public final class NeoForgePlayerJoinEvents {
     private NeoForgePlayerJoinEvents() {}
