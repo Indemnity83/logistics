@@ -308,10 +308,20 @@ public final class PipeRuntime {
 
     private static void dropItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
         if (ctx.isServer()) {
-            notifyDeliveryFailed(ctx.world(), ctx.pos(), item, item.getStack().getCount());
+            if (hasArrived(item, ctx.pos())) {
+                // Dropping at the recorded destination fulfills the delivery.
+                notifyDelivered(ctx.world(), ctx.pos(), item, item.getStack().getCount());
+            } else {
+                notifyDeliveryFailed(ctx.world(), ctx.pos(), item, item.getStack().getCount());
+            }
             PipeBlockEntity.dropItem(ctx.world(), ctx.pos(), item);
         }
         itemState.markForDiscard(item);
+    }
+
+    /** {@code true} once the item has reached the destination its order was placed for. */
+    private static boolean hasArrived(TravelingItem item, BlockPos pos) {
+        return item.getDestination() != null && item.getDestination().equals(pos);
     }
 
     private static void discardItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
@@ -522,6 +532,21 @@ public final class PipeRuntime {
         PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
         if (network != null) {
             network.notifyDeliveryFailed(
+                    item.getDeliveryId(),
+                    item.getDestination(),
+                    ItemStorageLookup.of(item.getStack()),
+                    amount);
+        }
+    }
+
+    /** Marks an order fulfilled without the item actually entering an inventory (dropped as loot at its destination). */
+    private static void notifyDelivered(Level world, BlockPos pos, TravelingItem item, long amount) {
+        if (item.getDeliveryId() == null || item.getDestination() == null || amount <= 0) {
+            return;
+        }
+        PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
+        if (network != null) {
+            network.notifyDelivery(
                     item.getDeliveryId(),
                     item.getDestination(),
                     ItemStorageLookup.of(item.getStack()),
