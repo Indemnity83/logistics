@@ -309,10 +309,7 @@ public final class PipeRuntime {
     private static void dropItem(TickContext ctx, TravelingItem item, ItemTickState itemState) {
         if (ctx.isServer()) {
             if (hasArrived(item, ctx.pos())) {
-                // Reached its destination (e.g. a requester with no connected inventory) with no
-                // direction left to route it onward. Dropping it as loot at the destination is the
-                // intended outcome for that setup, not a failed delivery — count it as delivered so
-                // the requester doesn't keep re-ordering the same item forever.
+                // Dropping at the recorded destination fulfills the delivery.
                 notifyDelivered(ctx.world(), ctx.pos(), item, item.getStack().getCount());
             } else {
                 notifyDeliveryFailed(ctx.world(), ctx.pos(), item, item.getStack().getCount());
