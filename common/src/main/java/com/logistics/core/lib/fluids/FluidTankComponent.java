@@ -156,7 +156,15 @@ public class FluidTankComponent implements IFluidStorage {
         CompoundTag compTag = NbtCompat.getCompoundOrEmpty(data, "components");
         components = compTag.isEmpty() ? DataComponentPatch.EMPTY :
                 DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, compTag).result().orElse(DataComponentPatch.EMPTY);
-        amount = NbtCompat.getLong(data, "amount", 0L);
+
+        // Amounts are clamped to capacity; unresolved fluids produce an empty tank.
+        long savedAmount = NbtCompat.getLong(data, "amount", 0L);
+        amount = fluid == Fluids.EMPTY ? 0L : Math.min(Math.max(savedAmount, 0L), capacity);
+        if (amount <= 0) {
+            fluid = Fluids.EMPTY;
+            components = DataComponentPatch.EMPTY;
+            amount = 0;
+        }
     }
 
     public void writeNbt(CompoundTag nbt, String key) {

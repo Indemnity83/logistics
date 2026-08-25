@@ -131,6 +131,76 @@ class FluidTankComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("NBT read clamps a saved amount that exceeds the current capacity")
+    void nbt_read_clampsOverCapacityAmount() {
+        // Saved amounts may exceed the current capacity (e.g. after a capacity shrink).
+        FluidTankComponent written = tank(1000, () -> {});
+        written.insert(water(), 1000, false);
+        CompoundTag nbt = new CompoundTag();
+        written.writeNbt(nbt, "tank");
+
+        FluidTankComponent shrunk = tank(200, () -> {});
+        shrunk.readNbt(nbt, "tank");
+
+        assertThat(shrunk.getAmount()).isEqualTo(200);
+        assertThat(shrunk.getAmount()).isLessThanOrEqualTo(shrunk.getCapacity());
+    }
+
+    @Test
+    @DisplayName("NBT read clears fluid when a negative saved amount clamps to zero")
+    void nbt_read_negativeAmountClampsToEmpty() {
+        CompoundTag data = new CompoundTag();
+        data.putString("fluid", "minecraft:water");
+        data.putLong("amount", -50L);
+        CompoundTag nbt = new CompoundTag();
+        nbt.put("tank", data);
+
+        FluidTankComponent tank = tank(1000, () -> {});
+        tank.readNbt(nbt, "tank");
+
+        assertThat(tank.isEmpty()).isTrue();
+        assertThat(tank.getAmount()).isZero();
+        assertThat(tank.getFluidKey().isBlank()).isTrue();
+    }
+
+    @Test
+    @DisplayName("NBT read clears fluid when the saved amount is zero")
+    void nbt_read_zeroAmountClampsToEmpty() {
+        CompoundTag data = new CompoundTag();
+        data.putString("fluid", "minecraft:water");
+        data.putLong("amount", 0L);
+        CompoundTag nbt = new CompoundTag();
+        nbt.put("tank", data);
+
+        FluidTankComponent tank = tank(1000, () -> {});
+        tank.readNbt(nbt, "tank");
+
+        assertThat(tank.isEmpty()).isTrue();
+        assertThat(tank.getFluidKey().isBlank()).isTrue();
+    }
+
+    @Test
+    @DisplayName("NBT read discards components from an unresolved fluid")
+    void nbt_read_unresolvedFluidDiscardsComponents() {
+        CompoundTag components = new CompoundTag();
+        components.putString("some_key", "some_value");
+        CompoundTag data = new CompoundTag();
+        data.putString("fluid", "logistics:not_a_real_fluid");
+        data.putLong("amount", 500L);
+        data.put("components", components);
+        CompoundTag nbt = new CompoundTag();
+        nbt.put("tank", data);
+
+        FluidTankComponent tank = tank(1000, () -> {});
+        tank.readNbt(nbt, "tank");
+
+        assertThat(tank.isEmpty()).isTrue();
+        assertThat(tank.getAmount()).isZero();
+        assertThat(tank.getFluidKey().isBlank()).isTrue();
+        assertThat(tank.getFluidKey().getComponents()).isEqualTo(DataComponentPatch.EMPTY);
+    }
+
+    @Test
     @DisplayName("reading empty NBT clears stale contents (emptied-tank sync)")
     void nbt_empty_clearsStaleContents() {
         // An emptied tank writes no key; reading that must reset, not retain old fluid — otherwise the
