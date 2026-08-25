@@ -1,5 +1,6 @@
 package com.logistics.neoforge;
 
+import com.logistics.core.fluid.CrudeOilEffects;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.power.cable.CableNetworkManager;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +19,7 @@ public final class NeoForgeNetworkTickHandler {
     private static void onServerTick(ServerTickEvent.Post event) {
         NetworkRegistry.tickNetworks(event.getServer());
         CableNetworkManager.tickAll(event.getServer());
+        CrudeOilEffects.tickAll(event.getServer());
     }
 
     private static void onLevelUnload(LevelEvent.Unload event) {
