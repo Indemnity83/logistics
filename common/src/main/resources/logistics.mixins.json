@@ -1,5 +1,5 @@
 {
-  "client": [],
+  "client": ["client.FogRendererMixin"],
   "compatibilityLevel": "JAVA_21",
   "injectors": {
     "defaultRequire": 1
