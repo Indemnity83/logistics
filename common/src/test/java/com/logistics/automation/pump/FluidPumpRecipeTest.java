@@ -20,9 +20,18 @@ class FluidPumpRecipeTest {
 
     private static final String RECIPE_PATH = "data/logistics/recipe/automation/fluid_pump.json";
 
+    private static final String LANG_PATH = "assets/logistics/lang/en_us.json";
+
     private static JsonObject loadRecipe() throws IOException {
         try (InputStream stream = FluidPumpRecipeTest.class.getClassLoader().getResourceAsStream(RECIPE_PATH)) {
             assertThat(stream).as("recipe resource on the test classpath: %s", RECIPE_PATH).isNotNull();
+            return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+    }
+
+    private static JsonObject loadLang() throws IOException {
+        try (InputStream stream = FluidPumpRecipeTest.class.getClassLoader().getResourceAsStream(LANG_PATH)) {
+            assertThat(stream).as("lang resource on the test classpath: %s", LANG_PATH).isNotNull();
             return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
         }
     }
@@ -61,5 +70,8 @@ class FluidPumpRecipeTest {
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/fluid_pump");
         assertThat(result.get("count").getAsInt()).isEqualTo(1);
+
+        JsonObject lang = loadLang();
+        assertThat(lang.get("item.logistics.core.machine_core").getAsString()).isEqualTo("Machine Frame");
     }
 }

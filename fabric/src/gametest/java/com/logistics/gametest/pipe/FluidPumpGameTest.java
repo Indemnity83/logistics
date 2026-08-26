@@ -392,12 +392,12 @@ public class FluidPumpGameTest {
     /**
      * Wiki claim (Usage): "Outputs up to 62.5 mB/t into an adjacent tank or fluid pipe."
      *
-     * <p>NOTE: the code's push-rate constant (FLUID_PUMP_PUSH_RATE_MB) is 400 mB/tick, not 62.5 — a
-     * single tick can move far more than the wiki's figure. 62.5 mB/t (= 1000 mB ÷
-     * FLUID_PUMP_INTERVAL_TICKS(16)) looks like the *sustained average intake rate* (one bucket
-     * drained from the world every 16 ticks), mislabeled here as the output/push rate. This test
-     * asserts the push path directly — bypassing draining by preloading the pump's own tank — and
-     * confirms it moves multiples of ~400 mB/tick, not ~62.5. See WIKI_DISCREPANCIES.md § Pump.
+     * <p>NOTE: the code's push-rate constant (FLUID_PUMP_PUSH_RATE_MB) is 400 mB/tick, not 62.5.
+     * 62.5 mB/t (= 1000 mB ÷ FLUID_PUMP_INTERVAL_TICKS(16)) looks like the *sustained average intake
+     * rate* (one bucket drained from the world every 16 ticks), mislabeled here as the output/push
+     * rate. This test asserts the push path directly — bypassing draining by preloading the pump's
+     * own tank — and confirms one tick moves exactly FLUID_PUMP_PUSH_RATE_MB, not ~62.5. See
+     * WIKI_DISCREPANCIES.md § Pump.
      *
      * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
      */
@@ -417,13 +417,13 @@ public class FluidPumpGameTest {
         // Preload the pump's own tank directly (bypassing the drain step) so the push rate is the
         // only thing under test.
         pump.tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(16_000), false);
+        long before = tank.tank().getAmount();
 
-        context.runAfterDelay(2, () -> {
-            long pushed = tank.tank().getAmount();
-            // Two ticks at ~62.5 mB/t would cap out at 125 mB; two ticks at 400 mB/t reach ~800 mB.
-            // A generous lower bound rules out the wiki's figure without pinning an exact tick count.
-            if (pushed < FluidUnits.mb(300)) {
-                fail(context, "Fluid pump should push at ~400 mB/tick, not ~62.5 mB/tick; got " + pushed + " mB after 2 ticks");
+        context.runAfterDelay(1, () -> {
+            long delta = tank.tank().getAmount() - before;
+            long expected = FluidUnits.mb(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_PUSH_RATE_MB));
+            if (delta != expected) {
+                fail(context, "Fluid pump should push exactly " + expected + " mB/tick, got " + delta + " mB");
                 return;
             }
             succeed(context);
