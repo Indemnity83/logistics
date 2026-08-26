@@ -172,11 +172,35 @@ class GridScannerTest extends MinecraftTestEnvironment {
         }
 
         @Test
-        @DisplayName("skips fluid blocks (lava)")
+        @DisplayName("skips fluid blocks (lava) — hazard handling is a separate concern for callers")
         void skipsLava() {
             BlockState lava = Blocks.LAVA.defaultBlockState();
 
             assertThat(GridScanner.shouldSkip(null, BlockPos.ZERO, lava)).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("isHazardousFluid")
+    class IsHazardousFluid {
+
+        @Test
+        @DisplayName("true for lava")
+        void trueForLava() {
+            assertThat(GridScanner.isHazardousFluid(Blocks.LAVA.defaultBlockState())).isTrue();
+        }
+
+        @Test
+        @DisplayName("false for water")
+        void falseForWater() {
+            assertThat(GridScanner.isHazardousFluid(Blocks.WATER.defaultBlockState())).isFalse();
+        }
+
+        @Test
+        @DisplayName("false for air and solid blocks")
+        void falseForNonFluids() {
+            assertThat(GridScanner.isHazardousFluid(Blocks.AIR.defaultBlockState())).isFalse();
+            assertThat(GridScanner.isHazardousFluid(Blocks.STONE.defaultBlockState())).isFalse();
         }
     }
 }

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -79,7 +80,8 @@ public final class GridScanner {
 
     /**
      * True if the block at {@code pos} cannot or should not be broken by the quarry.
-     * Skips air, fluids, and unbreakable blocks (bedrock, barriers, etc.).
+     * Skips air, fluids, and unbreakable blocks (bedrock, barriers, etc.) — treats lava as just
+     * another skippable cell. Callers use {@link #isHazardousFluid} separately to recognize it.
      */
     public static boolean shouldSkip(Level world, BlockPos pos, BlockState state) {
         if (state.isAir()) {
@@ -89,5 +91,16 @@ public final class GridScanner {
             return true;
         }
         return state.getDestroySpeed(world, pos) < 0;
+    }
+
+    /**
+     * True if {@code state} is a fluid the quarry must treat as an unminable obstruction — like
+     * bedrock, never broken and never traveled through. Compares fluid identity directly rather
+     * than the {@code minecraft:lava} tag — tags require data-pack binding that isn't available
+     * in the plain unit-test bootstrap.
+     */
+    public static boolean isHazardousFluid(BlockState state) {
+        var fluid = state.getFluidState().getType();
+        return fluid == Fluids.LAVA || fluid == Fluids.FLOWING_LAVA;
     }
 }
