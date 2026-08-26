@@ -398,9 +398,7 @@ public class KilnGameTest {
         BlockPos outputHopperPos = kilnPos.below();
 
         context.setBlock(kilnPos, LogisticsAutomation.BLOCK.KILN);
-        // A real redstone block, not a hand-set blockstate, keeps the engine POWERED: the block's
-        // own neighborChanged() recomputes POWERED from the actual signal on every neighbor update,
-        // so a hand-set true reverts to false within a couple of ticks without one.
+        // Keep a real redstone signal so neighbor updates retain POWERED.
         context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()

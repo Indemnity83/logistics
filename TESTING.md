@@ -193,8 +193,9 @@ the wiki's Crafting section — this is also how a stable registry id surviving 
 the lang file before flagging an id-vs-wiki-name difference as a discrepancy.
 `RecipeJsonSmokeTest` is mod-wide infrastructure, not block-specific: it walks every recipe JSON
 under `common/src/main/resources/data/logistics/recipe/` and checks each one is valid JSON with a
-non-blank `type` and a well-formed `result` — catching a JSON syntax error, a missing field, or a
-malformed result shape (the cheap, high-frequency ways a hand-edited recipe silently breaks) on
+non-blank `type`, and — where a `result` is present — a non-blank `id` or `fluid` field (it does not
+check `count`/`amount`) — catching a JSON syntax error, a missing `type`, or a `result` with no
+identifiable item/fluid (the cheap, high-frequency ways a hand-edited recipe silently breaks) on
 every `./gradlew :common:test` run, mod-wide, at effectively zero marginal cost per recipe added.
 It's deliberately structural, not semantic: it doesn't resolve ingredient item ids through
 Minecraft's registry (vanilla's registry silently defaults an unknown id to `minecraft:air` instead
