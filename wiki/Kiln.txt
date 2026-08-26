@@ -9,7 +9,7 @@
 |added            = v0.2.0
 }}
 
-The '''Kiln''' is an RF-powered electric furnace that '''fires''' any vanilla smelting recipe — anything you can smelt in a furnace, the Kiln makes too. It runs those recipes at the same speed as a furnace, but on [[RF Energy|RF]] instead of fuel (no fuel to manage), which makes it ideal for automated setups. There are no Kiln-only recipes; see an item's '''Smelting''' section for what it produces.
+The '''Kiln''' is an RF-powered electric furnace that '''fires''' any vanilla smelting recipe — anything you can smelt in a furnace, the Kiln makes too. It runs those recipes at twice the speed of a furnace, but on [[RF Energy|RF]] instead of fuel (no fuel to manage), which makes it ideal for automated setups. There are no Kiln-only recipes; see an item's '''Smelting''' section for what it produces.
 
 == Obtaining ==
 
@@ -35,17 +35,17 @@ The Kiln is mined with a stone pickaxe or better; without one it drops nothing.
 
 The Kiln is a direct replacement for a vanilla furnace in automated setups. Place an item in the input slot and the Kiln smelts it using RF energy, depositing the result in the output slot. It processes any vanilla smelting recipe (ores, raw metals, food, etc.), and the recipe book in the GUI lets you browse every valid recipe.
 
-Input is accepted from the top and sides; output is drawn from the bottom, the same as a vanilla furnace.
+Input is accepted from the top only; output is drawn from the bottom, the same as a vanilla furnace.
 
 === Power ===
 
-The Kiln runs on [[RF Energy|RF]] — there is no fuel slot. It holds 10,000 RF and accepts up to 128 RF/tick. Each smelt draws RF over the same time a vanilla furnace would take — about 4,000 RF for a standard 10-second smelt (20 RF/tick while active). Connect a [[Stirling Engine]] or any RF source to a side or top face.
+The Kiln runs on [[RF Energy|RF]] — there is no fuel slot. It holds 10,000 RF and accepts up to 128 RF/tick. Each smelt takes half the time a vanilla furnace would — about 2,000 RF for a standard 5-second smelt (20 RF/tick while active). Connect a [[Stirling Engine]] or any RF source to a side or top face.
 
 === Setup ===
 
 # '''Place the Kiln''' in your automation area
 # '''Connect power''' — attach a [[Stirling Engine]] or any RF source to a side or top face
-# '''Feed input''' — pipe items in from the top or sides (e.g. an [[Item Extractor Pipe]] on a chest)
+# '''Feed input''' — pipe items in from the top (e.g. an [[Item Extractor Pipe]] on a chest)
 # '''Collect output''' — pipe from the bottom into storage
 
 The Kiln smelts continuously as long as it has power and input items.
