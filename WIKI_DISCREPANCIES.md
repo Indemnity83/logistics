@@ -38,3 +38,22 @@ design (changing a registry ID after release breaks existing worlds/recipes). Th
 Recorded here so the same false positive isn't rediscovered later — see FluidPumpRecipeTest for the
 same check on the Pump, which resolves the same way.
 -->
+
+## Pump
+
+### Output rate is mislabeled — the wiki's number is really the intake average
+- **Wiki says** (`wiki/Pump.txt` § Usage): "Outputs up to 62.5 mB/t into an adjacent tank or fluid pipe"
+- **Code does** (`LogisticsPipe.CONFIG.FLUID_PUMP_PUSH_RATE_MB`): 400 mB/tick — confirmed live via
+  `FluidPumpGameTest#testFluidPumpPushRateIsFourHundredNotSixtyTwoPointFive`, which preloads the
+  pump's tank and measures the actual per-tick transfer into an adjacent Glass Tank.
+- **Root cause**: 62.5 mB/t is exactly `1000 mB (one bucket) ÷ FLUID_PUMP_INTERVAL_TICKS(16)` — the
+  *sustained average intake rate* the pump's drain step is bottlenecked to (it only pulls one full
+  bucket from the world every 16 ticks), not the push/output bandwidth into the network. Both
+  numbers are real, correctly-implemented config values; the wiki just names the wrong one "output."
+  This also explains the wiki's own follow-up advice ("Use a Golden Fluid Pipe (80 mB/t) if you need
+  to move fluid faster than one pump produces") — that framing matches the *intake-limited* ceiling,
+  not the push constant.
+- **Decision needed**: reword the wiki to describe 62.5 mB/t as the sustained average throughput
+  (limited by the world-intake interval), and either state the 400 mB/t push-rate constant
+  separately or omit it as an implementation detail (it's never the bottleneck in practice, since
+  intake is ~6.4x slower).
