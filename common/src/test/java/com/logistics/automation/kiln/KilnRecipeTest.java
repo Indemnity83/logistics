@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Asserts the Kiln's actual shipped crafting recipe against what the wiki documents, reading the
- * bundled JSON directly rather than a hand-built stand-in. No live {@code RecipeManager}/datapack
- * reload is needed to decode one known file, so this stays plain JUnit rather than a GameTest.
+ * bundled JSON directly rather than a hand-built stand-in.
  */
 @DisplayName("Kiln crafting recipe")
 class KilnRecipeTest {

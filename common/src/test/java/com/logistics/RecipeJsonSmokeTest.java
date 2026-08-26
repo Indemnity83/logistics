@@ -19,22 +19,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Structural smoke test over every recipe JSON file shipped in {@code common}'s resources (~628
- * files across 13 domains as of writing, no datagen — every one is hand-authored). Nothing else in
- * the test suite reads these files directly: the per-domain recipe tests (MaceratorRecipeTest,
- * SawmillRecipeTest, etc.) build recipe objects in Java and round-trip them through a codec in
- * memory, never touching the bundled file. That gap is exactly what let the Kiln's own
- * "Machine Frame"/"Machine Core" recipe mismatch ship unnoticed (see WIKI_DISCREPANCIES.md § Kiln).
- *
- * <p>This test is deliberately structural, not semantic — it parses every file as JSON and checks
- * the shape common to all recipe types here (a non-blank {@code type}, and a well-formed
- * {@code result} where present), rather than resolving ingredients through Minecraft's item
- * registry. A registry-based check would need the mod's domains bootstrapped in the JUnit
- * environment (more invasive machinery for uncertain payoff — vanilla's defaulted item registry
- * silently resolves an unknown id to {@code minecraft:air} instead of failing, so full codec
- * decoding wouldn't reliably catch a typo'd item id anyway). What this test does catch, mod-wide,
- * on every {@code ./gradlew :common:test} run: JSON syntax errors, a missing/blank {@code type},
- * and a malformed {@code result} block — the most common ways a hand-edited recipe silently breaks.
+ * Structural smoke test over every recipe JSON file shipped in {@code common}'s resources: parses
+ * each as JSON and checks the shape common to all recipe types here (a non-blank {@code type}, and
+ * a well-formed {@code result} where present), without resolving ingredients through Minecraft's
+ * item registry. Catches JSON syntax errors, a missing/blank {@code type}, and a malformed
+ * {@code result} block — the most common ways a hand-edited recipe silently breaks (see
+ * WIKI_DISCREPANCIES.md § Kiln for the mismatch that motivated this test).
  */
 @DisplayName("Recipe JSON files")
 class RecipeJsonSmokeTest {
@@ -78,12 +68,9 @@ class RecipeJsonSmokeTest {
             }
             JsonObject recipe = parsed.getAsJsonObject();
 
-            assertThat(recipe.has("type") && recipe.get("type").isJsonPrimitive())
-                    .as("%s has a 'type' field", file)
+            assertThat(hasNonBlankString(recipe, "type"))
+                    .as("%s has a non-blank string 'type'", file)
                     .isTrue();
-            assertThat(recipe.get("type").getAsString())
-                    .as("%s has a non-blank 'type'", file)
-                    .isNotBlank();
 
             if (recipe.has("result")) {
                 JsonElement result = recipe.get("result");

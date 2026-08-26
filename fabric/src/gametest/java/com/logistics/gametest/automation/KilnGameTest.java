@@ -257,16 +257,18 @@ public class KilnGameTest {
 
         var energy = kiln.energyStorage(null);
 
-        // Insert-rate cap: a single over-sized insert is clamped to 128 RF/t, and the cap applies
-        // per call, not once — a second identical call brings the total to 256.
+        // KILN_MAX_ENERGY_INPUT(128) clamps each insert() call, not a per-tick total: a single
+        // over-sized insert is capped at 128, and a second call in the same tick is capped again,
+        // bringing the total to 256. (A real cable network calls insert() once per tick, which is
+        // what makes this per-call cap behave as the wiki's "128 RF/tick" in practice.)
         long firstInsert = energy.insert(500, false);
         if (firstInsert != 128) {
-            context.fail("Kiln should accept at most 128 RF per insert, got: " + firstInsert);
+            context.fail("Kiln should accept at most 128 RF per insert call, got: " + firstInsert);
             return;
         }
         long secondInsert = energy.insert(500, false);
         if (secondInsert != 128 || energy.getAmount() != 256) {
-            context.fail("Kiln's 128 RF/t cap should apply per call, got amount: " + energy.getAmount());
+            context.fail("Kiln's 128 RF per-call cap should apply on every call, got amount: " + energy.getAmount());
             return;
         }
 
@@ -353,9 +355,10 @@ public class KilnGameTest {
             energyAtFirstCompletion[0] = energy.getAmount();
         });
 
-        // A few ticks later, the second item should already be drawing energy — no idle gap
-        // between recipes while power and input remain available.
-        context.runAfterDelay(115, () -> {
+        // The very next tick after completion, the second item should already be drawing energy —
+        // no idle gap between recipes while power and input remain available. A one-tick window
+        // (rather than a several-tick grace period) means a delayed restart can't slip through.
+        context.runAfterDelay(111, () -> {
             if (energy.getAmount() >= energyAtFirstCompletion[0]) {
                 context.fail("Kiln should resume smelting immediately after the first item completes");
             }

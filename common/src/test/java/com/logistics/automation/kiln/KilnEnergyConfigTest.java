@@ -10,9 +10,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Locks in the Kiln's documented power numbers (see wiki/Kiln.txt § Power) as fast, engine-free
- * regression guards. Wiring/live-behavior assertions for the same numbers live in
- * {@code fabric/src/gametest/.../KilnGameTest.testKilnSmeltsWithEnergy}; this class is the pure-math
- * counterpart that needs no {@code Level}/GameTest to run.
+ * regression guards.
  */
 @DisplayName("Kiln energy config and smelt math")
 class KilnEnergyConfigTest {
