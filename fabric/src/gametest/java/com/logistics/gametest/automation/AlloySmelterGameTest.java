@@ -2,12 +2,18 @@ package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.alloysmelter.AlloySmelterBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 
 /**
  * Gametests for the Alloy Smelter: order-independent dual inputs, RF cost, and both documented
@@ -144,5 +150,49 @@ public class AlloySmelterGameTest {
             }
             context.succeed();
         });
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "The two inputs are order-independent... connect a Stirling Engine
+     * or any RF source." The tests above prove the recipe math and input-order independence by
+     * manipulating storages directly; this one proves the whole feature as a player actually wires
+     * it up — a real engine (no cable) delivering power, and a single real hopper stocked with both
+     * ingredients feeding the two input slots, with another hopper pulling the ingot out.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Alloy_Smelter#Usage">wiki/Alloy Smelter.txt § Usage</a>
+     */
+    @GameTest(maxTicks = 260)
+    public void testSmeltsIronOreViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos smelterPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = smelterPos.above();
+        BlockPos outputHopperPos = smelterPos.below();
+
+        context.setBlock(smelterPos, LogisticsAutomation.BLOCK.ALLOY_SMELTER);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        if (engine == null || inputHopper == null) {
+            context.fail("Expected engine and input hopper block entities");
+            return;
+        }
+
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the alloy smelter's 128 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.IRON_ORE));
+        inputHopper.setItem(1, new ItemStack(Items.SAND));
+
+        context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, Items.IRON_INGOT));
     }
 }
