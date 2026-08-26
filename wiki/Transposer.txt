@@ -1,7 +1,7 @@
 {{Block
 |image            = Grid Transposer.png
 |type             = Block (Machine)
-|function         = Converts buckets ⇄ fluid
+|function         = RF-powered fluid ⇄ item conversion
 |stackable        = Yes (64)
 |transparent      = Partial
 |tool             = Pickaxe
@@ -10,7 +10,7 @@
 |added            = v0.8.6
 }}
 
-The '''Transposer''' is a fluid ⇄ bucket station: it fills empty buckets from its internal tank and empties filled buckets into it. It runs on no power at all — just buckets in, buckets out.
+The '''Transposer''' is an [[RF Energy|RF]]-powered fluid ⇄ item station: its main job is filling empty buckets from its internal tank and emptying filled buckets into it, and it also runs a handful of other item/fluid conversions (curing concrete powder, pressing cactus into water, pressing seed oil, and more) through a data-driven recipe system.
 
 == Obtaining ==
 
@@ -27,19 +27,24 @@ The Transposer is mined with a stone pickaxe or better; without one it drops not
 
 {{Crafting|head=1|foot=1|showname=0
 |B1=Bucket
-|A2=Bucket |B2=Machine Frame |C2=Bucket
+|A2=Glass |B2=Machine Frame |C2=Glass
 |A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
 |Output=Transposer
 }}
 
 == Usage ==
 
-Drop an item into the input slot and the Transposer converts it in a single tick:
+Drop an item into the input slot and, given enough RF and tank room, the Transposer converts it:
 
 * An '''empty bucket''' plus at least 1,000 mB in the tank becomes a filled bucket of that fluid; the tank loses 1,000 mB.
 * A '''filled bucket''' — water, lava, or any Logistics fluid bucket — plus room for 1,000 mB becomes a plain empty bucket; the tank gains 1,000 mB.
+* A handful of other item + fluid conversions (mossy cobblestone/stone bricks, curing concrete powder, pressing cactus into water, pressing seed oil from seeds, and more) — check JEI for the full list.
 
-The conversion is atomic: if the output slot can't hold the result, nothing is consumed and the tank is untouched. The tank holds '''16,000 mB (16 buckets)''' by default. Pipe fluid in and out with a [[Fluid Pipes|fluid pipe]], and automate the item side with [[Item Pipes|item pipes]] or a hopper. Breaking the Transposer drops its slot contents but voids whatever fluid remains in the tank.
+The conversion is atomic: if the output slot can't hold the result or there isn't enough RF banked, nothing is consumed and the tank is untouched. The tank holds '''16,000 mB (16 buckets)''' by default. Pipe fluid in and out with a [[Fluid Pipes|fluid pipe]], and automate the item side with [[Item Pipes|item pipes]] or a hopper. Breaking the Transposer drops its slot contents but voids whatever fluid remains in the tank.
+
+=== Power ===
+
+The Transposer runs on [[RF Energy|RF]]. It holds 20,000 RF and accepts up to 128 RF/tick. A bucket fill/empty costs 800 RF, drawn at 20 RF/tick (about 2 seconds); other recipes cost more depending on what they produce. Connect a [[Stirling Engine]] or any RF source to a side or top face.
 
 == Data values ==
 
@@ -49,12 +54,15 @@ The conversion is atomic: if the output slot can't hold the result, nothing is c
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.6|[[File:Grid Transposer.png|32px]] Added '''Transposer'''.}}
+{{History|head=1|v0.8.6|[[File:Grid Transposer.png|32px]] Added '''Transposer'''.}}
+{{History|foot=1|v0.8.7|Added an RF cost (previously free); recipes moved to a data-driven system with several new conversions; crafting recipe swapped side buckets for glass.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system
 * [[Pump]] - Draws fluid from the world instead of a bucket
 * [[Glass Tank]] - Buffer fluid before or after the Transposer
+* [[Stirling Engine]] - Recommended power source
+* [[RF Energy]] - Power system overview
 * [[Machine Frame]], [[Redstone Reception Coil]] - Recipe components
 
 {{Navbox Logistics}}
