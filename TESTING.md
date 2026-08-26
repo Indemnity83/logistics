@@ -213,19 +213,38 @@ Not executed yet — recorded here so the next pass doesn't have to re-derive pr
    methodology itself: a recipe's raw item id (e.g. `machine_core`) can outlive a display-name rename
    ("Machine Frame") — check the lang file before flagging an id-vs-wiki-name difference as a
    mismatch (see `WIKI_DISCREPANCIES.md`'s closed Kiln entry).
-2. **Laser Quarry verification** — already has real coverage (`QuarryPhaseRunnerTest`,
-   `QuarryGameTest`, `QuarryMiningGameTest`); cheap pass to check existing tests actually assert the
-   wiki's specific claims (marker-consumption, chunk-loading toggle, power-scaling).
+~~2. **Laser Quarry verification**~~ — done, and genuinely cheap as predicted: `QuarryMiningGameTest`
+   already had deep, well-targeted coverage (phase transitions, lava-as-unminable, blocked-column
+   tracking across zigzag/reload, re-mining reappeared blocks) — mostly *undocumented* implementation
+   robustness, not wiki claims, so it stayed untouched. Added wiki-quote traceability to the tests
+   that do map to documented claims (reaching MINING phase — not a full frame-then-mine assertion,
+   since the frame blocks themselves aren't checked; stops without power; output with no extractor
+   needed), plus a new test confirming a quarry placed with no adjacent markers leaves custom bounds
+   unset, so it falls back to the default `QUARRY_AREA = 16` config value (previously asserted
+   nowhere) — this doesn't measure the resulting mined area itself. This pass also surfaced two real,
+   previously-invisible gaps worth flagging on their own:
+   - **Marker consumption is completely untested** — no test anywhere places markers, activates
+     them, or confirms the quarry consumes them into custom bounds. Folds into backlog item 5 below
+     (Marker block) rather than a separate entry, since testing consumption requires the Marker
+     block to have basic coverage first.
+   - **The chunk-loading toggle (`quarry_load_chunks`, added v0.7.4) has zero coverage at any
+     level** — no test confirms the config default (`false`), that enabling it acquires chunk
+     tickets for the quarry and its work area, or that tickets are released on finish/removal. Not
+     wiki-claim work in the usual sense (nothing to compare against — the wiki's description already
+     matches the config's intent); this is a plain missing-test gap. Promoted to its own item (4)
+     given the "world keeps mining unattended" behavior it gates is easy to break silently.
 3. **CraftingModule / ProcessModule / SatelliteModule pipes** — well unit-tested, zero in-world
    GameTest; low-risk pass adding wiki-traceability to already-correct assertions.
-4. **GoldCable** — untested sibling in an otherwise-tested tier family; small, pure-math-friendly
+4. **Quarry chunk-loading toggle** — surfaced above; needs a `ChunkLoadingComponent`-level or
+   GameTest check that toggling `quarry_load_chunks` actually acquires/releases chunk tickets.
+5. **Marker block** — stateful, zero coverage, likely a short wiki page; do this before revisiting
+   quarry marker-consumption above, since that depends on the Marker block having basic tests first.
+6. **GoldCable** — untested sibling in an otherwise-tested tier family; small, pure-math-friendly
    like Kiln's RF numbers.
-5. **Refinery's own distillation/byproduct logic** — currently only exercised as a passive tank
+7. **Refinery's own distillation/byproduct logic** — currently only exercised as a passive tank
    host; generic component math already proven in `RecipeProcessorComponentTest`, so this is mostly
    wiki-claim extraction + a Refinery-specific test.
-6. **Marker block** — stateful, zero coverage, likely a short wiki page; good "wiring tests from
-   scratch" exercise.
-7. **Alloy Smelter / Crucible / Sequential Fabricator / fluid-routing modules
+8. **Alloy Smelter / Crucible / Sequential Fabricator / fluid-routing modules
    (FluidInsertionModule, FluidMergerModule, FluidBypassModule, FluidVoidModule) last** — genuinely
    complex (dual-input, multi-stage, chance-byproduct, routing-policy); tackle once the methodology
    is proven on 2-3 simpler blocks.
