@@ -3,9 +3,12 @@ package com.logistics.gametest.automation;
 import com.logistics.automation.laserquarry.entity.QuarryEnergy;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.automation.laserquarry.entity.QuarryPhase;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import net.minecraft.core.BlockPos;
@@ -212,6 +215,61 @@ public class QuarryMiningGameTest {
         }
 
         // Succeed as soon as the chest contains dirt (quarry mines dirt around tick ~33)
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
+    }
+
+    /**
+     * Same setup as {@link #testQuarryOutputsMinedBlockToChest}, but powered by a real engine
+     * instead of pre-filling the energy buffer directly — the phase-machine tests above isolate
+     * mining logic from power delivery on purpose (frame + mining costs thousands of RF, so
+     * pre-charging keeps their tick budgets tight); this test proves power delivery itself works
+     * end to end, the way a player would actually wire the quarry up.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Power">wiki/Laser Quarry.txt § Power</a>
+     */
+    @GameTest(maxTicks = 200)
+    public void testQuarryMinesAndOutputsViaRealEngine(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 2, 1);
+        BlockPos chestPos = new BlockPos(1, 3, 1);
+        BlockPos dirtPos = new BlockPos(1, 1, 3);
+        BlockPos enginePos = new BlockPos(0, 2, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 2, 1);
+
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
+        context.setBlock(dirtPos, Blocks.DIRT);
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        LaserQuarryBlockEntity quarry = context.getBlockEntity(quarryPos, LaserQuarryBlockEntity.class);
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        if (quarry == null || engine == null) {
+            context.fail("Expected quarry and engine block entities");
+            return;
+        }
+
+        BlockPos absPos = context.absolutePos(quarryPos);
+        quarry.setCustomBounds(
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
+
+        // Cycle to the max output level (1280 RF/t); the quarry's own per-call cap (1 000 RF)
+        // still throttles what it actually receives each tick.
+        for (int i = 0; i < 6; i++) {
+            engine.cycleOutputLevel();
+        }
+
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
     }
 
