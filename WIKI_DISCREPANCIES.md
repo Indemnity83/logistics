@@ -27,9 +27,14 @@ wiki to match actual (intended) behavior. Not resolved here — logged for a fol
   input should be added to match documented behavior — likely a wiki fix given furnace-parity is
   the whole design intent.
 
-### Crafting recipe center ingredient
-- **Wiki says** (`wiki/Kiln.txt` § Crafting template): "Machine Frame"
-- **Code does** (`common/src/main/resources/data/logistics/recipe/automation/kiln.json`, key `M`):
-  `logistics:core/machine_core` — "Machine Core," a distinct item from "Machine Frame"
-- **Decision needed**: confirm which item name is current/intended (this may be leftover from an
-  item rename) and correct whichever side is stale.
+<!--
+Not a real discrepancy (checked and closed): the Kiln's recipe keys its center ingredient to
+`logistics:core/machine_core`, while the wiki's Crafting template calls it "Machine Frame." This
+first looked like a naming mismatch, but `logistics-docs/wiki/Machine Frame.txt`'s own History
+section says the item was "Added as Machine Core" (v0.5.0) then "Renamed to Machine Frame" (v0.8.0)
+— the registry ID (`machine_core`) is a stable identifier that outlived the display-name rename, by
+design (changing a registry ID after release breaks existing worlds/recipes). The lang file confirms
+`item.logistics.core.machine_core` displays in-game as "Machine Frame," matching the wiki exactly.
+Recorded here so the same false positive isn't rediscovered later — see FluidPumpRecipeTest for the
+same check on the Pump, which resolves the same way.
+-->

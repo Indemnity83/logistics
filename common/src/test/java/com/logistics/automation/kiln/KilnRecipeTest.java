@@ -13,10 +13,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Asserts the Kiln's actual shipped crafting recipe against what the wiki documents, reading the
- * bundled JSON directly rather than a hand-built stand-in — the gap that let a real "Machine Frame"
- * vs. "Machine Core" mismatch ship unnoticed (see WIKI_DISCREPANCIES.md § Kiln). No live
- * {@code RecipeManager}/datapack reload is needed to decode one known file, so this stays plain
- * JUnit rather than a GameTest.
+ * bundled JSON directly rather than a hand-built stand-in. No live {@code RecipeManager}/datapack
+ * reload is needed to decode one known file, so this stays plain JUnit rather than a GameTest.
  */
 @DisplayName("Kiln crafting recipe")
 class KilnRecipeTest {
@@ -34,14 +32,15 @@ class KilnRecipeTest {
      * Wiki claim (Crafting template): a 3x3 shaped recipe — row 1: _, Redstone, _; row 2: Bricks,
      * Machine Frame, Bricks; row 3: Copper Gear, Redstone Reception Coil, Copper Gear -> 1 Kiln.
      *
-     * <p>NOTE: the wiki names the row-2 center ingredient "Machine Frame". The recipe actually keys
-     * it to {@code logistics:core/machine_core} ("Machine Core") — a distinct item. This test
-     * asserts the shipped recipe as-is; see WIKI_DISCREPANCIES.md § Kiln for the tracked mismatch.
+     * <p>The row-2 center key resolves to item id {@code logistics:core/machine_core} — a stable
+     * registry id kept from before the item's v0.8.0 display-name rename to "Machine Frame"
+     * ({@code item.logistics.core.machine_core} in the lang file). Not a mismatch; see
+     * WIKI_DISCREPANCIES.md § Kiln for how this was confirmed.
      *
      * @see <a href="https://logistics.fandom.com/wiki/Kiln#Crafting">wiki/Kiln.txt § Crafting</a>
      */
     @Test
-    @DisplayName("matches the wiki's documented shape and ingredients, except the row-2 center item")
+    @DisplayName("matches the wiki's documented shape and ingredients")
     void matchesDocumentedShapeAndIngredients() throws IOException {
         JsonObject recipe = loadKilnRecipe();
 
@@ -58,7 +57,7 @@ class KilnRecipeTest {
         assertThat(key.get("B").getAsString()).isEqualTo("minecraft:bricks");
         assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
         assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
-        // NOTE: wiki says "Machine Frame"; the shipped recipe uses Machine Core. See above.
+        // "Machine Frame" in-game; logistics:core/machine_core is its (unchanged) registry id.
         assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core");
 
         JsonObject result = recipe.getAsJsonObject("result");

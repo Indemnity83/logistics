@@ -156,7 +156,9 @@ Recipes are ~628 hand-authored JSON files (`common/src/main/resources/data/logis
 domains, no datagen). Decoding a *specific* recipe file to check its content is plain JUnit — no
 live `RecipeManager`/datapack reload needed, that machinery is only required for *resolving* a
 recipe against a live inventory. `KilnRecipeTest` reads `kiln.json` directly and compares it against
-the wiki's Crafting section (which is how the Machine Core/Machine Frame mismatch below was found).
+the wiki's Crafting section — this is also how a stable registry id surviving a display-name rename
+(`machine_core` / "Machine Frame") was confirmed *not* to be a mismatch, a useful reminder to check
+the lang file before flagging an id-vs-wiki-name difference as a discrepancy.
 `RecipeJsonSmokeTest` is mod-wide infrastructure, not block-specific: it walks every recipe JSON
 under `common/src/main/resources/data/logistics/recipe/` and checks each one is valid JSON with a
 non-blank `type` and a well-formed `result` — catching a JSON syntax error, a missing field, or a
