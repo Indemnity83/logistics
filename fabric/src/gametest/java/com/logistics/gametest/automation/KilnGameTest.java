@@ -1,9 +1,12 @@
 package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.kiln.KilnBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +14,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class KilnGameTest {
@@ -369,6 +374,54 @@ public class KilnGameTest {
             }
             context.succeed();
         });
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "Input is accepted from the top... connect a Stirling Engine or
+     * any RF source." The tests above prove the recipe math and energy contract by manipulating
+     * the kiln's storages directly; this one proves the whole feature as a player actually wires
+     * it up — a real engine delivering power with no cable in between, and a real hopper pushing
+     * the ingredient in and another pulling the result out — with no direct capability calls.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Usage">wiki/Kiln.txt § Usage</a>
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Power">wiki/Kiln.txt § Power</a>
+     */
+    @GameTest(maxTicks = 220)
+    public void testKilnSmeltsViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos kilnPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = kilnPos.above();
+        BlockPos outputHopperPos = kilnPos.below();
+
+        context.setBlock(kilnPos, LogisticsAutomation.BLOCK.KILN);
+        // A real redstone block, not a hand-set blockstate, keeps the engine POWERED: the block's
+        // own neighborChanged() recomputes POWERED from the actual signal on every neighbor update,
+        // so a hand-set true reverts to false within a couple of ticks without one.
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        if (engine == null || inputHopper == null) {
+            context.fail("Expected engine and input hopper block entities");
+            return;
+        }
+
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t so the engine comfortably clears the kiln's 128 RF/t
+        // input cap and is never the bottleneck being measured here.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.RAW_IRON));
+
+        context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, Items.IRON_INGOT));
     }
 
     /**

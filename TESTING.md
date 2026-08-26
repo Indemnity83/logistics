@@ -124,6 +124,38 @@ the Kiln (`common/src/test/java/com/logistics/automation/kiln/`,
 8. **Fabric only.** NeoForge's GameTest registration is blocked upstream (see "NeoForge Game Tests"
    below, once that section exists) — don't add or modify `neoforge/src/gametest` for this work.
 
+### Real connectivity, not direct capability calls
+
+GameTests are the layer that proves a feature works the way a player actually hooks it up; plain
+JUnit is the layer that protects the internal pieces (config values, pure recipe/component math)
+from regressing. For the assertion that proves a feature works — not a precondition unrelated to
+what's under test — prefer:
+
+- **Power in** via a real, directly-adjacent `CREATIVE_ENGINE` (no cable needed unless cable
+  routing itself is what's under test), not `energyStorage().insert()`. Cycle its output level a
+  few notches above the machine's own max-input cap so the engine is never the bottleneck being
+  measured; the machine's own cap still throttles what it actually receives per tick.
+- **Items in** via a real `Blocks.HOPPER` above (or whichever face the wiki calls out) with the
+  ingredient placed directly in the hopper's own slot — filling the *hopper's* inventory this way is
+  a precondition unrelated to what's under test (hopper→machine transfer), same as pre-filling energy
+  to isolate recipe math.
+- **Output verified** by what a real downstream `Blocks.HOPPER`/pipe/chest received
+  (`context.succeedWhen(() -> context.assertContainerContains(pos, item))`), not by reading the
+  block entity's own slot/tank state directly.
+- Direct capability manipulation (`setItem()`, `energyStorage().insert()`, `fluidStorage().insert()`)
+  remains fine for multi-slot/multi-item setups where real hopper distribution across several
+  distinct slots is genuinely uncertain (e.g. dual-input recipes) — add the real-connectivity test
+  alongside the existing precise-math test rather than replacing it.
+
+**Gotcha: `CREATIVE_ENGINE`'s `POWERED` blockstate is not a stable manual flag.**
+`AbstractEngineBlock.neighborChanged()` recomputes `POWERED` from the actual redstone signal on
+every neighbor update and overwrites a hand-set `true` — within 2-3 ticks in practice, once the
+adjacent hopper/machine placement fires an update. A test that just does
+`.setValue(AbstractEngineBlock.POWERED, true)` with no real signal will silently lose power after a
+couple of ticks (existing short-window tests never noticed because they only check `amount > 0`).
+Place a real `Blocks.REDSTONE_BLOCK` adjacent to the engine (on a face other than its output) so the
+signal is genuine and `POWERED` stays true for the test's full duration.
+
 ### Traceability convention
 
 `@GameTest` methods are discovered by Fabric's shim, not JUnit, so `@DisplayName` isn't available —
