@@ -4,11 +4,14 @@ import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPower;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.automation.pump.FluidPumpBlockEntity;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -627,6 +630,52 @@ public class FluidPumpGameTest {
                 return;
             }
             succeed(context);
+        });
+    }
+
+    /**
+     * Wiki claim (Power/Usage): "Supply it with RF from your power system... to keep it draining,"
+     * feeding "into an adjacent tank." The tests above prove draining and push-rate math by
+     * inserting energy directly; this one proves the whole feature as a player wires it up — a real
+     * engine (no cable) delivering power and a real Glass Tank receiving the output.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Power">wiki/Pump.txt § Power</a>
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
+    @GameTest(maxTicks = 100)
+    public void testFluidPumpDrainsAndOutputsViaRealEngine(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos waterPos = pumpPos.below();
+        BlockPos tankPos = pumpPos.above();
+        BlockPos enginePos = pumpPos.north();
+        BlockPos redstoneBlockPos = enginePos.north();
+
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(waterPos, Blocks.WATER);
+        context.setBlock(tankPos, LogisticsPipe.BLOCK.GLASS_TANK);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.SOUTH)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        GlassTankBlockEntity tank = context.getBlockEntity(tankPos, GlassTankBlockEntity.class);
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        if (pump == null || tank == null || engine == null) {
+            fail(context, "Expected pump, tank, and engine block entities");
+            return;
+        }
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the pump's 150 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        fastArm(pump);
+
+        context.succeedWhen(() -> {
+            if (tank.tank().getAmount() <= 0 || tank.tank().getFluidKey().getFluid() != Fluids.WATER) {
+                throw context.assertionException("Engine-powered pump should push drained water into the tank");
+            }
         });
     }
 
