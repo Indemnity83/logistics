@@ -39,6 +39,7 @@
 			"com.logistics.gametest.power.FuelEngineGameTest",
 			"com.logistics.gametest.automation.QuarryGameTest",
 			"com.logistics.gametest.automation.QuarryMiningGameTest",
+			"com.logistics.gametest.automation.CrucibleGameTest",
 			"com.logistics.gametest.automation.KilnGameTest",
 			"com.logistics.gametest.automation.RefineryGameTest",
 			"com.logistics.gametest.automation.SawmillGameTest",
