@@ -1,6 +1,7 @@
 package com.logistics.gametest.core;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.automation.macerator.MaceratorBlock;
@@ -36,6 +37,13 @@ public class MaceratorGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "Input is accepted from the top and sides; output is drawn from the
+     * bottom." Unlike the Kiln (top-only), the Macerator genuinely accepts input from every
+     * non-bottom face, matching the wiki as written — no mismatch here.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Macerator#Usage">wiki/Macerator.txt § Usage</a>
+     */
     @GameTest
     public void testSidedAccess(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -108,6 +116,12 @@ public class MaceratorGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "...most ores take 2,000 RF (10 seconds)." (Recipes § Ores → Dust):
+     * "Iron Ore -> Iron Dust,2".
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Macerator#Usage">wiki/Macerator.txt § Usage</a>
+     */
     @GameTest(maxTicks = 240)
     public void testMaceratesOreWithEnergy(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -123,17 +137,23 @@ public class MaceratorGameTest {
         for (int i = 0; i < 80; i++) {
             energy.insert(128, false);
         }
+        long filledEnergy = energy.getAmount();
         macerator.setItem(INPUT_SLOT, new ItemStack(Items.IRON_ORE));
 
-        // iron_ore costs 2000 RF at 10 RF/t -> 200 ticks.
+        // iron_dust.json costs 2000 RF at 10 RF/t -> 200 ticks; 220 leaves setup slack.
         context.runAfterDelay(220, () -> {
             if (!macerator.getItem(INPUT_SLOT).isEmpty()) {
                 context.fail("Input ore should be consumed after maceration");
                 return;
             }
             ItemStack output = macerator.getItem(OUTPUT_SLOT);
-            if (output.isEmpty()) {
-                context.fail("Macerator should have produced dust");
+            if (output.isEmpty() || output.getCount() != 2 || !output.is(LogisticsCore.ITEM.IRON_DUST)) {
+                context.fail("Macerator should have produced 2 iron dust, got: " + output);
+                return;
+            }
+            long spent = filledEnergy - energy.getAmount();
+            if (spent != 2_000) {
+                context.fail("Grinding iron ore should cost exactly 2,000 RF, spent: " + spent);
                 return;
             }
             context.succeed();
