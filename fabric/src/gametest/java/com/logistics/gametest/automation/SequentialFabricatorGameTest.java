@@ -3,14 +3,19 @@ package com.logistics.gametest.automation;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.fabricator.SequentialFabricatorBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 
 /**
  * Gametests for the Sequential Fabricator: building a selected chipset from its material pool, RF
@@ -102,5 +107,49 @@ public class SequentialFabricatorGameTest {
             context.assertContainerContains(chestPos, LogisticsCore.ITEM.REDSTONE_CHIPSET);
             context.assertContainerContains(chestPos, LogisticsCore.ITEM.COPPER_CHIPSET);
         }));
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "...feed it the ingredients... connect a strong RF source." The
+     * test above proves the recipe math by pre-charging the buffer directly; this one proves the
+     * whole feature as a player actually wires it up — a real engine (no cable) delivering power,
+     * and a real hopper pushing redstone into the pool with another pulling the finished chipset
+     * out.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Sequential_Fabricator#Usage">wiki/Sequential Fabricator.txt § Usage</a>
+     */
+    @GameTest(maxTicks = 200)
+    public void testBuildsChipsetViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos fabricatorPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = fabricatorPos.above();
+        BlockPos outputHopperPos = fabricatorPos.below();
+
+        SequentialFabricatorBlockEntity fabricator = place(context, fabricatorPos);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        if (fabricator == null || engine == null || inputHopper == null) {
+            context.fail("Expected fabricator, engine, and input hopper block entities");
+            return;
+        }
+
+        fabricator.toggleSelection(chipset("fabricator/redstone_chipset"));
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the fabricator's 128 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.REDSTONE));
+
+        context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.REDSTONE_CHIPSET));
     }
 }
