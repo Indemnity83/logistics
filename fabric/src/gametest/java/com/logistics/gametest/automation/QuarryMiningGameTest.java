@@ -3,9 +3,12 @@ package com.logistics.gametest.automation;
 import com.logistics.automation.laserquarry.entity.QuarryEnergy;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
 import com.logistics.automation.laserquarry.entity.QuarryPhase;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.gametest.framework.GameTest;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import net.minecraft.core.BlockPos;
@@ -34,10 +37,12 @@ import net.minecraft.world.level.block.Blocks;
 public class QuarryMiningGameTest {
 
     /**
-     * Verifies that a quarry with no energy stays in CLEARING phase.
+     * Wiki claim (Power): "...the quarry stops entirely without power."
      *
      * <p>With energy = 0, {@code tickClearing} returns immediately on every tick.
      * After 20 ticks the phase must still be CLEARING.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Power">wiki/Laser Quarry.txt § Power</a>
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 30)
     public void testQuarryStallsWithoutEnergy(GameTestHelper context) {
@@ -61,7 +66,11 @@ public class QuarryMiningGameTest {
     }
 
     /**
-     * Verifies phase progression from CLEARING → BUILDING_FRAME → MINING.
+     * Wiki claim (Usage): "...the Laser Quarry constructs a mining frame around the target area,
+     * then excavates layer by layer down to bedrock..."
+     *
+     * <p>Verifies the quarry reaches MINING phase by the expected tick. It does not sample
+     * BUILDING_FRAME along the way or assert the frame blocks themselves were placed.
      *
      * <p>With full energy (7 680 RF) and a 3×3 outer frame:
      * <ul>
@@ -74,6 +83,8 @@ public class QuarryMiningGameTest {
      * <p>The clearing volume (3×3 × 5 Y levels, in front of the quarry) is pre-filled
      * with air to avoid underground terrain blocks, which would stall a quarry that has
      * only a few hundred RF to spare for stone-breaking.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Usage">wiki/Laser Quarry.txt § Usage</a>
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testQuarryTransitionsThroughPhases(GameTestHelper context) {
@@ -147,6 +158,12 @@ public class QuarryMiningGameTest {
      * <p>The chest is placed upfront because the clearing scan only covers the bounds
      * X/Z range (dz = +1..+3 relative to the quarry). The chest at dz = 0 (directly
      * above the quarry) is outside the clearing zone and will not be removed.
+     *
+     * <p>Wiki claim (Item collection): "Mined items output from the top of the quarry into any
+     * connected inventory or pipe (no extractor needed)." No extractor is used here — the chest
+     * receives items directly.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Item_collection">wiki/Laser Quarry.txt § Item collection</a>
      */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testQuarryOutputsMinedBlockToChest(GameTestHelper context) {
@@ -197,6 +214,61 @@ public class QuarryMiningGameTest {
         }
 
         // Succeed as soon as the chest contains dirt (quarry mines dirt around tick ~33)
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
+    }
+
+    /**
+     * Same setup as {@link #testQuarryOutputsMinedBlockToChest}, but powered by a real engine
+     * instead of pre-filling the energy buffer directly — the phase-machine tests above isolate
+     * mining logic from power delivery on purpose (frame + mining costs thousands of RF, so
+     * pre-charging keeps their tick budgets tight); this test proves power delivery itself works
+     * end to end, the way a player would actually wire the quarry up.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Power">wiki/Laser Quarry.txt § Power</a>
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
+    public void testQuarryMinesAndOutputsViaRealEngine(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 2, 1);
+        BlockPos chestPos = new BlockPos(1, 3, 1);
+        BlockPos dirtPos = new BlockPos(1, 1, 3);
+        BlockPos enginePos = new BlockPos(0, 2, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 2, 1);
+
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
+        context.setBlock(dirtPos, Blocks.DIRT);
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(quarryPos);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        if (quarry == null || engine == null) {
+            context.fail("Expected quarry and engine block entities");
+            return;
+        }
+
+        BlockPos absPos = context.absolutePos(quarryPos);
+        quarry.setCustomBounds(
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
+
+        // Cycle to the max output level (1280 RF/t); the quarry's own per-call cap (1 000 RF)
+        // still throttles what it actually receives each tick.
+        for (int i = 0; i < 6; i++) {
+            engine.cycleOutputLevel();
+        }
+
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
     }
 
