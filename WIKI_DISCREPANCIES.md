@@ -3,29 +3,26 @@
 Confirmed mismatches between documented behavior (`logistics-docs`, `wiki/*.txt`) and actual code,
 found while writing wiki-driven feature tests (see `TESTING.md` → "Wiki-Driven Feature Tests").
 Each entry needs a deliberate decision: fix the code to match the documented intent, or fix the
-wiki to match actual (intended) behavior. Not resolved here — logged for a follow-up triage pass.
+wiki to match actual (intended) behavior.
+
+All entries below are resolved and closed — kept as HTML comments so the same false positives and
+fixes aren't rediscovered from scratch later. New findings go in a fresh, uncommented section above
+the closed ones.
 
 ## Kiln
 
-### RF cost per smelt
-- **Wiki says** (`wiki/Kiln.txt` § Power): "about 4,000 RF for a standard 10-second smelt"
-- **Code does** (`SmeltingRecipeResolver.java`): 200-tick recipe × `KILN_RF_PER_COOK_TICK`(10) = 2,000 RF
-- **Root cause**: `KILN_RF_PER_COOK_TICK` (10) and `KILN_ENERGY_PER_TICK` (20) are independently
-  configured; if equal, the wiki's numbers would be exactly correct.
-- **Decision needed**: retune `KILN_RF_PER_COOK_TICK` to 20 (matches wiki, doubles RF cost), or
-  correct the wiki to "2,000 RF / 5 seconds — twice furnace speed."
+<!--
+Resolved (closed): RF cost per smelt + Smelt speed. Wiki corrected to match code — the Kiln runs a
+200-tick vanilla recipe in 100 ticks (5s) for 2,000 RF total (`KILN_RF_PER_COOK_TICK`(10) × cook
+time, spent at `KILN_ENERGY_PER_TICK`(20)/tick), i.e. twice furnace speed, not the same speed at
+4,000 RF as previously documented. Fixed in logistics-docs commit 7ba3e7af.
+-->
 
-### Smelt speed
-- **Wiki says**: "runs recipes at the same speed as a furnace" (200 ticks / 10s)
-- **Code does**: 100 ticks / 5s (half furnace time), a direct consequence of the RF-cost mismatch above
-- **Decision needed**: same knob as above — resolved together.
-
-### Input sides
-- **Wiki says** (stated twice — Usage and Setup): "input is accepted from the top and sides"
-- **Code does** (`KilnBlockEntity` class Javadoc + `.furnaceAccess(...)`): top only
-- **Decision needed**: correct the wiki (two sentences) to "top only," or reconsider whether side
-  input should be added to match documented behavior — likely a wiki fix given furnace-parity is
-  the whole design intent.
+<!--
+Resolved (closed): Input sides. Wiki corrected to "top only" (Usage + Setup), matching
+`KilnBlockEntity`'s top-only input wiring (`.furnaceAccess(...)`). Documented as top-only until any
+future input-filtering work changes the code side. Fixed in logistics-docs commit 7ba3e7af.
+-->
 
 <!--
 Not a real discrepancy (checked and closed): the Kiln's recipe keys its center ingredient to
@@ -39,21 +36,21 @@ Recorded here so the same false positive isn't rediscovered later — see FluidP
 same check on the Pump, which resolves the same way.
 -->
 
+<!--
+Related fix, not from a wiki-driven feature test: `wiki/Macerator.txt` § Power claimed its 10 RF/t
+draw was "more than the Kiln." That was backwards once the Kiln entry above was corrected to 20
+RF/t — the Macerator draws less, not more. The comparison clause was dropped rather than restated
+in the other direction (it wasn't load-bearing). Fixed in logistics-docs commit 2d62f834.
+-->
+
 ## Pump
 
-### Output rate is mislabeled — the wiki's number is really the intake average
-- **Wiki says** (`wiki/Pump.txt` § Usage): "Outputs up to 62.5 mB/t into an adjacent tank or fluid pipe"
-- **Code does** (`LogisticsPipe.CONFIG.FLUID_PUMP_PUSH_RATE_MB`): 400 mB/tick — confirmed live via
-  `FluidPumpGameTest#testFluidPumpPushRateIsFourHundredNotSixtyTwoPointFive`, which preloads the
-  pump's tank and measures the actual per-tick transfer into an adjacent Glass Tank.
-- **Root cause**: 62.5 mB/t is exactly `1000 mB (one bucket) ÷ FLUID_PUMP_INTERVAL_TICKS(16)` — the
-  *sustained average intake rate* the pump's drain step is bottlenecked to (it only pulls one full
-  bucket from the world every 16 ticks), not the push/output bandwidth into the network. Both
-  numbers are real, correctly-implemented config values; the wiki just names the wrong one "output."
-  This also explains the wiki's own follow-up advice ("Use a Golden Fluid Pipe (80 mB/t) if you need
-  to move fluid faster than one pump produces") — that framing matches the *intake-limited* ceiling,
-  not the push constant.
-- **Decision needed**: reword the wiki to describe 62.5 mB/t as the sustained average throughput
-  (limited by the world-intake interval), and either state the 400 mB/t push-rate constant
-  separately or omit it as an implementation detail (it's never the bottleneck in practice, since
-  intake is ~6.4x slower).
+<!--
+Resolved (closed): Output rate was mislabeled — the wiki's number is really the intake average.
+Wiki reworded to describe 62.5 mB/t as the sustained average throughput (one 1,000 mB source block
+drained every `FLUID_PUMP_INTERVAL_TICKS`(16) ticks), not an "output" bandwidth figure. The 400 mB/t
+push constant (`FLUID_PUMP_PUSH_RATE_MB`) was left out of the wiki as an implementation detail,
+since intake is ~6.4x slower and is always the practical bottleneck. The existing Golden Fluid Pipe
+(80 mB/t) recommendation already matched the intake-limited ceiling and needed no change. Fixed in
+logistics-docs commit 61b2243a.
+-->
