@@ -6,7 +6,9 @@ import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.FluidUnits;
+import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.automation.pump.FluidPumpBlockEntity;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,6 +50,13 @@ public class FluidPumpGameTest {
         succeed(context);
     }
 
+    /**
+     * Wiki claim (Power): "Supply it with RF from your power system — an engine, a Battery, or
+     * Cables — to keep it draining." Faces other than the bottom (the world-facing intake) accept
+     * both energy and fluid connections.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Power">wiki/Pump.txt § Power</a>
+     */
     @GameTest
     public void testFluidPumpEnergyAndTankAccessibleFromTopAndSides(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 2, 1);
@@ -77,6 +86,11 @@ public class FluidPumpGameTest {
         succeed(context);
     }
 
+    // NOTE: the wiki (Power section) says "with no power it stops," which reads as a blanket
+    // statement. In practice only the fluid-draining step requires energy — the intake tube keeps
+    // descending (searching for a source) with zero power, as this test confirms. See
+    // testFluidPumpDoesNotDrainWithoutEnergy for the part of the claim that does hold: no power
+    // means no fluid moves into the tank.
     @GameTest(maxTicks = 40)
     public void testFluidPumpTubeDescendsWithoutEnergy(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 5, 1);
@@ -103,6 +117,12 @@ public class FluidPumpGameTest {
         });
     }
 
+    /**
+     * Wiki claim (Usage): "The Pump drains fluid source blocks from the world below it into an
+     * internal buffer..."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
     @GameTest(maxTicks = 40)
     public void testFluidPumpRemovesSourceAndFillsTank(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
@@ -127,6 +147,41 @@ public class FluidPumpGameTest {
             if (pump.tank().getAmount() < FluidUnits.mb(1_000)
                     || pump.tank().getFluidKey().getFluid() != Fluids.WATER) {
                 fail(context, "Fluid pump should store 1000 mB of water");
+                return;
+            }
+            succeed(context);
+        });
+    }
+
+    /**
+     * Wiki claim (Power): "The Pump runs on RF and keeps its own internal buffer... with no power
+     * it stops." An unpowered pump does not drain a source directly beneath its tube, even once the
+     * tube reaches it.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Power">wiki/Pump.txt § Power</a>
+     */
+    @GameTest(maxTicks = 60)
+    public void testFluidPumpDoesNotDrainWithoutEnergy(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos waterPos = pumpPos.below();
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(waterPos, Blocks.WATER);
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        if (pump == null) {
+            fail(context, "Expected FluidPumpBlockEntity");
+            return;
+        }
+        // No energy inserted — the tube reaches the source layer, but draining should never start.
+        fastArm(pump);
+
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 3L, () -> {
+            if (!context.getBlockState(waterPos).getFluidState().isSource()) {
+                fail(context, "An unpowered pump should not drain the source below it");
+                return;
+            }
+            if (pump.tank().getAmount() != 0) {
+                fail(context, "An unpowered pump's tank should stay empty, got: " + pump.tank().getAmount());
                 return;
             }
             succeed(context);
@@ -267,6 +322,12 @@ public class FluidPumpGameTest {
         });
     }
 
+    /**
+     * Wiki claim (Usage): "...feeds them into an adjacent tank or fluid pipe." Setup step 3: "Place
+     * a Glass Tank or Copper Fluid Pipe against the output."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
     @GameTest(maxTicks = 60)
     public void testFluidPumpOutputsToPipeAbove(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
@@ -293,6 +354,12 @@ public class FluidPumpGameTest {
         });
     }
 
+    /**
+     * Wiki claim (Usage): "...feeds them into an adjacent tank or fluid pipe" — the output is not
+     * limited to a single face; a pipe on any non-bottom side works.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
     @GameTest(maxTicks = 60)
     public void testFluidPumpOutputsToPipeOnSide(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
@@ -316,6 +383,47 @@ public class FluidPumpGameTest {
             if (pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER) {
                 throw context.assertionException("Fluid pump should push water into a pipe on its side");
             }
+        });
+    }
+
+    /**
+     * Wiki claim (Usage): "Outputs up to 62.5 mB/t into an adjacent tank or fluid pipe."
+     *
+     * <p>NOTE: the code's push-rate constant (FLUID_PUMP_PUSH_RATE_MB) is 400 mB/tick, not 62.5 — a
+     * single tick can move far more than the wiki's figure. 62.5 mB/t (= 1000 mB ÷
+     * FLUID_PUMP_INTERVAL_TICKS(16)) looks like the *sustained average intake rate* (one bucket
+     * drained from the world every 16 ticks), mislabeled here as the output/push rate. This test
+     * asserts the push path directly — bypassing draining by preloading the pump's own tank — and
+     * confirms it moves multiples of ~400 mB/tick, not ~62.5. See WIKI_DISCREPANCIES.md § Pump.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
+    @GameTest(maxTicks = 20)
+    public void testFluidPumpPushRateIsFourHundredNotSixtyTwoPointFive(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos tankPos = pumpPos.above();
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(tankPos, LogisticsPipe.BLOCK.GLASS_TANK);
+
+        FluidPumpBlockEntity pump = context.getBlockEntity(pumpPos, FluidPumpBlockEntity.class);
+        GlassTankBlockEntity tank = context.getBlockEntity(tankPos, GlassTankBlockEntity.class);
+        if (pump == null || tank == null) {
+            fail(context, "Expected pump and glass tank block entities");
+            return;
+        }
+        // Preload the pump's own tank directly (bypassing the drain step) so the push rate is the
+        // only thing under test.
+        pump.tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(16_000), false);
+
+        context.runAfterDelay(2, () -> {
+            long pushed = tank.tank().getAmount();
+            // Two ticks at ~62.5 mB/t would cap out at 125 mB; two ticks at 400 mB/t reach ~800 mB.
+            // A generous lower bound rules out the wiki's figure without pinning an exact tick count.
+            if (pushed < FluidUnits.mb(300)) {
+                fail(context, "Fluid pump should push at ~400 mB/tick, not ~62.5 mB/tick; got " + pushed + " mB after 2 ticks");
+                return;
+            }
+            succeed(context);
         });
     }
 
