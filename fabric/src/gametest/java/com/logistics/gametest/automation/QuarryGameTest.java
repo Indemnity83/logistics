@@ -163,9 +163,10 @@ public class QuarryGameTest {
 
     /**
      * Wiki claim (Mining area): "Default (no markers): mines a 16×16 area centered on the quarry's
-     * placement." A freshly placed quarry with no markers activated has no custom bounds set, so it
-     * falls back to that default (the 16 config value itself is asserted in
-     * {@code common/src/test/.../laserquarry/LaserQuarryConfigTest}).
+     * placement." Placing a quarry with no adjacent markers (via the real {@code setPlacedBy} path,
+     * not just a raw block-state write) leaves custom bounds unset, so it falls back to that default
+     * (the 16 config value itself is asserted in {@code common/src/test/.../laserquarry/LaserQuarryConfigTest}
+     * — this test doesn't measure the resulting area).
      *
      * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Mining_area">wiki/Laser Quarry.txt § Mining area</a>
      */
@@ -180,6 +181,11 @@ public class QuarryGameTest {
             context.fail("Expected LaserQuarryBlockEntity");
             return;
         }
+
+        // Exercise the real placement path (setPlacedBy checks for adjacent markers), rather than
+        // relying on setBlock's placement having skipped it.
+        ((LaserQuarryBlock) LogisticsAutomation.BLOCK.LASER_QUARRY)
+                .setPlacedBy(context.getLevel(), context.absolutePos(pos), context.getBlockState(pos), null, ItemStack.EMPTY);
 
         if (quarry.hasCustomBounds()) {
             context.fail("A quarry placed without markers should not have custom bounds set");

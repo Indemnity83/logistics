@@ -71,7 +71,8 @@ public class QuarryMiningGameTest {
      * Wiki claim (Usage): "...the Laser Quarry constructs a mining frame around the target area,
      * then excavates layer by layer down to bedrock..."
      *
-     * <p>Verifies phase progression from CLEARING → BUILDING_FRAME → MINING.
+     * <p>Verifies the quarry reaches MINING phase by the expected tick. It does not sample
+     * BUILDING_FRAME along the way or assert the frame blocks themselves were placed.
      *
      * <p>With full energy (7 680 RF) and a 3×3 outer frame:
      * <ul>

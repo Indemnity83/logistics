@@ -217,10 +217,12 @@ Not executed yet — recorded here so the next pass doesn't have to re-derive pr
    already had deep, well-targeted coverage (phase transitions, lava-as-unminable, blocked-column
    tracking across zigzag/reload, re-mining reappeared blocks) — mostly *undocumented* implementation
    robustness, not wiki claims, so it stayed untouched. Added wiki-quote traceability to the tests
-   that do map to documented claims (frame-then-mine sequence, stops without power, output with no
-   extractor needed), plus one new test/config-check confirming the default (no-marker) 16×16 area
-   matches the wiki exactly (`QUARRY_AREA = 16`, previously asserted nowhere). This pass also
-   surfaced two real, previously-invisible gaps worth flagging on their own:
+   that do map to documented claims (reaching MINING phase — not a full frame-then-mine assertion,
+   since the frame blocks themselves aren't checked; stops without power; output with no extractor
+   needed), plus a new test confirming a quarry placed with no adjacent markers leaves custom bounds
+   unset, so it falls back to the default `QUARRY_AREA = 16` config value (previously asserted
+   nowhere) — this doesn't measure the resulting mined area itself. This pass also surfaced two real,
+   previously-invisible gaps worth flagging on their own:
    - **Marker consumption is completely untested** — no test anywhere places markers, activates
      them, or confirms the quarry consumes them into custom bounds. Folds into backlog item 5 below
      (Marker block) rather than a separate entry, since testing consumption requires the Marker
