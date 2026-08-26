@@ -54,3 +54,20 @@ since intake is ~6.4x slower and is always the practical bottleneck. The existin
 (80 mB/t) recommendation already matched the intake-limited ceiling and needed no change. Fixed in
 logistics-docs commit 61b2243a.
 -->
+
+## Sawmill
+
+### Plant-pulping byproducts are undocumented
+- **Wiki says** (`wiki/Sawmill.txt` § Recipes → Plants → Pulped Biomass): no `Byproduct` column at
+  all for any of the three listed rows (Oak Leaves, Sugar Cane, Wheat) — implies none of them drop
+  anything beyond the 1 Pulped Biomass.
+- **Code does**: two of the three genuinely have no byproduct (confirmed:
+  `pulped_biomass_from_leaves.json`, `pulped_biomass_from_wheat_seeds.json`), but
+  `pulped_biomass_from_wheat.json` grants a 50% chance of a bonus `minecraft:wheat_seeds`, and
+  `pulped_biomass_from_sugar_cane.json` grants a **guaranteed 2x `minecraft:sugar`** (chance `2.0`).
+  Confirmed via `SawmillRecipeSpotCheckTest`.
+- **This is different from the Kiln/Pump findings above** — not a mislabeled number, a genuine
+  missing fact. A player pulping wheat or sugar cane gets a real bonus item the wiki never mentions.
+- **Decision needed**: add a `Byproduct`/`ByproductChance` column to the wiki's Wheat and Sugar Cane
+  rows (Wheat: seeds, 50%; Sugar Cane: sugar, guaranteed 2x) — this looks like a documentation
+  omission to fill in, not a code change.

@@ -34,6 +34,12 @@ public class SawmillGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "...input from the top and sides, primary and byproduct outputs drawn
+     * from the bottom."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+     */
     @GameTest
     public void testSidedAccess(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -87,6 +93,12 @@ public class SawmillGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "...the Sawmill cuts it into planks over time and rolls its Sawdust
+     * byproduct on completion." (Power): "Each recipe carries an RF cost (2,000–3,000 RF)."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+     */
     @GameTest(maxTicks = 200)
     public void testSawsLogIntoPlanksAndByproduct(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -97,6 +109,7 @@ public class SawmillGameTest {
         for (int i = 0; i < 200; i++) {
             energy.insert(128, false);
         }
+        long filledEnergy = energy.getAmount();
         sawmill.setItem(INPUT, new ItemStack(Items.OAK_LOG));
 
         // Oak logs cost 3,000 RF and saw in 150 ticks at 20 RF/t -> 6 planks + sawdust byproduct.
@@ -113,6 +126,11 @@ public class SawmillGameTest {
             ItemStack byproduct = sawmill.getItem(SECONDARY);
             if (!byproduct.is(LogisticsCore.ITEM.SAWDUST) || byproduct.isEmpty()) {
                 context.fail("Byproduct output should be sawdust, got " + byproduct);
+                return;
+            }
+            long spent = filledEnergy - energy.getAmount();
+            if (spent != 3_000) {
+                context.fail("Oak log should cost exactly 3,000 RF (within the wiki's 2,000-3,000 range), spent: " + spent);
                 return;
             }
             context.succeed();
