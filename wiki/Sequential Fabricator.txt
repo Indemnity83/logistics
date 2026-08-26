@@ -34,7 +34,7 @@ Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception
 
 == Usage ==
 
-Choose the [[Chipsets|chipset]] to build from the machine's GUI, then feed it the ingredients; the Sequential Fabricator consumes them in order and produces the selected chipset. Every recipe appears in the Just Enough Items (JEI) viewer.
+Toggle any number of [[Chipsets|chipsets]] to queue in the machine's GUI, then feed it the ingredients. The Sequential Fabricator builds one at a time, cycling round-robin through the queued chipsets whose ingredients are currently available — completing and ejecting each before advancing to the next — so a queue stocked with enough material for several chipsets keeps running unattended without re-selecting. A queued chipset the machine can't currently craft is skipped until its materials return. Every recipe appears in the Just Enough Items (JEI) viewer.
 
 === Power ===
 

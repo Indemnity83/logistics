@@ -57,8 +57,8 @@ Every wood type works the same way; oak is shown as an example. Logs and bamboo 
 Loose plant matter pulps into [[Pulped Biomass]] — one per recipe, with denser plants taking more input:
 
 {{Milling|head=1 |Input=Oak Leaves |ingredients=Leaves, saplings, kelp, moss, seagrass, seeds (×8) |Output=Pulped Biomass}}
-{{Milling |Input=Sugar Cane |ingredients=Cactus, sugar cane, vines, tall grass (×6) |Output=Pulped Biomass}}
-{{Milling |foot=1 |Input=Wheat |ingredients=Crops, flowers, mushrooms, fern (×4) |Output=Pulped Biomass}}
+{{Milling |Input=Sugar Cane |ingredients=Cactus, sugar cane, vines, tall grass (×6) |Output=Pulped Biomass |Byproduct=Sugar |ByproductChance=200%}}
+{{Milling |foot=1 |Input=Wheat |ingredients=Crops, flowers, mushrooms, fern (×4) |Output=Pulped Biomass |Byproduct=Wheat Seeds |ByproductChance=50%}}
 
 == Data values ==
 
