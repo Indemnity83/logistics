@@ -3,15 +3,19 @@ package com.logistics.gametest.automation;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.refinery.RefineryBlockEntity;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 
 /**
@@ -123,6 +127,49 @@ public class RefineryGameTest {
                 return;
             }
             context.succeed();
+        });
+    }
+
+    /**
+     * Wiki claim (Power): "connect a strong RF source" — each recipe costs a total of 5,000 RF. The
+     * test above proves the recipe math by pre-charging the buffer directly; this one proves power
+     * delivery itself works end to end via a real engine (no cable). Fluid is inserted directly
+     * since fluid-pipe connectivity into the Refinery is already covered by
+     * {@code FluidSupplierGameTest}'s full network.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Refinery#Power">wiki/Refinery.txt § Power</a>
+     */
+    @GameTest(maxTicks = 320)
+    public void testDistillsViaRealEngine(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = pos.north();
+        BlockPos redstoneBlockPos = enginePos.north();
+
+        RefineryBlockEntity refinery = place(context, pos);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.SOUTH)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        if (refinery == null || engine == null) {
+            context.fail("Expected refinery and engine block entities");
+            return;
+        }
+
+        IFluidStorage view = refinery.fluidStorage(Direction.UP);
+        view.insert(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(200), false);
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the refinery's 128 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        context.succeedWhen(() -> {
+            if (refinery.tank().getAmount() != FluidUnits.mb(100)
+                    || refinery.tank().getFluidKey().getFluid() != bioFuel()) {
+                throw context.assertionException("Engine-powered refinery should distill 100 mB of bio fuel");
+            }
         });
     }
 }
