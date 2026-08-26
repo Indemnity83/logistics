@@ -39,7 +39,7 @@ Input is accepted from the top and sides; output is drawn from the bottom.
 
 === Power ===
 
-The Macerator runs on [[RF Energy|RF]]. It holds 10,000 RF, accepts up to 128 RF/tick, and consumes 10 RF/tick while active — more than the [[Kiln]], so make sure your engine can sustain it. Connect a [[Stirling Engine]] or any RF source to power it.
+The Macerator runs on [[RF Energy|RF]]. It holds 10,000 RF, accepts up to 128 RF/tick, and consumes 10 RF/tick while active. Connect a [[Stirling Engine]] or any RF source to power it.
 
 === Setup ===
 
