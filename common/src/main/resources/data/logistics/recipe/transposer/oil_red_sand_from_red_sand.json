@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "minecraft:red_sand",
+  "result": { "id": "logistics:core/oil_red_sand", "count": 1 },
+  "fluid": { "fluid": "logistics:core/crude_oil", "amount": -1000 },
+  "energy": 4000
+}
