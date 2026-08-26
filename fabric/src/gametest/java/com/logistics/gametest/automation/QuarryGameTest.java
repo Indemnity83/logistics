@@ -162,6 +162,34 @@ public class QuarryGameTest {
     }
 
     /**
+     * Wiki claim (Mining area): "Default (no markers): mines a 16×16 area centered on the quarry's
+     * placement." A freshly placed quarry with no markers activated has no custom bounds set, so it
+     * falls back to that default (the 16 config value itself is asserted in
+     * {@code common/src/test/.../laserquarry/LaserQuarryConfigTest}).
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Mining_area">wiki/Laser Quarry.txt § Mining area</a>
+     */
+    @GameTest
+    public void testQuarryHasNoCustomBoundsWithoutMarkers(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+
+        context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+
+        if (quarry == null) {
+            context.fail("Expected LaserQuarryBlockEntity");
+            return;
+        }
+
+        if (quarry.hasCustomBounds()) {
+            context.fail("A quarry placed without markers should not have custom bounds set");
+            return;
+        }
+
+        context.succeed();
+    }
+
+    /**
      * Test that laser quarry reports correct pipe connection type.
      * Should only connect to pipes from above (Direction.UP).
      */

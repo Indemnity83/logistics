@@ -36,10 +36,12 @@ import net.minecraft.world.level.storage.TagValueInput;
 public class QuarryMiningGameTest {
 
     /**
-     * Verifies that a quarry with no energy stays in CLEARING phase.
+     * Wiki claim (Power): "...the quarry stops entirely without power."
      *
      * <p>With energy = 0, {@code tickClearing} returns immediately on every tick.
      * After 20 ticks the phase must still be CLEARING.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Power">wiki/Laser Quarry.txt § Power</a>
      */
     @GameTest(maxTicks = 30)
     public void testQuarryStallsWithoutEnergy(GameTestHelper context) {
@@ -63,7 +65,10 @@ public class QuarryMiningGameTest {
     }
 
     /**
-     * Verifies phase progression from CLEARING → BUILDING_FRAME → MINING.
+     * Wiki claim (Usage): "...the Laser Quarry constructs a mining frame around the target area,
+     * then excavates layer by layer down to bedrock..."
+     *
+     * <p>Verifies phase progression from CLEARING → BUILDING_FRAME → MINING.
      *
      * <p>With full energy (7 680 RF) and a 3×3 outer frame:
      * <ul>
@@ -76,6 +81,8 @@ public class QuarryMiningGameTest {
      * <p>The clearing volume (3×3 × 5 Y levels, in front of the quarry) is pre-filled
      * with air to avoid underground terrain blocks, which would stall a quarry that has
      * only a few hundred RF to spare for stone-breaking.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Usage">wiki/Laser Quarry.txt § Usage</a>
      */
     @GameTest(maxTicks = 200)
     public void testQuarryTransitionsThroughPhases(GameTestHelper context) {
@@ -149,6 +156,12 @@ public class QuarryMiningGameTest {
      * <p>The chest is placed upfront because the clearing scan only covers the bounds
      * X/Z range (dz = +1..+3 relative to the quarry). The chest at dz = 0 (directly
      * above the quarry) is outside the clearing zone and will not be removed.
+     *
+     * <p>Wiki claim (Item collection): "Mined items output from the top of the quarry into any
+     * connected inventory or pipe (no extractor needed)." No extractor is used here — the chest
+     * receives items directly.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Item_collection">wiki/Laser Quarry.txt § Item collection</a>
      */
     @GameTest(maxTicks = 200)
     public void testQuarryOutputsMinedBlockToChest(GameTestHelper context) {
