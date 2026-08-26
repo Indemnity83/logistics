@@ -2,16 +2,22 @@ package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.transposer.TransposerBlockEntity;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -370,5 +376,50 @@ public class TransposerGameTest {
             }
             context.succeed();
         });
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "An empty bucket plus at least 1,000 mB in the tank becomes a
+     * filled bucket... A bucket fill/empty costs 800 RF." The test above proves the RF cost and
+     * atomicity by manipulating storages directly; this one proves the whole feature as a player
+     * actually wires it up — a real engine (no cable) delivering power, and a real hopper pushing
+     * the empty bucket in and another pulling the filled bucket out. The tank is preloaded
+     * directly since fluid-pipe connectivity to the transposer isn't the claim under test here.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
+     */
+    @GameTest(maxTicks = 100)
+    public void fillsBucketViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos transposerPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = transposerPos.above();
+        BlockPos outputHopperPos = transposerPos.below();
+
+        TransposerBlockEntity be = place(context, transposerPos);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        if (be == null || engine == null || inputHopper == null) {
+            context.fail("Expected transposer, engine, and input hopper block entities");
+            return;
+        }
+
+        be.tank().insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(1_000), false);
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the transposer's 128 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.BUCKET));
+
+        context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, Items.LAVA_BUCKET));
     }
 }
