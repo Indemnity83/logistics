@@ -92,6 +92,140 @@ supported branches.
 
 ---
 
+## Wiki-Driven Feature Tests
+
+Treat the project's public documentation (`logistics-docs`, `wiki/*.txt` — MediaWiki wikitext, one
+file per block/item/concept, pushed to the Fandom wiki) as the spec, and write tests that confirm
+each documented behavior claim, rather than tests that only assert internal wiring. A pilot pass on
+the Kiln (`common/src/test/java/com/logistics/automation/kiln/`,
+`fabric/src/gametest/.../automation/KilnGameTest.java`) established the recipe below.
+
+1. **Pull the wiki page** (`wiki/<Name>.txt` in `logistics-docs`, `docs` branch). Extract verbatim
+   claims from Usage/Power/Setup only — History is explicitly not current-behavior per that repo's
+   own convention.
+2. **Read the real implementation**, tracing into whatever resolver/component config it delegates
+   to. Write down the actual source of every number the wiki quotes.
+3. **Compare, don't assume.** Classify each wiki claim: matches / mismatch / needs a live tick to
+   verify. Log mismatches in `WIKI_DISCREPANCIES.md` rather than silently picking a side — fixing
+   the wiki or the code is a separate, deliberate decision, not something a test should presume.
+4. **Classify each existing test method**: pure wiring (keep, no wiki quote needed) vs.
+   real-but-unphrased feature test (rewrite with a wiki-quote Javadoc + tightened assertions) vs.
+   missing (write new).
+5. **Prefer `common/src/test` JUnit over GameTest** wherever the computation is a pure class
+   reachable without a live `Level`/`RecipeManager` (config defaults, `RecipeProcessPlan` math).
+   Reserve GameTest for what genuinely needs a ticking world: item movement through
+   `WorldlyContainer` faces, live recipe *resolution* against an inventory, blockstate changes.
+6. **Check the recipe JSON, not just the block entity.** A block's crafting/processing recipe is
+   itself a documented claim (the wiki's Crafting section) and a file that can drift independently
+   of the code you just read in step 2. Decoding a *specific* recipe JSON is plain JUnit — read it
+   directly (see `KilnRecipeTest`) rather than assuming it needs a live `RecipeManager`, which is
+   only required for recipe *resolution*, not decoding one known file.
+7. **Apply the traceability convention** below to every feature test.
+8. **Fabric only.** NeoForge's GameTest registration is blocked upstream (see "NeoForge Game Tests"
+   below, once that section exists) — don't add or modify `neoforge/src/gametest` for this work.
+
+### Real connectivity, not direct capability calls
+
+GameTests are the layer that proves a feature works the way a player actually hooks it up; plain
+JUnit is the layer that protects the internal pieces (config values, pure recipe/component math)
+from regressing. For the assertion that proves a feature works — not a precondition unrelated to
+what's under test — prefer:
+
+- **Power in** via a real, directly-adjacent `CREATIVE_ENGINE` (no cable needed unless cable
+  routing itself is what's under test), not `energyStorage().insert()`. Cycle its output level a
+  few notches above the machine's own max-input cap so the engine is never the bottleneck being
+  measured; the machine's own cap still throttles what it actually receives per tick.
+- **Items in** via a real `Blocks.HOPPER` above (or whichever face the wiki calls out) with the
+  ingredient placed directly in the hopper's own slot — filling the *hopper's* inventory this way is
+  a precondition unrelated to what's under test (hopper→machine transfer), same as pre-filling energy
+  to isolate recipe math.
+- **Output verified** by what a real downstream `Blocks.HOPPER`/pipe/chest received
+  (`context.succeedWhen(() -> context.assertContainerContains(pos, item))`), not by reading the
+  block entity's own slot/tank state directly.
+- Direct capability manipulation (`setItem()`, `energyStorage().insert()`, `fluidStorage().insert()`)
+  remains fine for multi-slot/multi-item setups where real hopper distribution across several
+  distinct slots is genuinely uncertain (e.g. dual-input recipes) — add the real-connectivity test
+  alongside the existing precise-math test rather than replacing it.
+
+**Gotcha: `CREATIVE_ENGINE`'s `POWERED` blockstate is not a stable manual flag.**
+`AbstractEngineBlock.neighborChanged()` recomputes `POWERED` from the actual redstone signal on
+every neighbor update and overwrites a hand-set `true` — within 2-3 ticks in practice, once the
+adjacent hopper/machine placement fires an update. A test that just does
+`.setValue(AbstractEngineBlock.POWERED, true)` with no real signal will silently lose power after a
+couple of ticks (existing short-window tests never noticed because they only check `amount > 0`).
+Place a real `Blocks.REDSTONE_BLOCK` adjacent to the engine (on a face other than its output) so the
+signal is genuine and `POWERED` stays true for the test's full duration.
+
+### Traceability convention
+
+`@GameTest` methods are discovered by Fabric's shim, not JUnit, so `@DisplayName` isn't available —
+use a Javadoc block instead:
+
+```java
+/**
+ * Wiki claim (Power): "It holds 10,000 RF and accepts up to 128 RF/tick."
+ *
+ * @see <a href="https://logistics.fandom.com/wiki/Kiln#Power">wiki/Kiln.txt § Power</a>
+ */
+@GameTest
+public void testKilnEnergyCapacityAndInputCap(GameTestHelper context) { ... }
+```
+
+Where code and wiki disagree, add a `NOTE:` line and assert the **code's real behavior** — never
+adjust an assertion to match a wiki number without independently confirming it in source:
+
+```java
+// NOTE: wiki/Kiln.txt claims ~4,000 RF / 10s; code computes cookingTime(200) *
+// KILN_RF_PER_COOK_TICK(10) = 2,000 RF at 100 ticks. See WIKI_DISCREPANCIES.md.
+```
+
+Pure wiring tests keep their existing plain one-line Javadoc, no wiki quote — that absence *is* the
+signal "this is an implementation invariant, not a documented behavior."
+
+### Recipe testing
+
+Recipes are ~628 hand-authored JSON files (`common/src/main/resources/data/logistics/recipe/**`, 13
+domains, no datagen). Decoding a *specific* recipe file to check its content is plain JUnit — no
+live `RecipeManager`/datapack reload needed, that machinery is only required for *resolving* a
+recipe against a live inventory. `KilnRecipeTest` reads `kiln.json` directly and compares it against
+the wiki's Crafting section — this is also how a stable registry id surviving a display-name rename
+(`machine_core` / "Machine Frame") was confirmed *not* to be a mismatch, a useful reminder to check
+the lang file before flagging an id-vs-wiki-name difference as a discrepancy.
+`RecipeJsonSmokeTest` is mod-wide infrastructure, not block-specific: it walks every recipe JSON
+under `common/src/main/resources/data/logistics/recipe/` and checks each one is valid JSON with a
+non-blank `type`, and — where a `result` is present — a non-blank `id` or `fluid` field (it does not
+check `count`/`amount`) — catching a JSON syntax error, a missing `type`, or a `result` with no
+identifiable item/fluid (the cheap, high-frequency ways a hand-edited recipe silently breaks) on
+every `./gradlew :common:test` run, mod-wide, at effectively zero marginal cost per recipe added.
+It's deliberately structural, not semantic: it doesn't resolve ingredient item ids through
+Minecraft's registry (vanilla's registry silently defaults an unknown id to `minecraft:air` instead
+of failing, so that check wouldn't reliably catch an item-id typo anyway).
+
+### Feature-test backlog
+
+Not executed yet — recorded here so the next pass doesn't have to re-derive priority order.
+
+1. **Pump** — similarly rich wiki page, single-machine story, good second data point before
+   anything with dual inputs.
+2. **Laser Quarry verification** — already has real coverage (`QuarryPhaseRunnerTest`,
+   `QuarryGameTest`, `QuarryMiningGameTest`); cheap pass to check existing tests actually assert the
+   wiki's specific claims (marker-consumption, chunk-loading toggle, power-scaling).
+3. **CraftingModule / ProcessModule / SatelliteModule pipes** — well unit-tested, zero in-world
+   GameTest; low-risk pass adding wiki-traceability to already-correct assertions.
+4. **GoldCable** — untested sibling in an otherwise-tested tier family; small, pure-math-friendly
+   like Kiln's RF numbers.
+5. **Refinery's own distillation/byproduct logic** — currently only exercised as a passive tank
+   host; generic component math already proven in `RecipeProcessorComponentTest`, so this is mostly
+   wiki-claim extraction + a Refinery-specific test.
+6. **Marker block** — stateful, zero coverage, likely a short wiki page; good "wiring tests from
+   scratch" exercise.
+7. **Alloy Smelter / Crucible / Sequential Fabricator / fluid-routing modules
+   (FluidInsertionModule, FluidMergerModule, FluidBypassModule, FluidVoidModule) last** — genuinely
+   complex (dual-input, multi-stage, chance-byproduct, routing-policy); tackle once the methodology
+   is proven on 2-3 simpler blocks.
+
+---
+
 ## What's Covered
 
 `common/src/test/java/` contains JUnit tests for all testable business logic:
@@ -101,10 +235,11 @@ supported branches.
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, KilnProcessingPlan
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
-- **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent
+- **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
+- **Recipe JSON smoke test** — every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) parses as JSON with a non-blank `type` and well-formed `result`; see "Recipe testing" above
 
 `fabric/src/test/java/` and `neoforge/src/test/java/` contain ServiceLoader smoke tests
 verifying `META-INF/services/` registrations are present and the implementation classes
@@ -185,4 +320,4 @@ They are kept for now to preserve coverage. The primary blocker for conversion i
 | `NetworkIntegrationGameTest` | 5 | Provider/requester delivery requires 100-tick game simulation |
 | `QuarryGameTest` | 7 | Energy acceptance and phase tracking require live block entity |
 | `QuarryMiningGameTest` | 3 | Phase machine progression and block mining require full simulation |
-| `KilnGameTest` | 8 | Inventory slot access control requires live block entity |
+| `KilnGameTest` | 9 | Inventory slot access control requires live block entity |
