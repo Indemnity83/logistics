@@ -1,9 +1,12 @@
 package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.kiln.KilnBlock;
 import com.logistics.automation.kiln.KilnBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +14,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class KilnGameTest {
@@ -34,8 +39,13 @@ public class KilnGameTest {
     }
 
     /**
-     * Test that kiln inventory is accessible from correct sides.
-     * Top/Sides: input, Bottom: output extraction.
+     * Wiki claim (Usage): "Input is accepted from the top and sides; output is drawn from the
+     * bottom, the same as a vanilla furnace."
+     *
+     * <p>NOTE: the wiki overstates this — the code (and this test) enforce input from the top only,
+     * matching vanilla furnace side-access rules. See WIKI_DISCREPANCIES.md § Kiln.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Usage">wiki/Kiln.txt § Usage</a>
      */
     @GameTest
     public void testKilnInventoryAccess(GameTestHelper context) {
@@ -87,7 +97,12 @@ public class KilnGameTest {
     }
 
     /**
-     * Test that kiln allows input insertion from top only, not from sides or bottom.
+     * Wiki claim (Usage): "Input is accepted from the top and sides..."
+     *
+     * <p>NOTE: the wiki overstates this — the code (and this test) enforce input from the top only.
+     * See WIKI_DISCREPANCIES.md § Kiln.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Usage">wiki/Kiln.txt § Usage</a>
      */
     @GameTest
     public void testKilnInputAccess(GameTestHelper context) {
@@ -128,7 +143,9 @@ public class KilnGameTest {
     }
 
     /**
-     * Test that kiln only allows output extraction from bottom.
+     * Wiki claim (Usage): "...output is drawn from the bottom, the same as a vanilla furnace."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Usage">wiki/Kiln.txt § Usage</a>
      */
     @GameTest
     public void testKilnOutputExtraction(GameTestHelper context) {
@@ -218,9 +235,17 @@ public class KilnGameTest {
     }
 
     /**
-     * Test that the kiln smelts its input over time when supplied with energy.
+     * Wiki claim (Power): "It holds 10,000 RF and accepts up to 128 RF/tick. Each smelt draws RF
+     * over the same time a vanilla furnace would take — about 4,000 RF for a standard 10-second
+     * smelt (20 RF/tick while active)."
+     *
+     * <p>NOTE: the code computes cookingTime(200) * KILN_RF_PER_COOK_TICK(10) = 2,000 RF, drained at
+     * 20 RF/t = 100 ticks (5s) — half the wiki's claimed cost and time. This test asserts the code's
+     * actual behavior; see WIKI_DISCREPANCIES.md § Kiln for the tracked mismatch.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Power">wiki/Kiln.txt § Power</a>
      */
-    @GameTest(maxTicks = 160)
+    @GameTest(maxTicks = 130)
     public void testKilnSmeltsWithEnergy(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.KILN);
@@ -230,23 +255,49 @@ public class KilnGameTest {
             return;
         }
 
-        // Fill the energy buffer (each insert is capped at the 128 RF/t input limit).
         var energy = kiln.energyStorage(null);
-        for (int i = 0; i < 80; i++) {
+
+        // KILN_MAX_ENERGY_INPUT(128) clamps each insert() call, not a per-tick total: a single
+        // over-sized insert is capped at 128, and a second call in the same tick is capped again,
+        // bringing the total to 256. (A real cable network calls insert() once per tick, which is
+        // what makes this per-call cap behave as the wiki's "128 RF/tick" in practice.)
+        long firstInsert = energy.insert(500, false);
+        if (firstInsert != 128) {
+            context.fail("Kiln should accept at most 128 RF per insert call, got: " + firstInsert);
+            return;
+        }
+        long secondInsert = energy.insert(500, false);
+        if (secondInsert != 128 || energy.getAmount() != 256) {
+            context.fail("Kiln's 128 RF per-call cap should apply on every call, got amount: " + energy.getAmount());
+            return;
+        }
+
+        // Capacity cap: fill to exactly 10,000 RF, then confirm a further insert is rejected.
+        for (int i = 0; i < 78; i++) {
             energy.insert(128, false);
         }
-        long filledEnergy = energy.getAmount();
+        if (energy.getAmount() != 10_000) {
+            context.fail("Kiln should hold exactly 10,000 RF, got: " + energy.getAmount());
+            return;
+        }
+        if (energy.insert(500, false) != 0) {
+            context.fail("A full Kiln should reject further energy");
+            return;
+        }
+
         kiln.setItem(0, new ItemStack(Items.RAW_IRON));
 
         // Mid-smelt: the kiln must already be drawing energy, so a stalled/no-tick regression fails early.
         context.runAfterDelay(60, () -> {
-            if (energy.getAmount() >= filledEnergy) {
+            if (energy.getAmount() >= 10_000) {
                 context.fail("Kiln should be consuming energy while smelting");
             }
         });
 
-        // Raw iron (200-tick recipe) costs 2,000 RF and smelts in 100 ticks at 20 RF/t.
-        context.runAfterDelay(140, () -> {
+        // Raw iron (200-tick recipe) costs cookingTime(200) * KILN_RF_PER_COOK_TICK(10) = 2,000 RF,
+        // spent at KILN_ENERGY_PER_TICK(20) RF/t = 100 ticks. A tight window here also guards against
+        // a smelt-speed regression, not just an eventually-true completion.
+        context.runAfterDelay(110, () -> {
             if (!kiln.getItem(0).isEmpty()) {
                 context.fail("Input should be consumed after smelting");
                 return;
@@ -256,8 +307,122 @@ public class KilnGameTest {
                 context.fail("Kiln should have smelted raw iron into an iron ingot");
                 return;
             }
+            long spent = 10_000 - energy.getAmount();
+            if (spent != 2_000) {
+                context.fail("A standard smelt should cost exactly 2,000 RF, spent: " + spent);
+                return;
+            }
             context.succeed();
         });
+    }
+
+    /**
+     * Wiki claim (Setup): "The Kiln smelts continuously as long as it has power and input items."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Setup">wiki/Kiln.txt § Setup</a>
+     */
+    @GameTest(maxTicks = 230)
+    public void testKilnSmeltsContinuously(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.KILN);
+        KilnBlockEntity kiln = context.getBlockEntity(pos, KilnBlockEntity.class);
+        if (kiln == null) {
+            context.fail("Expected KilnBlockEntity");
+            return;
+        }
+
+        // Fill the energy buffer (enough for several smelts) and queue two raw iron up front.
+        var energy = kiln.energyStorage(null);
+        for (int i = 0; i < 79; i++) {
+            energy.insert(128, false);
+        }
+        kiln.setItem(0, new ItemStack(Items.RAW_IRON, 2));
+
+        long[] energyAtFirstCompletion = new long[1];
+
+        // First item completes at ~100 ticks (see testKilnSmeltsWithEnergy); confirm one was
+        // consumed, one remains queued, and record energy at this point.
+        context.runAfterDelay(110, () -> {
+            if (kiln.getItem(0).getCount() != 1) {
+                context.fail("One raw iron should remain queued after the first smelt, got: "
+                    + kiln.getItem(0).getCount());
+                return;
+            }
+            if (kiln.getItem(1).getCount() < 1) {
+                context.fail("First smelt should have produced an iron ingot");
+                return;
+            }
+            energyAtFirstCompletion[0] = energy.getAmount();
+        });
+
+        // The very next tick after completion, the second item should already be drawing energy —
+        // no idle gap between recipes while power and input remain available. A one-tick window
+        // (rather than a several-tick grace period) means a delayed restart can't slip through.
+        context.runAfterDelay(111, () -> {
+            if (energy.getAmount() >= energyAtFirstCompletion[0]) {
+                context.fail("Kiln should resume smelting immediately after the first item completes");
+            }
+        });
+
+        // Second item completes ~100 ticks after the first (by ~210 total); confirm both are done.
+        context.runAfterDelay(220, () -> {
+            if (!kiln.getItem(0).isEmpty()) {
+                context.fail("Both raw iron should be consumed after two smelts");
+                return;
+            }
+            if (kiln.getItem(1).getCount() != 2) {
+                context.fail("Kiln should have smelted both raw iron into iron ingots, got count: "
+                    + kiln.getItem(1).getCount());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "Input is accepted from the top... connect a Stirling Engine or
+     * any RF source." The tests above prove the recipe math and energy contract by manipulating
+     * the kiln's storages directly; this one proves the whole feature as a player actually wires
+     * it up — a real engine delivering power with no cable in between, and a real hopper pushing
+     * the ingredient in and another pulling the result out — with no direct capability calls.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Usage">wiki/Kiln.txt § Usage</a>
+     * @see <a href="https://logistics.fandom.com/wiki/Kiln#Power">wiki/Kiln.txt § Power</a>
+     */
+    @GameTest(maxTicks = 220)
+    public void testKilnSmeltsViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos kilnPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = kilnPos.above();
+        BlockPos outputHopperPos = kilnPos.below();
+
+        context.setBlock(kilnPos, LogisticsAutomation.BLOCK.KILN);
+        // Keep a real redstone signal so neighbor updates retain POWERED.
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        if (engine == null || inputHopper == null) {
+            context.fail("Expected engine and input hopper block entities");
+            return;
+        }
+
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t so the engine comfortably clears the kiln's 128 RF/t
+        // input cap and is never the bottleneck being measured here.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.RAW_IRON));
+
+        context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, Items.IRON_INGOT));
     }
 
     /**
