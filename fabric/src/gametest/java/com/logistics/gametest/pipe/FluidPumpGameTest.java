@@ -1,11 +1,17 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
+
+import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPower;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.FluidUnits;
+import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
+import com.logistics.pipe.block.entity.GlassTankBlockEntity;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.automation.pump.FluidPumpBlockEntity;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,6 +22,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 
 public class FluidPumpGameTest {
@@ -28,23 +35,38 @@ public class FluidPumpGameTest {
         pump.setArmSpeedOverride(FAST_ARM_SPEED);
     }
 
+    private static void succeed(GameTestHelper context) {
+        context.succeed();
+    }
+
+    private static void fail(GameTestHelper context, String message) {
+        context.fail(message);
+    }
+
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFluidPumpPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 2, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         if (!(context.getBlockEntity(pos) instanceof FluidPumpBlockEntity)) {
-            context.fail("Fluid pump should create a block entity");
+            fail(context, "Fluid pump should create a block entity");
         }
-        context.succeed();
+        succeed(context);
     }
 
+    /**
+     * Wiki claim (Power): "Supply it with RF from your power system — an engine, a Battery, or
+     * Cables — to keep it draining." Faces other than the bottom (the world-facing intake) accept
+     * both energy and fluid connections.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Power">wiki/Pump.txt § Power</a>
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFluidPumpEnergyAndTankAccessibleFromTopAndSides(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 2, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.FLUID_PUMP);
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         for (Direction direction : Direction.values()) {
@@ -52,21 +74,26 @@ public class FluidPumpGameTest {
             IEnergyStorage energy = pump.energyStorage(direction);
             boolean hasEnergy = energy != null && energy.canInsert();
             if (hasEnergy != expectAccess) {
-                context.fail("Fluid pump energy access from " + direction + " should be " + expectAccess);
+                fail(context, "Fluid pump energy access from " + direction + " should be " + expectAccess);
                 return;
             }
             if ((pump.fluidStorage(direction) != null) != expectAccess) {
-                context.fail("Fluid pump tank access from " + direction + " should be " + expectAccess);
+                fail(context, "Fluid pump tank access from " + direction + " should be " + expectAccess);
                 return;
             }
             if (pump.acceptsLowTierEnergyFrom(direction) != expectAccess) {
-                context.fail("Fluid pump low-tier energy from " + direction + " should be " + expectAccess);
+                fail(context, "Fluid pump low-tier energy from " + direction + " should be " + expectAccess);
                 return;
             }
         }
-        context.succeed();
+        succeed(context);
     }
 
+    // NOTE: the wiki (Power section) says "with no power it stops," which reads as a blanket
+    // statement. In practice only the fluid-draining step requires energy — the intake tube keeps
+    // descending (searching for a source) with zero power, as this test confirms. See
+    // testFluidPumpDoesNotDrainWithoutEnergy for the part of the claim that does hold: no power
+    // means no fluid moves into the tank.
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testFluidPumpTubeDescendsWithoutEnergy(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 5, 1);
@@ -74,7 +101,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fastArm(pump);
@@ -82,17 +109,23 @@ public class FluidPumpGameTest {
 
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 2L, () -> {
             if (pump.energyAmount() != 0) {
-                context.fail("Precondition failed: pump should have no energy");
+                fail(context, "Precondition failed: pump should have no energy");
                 return;
             }
             if (pump.armY() >= startArmY - 1.0f) {
-                context.fail("Fluid pump tube should descend without energy");
+                fail(context, "Fluid pump tube should descend without energy");
                 return;
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
+    /**
+     * Wiki claim (Usage): "The Pump drains fluid source blocks from the world below it into an
+     * internal buffer..."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testFluidPumpRemovesSourceAndFillsTank(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
@@ -102,7 +135,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
@@ -111,15 +144,80 @@ public class FluidPumpGameTest {
 
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) + 2, () -> {
             if (!context.getBlockState(waterPos).isAir()) {
-                context.fail("Fluid pump should remove the water source");
+                fail(context, "Fluid pump should remove the water source");
                 return;
             }
             if (pump.tank().getAmount() < FluidUnits.mb(1_000)
                     || pump.tank().getFluidKey().getFluid() != Fluids.WATER) {
-                context.fail("Fluid pump should store 1000 mB of water");
+                fail(context, "Fluid pump should store 1000 mB of water");
                 return;
             }
-            context.succeed();
+            succeed(context);
+        });
+    }
+
+    /**
+     * Wiki claim (Power): "The Pump runs on RF and keeps its own internal buffer... with no power
+     * it stops." An unpowered pump does not drain a source directly beneath its tube, even once the
+     * tube reaches it.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Power">wiki/Pump.txt § Power</a>
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testFluidPumpDoesNotDrainWithoutEnergy(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos waterPos = pumpPos.below();
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(waterPos, Blocks.WATER);
+
+        FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
+        if (pump == null) {
+            fail(context, "Expected FluidPumpBlockEntity");
+            return;
+        }
+        // No energy inserted — the tube reaches the source layer, but draining should never start.
+        fastArm(pump);
+
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 3L, () -> {
+            if (!context.getBlockState(waterPos).getFluidState().isSource()) {
+                fail(context, "An unpowered pump should not drain the source below it");
+                return;
+            }
+            if (pump.tank().getAmount() != 0) {
+                fail(context, "An unpowered pump's tank should stay empty, got: " + pump.tank().getAmount());
+                return;
+            }
+            succeed(context);
+        });
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testFluidPumpDoesNotDrainWaterloggedBlocks(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos slabPos = pumpPos.below();
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(
+                slabPos, Blocks.OAK_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true));
+
+        FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
+        if (pump == null) {
+            fail(context, "Expected FluidPumpBlockEntity");
+            return;
+        }
+        fillEnergy(pump);
+        fastArm(pump);
+
+        context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) + 2, () -> {
+            if (!context.getBlockState(slabPos).is(Blocks.OAK_SLAB)
+                    || !context.getBlockState(slabPos).getValue(BlockStateProperties.WATERLOGGED)) {
+                fail(context, "Fluid pump must not drain or replace a waterlogged block");
+                return;
+            }
+            if (pump.tank().getAmount() > 0) {
+                fail(context, "Fluid pump must not pump fluid out of a waterlogged block");
+                return;
+            }
+            succeed(context);
         });
     }
 
@@ -135,7 +233,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -144,14 +242,14 @@ public class FluidPumpGameTest {
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 4L, () -> {
             if (context.getBlockState(firstWater).getFluidState().isSource()
                     || context.getBlockState(connectedWater).getFluidState().isSource()) {
-                context.fail("Fluid pump should remove connected source blocks on the same body");
+                fail(context, "Fluid pump should remove connected source blocks on the same body");
                 return;
             }
             if (pump.tank().getAmount() < FluidUnits.mb(2_000)) {
-                context.fail("Fluid pump should store both connected sources");
+                fail(context, "Fluid pump should store both connected sources");
                 return;
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
@@ -171,7 +269,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -180,11 +278,11 @@ public class FluidPumpGameTest {
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 6L, () -> {
             for (BlockPos water : pool) {
                 if (context.getBlockState(water).getFluidState().isSource()) {
-                    context.fail("Fluid pump should carve every source from a finite pool");
+                    fail(context, "Fluid pump should carve every source from a finite pool");
                     return;
                 }
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
@@ -207,7 +305,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
@@ -216,17 +314,23 @@ public class FluidPumpGameTest {
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 2L + 4, () -> {
             if (pump.tank().getAmount() < FluidUnits.mb(1_000)
                     || pump.tank().getFluidKey().getFluid() != Fluids.WATER) {
-                context.fail("Fluid pump should draw fluid from a large body");
+                fail(context, "Fluid pump should draw fluid from a large body");
                 return;
             }
             if (!context.getBlockState(center).getFluidState().isSource()) {
-                context.fail("Fluid pump should not carve source blocks from a large body");
+                fail(context, "Fluid pump should not carve source blocks from a large body");
                 return;
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
+    /**
+     * Wiki claim (Usage): "...feeds them into an adjacent tank or fluid pipe." Setup step 3: "Place
+     * a Glass Tank or Copper Fluid Pipe against the output."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testFluidPumpOutputsToPipeAbove(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
@@ -239,18 +343,26 @@ public class FluidPumpGameTest {
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         FluidPipeBlockEntity pipe = (FluidPipeBlockEntity) context.getBlockEntity(pipePos);
         if (pump == null || pipe == null) {
-            context.fail("Expected pump and fluid pipe block entities");
+            fail(context, "Expected pump and fluid pipe block entities");
             return;
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
 
         fastArm(pump);
 
-        context.succeedWhen(() -> context.assertTrue(
-                pipe.totalMillibuckets() > 0 && pipe.containedFluid().getFluid() == Fluids.WATER,
-                "Fluid pump should push water into the pipe above"));
+        context.succeedWhen(() -> {
+            if (pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER) {
+                throw context.assertionException("Fluid pump should push water into the pipe above");
+            }
+        });
     }
 
+    /**
+     * Wiki claim (Usage): "...feeds them into an adjacent tank or fluid pipe" — the output is not
+     * limited to a single face; a pipe on any non-bottom side works.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testFluidPumpOutputsToPipeOnSide(GameTestHelper context) {
         BlockPos pumpPos = new BlockPos(1, 3, 1);
@@ -263,16 +375,59 @@ public class FluidPumpGameTest {
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         FluidPipeBlockEntity pipe = (FluidPipeBlockEntity) context.getBlockEntity(pipePos);
         if (pump == null || pipe == null) {
-            context.fail("Expected pump and fluid pipe block entities");
+            fail(context, "Expected pump and fluid pipe block entities");
             return;
         }
         pump.energyStorage(Direction.NORTH).insert(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY), false);
 
         fastArm(pump);
 
-        context.succeedWhen(() -> context.assertTrue(
-                pipe.totalMillibuckets() > 0 && pipe.containedFluid().getFluid() == Fluids.WATER,
-                "Fluid pump should push water into a pipe on its side"));
+        context.succeedWhen(() -> {
+            if (pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER) {
+                throw context.assertionException("Fluid pump should push water into a pipe on its side");
+            }
+        });
+    }
+
+    /**
+     * Wiki claim (Usage): "Outputs up to 62.5 mB/t into an adjacent tank or fluid pipe."
+     *
+     * <p>NOTE: the code's push-rate constant (FLUID_PUMP_PUSH_RATE_MB) is 400 mB/tick, not 62.5.
+     * 62.5 mB/t (= 1000 mB ÷ FLUID_PUMP_INTERVAL_TICKS(16)) looks like the *sustained average intake
+     * rate* (one bucket drained from the world every 16 ticks), mislabeled here as the output/push
+     * rate. This test asserts the push path directly — bypassing draining by preloading the pump's
+     * own tank — and confirms one tick moves exactly FLUID_PUMP_PUSH_RATE_MB, not ~62.5. See
+     * WIKI_DISCREPANCIES.md § Pump.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 20)
+    public void testFluidPumpPushRateIsFourHundredNotSixtyTwoPointFive(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos tankPos = pumpPos.above();
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(tankPos, LogisticsPipe.BLOCK.GLASS_TANK);
+
+        FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
+        GlassTankBlockEntity tank = (GlassTankBlockEntity) context.getBlockEntity(tankPos);
+        if (pump == null || tank == null) {
+            fail(context, "Expected pump and glass tank block entities");
+            return;
+        }
+        // Preload the pump's own tank directly (bypassing the drain step) so the push rate is the
+        // only thing under test.
+        pump.tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(16_000), false);
+        long before = tank.tank().getAmount();
+
+        context.runAfterDelay(1, () -> {
+            long delta = tank.tank().getAmount() - before;
+            long expected = FluidUnits.mb(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_PUSH_RATE_MB));
+            if (delta != expected) {
+                fail(context, "Fluid pump should push exactly " + expected + " mB/tick, got " + delta + " mB");
+                return;
+            }
+            succeed(context);
+        });
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 80)
@@ -289,7 +444,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -299,10 +454,10 @@ public class FluidPumpGameTest {
             if (!context.getBlockState(a).isAir()
                     || !context.getBlockState(b).isAir()
                     || !context.getBlockState(c).isAir()) {
-                context.fail("Fluid pump should drain all connected lava sources at the same layer");
+                fail(context, "Fluid pump should drain all connected lava sources at the same layer");
                 return;
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
@@ -321,7 +476,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -329,10 +484,10 @@ public class FluidPumpGameTest {
 
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 5L, () -> {
             if (!context.getBlockState(a).isAir() || !context.getBlockState(c).isAir()) {
-                context.fail("Fluid pump should reach sources across flowing fluid in the same layer");
+                fail(context, "Fluid pump should reach sources across flowing fluid in the same layer");
                 return;
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
@@ -358,7 +513,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -369,11 +524,11 @@ public class FluidPumpGameTest {
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 12L, () -> {
             for (BlockPos p : pool) {
                 if (context.getBlockState(p).getFluidState().isSource()) {
-                    context.fail("Open lava pool still has a source block at " + p);
+                    fail(context, "Open lava pool still has a source block at " + p);
                     return;
                 }
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
@@ -393,7 +548,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -405,10 +560,10 @@ public class FluidPumpGameTest {
             if (context.getBlockState(a).getFluidState().isSource()
                     || context.getBlockState(b).getFluidState().isSource()
                     || context.getBlockState(c).getFluidState().isSource()) {
-                context.fail("Fluid pump should finish the layer even while a tank empties its buffer");
+                fail(context, "Fluid pump should finish the layer even while a tank empties its buffer");
                 return;
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
@@ -424,7 +579,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -432,15 +587,15 @@ public class FluidPumpGameTest {
 
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) * 3L, () -> {
             if (!context.getBlockState(water).isAir()) {
-                context.fail("Fluid pump should drain the water");
+                fail(context, "Fluid pump should drain the water");
                 return;
             }
             // The tube tip must not have descended into the solid floor (top of floor = pump Y - 1).
             if (pump.armY() < pump.getBlockPos().getY() - 1.0f) {
-                context.fail("Fluid pump tube descended into the solid floor");
+                fail(context, "Fluid pump tube descended into the solid floor");
                 return;
             }
-            context.succeed();
+            succeed(context);
         });
     }
 
@@ -458,7 +613,7 @@ public class FluidPumpGameTest {
 
         FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
         if (pump == null) {
-            context.fail("Expected FluidPumpBlockEntity");
+            fail(context, "Expected FluidPumpBlockEntity");
             return;
         }
         fillEnergy(pump);
@@ -467,14 +622,60 @@ public class FluidPumpGameTest {
         // After the first pump the furthest source is gone but the one under the tube remains.
         context.runAfterDelay(LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_INTERVAL_TICKS) + 6L, () -> {
             if (context.getBlockState(far).getFluidState().isSource()) {
-                context.fail("Fluid pump should drain the furthest source first");
+                fail(context, "Fluid pump should drain the furthest source first");
                 return;
             }
             if (!context.getBlockState(near).getFluidState().isSource()) {
-                context.fail("The source under the tube should be drained last");
+                fail(context, "The source under the tube should be drained last");
                 return;
             }
-            context.succeed();
+            succeed(context);
+        });
+    }
+
+    /**
+     * Wiki claim (Power/Usage): "Supply it with RF from your power system... to keep it draining,"
+     * feeding "into an adjacent tank." The tests above prove draining and push-rate math by
+     * inserting energy directly; this one proves the whole feature as a player wires it up — a real
+     * engine (no cable) delivering power and a real Glass Tank receiving the output.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Power">wiki/Pump.txt § Power</a>
+     * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void testFluidPumpDrainsAndOutputsViaRealEngine(GameTestHelper context) {
+        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        BlockPos waterPos = pumpPos.below();
+        BlockPos tankPos = pumpPos.above();
+        BlockPos enginePos = pumpPos.north();
+        BlockPos redstoneBlockPos = enginePos.north();
+
+        context.setBlock(pumpPos, LogisticsAutomation.BLOCK.FLUID_PUMP);
+        context.setBlock(waterPos, Blocks.WATER);
+        context.setBlock(tankPos, LogisticsPipe.BLOCK.GLASS_TANK);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.SOUTH)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        FluidPumpBlockEntity pump = (FluidPumpBlockEntity) context.getBlockEntity(pumpPos);
+        GlassTankBlockEntity tank = (GlassTankBlockEntity) context.getBlockEntity(tankPos);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        if (pump == null || tank == null || engine == null) {
+            fail(context, "Expected pump, tank, and engine block entities");
+            return;
+        }
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the pump's 150 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        fastArm(pump);
+
+        context.succeedWhen(() -> {
+            if (tank.tank().getAmount() <= 0 || tank.tank().getFluidKey().getFluid() != Fluids.WATER) {
+                throw context.assertionException("Engine-powered pump should push drained water into the tank");
+            }
         });
     }
 

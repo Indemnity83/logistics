@@ -200,8 +200,14 @@ of failing, so that check wouldn't reliably catch an item-id typo anyway).
 
 Not executed yet — recorded here so the next pass doesn't have to re-derive priority order.
 
-1. **Pump** — similarly rich wiki page, single-machine story, good second data point before
-   anything with dual inputs.
+~~1. **Pump**~~ — done. Unlike the Kiln, most of `FluidPumpGameTest`'s existing suite was already
+   feature-shaped (furthest-first draining, infinite-body detection, output routing); the gap was a
+   few unasserted wiki claims, not wholesale rewrites. Added an explicit "no power, no pumping" test
+   and a push-rate test that caught a real mislabeling (wiki's 62.5 mB/t is the intake average, not
+   the 400 mB/t push constant — see `WIKI_DISCREPANCIES.md` § Pump). Also surfaced a lesson for the
+   methodology itself: a recipe's raw item id (e.g. `machine_core`) can outlive a display-name rename
+   ("Machine Frame") — check the lang file before flagging an id-vs-wiki-name difference as a
+   mismatch (see `WIKI_DISCREPANCIES.md`'s closed Kiln entry).
 2. **Laser Quarry verification** — already has real coverage (`QuarryPhaseRunnerTest`,
    `QuarryGameTest`, `QuarryMiningGameTest`); cheap pass to check existing tests actually assert the
    wiki's specific claims (marker-consumption, chunk-loading toggle, power-scaling).
@@ -230,7 +236,7 @@ Not executed yet — recorded here so the next pass doesn't have to re-derive pr
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
