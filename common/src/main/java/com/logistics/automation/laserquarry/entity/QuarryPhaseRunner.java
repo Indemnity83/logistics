@@ -105,30 +105,30 @@ public final class QuarryPhaseRunner {
             return;
         }
 
+        int topY = clearingTopY(q);
         BlockPos target = null;
         BlockState targetState = null;
         for (int skipped = 0; skipped < LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_SCAN_RATE); skipped++) {
-            target = clearingTargetPos(q);
-            if (target == null) {
+            BlockPos sequential = clearingTargetPos(q);
+            if (sequential == null) {
                 transitionFromClearingToBuildingFrame(q);
                 return;
             }
 
-            targetState = q.level().getBlockState(target);
-            if (!GridScanner.shouldSkip(q.level(), target, targetState)) {
-                break;
+            target = resolveTarget(q, sequential, topY);
+            if (target == null) {
+                advanceToNextBlock(q);
+                resetBreakProgress();
+                continue;
             }
-
-            advanceToNextBlock(q);
-            resetBreakProgress();
+            targetState = q.level().getBlockState(target);
+            break;
         }
 
         if (target == null) {
-            transitionFromClearingToBuildingFrame(q);
-            return;
-        }
-
-        if (GridScanner.shouldSkip(q.level(), target, targetState)) {
+            // Scan budget exhausted this tick without resolving a target — retry next tick; only
+            // clearingTargetPos itself returning null (handled above, inside the loop) means
+            // clearing has actually reached the end of the area.
             return;
         }
 
@@ -148,7 +148,12 @@ public final class QuarryPhaseRunner {
 
         if (breakProgress >= currentBreakTime) {
             QuarryBlockBreaker.mineBlock(q.level(), target, targetState, q.output());
-            advanceToNextBlock(q);
+            // Only advance the cursor once the sequential position itself is what got mined —
+            // a shallower reappeared block above it (resolveTarget's detour) doesn't count as
+            // that grid cell being done, so the cursor must stay put and re-resolve next tick.
+            if (target.equals(clearingTargetPos(q))) {
+                advanceToNextBlock(q);
+            }
             resetBreakProgress();
         }
     }
@@ -198,12 +203,13 @@ public final class QuarryPhaseRunner {
 
     private void tickMining(QuarryContext q) {
         ArmController arm = q.arm();
+        int topY = q.pos().getY() - 1;
 
         BlockPos target = null;
         boolean skippedAny = false;
         for (int skipped = 0; skipped < LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_SCAN_RATE); skipped++) {
-            target = miningTargetPos(q);
-            if (target == null) {
+            BlockPos sequential = miningTargetPos(q);
+            if (sequential == null) {
                 if (currentTarget != null) {
                     q.level().destroyBlockProgress(q.breakingEntityId(), currentTarget, -1);
                 }
@@ -213,14 +219,13 @@ public final class QuarryPhaseRunner {
                 return;
             }
 
-            BlockState targetState = q.level().getBlockState(target);
-            if (!GridScanner.shouldSkip(q.level(), target, targetState)) {
-                break;
+            target = resolveTarget(q, sequential, topY);
+            if (target == null) {
+                advanceMiningPosition(q);
+                skippedAny = true;
+                continue;
             }
-
-            advanceMiningPosition(q);
-            target = null;
-            skippedAny = true;
+            break;
         }
 
         if (target == null) {
@@ -289,12 +294,16 @@ public final class QuarryPhaseRunner {
                 q.level().destroyBlockProgress(q.breakingEntityId(), target, -1);
 
                 QuarryBlockBreaker.mineBlock(q.level(), target, targetState, q.output());
-                advanceMiningPosition(q);
+                // Only advance the cursor once the sequential position itself is what got mined —
+                // a shallower reappeared block above it (resolveTarget's detour) doesn't count as
+                // that grid cell being done, so the cursor must stay put and get re-resolved by
+                // findNextTarget below.
+                if (target.equals(miningTargetPos(q))) {
+                    advanceMiningPosition(q);
+                }
                 resetBreakProgress();
 
-                skipToNextSolidBlock(q);
-
-                BlockPos nextTarget = miningTargetPos(q);
+                BlockPos nextTarget = findNextTarget(q, topY);
                 if (nextTarget != null) {
                     float newX = nextTarget.getX() + 0.5f;
                     float newY = nextTarget.getY() + 1.0f;
@@ -334,6 +343,49 @@ public final class QuarryPhaseRunner {
                 miningX,
                 miningY,
                 miningZ);
+    }
+
+    /** The clearing phase's own top boundary — {@code QuarryFrameRect.topY()}, resolved fresh (facing/bounds can change). */
+    private int clearingTopY(QuarryContext q) {
+        QuarryFrameRect rect = QuarryFrameRect.resolve(
+                LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                q.pos(),
+                q.bounds(),
+                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA));
+        return rect != null ? rect.topY() : q.pos().getY();
+    }
+
+    /**
+     * Resolves the real block to work on for {@code sequential}'s column: scans live, every call
+     * (never cached), from the region's top down to {@code sequential} itself, and returns the
+     * shallowest position that still needs handling. A hazardous fluid stops the scan outright —
+     * nothing below it is safe to reach, so this returns {@code null} without ever considering
+     * {@code sequential}. Otherwise the shallowest still-minable block is returned, which is
+     * {@code sequential} itself once everything shallower has already been cleared; {@code null}
+     * means the whole span is already resolved.
+     *
+     * <p>This is also how reappeared blocks get handled — settled sand/gravel, one placed back in
+     * by a player — with no separate cache or one-time recheck: any column gets its full processed
+     * height re-examined every time mining reaches it, so a block that reappears anywhere above,
+     * at any point before the cursor gets there next, is always picked up. A cache tied to a
+     * single moment (a specific layer transition, a scan-order index, a session's memory) can only
+     * ever cover part of that — it was the same failure mode that let lava get mined under, and
+     * players placing blocks the quarry then ignored, before this stopped being cached at all.
+     */
+    private @Nullable BlockPos resolveTarget(QuarryContext q, BlockPos sequential, int topY) {
+        for (int y = topY; y >= sequential.getY(); y--) {
+            BlockPos candidate = (y == sequential.getY())
+                    ? sequential
+                    : new BlockPos(sequential.getX(), y, sequential.getZ());
+            BlockState state = q.level().getBlockState(candidate);
+            if (GridScanner.isHazardousFluid(state)) {
+                return null;
+            }
+            if (!GridScanner.shouldSkip(q.level(), candidate, state)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     private void advanceToNextBlock(QuarryContext q) {
@@ -391,21 +443,23 @@ public final class QuarryPhaseRunner {
         q.markChanged();
     }
 
-    private void skipToNextSolidBlock(QuarryContext q) {
+    /** Finds the next block to work on after one just finished, advancing the cursor past whatever's already resolved. */
+    private @Nullable BlockPos findNextTarget(QuarryContext q, int topY) {
         for (int skipped = 0; skipped < LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_SCAN_RATE); skipped++) {
-            BlockPos target = miningTargetPos(q);
-            if (target == null) {
+            BlockPos sequential = miningTargetPos(q);
+            if (sequential == null) {
                 finished = true;
-                return;
+                return null;
             }
 
-            BlockState targetState = q.level().getBlockState(target);
-            if (!GridScanner.shouldSkip(q.level(), target, targetState)) {
-                return;
+            BlockPos resolved = resolveTarget(q, sequential, topY);
+            if (resolved != null) {
+                return resolved;
             }
 
             advanceMiningPosition(q);
         }
+        return null;
     }
 
     private void resetBreakProgress() {
