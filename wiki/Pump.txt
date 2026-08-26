@@ -37,7 +37,7 @@ The Pump is mined with a pickaxe; without one it drops nothing.
 The Pump drains fluid source blocks from the world below it into an internal buffer and outputs them to an adjacent tank or fluid pipe. It works with any vanilla or modded fluid source on both Fabric and NeoForge.
 
 * Holds a '''16,000 mB (16 buckets)''' internal buffer
-* Outputs up to '''62.5 mB/t''' into an adjacent tank or fluid pipe
+* Drains one source block (1,000 mB) every 16 ticks — a sustained average of '''62.5 mB/t''' into an adjacent tank or fluid pipe
 * Consumes '''100 RF''' per source block drained — no power, no pumping
 
 === Power ===
