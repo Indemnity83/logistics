@@ -2,8 +2,11 @@ package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.sawmill.SawmillBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +14,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 
 /**
  * In-world tests for the component-hosted Sawmill: capability routing, bottom-out sided access with
@@ -34,6 +39,12 @@ public class SawmillGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "...input from the top and sides, primary and byproduct outputs drawn
+     * from the bottom."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+     */
     @GameTest
     public void testSidedAccess(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -87,6 +98,12 @@ public class SawmillGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "...the Sawmill cuts it into planks over time and rolls its Sawdust
+     * byproduct on completion." (Power): "Each recipe carries an RF cost (2,000–3,000 RF)."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+     */
     @GameTest(maxTicks = 200)
     public void testSawsLogIntoPlanksAndByproduct(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -97,6 +114,7 @@ public class SawmillGameTest {
         for (int i = 0; i < 200; i++) {
             energy.insert(128, false);
         }
+        long filledEnergy = energy.getAmount();
         sawmill.setItem(INPUT, new ItemStack(Items.OAK_LOG));
 
         // Oak logs cost 3,000 RF and saw in 150 ticks at 20 RF/t -> 6 planks + sawdust byproduct.
@@ -113,6 +131,11 @@ public class SawmillGameTest {
             ItemStack byproduct = sawmill.getItem(SECONDARY);
             if (!byproduct.is(LogisticsCore.ITEM.SAWDUST) || byproduct.isEmpty()) {
                 context.fail("Byproduct output should be sawdust, got " + byproduct);
+                return;
+            }
+            long spent = filledEnergy - energy.getAmount();
+            if (spent != 3_000) {
+                context.fail("Oak log should cost exactly 3,000 RF (within the wiki's 2,000-3,000 range), spent: " + spent);
                 return;
             }
             context.succeed();
@@ -211,6 +234,49 @@ public class SawmillGameTest {
                 return;
             }
             context.succeed();
+        });
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "...input from the top and sides... connect a Stirling Engine or
+     * any RF source."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+     */
+    @GameTest(maxTicks = 240)
+    public void testSawsViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos sawmillPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = sawmillPos.above();
+        BlockPos outputHopperPos = sawmillPos.below();
+
+        context.setBlock(sawmillPos, LogisticsAutomation.BLOCK.SAWMILL);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        if (engine == null || inputHopper == null) {
+            context.fail("Expected engine and input hopper block entities");
+            return;
+        }
+
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the sawmill's 128 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.OAK_LOG));
+
+        context.succeedWhen(() -> {
+            context.assertContainerContains(outputHopperPos, Items.OAK_PLANKS);
+            context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.SAWDUST);
         });
     }
 }
