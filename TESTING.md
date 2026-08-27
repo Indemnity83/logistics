@@ -130,6 +130,13 @@ the Kiln (`common/src/test/java/com/logistics/automation/kiln/`,
    count went up by the expected amount after adding a new test class, not just that the run stayed
    green — a class-registration miss and "test already passed by coincidence" both look identical
    otherwise.
+10. **Building a recipe/other cross-domain `ResourceId` from a domain's `resource()` helper silently
+    prepends that domain's own prefix** (e.g. `LogisticsCore.resource("fabricator/redstone_chipset")`
+    produces `logistics:core/fabricator/redstone_chipset`, not the intended
+    `logistics:fabricator/redstone_chipset`) — a recipe's real id follows its file path under
+    `data/logistics/recipe/<folder>/`, unrelated to any domain's resource-naming convention. Use
+    `ResourceId.in(LogisticsMod.MOD_ID, path)` when constructing an id that isn't "this domain's own
+    resource," and a test that silently draws 0 RF / never starts is a good sign the id is wrong.
 
 ### Real connectivity, not direct capability calls
 
@@ -212,7 +219,7 @@ of failing, so that check wouldn't reliably catch an item-id typo anyway).
 
 Recorded here so a pass doesn't have to re-derive priority order or re-discover what's already done.
 
-#### Automation domain (in progress — goal is full coverage of every `LogisticsAutomation.BLOCK`)
+#### Automation domain — done (every `LogisticsAutomation.BLOCK` machine now has feature-test coverage)
 
 ~~1. **Kiln**~~ — done. Heavy rewrite; 3 confirmed wiki mismatches (RF cost, smelt speed, input
    sides), since fixed on the wiki side (`logistics-docs` commits `7ba3e7af`/`2d62f834`).
@@ -283,10 +290,27 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
    byproduct). All three config numbers and three spot-checked recipes (crafting, iron ore, bronze)
    matched the wiki exactly, including a crafting-recipe ingredient that's a genuine *list*
    (Sand-or-Red-Sand) rather than a single item — the first recipe test needing that shape.
-10. **Sequential Fabricator** — zero coverage. Multi-step/multi-stage fabrication; likely the biggest
-    lift in the domain — research its actual stage model before estimating scope.
-11. **Quarry chunk-loading toggle** — surfaced by item 3; needs a `ChunkLoadingComponent`-level or
-    GameTest check that toggling `quarry_load_chunks` actually acquires/releases chunk tickets.
+~~10. **Sequential Fabricator**~~ — done, and the "multi-step/multi-stage" framing turned out to be
+    simpler in practice than it sounded: pick a chipset in the GUI, feed ingredients into a shared
+    12-slot pool, it builds and ejects. All three config numbers and three spot-checked recipes
+    (crafting, cheapest chipset, most expensive chipset) matched the wiki exactly. The real find:
+    the wiki's Usage section reads as one chipset selected at a time ("*the* selected chipset"), but
+    the machine actually supports queuing several chipsets and cycles through them round-robin,
+    confirmed live with a test that queues two chipsets with only enough shared redstone for one of
+    each — proving the machine switches to the other recipe after each completion rather than
+    exhausting one first, which would strand the second recipe's own redstone requirement (see
+    `WIKI_DISCREPANCIES.md` § Sequential Fabricator). Also hit a new
+    mistake worth flagging for next time: constructing a recipe's `ResourceId` via a domain helper
+    (`LogisticsCore.resource(...)`) silently prepends that domain's prefix (`core/`) — the recipe's
+    real id follows its file path under `data/logistics/recipe/<folder>/`, not any domain
+    convention. Use `ResourceId.in(LogisticsMod.MOD_ID, path)` for recipe/other cross-domain ids
+    instead of a domain-scoped resource helper.
+
+#### Loose ends (found along the way, not required for automation-domain completion)
+
+11. **Quarry chunk-loading toggle** — surfaced while verifying the Quarry; needs a
+    `ChunkLoadingComponent`-level or GameTest check that toggling `quarry_load_chunks` actually
+    acquires/releases chunk tickets.
 12. **Marker block** — stateful, zero coverage, likely a short wiki page; do this before revisiting
     quarry marker-consumption, since that depends on the Marker block having basic tests first. Not
     itself an automation-domain block (`LogisticsCore.BLOCK.MARKER`), but tightly coupled to the
@@ -313,7 +337,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes), AlloySmelterConfig (power config defaults), AlloySmelterRecipeSpotCheck (crafting + ore-processing + alloying recipes)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes), AlloySmelterConfig (power config defaults), AlloySmelterRecipeSpotCheck (crafting + ore-processing + alloying recipes), SequentialFabricatorConfig (power config defaults), SequentialFabricatorRecipeSpotCheck (crafting + cheapest/most-expensive chipset recipes)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
