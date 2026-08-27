@@ -13,10 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Spot-checks one representative shipped Macerator recipe against the wiki's grinding table,
- * reading the bundled JSON directly rather than a hand-built stand-in. The Macerator has 150+
- * recipes ({@code com.logistics.RecipeJsonSmokeTest} covers all of them structurally); this is a
- * single content check in the same spirit as {@code KilnRecipeTest}/{@code FluidPumpRecipeTest},
- * not exhaustive per-recipe wiki verification.
+ * reading the bundled JSON directly rather than a hand-built stand-in.
  */
 @DisplayName("Macerator recipe (spot check)")
 class MaceratorRecipeSpotCheckTest {

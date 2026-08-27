@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Locks in the Macerator's documented power numbers (see wiki/Macerator.txt § Power) as fast,
- * engine-free regression guards. Unlike the Kiln, these already match the wiki exactly — no
- * discrepancy found here.
+ * engine-free regression guards.
  */
 @DisplayName("Macerator config")
 class MaceratorConfigTest {

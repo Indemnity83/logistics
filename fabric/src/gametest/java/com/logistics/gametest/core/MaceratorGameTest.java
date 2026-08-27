@@ -44,8 +44,7 @@ public class MaceratorGameTest {
 
     /**
      * Wiki claim (Usage): "Input is accepted from the top and sides; output is drawn from the
-     * bottom." Unlike the Kiln (top-only), the Macerator genuinely accepts input from every
-     * non-bottom face, matching the wiki as written — no mismatch here.
+     * bottom."
      *
      * @see <a href="https://logistics.fandom.com/wiki/Macerator#Usage">wiki/Macerator.txt § Usage</a>
      */
@@ -167,10 +166,7 @@ public class MaceratorGameTest {
 
     /**
      * Wiki claim (Usage/Power): "Input is accepted from the top and sides... connect a Stirling
-     * Engine or any RF source." The test above proves the recipe math and energy contract by
-     * manipulating the macerator's storages directly; this one proves the whole feature as a
-     * player actually wires it up — a real engine (no cable) delivering power, and a real hopper
-     * pushing the ore in and another pulling the dust out.
+     * Engine or any RF source."
      *
      * @see <a href="https://logistics.fandom.com/wiki/Macerator#Usage">wiki/Macerator.txt § Usage</a>
      */
