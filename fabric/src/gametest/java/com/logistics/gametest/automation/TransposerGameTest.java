@@ -2,16 +2,22 @@ package com.logistics.gametest.automation;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
 import com.logistics.automation.transposer.TransposerBlockEntity;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -62,7 +68,12 @@ public class TransposerGameTest {
         context.succeed();
     }
 
-    /** Empty bucket + tank of lava + a full energy buffer → lava bucket out, tank drained by 1000 mB. */
+    /**
+     * Wiki claim (Usage): "An empty bucket plus at least 1,000 mB in the tank becomes a filled
+     * bucket of that fluid; the tank loses 1,000 mB." (Power): "A bucket fill/empty costs 800 RF."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
+     */
     @GameTest(maxTicks = 60)
     public void fillFromLava(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -71,6 +82,7 @@ public class TransposerGameTest {
         be.tank().insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(1_000), false);
         be.setItem(INPUT_SLOT, new ItemStack(Items.BUCKET));
         chargeFully(be);
+        long filledEnergy = be.energyStorage(null).getAmount();
 
         context.runAfterDelay(COMPLETE_DELAY, () -> {
             if (!be.getItem(OUTPUT_SLOT).is(Items.LAVA_BUCKET)) {
@@ -83,6 +95,11 @@ public class TransposerGameTest {
             }
             if (be.tank().getAmount() != 0) {
                 context.fail("Tank should be empty after filling one bucket, got: " + be.tank().getAmount());
+                return;
+            }
+            long spent = filledEnergy - be.energyStorage(null).getAmount();
+            if (spent != 800) {
+                context.fail("Filling a bucket should cost exactly 800 RF, spent: " + spent);
                 return;
             }
             context.succeed();
@@ -118,7 +135,12 @@ public class TransposerGameTest {
         });
     }
 
-    /** Filled bucket of a custom mod fluid + room in the tank + full energy → empty bucket out, tank gains 1000 mB. */
+    /**
+     * Wiki claim (Usage): "A filled bucket — water, lava, or any Logistics fluid bucket — plus room
+     * for 1,000 mB becomes a plain empty bucket; the tank gains 1,000 mB."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
+     */
     @GameTest(maxTicks = 60)
     public void emptyCustomFluidBucket(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -203,7 +225,13 @@ public class TransposerGameTest {
         });
     }
 
-    /** Empty bucket + tank holding less than 1000 mB + full energy → rejected: input and tank untouched. */
+    /**
+     * Wiki claim (Usage): "The conversion is atomic: if the output slot can't hold the result or
+     * there isn't enough RF banked, nothing is consumed and the tank is untouched." An under-full
+     * tank is the fluid-side equivalent — there isn't a valid result to produce, so nothing runs.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
+     */
     @GameTest(maxTicks = 60)
     public void insufficientTankAmountRejected(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -283,7 +311,13 @@ public class TransposerGameTest {
         });
     }
 
-    /** The atomicity test: output blocked → no-op. Neither the input bucket nor the tank may change. */
+    /**
+     * Wiki claim (Usage): "The conversion is atomic: if the output slot can't hold the result...
+     * nothing is consumed and the tank is untouched." Neither the input bucket nor the tank may
+     * change when the output is blocked.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
+     */
     @GameTest(maxTicks = 60)
     public void blockedOutputIsNoOp(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -312,7 +346,12 @@ public class TransposerGameTest {
         });
     }
 
-    /** No RF in the buffer → no-op. A valid fill recipe must still not run without energy to spend. */
+    /**
+     * Wiki claim (Usage): "...if there isn't enough RF banked, nothing is consumed and the tank is
+     * untouched." A valid fill recipe must still not run without energy to spend.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
+     */
     @GameTest(maxTicks = 60)
     public void noEnergyIsNoOp(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -337,5 +376,46 @@ public class TransposerGameTest {
             }
             context.succeed();
         });
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "An empty bucket plus at least 1,000 mB in the tank becomes a
+     * filled bucket... A bucket fill/empty costs 800 RF."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
+     */
+    @GameTest(maxTicks = 100)
+    public void fillsBucketViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos transposerPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = transposerPos.above();
+        BlockPos outputHopperPos = transposerPos.below();
+
+        TransposerBlockEntity be = place(context, transposerPos);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        if (be == null || engine == null || inputHopper == null) {
+            context.fail("Expected transposer, engine, and input hopper block entities");
+            return;
+        }
+
+        be.tank().insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(1_000), false);
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the transposer's 128 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.BUCKET));
+
+        context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, Items.LAVA_BUCKET));
     }
 }
