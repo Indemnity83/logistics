@@ -1,10 +1,14 @@
 package com.logistics.gametest.core;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
 import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.automation.macerator.MaceratorBlock;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +16,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 
 /**
  * In-world tests for the component-hosted Macerator: capability routing, furnace-style sided
@@ -36,6 +42,12 @@ public class MaceratorGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "Input is accepted from the top and sides; output is drawn from the
+     * bottom."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Macerator#Usage">wiki/Macerator.txt § Usage</a>
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testSidedAccess(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -108,6 +120,12 @@ public class MaceratorGameTest {
         context.succeed();
     }
 
+    /**
+     * Wiki claim (Usage): "...most ores take 2,000 RF (10 seconds)." (Recipes § Ores → Dust):
+     * "Iron Ore -> Iron Dust,2".
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Macerator#Usage">wiki/Macerator.txt § Usage</a>
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 240)
     public void testMaceratesOreWithEnergy(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
@@ -123,20 +141,66 @@ public class MaceratorGameTest {
         for (int i = 0; i < 80; i++) {
             energy.insert(128, false);
         }
+        long filledEnergy = energy.getAmount();
         macerator.setItem(INPUT_SLOT, new ItemStack(Items.IRON_ORE));
 
-        // iron_ore costs 2000 RF at 10 RF/t -> 200 ticks.
+        // iron_dust.json costs 2000 RF at 10 RF/t -> 200 ticks; 220 leaves setup slack.
         context.runAfterDelay(220, () -> {
             if (!macerator.getItem(INPUT_SLOT).isEmpty()) {
                 context.fail("Input ore should be consumed after maceration");
                 return;
             }
             ItemStack output = macerator.getItem(OUTPUT_SLOT);
-            if (output.isEmpty()) {
-                context.fail("Macerator should have produced dust");
+            if (output.isEmpty() || output.getCount() != 2 || !output.is(LogisticsCore.ITEM.IRON_DUST)) {
+                context.fail("Macerator should have produced 2 iron dust, got: " + output);
+                return;
+            }
+            long spent = filledEnergy - energy.getAmount();
+            if (spent != 2_000) {
+                context.fail("Grinding iron ore should cost exactly 2,000 RF, spent: " + spent);
                 return;
             }
             context.succeed();
         });
+    }
+
+    /**
+     * Wiki claim (Usage/Power): "Input is accepted from the top and sides... connect a Stirling
+     * Engine or any RF source."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Macerator#Usage">wiki/Macerator.txt § Usage</a>
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 260)
+    public void testMaceratesViaRealEngineAndHoppers(GameTestHelper context) {
+        BlockPos maceratorPos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
+        BlockPos inputHopperPos = maceratorPos.above();
+        BlockPos outputHopperPos = maceratorPos.below();
+
+        context.setBlock(maceratorPos, LogisticsAutomation.BLOCK.MACERATOR);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        context.setBlock(inputHopperPos, Blocks.HOPPER);
+        context.setBlock(outputHopperPos, Blocks.HOPPER);
+
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        HopperBlockEntity inputHopper = (HopperBlockEntity) context.getBlockEntity(inputHopperPos);
+        if (engine == null || inputHopper == null) {
+            context.fail("Expected engine and input hopper block entities");
+            return;
+        }
+
+        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the macerator's 128 RF/t input cap.
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+
+        inputHopper.setItem(0, new ItemStack(Items.IRON_ORE));
+
+        context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.IRON_DUST));
     }
 }
