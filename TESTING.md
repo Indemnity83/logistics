@@ -234,9 +234,15 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
    exact 2,000 RF cost and exact 2-dust output, and added one recipe-content spot check (iron ore →
    2 iron dust + 10% tin dust byproduct) confirming a representative one of the Macerator's 150+
    recipes matches its wiki grinding-table row exactly.
-5. **Sawmill verification** — has `SawmillGameTest`/`SawmillRecipeTest`; same cheap-verification
-   treatment as Macerator/Quarry expected (check wiki numbers against `SAWMILL_*` config, spot-check
-   one recipe, add traceability).
+~~5. **Sawmill verification**~~ — done, and the cheapest-to-verify but highest-signal find yet:
+   config numbers (10,000 RF, 128 RF/t) matched the wiki exactly, and the "2,000-3,000 RF per
+   recipe" range checked out for both spot-checked recipes (oak log = 3,000, within range). But
+   spot-checking the wiki's Plants → Pulped Biomass table against the actual JSON surfaced a real
+   omission, not a mislabeling: the wiki lists no byproduct for any of its three rows, while wheat
+   pulping genuinely grants a 50% wheat-seeds byproduct and sugar cane pulping grants a **guaranteed
+   2x sugar** byproduct — both undocumented (see `WIKI_DISCREPANCIES.md` § Sawmill). Also confirmed
+   the wiki's ">100% chance" wording (Oak Boat, 125%) is real, not a typo — the code supports chance
+   values above 1.0 as "guaranteed + partial," now pinned by a test.
 6. **Transposer verification** — has `TransposerGameTest`; same treatment (check wiki's fluid⇄item
    conversion claims and RF cost against config, spot-check one recipe).
 7. **Refinery** — currently only exercised as a passive fluid-tank host in `FluidSupplierGameTest`;
@@ -279,7 +285,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
