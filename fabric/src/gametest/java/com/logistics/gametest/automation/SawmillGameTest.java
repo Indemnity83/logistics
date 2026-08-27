@@ -239,10 +239,7 @@ public class SawmillGameTest {
 
     /**
      * Wiki claim (Usage/Power): "...input from the top and sides... connect a Stirling Engine or
-     * any RF source." The test above proves the recipe math and energy contract by manipulating
-     * the sawmill's storages directly; this one proves the whole feature as a player actually
-     * wires it up — a real engine (no cable) delivering power, and a real hopper pushing the log
-     * in and another pulling both outputs out.
+     * any RF source."
      *
      * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
      */

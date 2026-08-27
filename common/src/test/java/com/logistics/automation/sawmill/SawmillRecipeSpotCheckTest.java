@@ -4,21 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.logistics.core.machine.component.ChanceOutput;
+import com.logistics.test.MinecraftTestEnvironment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
  * Spot-checks representative shipped Sawmill recipes against the wiki's milling tables, reading the
- * bundled JSON directly. The Sawmill has 139 recipes ({@code com.logistics.RecipeJsonSmokeTest}
- * covers all of them structurally); these are content checks in the same spirit as {@code
- * KilnRecipeTest}, not exhaustive.
+ * bundled JSON directly.
  */
 @DisplayName("Sawmill recipes (spot check)")
-class SawmillRecipeSpotCheckTest {
+class SawmillRecipeSpotCheckTest extends MinecraftTestEnvironment {
 
     private static JsonObject loadRecipe(String fileName) throws IOException {
         String path = "data/logistics/recipe/sawmill/" + fileName;
@@ -69,7 +72,24 @@ class SawmillRecipeSpotCheckTest {
 
         JsonObject byproduct = recipe.getAsJsonObject("byproduct");
         assertThat(byproduct.get("id").getAsString()).isEqualTo("logistics:core/sawdust");
-        assertThat(byproduct.get("chance").getAsDouble()).isEqualTo(1.25);
+        float chance = byproduct.get("chance").getAsFloat();
+        assertThat(chance).isEqualTo(1.25f);
+
+        // A chance > 1.0 means a guaranteed portion plus a fractional bonus roll — pin both halves
+        // of that behavior for this recipe's actual chance, not just the raw JSON value.
+        ChanceOutput rolled = new ChanceOutput(new ItemStack(Items.GUNPOWDER), chance);
+        assertThat(rolled.guaranteedCount()).isEqualTo(1);
+        RandomSource random = RandomSource.create(7L);
+        int twos = 0;
+        for (int i = 0; i < 1000; i++) {
+            int rolledCount = rolled.roll(random);
+            assertThat(rolledCount).isBetween(1, 2);
+            if (rolledCount == 2) {
+                twos++;
+            }
+        }
+        // ~25% of rolls should produce the bonus item (loose bounds, deterministic seed).
+        assertThat(twos).isBetween(150, 350);
     }
 
     /**
