@@ -380,11 +380,7 @@ public class TransposerGameTest {
 
     /**
      * Wiki claim (Usage/Power): "An empty bucket plus at least 1,000 mB in the tank becomes a
-     * filled bucket... A bucket fill/empty costs 800 RF." The test above proves the RF cost and
-     * atomicity by manipulating storages directly; this one proves the whole feature as a player
-     * actually wires it up — a real engine (no cable) delivering power, and a real hopper pushing
-     * the empty bucket in and another pulling the filled bucket out. The tank is preloaded
-     * directly since fluid-pipe connectivity to the transposer isn't the claim under test here.
+     * filled bucket... A bucket fill/empty costs 800 RF."
      *
      * @see <a href="https://logistics.fandom.com/wiki/Transposer#Usage">wiki/Transposer.txt § Usage</a>
      */
