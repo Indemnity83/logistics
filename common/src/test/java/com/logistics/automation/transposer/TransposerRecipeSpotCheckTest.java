@@ -13,9 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Spot-checks the Transposer's own crafting recipe and its two water-bucket conversion recipes
- * against the wiki, reading the bundled JSON directly. The Transposer has 48 conversion recipes
- * ({@code com.logistics.RecipeJsonSmokeTest} covers all of them structurally); these are content
- * checks in the same spirit as {@code KilnRecipeTest}, not exhaustive.
+ * against the bundled data.
  */
 @DisplayName("Transposer recipes (spot check)")
 class TransposerRecipeSpotCheckTest {
@@ -48,8 +46,12 @@ class TransposerRecipeSpotCheckTest {
         assertThat(key.get("S").getAsString()).isEqualTo("minecraft:glass");
         assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
         assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
-        // "Machine Frame" in-game; logistics:core/machine_core is its (unchanged) registry id.
+        // "Machine Frame" in-game; logistics:core/machine_core is its registry id.
         assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core");
+
+        JsonObject result = recipe.getAsJsonObject("result");
+        assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/transposer");
+        assertThat(result.get("count").getAsInt()).isEqualTo(1);
     }
 
     /**
