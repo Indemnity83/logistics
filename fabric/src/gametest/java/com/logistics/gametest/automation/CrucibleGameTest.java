@@ -8,7 +8,7 @@ import com.logistics.core.lib.fluids.IFluidStorage;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -28,7 +28,7 @@ public class CrucibleGameTest {
 
     private static CrucibleBlockEntity place(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsAutomation.BLOCK.CRUCIBLE);
-        CrucibleBlockEntity be = context.getBlockEntity(pos, CrucibleBlockEntity.class);
+        CrucibleBlockEntity be = (CrucibleBlockEntity) context.getBlockEntity(pos);
         if (be == null) {
             context.fail("Crucible should create CrucibleBlockEntity");
         }
@@ -42,7 +42,7 @@ public class CrucibleGameTest {
         }
     }
 
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPlacement(GameTestHelper context) {
         place(context, new BlockPos(1, 1, 1));
         context.succeed();
@@ -54,7 +54,7 @@ public class CrucibleGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Crucible#Usage">wiki/Crucible.txt § Usage</a>
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testTankIsOutputOnly(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         CrucibleBlockEntity crucible = place(context, pos);
@@ -77,7 +77,7 @@ public class CrucibleGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Crucible#Lava_.26_water">wiki/Crucible.txt § Lava & water</a>
      */
-    @GameTest(maxTicks = 60)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testMeltsIceIntoWater(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         CrucibleBlockEntity crucible = place(context, pos);
@@ -111,7 +111,7 @@ public class CrucibleGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Crucible#Usage">wiki/Crucible.txt § Usage</a>
      */
-    @GameTest(maxTicks = 100)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
     public void testMeltsViaRealEngineAndHopper(GameTestHelper context) {
         BlockPos cruciblePos = new BlockPos(1, 1, 1);
         BlockPos enginePos = new BlockPos(0, 1, 1);
@@ -126,8 +126,8 @@ public class CrucibleGameTest {
                 .setValue(AbstractEngineBlock.POWERED, true));
         context.setBlock(inputHopperPos, Blocks.HOPPER);
 
-        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
-        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        HopperBlockEntity inputHopper = (HopperBlockEntity) context.getBlockEntity(inputHopperPos);
         if (crucible == null || engine == null || inputHopper == null) {
             context.fail("Expected crucible, engine, and input hopper block entities");
             return;
@@ -140,11 +140,7 @@ public class CrucibleGameTest {
 
         inputHopper.setItem(0, new ItemStack(Items.ICE));
 
-        context.succeedWhen(() -> {
-            if (crucible.tank().getAmount() < FluidUnits.mb(1_000)
-                    || crucible.tank().getFluidKey().getFluid() != Fluids.WATER) {
-                throw context.assertionException("Engine-and-hopper-fed crucible should melt ice into water");
-            }
-        });
+        context.succeedWhen(() -> context.assertTrue(!(crucible.tank().getAmount() < FluidUnits.mb(1_000)
+                    || crucible.tank().getFluidKey().getFluid() != Fluids.WATER), "Engine-and-hopper-fed crucible should melt ice into water"));
     }
 }

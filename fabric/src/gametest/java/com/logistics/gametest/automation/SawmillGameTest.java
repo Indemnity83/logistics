@@ -274,9 +274,15 @@ public class SawmillGameTest {
 
         inputHopper.setItem(0, new ItemStack(Items.OAK_LOG));
 
+        // NOTE: this branch's vanilla GameTestHelper#assertContainerContains only succeeds on an
+        // EXACT count of 1 (26.2's checks for "at least one"), so a multi-item/multi-slot result
+        // (6 planks + sawdust) is checked directly against the hopper's container instead.
         context.succeedWhen(() -> {
-            context.assertContainerContains(outputHopperPos, Items.OAK_PLANKS);
-            context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.SAWDUST);
+            HopperBlockEntity outputHopper = (HopperBlockEntity) context.getBlockEntity(outputHopperPos);
+            context.assertTrue(outputHopper.countItem(Items.OAK_PLANKS) > 0, "Container should contain: " + Items.OAK_PLANKS);
+            context.assertTrue(
+                    outputHopper.countItem(LogisticsCore.ITEM.SAWDUST) > 0,
+                    "Container should contain: " + LogisticsCore.ITEM.SAWDUST);
         });
     }
 }

@@ -26,6 +26,13 @@ class AlloySmelterRecipeSpotCheckTest {
         }
     }
 
+    /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
+    private static String ingredientId(JsonObject ingredient) {
+        return ingredient.has("tag")
+                ? "#" + ingredient.get("tag").getAsString()
+                : ingredient.get("item").getAsString();
+    }
+
     /**
      * Wiki claim (Crafting template): a 3x3 shaped recipe — row 1: _, Diamond Gear, _; row 2: Sand,
      * Machine Frame, Sand; row 3: Copper Gear, Redstone Reception Coil, Copper Gear -> 1 Alloy
@@ -44,15 +51,15 @@ class AlloySmelterRecipeSpotCheckTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(key.get("D").getAsString()).isEqualTo("logistics:core/diamond_gear");
-        assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
-        assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
-        assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
+        assertThat(ingredientId(key.getAsJsonObject("D"))).isEqualTo("logistics:core/diamond_gear");
+        assertThat(ingredientId(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(ingredientId(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
+        assertThat(ingredientId(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
 
         JsonArray sandOptions = key.getAsJsonArray("S");
         assertThat(sandOptions).hasSize(2);
-        assertThat(sandOptions.get(0).getAsString()).isEqualTo("minecraft:sand");
-        assertThat(sandOptions.get(1).getAsString()).isEqualTo("minecraft:red_sand");
+        assertThat(ingredientId(sandOptions.get(0).getAsJsonObject())).isEqualTo("minecraft:sand");
+        assertThat(ingredientId(sandOptions.get(1).getAsJsonObject())).isEqualTo("minecraft:red_sand");
     }
 
     /**
@@ -68,8 +75,8 @@ class AlloySmelterRecipeSpotCheckTest {
 
         JsonArray ingredients = recipe.getAsJsonArray("ingredients");
         assertThat(ingredients).hasSize(2);
-        assertThat(ingredients.get(0).getAsString()).isEqualTo("#c:ores/iron");
-        assertThat(ingredients.get(1).getAsString()).isEqualTo("#c:sands");
+        assertThat(ingredientId(ingredients.get(0).getAsJsonObject())).isEqualTo("#c:ores/iron");
+        assertThat(ingredientId(ingredients.get(1).getAsJsonObject())).isEqualTo("#c:sands");
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("minecraft:iron_ingot");
@@ -94,9 +101,9 @@ class AlloySmelterRecipeSpotCheckTest {
         JsonArray ingredients = recipe.getAsJsonArray("ingredients");
         assertThat(ingredients).hasSize(2);
         JsonObject copper = ingredients.get(0).getAsJsonObject();
-        assertThat(copper.get("id").getAsString()).isEqualTo("minecraft:copper_ingot");
+        assertThat(ingredientId(copper.getAsJsonObject("id"))).isEqualTo("minecraft:copper_ingot");
         assertThat(copper.get("count").getAsInt()).isEqualTo(3);
-        assertThat(ingredients.get(1).getAsString()).isEqualTo("#c:ingots/tin");
+        assertThat(ingredientId(ingredients.get(1).getAsJsonObject())).isEqualTo("#c:ingots/tin");
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:core/bronze_ingot");

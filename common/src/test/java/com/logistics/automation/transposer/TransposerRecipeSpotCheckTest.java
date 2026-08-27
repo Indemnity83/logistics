@@ -25,6 +25,13 @@ class TransposerRecipeSpotCheckTest {
         }
     }
 
+    /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
+    private static String ingredientId(JsonObject ingredient) {
+        return ingredient.has("tag")
+                ? "#" + ingredient.get("tag").getAsString()
+                : ingredient.get("item").getAsString();
+    }
+
     /**
      * Wiki claim (Crafting template): a 3x3 shaped recipe — row 1: _, Bucket, _; row 2: Glass,
      * Machine Frame, Glass; row 3: Copper Gear, Redstone Reception Coil, Copper Gear -> 1 Transposer.
@@ -42,12 +49,12 @@ class TransposerRecipeSpotCheckTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(key.get("B").getAsString()).isEqualTo("minecraft:bucket");
-        assertThat(key.get("S").getAsString()).isEqualTo("minecraft:glass");
-        assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
-        assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
+        assertThat(ingredientId(key.getAsJsonObject("B"))).isEqualTo("minecraft:bucket");
+        assertThat(ingredientId(key.getAsJsonObject("S"))).isEqualTo("minecraft:glass");
+        assertThat(ingredientId(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(ingredientId(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
         // "Machine Frame" in-game; logistics:core/machine_core is its registry id.
-        assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core");
+        assertThat(ingredientId(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core");
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/transposer");
@@ -65,7 +72,7 @@ class TransposerRecipeSpotCheckTest {
     void fillWaterBucketMatchesWiki() throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/transposer/fill_water_bucket.json");
 
-        assertThat(recipe.get("input").getAsString()).isEqualTo("minecraft:bucket");
+        assertThat(ingredientId(recipe.getAsJsonObject("input"))).isEqualTo("minecraft:bucket");
         assertThat(recipe.get("energy").getAsInt()).isEqualTo(800);
 
         JsonObject result = recipe.getAsJsonObject("result");
@@ -87,7 +94,7 @@ class TransposerRecipeSpotCheckTest {
     void emptyWaterBucketMatchesWiki() throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/transposer/empty_water_bucket.json");
 
-        assertThat(recipe.get("input").getAsString()).isEqualTo("minecraft:water_bucket");
+        assertThat(ingredientId(recipe.getAsJsonObject("input"))).isEqualTo("minecraft:water_bucket");
         assertThat(recipe.get("energy").getAsInt()).isEqualTo(800);
 
         JsonObject result = recipe.getAsJsonObject("result");

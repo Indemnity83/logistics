@@ -11,7 +11,7 @@ import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,16 +27,16 @@ import net.minecraft.world.level.material.Fluid;
 public class RefineryGameTest {
 
     private static Fluid liquidBiomass() {
-        return BuiltInRegistries.FLUID.getValue(LogisticsCore.resource("liquid_biomass").toIdentifier());
+        return BuiltInRegistries.FLUID.get(LogisticsCore.resource("liquid_biomass").toIdentifier());
     }
 
     private static Fluid bioFuel() {
-        return BuiltInRegistries.FLUID.getValue(LogisticsCore.resource("bio_fuel").toIdentifier());
+        return BuiltInRegistries.FLUID.get(LogisticsCore.resource("bio_fuel").toIdentifier());
     }
 
     private static RefineryBlockEntity place(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsAutomation.BLOCK.REFINERY);
-        RefineryBlockEntity be = context.getBlockEntity(pos, RefineryBlockEntity.class);
+        RefineryBlockEntity be = (RefineryBlockEntity) context.getBlockEntity(pos);
         if (be == null) {
             context.fail("Refinery should create RefineryBlockEntity");
         }
@@ -56,7 +56,7 @@ public class RefineryGameTest {
         }
     }
 
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPlacement(GameTestHelper context) {
         place(context, new BlockPos(1, 1, 1));
         context.succeed();
@@ -70,7 +70,7 @@ public class RefineryGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Refinery#Usage">wiki/Refinery.txt § Usage</a>
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testInsertTargetsInputExtractTargetsOutput(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         RefineryBlockEntity refinery = place(context, pos);
@@ -117,7 +117,7 @@ public class RefineryGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Refinery#Recipes">wiki/Refinery.txt § Recipes</a>
      */
-    @GameTest(maxTicks = 280)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 280)
     public void testDistillsLiquidBiomassIntoBioFuel(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         RefineryBlockEntity refinery = place(context, pos);
@@ -159,7 +159,7 @@ public class RefineryGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Refinery#Power">wiki/Refinery.txt § Power</a>
      */
-    @GameTest(maxTicks = 320)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 320)
     public void testDistillsViaRealEngine(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         BlockPos enginePos = pos.north();
@@ -172,7 +172,7 @@ public class RefineryGameTest {
                 .setValue(AbstractEngineBlock.FACING, Direction.SOUTH)
                 .setValue(AbstractEngineBlock.POWERED, true));
 
-        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
         if (refinery == null || engine == null) {
             context.fail("Expected refinery and engine block entities");
             return;
@@ -185,11 +185,7 @@ public class RefineryGameTest {
         engine.cycleOutputLevel();
         engine.cycleOutputLevel();
 
-        context.succeedWhen(() -> {
-            if (refinery.tank().getAmount() != FluidUnits.mb(100)
-                    || refinery.tank().getFluidKey().getFluid() != bioFuel()) {
-                throw context.assertionException("Engine-powered refinery should distill 100 mB of bio fuel");
-            }
-        });
+        context.succeedWhen(() -> context.assertTrue(!(refinery.tank().getAmount() != FluidUnits.mb(100)
+                    || refinery.tank().getFluidKey().getFluid() != bioFuel()), "Engine-powered refinery should distill 100 mB of bio fuel"));
     }
 }

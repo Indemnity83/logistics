@@ -27,6 +27,13 @@ class KilnRecipeTest {
         }
     }
 
+    /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
+    private static String ingredientId(JsonObject ingredient) {
+        return ingredient.has("tag")
+                ? "#" + ingredient.get("tag").getAsString()
+                : ingredient.get("item").getAsString();
+    }
+
     /**
      * Wiki claim (Crafting template): a 3x3 shaped recipe — row 1: _, Redstone, _; row 2: Bricks,
      * Machine Frame, Bricks; row 3: Copper Gear, Redstone Reception Coil, Copper Gear -> 1 Kiln.
@@ -52,12 +59,12 @@ class KilnRecipeTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(key.get("R").getAsString()).isEqualTo("minecraft:redstone");
-        assertThat(key.get("B").getAsString()).isEqualTo("minecraft:bricks");
-        assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
-        assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
+        assertThat(ingredientId(key.getAsJsonObject("R"))).isEqualTo("minecraft:redstone");
+        assertThat(ingredientId(key.getAsJsonObject("B"))).isEqualTo("minecraft:bricks");
+        assertThat(ingredientId(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(ingredientId(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
         // "Machine Frame" in-game; logistics:core/machine_core is its (unchanged) registry id.
-        assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core");
+        assertThat(ingredientId(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core");
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/kiln");

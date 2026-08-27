@@ -8,7 +8,7 @@ import com.logistics.automation.fabricator.SequentialFabricatorBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -26,7 +26,7 @@ public class SequentialFabricatorGameTest {
 
     private static SequentialFabricatorBlockEntity place(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsAutomation.BLOCK.SEQUENTIAL_FABRICATOR);
-        SequentialFabricatorBlockEntity be = context.getBlockEntity(pos, SequentialFabricatorBlockEntity.class);
+        SequentialFabricatorBlockEntity be = (SequentialFabricatorBlockEntity) context.getBlockEntity(pos);
         if (be == null) {
             context.fail("Sequential Fabricator should create SequentialFabricatorBlockEntity");
         }
@@ -44,7 +44,7 @@ public class SequentialFabricatorGameTest {
         return ResourceId.in(LogisticsMod.MOD_ID, path);
     }
 
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPlacement(GameTestHelper context) {
         place(context, new BlockPos(1, 1, 1));
         context.succeed();
@@ -57,7 +57,7 @@ public class SequentialFabricatorGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Sequential_Fabricator#Usage">wiki/Sequential Fabricator.txt § Usage</a>
      */
-    @GameTest(maxTicks = 140)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 140)
     public void testBuildsSelectedChipset(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         BlockPos chestPos = pos.below();
@@ -87,7 +87,7 @@ public class SequentialFabricatorGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Sequential_Fabricator#Usage">wiki/Sequential Fabricator.txt § Usage</a>
      */
-    @GameTest(maxTicks = 360)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 360)
     public void testCyclesThroughMultipleSelectedChipsets(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         BlockPos chestPos = pos.below();
@@ -106,7 +106,7 @@ public class SequentialFabricatorGameTest {
 
         // redstone_chipset (10,000 RF) completes first at ~125 ticks.
         context.runAfterDelay(135, () -> {
-            BaseContainerBlockEntity chest = context.getBlockEntity(chestPos, BaseContainerBlockEntity.class);
+            BaseContainerBlockEntity chest = (BaseContainerBlockEntity) context.getBlockEntity(chestPos);
             int redstoneChipsets = chest.countItem(LogisticsCore.ITEM.REDSTONE_CHIPSET);
             if (redstoneChipsets != 1) {
                 context.fail("Expected exactly 1 redstone chipset after the first cycle, got: " + redstoneChipsets);
@@ -117,7 +117,7 @@ public class SequentialFabricatorGameTest {
         // A genuine round-robin switches to copper_chipset here rather than repeating
         // redstone_chipset a second time (which would leave exactly 2 redstone / 0 copper).
         context.runAfterDelay(340, () -> {
-            BaseContainerBlockEntity chest = context.getBlockEntity(chestPos, BaseContainerBlockEntity.class);
+            BaseContainerBlockEntity chest = (BaseContainerBlockEntity) context.getBlockEntity(chestPos);
             int redstoneChipsets = chest.countItem(LogisticsCore.ITEM.REDSTONE_CHIPSET);
             int copperChipsets = chest.countItem(LogisticsCore.ITEM.COPPER_CHIPSET);
             if (redstoneChipsets != 1 || copperChipsets != 1) {
@@ -134,7 +134,7 @@ public class SequentialFabricatorGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Sequential_Fabricator#Usage">wiki/Sequential Fabricator.txt § Usage</a>
      */
-    @GameTest(maxTicks = 200)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testBuildsChipsetViaRealEngineAndHoppers(GameTestHelper context) {
         BlockPos fabricatorPos = new BlockPos(1, 1, 1);
         BlockPos enginePos = new BlockPos(0, 1, 1);
@@ -151,8 +151,8 @@ public class SequentialFabricatorGameTest {
         context.setBlock(inputHopperPos, Blocks.HOPPER);
         context.setBlock(outputHopperPos, Blocks.HOPPER);
 
-        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
-        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        HopperBlockEntity inputHopper = (HopperBlockEntity) context.getBlockEntity(inputHopperPos);
         if (fabricator == null || engine == null || inputHopper == null) {
             context.fail("Expected fabricator, engine, and input hopper block entities");
             return;

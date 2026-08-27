@@ -28,6 +28,13 @@ class MaceratorRecipeSpotCheckTest {
         }
     }
 
+    /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
+    private static String ingredientId(JsonObject ingredient) {
+        return ingredient.has("tag")
+                ? "#" + ingredient.get("tag").getAsString()
+                : ingredient.get("item").getAsString();
+    }
+
     /**
      * Wiki claim (Recipes § Ores → Dust): "Iron Ore;Deepslate Iron Ore -> Iron Dust,2 | Byproduct:
      * Tin Dust | ByproductChance: 10%" and (Usage): "Metal ores also have a 10% chance of a bonus
@@ -41,7 +48,7 @@ class MaceratorRecipeSpotCheckTest {
         JsonObject recipe = loadRecipe();
 
         assertThat(recipe.get("type").getAsString()).isEqualTo("logistics:macerator");
-        assertThat(recipe.get("ingredient").getAsString()).isEqualTo("minecraft:iron_ore");
+        assertThat(ingredientId(recipe.getAsJsonObject("ingredient"))).isEqualTo("minecraft:iron_ore");
         assertThat(recipe.get("energy").getAsInt()).isEqualTo(2_000);
 
         JsonObject result = recipe.getAsJsonObject("result");

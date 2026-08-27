@@ -350,11 +350,7 @@ public class FluidPumpGameTest {
 
         fastArm(pump);
 
-        context.succeedWhen(() -> {
-            if (pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER) {
-                throw context.assertionException("Fluid pump should push water into the pipe above");
-            }
-        });
+        context.succeedWhen(() -> context.assertTrue(!(pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER), "Fluid pump should push water into the pipe above"));
     }
 
     /**
@@ -382,11 +378,7 @@ public class FluidPumpGameTest {
 
         fastArm(pump);
 
-        context.succeedWhen(() -> {
-            if (pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER) {
-                throw context.assertionException("Fluid pump should push water into a pipe on its side");
-            }
-        });
+        context.succeedWhen(() -> context.assertTrue(!(pipe.totalMillibuckets() <= 0 || pipe.containedFluid().getFluid() != Fluids.WATER), "Fluid pump should push water into a pipe on its side"));
     }
 
     /**
@@ -672,11 +664,7 @@ public class FluidPumpGameTest {
         engine.cycleOutputLevel();
         fastArm(pump);
 
-        context.succeedWhen(() -> {
-            if (tank.tank().getAmount() <= 0 || tank.tank().getFluidKey().getFluid() != Fluids.WATER) {
-                throw context.assertionException("Engine-powered pump should push drained water into the tank");
-            }
-        });
+        context.succeedWhen(() -> context.assertTrue(!(tank.tank().getAmount() <= 0 || tank.tank().getFluidKey().getFluid() != Fluids.WATER), "Engine-powered pump should push drained water into the tank"));
     }
 
     // Fills the energy buffer; a single insert is capped at maxEnergyInput, only enough for one pump.

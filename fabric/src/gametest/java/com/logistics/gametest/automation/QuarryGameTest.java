@@ -170,12 +170,12 @@ public class QuarryGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Mining_area">wiki/Laser Quarry.txt § Mining area</a>
      */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testQuarryHasNoCustomBoundsWithoutMarkers(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
 
         context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
-        LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
 
         if (quarry == null) {
             context.fail("Expected LaserQuarryBlockEntity");

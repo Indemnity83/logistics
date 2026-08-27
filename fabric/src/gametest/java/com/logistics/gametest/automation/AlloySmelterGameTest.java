@@ -6,7 +6,7 @@ import com.logistics.LogisticsPower;
 import com.logistics.automation.alloysmelter.AlloySmelterBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -28,7 +28,7 @@ public class AlloySmelterGameTest {
 
     private static AlloySmelterBlockEntity place(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsAutomation.BLOCK.ALLOY_SMELTER);
-        AlloySmelterBlockEntity be = context.getBlockEntity(pos, AlloySmelterBlockEntity.class);
+        AlloySmelterBlockEntity be = (AlloySmelterBlockEntity) context.getBlockEntity(pos);
         if (be == null) {
             context.fail("Alloy Smelter should create AlloySmelterBlockEntity");
         }
@@ -42,7 +42,7 @@ public class AlloySmelterGameTest {
         }
     }
 
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPlacement(GameTestHelper context) {
         place(context, new BlockPos(1, 1, 1));
         context.succeed();
@@ -54,7 +54,7 @@ public class AlloySmelterGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Alloy_Smelter#Usage">wiki/Alloy Smelter.txt § Usage</a>
      */
-    @GameTest(maxTicks = 40)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testInputsAreOrderIndependent(GameTestHelper context) {
         BlockPos posA = new BlockPos(1, 1, 1);
         AlloySmelterBlockEntity forwardOrder = place(context, posA);
@@ -90,7 +90,7 @@ public class AlloySmelterGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Alloy_Smelter#Ore_processing">wiki/Alloy Smelter.txt § Ore processing</a>
      */
-    @GameTest(maxTicks = 220)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 220)
     public void testSmeltsIronOreWithSandFlux(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         AlloySmelterBlockEntity smelter = place(context, pos);
@@ -125,7 +125,7 @@ public class AlloySmelterGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Alloy_Smelter#Alloying">wiki/Alloy Smelter.txt § Alloying</a>
      */
-    @GameTest(maxTicks = 220)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 220)
     public void testAlloysCopperAndTinIntoBronze(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         AlloySmelterBlockEntity smelter = place(context, pos);
@@ -163,7 +163,7 @@ public class AlloySmelterGameTest {
      *
      * @see <a href="https://logistics.fandom.com/wiki/Alloy_Smelter#Usage">wiki/Alloy Smelter.txt § Usage</a>
      */
-    @GameTest(maxTicks = 260)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 260)
     public void testSmeltsIronOreViaRealEngineAndHoppers(GameTestHelper context) {
         BlockPos smelterPos = new BlockPos(1, 1, 1);
         BlockPos enginePos = new BlockPos(0, 1, 1);
@@ -180,8 +180,8 @@ public class AlloySmelterGameTest {
         context.setBlock(inputHopperPos, Blocks.HOPPER);
         context.setBlock(outputHopperPos, Blocks.HOPPER);
 
-        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
-        HopperBlockEntity inputHopper = context.getBlockEntity(inputHopperPos, HopperBlockEntity.class);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        HopperBlockEntity inputHopper = (HopperBlockEntity) context.getBlockEntity(inputHopperPos);
         if (engine == null || inputHopper == null) {
             context.fail("Expected engine and input hopper block entities");
             return;

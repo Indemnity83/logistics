@@ -30,6 +30,13 @@ class SawmillRecipeSpotCheckTest extends MinecraftTestEnvironment {
         }
     }
 
+    /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
+    private static String ingredientId(JsonObject ingredient) {
+        return ingredient.has("tag")
+                ? "#" + ingredient.get("tag").getAsString()
+                : ingredient.get("item").getAsString();
+    }
+
     /**
      * Wiki claim (Recipes § Wood → planks): "Oak Log -> Oak Planks,6 | Byproduct: Sawdust |
      * ByproductChance: 100%" and (Power): "Each recipe carries an RF cost (2,000–3,000 RF)."
@@ -41,7 +48,7 @@ class SawmillRecipeSpotCheckTest extends MinecraftTestEnvironment {
     void oakLogMatchesWikiMillingTable() throws IOException {
         JsonObject recipe = loadRecipe("oak.json");
 
-        assertThat(recipe.get("ingredient").getAsString()).isEqualTo("#minecraft:oak_logs");
+        assertThat(ingredientId(recipe.getAsJsonObject("ingredient"))).isEqualTo("#minecraft:oak_logs");
         assertThat(recipe.get("energy").getAsInt()).isEqualTo(3_000); // within the wiki's 2,000-3,000 RF range
 
         JsonObject result = recipe.getAsJsonObject("result");
@@ -104,7 +111,7 @@ class SawmillRecipeSpotCheckTest extends MinecraftTestEnvironment {
     void wheatPulpingHasUndocumentedByproduct() throws IOException {
         JsonObject recipe = loadRecipe("pulped_biomass_from_wheat.json");
 
-        assertThat(recipe.get("ingredient").getAsString()).isEqualTo("minecraft:wheat");
+        assertThat(ingredientId(recipe.getAsJsonObject("ingredient"))).isEqualTo("minecraft:wheat");
         assertThat(recipe.get("count").getAsInt()).isEqualTo(4); // matches the wiki's "(×4)"
 
         JsonObject byproduct = recipe.getAsJsonObject("byproduct");
@@ -124,7 +131,7 @@ class SawmillRecipeSpotCheckTest extends MinecraftTestEnvironment {
     void sugarCanePulpingHasUndocumentedByproduct() throws IOException {
         JsonObject recipe = loadRecipe("pulped_biomass_from_sugar_cane.json");
 
-        assertThat(recipe.get("ingredient").getAsString()).isEqualTo("minecraft:sugar_cane");
+        assertThat(ingredientId(recipe.getAsJsonObject("ingredient"))).isEqualTo("minecraft:sugar_cane");
         assertThat(recipe.get("count").getAsInt()).isEqualTo(6); // matches the wiki's "(×6)"
 
         JsonObject byproduct = recipe.getAsJsonObject("byproduct");
@@ -143,7 +150,7 @@ class SawmillRecipeSpotCheckTest extends MinecraftTestEnvironment {
     void leavesPulpingHasNoByproduct() throws IOException {
         JsonObject recipe = loadRecipe("pulped_biomass_from_leaves.json");
 
-        assertThat(recipe.get("ingredient").getAsString()).isEqualTo("#minecraft:leaves");
+        assertThat(ingredientId(recipe.getAsJsonObject("ingredient"))).isEqualTo("#minecraft:leaves");
         assertThat(recipe.get("count").getAsInt()).isEqualTo(8); // matches the wiki's "(×8)"
         assertThat(recipe.has("byproduct")).isFalse();
     }
