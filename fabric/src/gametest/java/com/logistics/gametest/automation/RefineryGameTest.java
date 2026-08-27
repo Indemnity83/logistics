@@ -75,17 +75,32 @@ public class RefineryGameTest {
         BlockPos pos = new BlockPos(1, 1, 1);
         RefineryBlockEntity refinery = place(context, pos);
 
+        long expectedInputTotal = 0;
         for (Direction side : Direction.values()) {
             IFluidStorage view = refinery.fluidStorage(side);
             if (view == null) {
                 context.fail("Refinery should expose fluid storage from " + side);
                 return;
             }
-            long inserted = view.insert(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(100), true);
+            long inserted = view.insert(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(100), false);
             if (inserted != FluidUnits.mb(100)) {
                 context.fail("Refinery should accept liquid biomass into its input tank from " + side);
                 return;
             }
+            expectedInputTotal += inserted;
+
+            long actualInputAmount = 0;
+            for (IFluidView contained : view.contents()) {
+                if (contained.resource().getFluid() == liquidBiomass()) {
+                    actualInputAmount = contained.amount();
+                }
+            }
+            if (actualInputAmount != expectedInputTotal) {
+                context.fail("Refinery input tank should contain " + expectedInputTotal
+                        + " mB of liquid biomass after inserting from " + side + ", got: " + actualInputAmount);
+                return;
+            }
+
             // The output tank starts empty, so nothing should be extractable yet from any side.
             long extracted = view.extract(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(100), true);
             if (extracted != 0) {
