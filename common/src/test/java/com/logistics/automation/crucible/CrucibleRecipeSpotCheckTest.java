@@ -13,9 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Spot-checks the Crucible's own crafting recipe and two representative melting recipes against the
- * wiki, reading the bundled JSON directly. The Crucible has 16 recipes ({@code
- * com.logistics.RecipeJsonSmokeTest} covers all of them structurally); these are content checks in
- * the same spirit as {@code KilnRecipeTest}, not exhaustive.
+ * bundled data.
  */
 @DisplayName("Crucible recipes (spot check)")
 class CrucibleRecipeSpotCheckTest {
@@ -50,6 +48,10 @@ class CrucibleRecipeSpotCheckTest {
         assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
         assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
         assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
+
+        JsonObject result = recipe.getAsJsonObject("result");
+        assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/crucible");
+        assertThat(result.get("count").getAsInt()).isEqualTo(1);
     }
 
     /**
