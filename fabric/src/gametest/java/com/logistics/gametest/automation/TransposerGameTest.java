@@ -7,6 +7,14 @@ import com.logistics.automation.transposer.TransposerBlockEntity;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
@@ -35,16 +43,32 @@ public class TransposerGameTest {
     private static final int COMPLETE_DELAY = 45;
 
     @GameTest
-    public void oilProcessingRecipesLoad(GameTestHelper context) {
+    public void allLogisticsRecipesLoad(GameTestHelper context) {
         var recipes = context.getLevel().getServer().getRecipeManager().getRecipes();
-        for (String id : new String[] {
-            "logistics:transposer/oil_red_sand_from_red_sand",
-            "logistics:transposer/oil_sand_from_sand",
-            "logistics:transposer/oil_shale_from_gravel"
-        }) {
-            if (recipes.stream().noneMatch(recipe -> recipe.id().identifier().toString().equals(id))) {
-                context.fail("Transposer recipe failed to load: " + id);
+        try {
+            URL rootUrl = TransposerGameTest.class.getClassLoader().getResource("data/logistics/recipe");
+            if (rootUrl == null) {
+                context.fail("Logistics recipe resource root is missing");
+                return;
             }
+            Path root = Paths.get(rootUrl.toURI());
+            try (Stream<Path> paths = Files.walk(root)) {
+                for (Path path : paths.filter(file -> file.toString().endsWith(".json")).toList()) {
+                    var recipe = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
+                    if (!recipe.get("type").getAsString().startsWith("logistics:")) {
+                        continue;
+                    }
+                    String relative = root.relativize(path).toString().replace('\\', '/');
+                    String id = "logistics:" + relative.substring(0, relative.length() - ".json".length());
+                    if (recipes.stream().noneMatch(holder -> holder.id().identifier().toString().equals(id))) {
+                        context.fail("Logistics recipe failed to load: " + id);
+                        return;
+                    }
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            context.fail("Could not inspect Logistics recipe resources: " + e.getMessage());
+            return;
         }
         context.succeed();
     }
