@@ -17,8 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Spot-checks representative shipped Sawmill recipes against the wiki's milling tables, reading the
- * bundled JSON directly.
+ * Spot-checks representative shipped Sawmill recipes against the bundled data.
  */
 @DisplayName("Sawmill recipes (spot check)")
 class SawmillRecipeSpotCheckTest extends MinecraftTestEnvironment {
