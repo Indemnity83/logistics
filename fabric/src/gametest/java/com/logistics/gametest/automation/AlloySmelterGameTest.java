@@ -24,6 +24,7 @@ public class AlloySmelterGameTest {
     private static final int INPUT_A = AlloySmelterBlockEntity.INPUT_A_SLOT;
     private static final int INPUT_B = AlloySmelterBlockEntity.INPUT_B_SLOT;
     private static final int PRIMARY = AlloySmelterBlockEntity.PRIMARY_OUTPUT_SLOT;
+    private static final int SECONDARY = AlloySmelterBlockEntity.SECONDARY_OUTPUT_SLOT;
 
     private static AlloySmelterBlockEntity place(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsAutomation.BLOCK.ALLOY_SMELTER);
@@ -143,6 +144,10 @@ public class AlloySmelterGameTest {
                 context.fail("Primary output should be 4 bronze ingots, got: " + output);
                 return;
             }
+            if (!smelter.getItem(SECONDARY).isEmpty()) {
+                context.fail("Alloying bronze should produce no byproduct, got: " + smelter.getItem(SECONDARY));
+                return;
+            }
             long spent = filledEnergy - smelter.energyStorage(null).getAmount();
             if (spent != 4_000) {
                 context.fail("Alloying bronze should cost exactly 4,000 RF, spent: " + spent);
@@ -154,10 +159,7 @@ public class AlloySmelterGameTest {
 
     /**
      * Wiki claim (Usage/Power): "The two inputs are order-independent... connect a Stirling Engine
-     * or any RF source." The tests above prove the recipe math and input-order independence by
-     * manipulating storages directly; this one proves the whole feature as a player actually wires
-     * it up — a real engine (no cable) delivering power, and a single real hopper stocked with both
-     * ingredients feeding the two input slots, with another hopper pulling the ingot out.
+     * or any RF source."
      *
      * @see <a href="https://logistics.fandom.com/wiki/Alloy_Smelter#Usage">wiki/Alloy Smelter.txt § Usage</a>
      */
