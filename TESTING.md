@@ -271,7 +271,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
    fill it directly) and a live ice-melting run asserts the exact 1,600 RF cost and 1,000 mB water
    output. All four config numbers, the crafting recipe, and two spot-checked recipes (ice → water,
    bitumen → crude oil) matched the wiki exactly. Registered the new class in `fabric.mod.json`
-   from the start this time (185 → 188, confirmed) — no repeat of the Refinery gotcha.
+   from the start this time (185 → 189, confirmed) — no repeat of the Refinery gotcha.
    Note: the Crucible's actual byproduct/chance recipes (oil sand → crude oil family) weren't in
    scope here since the two spot-checked recipes don't have byproducts; a future pass could add one.
 ~~9. **Alloy Smelter**~~ — done. Confirmed the wiki's "order-independent" dual-input claim live (ore

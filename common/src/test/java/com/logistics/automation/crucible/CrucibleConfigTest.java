@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Locks in the Crucible's documented power/tank numbers (see wiki/Crucible.txt § Power, § Usage) as
- * fast, engine-free regression guards. All four match the wiki exactly — no discrepancy found here.
+ * fast, engine-free regression guards.
  */
 @DisplayName("Crucible config")
 class CrucibleConfigTest {
