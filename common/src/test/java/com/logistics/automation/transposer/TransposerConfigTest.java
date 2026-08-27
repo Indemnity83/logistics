@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Locks in the Transposer's documented power/tank numbers (see wiki/Transposer.txt § Usage, §
- * Power) as fast, engine-free regression guards. All four match the wiki exactly — no discrepancy
- * found here.
+ * Power) as fast, engine-free regression guards.
  */
 @DisplayName("Transposer config")
 class TransposerConfigTest {
