@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Locks in the Refinery's documented power/tank numbers (see wiki/Refinery.txt § Power) as fast,
- * engine-free regression guards. All five match the wiki exactly — no discrepancy found here.
+ * engine-free regression guards.
  */
 @DisplayName("Refinery config")
 class RefineryConfigTest {

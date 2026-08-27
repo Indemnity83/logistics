@@ -12,9 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Checks the Refinery's two shipped recipes and its own crafting recipe against the wiki, reading
- * the bundled JSON directly. The Refinery only has two recipes, so this is exhaustive (unlike the
- * spot checks on machines with 100+ recipes).
+ * Checks the Refinery's two shipped recipes and its own crafting recipe against the bundled data.
  */
 @DisplayName("Refinery recipes")
 class RefineryRecipeSpotCheckTest {
@@ -49,6 +47,10 @@ class RefineryRecipeSpotCheckTest {
         assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
         assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
         assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
+
+        JsonObject result = recipe.getAsJsonObject("result");
+        assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/refinery");
+        assertThat(result.get("count").getAsInt()).isEqualTo(1);
     }
 
     /**
@@ -60,6 +62,8 @@ class RefineryRecipeSpotCheckTest {
     @DisplayName("liquid biomass distills into bio fuel at the documented amounts and RF cost")
     void bioFuelRecipeMatchesWiki() throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/refinery/bio_fuel_from_biomass.json");
+
+        assertThat(recipe.get("type").getAsString()).isEqualTo("logistics:refinery");
 
         JsonObject input = recipe.getAsJsonObject("input");
         assertThat(input.get("fluid").getAsString()).isEqualTo("logistics:core/liquid_biomass");
@@ -82,6 +86,8 @@ class RefineryRecipeSpotCheckTest {
     @DisplayName("crude oil distills into fuel oil with a 50% tar byproduct at the documented amounts")
     void fuelOilRecipeMatchesWiki() throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/refinery/fuel_oil_from_crude_oil.json");
+
+        assertThat(recipe.get("type").getAsString()).isEqualTo("logistics:refinery");
 
         JsonObject input = recipe.getAsJsonObject("input");
         assertThat(input.get("fluid").getAsString()).isEqualTo("logistics:core/crude_oil");
