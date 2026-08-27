@@ -7,6 +7,7 @@ import com.logistics.LogisticsPower;
 import com.logistics.automation.refinery.RefineryBlockEntity;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidStorage;
+import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
@@ -47,7 +48,10 @@ public class RefineryGameTest {
         var energy = be.energyStorage(null);
         long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_ENERGY_CAPACITY);
         long input = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_MAX_ENERGY_INPUT);
-        for (long filled = 0; filled <= capacity; filled += input) {
+        if (input <= 0) {
+            throw new IllegalStateException("REFINERY_MAX_ENERGY_INPUT must be positive, got: " + input);
+        }
+        for (long filled = 0; filled < capacity; filled += input) {
             energy.insert(input, false);
         }
     }
@@ -116,10 +120,15 @@ public class RefineryGameTest {
                         + refinery.tank().getAmount());
                 return;
             }
-            long remainingBiomass = view.extract(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(1), true);
-            if (remainingBiomass != 0) {
-                context.fail("Input liquid biomass should be fully consumed (200 mB drained in one cycle)");
-                return;
+            // contents() never yields a zero-amount view, so an empty input tank simply won't appear
+            // here — check the view directly rather than through extract(), which only ever routes
+            // to the output tank and would trivially return 0 regardless of the input tank's state.
+            for (IFluidView contained : view.contents()) {
+                if (contained.resource().getFluid() == liquidBiomass()) {
+                    context.fail("Input liquid biomass should be fully consumed (200 mB drained in one cycle), got: "
+                            + contained.amount());
+                    return;
+                }
             }
             long spent = filledEnergy - refinery.energyStorage(null).getAmount();
             if (spent != 5_000) {
@@ -131,11 +140,7 @@ public class RefineryGameTest {
     }
 
     /**
-     * Wiki claim (Power): "connect a strong RF source" — each recipe costs a total of 5,000 RF. The
-     * test above proves the recipe math by pre-charging the buffer directly; this one proves power
-     * delivery itself works end to end via a real engine (no cable). Fluid is inserted directly
-     * since fluid-pipe connectivity into the Refinery is already covered by
-     * {@code FluidSupplierGameTest}'s full network.
+     * Wiki claim (Power): "connect a strong RF source" — each recipe costs a total of 5,000 RF.
      *
      * @see <a href="https://logistics.fandom.com/wiki/Refinery#Power">wiki/Refinery.txt § Power</a>
      */
