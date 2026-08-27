@@ -14,9 +14,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Spot-checks the Alloy Smelter's own crafting recipe and two representative processing recipes
- * against the wiki, reading the bundled JSON directly. The Alloy Smelter has 70 recipes ({@code
- * com.logistics.RecipeJsonSmokeTest} covers all of them structurally); these are content checks in
- * the same spirit as {@code KilnRecipeTest}, not exhaustive.
+ * against the bundled data.
  */
 @DisplayName("Alloy Smelter recipes (spot check)")
 class AlloySmelterRecipeSpotCheckTest {

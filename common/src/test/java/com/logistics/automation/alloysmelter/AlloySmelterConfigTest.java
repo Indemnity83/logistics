@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Locks in the Alloy Smelter's documented power numbers (see wiki/Alloy Smelter.txt § Power) as
- * fast, engine-free regression guards. All three match the wiki exactly.
+ * fast, engine-free regression guards.
  */
 @DisplayName("Alloy Smelter config")
 class AlloySmelterConfigTest {
