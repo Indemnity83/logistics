@@ -243,8 +243,13 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
    2x sugar** byproduct — both undocumented (see `WIKI_DISCREPANCIES.md` § Sawmill). Also confirmed
    the wiki's ">100% chance" wording (Oak Boat, 125%) is real, not a typo — the code supports chance
    values above 1.0 as "guaranteed + partial," now pinned by a test.
-6. **Transposer verification** — has `TransposerGameTest`; same treatment (check wiki's fluid⇄item
-   conversion claims and RF cost against config, spot-check one recipe).
+~~6. **Transposer verification**~~ — done, the cheapest pass yet: `TransposerGameTest` already
+   covered fill/empty for lava, water, seed oil, and custom mod fluids, plus rejection cases
+   (insufficient tank amount, fluid mismatch, blocked output, no energy) — essentially the entire
+   wiki's Usage section already had a matching test. All four config numbers (20,000 RF, 128 RF/t,
+   20 RF/t drain, 16,000 mB tank) and the crafting recipe matched exactly, no mismatch. Added
+   wiki-quote traceability across the board, tightened one test to assert the exact 800 RF bucket
+   cost, and added recipe-content checks for the water-bucket conversions and the crafting recipe.
 7. **Refinery** — currently only exercised as a passive fluid-tank host in `FluidSupplierGameTest`;
    its own distillation/byproduct recipe logic (fluid-in → fluid-out + chance byproduct) has no
    dedicated test. Generic component math already proven in `RecipeProcessorComponentTest`
@@ -285,7 +290,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
