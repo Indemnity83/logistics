@@ -71,3 +71,20 @@ logistics-docs commit 61b2243a.
 - **Decision needed**: add a `Byproduct`/`ByproductChance` column to the wiki's Wheat and Sugar Cane
   rows (Wheat: seeds, 50%; Sugar Cane: sugar, guaranteed 2x) — this looks like a documentation
   omission to fill in, not a code change.
+
+## Sequential Fabricator
+
+### The queue only sounds like it holds one selection at a time
+- **Wiki says** (`wiki/Sequential Fabricator.txt` § Usage): "Choose *the* chipset to build from the
+  machine's GUI, then feed it the ingredients; the Sequential Fabricator consumes them in order and
+  produces *the selected* chipset" — singular phrasing throughout.
+- **Code does**: `FabricatorProcessorComponent` maintains a `List<ResourceId> selected` — the GUI can
+  toggle *any number* of chipsets into the queue at once, and the machine cycles through all
+  selected-and-currently-craftable ones round-robin, building and ejecting each in turn. Confirmed
+  live via `SequentialFabricatorGameTest#testCyclesThroughMultipleSelectedChipsets`, which queues two
+  chipsets with materials for both up front and gets both built without re-selecting between them.
+- **This isn't wrong, just incomplete** — a player reading "the selected chipset" would reasonably
+  assume one at a time and never discover the queue-multiple-and-let-it-cycle workflow, which seems
+  like the more useful way to run the machine unattended.
+- **Decision needed**: reword the wiki to describe queuing multiple chipsets and the round-robin
+  cycling behavior — a documentation addition, not a code question.

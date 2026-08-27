@@ -44,6 +44,7 @@
 			"com.logistics.gametest.automation.KilnGameTest",
 			"com.logistics.gametest.automation.RefineryGameTest",
 			"com.logistics.gametest.automation.SawmillGameTest",
+			"com.logistics.gametest.automation.SequentialFabricatorGameTest",
 			"com.logistics.gametest.automation.TransposerGameTest",
 			"com.logistics.gametest.network.NetworkIntegrationGameTest"
 		]
