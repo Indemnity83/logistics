@@ -34,6 +34,21 @@ public class TransposerGameTest {
     private static final long FULL_ENERGY = 1_000_000L;
     private static final int COMPLETE_DELAY = 45;
 
+    @GameTest
+    public void oilProcessingRecipesLoad(GameTestHelper context) {
+        var recipes = context.getLevel().getServer().getRecipeManager().getRecipes();
+        for (String id : new String[] {
+            "logistics:transposer/oil_red_sand_from_red_sand",
+            "logistics:transposer/oil_sand_from_sand",
+            "logistics:transposer/oil_shale_from_gravel"
+        }) {
+            if (recipes.stream().noneMatch(recipe -> recipe.id().identifier().toString().equals(id))) {
+                context.fail("Transposer recipe failed to load: " + id);
+            }
+        }
+        context.succeed();
+    }
+
     private static TransposerBlockEntity place(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsAutomation.BLOCK.TRANSPOSER);
         TransposerBlockEntity be = context.getBlockEntity(pos, TransposerBlockEntity.class);
