@@ -123,13 +123,6 @@ the Kiln (`common/src/test/java/com/logistics/automation/kiln/`,
 7. **Apply the traceability convention** below to every feature test.
 8. **Fabric only.** NeoForge's GameTest registration is blocked upstream (see "NeoForge Game Tests"
    below, once that section exists) — don't add or modify `neoforge/src/gametest` for this work.
-9. **A brand-new GameTest class needs a manual entry in `fabric/src/gametest/resources/fabric.mod.json`**
-   (the `entrypoints."fabric-gametest"` array), or Fabric's runner silently never discovers or runs
-   it — no error, no log line, it just isn't in the "N GAME TESTS COMPLETE" count. Only new *classes*
-   need this; new `@GameTest` methods added to an already-registered class don't. Always confirm the
-   count went up by the expected amount after adding a new test class, not just that the run stayed
-   green — a class-registration miss and "test already passed by coincidence" both look identical
-   otherwise.
 
 ### Real connectivity, not direct capability calls
 
@@ -257,15 +250,11 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
    20 RF/t drain, 16,000 mB tank) and the crafting recipe matched exactly, no mismatch. Added
    wiki-quote traceability across the board, tightened one test to assert the exact 800 RF bucket
    cost, and added recipe-content checks for the water-bucket conversions and the crafting recipe.
-~~7. **Refinery**~~ — done. The first machine in this pass with a genuinely new `RefineryGameTest`
-   (previously only exercised as a passive fluid-tank host in `FluidSupplierGameTest`). All five
-   config numbers, the crafting recipe, and both distillation recipes (Liquid Biomass → Bio Fuel,
-   Crude Oil → Fuel Oil + 50% Tar) matched the wiki exactly — the generic component math was already
-   proven in `RecipeProcessorComponentTest`, so this was wiring + wiki-claim extraction, not new
-   component work, as predicted. Surfaced a real methodology gap, not a wiki one: a **new** GameTest
-   class must be added to `fabric.mod.json`'s `fabric-gametest` entrypoint list or Fabric's runner
-   silently skips it — no error, just missing from the test count. Documented above as methodology
-   step 9 so it doesn't get missed on Crucible/Alloy Smelter/Fabricator.
+7. **Refinery** — currently only exercised as a passive fluid-tank host in `FluidSupplierGameTest`;
+   its own distillation/byproduct recipe logic (fluid-in → fluid-out + chance byproduct) has no
+   dedicated test. Generic component math already proven in `RecipeProcessorComponentTest`
+   (`drainsFluidInputAndDepositsFluidOutputWithByproduct`), so this is mostly wiki-claim extraction +
+   a Refinery-specific GameTest/recipe check, not new component work.
 8. **Crucible** — zero coverage. Item → fluid transform with chance byproducts (see the wiki's
    Oil-blocks-→-Bitumen-and-Tar recipes); moderate complexity, similar shape to Refinery but
    item-input instead of fluid-input.
@@ -301,7 +290,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
