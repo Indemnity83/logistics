@@ -1,6 +1,6 @@
 {
   "type": "logistics:transposer",
-  "input": "minecraft:gravel",
+  "input": { "item": "minecraft:gravel" },
   "result": { "id": "logistics:core/oil_shale", "count": 1 },
   "fluid": { "fluid": "logistics:core/crude_oil", "amount": -1000 },
   "energy": 4000
