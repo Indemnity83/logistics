@@ -108,12 +108,6 @@ public class CrucibleGameTest {
 
     /**
      * Wiki claim (Usage): "...deposits the resulting fluid into its 10,000 mB output-only tank."
-     * The test above proves the recipe math and RF cost by manipulating storages directly; this
-     * one proves the input half of the feature as a player actually wires it up — a real engine
-     * (no cable) delivering power and a real hopper pushing ice in. (Output extraction via a real
-     * Fluid Extractor Pipe needs a full downstream network to activate — see
-     * {@code FluidConnectionGameTest} — so the tank is read directly here, same as the recipe-math
-     * test above.)
      *
      * @see <a href="https://logistics.fandom.com/wiki/Crucible#Usage">wiki/Crucible.txt § Usage</a>
      */
