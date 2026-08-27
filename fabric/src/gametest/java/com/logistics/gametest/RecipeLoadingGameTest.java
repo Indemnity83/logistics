@@ -1,6 +1,5 @@
 package com.logistics.gametest;
 
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -11,11 +10,11 @@ import java.util.stream.Stream;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
-/** Verifies that every Logistics recipe resource is loaded by Minecraft. */
+/** Verifies that every recipe resource shipped by Logistics is loaded by Minecraft. */
 public class RecipeLoadingGameTest {
 
     @GameTest
-    public void allLogisticsRecipesLoad(GameTestHelper context) {
+    public void allLogisticsRecipeResourcesLoad(GameTestHelper context) {
         var recipes = context.getLevel().getServer().getRecipeManager().getRecipes();
         try {
             URL rootUrl = RecipeLoadingGameTest.class.getClassLoader().getResource("data/logistics/recipe");
@@ -26,10 +25,6 @@ public class RecipeLoadingGameTest {
             Path root = Paths.get(rootUrl.toURI());
             try (Stream<Path> paths = Files.walk(root)) {
                 for (Path path : paths.filter(file -> file.toString().endsWith(".json")).toList()) {
-                    var recipe = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
-                    if (!recipe.get("type").getAsString().startsWith("logistics:")) {
-                        continue;
-                    }
                     String relative = root.relativize(path).toString().replace('\\', '/');
                     String id = "logistics:" + relative.substring(0, relative.length() - ".json".length());
                     if (recipes.stream().noneMatch(holder -> holder.id().identifier().toString().equals(id))) {
