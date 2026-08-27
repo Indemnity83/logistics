@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Locks in the Sequential Fabricator's documented power numbers (see wiki/Sequential
- * Fabricator.txt § Power) as fast, engine-free regression guards. All three match the wiki exactly.
+ * Fabricator.txt § Power) as fast, engine-free regression guards.
  */
 @DisplayName("Sequential Fabricator config")
 class SequentialFabricatorConfigTest {

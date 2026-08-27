@@ -15,12 +15,12 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 
 /**
  * Gametests for the Sequential Fabricator: building a selected chipset from its material pool, RF
- * cost, and the round-robin multi-selection queue (the machine can have more than one chipset
- * queued at once — see {@code testCyclesThroughMultipleSelectedChipsets}).
+ * cost, and the round-robin multi-selection queue.
  */
 public class SequentialFabricatorGameTest {
 
@@ -83,38 +83,54 @@ public class SequentialFabricatorGameTest {
     /**
      * NOTE: the wiki's Usage section reads as one selection at a time ("the selected chipset"), but
      * the machine actually supports queuing several chipsets simultaneously and cycles through them
-     * round-robin, building whichever queued recipe currently has materials available (see
-     * FabricatorProcessorComponent's own Javadoc). See WIKI_DISCREPANCIES.md § Sequential Fabricator.
+     * round-robin. See WIKI_DISCREPANCIES.md § Sequential Fabricator.
      *
      * @see <a href="https://logistics.fandom.com/wiki/Sequential_Fabricator#Usage">wiki/Sequential Fabricator.txt § Usage</a>
      */
-    @GameTest(maxTicks = 350)
+    @GameTest(maxTicks = 360)
     public void testCyclesThroughMultipleSelectedChipsets(GameTestHelper context) {
         BlockPos pos = new BlockPos(1, 1, 1);
         BlockPos chestPos = pos.below();
         context.setBlock(chestPos, Blocks.CHEST);
         SequentialFabricatorBlockEntity fabricator = place(context, pos);
 
-        // Both chipsets queued at once, with materials for both present in the pool up front.
+        // Both chipsets queued at once, but only enough redstone for one of each recipe — not two
+        // redstone chipsets. If the machine exhausted one recipe before touching the next (instead
+        // of genuinely cycling round-robin), it would spend all the redstone on two redstone
+        // chipsets and never reach copper_chipset at all, since that recipe needs its own redstone.
         fabricator.toggleSelection(chipset("fabricator/redstone_chipset"));
         fabricator.toggleSelection(chipset("fabricator/copper_chipset"));
         fabricator.setItem(0, new ItemStack(Items.REDSTONE, 2));
         fabricator.setItem(1, new ItemStack(Items.COPPER_INGOT));
         chargeFully(fabricator);
 
+        // redstone_chipset (10,000 RF) completes first at ~125 ticks.
+        context.runAfterDelay(135, () -> {
+            BaseContainerBlockEntity chest = context.getBlockEntity(chestPos, BaseContainerBlockEntity.class);
+            int redstoneChipsets = chest.countItem(LogisticsCore.ITEM.REDSTONE_CHIPSET);
+            if (redstoneChipsets != 1) {
+                context.fail("Expected exactly 1 redstone chipset after the first cycle, got: " + redstoneChipsets);
+            }
+        });
+
         // 10,000 RF (redstone) + 15,000 RF (copper) at 80 RF/t -> 313 ticks total; 340 leaves slack.
-        context.runAfterDelay(340, () -> context.succeedWhen(() -> {
-            context.assertContainerContains(chestPos, LogisticsCore.ITEM.REDSTONE_CHIPSET);
-            context.assertContainerContains(chestPos, LogisticsCore.ITEM.COPPER_CHIPSET);
-        }));
+        // A genuine round-robin switches to copper_chipset here rather than repeating
+        // redstone_chipset a second time (which would leave exactly 2 redstone / 0 copper).
+        context.runAfterDelay(340, () -> {
+            BaseContainerBlockEntity chest = context.getBlockEntity(chestPos, BaseContainerBlockEntity.class);
+            int redstoneChipsets = chest.countItem(LogisticsCore.ITEM.REDSTONE_CHIPSET);
+            int copperChipsets = chest.countItem(LogisticsCore.ITEM.COPPER_CHIPSET);
+            if (redstoneChipsets != 1 || copperChipsets != 1) {
+                context.fail("Round-robin should produce exactly 1 of each chipset, got "
+                        + redstoneChipsets + " redstone chipset(s) / " + copperChipsets + " copper chipset(s)");
+                return;
+            }
+            context.succeed();
+        });
     }
 
     /**
-     * Wiki claim (Usage/Power): "...feed it the ingredients... connect a strong RF source." The
-     * test above proves the recipe math by pre-charging the buffer directly; this one proves the
-     * whole feature as a player actually wires it up — a real engine (no cable) delivering power,
-     * and a real hopper pushing redstone into the pool with another pulling the finished chipset
-     * out.
+     * Wiki claim (Usage/Power): "...feed it the ingredients... connect a strong RF source."
      *
      * @see <a href="https://logistics.fandom.com/wiki/Sequential_Fabricator#Usage">wiki/Sequential Fabricator.txt § Usage</a>
      */

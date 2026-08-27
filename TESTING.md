@@ -296,8 +296,10 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
     (crafting, cheapest chipset, most expensive chipset) matched the wiki exactly. The real find:
     the wiki's Usage section reads as one chipset selected at a time ("*the* selected chipset"), but
     the machine actually supports queuing several chipsets and cycles through them round-robin,
-    confirmed live with a test that queues two chipsets up front and gets both built without
-    re-selecting between them (see `WIKI_DISCREPANCIES.md` § Sequential Fabricator). Also hit a new
+    confirmed live with a test that queues two chipsets with only enough shared redstone for one of
+    each — proving the machine switches to the other recipe after each completion rather than
+    exhausting one first, which would strand the second recipe's own redstone requirement (see
+    `WIKI_DISCREPANCIES.md` § Sequential Fabricator). Also hit a new
     mistake worth flagging for next time: constructing a recipe's `ResourceId` via a domain helper
     (`LogisticsCore.resource(...)`) silently prepends that domain's prefix (`core/`) — the recipe's
     real id follows its file path under `data/logistics/recipe/<folder>/`, not any domain

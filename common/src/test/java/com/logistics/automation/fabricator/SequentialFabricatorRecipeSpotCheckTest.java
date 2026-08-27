@@ -14,9 +14,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Spot-checks the Sequential Fabricator's own crafting recipe plus its lowest- and highest-tier
- * chipset recipes against the wiki, reading the bundled JSON directly. The Fabricator has 7
- * recipes total, so combined with the mod-wide {@code com.logistics.RecipeJsonSmokeTest}, these two
- * checks anchor both ends of the documented RF-cost range (10,000-120,000 RF).
+ * chipset recipes against the bundled data.
  */
 @DisplayName("Sequential Fabricator recipes (spot check)")
 class SequentialFabricatorRecipeSpotCheckTest {
