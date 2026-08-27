@@ -266,9 +266,14 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
    class must be added to `fabric.mod.json`'s `fabric-gametest` entrypoint list or Fabric's runner
    silently skips it — no error, just missing from the test count. Documented above as methodology
    step 9 so it doesn't get missed on Crucible/Alloy Smelter/Fabricator.
-8. **Crucible** — zero coverage. Item → fluid transform with chance byproducts (see the wiki's
-   Oil-blocks-→-Bitumen-and-Tar recipes); moderate complexity, similar shape to Refinery but
-   item-input instead of fluid-input.
+~~8. **Crucible**~~ — done. Straightforward once Refinery's pattern existed: new `CrucibleGameTest`
+   confirms the tank is genuinely output-only (wiki says so explicitly — pipes can drain it but not
+   fill it directly) and a live ice-melting run asserts the exact 1,600 RF cost and 1,000 mB water
+   output. All four config numbers, the crafting recipe, and two spot-checked recipes (ice → water,
+   bitumen → crude oil) matched the wiki exactly. Registered the new class in `fabric.mod.json`
+   from the start this time (185 → 189, confirmed) — no repeat of the Refinery gotcha.
+   Note: the Crucible's actual byproduct/chance recipes (oil sand → crude oil family) weren't in
+   scope here since the two spot-checked recipes don't have byproducts; a future pass could add one.
 9. **Alloy Smelter** — zero coverage. Dual-input recipe matching + byproduct chance; the most complex
    remaining automation machine besides the Fabricator.
 10. **Sequential Fabricator** — zero coverage. Multi-step/multi-stage fabrication; likely the biggest
@@ -301,7 +306,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, ActiveQuarryRegistry, QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
