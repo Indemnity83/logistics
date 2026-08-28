@@ -68,6 +68,13 @@ sourceSets {
     test {
         java { srcDir 'src/test/java' }
     }
+    // Shared GameTest bodies (plain vanilla GameTestHelper logic, no Fabric/NeoForge imports) —
+    // consumed as raw source by fabric/src/gametest and neoforge/src/gametest, the same way
+    // `client` is consumed by each loader's own client source set. Not part of the shipped jar.
+    gametest {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
