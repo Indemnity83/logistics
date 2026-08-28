@@ -1,96 +1,25 @@
 package com.logistics.gametest.power;
 
-import com.logistics.LogisticsPower;
-import com.logistics.core.lib.energy.EnergyComponent;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
-import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.power.block.entity.BatteryBlockEntity;
-import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.level.material.Fluids;
 
+/**
+ * Fabric entrypoint wiring for the magmatic engine GameTests. Test logic lives in
+ * {@link MagmaticEngineGameTestBody} (shared with NeoForge — see {@code common/src/gametest});
+ * these methods only carry the {@code @GameTest} annotation Fabric's reflection-based test
+ * discovery requires.
+ */
 public class MagmaticEngineGameTest {
-
-    private static MagmaticEngineBlockEntity placePowered(GameTestHelper context, BlockPos pos) {
-        context.setBlock(pos, LogisticsPower.BLOCK.MAGMATIC_ENGINE
-                .defaultBlockState()
-                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
-                .setValue(AbstractEngineBlock.POWERED, true));
-        return context.getBlockEntity(pos, MagmaticEngineBlockEntity.class);
-    }
-
-    private static long batteryStored(GameTestHelper context, BlockPos pos) {
-        BatteryBlockEntity b = context.getBlockEntity(pos, BatteryBlockEntity.class);
-        return ((EnergyComponent) b.energyStorage(null)).getAmount();
-    }
 
     /** The filtered fluid capability accepts lava (as a pipe would) and rejects everything else. */
     @GameTest
     public void testAcceptsLavaRejectsOther(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPower.BLOCK.MAGMATIC_ENGINE);
-        MagmaticEngineBlockEntity engine = context.getBlockEntity(pos, MagmaticEngineBlockEntity.class);
-
-        long lava = engine.fluidStorage(Direction.UP).insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(1000), false);
-        if (lava <= 0 || engine.lavaTank().tank().isEmpty()) {
-            context.fail("Lava should be accepted into the tank via the fluid capability");
-            return;
-        }
-        long water = engine.fluidStorage(Direction.UP).insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(1000), false);
-        if (water != 0) {
-            context.fail("Non-lava fluids must be rejected");
-            return;
-        }
-        context.succeed();
+        MagmaticEngineGameTestBody.testAcceptsLavaRejectsOther(context);
     }
 
     /** Lava inserted through the capability feeds generation: the engine heat-soaks and delivers RF. */
     @GameTest(maxTicks = 120)
     public void testGeneratesFromLavaAndDelivers(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        BlockPos batteryPos = new BlockPos(1, 1, 0); // output faces EAST
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
-        MagmaticEngineBlockEntity engine = placePowered(context, pos);
-        if (engine == null) {
-            context.fail("Magmatic engine block entity not found");
-            return;
-        }
-        // Feed lava the way a fluid pipe would — through the exposed capability, not by seeding the tank.
-        engine.fluidStorage(Direction.UP).insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(2000), false);
-
-        context.runAfterDelay(100, () -> {
-            MagmaticEngineBlockEntity e = context.getBlockEntity(pos, MagmaticEngineBlockEntity.class);
-            if (e.simulation().remainingBurnTicks() <= 0) {
-                context.fail("Engine should be lit and burning a committed batch");
-                return;
-            }
-            if (e.simulation().temperatureCelsius() <= 20) {
-                context.fail("Engine should have heat-soaked above ambient, temp: " + e.simulation().temperatureCelsius());
-                return;
-            }
-            if (e.simulation().lastAccepted() <= 0) {
-                context.fail("Engine should be generating RF, rate: " + e.simulation().lastAccepted());
-                return;
-            }
-            if (e.lavaTank().tank().getAmount() >= FluidUnits.mb(2000)) {
-                context.fail("Engine should have consumed a lava batch");
-                return;
-            }
-            if (batteryStored(context, batteryPos) <= 0) {
-                context.fail("A consumer on the output face should receive RF, stored: "
-                        + batteryStored(context, batteryPos));
-                return;
-            }
-            // It cannot overheat — no heat latch on the block.
-            if (e.isOverheated()) {
-                context.fail("Magmatic engine must never overheat");
-                return;
-            }
-            context.succeed();
-        });
+        MagmaticEngineGameTestBody.testGeneratesFromLavaAndDelivers(context);
     }
 }

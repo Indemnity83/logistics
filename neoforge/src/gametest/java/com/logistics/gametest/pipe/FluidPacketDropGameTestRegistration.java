@@ -1,0 +1,43 @@
+package com.logistics.gametest.pipe;
+
+import com.logistics.gametest.GameTestCase;
+import com.logistics.gametest.GameTestRegistrationSupport;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+
+/**
+ * Wires {@link FluidPacketDropGameTestBody}'s methods into MC's data-driven GameTest registries —
+ * see {@link GameTestRegistrationSupport}.
+ */
+@EventBusSubscriber(modid = "logistics_gametest")
+public final class FluidPacketDropGameTestRegistration {
+
+    private static final List<GameTestCase> TESTS = List.of(
+        new GameTestCase(
+            "pipe/fluid_packet_never_drops_on_pipe_break",
+            100,
+            FluidPacketDropGameTestBody::testFluidPacketNeverDropsOnPipeBreak),
+        new GameTestCase(
+            "pipe/normal_item_still_drops_on_pipe_break",
+            100,
+            FluidPacketDropGameTestBody::testNormalItemStillDropsOnPipeBreak));
+
+    private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
+        GameTestRegistrationSupport.registerFunctions(TESTS);
+
+    private FluidPacketDropGameTestRegistration() {}
+
+    /** Forces this class's static initializer to run — see {@code LogisticsGameTestMod}. */
+    public static void bootstrap() {}
+
+    @SubscribeEvent
+    static void onRegisterGameTests(RegisterGameTestsEvent event) {
+        GameTestRegistrationSupport.registerInstances(event, "pipe/fluid_packet_drop", TESTS, FUNCTIONS);
+    }
+}

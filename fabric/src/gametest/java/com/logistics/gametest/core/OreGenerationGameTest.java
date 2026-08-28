@@ -1,20 +1,13 @@
 package com.logistics.gametest.core;
 
-import com.logistics.LogisticsCore;
-import com.logistics.LogisticsMod;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
-import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 /**
- * Game tests for ore generation features.
- * Verifies that tin and apatite ore generation is properly configured.
+ * Fabric entrypoint wiring for the ore-generation GameTests. Test logic lives in
+ * {@link OreGenerationGameTestBody} (shared with NeoForge — see {@code common/src/gametest});
+ * these methods only carry the {@code @GameTest} annotation Fabric's reflection-based test
+ * discovery requires.
  */
 public class OreGenerationGameTest {
 
@@ -23,25 +16,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testTinOreStoneFeatureRegistered(GameTestHelper context) {
-        // Verify the placed feature is registered in the registry
-        ResourceKey<PlacedFeature> featureKey = ResourceKey.create(
-            Registries.PLACED_FEATURE,
-            LogisticsMod.modId("tin_ore_stone").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.PLACED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Placed feature registry not available");
-            return;
-        }
-
-        var feature = registry.get().get(featureKey);
-        if (feature.isEmpty()) {
-            context.fail("Tin ore stone placed feature not registered");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testTinOreStoneFeatureRegistered(context);
     }
 
     /**
@@ -49,24 +24,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testTinOreDeepslateFeatureRegistered(GameTestHelper context) {
-        ResourceKey<PlacedFeature> featureKey = ResourceKey.create(
-            Registries.PLACED_FEATURE,
-            LogisticsMod.modId("tin_ore_deepslate").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.PLACED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Placed feature registry not available");
-            return;
-        }
-
-        var feature = registry.get().get(featureKey);
-        if (feature.isEmpty()) {
-            context.fail("Tin ore deepslate placed feature not registered");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testTinOreDeepslateFeatureRegistered(context);
     }
 
     /**
@@ -74,24 +32,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testApatiteOreFeatureRegistered(GameTestHelper context) {
-        ResourceKey<PlacedFeature> featureKey = ResourceKey.create(
-            Registries.PLACED_FEATURE,
-            LogisticsMod.modId("apatite_ore_stone").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.PLACED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Placed feature registry not available");
-            return;
-        }
-
-        var feature = registry.get().get(featureKey);
-        if (feature.isEmpty()) {
-            context.fail("Apatite ore placed feature not registered");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testApatiteOreFeatureRegistered(context);
     }
 
     /**
@@ -99,24 +40,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testTinOreConfiguredFeatureRegistered(GameTestHelper context) {
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("tin_ore_stone").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
-            return;
-        }
-
-        var feature = registry.get().get(featureKey);
-        if (feature.isEmpty()) {
-            context.fail("Tin ore configured feature not registered");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testTinOreConfiguredFeatureRegistered(context);
     }
 
     /**
@@ -124,24 +48,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testApatiteOreConfiguredFeatureRegistered(GameTestHelper context) {
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("apatite_ore_stone").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
-            return;
-        }
-
-        var feature = registry.get().get(featureKey);
-        if (feature.isEmpty()) {
-            context.fail("Apatite ore configured feature not registered");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testApatiteOreConfiguredFeatureRegistered(context);
     }
 
     /**
@@ -149,25 +56,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testTinOreBlocksPlaceable(GameTestHelper context) {
-        BlockPos stoneOrePos = new BlockPos(1, 1, 1);
-        BlockPos deepslateOrePos = new BlockPos(2, 1, 1);
-
-        // Place tin ore blocks
-        context.setBlock(stoneOrePos, LogisticsCore.BLOCK.TIN_ORE);
-        context.setBlock(deepslateOrePos, LogisticsCore.BLOCK.DEEPSLATE_TIN_ORE);
-
-        // Verify blocks are placed correctly
-        if (!context.getBlockState(stoneOrePos).is(LogisticsCore.BLOCK.TIN_ORE)) {
-            context.fail("Tin ore block not placed correctly");
-            return;
-        }
-
-        if (!context.getBlockState(deepslateOrePos).is(LogisticsCore.BLOCK.DEEPSLATE_TIN_ORE)) {
-            context.fail("Deepslate tin ore block not placed correctly");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testTinOreBlocksPlaceable(context);
     }
 
     /**
@@ -175,18 +64,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testApatiteOreBlockPlaceable(GameTestHelper context) {
-        BlockPos orePos = new BlockPos(1, 1, 1);
-
-        // Place apatite ore block
-        context.setBlock(orePos, LogisticsCore.BLOCK.APATITE_ORE);
-
-        // Verify block is placed correctly
-        if (!context.getBlockState(orePos).is(LogisticsCore.BLOCK.APATITE_ORE)) {
-            context.fail("Apatite ore block not placed correctly");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testApatiteOreBlockPlaceable(context);
     }
 
     /**
@@ -195,51 +73,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testTinOreCanReplaceStone(GameTestHelper context) {
-        // Get the configured feature from registry
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("tin_ore_stone").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
-            return;
-        }
-
-        var featureHolder = registry.get().get(featureKey);
-        if (featureHolder.isEmpty()) {
-            context.fail("Tin ore stone configured feature not found");
-            return;
-        }
-
-        // Extract OreConfiguration
-        ConfiguredFeature<?, ?> feature = featureHolder.get().value();
-        if (!(feature.config() instanceof OreConfiguration oreConfig)) {
-            context.fail("Tin ore stone feature is not an OreConfiguration");
-            return;
-        }
-
-        // Test that the target predicate accepts stone blocks
-        boolean foundStoneTarget = false;
-        for (OreConfiguration.TargetBlockState target : oreConfig.targetStates) {
-            if (target.target.test(Blocks.STONE.defaultBlockState(), context.getLevel().getRandom())) {
-                foundStoneTarget = true;
-                // Verify it places tin ore
-                if (!target.state.is(LogisticsCore.BLOCK.TIN_ORE)) {
-                    context.fail("Stone target does not place tin ore, places: " + target.state.getBlock());
-                    return;
-                }
-                break;
-            }
-        }
-
-        if (!foundStoneTarget) {
-            context.fail("Tin ore configuration does not target stone blocks");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testTinOreCanReplaceStone(context);
     }
 
     /**
@@ -248,51 +82,7 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testTinOreCanReplaceDeepslate(GameTestHelper context) {
-        // Get the configured feature from registry
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("tin_ore_deepslate").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
-            return;
-        }
-
-        var featureHolder = registry.get().get(featureKey);
-        if (featureHolder.isEmpty()) {
-            context.fail("Tin ore deepslate configured feature not found");
-            return;
-        }
-
-        // Extract OreConfiguration
-        ConfiguredFeature<?, ?> feature = featureHolder.get().value();
-        if (!(feature.config() instanceof OreConfiguration oreConfig)) {
-            context.fail("Tin ore deepslate feature is not an OreConfiguration");
-            return;
-        }
-
-        // Test that the target predicate accepts deepslate blocks
-        boolean foundDeepslateTarget = false;
-        for (OreConfiguration.TargetBlockState target : oreConfig.targetStates) {
-            if (target.target.test(Blocks.DEEPSLATE.defaultBlockState(), context.getLevel().getRandom())) {
-                foundDeepslateTarget = true;
-                // Verify it places deepslate tin ore
-                if (!target.state.is(LogisticsCore.BLOCK.DEEPSLATE_TIN_ORE)) {
-                    context.fail("Deepslate target does not place deepslate tin ore, places: " + target.state.getBlock());
-                    return;
-                }
-                break;
-            }
-        }
-
-        if (!foundDeepslateTarget) {
-            context.fail("Deepslate tin ore configuration does not target deepslate blocks");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testTinOreCanReplaceDeepslate(context);
     }
 
     /**
@@ -301,50 +91,6 @@ public class OreGenerationGameTest {
      */
     @GameTest
     public void testApatiteOreCanReplaceStone(GameTestHelper context) {
-        // Get the configured feature from registry
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("apatite_ore_stone").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
-            return;
-        }
-
-        var featureHolder = registry.get().get(featureKey);
-        if (featureHolder.isEmpty()) {
-            context.fail("Apatite ore stone configured feature not found");
-            return;
-        }
-
-        // Extract OreConfiguration
-        ConfiguredFeature<?, ?> feature = featureHolder.get().value();
-        if (!(feature.config() instanceof OreConfiguration oreConfig)) {
-            context.fail("Apatite ore stone feature is not an OreConfiguration");
-            return;
-        }
-
-        // Test that the target predicate accepts stone blocks
-        boolean foundStoneTarget = false;
-        for (OreConfiguration.TargetBlockState target : oreConfig.targetStates) {
-            if (target.target.test(Blocks.STONE.defaultBlockState(), context.getLevel().getRandom())) {
-                foundStoneTarget = true;
-                // Verify it places apatite ore
-                if (!target.state.is(LogisticsCore.BLOCK.APATITE_ORE)) {
-                    context.fail("Stone target does not place apatite ore, places: " + target.state.getBlock());
-                    return;
-                }
-                break;
-            }
-        }
-
-        if (!foundStoneTarget) {
-            context.fail("Apatite ore configuration does not target stone blocks");
-            return;
-        }
-
-        context.succeed();
+        OreGenerationGameTestBody.testApatiteOreCanReplaceStone(context);
     }
 }
