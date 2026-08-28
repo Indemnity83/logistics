@@ -6,7 +6,9 @@ import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.jei.ClientMachineRecipes;
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
+import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
+import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.automation.refinery.RefineryBlockEntityRenderer;
@@ -61,6 +63,8 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
 
         ClientPlayNetworking.registerGlobalReceiver(SyncMachineRecipesPacket.TYPE, (packet, context) ->
                 context.client().execute(() -> ClientMachineRecipes.set(packet)));
+        ClientPlayNetworking.registerGlobalReceiver(ReactionRecipeSyncPacket.TYPE, (packet, context) ->
+                context.client().execute(() -> ReactionJeiSyncAdapter.INSTANCE.set(packet)));
 
         ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryBlockEntityRenderer::clearInterpolationCache);
         ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryBlockEntityRenderer::clearAllInterpolationCaches);
@@ -73,6 +77,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             ClientRenderCacheHooks.clearAllInterpolationCaches();
             ClientMachineRecipes.clear();
+            ReactionJeiSyncAdapter.INSTANCE.clear();
         });
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ClientRenderCacheHooks.clearAllInterpolationCaches());
     }

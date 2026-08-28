@@ -1,4 +1,4 @@
-package com.logistics.automation.jei;
+package com.logistics.core.lib.jei;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.alloysmelter.AlloySmelterRecipe;
@@ -76,7 +76,7 @@ public record SyncMachineRecipesPacket(
         return TYPE;
     }
 
-    /** Reads the server's loaded recipes and partitions the seven machine recipe types into one packet. */
+    /** Reads the server's loaded recipes and partitions the machine recipe types into one packet. */
     public static SyncMachineRecipesPacket from(MinecraftServer server) {
         List<MaceratorRecipeWrapper> macerator = new ArrayList<>();
         List<SawmillRecipe> sawmill = new ArrayList<>();
@@ -105,6 +105,7 @@ public record SyncMachineRecipesPacket(
             }
         });
 
-        return new SyncMachineRecipesPacket(macerator, sawmill, crucible, alloySmelter, refinery, fabricator, transposer);
+        return new SyncMachineRecipesPacket(
+                macerator, sawmill, crucible, alloySmelter, refinery, fabricator, transposer);
     }
 }

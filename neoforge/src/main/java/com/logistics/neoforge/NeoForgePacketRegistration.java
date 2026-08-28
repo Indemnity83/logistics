@@ -2,7 +2,9 @@ package com.logistics.neoforge;
 
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
+import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
+import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
@@ -64,5 +66,7 @@ public final class NeoForgePacketRegistration {
                 (packet, context) -> context.enqueueWork(() -> syncFabricatorOutputsHandler.accept(packet)));
         registrar.playToClient(SyncMachineRecipesPacket.TYPE, SyncMachineRecipesPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> syncMachineRecipesHandler.accept(packet)));
+        registrar.playToClient(ReactionRecipeSyncPacket.TYPE, ReactionRecipeSyncPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> ReactionJeiSyncAdapter.INSTANCE.set(packet)));
     }
 }
