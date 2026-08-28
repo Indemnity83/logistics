@@ -7,6 +7,8 @@ import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import com.logistics.automation.refinery.RefineryRecipe;
 import com.logistics.automation.sawmill.SawmillRecipe;
 import com.logistics.automation.transposer.TransposerRecipe;
+import com.logistics.core.lib.jei.MachineRecipeJeiSync;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
 import java.util.List;
 
 /**
@@ -34,7 +36,8 @@ public final class ClientMachineRecipes {
         refinery = List.copyOf(packet.refinery());
         fabricator = List.copyOf(packet.fabricator());
         transposer = List.copyOf(packet.transposer());
-        MachineRecipeJeiSync.pushToJei();
+        MachineRecipeJeiSync.pushToJei(AutomationJeiSyncAdapter.INSTANCE);
+        MachineRecipeJeiSync.pushToJei(AutomationJeiSyncAdapter.INSTANCE);
     }
 
     /** Drops cached recipes on disconnect so a later server's sync starts clean. */
@@ -75,4 +78,5 @@ public final class ClientMachineRecipes {
     public static List<TransposerRecipe> transposer() {
         return transposer;
     }
+
 }
