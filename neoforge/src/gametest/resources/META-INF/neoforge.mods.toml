@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[0,)"
+license="MIT"
+
+[[mods]]
+modId="logistics_gametest"
+version="1.0.0"
+displayName="Logistics Game Tests"
+description='''
+Integration tests for the Logistics mod, run via ./gradlew :neoforge:runGameTestServer.
+'''
+authors="Logistics Contributors"
+
+[[dependencies.'logistics_gametest']]
+modId="logistics"
+type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.'logistics_gametest']]
+modId="minecraft"
+type="required"
+versionRange="[1,)"
+ordering="NONE"
+side="BOTH"
