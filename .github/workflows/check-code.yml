@@ -45,7 +45,7 @@ jobs:
         run: ./gradlew :${{ matrix.module }}:lint --console=plain
 
   test:
-    name: test (${{ matrix.module }})
+    name: unit-test (${{ matrix.module }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
@@ -75,8 +75,7 @@ jobs:
         run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
         # jacocoTestReport depends on the module's test task, so this runs the
         # tests once and emits the JaCoCo XML in the same step.
-        # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
-        # constraints and long execution time. Run locally before merging if testing game mechanics.
+        # Note: Fabric/NeoForge game tests run separately in the `gametest` job below.
 
       - name: Upload test reports
         if: failure()
@@ -96,3 +95,47 @@ jobs:
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  gametest:
+    name: feature-test (${{ matrix.loader }})
+    # Both loaders boot a headless server for their gametest source set, so this runs as its own
+    # job (matrixed by loader) rather than in the unit-test matrix.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - loader: fabric
+            task: ':fabric:runGameTest'
+            logs: fabric/build/run/gameTest/logs/
+          - loader: neoforge
+            task: ':neoforge:runGameTestServer'
+            logs: neoforge/runs/gameTestServer/logs/
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          token: ${{ github.token }}
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Run ${{ matrix.loader }} game tests
+        run: ./gradlew ${{ matrix.task }} --console=plain
+
+      - name: Upload game test logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: gametest-logs-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ matrix.logs }}

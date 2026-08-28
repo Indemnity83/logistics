@@ -30,8 +30,21 @@ java {
     withSourcesJar()
 }
 
+// Integration tests using the vanilla/NeoForge GameTest framework. Kept as a separate source
+// set (not `test`) because it boots a real dedicated server via the `gameTestServer` run,
+// rather than running in-process under the plain `test` task. Mirrors fabric/src/gametest,
+// and (like Fabric's separate "logistics_gametest" mod) ships as its own modid rather than
+// folding into the `logistics` mod — see neoforge/src/gametest/resources/META-INF/neoforge.mods.toml.
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.output + tasks.named('compileJava', JavaCompile).get().classpath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
 neoForge {
     version = neoforge_version
+    addModdingDependenciesTo sourceSets.gametest
     runs {
         client {
             client()
@@ -41,10 +54,17 @@ neoForge {
             server()
             gameDirectory = project.file('runs/server')
         }
+        gameTestServer {
+            type = "gameTestServer"
+            gameDirectory = project.file('runs/gameTestServer')
+        }
     }
     mods {
         logistics {
             sourceSet sourceSets.main
+        }
+        "logistics_gametest" {
+            sourceSet sourceSets.gametest
         }
     }
 }
