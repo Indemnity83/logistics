@@ -1,65 +1,19 @@
 package com.logistics.gametest.automation;
 
-import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsConfigHost;
-import com.logistics.LogisticsCore;
-import com.logistics.LogisticsPower;
-import com.logistics.automation.refinery.RefineryBlockEntity;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.IFluidStorage;
-import com.logistics.core.lib.fluids.IFluidView;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
-import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Fluid;
 
 /**
- * Gametests for the Refinery: fluid-in / fluid-out distillation, RF cost, and the input/output tank
- * split (insertion always targets the input tank, extraction always draws the output tank,
- * regardless of side — see {@code RefineryBlockEntity.RefineryFluidView}).
+ * Fabric entrypoint wiring for the Refinery GameTests. Test logic lives in
+ * {@link RefineryGameTestBody} (shared with NeoForge — see {@code common/src/gametest}); these
+ * methods only carry the {@code @GameTest} annotation Fabric's reflection-based test discovery
+ * requires.
  */
 public class RefineryGameTest {
 
-    private static Fluid liquidBiomass() {
-        return BuiltInRegistries.FLUID.getValue(LogisticsCore.resource("liquid_biomass").toIdentifier());
-    }
-
-    private static Fluid bioFuel() {
-        return BuiltInRegistries.FLUID.getValue(LogisticsCore.resource("bio_fuel").toIdentifier());
-    }
-
-    private static RefineryBlockEntity place(GameTestHelper context, BlockPos pos) {
-        context.setBlock(pos, LogisticsAutomation.BLOCK.REFINERY);
-        RefineryBlockEntity be = context.getBlockEntity(pos, RefineryBlockEntity.class);
-        if (be == null) {
-            context.fail("Refinery should create RefineryBlockEntity");
-        }
-        return be;
-    }
-
-    /** Fills the buffer to capacity, looping since insert is rate-limited per call by max-input. */
-    private static void chargeFully(RefineryBlockEntity be) {
-        var energy = be.energyStorage(null);
-        long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_ENERGY_CAPACITY);
-        long input = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.REFINERY_MAX_ENERGY_INPUT);
-        if (input <= 0) {
-            throw new IllegalStateException("REFINERY_MAX_ENERGY_INPUT must be positive, got: " + input);
-        }
-        for (long filled = 0; filled < capacity; filled += input) {
-            energy.insert(input, false);
-        }
-    }
-
     @GameTest
     public void testPlacement(GameTestHelper context) {
-        place(context, new BlockPos(1, 1, 1));
-        context.succeed();
+        RefineryGameTestBody.testPlacement(context);
     }
 
     /**
@@ -72,43 +26,7 @@ public class RefineryGameTest {
      */
     @GameTest
     public void testInsertTargetsInputExtractTargetsOutput(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        RefineryBlockEntity refinery = place(context, pos);
-
-        long expectedInputTotal = 0;
-        for (Direction side : Direction.values()) {
-            IFluidStorage view = refinery.fluidStorage(side);
-            if (view == null) {
-                context.fail("Refinery should expose fluid storage from " + side);
-                return;
-            }
-            long inserted = view.insert(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(100), false);
-            if (inserted != FluidUnits.mb(100)) {
-                context.fail("Refinery should accept liquid biomass into its input tank from " + side);
-                return;
-            }
-            expectedInputTotal += inserted;
-
-            long actualInputAmount = 0;
-            for (IFluidView contained : view.contents()) {
-                if (contained.resource().getFluid() == liquidBiomass()) {
-                    actualInputAmount = contained.amount();
-                }
-            }
-            if (actualInputAmount != expectedInputTotal) {
-                context.fail("Refinery input tank should contain " + expectedInputTotal
-                        + " mB of liquid biomass after inserting from " + side + ", got: " + actualInputAmount);
-                return;
-            }
-
-            // The output tank starts empty, so nothing should be extractable yet from any side.
-            long extracted = view.extract(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(100), true);
-            if (extracted != 0) {
-                context.fail("Refinery should not let the input fluid be extracted straight back out from " + side);
-                return;
-            }
-        }
-        context.succeed();
+        RefineryGameTestBody.testInsertTargetsInputExtractTargetsOutput(context);
     }
 
     /**
@@ -119,39 +37,7 @@ public class RefineryGameTest {
      */
     @GameTest(maxTicks = 280)
     public void testDistillsLiquidBiomassIntoBioFuel(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        RefineryBlockEntity refinery = place(context, pos);
-
-        IFluidStorage view = refinery.fluidStorage(Direction.UP);
-        view.insert(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(200), false);
-        chargeFully(refinery);
-        long filledEnergy = refinery.energyStorage(null).getAmount();
-
-        // 5,000 RF at 20 RF/t -> 250 ticks; 270 leaves setup slack.
-        context.runAfterDelay(270, () -> {
-            if (refinery.tank().getAmount() != FluidUnits.mb(100)
-                    || refinery.tank().getFluidKey().getFluid() != bioFuel()) {
-                context.fail("Refinery output tank should hold 100 mB of bio fuel, got: "
-                        + refinery.tank().getAmount());
-                return;
-            }
-            // contents() never yields a zero-amount view, so an empty input tank simply won't appear
-            // here — check the view directly rather than through extract(), which only ever routes
-            // to the output tank and would trivially return 0 regardless of the input tank's state.
-            for (IFluidView contained : view.contents()) {
-                if (contained.resource().getFluid() == liquidBiomass()) {
-                    context.fail("Input liquid biomass should be fully consumed (200 mB drained in one cycle), got: "
-                            + contained.amount());
-                    return;
-                }
-            }
-            long spent = filledEnergy - refinery.energyStorage(null).getAmount();
-            if (spent != 5_000) {
-                context.fail("Distilling liquid biomass should cost exactly 5,000 RF, spent: " + spent);
-                return;
-            }
-            context.succeed();
-        });
+        RefineryGameTestBody.testDistillsLiquidBiomassIntoBioFuel(context);
     }
 
     /**
@@ -161,35 +47,6 @@ public class RefineryGameTest {
      */
     @GameTest(maxTicks = 320)
     public void testDistillsViaRealEngine(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        BlockPos enginePos = pos.north();
-        BlockPos redstoneBlockPos = enginePos.north();
-
-        RefineryBlockEntity refinery = place(context, pos);
-        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
-        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
-                .defaultBlockState()
-                .setValue(AbstractEngineBlock.FACING, Direction.SOUTH)
-                .setValue(AbstractEngineBlock.POWERED, true));
-
-        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
-        if (refinery == null || engine == null) {
-            context.fail("Expected refinery and engine block entities");
-            return;
-        }
-
-        IFluidStorage view = refinery.fluidStorage(Direction.UP);
-        view.insert(SimpleFluidKey.of(liquidBiomass()), FluidUnits.mb(200), false);
-        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the refinery's 128 RF/t input cap.
-        engine.cycleOutputLevel();
-        engine.cycleOutputLevel();
-        engine.cycleOutputLevel();
-
-        context.succeedWhen(() -> {
-            if (refinery.tank().getAmount() != FluidUnits.mb(100)
-                    || refinery.tank().getFluidKey().getFluid() != bioFuel()) {
-                throw context.assertionException("Engine-powered refinery should distill 100 mB of bio fuel");
-            }
-        });
+        RefineryGameTestBody.testDistillsViaRealEngine(context);
     }
 }

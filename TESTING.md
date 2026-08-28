@@ -7,16 +7,19 @@
 | `common` | `common/src/test/java/` | Unit | JUnit 5 + Minecraft bootstrap |
 | `fabric` | `fabric/src/test/java/` | Unit | JUnit 5 (plain) |
 | `neoforge` | `neoforge/src/test/java/` | Unit | JUnit 5 (plain) |
-| `fabric` | `fabric/src/gametest/java/` | Integration | Fabric @GameTest (deprecated/manual) |
+| `common` | `common/src/gametest/java/` | Integration (shared body) | plain `Consumer<GameTestHelper>` methods, no loader imports |
+| `fabric` | `fabric/src/gametest/java/` | Integration | Fabric `@GameTest` (deprecated/manual; see below) |
+| `neoforge` | `neoforge/src/gametest/java/` | Integration | vanilla GameTest registry via `DeferredRegister` (see below) |
 
 ### Running tests
 
 ```bash
-./gradlew :common:test          # Common business logic unit tests
-./gradlew :fabric:test          # Fabric ServiceLoader and adapter unit tests
-./gradlew :neoforge:test        # NeoForge ServiceLoader and adapter unit tests
-./gradlew testCoverage          # Aggregate local JaCoCo coverage report
-./gradlew :fabric:runGameTest   # Integration game tests (deprecated/manual; see below)
+./gradlew :common:test                # Common business logic unit tests
+./gradlew :fabric:test                # Fabric ServiceLoader and adapter unit tests
+./gradlew :neoforge:test              # NeoForge ServiceLoader and adapter unit tests
+./gradlew testCoverage                # Aggregate local JaCoCo coverage report
+./gradlew :fabric:runGameTest         # Fabric integration game tests (deprecated/manual; see below)
+./gradlew :neoforge:runGameTestServer # NeoForge integration game tests (see below)
 ```
 
 ### Formatting
@@ -121,15 +124,27 @@ the Kiln (`common/src/test/java/com/logistics/automation/kiln/`,
    directly (see `KilnRecipeTest`) rather than assuming it needs a live `RecipeManager`, which is
    only required for recipe *resolution*, not decoding one known file.
 7. **Apply the traceability convention** below to every feature test.
-8. **Fabric only.** NeoForge's GameTest registration is blocked upstream (see "NeoForge Game Tests"
-   below, once that section exists) — don't add or modify `neoforge/src/gametest` for this work.
-9. **A brand-new GameTest class needs a manual entry in `fabric/src/gametest/resources/fabric.mod.json`**
-   (the `entrypoints."fabric-gametest"` array), or Fabric's runner silently never discovers or runs
-   it — no error, no log line, it just isn't in the "N GAME TESTS COMPLETE" count. Only new *classes*
-   need this; new `@GameTest` methods added to an already-registered class don't. Always confirm the
-   count went up by the expected amount after adding a new test class, not just that the run stayed
-   green — a class-registration miss and "test already passed by coincidence" both look identical
-   otherwise.
+8. **Write the test body once, in `common/src/gametest`.** GameTest logic is plain vanilla
+   (`GameTestHelper`, block/entity APIs) with no Fabric or NeoForge imports, so it belongs in a
+   `common/src/gametest/java/com/logistics/gametest/<domain>/<Name>GameTestBody.java` class as
+   `public static void testFoo(GameTestHelper context)` methods — see "Fabric + NeoForge Game
+   Tests" below for the full pattern and its one real exception (Fabric-specific capability APIs).
+9. **A brand-new Body class needs a wrapper on each loader, or it silently never runs.** Neither
+   loader discovers `common/src/gametest` classes on its own:
+   - **Fabric** needs a thin `@GameTest`-annotated wrapper class in `fabric/src/gametest` that
+     delegates to the Body, *and* a manual entry in
+     `fabric/src/gametest/resources/fabric.mod.json`'s `entrypoints."fabric-gametest"` array — or
+     Fabric's runner silently never discovers or runs it. No error, no log line, it just isn't in
+     the "N GAME TESTS COMPLETE" count.
+   - **NeoForge** needs a `<Name>GameTestRegistration` class in `neoforge/src/gametest` (see the
+     pattern below), *and* a `.bootstrap()` call added to `LogisticsGameTestMod`'s constructor —
+     same silent-miss failure mode as Fabric's `fabric.mod.json`.
+
+   Only new *classes* need either registration step; new methods added to an already-registered
+   Body/wrapper pair don't. Always confirm the count went up by the expected amount on **both**
+   `:fabric:runGameTest` and `:neoforge:runGameTestServer` after adding a new test class, not just
+   that the run stayed green — a registration miss and "test already passed by coincidence" look
+   identical otherwise.
 10. **Building a recipe/other cross-domain `ResourceId` from a domain's `resource()` helper silently
     prepends that domain's own prefix** (e.g. `LogisticsCore.resource("fabricator/redstone_chipset")`
     produces `logistics:core/fabricator/redstone_chipset`, not the intended
@@ -403,23 +418,96 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ---
 
-## Deprecated: Fabric Game Tests
+## Fabric + NeoForge Game Tests
 
-`fabric/src/gametest/` contains **90+ `@GameTest` integration tests** that require a full Minecraft server process (real block placement, game ticks, Fabric transfer API). These are **deprecated** — the long-term goal is to replace them with plain JUnit equivalents as code is restructured to separate pure logic from world dependencies.
+`fabric/src/gametest/` and `neoforge/src/gametest/` together run **200+ integration tests** that
+require a full Minecraft server process (real block placement, game ticks). Fabric's are considered
+**deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
+code is restructured to separate pure logic from world dependencies — but they're kept to preserve
+coverage. The primary blocker for conversion is that all tests depend on `GameTestHelper` to place
+blocks in an actual level and tick the server; even "simple" placement tests require registered mod
+blocks and a running level, neither of which is available in a vanilla bootstrap. This applies
+equally to the NeoForge side; nothing below changes that long-term goal, only which loader(s) run
+the tests in the meantime.
 
-They are kept for now to preserve coverage. The primary blocker for conversion is that all tests depend on `GameTestHelper` to place blocks in an actual level and tick the server. Even "simple" placement tests require registered mod blocks and a running level — neither of which is available in a vanilla bootstrap.
+### Shared test bodies, per-loader registration glue
 
-### Coverage by file
+The actual test logic — assertions, block placement, tick-delayed checks — is written **once**, as
+plain static methods in `common/src/gametest/java/com/logistics/gametest/<domain>/<Name>GameTestBody.java`.
+These classes import only vanilla Minecraft and `com.logistics.*` types, no `net.fabricmc.*` or
+`net.neoforged.*` — the same loader-agnostic rule as `common/src/main`, just for a source set that
+isn't shipped in the jar (see the `gametest` source set in `common/build.gradle`, wired into both
+loaders' own `gametest` compilation via `commonGametestJava`, the same mechanism `commonClientJava`
+uses for `common/src/client`).
 
-| File | Tests | Conversion blocker |
-|------|-------|-------------------|
-| `CableGameTest` | 13 | Energy storage + TR transaction API + ticking |
-| `EngineGameTest` | 16 | Fuel burning and energy production require block entity ticking |
-| `PipeFlowGameTest` | 8 | Item travel requires ticking; enchantment serialization needs live data pack |
-| `ModuleGameTest` | 14 | Filter/sink routing requires live `PipeContext` with real block entities |
-| `PipeInfrastructureGameTest` | 5 | Pipe connectivity and cache invalidation require live blocks |
-| `OreGenerationGameTest` | 11 | Ore feature registration and block placement require data-driven registries |
-| `NetworkIntegrationGameTest` | 5 | Provider/requester delivery requires 100-tick game simulation |
-| `QuarryGameTest` | 7 | Energy acceptance and phase tracking require live block entity |
-| `QuarryMiningGameTest` | 3 | Phase machine progression and block mining require full simulation |
-| `KilnGameTest` | 9 | Inventory slot access control requires live block entity |
+Each loader supplies only the wiring needed to run those bodies through its own GameTest mechanism:
+
+- **Fabric** — a thin `<Name>GameTest` class in `fabric/src/gametest` with one `@GameTest`-annotated
+  method per test, each a single-line delegating call to the Body class. Fabric API's
+  `TestAnnotationLocator` discovers these by reflection through the `logistics-gametest` mod's
+  `fabric-gametest` entrypoints (declared in `fabric/src/gametest/resources/fabric.mod.json`).
+- **NeoForge** — a `<Name>GameTestRegistration` class in `neoforge/src/gametest` that registers each
+  test as a named function in the vanilla `Registries.TEST_FUNCTION` registry (via
+  `GameTestFunctions.TEST_FUNCTION`, a `DeferredRegister<Consumer<GameTestHelper>>`) and as a
+  `FunctionGameTestInstance` referencing that function (via `RegisterGameTestsEvent`), using the
+  shared boilerplate in `GameTestRegistrationSupport`. These run as their own `logistics_gametest`
+  mod, present only on the `:neoforge:runGameTestServer` classpath, never in the shipped jar — see
+  `LogisticsGameTestMod` for the wiring and "Adding a new test" below for the registration steps.
+
+**Why NeoForge needs `DeferredRegister`, not vanilla's own test-loading hook:** MC replaced the old
+`@GameTest`-annotated/reflection-scanned framework with a data-driven registry of
+`GameTestInstance`s, each backed by a named function in `Registries.TEST_FUNCTION`. Vanilla's own
+`TestFunctionLoader.registerLoader()` bootstraps that registry at `BuiltInRegistries` class-load
+time — before FML loads a single mod class — so it's genuinely unreachable from mod code (an earlier
+attempt at this integration used that hook and concluded NeoForge GameTests were blocked upstream).
+The actual answer is that `Registries.TEST_FUNCTION` is a plain `BuiltInRegistries` entry like any
+other (Blocks, Items, ...), so it goes through the same `DeferredRegister` + `RegisterEvent`
+unfreeze mechanism NeoForge already uses for those — not vanilla's bootstrap-time loader.
+
+### The one real exception: loader-native capability tests
+
+A test that specifically exercises a loader's own capability/interop API — not this mod's code —
+can't be shared, because the two loaders' APIs are genuinely different, not just differently named:
+
+- `power/CableGameTest` stays **Fabric-only**. Every test in it opens a Team Reborn `Transaction`
+  (`Transaction.openOuter()`, `.commit()`, an unclosed transaction implicitly aborting) to verify the
+  cable's energy capability participates correctly in Fabric's transactional insert/rollback
+  semantics. NeoForge's own energy capability (`IEnergyStorage.insert(amount, simulate)`) has no
+  transaction/rollback concept to test — a `simulate=true` dry run is a different mechanism, not an
+  equivalent. There is no `CableGameTestRegistration` on NeoForge.
+- `pipe/PipeFlowGameTest#testChestItemStorageReachable` stays inline in the Fabric wrapper (not
+  delegated to a Body method, not registered on NeoForge): it specifically verifies Fabric API's own
+  vanilla-chest-to-`ItemStorage` adapter, which has no NeoForge equivalent to test — every other
+  method in that file only used the same Fabric API as incidental test-setup plumbing (filling or
+  reading a chest) and was rewritten to use plain vanilla `ChestBlockEntity` access instead, which
+  behaves identically on both loaders and is now fully shared.
+- `pipe/GlassTankBucketGameTestBody#emptyBucketDrainsGlassTankInCreative` is a partial case: the
+  shared body covers everything genuinely loader-agnostic (tank drains, held item unaffected) and
+  returns the mock player instead of calling `succeed()`; Fabric's wrapper adds one more assertion
+  on top (a water bucket lands elsewhere in the creative inventory) because that's Fabric API's own
+  `FluidStorageUtil` nicety, not something NeoForge's `FluidUtil.interactWithFluidHandler`
+  replicates or something this mod's `GlassTankBlock` promises itself.
+
+When you hit a test like this, don't force a shared body that only compiles on one loader (or
+silently duplicates the loader-native call under two different names) — leave the loader-specific
+assertion where it belongs and document why, the way the three cases above do.
+
+### Adding a new test
+
+1. Write (or extend) the `<Name>GameTestBody` class in `common/src/gametest`.
+2. Add/update the Fabric `<Name>GameTest` wrapper. New wrapper *class* → add it to
+   `fabric/src/gametest/resources/fabric.mod.json`.
+3. Add/update the NeoForge `<Name>GameTestRegistration` class, following an existing one as a
+   template — give every test a namespace-unique path (`"<domain>/<slug>"`) and every registration
+   class a namespace-unique environment id (`registerInstances(event, "<domain>/<slug>", ...)`); a
+   collision throws at runtime because every domain's `@SubscribeEvent` handler shares the same
+   `RegisterGameTestsEvent`/registry. New registration *class* → add a `.bootstrap()` call to
+   `LogisticsGameTestMod`'s constructor.
+4. Run both `./gradlew :fabric:runGameTest` and `./gradlew :neoforge:runGameTestServer` and confirm
+   the "N GAME TESTS COMPLETE" count went up by the expected amount on each.
+
+A NeoForge timed test (`runAfterDelay`, a tight `maxTicks`) generally needs a slightly larger
+`maxTicks` budget than its Fabric counterpart — NeoForge's `GameTestInstance` ticks the
+environment/structure differently before handing control to the test body. There's no fixed
+conversion factor; if a new timed test times out on NeoForge but not Fabric, that's why — give it
+more headroom (the existing registrations add roughly 20 ticks as a starting point) and re-run.
