@@ -1,288 +1,82 @@
 package com.logistics.gametest.automation;
 
-import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsCore;
-import com.logistics.LogisticsPower;
-import com.logistics.automation.sawmill.SawmillBlockEntity;
-import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.core.lib.storage.IItemStorage;
-import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
 
 /**
- * In-world tests for the component-hosted Sawmill: capability routing, bottom-out sided access with
- * two output slots, and an end-to-end RF-cost run that produces the primary product plus the
- * chance-based byproduct.
+ * Fabric entrypoint wiring for the Sawmill GameTests. Test logic lives in
+ * {@link SawmillGameTestBody} (shared with NeoForge — see {@code common/src/gametest}); these
+ * methods only carry the {@code @GameTest} annotation Fabric's reflection-based test discovery
+ * requires.
  */
 public class SawmillGameTest {
 
-    private static final int INPUT = SawmillBlockEntity.INPUT_SLOT;
-    private static final int PRIMARY = SawmillBlockEntity.PRIMARY_OUTPUT_SLOT;
-    private static final int SECONDARY = SawmillBlockEntity.SECONDARY_OUTPUT_SLOT;
-
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testPlacementCreatesBlockEntity(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        if ((SawmillBlockEntity) context.getBlockEntity(pos) == null) {
-            context.fail("Sawmill should create SawmillBlockEntity");
-            return;
-        }
-        context.succeed();
+        SawmillGameTestBody.testPlacementCreatesBlockEntity(context);
     }
 
     /**
-     * Wiki claim (Usage): "...input from the top and sides, primary and byproduct outputs drawn
-     * from the bottom."
-     *
-     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
-     */
+    * Wiki claim (Usage): "...input from the top and sides, primary and byproduct outputs drawn
+    * from the bottom."
+    *
+    * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+    */
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testSidedAccess(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        if (!(context.getBlockEntity(pos) instanceof WorldlyContainer sided)) {
-            context.fail("Sawmill should implement WorldlyContainer");
-            return;
-        }
-
-        int[] bottom = sided.getSlotsForFace(Direction.DOWN);
-        if (bottom.length != 2 || bottom[0] != PRIMARY || bottom[1] != SECONDARY) {
-            context.fail("Bottom should expose both output slots");
-            return;
-        }
-        for (Direction side : new Direction[] {Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST}) {
-            int[] slots = sided.getSlotsForFace(side);
-            if (slots.length != 1 || slots[0] != INPUT) {
-                context.fail(side + " should expose the input slot");
-                return;
-            }
-        }
-
-        if (!sided.canTakeItemThroughFace(SECONDARY, ItemStack.EMPTY, Direction.DOWN)) {
-            context.fail("Byproduct slot should be extractable from the bottom");
-            return;
-        }
-        if (sided.canPlaceItemThroughFace(INPUT, new ItemStack(Items.OAK_LOG), Direction.DOWN)) {
-            context.fail("Input should NOT be insertable from the bottom");
-            return;
-        }
-        context.succeed();
+        SawmillGameTestBody.testSidedAccess(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testCapabilitiesExposed(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        SawmillBlockEntity sawmill = (SawmillBlockEntity) context.getBlockEntity(pos);
-
-        if (sawmill.energyStorage(null) == null) {
-            context.fail("Sawmill should expose energy storage");
-            return;
-        }
-        for (Direction side : Direction.values()) {
-            IItemStorage storage = sawmill.itemStorage(side);
-            if (storage == null) {
-                context.fail("Sawmill should expose item storage from " + side);
-                return;
-            }
-        }
-        context.succeed();
+        SawmillGameTestBody.testCapabilitiesExposed(context);
     }
 
     /**
-     * Wiki claim (Usage): "...the Sawmill cuts it into planks over time and rolls its Sawdust
-     * byproduct on completion." (Power): "Each recipe carries an RF cost (2,000–3,000 RF)."
-     *
-     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
-     */
+    * Wiki claim (Usage): "...the Sawmill cuts it into planks over time and rolls its Sawdust
+    * byproduct on completion." (Power): "Each recipe carries an RF cost (2,000–3,000 RF)."
+    *
+    * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+    */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
     public void testSawsLogIntoPlanksAndByproduct(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        SawmillBlockEntity sawmill = (SawmillBlockEntity) context.getBlockEntity(pos);
-
-        var energy = sawmill.energyStorage(null);
-        for (int i = 0; i < 200; i++) {
-            energy.insert(128, false);
-        }
-        long filledEnergy = energy.getAmount();
-        sawmill.setItem(INPUT, new ItemStack(Items.OAK_LOG));
-
-        // Oak logs cost 3,000 RF and saw in 150 ticks at 20 RF/t -> 6 planks + sawdust byproduct.
-        context.runAfterDelay(170, () -> {
-            if (!sawmill.getItem(INPUT).isEmpty()) {
-                context.fail("Input log should be consumed");
-                return;
-            }
-            ItemStack primary = sawmill.getItem(PRIMARY);
-            if (!primary.is(Items.OAK_PLANKS) || primary.getCount() != 6) {
-                context.fail("Primary output should be 6 oak planks, got " + primary);
-                return;
-            }
-            ItemStack byproduct = sawmill.getItem(SECONDARY);
-            if (!byproduct.is(LogisticsCore.ITEM.SAWDUST) || byproduct.isEmpty()) {
-                context.fail("Byproduct output should be sawdust, got " + byproduct);
-                return;
-            }
-            long spent = filledEnergy - energy.getAmount();
-            if (spent != 3_000) {
-                context.fail("Oak log should cost exactly 3,000 RF (within the wiki's 2,000-3,000 range), spent: " + spent);
-                return;
-            }
-            context.succeed();
-        });
+        SawmillGameTestBody.testSawsLogIntoPlanksAndByproduct(context);
     }
 
     /** Verifies kelp and wheat seeds are both accepted as sawmill input at their required 8-item count. */
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testAcceptsKelpAndSeedsAsInput(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        if (!(context.getBlockEntity(pos) instanceof WorldlyContainer sided)) {
-            context.fail("Sawmill should implement WorldlyContainer");
-            return;
-        }
-
-        if (!sided.canPlaceItemThroughFace(INPUT, new ItemStack(Items.KELP, 8), Direction.UP)) {
-            context.fail("Kelp should be insertable as a sawmill input");
-            return;
-        }
-        if (!sided.canPlaceItemThroughFace(INPUT, new ItemStack(Items.WHEAT_SEEDS, 8), Direction.UP)) {
-            context.fail("Wheat seeds should be insertable as a sawmill input");
-            return;
-        }
-        context.succeed();
+        SawmillGameTestBody.testAcceptsKelpAndSeedsAsInput(context);
     }
 
     /**
-     * Pipes/hoppers probe insertion with a single-item template (see ContainerItemStorage), not a
-     * stack already sized to the recipe's ingredientCount. A kelp recipe needing 8 must still accept
-     * single-item deliveries so the slot can accumulate toward that count.
-     */
+    * Pipes/hoppers probe insertion with a single-item template (see ContainerItemStorage), not a
+    * stack already sized to the recipe's ingredientCount. A kelp recipe needing 8 must still accept
+    * single-item deliveries so the slot can accumulate toward that count.
+    */
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testAcceptsSingleKelpFromAPipeProbe(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        if (!(context.getBlockEntity(pos) instanceof WorldlyContainer sided)) {
-            context.fail("Sawmill should implement WorldlyContainer");
-            return;
-        }
-
-        if (!sided.canPlaceItemThroughFace(INPUT, new ItemStack(Items.KELP, 1), Direction.UP)) {
-            context.fail("A single kelp item should be insertable even though the recipe needs 8");
-            return;
-        }
-        context.succeed();
+        SawmillGameTestBody.testAcceptsSingleKelpFromAPipeProbe(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 150)
     public void testPulpsKelpIntoBiomass(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        SawmillBlockEntity sawmill = (SawmillBlockEntity) context.getBlockEntity(pos);
-
-        var energy = sawmill.energyStorage(null);
-        for (int i = 0; i < 200; i++) {
-            energy.insert(128, false);
-        }
-        sawmill.setItem(INPUT, new ItemStack(Items.KELP, 8));
-
-        // Pulped-biomass recipes cost 2,000 RF and saw in 100 ticks at 20 RF/t -> 1 pulped biomass.
-        context.runAfterDelay(120, () -> {
-            if (!sawmill.getItem(INPUT).isEmpty()) {
-                context.fail("Kelp input should be consumed, got " + sawmill.getItem(INPUT));
-                return;
-            }
-            ItemStack primary = sawmill.getItem(PRIMARY);
-            if (!primary.is(LogisticsCore.ITEM.PULPED_BIOMASS) || primary.getCount() != 1) {
-                context.fail("Primary output should be 1 pulped biomass, got " + primary);
-                return;
-            }
-            context.succeed();
-        });
+        SawmillGameTestBody.testPulpsKelpIntoBiomass(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 150)
     public void testPulpsSeedsIntoBiomass(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
-        context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
-        SawmillBlockEntity sawmill = (SawmillBlockEntity) context.getBlockEntity(pos);
-
-        var energy = sawmill.energyStorage(null);
-        for (int i = 0; i < 200; i++) {
-            energy.insert(128, false);
-        }
-        sawmill.setItem(INPUT, new ItemStack(Items.WHEAT_SEEDS, 8));
-
-        context.runAfterDelay(120, () -> {
-            if (!sawmill.getItem(INPUT).isEmpty()) {
-                context.fail("Seeds input should be consumed, got " + sawmill.getItem(INPUT));
-                return;
-            }
-            ItemStack primary = sawmill.getItem(PRIMARY);
-            if (!primary.is(LogisticsCore.ITEM.PULPED_BIOMASS) || primary.getCount() != 1) {
-                context.fail("Primary output should be 1 pulped biomass, got " + primary);
-                return;
-            }
-            context.succeed();
-        });
+        SawmillGameTestBody.testPulpsSeedsIntoBiomass(context);
     }
 
     /**
-     * Wiki claim (Usage/Power): "...input from the top and sides... connect a Stirling Engine or
-     * any RF source."
-     *
-     * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
-     */
+    * Wiki claim (Usage/Power): "...input from the top and sides... connect a Stirling Engine or
+    * any RF source."
+    *
+    * @see <a href="https://logistics.fandom.com/wiki/Sawmill#Usage">wiki/Sawmill.txt § Usage</a>
+    */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 240)
     public void testSawsViaRealEngineAndHoppers(GameTestHelper context) {
-        BlockPos sawmillPos = new BlockPos(1, 1, 1);
-        BlockPos enginePos = new BlockPos(0, 1, 1);
-        BlockPos redstoneBlockPos = new BlockPos(-1, 1, 1);
-        BlockPos inputHopperPos = sawmillPos.above();
-        BlockPos outputHopperPos = sawmillPos.below();
-
-        context.setBlock(sawmillPos, LogisticsAutomation.BLOCK.SAWMILL);
-        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
-        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
-                .defaultBlockState()
-                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
-                .setValue(AbstractEngineBlock.POWERED, true));
-        context.setBlock(inputHopperPos, Blocks.HOPPER);
-        context.setBlock(outputHopperPos, Blocks.HOPPER);
-
-        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
-        HopperBlockEntity inputHopper = (HopperBlockEntity) context.getBlockEntity(inputHopperPos);
-        if (engine == null || inputHopper == null) {
-            context.fail("Expected engine and input hopper block entities");
-            return;
-        }
-
-        // Cycle 20 -> 40 -> 80 -> 160 RF/t, comfortably above the sawmill's 128 RF/t input cap.
-        engine.cycleOutputLevel();
-        engine.cycleOutputLevel();
-        engine.cycleOutputLevel();
-
-        inputHopper.setItem(0, new ItemStack(Items.OAK_LOG));
-
-        // NOTE: this branch's vanilla GameTestHelper#assertContainerContains only succeeds on an
-        // EXACT count of 1 (26.2's checks for "at least one"), so a multi-item/multi-slot result
-        // (6 planks + sawdust) is checked directly against the hopper's container instead.
-        context.succeedWhen(() -> {
-            HopperBlockEntity outputHopper = (HopperBlockEntity) context.getBlockEntity(outputHopperPos);
-            context.assertTrue(outputHopper.countItem(Items.OAK_PLANKS) > 0, "Container should contain: " + Items.OAK_PLANKS);
-            context.assertTrue(
-                    outputHopper.countItem(LogisticsCore.ITEM.SAWDUST) > 0,
-                    "Container should contain: " + LogisticsCore.ITEM.SAWDUST);
-        });
+        SawmillGameTestBody.testSawsViaRealEngineAndHoppers(context);
     }
 }

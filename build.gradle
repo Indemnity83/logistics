@@ -102,6 +102,13 @@ tasks.register('checkImportBoundaries') {
             failures << "loader import found in common/: ${rootDir.toPath().relativize(it.toPath())}"
         }
 
+        // Our own loader adapter packages are just as loader-specific as net.fabricmc/net.neoforged,
+        // but don't match the rule above. common/src/gametest is compiled into BOTH loaders, so a
+        // com.logistics.fabric.* import there builds fine on Fabric and only breaks on NeoForge.
+        importMatches('common/src', /^import (static )?com\.logistics\.(fabric|neoforge)\..*/).each {
+            failures << "loader adapter import found in common/: ${rootDir.toPath().relativize(it.toPath())}"
+        }
+
         importMatches('fabric/src', /^import (static )?net\.neoforged\..*/).each {
             failures << "neoforge import found in fabric/: ${rootDir.toPath().relativize(it.toPath())}"
         }

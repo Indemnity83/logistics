@@ -7,7 +7,9 @@
 | `common` | `common/src/test/java/` | Unit | JUnit 5 + Minecraft bootstrap |
 | `fabric` | `fabric/src/test/java/` | Unit | JUnit 5 (plain) |
 | `neoforge` | `neoforge/src/test/java/` | Unit | JUnit 5 (plain) |
+| `common` | `common/src/gametest/java/` | Integration | Shared GameTest bodies (no loader imports) |
 | `fabric` | `fabric/src/gametest/java/` | Integration | Fabric @GameTest (deprecated/manual) |
+| `neoforge` | `neoforge/src/gametest/java/` | Integration | NeoForge @GameTestHolder (deprecated/manual) |
 
 ### Running tests
 
@@ -16,7 +18,8 @@
 ./gradlew :fabric:test          # Fabric ServiceLoader and adapter unit tests
 ./gradlew :neoforge:test        # NeoForge ServiceLoader and adapter unit tests
 ./gradlew testCoverage          # Aggregate local JaCoCo coverage report
-./gradlew :fabric:runGameTest   # Integration game tests (deprecated/manual; see below)
+./gradlew :fabric:runGameTest          # Integration game tests, Fabric (deprecated/manual; see below)
+./gradlew :neoforge:runGameTestServer  # The same shared tests, NeoForge
 ```
 
 ### Formatting
@@ -116,8 +119,19 @@ the Kiln (`common/src/test/java/com/logistics/automation/kiln/`,
    directly (see `KilnRecipeTest`) rather than assuming it needs a live `RecipeManager`, which is
    only required for recipe *resolution*, not decoding one known file.
 7. **Apply the traceability convention** below to every feature test.
-8. **Fabric only.** NeoForge's GameTest registration is blocked upstream (see "NeoForge Game Tests"
-   below, once that section exists) — don't add or modify `neoforge/src/gametest` for this work.
+8. **Write the test body once, in `common/src/gametest`.** NeoForge GameTests are *not* blocked
+   upstream (an earlier note here claimed they were — that was wrong). Each test class is a triple:
+   the logic lives in `common/src/gametest/.../XGameTestBody.java` as `public static void
+   name(GameTestHelper)`, and two thin wrappers register it — `fabric/src/gametest/.../XGameTest.java`
+   and `neoforge/src/gametest/.../XGameTestRegistration.java`. Both wrappers only delegate; never put
+   assertions in them, and never let a loader import (`net.fabricmc.*`, `com.logistics.fabric.*`,
+   `net.neoforged.*`) into a body — use the `core.lib` seam instead (e.g. `ItemStorageLookup.of(stack)`,
+   not `FabricItemKey.of(stack)`). A test that genuinely exercises one loader's own API stays in that
+   loader's wrapper, un-shared; see `PipeFlowGameTest#testChestItemStorageReachable` and all of
+   `CableGameTest` (Team Reborn transactions). A test whose *assertions* differ per loader can still
+   share its setup: `GlassTankBucketGameTestBody#emptyBucketDrainsGlassTankInCreative` returns the
+   player without calling `succeed()`, and only Fabric's wrapper asserts that loader's extra
+   inventory grant.
 9. **A brand-new GameTest class needs a manual entry in `fabric/src/gametest/resources/fabric.mod.json`**
    (the `entrypoints."fabric-gametest"` array), or Fabric's runner silently never discovers or runs
    it — no error, no log line, it just isn't in the "N GAME TESTS COMPLETE" count. Only new *classes*
@@ -397,6 +411,56 @@ These classes take a `Level` in their constructor or rely on world state during 
 | `NeoForgeFluidStorage` | `FluidResource` / vanilla `Fluids` bootstrap touches FML-only feature flag loading without a full NeoForge loader context |
 
 ---
+
+## NeoForge Game Tests
+
+The same shared bodies run on NeoForge via `./gradlew :neoforge:runGameTestServer`. Registration
+differs from newer Minecraft versions in a way worth knowing before you touch
+`neoforge/src/gametest`:
+
+- **MC 1.21.1 has no data-driven GameTest registry.** There is no `BuiltInRegistries.TEST_FUNCTION`,
+  and no `GameTestInstance`/`FunctionGameTestInstance`/`TestData`/`TestEnvironmentDefinition`.
+  NeoForge 21.1's `RegisterGameTestsEvent` only exposes the legacy `register(Class)`/`register(Method)`.
+  So registration is the old reflection model: each `*GameTestRegistration` class is annotated
+  `@GameTestHolder("logistics_gametest")` + `@PrefixGameTestTemplate(false)`, and its `public static
+  void name(GameTestHelper)` methods carry vanilla `@GameTest`. Newer branches of this repo instead
+  build a `List<GameTestCase>` and register through a `DeferredRegister` — do not copy that shape here,
+  it does not compile on this MC version.
+- **`@PrefixGameTestTemplate(false)` is required.** Without it the template id resolves as
+  `logistics_gametest:<classnamelowercase>.<template>` and placement hard-fails.
+- **We ship our own empty structure.** Templates are looked up as `data/<namespace>/structure/<name>.nbt`
+  and 1.21.1 has no generated-empty fallback. Fabric's `fabric-gametest-api-v1:empty` is loaded through
+  a Fabric mixin from a non-vanilla path, so NeoForge cannot reuse it. `neoforge/src/gametest/resources/
+  data/logistics_gametest/structure/empty.nbt` is an 8×8×8 all-air structure (matching Fabric's) written
+  in the vanilla palette/blocks format with `DataVersion` 3955.
+- **The namespace must be opted in.** NeoForge only registers tests whose namespace appears in the
+  `neoforge.enabledGameTestNamespaces` system property, set on the `gameTestServer` run in
+  `neoforge/build.gradle`. Without it the run reports zero tests and still exits green.
+- **Never use `makeMockServerPlayerInLevel()` in a shared body.** It performs a real
+  `placeNewPlayer` login, which fires `PlayerLoggedInEvent`; NeoForge's handler then pushes this
+  mod's `sync_machine_recipes` payload over a channel the test connection never negotiated and
+  throws ("may not be sent to the client!"). Fabric tolerates it, so this fails on NeoForge only.
+  Build the player inline instead, skipping the login — see
+  `GlassTankBucketGameTestBody#mockServerPlayer`. On 1.21.1 there is no `gameMode()` accessor to
+  override (it is a `ServerPlayerGameMode` field, and both `ServerPlayer.setGameMode` and
+  `ServerPlayerGameMode.changeGameModeForPlayer` route through `onUpdateAbilities()` → the absent
+  connection), so apply `GameType.updatePlayerAbilities` by hand and override
+  `isCreative()`/`isSpectator()` instead.
+- **Jade is attached to the `client` run only** in `neoforge/build.gradle` (mirroring Fabric's
+  `modClientRuntimeOnly` scoping) rather than to `runtimeOnly` — it pings joining players and hits
+  the same problem on a headless server.
+- **Keep every block a test places inside the 8×8×8 structure (relative 0..7).** MC 1.21.1's runner
+  wedges in `clearSpaceForStructure` when a test writes to a negative relative coordinate; newer
+  versions tolerate it. Hence `RefineryGameTestBody` and `FluidPumpGameTestBody` seat their machine
+  at `z=3`, so the engine (`z=2`) and its redstone block (`z=1`) stay in bounds.
+- **A failing test wedges the whole run.** The 1.21.1 runner re-queues that test's batch forever
+  (hundreds of thousands of `Running test batch ...` lines) instead of finishing, and frequently
+  never prints a failure at all. A hung run with a frozen progress bar therefore means *a test
+  failed* — it is not merely slow. Every class declares its own `batch` for exactly this reason: the
+  last `Running test batch '<name>'` line names the offending class. Start there rather than waiting.
+
+The exit code is the number of failed required tests, so a non-zero exit with no obvious stack trace
+usually means an assertion failure — read the `LogTestReporter` lines, not just the tail.
 
 ## Deprecated: Fabric Game Tests
 

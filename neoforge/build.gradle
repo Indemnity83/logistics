@@ -30,8 +30,21 @@ java {
     withSourcesJar()
 }
 
+// Integration tests using the vanilla/NeoForge GameTest framework. Kept as a separate source
+// set (not `test`) because it boots a real dedicated server via the `gameTestServer` run,
+// rather than running in-process under the plain `test` task. Mirrors fabric/src/gametest,
+// and (like Fabric's separate "logistics_gametest" mod) ships as its own modid rather than
+// folding into the `logistics` mod — see neoforge/src/gametest/resources/META-INF/neoforge.mods.toml.
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.output + tasks.named('compileJava', JavaCompile).get().classpath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
 neoForge {
     version = neoforge_version
+    addModdingDependenciesTo sourceSets.gametest
     runs {
         client {
             client()
@@ -41,10 +54,20 @@ neoForge {
             server()
             gameDirectory = project.file('runs/server')
         }
+        gameTestServer {
+            type = "gameTestServer"
+            gameDirectory = project.file('runs/gameTestServer')
+            // MC 1.21.1 discovers GameTests by reflection, and NeoForge only registers tests whose
+            // namespace is listed here (GameTestHooks#getEnabledNamespaces).
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'logistics_gametest'
+        }
     }
     mods {
         logistics {
             sourceSet sourceSets.main
+        }
+        "logistics_gametest" {
+            sourceSet sourceSets.gametest
         }
     }
 }
@@ -63,9 +86,15 @@ dependencies {
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
     runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
 
-    // Jade HUD — compile against the API only; loaded in dev via runClient, never bundled
+    // Jade HUD — compile against the API only; loaded in dev via runClient, never bundled.
+    // The runtime side is attached to the `client` run alone (below) rather than to runtimeOnly,
+    // mirroring Fabric's modClientRuntimeOnly scoping: Jade registers a server-side handler that
+    // pings every joining player, which throws on the fake ServerPlayer that
+    // GameTestHelper.makeMockServerPlayerInLevel() creates ("Payload jade:server_ping_v1 may not
+    // be sent to the client") and wedges runGameTestServer into an endless retry of that test.
     compileOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
-    runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
+    add(neoForge.runs.getByName('client').additionalRuntimeClasspathConfiguration.name,
+        "maven.modrinth:jade:${rootProject.jade_neoforge_version}")
 
     // Sentry SDK for opt-in crash reporting. jarJar bundles it (range allows dedup with another mod
     // shipping Sentry); implementation puts it on compile+runtime so the injected common sources compile.

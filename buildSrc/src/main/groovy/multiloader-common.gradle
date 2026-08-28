@@ -31,6 +31,14 @@ configurations {
         canBeResolved = false
         canBeConsumed = true
     }
+    commonGametestJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonGametestResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
 }
 
 artifacts {
@@ -44,6 +52,13 @@ afterEvaluate {
         artifacts {
             commonClientJava(sourceSets.client.java.sourceDirectories.singleFile)
             commonClientResources(sourceSets.client.resources.sourceDirectories.singleFile)
+        }
+    }
+    // Register gametest artifacts only if common/build.gradle defined the source set.
+    if (sourceSets.findByName('gametest')) {
+        artifacts {
+            commonGametestJava(sourceSets.gametest.java.sourceDirectories.singleFile)
+            commonGametestResources(sourceSets.gametest.resources.sourceDirectories.singleFile)
         }
     }
 }

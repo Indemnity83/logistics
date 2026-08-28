@@ -75,8 +75,9 @@ jobs:
         run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
         # jacocoTestReport depends on the module's test task, so this runs the
         # tests once and emits the JaCoCo XML in the same step.
-        # Note: Game tests (./gradlew :fabric:runGameTest) are not run in CI due to resource
-        # constraints and long execution time. Run locally before merging if testing game mechanics.
+        # Note: Game tests (./gradlew :fabric:runGameTest and :neoforge:runGameTestServer) are not
+        # run in CI due to resource constraints and long execution time. Run both locally before
+        # merging if testing game mechanics.
 
       - name: Upload test reports
         if: failure()

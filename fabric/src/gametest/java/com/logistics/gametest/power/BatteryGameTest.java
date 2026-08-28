@@ -1,107 +1,41 @@
 package com.logistics.gametest.power;
 
-import com.logistics.LogisticsPipe;
-import com.logistics.LogisticsPower;
-import com.logistics.core.lib.energy.EnergyComponent;
-import com.logistics.core.lib.power.AbstractBatteryBlockEntity;
-import com.logistics.power.block.entity.BatteryBlockEntity;
-import com.logistics.pipe.network.NetworkRegistry;
-import com.logistics.pipe.network.PipeNetwork;
 import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 /**
- * Game tests for the Battery block: charge-state rendering signal. A battery no longer powers
- * the logistics pipe network directly — that bridge is now the Power Junction (see
+ * Fabric entrypoint wiring for the battery GameTests. Test logic lives in
+ * {@link BatteryGameTestBody} (shared with NeoForge — see {@code common/src/gametest}); these
+ * methods only carry the {@code @GameTest} annotation Fabric's reflection-based test discovery
+ * requires.
+ *
+ * <p>Tests the charge-state rendering signal. A battery no longer powers the logistics pipe
+ * network directly — that bridge is now the Power Junction (see
  * {@code com.logistics.gametest.pipe.PowerJunctionGameTest}).
  */
 public class BatteryGameTest {
 
-    private static void setStored(BatteryBlockEntity battery, long amount) {
-        ((EnergyComponent) battery.energyStorage(null)).setAmount(amount);
-    }
-
     /** A placed battery has its block entity. */
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testBatteryPlacement(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPower.BLOCK.BATTERY);
-
-        if (!(context.getBlockEntity(pos) instanceof BatteryBlockEntity)) {
-            context.fail("Battery should have a block entity");
-            return;
-        }
-        context.succeed();
+        BatteryGameTestBody.testBatteryPlacement(context);
     }
 
     /** The CHARGE block state property tracks stored energy (drives the multipart fill bar). */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 30)
     public void testBatteryChargeStateTracksEnergy(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPower.BLOCK.BATTERY);
-        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(pos);
-        if (battery == null) {
-            context.fail("Battery should have a block entity");
-            return;
-        }
-        setStored(battery, BatteryBlockEntity.capacity());
-
-        context.runAfterDelay(5, () -> {
-            int charge = context.getBlockState(pos).getValue(AbstractBatteryBlockEntity.CHARGE);
-            if (charge != 10) {
-                context.fail("Full battery should report charge level 10, got " + charge);
-                return;
-            }
-            context.succeed();
-        });
+        BatteryGameTestBody.testBatteryChargeStateTracksEnergy(context);
     }
 
     /** A network with no power source cannot supply energy (the hard power gate). */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testNetworkWithoutBatteryIsUnpowered(GameTestHelper context) {
-        BlockPos pipePos = new BlockPos(0, 1, 0);
-        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
-
-        context.runAfterDelay(25, () -> {
-            PipeNetwork net = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(pipePos));
-            if (net == null) {
-                context.fail("Pipe should have formed a network");
-                return;
-            }
-            if (net.consumeEnergy(1)) {
-                context.fail("A network with no power source should not supply energy");
-                return;
-            }
-            context.succeed();
-        });
+        BatteryGameTestBody.testNetworkWithoutBatteryIsUnpowered(context);
     }
 
     /** A charged battery alone no longer powers the network — only a Power Junction bridges RF in. */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testChargedBatteryDoesNotPowerNetwork(GameTestHelper context) {
-        BlockPos pipePos = new BlockPos(0, 1, 0);
-        BlockPos batteryPos = new BlockPos(1, 1, 0);
-        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
-        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(batteryPos);
-        if (battery == null) {
-            context.fail("Battery should have a block entity");
-            return;
-        }
-        setStored(battery, BatteryBlockEntity.capacity());
-
-        context.runAfterDelay(25, () -> {
-            PipeNetwork net = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(pipePos));
-            if (net == null) {
-                context.fail("Pipe should have formed a network");
-                return;
-            }
-            if (net.consumeEnergy(1)) {
-                context.fail("A battery alone should no longer power the network");
-                return;
-            }
-            context.succeed();
-        });
+        BatteryGameTestBody.testChargedBatteryDoesNotPowerNetwork(context);
     }
 }

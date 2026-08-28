@@ -1,122 +1,31 @@
 package com.logistics.gametest.power;
 
-import com.logistics.LogisticsCore;
-import com.logistics.LogisticsPower;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
-import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 
+/**
+ * Fabric entrypoint wiring for the fuel engine GameTests. Test logic lives in
+ * {@link FuelEngineGameTestBody} (shared with NeoForge — see {@code common/src/gametest}); these
+ * methods only carry the {@code @GameTest} annotation Fabric's reflection-based test discovery
+ * requires.
+ */
 public class FuelEngineGameTest {
-
-    private static Fluid crudeOil() {
-        return BuiltInRegistries.FLUID.get(LogisticsCore.resource("crude_oil").toIdentifier());
-    }
-
-    private static FuelEngineBlockEntity placePowered(GameTestHelper context, BlockPos pos) {
-        context.setBlock(pos, LogisticsPower.BLOCK.FUEL_ENGINE
-                .defaultBlockState()
-                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
-                .setValue(AbstractEngineBlock.POWERED, true));
-        return (FuelEngineBlockEntity) context.getBlockEntity(pos);
-    }
 
     /** A powered engine with fuel + water generates RF and warms up. */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testFuelEngineGeneratesFromFuel(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        FuelEngineBlockEntity engine = placePowered(context, pos);
-        if (engine == null) {
-            context.fail("Fuel engine block entity not found");
-            return;
-        }
-        engine.fuelTank().tank().setContents(SimpleFluidKey.of(crudeOil()), FluidUnits.mb(500));
-        engine.coolantTank().tank().setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(500));
-
-        context.runAfterDelay(20, () -> {
-            FuelEngineBlockEntity e = (FuelEngineBlockEntity) context.getBlockEntity(pos);
-            if (e.getEnergyStored() <= 0) {
-                context.fail("Fuel engine should have generated energy, stored: " + e.getEnergyStored());
-                return;
-            }
-            if (e.simulation().lastGenerationRate() <= 0) {
-                context.fail("Fuel engine should be actively generating while burning");
-                return;
-            }
-            // Proportional cooling settles the engine at a warm equilibrium: it heats above ambient while
-            // burning, but adequate coolant keeps it far below the overheat threshold.
-            double temp = e.simulation().temperature();
-            if (temp <= 0 || temp > 150) {
-                context.fail("Fuel engine with coolant should run warm but stable, temp: " + temp);
-                return;
-            }
-            context.succeed();
-        });
+        FuelEngineGameTestBody.testFuelEngineGeneratesFromFuel(context);
     }
 
     /** Without coolant the engine overheats; a wrench-style reset clears the shutdown and preserves tank fuel. */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 140)
     public void testFuelEngineOverheatsWithoutCoolantThenResets(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        FuelEngineBlockEntity engine = placePowered(context, pos);
-        if (engine == null) {
-            context.fail("Fuel engine block entity not found");
-            return;
-        }
-        engine.fuelTank().tank().setContents(SimpleFluidKey.of(crudeOil()), FluidUnits.mb(2000));
-        // No coolant.
-
-        context.runAfterDelay(120, () -> {
-            FuelEngineBlockEntity e = (FuelEngineBlockEntity) context.getBlockEntity(pos);
-            if (!e.isOverheated()) {
-                context.fail("Fuel engine should overheat without coolant, temp: " + e.simulation().temperature());
-                return;
-            }
-            if (e.simulation().committedFuelEnergy() != 0) {
-                context.fail("Overheat should discard the committed fuel reserve");
-                return;
-            }
-            if (e.fuelTank().tank().isEmpty()) {
-                context.fail("Fuel remaining in the tank should be preserved through overheat");
-                return;
-            }
-            long fuelBeforeReset = e.fuelTank().tank().getAmount();
-            if (!e.resetOverheat() || e.isOverheated()) {
-                context.fail("Wrench reset should clear the thermal shutdown");
-                return;
-            }
-            if (e.fuelTank().tank().getAmount() != fuelBeforeReset) {
-                context.fail("Wrench reset should not change the fuel tank contents");
-                return;
-            }
-            context.succeed();
-        });
+        FuelEngineGameTestBody.testFuelEngineOverheatsWithoutCoolantThenResets(context);
     }
 
     /** The combined fluid view routes inserts by type: water to the coolant tank, fuel to the fuel tank. */
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testFluidInsertRoutesByType(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPower.BLOCK.FUEL_ENGINE);
-        FuelEngineBlockEntity engine = (FuelEngineBlockEntity) context.getBlockEntity(pos);
-
-        long water = engine.fluidStorage(Direction.UP).insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(100), false);
-        if (water <= 0 || !engine.fuelTank().tank().isEmpty() || engine.coolantTank().tank().isEmpty()) {
-            context.fail("Water should be accepted into the coolant tank only");
-            return;
-        }
-        long fuel = engine.fluidStorage(Direction.UP).insert(SimpleFluidKey.of(crudeOil()), FluidUnits.mb(100), false);
-        if (fuel <= 0 || engine.fuelTank().tank().isEmpty()) {
-            context.fail("Fuel should be accepted into the fuel tank");
-            return;
-        }
-        context.succeed();
+        FuelEngineGameTestBody.testFluidInsertRoutesByType(context);
     }
 }
