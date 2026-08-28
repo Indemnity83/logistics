@@ -10,7 +10,7 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.recipe.types.IRecipeType;
+import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -18,8 +18,8 @@ import net.minecraft.world.item.ItemStack;
 /** JEI recipe category for the energy-producing Reaction Engine. */
 public class ReactionRecipeCategory implements IRecipeCategory<ReactionRecipe> {
 
-    public static final IRecipeType<ReactionRecipe> RECIPE_TYPE =
-        IRecipeType.create(LogisticsMod.MOD_ID, "reaction", ReactionRecipe.class);
+    public static final RecipeType<ReactionRecipe> RECIPE_TYPE =
+        RecipeType.create(LogisticsMod.MOD_ID, "reaction", ReactionRecipe.class);
 
     private static final int FLUID_X = 8, ITEM_X = 40, Y = 9;
     private static final int WIDTH = 72;
@@ -32,7 +32,7 @@ public class ReactionRecipeCategory implements IRecipeCategory<ReactionRecipe> {
     }
 
     @Override
-    public IRecipeType<ReactionRecipe> getRecipeType() {
+    public RecipeType<ReactionRecipe> getRecipeType() {
         return RECIPE_TYPE;
     }
 
@@ -65,7 +65,7 @@ public class ReactionRecipeCategory implements IRecipeCategory<ReactionRecipe> {
             .addFluidStack(recipe.reactant().fluid(), amount, DataComponentPatch.EMPTY)
             .addRichTooltipCallback((view, tooltip) -> addDetails(tooltip, recipe));
         builder.addSlot(RecipeIngredientRole.INPUT, ITEM_X, Y)
-            .add(recipe.reagent())
+            .addIngredients(recipe.reagent())
             .addRichTooltipCallback((view, tooltip) -> addDetails(tooltip, recipe));
     }
 

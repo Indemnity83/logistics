@@ -14,7 +14,6 @@ import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.jei.ClientMachineRecipes;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
-import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
@@ -75,7 +74,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import com.logistics.automation.jei.ClientMachineRecipes;
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
 import org.joml.Vector3f;
 
 public final class NeoForgeClientSetup {

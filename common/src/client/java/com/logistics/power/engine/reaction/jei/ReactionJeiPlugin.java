@@ -18,7 +18,7 @@ public class ReactionJeiPlugin implements IModPlugin {
     private static final ResourceId PLUGIN_ID = LogisticsMod.modId("jei_reaction_plugin");
 
     @Override
-    public net.minecraft.resources.Identifier getPluginUid() { // raw-id-ok: JEI IModPlugin signature
+    public net.minecraft.resources.ResourceLocation getPluginUid() { // raw-id-ok: JEI IModPlugin signature
         return PLUGIN_ID.toIdentifier();
     }
 
@@ -36,7 +36,7 @@ public class ReactionJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(
-            ReactionRecipeCategory.RECIPE_TYPE, LogisticsPower.BLOCK.REACTION_ENGINE);
+        registration.addRecipeCatalyst(
+            LogisticsPower.BLOCK.REACTION_ENGINE, ReactionRecipeCategory.RECIPE_TYPE);
     }
 }
