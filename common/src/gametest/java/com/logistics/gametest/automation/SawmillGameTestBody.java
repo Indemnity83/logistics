@@ -82,6 +82,10 @@ public class SawmillGameTestBody {
         BlockPos pos = new BlockPos(1, 1, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
         SawmillBlockEntity sawmill = context.getBlockEntity(pos, SawmillBlockEntity.class);
+        if (sawmill == null) {
+            context.fail("Sawmill block entity should exist");
+            return;
+        }
 
         if (sawmill.energyStorage(null) == null) {
             context.fail("Sawmill should expose energy storage");
@@ -107,6 +111,10 @@ public class SawmillGameTestBody {
         BlockPos pos = new BlockPos(1, 1, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
         SawmillBlockEntity sawmill = context.getBlockEntity(pos, SawmillBlockEntity.class);
+        if (sawmill == null) {
+            context.fail("Sawmill block entity should exist");
+            return;
+        }
 
         var energy = sawmill.energyStorage(null);
         for (int i = 0; i < 200; i++) {
@@ -184,6 +192,10 @@ public class SawmillGameTestBody {
         BlockPos pos = new BlockPos(1, 1, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
         SawmillBlockEntity sawmill = context.getBlockEntity(pos, SawmillBlockEntity.class);
+        if (sawmill == null) {
+            context.fail("Sawmill block entity should exist");
+            return;
+        }
 
         var energy = sawmill.energyStorage(null);
         for (int i = 0; i < 200; i++) {
@@ -210,6 +222,10 @@ public class SawmillGameTestBody {
         BlockPos pos = new BlockPos(1, 1, 1);
         context.setBlock(pos, LogisticsAutomation.BLOCK.SAWMILL);
         SawmillBlockEntity sawmill = context.getBlockEntity(pos, SawmillBlockEntity.class);
+        if (sawmill == null) {
+            context.fail("Sawmill block entity should exist");
+            return;
+        }
 
         var energy = sawmill.energyStorage(null);
         for (int i = 0; i < 200; i++) {

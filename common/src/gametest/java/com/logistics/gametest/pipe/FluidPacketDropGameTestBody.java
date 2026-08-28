@@ -42,6 +42,10 @@ public class FluidPacketDropGameTestBody {
     private static PipeBlockEntity placePipeCarrying(GameTestHelper context, BlockPos pos, ItemStack stack) {
         context.setBlock(pos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
         PipeBlockEntity pipe = context.getBlockEntity(pos, PipeBlockEntity.class);
+        if (pipe == null) {
+            context.fail("Transport pipe should have a block entity");
+            return null;
+        }
         TravelingItem item = new TravelingItem(stack, Direction.WEST, 0.1f);
         pipe.forceAddItem(item, Direction.WEST);
         return pipe;

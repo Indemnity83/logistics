@@ -356,6 +356,10 @@ public class FluidProviderGameTestBody {
 
             // Phase 2: ten independently-placed small orders — each becomes its own dispatch/packet.
             PipeNetwork network = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(providerPos));
+            if (network == null) {
+                context.fail("Network should still exist at the provider by tick 60");
+                return;
+            }
             for (int i = 0; i < 10; i++) {
                 network.placeFluidOrder(Fluids.WATER, smallMb, context.absolutePos(sinkPos));
             }

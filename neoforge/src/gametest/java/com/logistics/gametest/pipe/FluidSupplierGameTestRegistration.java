@@ -18,10 +18,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 @EventBusSubscriber(modid = "logistics_gametest")
 public final class FluidSupplierGameTestRegistration {
 
-    // NeoForge's GameTestInstance ticks the environment/structure differently than Fabric's
-    // @GameTest shim before handing control to the test body, so timed tests carry ~20 ticks more
-    // headroom here than their Fabric @GameTest(maxTicks=...) counterpart for the same callbacks
-    // to land within budget.
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase(
             "pipe/dry_restock_fills_to_target", 280, FluidSupplierGameTestBody::testDryRestockFillsToTarget),

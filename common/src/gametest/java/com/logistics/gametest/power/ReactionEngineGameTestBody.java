@@ -11,6 +11,7 @@ import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,8 +32,7 @@ import net.minecraft.world.level.material.Fluids;
 public class ReactionEngineGameTestBody {
 
     private static Fluid liquidEnder() {
-        return net.minecraft.core.registries.BuiltInRegistries.FLUID.getValue(
-                LogisticsCore.resource("liquid_ender").toIdentifier());
+        return BuiltInRegistries.FLUID.getValue(LogisticsCore.resource("liquid_ender").toIdentifier());
     }
 
     public static void testReactionEnginePlacement(GameTestHelper context) {

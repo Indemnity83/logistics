@@ -498,10 +498,12 @@ assertion where it belongs and document why, the way the three cases above do.
 2. Add/update the Fabric `<Name>GameTest` wrapper. New wrapper *class* → add it to
    `fabric/src/gametest/resources/fabric.mod.json`.
 3. Add/update the NeoForge `<Name>GameTestRegistration` class, following an existing one as a
-   template — give every test a namespace-unique path (`"<domain>/<slug>"`) and every registration
-   class a namespace-unique environment id (`registerInstances(event, "<domain>/<slug>", ...)`); a
-   collision throws at runtime because every domain's `@SubscribeEvent` handler shares the same
-   `RegisterGameTestsEvent`/registry. New registration *class* → add a `.bootstrap()` call to
+   template. A new test *method* on an already-registered class needs a new `GameTestCase` entry
+   added to that class's `TESTS` list (passed to `GameTestRegistrationSupport.registerFunctions`) —
+   give it a namespace-unique path (`"<domain>/<slug>"`); a collision throws at runtime because
+   every domain's `@SubscribeEvent` handler shares the same `RegisterGameTestsEvent`/registry. A new
+   registration *class* additionally needs its own namespace-unique environment id
+   (`registerInstances(event, "<domain>/<slug>", ...)`) and a `.bootstrap()` call added to
    `LogisticsGameTestMod`'s constructor.
 4. Run both `./gradlew :fabric:runGameTest` and `./gradlew :neoforge:runGameTestServer` and confirm
    the "N GAME TESTS COMPLETE" count went up by the expected amount on each.

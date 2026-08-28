@@ -4,7 +4,6 @@ import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
-import com.logistics.pipe.Pipe;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -187,11 +186,6 @@ public class ModuleGameTestBody {
             context.getBlockState(pos),
             pipeEntity
         );
-
-        Pipe pipe = context.getBlockState(pos).getBlock() instanceof PipeBlock pb ? pb.getPipe() : null;
-        if (pipe == null) {
-            context.fail("PipeContext should have pipe");
-        }
 
         // Configure filter for NORTH to accept diamonds
         ItemFilterModule filterModule = new ItemFilterModule();

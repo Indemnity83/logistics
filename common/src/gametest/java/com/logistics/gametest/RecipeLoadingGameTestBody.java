@@ -1,8 +1,8 @@
 package com.logistics.gametest;
 
+import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.crafting.RecipeManager;
 
@@ -26,12 +26,13 @@ public class RecipeLoadingGameTestBody {
         RecipeManager recipes = context.getLevel().getServer().getRecipeManager();
 
         var converter = FileToIdConverter.json("recipe");
-        for (Identifier fileId : converter.listMatchingResources(resources).keySet()) {
-            if (!fileId.getNamespace().equals("logistics")) {
+        for (var fileId : converter.listMatchingResources(resources).keySet()) {
+            ResourceId namespaceCheck = ResourceId.wrap(fileId);
+            if (!namespaceCheck.getNamespace().equals("logistics")) {
                 continue;
             }
-            Identifier id = converter.fileToId(fileId);
-            if (recipes.getRecipes().stream().noneMatch(holder -> holder.id().identifier().equals(id))) {
+            ResourceId id = ResourceId.wrap(converter.fileToId(fileId));
+            if (recipes.getRecipes().stream().noneMatch(holder -> ResourceId.wrap(holder.id().identifier()).equals(id))) {
                 context.fail("Logistics recipe failed to load: " + id);
                 return;
             }

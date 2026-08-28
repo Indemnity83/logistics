@@ -18,10 +18,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 @EventBusSubscriber(modid = "logistics_gametest")
 public final class QuarryMiningGameTestRegistration {
 
-    // NeoForge's GameTestInstance ticks the environment/structure differently than Fabric's
-    // @GameTest shim before handing control to the test body, so timed tests carry ~20 ticks more
-    // headroom here than their Fabric @GameTest(maxTicks=...) counterpart for the same callbacks
-    // to land within budget.
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("automation/quarry_stalls_without_energy", 50, QuarryMiningGameTestBody::testQuarryStallsWithoutEnergy),
         new GameTestCase(
