@@ -153,7 +153,7 @@ jobs:
         run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
         # jacocoTestReport depends on the module's test task, so this runs the
         # tests once and emits the JaCoCo XML in the same step.
-        # Note: Fabric game tests run separately in the `gametest` job below.
+        # Note: Fabric/NeoForge game tests run separately in the `gametest` job below.
 
       - name: Upload test reports
         if: needs.changes.outputs.code_changed == 'true' && failure()
@@ -176,18 +176,28 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   gametest:
-    name: gametest (fabric)
-    # Fabric is the only module with a gametest source set; it boots a headless
-    # server, so it runs as its own job rather than in the unit-test matrix.
+    name: gametest (${{ matrix.loader }})
+    # Both loaders boot a headless server for their gametest source set, so this runs as its own
+    # job (matrixed by loader) rather than in the unit-test matrix.
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - loader: fabric
+            task: ':fabric:runGameTest'
+            logs: fabric/build/run/gameTest/logs/
+          - loader: neoforge
+            task: ':neoforge:runGameTestServer'
+            logs: neoforge/runs/gameTestServer/logs/
 
     steps:
       - name: Skip game tests for non-code changes
         if: needs.changes.outputs.code_changed != 'true'
-        run: echo "No code-affecting files changed; skipping Fabric game tests."
+        run: echo "No code-affecting files changed; skipping ${{ matrix.loader }} game tests."
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         if: needs.changes.outputs.code_changed == 'true'
@@ -207,13 +217,13 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Run Fabric game tests
+      - name: Run ${{ matrix.loader }} game tests
         if: needs.changes.outputs.code_changed == 'true'
-        run: ./gradlew :fabric:runGameTest --console=plain
+        run: ./gradlew ${{ matrix.task }} --console=plain
 
       - name: Upload game test logs
         if: needs.changes.outputs.code_changed == 'true' && failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: gametest-logs-${{ github.run_id }}-${{ github.run_attempt }}
-          path: fabric/build/run/gameTest/logs/
+          name: gametest-logs-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ matrix.logs }}
