@@ -13,7 +13,9 @@ import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.jei.ClientMachineRecipes;
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
+import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
+import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.automation.transposer.TransposerScreen;
@@ -97,6 +99,7 @@ public final class NeoForgeClientSetup {
 
     private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientMachineRecipes.clear();
+        ReactionJeiSyncAdapter.INSTANCE.clear();
     }
 
     /**
@@ -292,5 +295,6 @@ public final class NeoForgeClientSetup {
             }
         });
         event.register(SyncMachineRecipesPacket.TYPE, (packet, context) -> ClientMachineRecipes.set(packet));
+        event.register(ReactionRecipeSyncPacket.TYPE, (packet, context) -> ReactionJeiSyncAdapter.INSTANCE.set(packet));
     }
 }

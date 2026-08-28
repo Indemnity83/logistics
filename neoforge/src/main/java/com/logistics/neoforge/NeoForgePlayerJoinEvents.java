@@ -1,6 +1,7 @@
 package com.logistics.neoforge;
 
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
+import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.core.crash.CrashReportNotifier;
 import com.logistics.core.fluid.CrudeOilEffects;
 import com.logistics.core.lib.platform.ServerNetworking;
@@ -31,6 +32,7 @@ public final class NeoForgePlayerJoinEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             CrashReportNotifier.maybeNotify(player);
             ServerNetworking.send(player, SyncMachineRecipesPacket.from(player.level().getServer()));
+            ServerNetworking.send(player, ReactionRecipeSyncPacket.from(player.level().getServer()));
         }
     }
 
