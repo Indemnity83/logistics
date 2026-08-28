@@ -2,7 +2,8 @@ package com.logistics.fabric;
 
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
+import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.pipe.network.packet.ClickFluidSupplierGaugePacket;
 import com.logistics.pipe.network.packet.OpenChassisSlotPacket;
@@ -53,5 +54,7 @@ public final class FabricPacketRegistration {
                 SyncFabricatorOutputsPacket.TYPE, SyncFabricatorOutputsPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(
                 SyncMachineRecipesPacket.TYPE, SyncMachineRecipesPacket.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(
+                ReactionRecipeSyncPacket.TYPE, ReactionRecipeSyncPacket.CODEC);
     }
 }

@@ -3,7 +3,7 @@ package com.logistics.automation.macerator.jei;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.automation.jei.ClientMachineRecipes;
-import com.logistics.automation.jei.MachineRecipeJeiSync;
+import com.logistics.core.lib.jei.MachineRecipeJeiSync;
 import com.logistics.automation.macerator.MaceratorRecipeWrapper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;

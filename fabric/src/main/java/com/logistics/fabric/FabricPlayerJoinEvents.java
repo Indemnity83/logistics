@@ -1,6 +1,7 @@
 package com.logistics.fabric;
 
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
+import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.core.crash.CrashReportNotifier;
 import com.logistics.core.fluid.CrudeOilEffects;
 import com.logistics.core.lib.platform.ServerNetworking;
@@ -20,6 +21,7 @@ public final class FabricPlayerJoinEvents {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             CrashReportNotifier.maybeNotify(handler.player);
             ServerNetworking.send(handler.player, SyncMachineRecipesPacket.from(server));
+            ServerNetworking.send(handler.player, ReactionRecipeSyncPacket.from(server));
         });
         ServerPlayConnectionEvents.DISCONNECT.register(
                 (handler, server) -> CrudeOilEffects.clearPlayer(handler.player.getUUID()));

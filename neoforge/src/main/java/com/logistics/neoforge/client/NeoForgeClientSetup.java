@@ -13,7 +13,9 @@ import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.jei.ClientMachineRecipes;
-import com.logistics.automation.jei.SyncMachineRecipesPacket;
+import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
+import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
+import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
@@ -95,6 +97,7 @@ public final class NeoForgeClientSetup {
 
     private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientMachineRecipes.clear();
+        ReactionJeiSyncAdapter.INSTANCE.clear();
     }
 
     /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
@@ -281,5 +284,6 @@ public final class NeoForgeClientSetup {
             }
         });
         event.register(SyncMachineRecipesPacket.TYPE, (packet, context) -> ClientMachineRecipes.set(packet));
+        event.register(ReactionRecipeSyncPacket.TYPE, (packet, context) -> ReactionJeiSyncAdapter.INSTANCE.set(packet));
     }
 }
