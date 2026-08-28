@@ -54,7 +54,7 @@ public final class FabricPacketRegistration {
                 SyncFabricatorOutputsPacket.TYPE, SyncFabricatorOutputsPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(
                 SyncMachineRecipesPacket.TYPE, SyncMachineRecipesPacket.CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(
+        PayloadTypeRegistry.playS2C().register(
                 ReactionRecipeSyncPacket.TYPE, ReactionRecipeSyncPacket.CODEC);
     }
 }
