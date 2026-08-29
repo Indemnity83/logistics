@@ -158,7 +158,8 @@ public class RefineryGameTestBody {
      * @see <a href="https://logistics.fandom.com/wiki/Refinery#Power">wiki/Refinery.txt § Power</a>
      */
     public static void testDistillsViaRealEngine(GameTestHelper context) {
-        BlockPos pos = new BlockPos(1, 1, 1);
+        // z=3 keeps the engine (z=2) and its redstone block (z=1) inside the test structure.
+        BlockPos pos = new BlockPos(1, 1, 3);
         BlockPos enginePos = pos.north();
         BlockPos redstoneBlockPos = enginePos.north();
 
