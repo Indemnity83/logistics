@@ -22,15 +22,8 @@ import snownee.jade.api.WailaPlugin;
  * Optional Jade HUD integration. Compiled against Jade's API only (compileOnly) and loaded via the
  * {@code "jade"} entrypoint in fabric.mod.json — so it only initializes when Jade is actually installed.
  *
- * <p>Must live in the common source set: fabric.mod.json entrypoints have no environment field, so Jade
- * resolves this class on dedicated servers too. Client-only registrations are reached through
- * {@link JadeClientPlugin}, whose only implementation lives in the client source set.
- *
- * <p>Per-block content is added in stacked passes; see {@code EngineServerDataProvider} /
- * {@code EngineComponentProvider} for engines, {@code PowerInfra*Provider} for cables and the sink,
- * {@code QuarryServerDataProvider} / {@code QuarryComponentProvider} for the laser quarry,
- * {@code MachineServerDataProvider} / {@code MachineComponentProvider} for the macerator, kiln, and
- * sawmill, and {@code PipeComponentProvider} for pipes.
+ * <p>Must stay in the common source set — Jade resolves this class on dedicated servers too. Client-only
+ * registrations are reached through {@link JadeClientPlugin}.
  */
 @WailaPlugin(LogisticsMod.MOD_ID)
 public class JadeLogisticsPlugin implements IWailaPlugin {
