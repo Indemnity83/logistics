@@ -631,9 +631,7 @@ public class FluidPumpGameTestBody {
      * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
      */
     public static void testFluidPumpDrainsAndOutputsViaRealEngine(GameTestHelper context) {
-        // z=3 so the engine (z=2) and its redstone block (z=1) both stay inside the test
-        // structure. MC 1.21.1's GameTest runner wedges in clearSpaceForStructure when a test
-        // places blocks at negative relative coordinates; newer versions tolerate it.
+        // z=3 keeps the engine (z=2) and its redstone block (z=1) inside the test structure.
         BlockPos pumpPos = new BlockPos(1, 3, 3);
         BlockPos waterPos = pumpPos.below();
         BlockPos tankPos = pumpPos.above();
