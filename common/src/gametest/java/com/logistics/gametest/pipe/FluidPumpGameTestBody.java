@@ -631,7 +631,8 @@ public class FluidPumpGameTestBody {
      * @see <a href="https://logistics.fandom.com/wiki/Pump#Usage">wiki/Pump.txt § Usage</a>
      */
     public static void testFluidPumpDrainsAndOutputsViaRealEngine(GameTestHelper context) {
-        BlockPos pumpPos = new BlockPos(1, 3, 1);
+        // z=3 keeps the engine (z=2) and its redstone block (z=1) inside the test structure.
+        BlockPos pumpPos = new BlockPos(1, 3, 3);
         BlockPos waterPos = pumpPos.below();
         BlockPos tankPos = pumpPos.above();
         BlockPos enginePos = pumpPos.north();
