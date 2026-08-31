@@ -1,6 +1,16 @@
 package com.logistics.neoforge.client.compat;
 
 import com.logistics.LogisticsMod;
+import com.logistics.compat.jade.EngineComponentProvider;
+import com.logistics.compat.jade.EngineServerDataProvider;
+import com.logistics.compat.jade.FluidPipeComponentProvider;
+import com.logistics.compat.jade.MachineComponentProvider;
+import com.logistics.compat.jade.MachineServerDataProvider;
+import com.logistics.compat.jade.PipeComponentProvider;
+import com.logistics.compat.jade.PowerInfraComponentProvider;
+import com.logistics.compat.jade.PowerInfraServerDataProvider;
+import com.logistics.compat.jade.QuarryComponentProvider;
+import com.logistics.compat.jade.QuarryServerDataProvider;
 import com.logistics.automation.alloysmelter.AlloySmelterBlock;
 import com.logistics.automation.crucible.CrucibleBlock;
 import com.logistics.automation.kiln.KilnBlock;
@@ -25,7 +35,8 @@ import snownee.jade.api.WailaPlugin;
  * via the {@link WailaPlugin} annotation scan — so it only initializes when Jade is actually installed.
  *
  * <p>Client-only by nature (Jade is a client mod), hence the {@code com.logistics.neoforge.client} package
- * required by the NeoForge source-isolation rules. Per-block content is added in stacked passes; see
+ * required by the NeoForge source-isolation rules. The providers themselves are shared with Fabric in
+ * {@code common/src/{main,client}/java/com/logistics/compat/jade}. Per-block content is added in stacked passes; see
  * {@code EngineServerDataProvider} / {@code EngineComponentProvider} for engines, {@code PowerInfra*Provider}
  * for cables and the sink, {@code QuarryServerDataProvider} / {@code QuarryComponentProvider} for the laser
  * quarry, {@code MachineServerDataProvider} / {@code MachineComponentProvider} for the macerator, kiln,
