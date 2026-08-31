@@ -89,13 +89,9 @@ dependencies {
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge-api:${rootProject.jei_version}")
     runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-neoforge:${rootProject.jei_version}")
 
-    // Jade HUD — compile against the API only; never bundled.
+    // Jade HUD — compile against the API only; never bundled. Loaded in dev via runClient.
     compileOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
-    // No Jade NeoForge build for MC 26.2 yet — the 26.1.x jar is runtime-incompatible
-    // (NoClassDefFoundError MinMaxBounds$Ints, which moved in 26.2) and crashes runClient
-    // during mod construction. Keep it off the runtime classpath until a 26.2 build ships;
-    // restore runtimeOnly (and test the in-game HUD) then. The release jar is unaffected.
-    // runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
+    runtimeOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")
 
     // Spark profiler (https://spark.lucko.me) — loaded in dev via runClient/runServer, never bundled.
     // If a future MC snapshot has no matching Spark build, comment this out until one ships.
