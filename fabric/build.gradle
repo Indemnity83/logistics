@@ -76,9 +76,12 @@ dependencies {
     compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
     runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
 
-    // Jade HUD — compile against the API on the client source set only; loaded in dev via runClient, never bundled
+    // Jade HUD — compile against the API only; loaded in dev via runClient/runServer, never bundled.
+    // Also on the main source set: fabric.mod.json entrypoints have no environment field, so Jade
+    // resolves the "jade" entrypoint class on dedicated servers too.
+    compileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
+    runtimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
     clientCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
-    clientRuntimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
 }
 
 // Sentry source-context upload (so stack traces show inline source in Sentry). Gated on the
