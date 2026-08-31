@@ -16,9 +16,70 @@ permissions:
   pull-requests: read
 
 jobs:
+  changes:
+    name: detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      code_changed: ${{ steps.changed.outputs.code_changed }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ github.token }}
+
+      - name: Detect code changes
+        id: changed
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            BASE="$PR_BASE_SHA"
+            HEAD="HEAD"
+          else
+            BASE="$PUSH_BEFORE"
+            HEAD="$PUSH_AFTER"
+          fi
+
+          if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]]; then
+            echo "code_changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # A rewritten/force-pushed base may no longer exist; treat a failed diff as "code changed"
+          # so CI runs the full checks rather than silently skipping them on an empty diff.
+          if ! changed_files=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null); then
+            echo "git diff against base '$BASE' failed (rewritten history?); assuming code changed."
+            echo "code_changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          code_changed=false
+          while IFS= read -r file; do
+            case "$file" in
+              common/*|fabric/*|neoforge/*|buildSrc/*|gradle/*|\
+              build.gradle|settings.gradle|gradle.properties|gradlew|gradlew.bat|\
+              .github/workflows/check-code.yml)
+                code_changed=true
+                break
+                ;;
+            esac
+          done <<< "$changed_files"
+
+          echo "code_changed=$code_changed" >> "$GITHUB_OUTPUT"
+          echo "code_changed=$code_changed"
+
   lint:
     name: lint (${{ matrix.module }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,65 +87,83 @@ jobs:
         module: [common, fabric, neoforge]
 
     steps:
+      - name: Skip lint for non-code changes
+        if: needs.changes.outputs.code_changed != 'true'
+        run: echo "No code-affecting files changed; skipping Gradle lint."
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           persist-credentials: false
           token: ${{ github.token }}
 
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Setup Gradle
+        if: needs.changes.outputs.code_changed == 'true'
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Check ${{ matrix.module }} formatting
+        if: needs.changes.outputs.code_changed == 'true'
         run: ./gradlew :${{ matrix.module }}:lint --console=plain
 
   test:
     name: unit-test (${{ matrix.module }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        # Each module uploads one Codecov report. When changing this list, update
-        # after_n_builds (notify and comment) in codecov.yml to match the count.
+        # Every module runs tests; only common uploads coverage because loader
+        # adapters are mostly integration glue around Minecraft APIs.
         module: [common, fabric, neoforge]
 
     steps:
+      - name: Skip tests for non-code changes
+        if: needs.changes.outputs.code_changed != 'true'
+        run: echo "No code-affecting files changed; skipping Gradle tests."
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           persist-credentials: false
           token: ${{ github.token }}
 
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Setup Gradle
+        if: needs.changes.outputs.code_changed == 'true'
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Run ${{ matrix.module }} tests with coverage
+        if: needs.changes.outputs.code_changed == 'true'
         run: ./gradlew :${{ matrix.module }}:jacocoTestReport --console=plain
         # jacocoTestReport depends on the module's test task, so this runs the
         # tests once and emits the JaCoCo XML in the same step.
         # Note: Fabric/NeoForge game tests run separately in the `gametest` job below.
 
       - name: Upload test reports
-        if: failure()
+        if: needs.changes.outputs.code_changed == 'true' && failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: test-reports-${{ matrix.module }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.module }}/build/reports/tests/test/
 
-      - name: Upload ${{ matrix.module }} coverage to Codecov
+      - name: Upload common coverage to Codecov
+        if: needs.changes.outputs.code_changed == 'true' && matrix.module == 'common'
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           files: ${{ matrix.module }}/build/reports/jacoco/test/jacocoTestReport.xml
@@ -101,6 +180,7 @@ jobs:
     # Both loaders boot a headless server for their gametest source set, so this runs as its own
     # job (matrixed by loader) rather than in the unit-test matrix.
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -115,26 +195,34 @@ jobs:
             logs: neoforge/runs/gameTestServer/logs/
 
     steps:
+      - name: Skip game tests for non-code changes
+        if: needs.changes.outputs.code_changed != 'true'
+        run: echo "No code-affecting files changed; skipping ${{ matrix.loader }} game tests."
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           persist-credentials: false
           token: ${{ github.token }}
 
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Setup Gradle
+        if: needs.changes.outputs.code_changed == 'true'
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Run ${{ matrix.loader }} game tests
+        if: needs.changes.outputs.code_changed == 'true'
         run: ./gradlew ${{ matrix.task }} --console=plain
 
       - name: Upload game test logs
-        if: failure()
+        if: needs.changes.outputs.code_changed == 'true' && failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: gametest-logs-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
