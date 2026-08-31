@@ -7,6 +7,7 @@ import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -37,7 +38,8 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        Player player = context.makeMockServerPlayer(GameType.SURVIVAL);
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);
@@ -68,7 +70,8 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        Player player = context.makeMockServerPlayer(GameType.CREATIVE);
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.CREATIVE);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);

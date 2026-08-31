@@ -21,7 +21,9 @@ public final class NeoForgePacketRegistration {
     private NeoForgePacketRegistration() {}
 
     public static void register(IEventBus modBus) {
-        ServerNetworking.register(PacketDistributor::sendToPlayer);
+        ServerNetworking.register(
+                PacketDistributor::sendToPlayer,
+                (player, type) -> player.connection.hasChannel(type));
         modBus.addListener(NeoForgePacketRegistration::registerPayloads);
     }
 
