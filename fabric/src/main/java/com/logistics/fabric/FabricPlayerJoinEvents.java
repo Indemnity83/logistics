@@ -20,8 +20,13 @@ public final class FabricPlayerJoinEvents {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> CrashReportNotifier.reset());
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             CrashReportNotifier.maybeNotify(handler.player);
-            ServerNetworking.send(handler.player, SyncMachineRecipesPacket.from(server));
-            ServerNetworking.send(handler.player, ReactionRecipeSyncPacket.from(server));
+            // A connection that never negotiated these channels (synthetic/mock players) rejects them.
+            if (ServerNetworking.canSend(handler.player, SyncMachineRecipesPacket.TYPE)) {
+                ServerNetworking.send(handler.player, SyncMachineRecipesPacket.from(server));
+            }
+            if (ServerNetworking.canSend(handler.player, ReactionRecipeSyncPacket.TYPE)) {
+                ServerNetworking.send(handler.player, ReactionRecipeSyncPacket.from(server));
+            }
         });
         ServerPlayConnectionEvents.DISCONNECT.register(
                 (handler, server) -> CrudeOilEffects.clearPlayer(handler.player.getUUID()));
