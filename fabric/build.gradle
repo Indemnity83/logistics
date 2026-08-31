@@ -76,10 +76,13 @@ dependencies {
     modCompileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric-api:${rootProject.jei_version}")
     modRuntimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
 
-    // Jade HUD — compile against the API on the client source set only; loaded in dev via runClient, never bundled.
+    // Jade HUD — compile against the API only; loaded in dev via runClient/runServer, never bundled.
+    // Also on the main source set: fabric.mod.json entrypoints have no environment field, so Jade
+    // resolves the "jade" entrypoint class on dedicated servers too.
     // Remapped (mod*) so Loom maps Jade's intermediary API surface to this branch's official Mojang mappings.
+    modCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
+    modRuntimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
     modClientCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
-    modClientRuntimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
 }
 
 // Sentry source-context upload (so stack traces show inline source in Sentry). Gated on the
