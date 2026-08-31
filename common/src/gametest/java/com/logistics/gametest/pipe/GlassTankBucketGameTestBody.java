@@ -38,6 +38,9 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
+        // Deprecated, but the only mock factory available on every supported MC version that returns a
+        // real ServerPlayer. makeMockPlayer returns a plain Player, which sends Fabric's FluidStorageUtil
+        // down its non-creative branch; makeMockServerPlayer exists only on 26.2.
         ServerPlayer player = context.makeMockServerPlayerInLevel();
         player.setGameMode(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
