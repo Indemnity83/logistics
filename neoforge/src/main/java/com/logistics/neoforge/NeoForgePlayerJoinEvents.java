@@ -31,8 +31,13 @@ public final class NeoForgePlayerJoinEvents {
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             CrashReportNotifier.maybeNotify(player);
-            ServerNetworking.send(player, SyncMachineRecipesPacket.from(player.level().getServer()));
-            ServerNetworking.send(player, ReactionRecipeSyncPacket.from(player.level().getServer()));
+            // A connection that never negotiated these channels (synthetic/mock players) rejects them.
+            if (ServerNetworking.canSend(player, SyncMachineRecipesPacket.TYPE)) {
+                ServerNetworking.send(player, SyncMachineRecipesPacket.from(player.level().getServer()));
+            }
+            if (ServerNetworking.canSend(player, ReactionRecipeSyncPacket.TYPE)) {
+                ServerNetworking.send(player, ReactionRecipeSyncPacket.from(player.level().getServer()));
+            }
         }
     }
 

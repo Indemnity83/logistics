@@ -4,14 +4,10 @@ import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
-import com.mojang.authlib.GameProfile;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,33 +26,6 @@ import net.minecraft.world.level.material.Fluids;
  */
 public class GlassTankBucketGameTestBody {
 
-    /**
-     * A {@link ServerPlayer} in the given game mode that is never placed into the player list.
-     *
-     * <p>MC 26.2 offers {@code GameTestHelper.makeMockServerPlayer(GameType)} for exactly this;
-     * 1.21.11 only has {@code makeMockServerPlayerInLevel()}, which runs a real
-     * {@code placeNewPlayer} login. That login fires the loaders' join handlers, and NeoForge then
-     * refuses to send this mod's payloads over the test's embedded channel ("may not be sent to the
-     * client!"), failing the test. So mirror 26.2's construction directly. {@code setGameMode} is
-     * unusable here — it writes to the absent connection — hence overriding {@code gameMode()} and
-     * applying abilities by hand.
-     */
-    private static ServerPlayer mockServerPlayer(GameTestHelper context, GameType gameType) {
-        ServerLevel level = context.getLevel();
-        ServerPlayer player = new ServerPlayer(
-                level.getServer(),
-                level,
-                new GameProfile(UUID.randomUUID(), "test-mock-player"),
-                ClientInformation.createDefault()) {
-            @Override
-            public GameType gameMode() {
-                return gameType;
-            }
-        };
-        gameType.updatePlayerAbilities(player.getAbilities());
-        return player;
-    }
-
     private static GlassTankBlockEntity fullTank(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsPipe.BLOCK.GLASS_TANK);
         GlassTankBlockEntity tank = context.getBlockEntity(pos, GlassTankBlockEntity.class);
@@ -69,7 +38,11 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        ServerPlayer player = mockServerPlayer(context, GameType.SURVIVAL);
+        // Deprecated, but the only mock factory available on every supported MC version that returns a
+        // real ServerPlayer. makeMockPlayer returns a plain Player, which sends Fabric's FluidStorageUtil
+        // down its non-creative branch; makeMockServerPlayer exists only on 26.2.
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);
@@ -100,7 +73,8 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        ServerPlayer player = mockServerPlayer(context, GameType.CREATIVE);
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.CREATIVE);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);
