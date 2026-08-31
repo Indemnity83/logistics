@@ -10,7 +10,7 @@ import snownee.jade.api.IServerDataProvider;
 
 /**
  * Server half of the engine Jade integration: captures live engine diagnostics into the tag Jade syncs to
- * the client. Jade requires the data and component providers to be separate classes (since MC 1.21.6); the
+ * the client. Jade requires the data and component providers to be separate classes; the
  * client half is {@link EngineComponentProvider}. Capture logic is shared in {@link EngineHudData}.
  */
 public final class EngineServerDataProvider implements IServerDataProvider<BlockAccessor> {

@@ -34,13 +34,8 @@ import snownee.jade.api.WailaPlugin;
  * Optional Jade HUD integration. Compiled against Jade's API only (compileOnly) and discovered at runtime
  * via the {@link WailaPlugin} annotation scan — so it only initializes when Jade is actually installed.
  *
- * <p>Client-only by nature (Jade is a client mod), hence the {@code com.logistics.neoforge.client} package
- * required by the NeoForge source-isolation rules. The providers themselves are shared with Fabric in
- * {@code common/src/{main,client}/java/com/logistics/compat/jade}. Per-block content is added in stacked passes; see
- * {@code EngineServerDataProvider} / {@code EngineComponentProvider} for engines, {@code PowerInfra*Provider}
- * for cables and the sink, {@code QuarryServerDataProvider} / {@code QuarryComponentProvider} for the laser
- * quarry, {@code MachineServerDataProvider} / {@code MachineComponentProvider} for the macerator, kiln,
- * and sawmill, and {@code PipeComponentProvider} for pipes.
+ * <p>Must stay under {@code com.logistics.neoforge.client}: Jade is a client mod, and NeoForge's
+ * source-isolation rules keep client-only classes in that package.
  */
 @WailaPlugin(LogisticsMod.MOD_ID)
 public class JadeLogisticsPlugin implements IWailaPlugin {
