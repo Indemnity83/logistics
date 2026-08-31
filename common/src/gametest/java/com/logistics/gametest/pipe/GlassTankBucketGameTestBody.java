@@ -4,14 +4,11 @@ import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
-import com.mojang.authlib.GameProfile;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,42 +27,6 @@ import net.minecraft.world.level.material.Fluids;
  */
 public class GlassTankBucketGameTestBody {
 
-    /**
-     * A {@link ServerPlayer} in the given game mode that is never placed into the player list.
-     *
-     * <p>{@code GameTestHelper.makeMockServerPlayerInLevel()} runs a real {@code placeNewPlayer}
-     * login, which fires the loaders' join handlers; NeoForge then refuses to send this mod's
-     * payloads over the test's embedded channel ("may not be sent to the client!") and the test
-     * fails. Constructing the player directly skips the login entirely.
-     *
-     * <p>1.21.1 delta: newer versions expose a {@code gameMode()} accessor that can simply be
-     * overridden. Here {@code gameMode} is a {@link net.minecraft.server.level.ServerPlayerGameMode}
-     * field whose setter is protected, and both {@code ServerPlayer.setGameMode} and
-     * {@code ServerPlayerGameMode.changeGameModeForPlayer} route through
-     * {@code onUpdateAbilities()}, which writes to the absent connection. So set the abilities by
-     * hand and override the two predicates that would otherwise read the unset game mode.
-     */
-    private static ServerPlayer mockServerPlayer(GameTestHelper context, GameType gameType) {
-        ServerLevel level = context.getLevel();
-        ServerPlayer player = new ServerPlayer(
-                level.getServer(),
-                level,
-                new GameProfile(UUID.randomUUID(), "test-mock-player"),
-                ClientInformation.createDefault()) {
-            @Override
-            public boolean isCreative() {
-                return gameType == GameType.CREATIVE;
-            }
-
-            @Override
-            public boolean isSpectator() {
-                return gameType == GameType.SPECTATOR;
-            }
-        };
-        gameType.updatePlayerAbilities(player.getAbilities());
-        return player;
-    }
-
     private static GlassTankBlockEntity fullTank(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsPipe.BLOCK.GLASS_TANK);
         GlassTankBlockEntity tank = (GlassTankBlockEntity) context.getBlockEntity(pos);
@@ -78,7 +39,11 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        ServerPlayer player = mockServerPlayer(context, GameType.SURVIVAL);
+        // Deprecated, but the only mock factory available on every supported MC version that returns a
+        // real ServerPlayer. makeMockPlayer returns a plain Player, which sends Fabric's FluidStorageUtil
+        // down its non-creative branch; makeMockServerPlayer exists only on 26.2.
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);
@@ -107,7 +72,8 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        ServerPlayer player = mockServerPlayer(context, GameType.CREATIVE);
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.CREATIVE);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);

@@ -19,7 +19,7 @@ public final class FabricPacketRegistration {
 
     public static void register() {
         // Wire common ServerNetworking SPI to Fabric's server-play networking
-        ServerNetworking.register(ServerPlayNetworking::send);
+        ServerNetworking.register(ServerPlayNetworking::send, ServerPlayNetworking::canSend);
 
         // Serverbound packets
         PayloadTypeRegistry.playC2S().register(RequestItemPacket.TYPE, RequestItemPacket.CODEC);
