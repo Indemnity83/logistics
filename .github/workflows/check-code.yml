@@ -79,6 +79,7 @@ jobs:
             case "$file" in
               */src/client/*|*/src/main/resources/assets/*|\
               fabric/src/gametest/java/com/logistics/gametest/client/*|\
+              fabric/src/gametest/resources/fabric.mod.json|\
               .github/workflows/check-code.yml)
                 client_changed=true
                 ;;

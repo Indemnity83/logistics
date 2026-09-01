@@ -12,22 +12,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
- * Renders the blocks and screens a headless server can never exercise, and captures them for review.
- *
- * <p>These are the surfaces the static resource contract cannot reach. It proves a model file
- * resolves; only a real client proves the model actually draws, that a multipart pipe picks the
- * right connection shapes, or that a screen opens at all.
- *
- * <p>Captures are review artifacts, not a pass/fail gate — see "Client feature tests" in TESTING.md
- * for why, and for the determinism steps every test here has to repeat.
+ * Renders the block types whose drawing differs from a plain cube, opens a machine screen, and
+ * captures both.
  */
 public class ShowcaseClientGameTest implements FabricClientGameTest {
 
-    /**
-     * Topmost solid block of the superflat test world: the classic flat preset stacks bedrock, two
-     * dirt, and a grass block from the -64 world floor, so the surface sits at -61 and the first
-     * free block is {@code GROUND + 1}.
-     */
+    /** Surface of the flat preset: bedrock, two dirt, and grass from -64, so blocks go at +1. */
     private static final int GROUND = -61;
 
     @Override
@@ -44,10 +34,7 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
         }
     }
 
-    /**
-     * Time, weather, and daylight are pinned rather than left to the world's own progression, so a
-     * capture taken minutes into a slow run looks identical to one taken immediately.
-     */
+    /** Pins time, weather, and daylight so a capture does not depend on how long the run took. */
     private void freezeWorld(TestServerContext server) {
         // MC 26 renamed these rules; the pre-26 ids parse as an unknown gamerule and the command
         // failure is swallowed, so the world would keep advancing.
@@ -58,15 +45,10 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
         server.runCommand("weather clear");
     }
 
-    /**
-     * A row of blocks covering the render paths that differ from a plain cube: a multipart pipe with
-     * real connections, a cable whose blockstate is supplied per loader rather than from common, a
-     * machine with a block entity renderer, and a fluid tank.
-     */
+    /** Multipart pipe, loader-supplied cable blockstate, machine renderer, and fluid tank. */
     private void showcaseBlocks(
             ClientGameTestContext context, TestSingleplayerContext singleplayer, TestServerContext server) {
-        // Pipes and cables choose their model from neighbours, so place runs rather than singletons —
-        // a lone pipe would render an unconnected stub and prove nothing about connection shapes.
+        // Pipes and cables pick their model from neighbours; a lone one renders an unconnected stub.
         server.runCommand("setblock 0 %d 0 logistics:pipe/copper_transport_pipe".formatted(GROUND + 1));
         server.runCommand("setblock 1 %d 0 logistics:pipe/copper_transport_pipe".formatted(GROUND + 1));
         server.runCommand("setblock 2 %d 0 logistics:pipe/copper_transport_pipe".formatted(GROUND + 1));
@@ -78,17 +60,14 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
         server.runCommand("setblock 7 %d 0 logistics:automation/kiln".formatted(GROUND + 1));
         server.runCommand("setblock 9 %d 0 logistics:pipe/glass_tank".formatted(GROUND + 1));
 
-        // Fixed camera: without an explicit position and angle the capture follows wherever the
-        // player happened to spawn. Spectator first — a survival player teleported above ground
-        // falls and settles a fraction of a block differently each run, which shifts the whole
-        // frame by a sub-pixel and makes otherwise identical captures diverge.
+        // Spectator before teleporting: a survival player lands a fraction of a block differently
+        // each run, shifting the whole frame by a sub-pixel.
         server.runCommand("gamemode spectator @p");
         server.runCommand("tp @p 4.5 %d.0 -6.0 0 8".formatted(GROUND + 2));
         context.waitTicks(5);
 
-        // The HUD carries health, hunger, and hotbar state that has nothing to do with block
-        // rendering but would still show up as a difference between captures. Toggled through the
-        // real F1 binding rather than by poking a field, since there is no longer one to poke.
+        // Hide the HUD: its health, hunger, and hotbar state varies between captures. Options has
+        // no hideGui field in 26.2, so this goes through the real F1 binding.
         context.getInput().pressKey(options -> options.keyToggleGui);
         context.waitTick();
 
@@ -100,10 +79,7 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
         context.waitTick();
     }
 
-    /**
-     * Opens the kiln's real screen through the server's menu-opening path, so the menu, its
-     * synced data, and the screen's own layout are all exercised rather than constructed by hand.
-     */
+    /** Opens the kiln screen through the server's real menu path rather than constructing it. */
     private void kilnScreenOpens(
             ClientGameTestContext context, TestSingleplayerContext singleplayer, TestServerContext server) {
         BlockPos kiln = new BlockPos(7, GROUND + 1, 0);
@@ -120,7 +96,7 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
             player.openMenu(kilnEntity.createMenuProvider());
         });
 
-        // Fails the test if the screen never opens, rather than silently capturing the world behind it.
+        // Fails if the screen never opens, rather than capturing the world behind it.
         context.waitForScreen(KilnScreen.class);
         context.takeScreenshot(TestScreenshotOptions.of("kiln-screen").disableCounterPrefix());
         context.setScreen(() -> null);
