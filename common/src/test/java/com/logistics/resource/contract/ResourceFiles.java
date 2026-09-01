@@ -61,9 +61,32 @@ final class ResourceFiles {
         }
     }
 
+    /** Root of the shipped data tree on the test classpath ({@code .../data}). */
+    static Path dataRoot() {
+        URL url = ResourceFiles.class.getClassLoader().getResource("data/" + NAMESPACE);
+        if (url == null) {
+            throw new IllegalStateException(
+                "data/" + NAMESPACE + " is not on the test classpath; "
+                    + "resource contract tests cannot run without the shipped resources");
+        }
+        try {
+            return Path.of(url.toURI()).getParent();
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("could not resolve the data root", e);
+        }
+    }
+
     /** Every {@code .json} file under {@code assets/logistics/<dir>}, in stable order. */
     static List<Path> jsonFiles(String dir) {
-        Path root = assetRoot().resolve(dir);
+        return jsonFilesUnder(assetRoot().resolve(dir));
+    }
+
+    /** Every {@code .json} file under {@code data/<dir>}, in stable order. */
+    static List<Path> dataJsonFiles(String dir) {
+        return jsonFilesUnder(dataRoot().resolve(dir));
+    }
+
+    static List<Path> jsonFilesUnder(Path root) {
         if (!Files.isDirectory(root)) {
             throw new IllegalStateException("expected a directory of shipped resources: " + root);
         }
@@ -77,6 +100,25 @@ final class ResourceFiles {
         }
     }
 
+    /**
+     * Ids of every item we ship a definition for, as {@code logistics:path}.
+     *
+     * <p>Used as a stand-in for "items this mod actually has" when checking data files. It is a
+     * proxy, not proof of registration: a definition can exist for an item that was never
+     * registered. It does reliably catch the realistic failure — a mistyped id in a loot table or
+     * tag, which Minecraft resolves silently to {@code minecraft:air} at runtime rather than
+     * failing, so no amount of live loading reveals it.
+     */
+    static Set<String> itemDefinitionIds() {
+        Path root = assetRoot().resolve("items");
+        return jsonFilesUnder(root).stream()
+            .map(file -> {
+                String relative = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');
+                return NAMESPACE + ":" + relative.substring(0, relative.length() - ".json".length());
+            })
+            .collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+
     static JsonObject parse(Path file) {
         try {
             return JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
@@ -85,9 +127,10 @@ final class ResourceFiles {
         }
     }
 
-    /** Path relative to the assets root, for readable failure messages. */
+    /** Path relative to the assets or data root, for readable failure messages. */
     static String describe(Path file) {
-        return assetRoot().getParent().relativize(file).toString();
+        Path base = assetRoot().getParent();
+        return file.startsWith(base) ? base.relativize(file).toString() : dataRoot().relativize(file).toString();
     }
 
     /**
