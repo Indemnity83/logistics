@@ -325,6 +325,10 @@ definition, model, and blockstate; that needs the mod's own registries, which th
 bootstrap doesn't populate. Note that the cable blocks deliberately ship no blockstate in `common` —
 each loader supplies its own — so any such check has to account for loader-specific resources.
 
+The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
+rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
+nothing under it is validated.
+
 ### Feature-test backlog
 
 Recorded here so a pass doesn't have to re-derive priority order or re-discover what's already done.
