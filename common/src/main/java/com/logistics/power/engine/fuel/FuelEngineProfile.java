@@ -17,10 +17,10 @@ public record FuelEngineProfile(
         int coolantBatchMb) {
 
     /** Builds a profile from the config-backed values, defaulting the cooling ratios/rate + batch sizes. */
-    /** Fuel drawn per committed batch, in mB. Fixed, not configurable — the JEI category displays it. */
+    /** Fuel drawn per committed batch, in mB. Fixed, not configurable. */
     public static final int DEFAULT_FUEL_BATCH_MB = 100;
 
-    /** Coolant drawn per committed batch, in mB. Fixed, not configurable — the JEI category displays it. */
+    /** Coolant drawn per committed batch, in mB. Fixed, not configurable. */
     public static final int DEFAULT_COOLANT_BATCH_MB = 100;
 
     public static FuelEngineProfile of(

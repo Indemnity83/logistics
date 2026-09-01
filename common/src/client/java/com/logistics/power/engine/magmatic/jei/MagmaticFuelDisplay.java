@@ -5,9 +5,8 @@ import net.minecraft.world.level.material.Fluid;
 /**
  * One Magmatic Engine fuel row, resolved for display.
  *
- * <p>The burn and output figures are read from config when this is built. Config is server-authoritative but
- * is not synced to clients, so on a server with non-default power settings these show the viewing client's
- * own values. They are exact in single-player, which is where the recipe browser is overwhelmingly used.
+ * <p>The burn and output figures come from config, which is server-authoritative but not synced, so they
+ * reflect the viewing client's own settings rather than the server's.
  *
  * @param batchBurnTicks how long one {@code batchMb} batch burns
  * @param coldRf         output per tick at the cold end of the heat curve

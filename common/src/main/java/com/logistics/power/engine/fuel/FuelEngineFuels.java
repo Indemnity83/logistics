@@ -49,10 +49,7 @@ public final class FuelEngineFuels {
     /** One supported fuel, resolved to its registered {@link Fluid}. */
     public record Entry(Fluid fluid, FuelEngineFuel fuel) {}
 
-    /**
-     * Every supported fuel, for display. Resolves ids to fluids at call time for the same reason
-     * {@link #lookup} does, and skips any id whose fluid is not registered.
-     */
+    /** Every supported fuel, resolved at call time like {@link #lookup}; unregistered ids are skipped. */
     public static List<Entry> entries() {
         List<Entry> entries = new ArrayList<>(BY_ID.size());
         for (Map.Entry<String, FuelEngineFuel> entry : BY_ID.entrySet()) {

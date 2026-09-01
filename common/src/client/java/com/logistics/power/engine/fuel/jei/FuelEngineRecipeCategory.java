@@ -21,11 +21,9 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * JEI recipe category for the Fuel Engine — one entry per supported fuel fluid.
  *
- * <p>Shows only figures that come from {@link FuelEngineFuels}' fixed table and the fixed batch sizes, never
- * from config: config is server-authoritative but unsynced, so a config-derived number here would show the
- * viewing client's own value rather than the server's. Energy per bucket is the figure that actually
- * distinguishes the three fuels anyway; the RF/t it is delivered at is a property of the engine's load, not
- * of the fuel.
+ * <p>Displays only figures from {@link FuelEngineFuels}' fixed table and the fixed batch sizes, never from
+ * config — config is server-authoritative but unsynced, so a config-derived figure would show the viewing
+ * client's own value.
  */
 public class FuelEngineRecipeCategory implements IRecipeCategory<FuelEngineFuels.Entry> {
 
