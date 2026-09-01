@@ -15,21 +15,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Proves the shipped tags reference things that exist and do not reference each other in a loop.
+ * Shipped tags reference things that exist and do not loop.
  *
- * <p>Our tag files live under the {@code c} and {@code minecraft} namespaces rather than our own —
- * we contribute entries to shared convention tags. So a tag is identified by
- * {@code <namespace>:<registry>:<path>} derived from its file location, not by the mod that ships
- * it.
+ * <p>Tags are keyed {@code <namespace>:<registry>:<path>} from their file location, because our tag
+ * files live under the {@code c} and {@code minecraft} namespaces rather than our own.
  */
 @DisplayName("Tag contract")
 class TagContractTest {
 
-    /**
-     * Convention tags we reference but do not ship, because a loader provides them. Keep this list
-     * short and specific: an unrecognised tag reference should surface in review rather than be
-     * waved through.
-     */
+    /** Convention tags we reference but do not ship; a loader provides them. */
     private static final Set<String> EXTERNAL_TAGS = Set.of(
         "c:worldgen/biome:is_desert",
         "c:worldgen/biome:is_badlands",

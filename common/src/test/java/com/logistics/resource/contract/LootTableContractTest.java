@@ -10,16 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Proves every item a loot table drops is one we actually ship.
- *
- * <p>This is the loot-table check a live server cannot make. Whether a table <em>loads</em> is
- * covered by {@code ServerDataLoadingGameTestBody}, but a mistyped item id inside a table that
- * loads fine is invisible at runtime: Minecraft resolves an unknown id to {@code minecraft:air}
- * instead of failing, so the block simply drops nothing and no test notices.
- *
- * <p>Ids are matched against the set of shipped item definitions, which stands in for "items this
- * mod has". That is a proxy rather than proof of registration — see
- * {@link ResourceFiles#itemDefinitionIds()} — but it reliably catches the typo.
+ * Every item a loot table drops is one we ship, matched against
+ * {@link ResourceFiles#itemDefinitionIds()} — a proxy for the item registry, not proof of it.
  */
 @DisplayName("Loot table contract")
 class LootTableContractTest {

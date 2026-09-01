@@ -12,12 +12,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Proves every model a blockstate names is shipped.
+ * Every model a blockstate names is shipped.
  *
- * <p>Blockstates come in two shapes — {@code variants} maps a property string to a model, and
- * {@code multipart} lists {@code when}/{@code apply} pairs. Both nest models at different depths and
- * a variant may hold a weighted list rather than a single model, so this walks the whole tree and
- * treats any string-valued "model" as a reference instead of encoding either schema.
+ * <p>{@code variants} and {@code multipart} nest models at differing depths, and a variant may hold
+ * a weighted list, so any string-valued "model" at any depth counts as a reference.
  */
 @DisplayName("Blockstate contract")
 class BlockstateContractTest {
