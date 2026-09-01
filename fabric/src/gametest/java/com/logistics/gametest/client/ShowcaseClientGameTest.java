@@ -23,8 +23,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  */
 public class ShowcaseClientGameTest implements FabricClientGameTest {
 
-    /** Ground level of the superflat test world. */
-    private static final int GROUND = -60;
+    /**
+     * Topmost solid block of the superflat test world: the classic flat preset stacks bedrock, two
+     * dirt, and a grass block from the -64 world floor, so the surface sits at -61 and the first
+     * free block is {@code GROUND + 1}.
+     */
+    private static final int GROUND = -61;
 
     @Override
     public void runTest(ClientGameTestContext context) {
@@ -45,9 +49,11 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
      * capture taken minutes into a slow run looks identical to one taken immediately.
      */
     private void freezeWorld(TestServerContext server) {
-        server.runCommand("gamerule doDaylightCycle false");
-        server.runCommand("gamerule doWeatherCycle false");
-        server.runCommand("gamerule doMobSpawning false");
+        // MC 26 renamed these rules; the pre-26 ids parse as an unknown gamerule and the command
+        // failure is swallowed, so the world would keep advancing.
+        server.runCommand("gamerule advance_time false");
+        server.runCommand("gamerule advance_weather false");
+        server.runCommand("gamerule spawn_mobs false");
         server.runCommand("time set noon");
         server.runCommand("weather clear");
     }
