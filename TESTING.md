@@ -306,6 +306,39 @@ The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It 
 rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
 nothing under it is validated.
 
+### Server-data loading contract
+
+`ServerDataLoadingGameTestBody` is the live counterpart to the static resource contract tests, and it
+exists because those two layers catch genuinely different bugs. A loot table can be valid JSON with a
+perfectly well-formed structure and still fail to deserialize — name an entry type that doesn't
+exist and the codec rejects it, the table never reaches the registry, and the block silently drops
+nothing when broken. Only a running server reveals that.
+
+It covers **server** data: loot tables, worldgen (configured and placed features), and the
+registry-to-data direction — every block we register that declares a loot table has that table
+actually loaded. That last check is the one file-driven validation structurally cannot do: a block
+pointing at a table that was never shipped is invisible if you only inspect the files that do exist.
+Recipes have their own body (`RecipeLoadingGameTestBody`).
+
+Models, item definitions, and blockstates are deliberately **out of scope** here — they are client
+resources with no server-side registry to walk. Their structure is checked statically in
+`com.logistics.resource.contract`, and their actual loading belongs to client feature tests.
+
+Two conventions worth keeping when extending it:
+
+- **Read loaded registries, not JSON.** The point is to verify what the game ended up with, not to
+  restate what the files say. Don't scan raw JSON for id-shaped strings; where an id needs checking,
+  use `Registry#containsKey` rather than `get`, since a defaulted registry answers an unknown item id
+  with `minecraft:air` instead of failing.
+- **Guard against vacuous passes.** A live enumeration that matches nothing passes without inspecting
+  anything, which is the one way these tests can be silently worthless. Each check asserts it examined
+  a plausible number of entries and fails loudly if not — that floor is a tripwire for a broken
+  enumeration, not a coverage measure.
+
+Tags are not covered yet. Our tag files live under the `c:` and `minecraft:` namespaces rather than
+our own, so "every tag we ship is loaded" needs a file-to-tag mapping that distinguishes our
+contributions from vanilla's and other mods' — worth doing, but not a one-line extension.
+
 ### Feature-test backlog
 
 Recorded here so a pass doesn't have to re-derive priority order or re-discover what's already done.
@@ -507,7 +540,7 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ## Fabric + NeoForge Game Tests
 
-`fabric/src/gametest/` and `neoforge/src/gametest/` run **191 shared feature tests** on each loader
+`fabric/src/gametest/` and `neoforge/src/gametest/` run **195 shared feature tests** on each loader
 (plus 16 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
 Minecraft server process (real block placement, game ticks). Fabric's are considered
 **deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
@@ -599,8 +632,8 @@ Matching *counts* are not parity and the task never checks them: two loaders can
 while running different sets. Comparing the catalog against each loader's wiring is what actually
 proves it.
 
-For reference, the current split is 191 shared tests, plus 3 `// loader-only:` and 13
-`// not-yet-shared:` Fabric tests. The runs report 208 on Fabric and 192 on NeoForge; the totals
+For reference, the current split is 195 shared tests, plus 3 `// loader-only:` and 13
+`// not-yet-shared:` Fabric tests. The runs report 212 on Fabric and 196 on NeoForge; the totals
 include a built-in instance from the test framework itself, so read the *difference* rather than
 either number — 16, exactly the unshared Fabric set, and expected rather than a defect.
 
