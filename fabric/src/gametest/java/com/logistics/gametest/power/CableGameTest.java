@@ -26,6 +26,7 @@ import team.reborn.energy.api.EnergyStorage;
  * Game tests for power cables.
  */
 public class CableGameTest {
+    // not-yet-shared: uses Fabric EnergyStorage lookup as plumbing only
     @GameTest
     public void testCablePlacementExposesEnergyStorage(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 1);
@@ -57,6 +58,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // loader-only: asserts Fabric Transaction abort semantics; NeoForge's simulate flag is not equivalent
     @GameTest
     public void testAbortedCableTransactionAfterTickDoesNotReachCreativeSink(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 1);
@@ -104,6 +106,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest(maxTicks = 30)
     public void testInsertedCableEnergyPassesThroughToMachine(GameTestHelper context) {
         BlockPos sourceCablePos = new BlockPos(1, 1, 1);
@@ -143,6 +146,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest
     public void testCableChargesIdleMachineBuffer(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 1);
@@ -175,6 +179,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // loader-only: asserts Fabric Transaction abort semantics; NeoForge's simulate flag is not equivalent
     @GameTest
     public void testAbortedCableTransactionDoesNotReachCreativeSink(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 1);
@@ -212,6 +217,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest
     public void testCableInsertionDistributesByReportedDemand(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 1);
@@ -251,6 +257,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest
     public void testMixedTierRouteIsCappedByWeakestCable(GameTestHelper context) {
         BlockPos enderCablePos = new BlockPos(1, 1, 1);
@@ -290,6 +297,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: no Fabric API; never ported to a shared body
     @GameTest(maxTicks = 40)
     public void testCreativeEnginePowersCableNetwork(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 1, 1);
@@ -329,6 +337,7 @@ public class CableGameTest {
         });
     }
 
+    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest(maxTicks = 40)
     public void testCableNetworkStopsAtRemovedCable(GameTestHelper context) {
         BlockPos sourceCablePos = new BlockPos(1, 1, 1);
@@ -374,6 +383,7 @@ public class CableGameTest {
         });
     }
 
+    // not-yet-shared: no Fabric API; never ported to a shared body
     @GameTest
     public void testCableConnectionUpdatesWhenNeighborOutputRotates(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(1, 1, 1);
@@ -409,6 +419,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: no Fabric API; never ported to a shared body
     @GameTest
     public void testCableConnectsToBufferlessEngineOutputs(GameTestHelper context) {
         BlockPos steamEnginePos = new BlockPos(1, 1, 1);
@@ -439,6 +450,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: no Fabric API; never ported to a shared body
     @GameTest
     public void testCableDoesNotConnectToRedstoneEngine(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(1, 1, 1);
@@ -466,6 +478,7 @@ public class CableGameTest {
         context.succeed();
     }
 
+    // not-yet-shared: no Fabric API; never ported to a shared body
     @GameTest(maxTicks = 30)
     public void testRedstoneEngineIsNotPulledByCableNetwork(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(1, 1, 1);
@@ -496,6 +509,7 @@ public class CableGameTest {
         });
     }
 
+    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest(maxTicks = 50)
     public void testCableNetworkRejoinsAfterCableIsRestored(GameTestHelper context) {
         BlockPos sourceCablePos = new BlockPos(1, 1, 1);
@@ -546,6 +560,7 @@ public class CableGameTest {
      * other mods cannot find it). The engine's direct path — inserting into {@code energyStorage} —
      * must still fill the buffer.
      */
+    // not-yet-shared: uses Fabric EnergyStorage lookup as plumbing only
     @GameTest
     public void testCableDoesNotPowerExtractionPipe(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 1);
