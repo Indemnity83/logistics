@@ -17,10 +17,25 @@ public record FuelEngineProfile(
         int coolantBatchMb) {
 
     /** Builds a profile from the config-backed values, defaulting the cooling ratios/rate + batch sizes. */
+    /** Fuel drawn per committed batch, in mB. Fixed, not configurable — the JEI category displays it. */
+    public static final int DEFAULT_FUEL_BATCH_MB = 100;
+
+    /** Coolant drawn per committed batch, in mB. Fixed, not configurable — the JEI category displays it. */
+    public static final int DEFAULT_COOLANT_BATCH_MB = 100;
+
     public static FuelEngineProfile of(
             long minGeneration, long maxGeneration, double maxTemperature, double wasteHeatPerRejectedRf) {
         return new FuelEngineProfile(
-                minGeneration, maxGeneration, maxTemperature, wasteHeatPerRejectedRf, 0.03, 0.5, 0.5, 0.75, 100, 100);
+                minGeneration,
+                maxGeneration,
+                maxTemperature,
+                wasteHeatPerRejectedRf,
+                0.03,
+                0.5,
+                0.5,
+                0.75,
+                DEFAULT_FUEL_BATCH_MB,
+                DEFAULT_COOLANT_BATCH_MB);
     }
 
     /** Temperature above which an idle engine may still commit a fresh coolant batch. */
