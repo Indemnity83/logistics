@@ -63,6 +63,10 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             gameDirectory = project.file('runs/gameTestServer')
+            // Per-test results, so a failure names the test rather than only the run. Vanilla's
+            // report writer does not create the directory itself, hence the mkdirs below.
+            programArguments.addAll('--report',
+                    layout.buildDirectory.file('test-results/gameTestServer/report.xml').get().asFile.absolutePath)
         }
     }
     mods {
@@ -184,5 +188,11 @@ tasks.withType(JavaCompile).configureEach {
 jar {
     from('../LICENSE') {
         rename { "${it}_logistics" }
+    }
+}
+
+tasks.named('runGameTestServer') {
+    doFirst {
+        layout.buildDirectory.file('test-results/gameTestServer/report.xml').get().asFile.parentFile.mkdirs()
     }
 }
