@@ -42,6 +42,11 @@ class TagContractTest {
         List<String> failures = new ArrayList<>();
 
         forEachTag((id, file, values) -> {
+            // Only item tags hold item ids. Block, fluid, and worldgen tags name entries from their
+            // own registry, which the shipped item definitions say nothing about.
+            if (!"item".equals(registryOf(id))) {
+                return;
+            }
             for (String value : values) {
                 if (value.startsWith("#") || !value.startsWith(ResourceFiles.NAMESPACE + ":")) {
                     continue;
@@ -125,6 +130,16 @@ class TagContractTest {
 
     /** Every shipped tag, keyed {@code namespace:registry:path} from its file location. */
     private static Map<String, Path> shippedTags() {
+        if (shippedTags == null) {
+            shippedTags = scanTags();
+        }
+        return shippedTags;
+    }
+
+    // Scanning walks the whole shipped data tree, so hold the result across the tests in this class.
+    private static Map<String, Path> shippedTags;
+
+    private static Map<String, Path> scanTags() {
         Map<String, Path> tags = new LinkedHashMap<>();
         Path root = ResourceFiles.dataRoot();
         for (Path file : ResourceFiles.jsonFilesUnder(root)) {

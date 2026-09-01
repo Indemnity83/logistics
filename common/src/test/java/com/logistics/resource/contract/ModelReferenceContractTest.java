@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Model reference contract")
 class ModelReferenceContractTest {
 
-    private static final Set<String> TEXTURE_KEYS = Set.of("particle");
-
     @Test
     @DisplayName("every model parent resolves to a shipped model")
     void everyModelParentResolves() {
@@ -68,7 +66,12 @@ class ModelReferenceContractTest {
                 if (!model.has("parent")) {
                     break;
                 }
-                current = ResourceFiles.resolve(model.get("parent").getAsString(), "models", ".json");
+                try {
+                    current = ResourceFiles.resolve(model.get("parent").getAsString(), "models", ".json");
+                } catch (ResourceFiles.UnexpectedNamespaceException e) {
+                    // everyModelParentResolves reports this; walking no further is enough here.
+                    break;
+                }
             }
         }
 
@@ -113,7 +116,7 @@ class ModelReferenceContractTest {
             .hasSizeGreaterThanOrEqualTo(276);
     }
 
-    /** Texture references live in a model's "textures" map, plus the top-level "particle" key. */
+    /** Texture references live in a model's "textures" map, "particle" included. */
     private static List<String> texturesOf(JsonObject model) {
         List<String> references = new ArrayList<>();
         JsonElement textures = model.get("textures");
@@ -124,7 +127,6 @@ class ModelReferenceContractTest {
                 }
             }
         }
-        references.addAll(ResourceFiles.collectStrings(model, TEXTURE_KEYS));
         return references;
     }
 }

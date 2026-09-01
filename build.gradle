@@ -265,8 +265,8 @@ tasks.register('checkFeatureTestParity') {
                     "if tests were deliberately removed, lower the floor in checkFeatureTestParity"
         }
         // Ratchet: the not-yet-shared backlog may shrink, never grow.
-        if (notYetShared.size() > 14) {
-            failures << "not-yet-shared feature tests grew to ${notYetShared.size()} (expected <= 14): " +
+        if (notYetShared.size() > 13) {
+            failures << "not-yet-shared feature tests grew to ${notYetShared.size()} (expected <= 13): " +
                     notYetShared.sort().join(', ')
         }
 
@@ -347,6 +347,32 @@ tasks.register('checkResourceParity') {
         logger.lifecycle("resource parity: ${effective(fabric, 'fabric').size()} content files on each loader; " +
                 "${duplicated.size()} identical duplicates pending a move to common")
     }
+}
+
+// Named entry points for the test layers described in TESTING.md. These delegate to the
+// underlying Gradle/plugin tasks; CI calls those directly to keep its per-module matrix.
+tasks.register('unitTest') {
+    description = 'Run all module unit tests (JUnit, no server)'
+    group = 'verification'
+    dependsOn subprojects.collect { "${it.path}:test" }
+}
+
+tasks.register('featureTestFabric') {
+    description = 'Run Fabric feature tests (GameTest, real server)'
+    group = 'verification'
+    dependsOn ':fabric:runGameTest'
+}
+
+tasks.register('featureTestNeoForge') {
+    description = 'Run NeoForge feature tests (GameTest, real server)'
+    group = 'verification'
+    dependsOn ':neoforge:runGameTestServer'
+}
+
+tasks.register('featureTest') {
+    description = 'Run feature tests on every loader'
+    group = 'verification'
+    dependsOn 'featureTestFabric', 'featureTestNeoForge'
 }
 
 tasks.register('testCoverage', JacocoReport) {
