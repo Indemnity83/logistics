@@ -123,6 +123,18 @@ class FluidExtractionTest {
     }
 
     @Test
+    @DisplayName("a rate of zero blocks the gulp too, not just the rate-sized sip")
+    void zeroRateExtractsNothing() {
+        FluidBuffer<String> pipe = FluidBuffer.extractor(1000);
+        FakeQuantizedFluidProvider cauldron = new FakeQuantizedFluidProvider(WATER, 1000, 1000);
+        FluidExtraction.Result result = FluidExtraction.tick(pipe, cauldron, 1000, 0, true, 7);
+        assertThat(result.extractedMb()).isZero();
+        assertThat(result.energyToConsume()).isZero();
+        assertThat(result.carryMb()).isEqualTo(7);
+        assertThat(cauldron.amount()).isEqualTo(1000);
+    }
+
+    @Test
     @DisplayName("gulping still obeys the energy cap")
     void gulpRespectsEnergyCap() {
         // 10 RF buys 500 mB — not enough for a 1000 mB chunk, so nothing moves and nothing is spent.

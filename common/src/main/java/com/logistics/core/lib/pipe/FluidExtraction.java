@@ -47,6 +47,9 @@ public final class FluidExtraction {
      */
     public static <F> Result tick(
             FluidBuffer<F> pipe, FluidProvider<F> source, long energy, long rate, boolean requiresEngine, long carryMb) {
+        if (rate <= 0) {
+            return new Result(0, 0, carryMb);
+        }
         long sip = allowance(rate, energy, requiresEngine);
         long extracted = pipe.extract(source, sip);
         if (extracted == 0) {
