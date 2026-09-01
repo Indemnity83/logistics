@@ -557,7 +557,12 @@ capture — most are one call, and the framework provides them:
 - `getClientLevel().waitForChunksRender()` — capturing earlier yields a partly-empty frame.
 - `TestScreenshotOptions.of(name).disableCounterPrefix()` — stable filename. The default prefixes an
   incrementing counter, which makes captures impossible to compare between builds.
-- Fixed camera position and angle, once a test actually looks at something specific.
+- Fixed camera position and angle, once a test actually looks at something specific — and put the
+  player in **spectator** before teleporting. A survival player teleported above ground falls and
+  settles a fraction of a block differently each run, shifting the whole frame by a sub-pixel. That
+  one detail moved the showcase capture from 0.00996 (twice the default tolerance, i.e. unusable as
+  a gate) to 0.00012, comfortably inside it. The symptom is distinctive: the sky compares
+  pixel-identical while nearly every ground pixel differs slightly.
 
 Loom also clears the run directory before each run (`deleteGameTestRunDir`), so stale state doesn't
 leak between runs.
@@ -578,9 +583,39 @@ Until a baseline corpus exists, prefer treating captures as **reviewed CI artifa
 pass/fail gate — upload them and look at them. A visual-diff gate is a deliberate later step, not the
 default.
 
-### Cost
+### What runs today
 
-A world-creating capture test runs in about 15 seconds locally on a warm cache. CI needs a display:
-the run config inherits from `client`, so a headless runner requires `xvfb` (or an equivalent). Given
-that, run this suite on client/render/resource changes and on release candidates rather than on every
-PR.
+- `ClientBootstrapGameTest` — starts a client, builds a world, renders it, captures a frame. Asserts
+  nothing about our own content; it exists to fail loudly if the harness itself breaks, which is
+  otherwise only discovered when someone tries to add a real client test.
+- `ShowcaseClientGameTest` — renders the block types whose drawing differs from a plain cube, and
+  opens a real machine screen.
+
+The showcase covers what the static resource contract structurally cannot. That suite proves a model
+file *resolves*; only a client proves the model actually draws. Specifically:
+
+| Subject | Why it's in the showcase |
+|---|---|
+| Copper transport pipes | Multipart blockstate — the model is chosen from neighbours, so they are placed in a connected run rather than as a lone stub |
+| Copper cable | Blockstate ships per loader rather than from `common`, and the geometry comes from a dynamic renderer (its base model has empty `elements`) |
+| Kiln | Machine with a block entity renderer, and the screen subject below |
+| Glass tank | Fluid container rendering |
+| Kiln screen | Opened through the server's real menu path, so the menu, its synced data, and the screen layout are all exercised rather than hand-constructed |
+
+The screen test uses `waitForScreen`, so it fails if the screen never opens rather than quietly
+capturing the world behind it.
+
+The HUD is toggled off for the block capture via the real F1 binding: health, hunger, and hotbar
+state have nothing to do with block rendering but would still show up as differences between
+captures. (There is no longer a `hideGui` field to set directly.)
+
+### Cost and CI
+
+A world-creating capture test runs in about 15 seconds locally on a warm cache. CI needs a display —
+the run config inherits from `client` — so the `client-feature-test (fabric)` job installs `xvfb` and
+runs through `xvfb-run`.
+
+That job is gated on a `client_changed` path filter: client sources, shipped assets, or the client
+test sources themselves. A change that a client test could not possibly observe doesn't pay for a
+client boot. Screenshots upload on success as well as failure, because they are review artifacts
+rather than failure diagnostics.
