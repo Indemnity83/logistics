@@ -634,3 +634,74 @@ A NeoForge timed test (`runAfterDelay`, a tight `maxTicks`) generally needs a sl
 environment/structure differently before handing control to the test body. There's no fixed
 conversion factor; if a new timed test times out on NeoForge but not Fabric, that's why — give it
 more headroom (the existing registrations add roughly 20 ticks as a starting point) and re-run.
+
+---
+
+## Client Feature Tests
+
+Run with `./gradlew :fabric:runClientGameTest`. This starts a **real Minecraft client** with the mod
+loaded, builds a world, renders it, and can capture screenshots — the layer that covers screens,
+models, and rendering, none of which a headless server can see.
+
+**Fabric only.** NeoForge has no equivalent harness here, and unlike server feature tests there is
+nothing to share: these are not portable test bodies, so `common/src/gametest` is not involved.
+
+### A different framework from the server tests
+
+Despite the similar name, this is not vanilla GameTest. It is Fabric API's client test framework
+(`fabric-client-gametest-api-v1`), and it works differently:
+
+| | Server feature tests | Client feature tests |
+|---|---|---|
+| Framework | vanilla GameTest | Fabric API client test |
+| Unit of a test | one `@GameTest` method | one class, run as a script |
+| Discovery | `fabric-gametest` entrypoint | `fabric-client-gametest` entrypoint |
+| Shared across loaders | yes, via `common/src/gametest` | no |
+
+Because a client test is a whole class rather than annotated methods, `checkFeatureTestParity` — which
+scans `@GameTest` methods — does not see them. They neither satisfy nor violate it.
+
+No Gradle wiring was needed: loom's `enableClientGameTests` defaults to true, so `runClientGameTest`
+already existed, and `fabric-client-gametest-api-v1` is already on the gametest classpath via the
+existing `fabric-api` dependency. The one change required was `fabric.mod.json`'s `environment`,
+which was `"server"` and kept the test mod off the client entirely; it is now `"*"`.
+
+### Determinism contract
+
+A screenshot that varies run to run is worse than no screenshot. Fix all of these before adding a
+capture — most are one call, and the framework provides them:
+
+- `context.restoreDefaultGameOptions()` — GUI scale, render distance, graphics options. Without it a
+  developer's local settings change what gets captured.
+- `worldBuilder().setUseConsistentSettings(true)` — fixed world settings and seed. Use
+  `adjustSettings(...)` for per-test time of day, weather, or world type.
+- `getClientLevel().waitForChunksRender()` — capturing earlier yields a partly-empty frame.
+- `TestScreenshotOptions.of(name).disableCounterPrefix()` — stable filename. The default prefixes an
+  incrementing counter, which makes captures impossible to compare between builds.
+- Fixed camera position and angle, once a test actually looks at something specific.
+
+Loom also clears the run directory before each run (`deleteGameTestRunDir`), so stale state doesn't
+leak between runs.
+
+### Never compare screenshots byte-for-byte
+
+Two runs of the same test on the same machine do **not** produce identical PNGs. Measured on this
+repo: same 854x480 dimensions, but different file sizes, and **33% of channel samples differed**.
+The differences are sub-unit GPU noise spread across the whole frame — a normalised mean squared
+difference of **0.000006**.
+
+So `assertScreenshotEquals` is safe but `TestScreenshotComparisonAlgorithm.exact()` is not: it would
+fail on every run. The default algorithm is `meanSquaredDifference(0.005)`, roughly 800x the observed
+noise floor, which is why comparison works without tuning. Use `withRegion(...)` to narrow a
+comparison to the part of the frame under test, and `withGrayscale()` when colour is not the point.
+
+Until a baseline corpus exists, prefer treating captures as **reviewed CI artifacts** rather than a
+pass/fail gate — upload them and look at them. A visual-diff gate is a deliberate later step, not the
+default.
+
+### Cost
+
+A world-creating capture test runs in about 15 seconds locally on a warm cache. CI needs a display:
+the run config inherits from `client`, so a headless runner requires `xvfb` (or an equivalent). Given
+that, run this suite on client/render/resource changes and on release candidates rather than on every
+PR.
