@@ -1,26 +1,59 @@
 # Testing Guide
 
+## Vocabulary
+
+The suite is layered, and each layer has a name used consistently in task names, CI job labels, and
+this document. Use these terms in PR titles and discussion:
+
+| Term | What it means | Where it lives | How it runs |
+|------|---------------|----------------|-------------|
+| **Unit test** | Pure logic, no live world — state transitions, codecs, planners, config math, single-file JSON decoding | `common/src/test`, and the loader modules' `src/test` | JUnit 5 |
+| **Feature test** | A real Minecraft server verifies player-visible behavior | body in `common/src/gametest`, wired per loader | GameTest |
+| **Loader contract test** | A Fabric/NeoForge adapter fulfills a common contract | `fabric/src/test`, `neoforge/src/test` | JUnit 5 |
+| **Resource contract test** | Every shipped JSON/asset reference resolves | `common/src/test/java/com/logistics/resource/contract` | JUnit 5 (static, no server) |
+| **Client feature test** | A real client verifies screens, models, rendering | not yet built — Fabric-only when it lands | client GameTest |
+| **Journey** | A small end-to-end player workflow | not yet built | real driven client |
+
+"Feature test" and "GameTest" refer to the same thing: GameTest is the Minecraft framework, feature
+test is what we call the layer. Class files keep the `GameTest` suffix (`<Name>GameTestBody`,
+`<Name>GameTest`, `<Name>GameTestRegistration`) — renaming ~95 files across five `mc/*` branches would
+cost far more in cherry-pick conflicts than the naming consistency is worth.
+
 ## Test Structure
 
 | Module | Location | Type | Framework |
 |--------|----------|------|-----------|
 | `common` | `common/src/test/java/` | Unit | JUnit 5 + Minecraft bootstrap |
-| `fabric` | `fabric/src/test/java/` | Unit | JUnit 5 (plain) |
-| `neoforge` | `neoforge/src/test/java/` | Unit | JUnit 5 (plain) |
-| `common` | `common/src/gametest/java/` | Integration (shared body) | plain `Consumer<GameTestHelper>` methods, no loader imports |
-| `fabric` | `fabric/src/gametest/java/` | Integration | Fabric `@GameTest` (deprecated/manual; see below) |
-| `neoforge` | `neoforge/src/gametest/java/` | Integration | vanilla GameTest registry via `DeferredRegister` (see below) |
+| `fabric` | `fabric/src/test/java/` | Loader contract | JUnit 5 (plain) |
+| `neoforge` | `neoforge/src/test/java/` | Loader contract | JUnit 5 (plain) |
+| `common` | `common/src/gametest/java/` | Feature (shared body) | plain `Consumer<GameTestHelper>` methods, no loader imports |
+| `fabric` | `fabric/src/gametest/java/` | Feature | Fabric `@GameTest` (deprecated/manual; see below) |
+| `neoforge` | `neoforge/src/gametest/java/` | Feature | vanilla GameTest registry via `DeferredRegister` (see below) |
 
 ### Running tests
+
+```bash
+./gradlew unitTest                    # All module unit tests
+./gradlew featureTest                 # Feature tests on both loaders
+./gradlew featureTestFabric           # Fabric feature tests only
+./gradlew featureTestNeoForge         # NeoForge feature tests only
+./gradlew testCoverage                # Aggregate local JaCoCo coverage report
+```
+
+Those aliases delegate to the underlying tasks, which can still be called directly to scope a run to
+one module:
 
 ```bash
 ./gradlew :common:test                # Common business logic unit tests
 ./gradlew :fabric:test                # Fabric ServiceLoader and adapter unit tests
 ./gradlew :neoforge:test              # NeoForge ServiceLoader and adapter unit tests
-./gradlew testCoverage                # Aggregate local JaCoCo coverage report
-./gradlew :fabric:runGameTest         # Fabric integration game tests (deprecated/manual; see below)
-./gradlew :neoforge:runGameTestServer # NeoForge integration game tests (see below)
+./gradlew :fabric:runGameTest         # Fabric feature tests (deprecated/manual; see below)
+./gradlew :neoforge:runGameTestServer # NeoForge feature tests (see below)
 ```
+
+CI deliberately calls the per-module tasks rather than the aggregate aliases: its matrix runs one job
+per module so the modules test in parallel and each uploads its own coverage report. The aliases are a
+local convenience, not the CI entry point.
 
 ### Formatting
 
@@ -44,9 +77,14 @@ Pull request CI runs under two workflows:
 - **Check Code**:
   - `lint (common)` checks repository-level formatting, common Java formatting, and import boundaries.
   - `lint (fabric|neoforge)` checks module Java formatting.
-  - `test (common|fabric|neoforge)` runs module unit tests and uploads that
+  - `unit-test (common|fabric|neoforge)` runs module unit tests and uploads that
     module's JaCoCo coverage to Codecov (tagged with a per-module flag). Codecov
     merges the three uploads into the combined coverage for the commit.
+  - `feature-test (fabric|neoforge)` runs each loader's GameTests on a real server.
+
+The workflow's internal job *keys* are still `test` and `gametest`; only the displayed names use the
+`unit-test`/`feature-test` vocabulary. The keys are left alone on purpose — renaming them risks
+breaking branch protection's required-check contexts and any downstream tooling that references them.
 
 PR CI does not build preview jars automatically. Use the manual **Build PR Artifacts**
 workflow when a branch needs downloadable Fabric or NeoForge jars for smoke testing.
@@ -220,15 +258,19 @@ recipe against a live inventory. `KilnRecipeTest` reads `kiln.json` directly and
 the wiki's Crafting section — this is also how a stable registry id surviving a display-name rename
 (`machine_core` / "Machine Frame") was confirmed *not* to be a mismatch, a useful reminder to check
 the lang file before flagging an id-vs-wiki-name difference as a discrepancy.
-`RecipeJsonSmokeTest` is mod-wide infrastructure, not block-specific: it walks every recipe JSON
-under `common/src/main/resources/data/logistics/recipe/` and checks each one is valid JSON with a
-non-blank `type`, and — where a `result` is present — a non-blank `id` or `fluid` field (it does not
-check `count`/`amount`) — catching a JSON syntax error, a missing `type`, or a `result` with no
-identifiable item/fluid (the cheap, high-frequency ways a hand-edited recipe silently breaks) on
-every `./gradlew :common:test` run, mod-wide, at effectively zero marginal cost per recipe added.
-It's deliberately structural, not semantic: it doesn't resolve ingredient item ids through
-Minecraft's registry (vanilla's registry silently defaults an unknown id to `minecraft:air` instead
-of failing, so that check wouldn't reliably catch an item-id typo anyway).
+`RecipeLoadingGameTestBody` is the mod-wide counterpart, and it is a *feature* test rather than a
+unit test: it walks the live datapack stack via `FileToIdConverter` and asserts every `logistics:`
+recipe file actually landed in the server's `RecipeManager`. Loading through the real manager is the
+point — a recipe that parses as JSON but fails to deserialize (unknown type, malformed ingredient) is
+silently absent at runtime, and only a real load catches that. It walks the datapack stack rather than
+the raw classpath so it behaves identically regardless of how each loader's dev environment lays out
+mod resources on disk.
+
+It stops at "did it load," not "is the content right": it does not resolve ingredient item ids through
+Minecraft's registry, because vanilla silently defaults an unknown id to `minecraft:air` instead of
+failing, so that check wouldn't reliably catch an item-id typo anyway. Verifying registry-backed ids
+belongs in a live server-data contract; verifying a specific recipe's content belongs in a
+`*RecipeTest`/`*RecipeSpotCheckTest` unit test.
 
 ### Feature-test backlog
 
@@ -340,6 +382,13 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 15. **Fluid-routing modules** (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
     FluidVoidModule) — zero coverage at any level, real check-valve/routing-policy logic backing 4
     registered pipe blocks.
+16. **Share the 13 `// not-yet-shared:` CableGameTest tests** — NeoForge runs none of them today, so
+    the whole cable domain is Fabric-only in practice: topology (connects/doesn't connect, network
+    splits and rejoins), tier capping, and engine interaction are all unverified there. Five touch no
+    Fabric API and move as-is; the other eight use `Transaction`/`EnergyStorage` only to push and read
+    energy, so they need the same rewrite `PipeFlowGameTest` already got — swap the Fabric calls for
+    a real adjacent `CREATIVE_ENGINE` and plain block-entity reads. Only the two
+    `testAbortedCableTransaction*` tests genuinely stay Fabric-only.
 
 ---
 
@@ -356,7 +405,10 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
-- **Recipe JSON smoke test** — every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) parses as JSON with a non-blank `type` and well-formed `result`; see "Recipe testing" above
+
+Recipe loading is covered by a feature test rather than a unit test — `RecipeLoadingGameTestBody`
+asserts every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) actually loads
+into a live `RecipeManager`; see "Recipe testing" above.
 
 `fabric/src/test/java/` and `neoforge/src/test/java/` contain ServiceLoader smoke tests
 verifying `META-INF/services/` registrations are present and the implementation classes
@@ -420,8 +472,9 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ## Fabric + NeoForge Game Tests
 
-`fabric/src/gametest/` and `neoforge/src/gametest/` together run **200+ integration tests** that
-require a full Minecraft server process (real block placement, game ticks). Fabric's are considered
+`fabric/src/gametest/` and `neoforge/src/gametest/` run **191 shared feature tests** on each loader
+(plus 16 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
+Minecraft server process (real block placement, game ticks). Fabric's are considered
 **deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
 code is restructured to separate pure logic from world dependencies — but they're kept to preserve
 coverage. The primary blocker for conversion is that all tests depend on `GameTestHelper` to place
@@ -469,12 +522,20 @@ unfreeze mechanism NeoForge already uses for those — not vanilla's bootstrap-t
 A test that specifically exercises a loader's own capability/interop API — not this mod's code —
 can't be shared, because the two loaders' APIs are genuinely different, not just differently named:
 
-- `power/CableGameTest` stays **Fabric-only**. Every test in it opens a Team Reborn `Transaction`
-  (`Transaction.openOuter()`, `.commit()`, an unclosed transaction implicitly aborting) to verify the
-  cable's energy capability participates correctly in Fabric's transactional insert/rollback
-  semantics. NeoForge's own energy capability (`IEnergyStorage.insert(amount, simulate)`) has no
-  transaction/rollback concept to test — a `simulate=true` dry run is a different mechanism, not an
-  equivalent. There is no `CableGameTestRegistration` on NeoForge.
+- `power/CableGameTest#testAbortedCableTransactionDoesNotReachCreativeSink` and
+  `#testAbortedCableTransactionAfterTickDoesNotReachCreativeSink` are genuinely Fabric-only. Both open
+  a Team Reborn `Transaction` (`Transaction.openOuter()`, an unclosed transaction implicitly aborting)
+  to verify the cable's energy capability participates correctly in Fabric's transactional
+  insert/rollback semantics. NeoForge's own energy capability
+  (`IEnergyStorage.insert(amount, simulate)`) has no transaction/rollback concept to test — a
+  `simulate=true` dry run is a different mechanism, not an equivalent.
+
+  The **rest** of `CableGameTest` is not a real exception, only an unfinished port: 5 of its tests
+  touch no Fabric API at all, and the other 8 use `Transaction`/`EnergyStorage` purely as test
+  plumbing to move energy around — exactly the situation `PipeFlowGameTest` was already rewritten out
+  of (next bullet). Those 13 carry a `// not-yet-shared:` marker and are counted by
+  `checkFeatureTestParity`; the count may shrink but never grow. NeoForge currently runs none of
+  them, which is a real coverage gap, not a documented boundary.
 - `pipe/PipeFlowGameTest#testChestItemStorageReachable` stays inline in the Fabric wrapper (not
   delegated to a Body method, not registered on NeoForge): it specifically verifies Fabric API's own
   vanilla-chest-to-`ItemStorage` adapter, which has no NeoForge equivalent to test — every other
@@ -490,7 +551,29 @@ can't be shared, because the two loaders' APIs are genuinely different, not just
 
 When you hit a test like this, don't force a shared body that only compiles on one loader (or
 silently duplicates the loader-native call under two different names) — leave the loader-specific
-assertion where it belongs and document why, the way the three cases above do.
+assertion where it belongs and document why, the way the cases above do.
+
+### Parity is enforced, not assumed
+
+`./gradlew checkFeatureTestParity` (wired into `:common:lint`, so it runs in the `lint (common)` CI
+job) builds the catalog of shared tests — every `public static` method taking a `GameTestHelper` in
+`common/src/gametest` — and fails if either loader doesn't wire one up. It also fails on a reference
+to a body method that doesn't exist, and on an unshared Fabric test with no justification marker.
+
+Matching *counts* are not parity and the task never checks them: two loaders can each run 191 tests
+while running different sets. Comparing the catalog against each loader's wiring is what actually
+proves it.
+
+For reference, the current split is 191 shared tests, plus 3 `// loader-only:` and 13
+`// not-yet-shared:` Fabric tests. The runs report 208 on Fabric and 192 on NeoForge; the totals
+include a built-in instance from the test framework itself, so read the *difference* rather than
+either number — 16, exactly the unshared Fabric set, and expected rather than a defect.
+
+Every unshared Fabric test needs one of two markers directly above its `@GameTest` annotation:
+
+- `// loader-only: <reason>` — genuinely tests a loader-native API with no counterpart. Permanent.
+- `// not-yet-shared: <reason>` — should live in a shared body eventually. Tracked, and the task
+  ratchets the total down: adding one fails the build.
 
 ### Adding a new test
 
@@ -505,7 +588,10 @@ assertion where it belongs and document why, the way the three cases above do.
    registration *class* additionally needs its own namespace-unique environment id
    (`registerInstances(event, "<domain>/<slug>", ...)`) and a `.bootstrap()` call added to
    `LogisticsGameTestMod`'s constructor.
-4. Run both `./gradlew :fabric:runGameTest` and `./gradlew :neoforge:runGameTestServer` and confirm
+4. Run `./gradlew checkFeatureTestParity` — it catches a missing wrapper or registration instantly,
+   without booting a server, and is the check that would otherwise only surface as a silently absent
+   test.
+5. Run both `./gradlew :fabric:runGameTest` and `./gradlew :neoforge:runGameTestServer` and confirm
    the "N GAME TESTS COMPLETE" count went up by the expected amount on each.
 
 A NeoForge timed test (`runAfterDelay`, a tight `maxTicks`) generally needs a slightly larger
