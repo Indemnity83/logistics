@@ -15,11 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Proves the shipped model graph holds together: every parent resolves, no parent chain loops,
- * and every texture a model names actually ships.
- *
- * <p>A broken reference here is invisible until the game loads the model and falls back to the
- * missing-texture checkerboard, which is exactly the class of bug that reaches players.
+ * Every model parent resolves, no parent chain loops, and every texture a model names ships.
  */
 @DisplayName("Model reference contract")
 class ModelReferenceContractTest {
@@ -40,7 +36,7 @@ class ModelReferenceContractTest {
                 if (target != null && !Files.isRegularFile(target)) {
                     failures.add(ResourceFiles.describe(file) + " -> missing parent model '" + parent + "'");
                 }
-            } catch (ResourceFiles.UnexpectedNamespaceException e) {
+            } catch (ResourceFiles.BadReferenceException e) {
                 failures.add(ResourceFiles.describe(file) + " -> " + e.getMessage());
             }
         }
@@ -68,7 +64,7 @@ class ModelReferenceContractTest {
                 }
                 try {
                     current = ResourceFiles.resolve(model.get("parent").getAsString(), "models", ".json");
-                } catch (ResourceFiles.UnexpectedNamespaceException e) {
+                } catch (ResourceFiles.BadReferenceException e) {
                     // everyModelParentResolves reports this; walking no further is enough here.
                     break;
                 }
@@ -95,7 +91,7 @@ class ModelReferenceContractTest {
                     if (target != null && !Files.isRegularFile(target)) {
                         failures.add(ResourceFiles.describe(file) + " -> missing texture '" + reference + "'");
                     }
-                } catch (ResourceFiles.UnexpectedNamespaceException e) {
+                } catch (ResourceFiles.BadReferenceException e) {
                     failures.add(ResourceFiles.describe(file) + " -> " + e.getMessage());
                 }
             }
@@ -104,10 +100,7 @@ class ModelReferenceContractTest {
         assertThat(failures).as("unresolved model textures").isEmpty();
     }
 
-    /**
-     * Sanity guard, not a coverage claim: catches walking an empty or wrong directory. It says
-     * nothing about whether the models that are there are correct.
-     */
+    /** Guards against walking an empty or wrong directory; says nothing about correctness. */
     @Test
     @DisplayName("the shipped model set has not collapsed")
     void modelSetHasNotCollapsed() {

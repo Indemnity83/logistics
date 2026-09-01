@@ -307,6 +307,10 @@ populate. Blockstates, loot tables, and tags are not covered yet either. Registr
 silently resolves an unknown id to `minecraft:air` rather than failing, so a static check can't catch
 that class of typo.
 
+The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
+rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
+nothing under it is validated.
+
 ### Feature-test backlog
 
 Recorded here so a pass doesn't have to re-derive priority order or re-discover what's already done.
