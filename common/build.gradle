@@ -55,6 +55,11 @@ dependencies {
     // JEI — compile only; players install separately at runtime
     modCompileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric-api:${rootProject.jei_version}")
 
+    // Jade HUD — compile only; players install separately at runtime. The Jade API is identical across
+    // loaders, so the shared compat.jade providers compile here once and both loaders reuse them; each
+    // loader still declares its own Jade dependency for its runtime/plugin-registration half.
+    modCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
+
     // Test infrastructure
     testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
     testImplementation "net.fabricmc:fabric-loader-junit:${rootProject.fabric_loader_version}"
