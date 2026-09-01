@@ -160,11 +160,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 .describe("Fluid Pipe buffer capacity (mB)")
                 .register();
 
-        public static final ConfigKey<Integer> FLUID_PIPE_HANDLER_CAPACITY = fluids.defineInt(
-                        "pipe_handler_capacity", 1000)
+        public static final ConfigKey<Integer> FLUID_PIPE_EXTRACTOR_CAPACITY = fluids.defineInt(
+                        "pipe_extractor_capacity", 1000)
                 .min(1)
-                .describe("Buffer capacity (mB) of the pipes that trade with handlers directly — the Fluid "
-                        + "Extractor and Insertion pipes. Must hold one bucket to fill or drain a cauldron.")
+                .describe("Buffer capacity (mB) of the Fluid Extractor Pipe. Must hold one bucket to drain a "
+                        + "cauldron, which only gives up whole levels.")
                 .register();
 
         public static final ConfigKey<Boolean> FLUID_PIPE_WOODEN_REQUIRES_ENGINE =
