@@ -207,9 +207,11 @@ jobs:
           - loader: fabric
             task: ':fabric:runGameTest'
             logs: fabric/build/run/gameTest/logs/
+            report: fabric/build/test-results/gameTest/report.xml
           - loader: neoforge
             task: ':neoforge:runGameTestServer'
             logs: neoforge/runs/gameTestServer/logs/
+            report: neoforge/build/test-results/gameTestServer/report.xml
 
     steps:
       - name: Skip game tests for non-code changes
@@ -244,6 +246,13 @@ jobs:
         with:
           name: gametest-logs-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.logs }}
+
+      - name: Upload game test report
+        if: needs.changes.outputs.code_changed == 'true' && !cancelled()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: gametest-report-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ matrix.report }}
 
   client-feature-test:
     name: client-feature-test (fabric)
