@@ -17,8 +17,11 @@ package com.logistics.core.lib.pipe;
  */
 public final class FluidBuffer<F> {
 
-    /** Internal storage capacity of a pipe segment, in millibuckets. */
+    /** Default internal storage capacity of a pipe segment, in millibuckets. */
     public static final long CAPACITY_MB = 250;
+
+    /** This buffer's storage capacity, in millibuckets. */
+    private final long capacityMb;
 
     /** How much fluid is currently held in this pipe's internal storage, in millibuckets. */
     private long amountMb;
@@ -26,14 +29,32 @@ public final class FluidBuffer<F> {
     /** The fluid currently held, or {@code null} when the pipe is empty. */
     private F fluid;
 
+    public FluidBuffer() {
+        this(CAPACITY_MB);
+    }
+
+    public FluidBuffer(long capacityMb) {
+        this.capacityMb = Math.max(0, capacityMb);
+    }
+
     /** Creates an extraction pipe — one that can pull fluid from adjacent storage. */
     public static <F> FluidBuffer<F> extractor() {
         return new FluidBuffer<>();
     }
 
+    /** Creates an extraction pipe holding up to {@code capacityMb} millibuckets. */
+    public static <F> FluidBuffer<F> extractor(long capacityMb) {
+        return new FluidBuffer<>(capacityMb);
+    }
+
     /** Capacity of this pipe's internal storage, in millibuckets. */
     public long capacity() {
-        return CAPACITY_MB;
+        return capacityMb;
+    }
+
+    /** Remaining space in this pipe's internal storage, in millibuckets. */
+    public long space() {
+        return capacityMb - amountMb;
     }
 
     /** Amount of fluid currently held in this pipe's internal storage, in millibuckets. */
@@ -52,7 +73,7 @@ public final class FluidBuffer<F> {
      * callers must pass an already-valid amount.
      */
     public void restore(F fluid, long amountMb) {
-        long clamped = Math.max(0, Math.min(amountMb, CAPACITY_MB));
+        long clamped = Math.max(0, Math.min(amountMb, capacityMb));
         // Normalize to empty rather than persist the invalid "some amount, no fluid" state.
         this.fluid = clamped > 0 ? fluid : null;
         this.amountMb = this.fluid == null ? 0 : clamped;
@@ -74,8 +95,7 @@ public final class FluidBuffer<F> {
         if (incoming == null || (fluid != null && !fluid.equals(incoming))) {
             return 0;
         }
-        long space = CAPACITY_MB - amountMb;
-        long limit = Math.min(millibuckets, space);
+        long limit = Math.min(millibuckets, space());
         long extracted = source.drain(limit);
         if (extracted > 0) {
             fluid = incoming;
@@ -111,8 +131,7 @@ public final class FluidBuffer<F> {
         if (!canTransferTo(target, millibuckets)) {
             return 0;
         }
-        long space = CAPACITY_MB - target.amountMb;
-        return transfer(target, Math.min(Math.min(millibuckets, amountMb), space));
+        return transfer(target, Math.min(Math.min(millibuckets, amountMb), target.space()));
     }
 
     /**
@@ -121,7 +140,7 @@ public final class FluidBuffer<F> {
      * capacity in blocks — is positive: fluid pools and fills a pipe first, then climbs under pressure.
      */
     public long lift(FluidBuffer<F> target, long millibuckets, int head) {
-        if (head <= 0 || amountMb < CAPACITY_MB) {
+        if (head <= 0 || amountMb < capacityMb) {
             return 0;
         }
         return pour(target, millibuckets);

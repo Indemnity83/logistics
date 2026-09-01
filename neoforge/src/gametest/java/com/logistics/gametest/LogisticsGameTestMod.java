@@ -12,6 +12,7 @@ import com.logistics.gametest.automation.TransposerGameTestRegistration;
 import com.logistics.gametest.core.MaceratorGameTestRegistration;
 import com.logistics.gametest.core.OreGenerationGameTestRegistration;
 import com.logistics.gametest.network.NetworkIntegrationGameTestRegistration;
+import com.logistics.gametest.pipe.CauldronFluidGameTestRegistration;
 import com.logistics.gametest.pipe.FluidConnectionGameTestRegistration;
 import com.logistics.gametest.pipe.FluidLightGameTestRegistration;
 import com.logistics.gametest.pipe.FluidPacketDropGameTestRegistration;
@@ -67,6 +68,7 @@ public final class LogisticsGameTestMod {
 
         NetworkIntegrationGameTestRegistration.bootstrap();
 
+        CauldronFluidGameTestRegistration.bootstrap();
         FluidConnectionGameTestRegistration.bootstrap();
         FluidLightGameTestRegistration.bootstrap();
         FluidPacketDropGameTestRegistration.bootstrap();
