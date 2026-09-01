@@ -19,6 +19,11 @@ public interface FluidPipeBehavior {
         return rate;
     }
 
+    /** Adjust the buffer capacity (mB) flowing in from the previous behavior. Default: unchanged. */
+    default long modifyCapacity(long capacity) {
+        return capacity;
+    }
+
     /** Override the destination priority decided so far. Default: unchanged. */
     default DestinationPriority destinationPriority(DestinationPriority priority) {
         return priority;

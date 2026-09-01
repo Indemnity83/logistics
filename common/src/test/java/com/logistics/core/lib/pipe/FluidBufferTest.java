@@ -290,6 +290,19 @@ class FluidBufferTest {
         assertThat(pipe.amount()).isZero();
     }
 
+    @Test
+    @DisplayName("a wider buffer fills to its own capacity, not the shared default")
+    void honoursItsOwnCapacity() {
+        FluidBuffer<String> pipe = FluidBuffer.extractor(1000);
+        assertThat(pipe.capacity()).isEqualTo(1000);
+        assertThat(pipe.space()).isEqualTo(1000);
+
+        assertThat(pipe.extract(ampleProvider(), 1000)).isEqualTo(1000);
+        assertThat(pipe.amount()).isEqualTo(1000);
+        assertThat(pipe.space()).isZero();
+        assertThat(pipe.extract(ampleProvider(), 1)).isZero();
+    }
+
     /** A water provider with effectively unlimited fluid, for tests where the source isn't the constraint. */
     private static FakeFluidProvider ampleProvider() {
         return new FakeFluidProvider(WATER, 1_000_000);

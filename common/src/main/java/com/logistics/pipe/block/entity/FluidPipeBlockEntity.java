@@ -490,6 +490,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             destroyReady(transferRate());
         } else {
             moveReadyFluid(level, transferRate());
+            depositWholeChunk(level);
         }
 
         parcels.removeIf(parcel -> parcel.amount() <= 0);
@@ -522,7 +523,9 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             return;
         }
         long budget = Math.min(scaledExtractionRate(transferRate(), fluid), room);
-        FluidBuffer<IFluidKey> pulled = new FluidBuffer<>();
+        // Sized to the real room, not the buffer default, so FluidExtraction can re-offer the whole space to
+        // an all-or-nothing source (a cauldron yields a whole level or nothing).
+        FluidBuffer<IFluidKey> pulled = FluidBuffer.extractor(room);
         FluidExtraction.Result result = FluidExtraction.tick(
                 pulled,
                 provider,
@@ -581,7 +584,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
                 room[i] = roomToward(level, outs.get(i), fluid, rate);
             }
             if (def != null && def.destinationPriority() == DestinationPriority.HANDLERS_FIRST) {
-                preferHandlers(outs, room);
+                preferHandlers(level, fluid, outs, room);
             }
             long totalRoom = 0;
             for (long r : room) {
@@ -636,11 +639,19 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     /**
      * Insertion pipe routing: when any adjacent handler can take fluid this tick, zero the room of every
      * non-handler output so the split fills tanks first; pipes get the overflow only once the tanks are full.
+     *
+     * <p>A handler counts as having room if it would take a whole-buffer offer even though it refused a
+     * rate-sized one — an all-or-nothing cauldron always refuses the latter. Without this the pipe would route
+     * the stalled fluid back the way it came instead of pooling it, and never reach a level's worth. A handler
+     * that is genuinely full refuses both sizes, so fluid still passes on down the line.
      */
-    private void preferHandlers(List<Direction> outs, long[] room) {
+    private void preferHandlers(Level level, IFluidKey fluid, List<Direction> outs, long[] room) {
         boolean handlerHasRoom = false;
         for (int i = 0; i < outs.size(); i++) {
-            if (room[i] > 0 && connection(outs.get(i)) == FluidConnection.HANDLER) {
+            if (connection(outs.get(i)) != FluidConnection.HANDLER) {
+                continue;
+            }
+            if (room[i] > 0 || roomToward(level, outs.get(i), fluid, capacityMb) > 0) {
                 handlerHasRoom = true;
                 break;
             }
@@ -652,6 +663,75 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             if (connection(outs.get(i)) != FluidConnection.HANDLER) {
                 room[i] = 0;
             }
+        }
+    }
+
+    /**
+     * Offer the pipe's stalled fluid whole to an adjacent handler that refused a rate-sized share. All-or-nothing
+     * handlers — a cauldron takes a whole level or nothing — report no room for the few mB the rate-limited
+     * split offers, so {@link #moveReadyFluid} blocks the fluid forever however full the pipe gets. Only a
+     * handler that turned down the rate-sized offer gets this treatment; one with ordinary room is served at the
+     * normal rate. Average throughput is unchanged: refilling the buffer at the transfer rate is what paces the
+     * next deposit.
+     *
+     * <p>The offer pools every stalled parcel, not just one: arrivals hop in at no more than the transfer rate
+     * and never coalesce afterwards, so a single parcel is almost never big enough for a whole chunk.
+     */
+    private void depositWholeChunk(Level level) {
+        TravelingFluid lead = null;
+        for (TravelingFluid parcel : parcels) {
+            if (parcel.ready() && parcel.blocked() && parcel.amount() > 0) {
+                lead = parcel;
+                break;
+            }
+        }
+        if (lead == null) {
+            return;
+        }
+        long rate = transferRate();
+        IFluidKey fluid = lead.fluid();
+        long pooled = pooledStalled(fluid);
+        if (pooled <= rate) {
+            return;
+        }
+        // Every stalled parcel shares the same candidate faces (being blocked, none excludes its incoming side).
+        for (Direction direction : candidateOutputs(lead)) {
+            if (connection(direction) != FluidConnection.HANDLER || roomToward(level, direction, fluid, rate) > 0) {
+                continue;
+            }
+            long moved = depositToward(level, direction, fluid, pooled);
+            if (moved > 0) {
+                drainStalled(fluid, moved);
+                return;
+            }
+        }
+    }
+
+    /** Total mB of {@code fluid} held in ready-but-blocked parcels — what {@link #depositWholeChunk} may offer. */
+    private long pooledStalled(IFluidKey fluid) {
+        long total = 0;
+        for (TravelingFluid parcel : parcels) {
+            if (parcel.ready() && parcel.blocked() && fluid.equals(parcel.fluid())) {
+                total += parcel.amount();
+            }
+        }
+        return total;
+    }
+
+    /** Removes {@code amountMb} of {@code fluid} from the stalled parcels {@link #pooledStalled} counted. */
+    private void drainStalled(IFluidKey fluid, long amountMb) {
+        long remaining = amountMb;
+        for (TravelingFluid parcel : parcels) {
+            if (remaining <= 0) {
+                return;
+            }
+            if (!parcel.ready() || !parcel.blocked() || !fluid.equals(parcel.fluid())) {
+                continue;
+            }
+            long taken = Math.min(parcel.amount(), remaining);
+            parcel.add(-taken);
+            parcel.setBlocked(parcel.amount() > 0);
+            remaining -= taken;
         }
     }
 
@@ -679,7 +759,7 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
             if (handler == null) {
                 return 0;
             }
-            return FluidUnits.toMillibuckets(handler.insert(fluid, FluidUnits.mb(amountMb), false));
+            return FluidUnits.toMillibucketsCeil(handler.insert(fluid, FluidUnits.mb(amountMb), false));
         }
         if (level.getBlockEntity(neighbourPos) instanceof FluidPipeBlockEntity neighbour) {
             return neighbour.acceptFluid(fluid, amountMb, direction.getOpposite());

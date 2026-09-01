@@ -25,8 +25,19 @@ class FluidUnitsTest {
     }
 
     @Test
+    @DisplayName("toMillibucketsCeil rounds up so a partial mB is never counted as still held")
+    void ceilRoundsUp() {
+        assertThat(FluidUnits.toMillibucketsCeil(80, 81)).isEqualTo(1);
+        assertThat(FluidUnits.toMillibucketsCeil(162, 81)).isEqualTo(2);
+        assertThat(FluidUnits.toMillibucketsCeil(0, 81)).isZero();
+        // One cauldron level: a third of a bucket is 27000 droplets, i.e. 333⅓ mB.
+        assertThat(FluidUnits.toMillibucketsCeil(27_000, 81)).isEqualTo(334);
+    }
+
+    @Test
     @DisplayName("a non-positive factor is rejected instead of dividing by zero")
     void rejectsNonPositiveFactor() {
+        assertThatThrownBy(() -> FluidUnits.toMillibucketsCeil(100, 0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> FluidUnits.toMillibuckets(100, 0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> FluidUnits.toMillibuckets(100, -1)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> FluidUnits.mb(100, 0)).isInstanceOf(IllegalArgumentException.class);
