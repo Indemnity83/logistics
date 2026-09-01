@@ -6,7 +6,7 @@
 	"description": "Integration tests for Logistics mod",
 	"authors": ["Logistics Contributors"],
 	"license": "MIT",
-	"environment": "server",
+	"environment": "*",
 
 	"depends": {
 		"minecraft": "*",
@@ -49,6 +49,9 @@
 			"com.logistics.gametest.automation.SequentialFabricatorGameTest",
 			"com.logistics.gametest.automation.TransposerGameTest",
 			"com.logistics.gametest.network.NetworkIntegrationGameTest"
+		],
+		"fabric-client-gametest": [
+			"com.logistics.gametest.client.ClientBootstrapGameTest"
 		]
 	}
 }
