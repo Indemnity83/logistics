@@ -52,6 +52,7 @@ public final class LogisticsGameTestMod {
 
     public LogisticsGameTestMod(IEventBus modBus) {
         RecipeLoadingGameTestRegistration.bootstrap();
+        ReloadLifecycleGameTestRegistration.bootstrap();
 
         AlloySmelterGameTestRegistration.bootstrap();
         CrucibleGameTestRegistration.bootstrap();

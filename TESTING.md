@@ -427,7 +427,7 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ## Fabric + NeoForge Game Tests
 
-`fabric/src/gametest/` and `neoforge/src/gametest/` run **191 shared feature tests** on each loader
+`fabric/src/gametest/` and `neoforge/src/gametest/` run **193 shared feature tests** on each loader
 (plus 16 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
 Minecraft server process (real block placement, game ticks). Fabric's are considered
 **deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
@@ -519,8 +519,8 @@ Matching *counts* are not parity and the task never checks them: two loaders can
 while running different sets. Comparing the catalog against each loader's wiring is what actually
 proves it.
 
-For reference, the current split is 191 shared tests, plus 3 `// loader-only:` and 13
-`// not-yet-shared:` Fabric tests. The runs report 208 on Fabric and 192 on NeoForge; the totals
+For reference, the current split is 193 shared tests, plus 3 `// loader-only:` and 13
+`// not-yet-shared:` Fabric tests. The runs report 210 on Fabric and 194 on NeoForge; the totals
 include a built-in instance from the test framework itself, so read the *difference* rather than
 either number — 16, exactly the unshared Fabric set, and expected rather than a defect.
 
@@ -561,6 +561,22 @@ So a reload test can be an ordinary shared feature test. It does not need a sepa
 configuration, a filtered invocation, or a manually triggered lane. If that ever changes, the
 per-test reports above are how you would notice: a reload-order problem shows up as failures
 clustered after the reload test rather than spread through the run.
+
+`ReloadLifecycleGameTestBody` holds the resulting contract: a smelt already in flight when the
+datapack reloads finishes exactly once for exactly its normal cost, and the kiln still resolves
+recipes afterwards. The energy assertion is what makes the first one meaningful — a run that
+restarted would still finish, just later and after spending more, so asserting only on the output
+item would let a silent progress reset through.
+
+Both tests confirm the reload actually replaced the server's recipe manager before asserting
+anything. Without that they would pass just as happily against a reload that did nothing, which is
+the one way they could be worthless.
+
+These are regression pins rather than bug-finders: `SmeltingRecipeResolver` fetches the recipe
+manager fresh on each resolve and `RecipeProcessorComponent` compares the resolved plan by value
+rather than identity, so today's code is reload-safe by construction. The tests exist so that a
+change to either of those — an innocent-looking switch to identity comparison, say, or caching the
+manager — fails here instead of quietly charging players twice for one smelt.
 
 ### Adding a new test
 
