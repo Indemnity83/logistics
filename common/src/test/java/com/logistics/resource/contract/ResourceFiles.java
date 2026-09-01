@@ -44,20 +44,27 @@ final class ResourceFiles {
      */
     private static final Map<String, String> ALLOWED_UNRESOLVED = Map.of();
 
+    /** Resolved once: assetRoot() is called per file and per reference. */
+    private static final Path ASSET_ROOT = locate("assets");
+
     private ResourceFiles() {}
 
-    /** Root of the shipped assets tree on the test classpath ({@code .../assets}). */
+    /** Root of the shipped assets tree on the test classpath ({@code .../assets/logistics}). */
     static Path assetRoot() {
-        URL url = ResourceFiles.class.getClassLoader().getResource("assets/" + NAMESPACE);
+        return ASSET_ROOT;
+    }
+
+    private static Path locate(String tree) {
+        URL url = ResourceFiles.class.getClassLoader().getResource(tree + "/" + NAMESPACE);
         if (url == null) {
             throw new IllegalStateException(
-                "assets/" + NAMESPACE + " is not on the test classpath; "
+                tree + "/" + NAMESPACE + " is not on the test classpath; "
                     + "resource contract tests cannot run without the shipped resources");
         }
         try {
             return Path.of(url.toURI());
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("could not resolve the assets root", e);
+            throw new IllegalStateException("could not resolve the " + tree + " root", e);
         }
     }
 
