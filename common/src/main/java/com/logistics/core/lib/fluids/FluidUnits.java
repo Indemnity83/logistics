@@ -27,6 +27,16 @@ public final class FluidUnits {
         return toMillibuckets(nativeUnits, PlatformService.INSTANCE.fluidUnitsPerMillibucket());
     }
 
+    /**
+     * Converts platform-native fluid units back to millibuckets, rounding up. Use this for an amount that
+     * left our own storage: a handler may accept a fraction of a millibucket (a cauldron level is a third of
+     * a bucket, which is not a whole number of mB on Fabric's 81-droplet scale), and rounding that down would
+     * leave us still counting fluid we no longer hold.
+     */
+    public static long toMillibucketsCeil(long nativeUnits) {
+        return toMillibucketsCeil(nativeUnits, PlatformService.INSTANCE.fluidUnitsPerMillibucket());
+    }
+
     // Package-private overloads take the factor explicitly so the conversion math is unit-testable
     // without a bootstrapped loader PlatformService.
 
@@ -36,6 +46,11 @@ public final class FluidUnits {
 
     static long toMillibuckets(long nativeUnits, long factor) {
         return nativeUnits / requirePositive(factor);
+    }
+
+    static long toMillibucketsCeil(long nativeUnits, long factor) {
+        long positive = requirePositive(factor);
+        return Math.floorDiv(nativeUnits + positive - 1, positive);
     }
 
     private static long requirePositive(long factor) {
