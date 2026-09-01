@@ -149,6 +149,7 @@ tasks.register('lint') {
     dependsOn 'repoLint'
     dependsOn 'checkImportBoundaries'
     dependsOn 'checkFeatureTestParity'
+    dependsOn 'checkResourceParity'
     dependsOn subprojects.collect { "${it.path}:lint" }
 }
 
@@ -175,6 +176,7 @@ project(':common').tasks.named('lint') {
     dependsOn rootProject.tasks.named('repoLint')
     dependsOn rootProject.tasks.named('checkImportBoundaries')
     dependsOn rootProject.tasks.named('checkFeatureTestParity')
+    dependsOn rootProject.tasks.named('checkResourceParity')
 }
 
 tasks.named('spotlessCheck') {
@@ -273,6 +275,77 @@ tasks.register('checkFeatureTestParity') {
         }
         logger.lifecycle("feature-test parity: ${catalog.size()} shared tests wired on both loaders; " +
                 "${notYetShared.size()} Fabric tests not yet shared")
+    }
+}
+
+tasks.register('checkResourceParity') {
+    description = 'Check both loaders ship the same game content'
+    group = 'verification'
+
+    // Content that genuinely exists on one loader only, because the mechanism does. Fabric injects
+    // worldgen and furnace fuels in code; NeoForge drives them from data. Keep this list specific —
+    // a new entry means a player-visible difference between loaders unless the code compensates.
+    def loaderOnly = [
+        'neoforge': [
+            'data/logistics/neoforge/': 'NeoForge biome modifiers; Fabric injects worldgen from code',
+            'data/neoforge/'          : 'NeoForge data maps; Fabric registers the same values from code',
+        ],
+        'fabric'  : [:],
+    ]
+
+    doLast {
+        // Only game content is compared. Mod manifests and META-INF/services are code wiring, and
+        // the ServiceLoader smoke tests in each loader already cover those.
+        def contentOf = { String module ->
+            def found = [:]
+            ['main', 'client'].each { sourceSet ->
+                def root = file("${module}/src/${sourceSet}/resources")
+                if (!root.isDirectory()) return
+                fileTree(root).files.each { f ->
+                    def id = root.toPath().relativize(f.toPath()).toString().replace(File.separator, '/')
+                    if (id.startsWith('assets/') || id.startsWith('data/')) found[id] = f
+                }
+            }
+            found
+        }
+
+        def common = contentOf('common')
+        def fabric = contentOf('fabric')
+        def neoforge = contentOf('neoforge')
+
+        def excused = { String loader, String id ->
+            loaderOnly[loader].keySet().any { id.startsWith(it) }
+        }
+
+        def failures = []
+        def effective = { Map loaderFiles, String loader ->
+            (common.keySet() + loaderFiles.keySet()).findAll { !excused(loader, it) } as Set
+        }
+
+        def onlyFabric = (effective(fabric, 'fabric') - effective(neoforge, 'neoforge')).sort()
+        def onlyNeoForge = (effective(neoforge, 'neoforge') - effective(fabric, 'fabric')).sort()
+        onlyFabric.each {
+            failures << "content ships on Fabric but not NeoForge: ${it}"
+        }
+        onlyNeoForge.each {
+            failures << "content ships on NeoForge but not Fabric: ${it}"
+        }
+
+        // A file duplicated identically in both loaders belongs in common: two copies drift, and
+        // the loader that misses a fix is the one nobody notices.
+        def duplicated = fabric.keySet().intersect(neoforge.keySet()).findAll { id ->
+            !common.containsKey(id) && fabric[id].bytes == neoforge[id].bytes
+        }.sort()
+        if (duplicated.size() > 3) {
+            failures << "identical files duplicated in both loaders grew to ${duplicated.size()} " +
+                    "(expected <= 3) — move these to common/src/main/resources instead: " + duplicated.join(', ')
+        }
+
+        if (!failures.isEmpty()) {
+            throw new GradleException(failures.join(System.lineSeparator()))
+        }
+        logger.lifecycle("resource parity: ${effective(fabric, 'fabric').size()} content files on each loader; " +
+                "${duplicated.size()} identical duplicates pending a move to common")
     }
 }
 
