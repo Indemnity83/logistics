@@ -148,6 +148,7 @@ tasks.register('lint') {
     group = 'verification'
     dependsOn 'repoLint'
     dependsOn 'checkImportBoundaries'
+    dependsOn 'checkFeatureTestParity'
     dependsOn subprojects.collect { "${it.path}:lint" }
 }
 
@@ -173,6 +174,7 @@ tasks.register('repoFix') {
 project(':common').tasks.named('lint') {
     dependsOn rootProject.tasks.named('repoLint')
     dependsOn rootProject.tasks.named('checkImportBoundaries')
+    dependsOn rootProject.tasks.named('checkFeatureTestParity')
 }
 
 tasks.named('spotlessCheck') {
@@ -181,6 +183,97 @@ tasks.named('spotlessCheck') {
 
 tasks.named('spotlessApply') {
     dependsOn subprojects.collect { "${it.path}:spotlessApply" }
+}
+
+tasks.register('checkFeatureTestParity') {
+    description = 'Check every shared feature test is wired on both loaders'
+    group = 'verification'
+
+    doLast {
+        def javaFiles = { String dir -> fileTree(dir) { include '**/*.java' }.files.sort() }
+
+        // The catalog is the shared bodies themselves: every public static method taking a
+        // GameTestHelper is a test both loaders are expected to run.
+        def catalog = [] as Set
+        javaFiles('common/src/gametest').each { file ->
+            (file.text =~ /public static [A-Za-z0-9_<>,.\[\] ]+?\s+(\w+)\s*\(\s*GameTestHelper/).each { m ->
+                catalog << "${file.name - '.java'}#${m[1]}".toString()
+            }
+        }
+
+        // Fabric: an @GameTest method either delegates to a shared body, or is unshared and must
+        // say why — "loader-only:" for genuinely loader-native APIs, "not-yet-shared:" for a
+        // tracked gap that should eventually move into common/src/gametest.
+        def fabricShared = [] as Set
+        def undocumented = []
+        def notYetShared = []
+        javaFiles('fabric/src/gametest').each { file ->
+            def text = file.text
+            (text =~ /@GameTest(?:\s*\([^)]*\))?\s+public\s+void\s+(\w+)\s*\(\s*GameTestHelper\s+\w+\s*\)\s*\{/).each { m ->
+                def start = text.indexOf(m[0]) + m[0].length()
+                def body = text.substring(start, Math.min(text.length(), start + 1500))
+                def call = body =~ /(\w*GameTestBody)\.(\w+)\s*\(/
+                def id = "${file.name - '.java'}#${m[1]}".toString()
+                def marked = { String marker ->
+                    text =~ /${marker}:[^\n]*\n(?:[^\n]*\n){0,12}?\s*public\s+void\s+${m[1]}\b/
+                }
+                if (call) {
+                    fabricShared << "${call[0][1]}#${call[0][2]}".toString()
+                } else if (marked('not-yet-shared')) {
+                    notYetShared << id
+                } else if (!marked('loader-only')) {
+                    undocumented << id
+                }
+            }
+        }
+
+        // NeoForge: GameTestCase entries reference a body by method ref or inside a lambda.
+        def neoShared = [] as Set
+        javaFiles('neoforge/src/gametest').each { file ->
+            def text = file.text
+            (text =~ /new GameTestCase\(\s*"[^"]+"\s*,\s*\d+\s*,\s*[\w.]*?(\w+)::(\w+)\s*\)/).each { m ->
+                neoShared << "${m[1]}#${m[2]}".toString()
+            }
+            (text =~ /(?s)new GameTestCase\(\s*"[^"]+"\s*,\s*\d+\s*,\s*\w+\s*->\s*\{(.{0,800}?)\n\s{0,12}\}\)/).each { m ->
+                def call = m[1] =~ /(\w*GameTestBody)\.(\w+)\s*\(/
+                if (call) neoShared << "${call[0][1]}#${call[0][2]}".toString()
+            }
+        }
+
+        def failures = []
+        (catalog - neoShared).sort().each {
+            failures << "shared feature test not registered on NeoForge (add a GameTestCase): ${it}"
+        }
+        (catalog - fabricShared).sort().each {
+            failures << "shared feature test not wrapped on Fabric (add an @GameTest method): ${it}"
+        }
+        (neoShared - catalog).sort().each {
+            failures << "NeoForge registers an unknown body method: ${it}"
+        }
+        (fabricShared - catalog).sort().each {
+            failures << "Fabric wraps an unknown body method: ${it}"
+        }
+        undocumented.sort().each {
+            failures << "unshared feature test needs a '// loader-only: <reason>' or " +
+                    "'// not-yet-shared: <reason>' comment: ${it}"
+        }
+        // Deletion alarm: the catalog only ever grows in normal work.
+        if (catalog.size() < 191) {
+            failures << "shared feature-test catalog shrank to ${catalog.size()} (expected >= 191); " +
+                    "if tests were deliberately removed, lower the floor in checkFeatureTestParity"
+        }
+        // Ratchet: the not-yet-shared backlog may shrink, never grow.
+        if (notYetShared.size() > 13) {
+            failures << "not-yet-shared feature tests grew to ${notYetShared.size()} (expected <= 13): " +
+                    notYetShared.sort().join(', ')
+        }
+
+        if (!failures.isEmpty()) {
+            throw new GradleException(failures.join(System.lineSeparator()))
+        }
+        logger.lifecycle("feature-test parity: ${catalog.size()} shared tests wired on both loaders; " +
+                "${notYetShared.size()} Fabric tests not yet shared")
+    }
 }
 
 // Named entry points for the test layers described in TESTING.md. These delegate to the
