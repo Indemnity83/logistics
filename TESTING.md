@@ -1,26 +1,59 @@
 # Testing Guide
 
+## Vocabulary
+
+The suite is layered, and each layer has a name used consistently in task names, CI job labels, and
+this document. Use these terms in PR titles and discussion:
+
+| Term | What it means | Where it lives | How it runs |
+|------|---------------|----------------|-------------|
+| **Unit test** | Pure logic, no live world — state transitions, codecs, planners, config math, single-file JSON decoding | `common/src/test`, and the loader modules' `src/test` | JUnit 5 |
+| **Feature test** | A real Minecraft server verifies player-visible behavior | body in `common/src/gametest`, wired per loader | GameTest |
+| **Loader contract test** | A Fabric/NeoForge adapter fulfills a common contract | `fabric/src/test`, `neoforge/src/test` | JUnit 5 |
+| **Resource contract test** | Every shipped JSON/asset reference resolves | `common/src/test/java/com/logistics/resource/contract` | JUnit 5 (static, no server) |
+| **Client feature test** | A real client verifies screens, models, rendering | not yet built — Fabric-only when it lands | client GameTest |
+| **Journey** | A small end-to-end player workflow | not yet built | real driven client |
+
+"Feature test" and "GameTest" refer to the same thing: GameTest is the Minecraft framework, feature
+test is what we call the layer. Class files keep the `GameTest` suffix (`<Name>GameTestBody`,
+`<Name>GameTest`, `<Name>GameTestRegistration`) — renaming ~95 files across five `mc/*` branches would
+cost far more in cherry-pick conflicts than the naming consistency is worth.
+
 ## Test Structure
 
 | Module | Location | Type | Framework |
 |--------|----------|------|-----------|
 | `common` | `common/src/test/java/` | Unit | JUnit 5 + Minecraft bootstrap |
-| `fabric` | `fabric/src/test/java/` | Unit | JUnit 5 (plain) |
-| `neoforge` | `neoforge/src/test/java/` | Unit | JUnit 5 (plain) |
-| `common` | `common/src/gametest/java/` | Integration (shared body) | plain `Consumer<GameTestHelper>` methods, no loader imports |
-| `fabric` | `fabric/src/gametest/java/` | Integration | Fabric `@GameTest` (deprecated/manual; see below) |
-| `neoforge` | `neoforge/src/gametest/java/` | Integration | vanilla GameTest registry via `DeferredRegister` (see below) |
+| `fabric` | `fabric/src/test/java/` | Loader contract | JUnit 5 (plain) |
+| `neoforge` | `neoforge/src/test/java/` | Loader contract | JUnit 5 (plain) |
+| `common` | `common/src/gametest/java/` | Feature (shared body) | plain `Consumer<GameTestHelper>` methods, no loader imports |
+| `fabric` | `fabric/src/gametest/java/` | Feature | Fabric `@GameTest` (deprecated/manual; see below) |
+| `neoforge` | `neoforge/src/gametest/java/` | Feature | vanilla GameTest registry via `DeferredRegister` (see below) |
 
 ### Running tests
+
+```bash
+./gradlew unitTest                    # All module unit tests
+./gradlew featureTest                 # Feature tests on both loaders
+./gradlew featureTestFabric           # Fabric feature tests only
+./gradlew featureTestNeoForge         # NeoForge feature tests only
+./gradlew testCoverage                # Aggregate local JaCoCo coverage report
+```
+
+Those aliases delegate to the underlying tasks, which can still be called directly to scope a run to
+one module:
 
 ```bash
 ./gradlew :common:test                # Common business logic unit tests
 ./gradlew :fabric:test                # Fabric ServiceLoader and adapter unit tests
 ./gradlew :neoforge:test              # NeoForge ServiceLoader and adapter unit tests
-./gradlew testCoverage                # Aggregate local JaCoCo coverage report
-./gradlew :fabric:runGameTest         # Fabric integration game tests (deprecated/manual; see below)
-./gradlew :neoforge:runGameTestServer # NeoForge integration game tests (see below)
+./gradlew :fabric:runGameTest         # Fabric feature tests (deprecated/manual; see below)
+./gradlew :neoforge:runGameTestServer # NeoForge feature tests (see below)
 ```
+
+CI deliberately calls the per-module tasks rather than the aggregate aliases: its matrix runs one job
+per module so the modules test in parallel and each uploads its own coverage report. The aliases are a
+local convenience, not the CI entry point.
 
 ### Formatting
 
@@ -44,9 +77,14 @@ Pull request CI runs under two workflows:
 - **Check Code**:
   - `lint (common)` checks repository-level formatting, common Java formatting, and import boundaries.
   - `lint (fabric|neoforge)` checks module Java formatting.
-  - `test (common|fabric|neoforge)` runs module unit tests and uploads that
+  - `unit-test (common|fabric|neoforge)` runs module unit tests and uploads that
     module's JaCoCo coverage to Codecov (tagged with a per-module flag). Codecov
     merges the three uploads into the combined coverage for the commit.
+  - `feature-test (fabric|neoforge)` runs each loader's GameTests on a real server.
+
+The workflow's internal job *keys* are still `test` and `gametest`; only the displayed names use the
+`unit-test`/`feature-test` vocabulary. The keys are left alone on purpose — renaming them risks
+breaking branch protection's required-check contexts and any downstream tooling that references them.
 
 PR CI does not build preview jars automatically. Use the manual **Build PR Artifacts**
 workflow when a branch needs downloadable Fabric or NeoForge jars for smoke testing.
@@ -220,15 +258,19 @@ recipe against a live inventory. `KilnRecipeTest` reads `kiln.json` directly and
 the wiki's Crafting section — this is also how a stable registry id surviving a display-name rename
 (`machine_core` / "Machine Frame") was confirmed *not* to be a mismatch, a useful reminder to check
 the lang file before flagging an id-vs-wiki-name difference as a discrepancy.
-`RecipeJsonSmokeTest` is mod-wide infrastructure, not block-specific: it walks every recipe JSON
-under `common/src/main/resources/data/logistics/recipe/` and checks each one is valid JSON with a
-non-blank `type`, and — where a `result` is present — a non-blank `id` or `fluid` field (it does not
-check `count`/`amount`) — catching a JSON syntax error, a missing `type`, or a `result` with no
-identifiable item/fluid (the cheap, high-frequency ways a hand-edited recipe silently breaks) on
-every `./gradlew :common:test` run, mod-wide, at effectively zero marginal cost per recipe added.
-It's deliberately structural, not semantic: it doesn't resolve ingredient item ids through
-Minecraft's registry (vanilla's registry silently defaults an unknown id to `minecraft:air` instead
-of failing, so that check wouldn't reliably catch an item-id typo anyway).
+`RecipeLoadingGameTestBody` is the mod-wide counterpart, and it is a *feature* test rather than a
+unit test: it walks the live datapack stack via `FileToIdConverter` and asserts every `logistics:`
+recipe file actually landed in the server's `RecipeManager`. Loading through the real manager is the
+point — a recipe that parses as JSON but fails to deserialize (unknown type, malformed ingredient) is
+silently absent at runtime, and only a real load catches that. It walks the datapack stack rather than
+the raw classpath so it behaves identically regardless of how each loader's dev environment lays out
+mod resources on disk.
+
+It stops at "did it load," not "is the content right": it does not resolve ingredient item ids through
+Minecraft's registry, because vanilla silently defaults an unknown id to `minecraft:air` instead of
+failing, so that check wouldn't reliably catch an item-id typo anyway. Verifying registry-backed ids
+belongs in a live server-data contract; verifying a specific recipe's content belongs in a
+`*RecipeTest`/`*RecipeSpotCheckTest` unit test.
 
 ### Server-data loading contract
 
@@ -396,7 +438,10 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
-- **Recipe JSON smoke test** — every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) parses as JSON with a non-blank `type` and well-formed `result`; see "Recipe testing" above
+
+Recipe loading is covered by a feature test rather than a unit test — `RecipeLoadingGameTestBody`
+asserts every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) actually loads
+into a live `RecipeManager`; see "Recipe testing" above.
 
 `fabric/src/test/java/` and `neoforge/src/test/java/` contain ServiceLoader smoke tests
 verifying `META-INF/services/` registrations are present and the implementation classes
