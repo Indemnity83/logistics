@@ -263,8 +263,8 @@ tasks.register('checkFeatureTestParity') {
                     "if tests were deliberately removed, lower the floor in checkFeatureTestParity"
         }
         // Ratchet: the not-yet-shared backlog may shrink, never grow.
-        if (notYetShared.size() > 14) {
-            failures << "not-yet-shared feature tests grew to ${notYetShared.size()} (expected <= 14): " +
+        if (notYetShared.size() > 13) {
+            failures << "not-yet-shared feature tests grew to ${notYetShared.size()} (expected <= 13): " +
                     notYetShared.sort().join(', ')
         }
 
