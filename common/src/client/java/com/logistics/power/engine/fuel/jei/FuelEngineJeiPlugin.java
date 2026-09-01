@@ -1,10 +1,9 @@
-package com.logistics.power.engine.reaction.jei;
+package com.logistics.power.engine.fuel.jei;
 
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.power.engine.reaction.ReactionRecipe;
-import java.util.List;
+import com.logistics.power.engine.fuel.FuelEngineFuels;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -13,11 +12,11 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Registers the Reaction Engine recipe category with JEI. */
+/** Registers the Fuel Engine recipe category with JEI. */
 @JeiPlugin
-public class ReactionJeiPlugin implements IModPlugin {
+public class FuelEngineJeiPlugin implements IModPlugin {
 
-    private static final ResourceId PLUGIN_ID = LogisticsMod.modId("jei_reaction_plugin");
+    private static final ResourceId PLUGIN_ID = LogisticsMod.modId("jei_fuel_engine_plugin");
 
     private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/JEI");
 
@@ -28,21 +27,21 @@ public class ReactionJeiPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        LOGGER.info("Registering reaction recipe category");
+        LOGGER.info("Registering fuel engine recipe category");
         registration.addRecipeCategories(
-            new ReactionRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+            new FuelEngineRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        List<ReactionRecipe> recipes = ReactionJeiSyncAdapter.INSTANCE.recipes();
-        LOGGER.info("Registering {} reaction recipes with JEI", recipes.size());
-        registration.addRecipes(ReactionRecipeCategory.RECIPE_TYPE, recipes);
+        var fuels = FuelEngineFuels.entries();
+        LOGGER.info("Registering {} fuel engine fuels with JEI", fuels.size());
+        registration.addRecipes(FuelEngineRecipeCategory.RECIPE_TYPE, fuels);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addCraftingStation(
-            ReactionRecipeCategory.RECIPE_TYPE, LogisticsPower.BLOCK.REACTION_ENGINE);
+            FuelEngineRecipeCategory.RECIPE_TYPE, LogisticsPower.BLOCK.FUEL_ENGINE);
     }
 }

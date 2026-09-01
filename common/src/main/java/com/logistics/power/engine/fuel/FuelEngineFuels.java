@@ -1,9 +1,13 @@
 package com.logistics.power.engine.fuel;
 
 import com.logistics.LogisticsCore;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -40,5 +44,21 @@ public final class FuelEngineFuels {
     @Nullable
     static FuelEngineFuel byId(@Nullable String id) {
         return id == null ? null : BY_ID.get(id);
+    }
+
+    /** One supported fuel, resolved to its registered {@link Fluid}. */
+    public record Entry(Fluid fluid, FuelEngineFuel fuel) {}
+
+    /** Every supported fuel, resolved at call time like {@link #lookup}; unregistered ids are skipped. */
+    public static List<Entry> entries() {
+        List<Entry> entries = new ArrayList<>(BY_ID.size());
+        for (Map.Entry<String, FuelEngineFuel> entry : BY_ID.entrySet()) {
+            ResourceId id = ResourceId.tryParse(entry.getKey());
+            Fluid fluid = id == null ? null : BuiltInRegistries.FLUID.getValue(id.toIdentifier());
+            if (fluid != null && fluid != Fluids.EMPTY) {
+                entries.add(new Entry(fluid, entry.getValue()));
+            }
+        }
+        return List.copyOf(entries);
     }
 }
