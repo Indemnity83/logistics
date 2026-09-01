@@ -322,8 +322,40 @@ them); a failure quotes the exact key to add, and the list should stay short.
 alarm for walking an empty or wrong directory — they are not a coverage measure, and shouldn't be
 described as one. Nothing here verifies that every *registered* block and item actually has an item
 definition, model, and blockstate; that needs the mod's own registries, which the current test
-bootstrap doesn't populate. Note that the cable blocks deliberately ship no blockstate in `common` —
-each loader supplies its own — so any such check has to account for loader-specific resources.
+bootstrap doesn't populate. Note that the cable blocks ship no blockstate in `common` — each loader
+supplies its own — so any such check has to account for loader-specific resources.
+
+### Cross-loader resource parity
+
+`./gradlew checkResourceParity` (wired into `:common:lint`, so it runs in the `lint (common)` CI job)
+compares the content a player actually receives on each loader: everything under `assets/` and
+`data/` in `common` plus that loader's own module. If a file ships on one loader and not the other,
+it fails.
+
+This lives in Gradle rather than alongside the JUnit contract tests because it has to see all three
+modules at once, and a JUnit test only sees its own module's classpath. Mod manifests and
+`META-INF/services` are excluded: they are code wiring, not content, and each loader's
+`ServiceLoaderSmokeTest` already covers them.
+
+Most loader-specific files are duplicated rather than shared for a real reason — the 16 marking-fluid
+recipes exist twice because the component-ingredient syntax genuinely differs
+(`fabric:components` vs `neoforge:components`). Parity is therefore checked by resource **id**, not
+by content.
+
+Two escape hatches, both deliberately narrow:
+
+- `loaderOnly` lists content that exists on one loader because the *mechanism* does — NeoForge biome
+  modifiers and data maps, which Fabric drives from code instead. A new entry here means a
+  player-visible difference unless code compensates, so it should be rare and justified.
+- A **ratchet on identical duplicates**: a file byte-identical in both loader modules and absent from
+  `common` belongs in `common`, because two copies drift and the loader that misses a fix is the one
+  nobody notices. Three exist today (the cable blockstates). The count may shrink, never grow.
+
+Those three are a known consolidation opportunity rather than a design choice. They were in `common`
+until the NeoForge client rendering port moved them out; the format changed at the same time (from a
+single `""` catch-all variant to explicit `waterlogged=` variants), but both loaders ended up with the
+same file. Moving them back is a rendering change that needs verifying on both loaders, so it is
+tracked separately rather than folded into a test change.
 
 The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
 rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
