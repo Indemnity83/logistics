@@ -34,8 +34,11 @@ final class ResourceFiles {
     /** References that intentionally resolve to no shipped file, each keyed to its reason. */
     private static final Map<String, String> ALLOWED_UNRESOLVED = Map.of();
 
-    /** Resolved once: assetRoot() is called per file and per reference. */
+    /** Resolved once: these are called per file and per reference. */
     private static final Path ASSET_ROOT = locate("assets");
+
+    // The namespace directory's parent, so tags under `c` and `minecraft` are reachable too.
+    private static final Path DATA_ROOT = locate("data").getParent();
 
     private ResourceFiles() {}
 
@@ -58,9 +61,22 @@ final class ResourceFiles {
         }
     }
 
+    /** Root of the shipped data tree on the test classpath ({@code .../data}). */
+    static Path dataRoot() {
+        return DATA_ROOT;
+    }
+
     /** Every {@code .json} file under {@code assets/logistics/<dir>}, in stable order. */
     static List<Path> jsonFiles(String dir) {
-        Path root = assetRoot().resolve(dir);
+        return jsonFilesUnder(assetRoot().resolve(dir));
+    }
+
+    /** Every {@code .json} file under {@code data/<dir>}, in stable order. */
+    static List<Path> dataJsonFiles(String dir) {
+        return jsonFilesUnder(dataRoot().resolve(dir));
+    }
+
+    static List<Path> jsonFilesUnder(Path root) {
         if (!Files.isDirectory(root)) {
             throw new IllegalStateException("expected a directory of shipped resources: " + root);
         }
@@ -74,6 +90,20 @@ final class ResourceFiles {
         }
     }
 
+    /**
+     * Ids of every item we ship a definition for, as {@code logistics:path}. A proxy for "items
+     * this mod has", not proof of registration: a definition can exist for an unregistered item.
+     */
+    static Set<String> itemDefinitionIds() {
+        Path root = assetRoot().resolve("items");
+        return jsonFilesUnder(root).stream()
+            .map(file -> {
+                String relative = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');
+                return NAMESPACE + ":" + relative.substring(0, relative.length() - ".json".length());
+            })
+            .collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+
     static JsonObject parse(Path file) {
         try {
             return JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
@@ -82,9 +112,10 @@ final class ResourceFiles {
         }
     }
 
-    /** Path relative to the assets root, for readable failure messages. */
+    /** Path relative to the assets or data root, for readable failure messages. */
     static String describe(Path file) {
-        return assetRoot().getParent().relativize(file).toString();
+        Path base = assetRoot().getParent();
+        return file.startsWith(base) ? base.relativize(file).toString() : dataRoot().relativize(file).toString();
     }
 
     /**

@@ -268,10 +268,17 @@ belongs in a live server-data contract; verifying a specific recipe's content be
 
 ### Resource contract testing
 
-`common/src/test/java/com/logistics/resource/contract/` proves the shipped asset graph holds
-together — model parents resolve, no parent chain loops, every texture a model names ships, and every
-item definition points at a model that exists. It is plain JUnit that reads JSON off the classpath and
-never boots a server, so it runs on every `./gradlew :common:test` at negligible cost.
+`common/src/test/java/com/logistics/resource/contract/` proves the shipped resource graph holds
+together. It is plain JUnit that reads JSON off the classpath and never boots a server, so it runs on
+every `./gradlew :common:test` at negligible cost.
+
+| Area | What it proves |
+|---|---|
+| Models | Parents resolve, no parent chain loops, every named texture ships |
+| Item definitions | Every named model ships, and each definition names at least one |
+| Blockstates | Every model named by a `variants` or `multipart` entry ships |
+| Loot tables | Every item dropped is one we ship, and each table declares a type |
+| Tags | Every listed item ships, tag references resolve, no reference loops |
 
 **Namespace policy** (`ResourceFiles`), applied to every reference:
 
@@ -287,19 +294,30 @@ never boots a server, so it runs on every `./gradlew :common:test` at negligible
 (dynamic, generated, or loader-supplied). It is empty today, and it should stay small — an explicit
 entry shows up in review, whereas loosening the validator after the first false positive does not.
 
-Item definitions nest models in several shapes (`minecraft:model`, `composite`, `select` with
-fallback/cases, `special` with its model under `base`). The tests walk the whole JSON tree and treat
-any string-valued `model` or `base` as a reference rather than encoding each type's schema, so a new
-definition type is covered without a code change.
+Item definitions and blockstates nest models in several shapes (`minecraft:model`, `composite`,
+`select` with fallback/cases, `special` with its model under `base`; `variants` maps and `multipart`
+lists). The tests walk the whole JSON tree and treat any string-valued `model` or `base` as a
+reference rather than encoding each schema, so a new type is covered without a code change.
+
+**Why item and tag ids are checked here rather than on a live server.** A mistyped item id is the one
+data bug a running server cannot reveal: Minecraft resolves an unknown id to `minecraft:air` instead
+of failing, so a loot table with `reaction_engien` in it loads perfectly and the block just silently
+drops nothing. `ServerDataLoadingGameTestBody` proves a table *loads*; only a static cross-reference
+proves it drops something real. Ids are matched against the set of shipped item definitions, which
+stands in for "items this mod has" — a proxy rather than proof of registration, but it catches the
+typo, which is the realistic failure.
+
+Tags are keyed `namespace:registry:path` from their file location, because our tag files live under
+the `c` and `minecraft` namespaces rather than our own — we contribute entries to shared convention
+tags. `EXTERNAL_TAGS` lists the convention tags we reference but don't ship (the loaders provide
+them); a failure quotes the exact key to add, and the list should stay short.
 
 **What this deliberately does not cover:** the `hasSizeGreaterThanOrEqualTo` checks are a deletion
 alarm for walking an empty or wrong directory — they are not a coverage measure, and shouldn't be
 described as one. Nothing here verifies that every *registered* block and item actually has an item
-definition and model; that needs the mod's own registries, which the current test bootstrap doesn't
-populate. Blockstates, loot tables, and tags are not covered yet either. Registry-backed id checks
-(unknown items in loot tables or tags) belong in a live feature test, not here — vanilla's registry
-silently resolves an unknown id to `minecraft:air` rather than failing, so a static check can't catch
-that class of typo.
+definition, model, and blockstate; that needs the mod's own registries, which the current test
+bootstrap doesn't populate. Note that the cable blocks deliberately ship no blockstate in `common` —
+each loader supplies its own — so any such check has to account for loader-specific resources.
 
 The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
 rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
@@ -471,7 +489,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
-- **Resource contracts** — model parent chains (resolution + loop detection), model texture references, item definition model references; see "Resource contract testing" above
+- **Resource contracts** — model parent chains (resolution + loop detection), model texture references, item definition and blockstate model references, loot table and tag item ids, tag references (resolution + loop detection); see "Resource contract testing" above
 
 Recipe loading is covered by a feature test rather than a unit test — `RecipeLoadingGameTestBody`
 asserts every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) actually loads
