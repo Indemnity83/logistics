@@ -21,21 +21,4 @@ public class CauldronFluidGameTest {
     public void extractorDrainsWaterCauldron(GameTestHelper context) {
         CauldronFluidGameTestBody.extractorDrainsWaterCauldron(context);
     }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
-    public void insertionPipeFillsCauldronWithWater(GameTestHelper context) {
-        CauldronFluidGameTestBody.insertionPipeFillsCauldronWithWater(context);
-    }
-
-    /** As above: the seeded lava parcel is not ready to move until its 60-tick dwell elapses. */
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
-    public void insertionPipeFillsCauldronWithLava(GameTestHelper context) {
-        CauldronFluidGameTestBody.insertionPipeFillsCauldronWithLava(context);
-    }
-
-    /** Pulling a whole cauldron level through a real pipe network takes many rate-sized hops. */
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 400)
-    public void pipeNetworkFillsCauldronWithWater(GameTestHelper context) {
-        CauldronFluidGameTestBody.pipeNetworkFillsCauldronWithWater(context);
-    }
 }

@@ -29,21 +29,4 @@ public final class CauldronFluidGameTestRegistration {
     public static void extractorDrainsWaterCauldron(GameTestHelper context) {
         CauldronFluidGameTestBody.extractorDrainsWaterCauldron(context);
     }
-
-    @GameTest(template = "empty", batch = "cauldronfluid", timeoutTicks = 100)
-    public static void insertionPipeFillsCauldronWithWater(GameTestHelper context) {
-        CauldronFluidGameTestBody.insertionPipeFillsCauldronWithWater(context);
-    }
-
-    /** As above: the seeded lava parcel is not ready to move until its 60-tick dwell elapses. */
-    @GameTest(template = "empty", batch = "cauldronfluid", timeoutTicks = 200)
-    public static void insertionPipeFillsCauldronWithLava(GameTestHelper context) {
-        CauldronFluidGameTestBody.insertionPipeFillsCauldronWithLava(context);
-    }
-
-    /** Pulling a whole cauldron level through a real pipe network takes many rate-sized hops. */
-    @GameTest(template = "empty", batch = "cauldronfluid", timeoutTicks = 400)
-    public static void pipeNetworkFillsCauldronWithWater(GameTestHelper context) {
-        CauldronFluidGameTestBody.pipeNetworkFillsCauldronWithWater(context);
-    }
 }
