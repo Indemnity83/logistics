@@ -6,12 +6,11 @@
 ### Added
 
 * **automation:** add crude oil to petroleum-block transposer recipes ([#851](https://github.com/Indemnity83/logistics/issues/851)) ([9d5fe2b](https://github.com/Indemnity83/logistics/commit/9d5fe2b5fd2c97f1ab91c7c647e7e338b20f9289))
-* **automation:** add RF cost and recipe system to the Transposer ([65194ae](https://github.com/Indemnity83/logistics/commit/65194ae1659522de7f62e649651e625360144530))
 * **automation:** add RF cost and recipe system to the Transposer ([#829](https://github.com/Indemnity83/logistics/issues/829)) ([65194ae](https://github.com/Indemnity83/logistics/commit/65194ae1659522de7f62e649651e625360144530))
 * **automation:** add stone, concrete, cactus, and seed-oil Transposer recipes ([65194ae](https://github.com/Indemnity83/logistics/commit/65194ae1659522de7f62e649651e625360144530))
 * **core:** add shared gear recipe tags ([#871](https://github.com/Indemnity83/logistics/issues/871)) ([2989ccc](https://github.com/Indemnity83/logistics/commit/2989ccc1377c1baff495a9777e890f765178aa0e))
 * **energy:** show engine fuels in the recipe browser ([#886](https://github.com/Indemnity83/logistics/issues/886)) ([c27fb39](https://github.com/Indemnity83/logistics/commit/c27fb392e64de6d0ed0d5135ecad9ae5099ecbd7))
-* **fluids:** drain and fill cauldrons with fluid pipes ([#885](https://github.com/Indemnity83/logistics/issues/885)) ([6a6d908](https://github.com/Indemnity83/logistics/commit/6a6d9081621b6fbc70ec6933ab7bfd639aef4d3c))
+* **fluids:** drain cauldrons with the fluid extractor pipe ([#885](https://github.com/Indemnity83/logistics/issues/885)) ([6a6d908](https://github.com/Indemnity83/logistics/commit/6a6d9081621b6fbc70ec6933ab7bfd639aef4d3c))
 
 
 ### Changed
@@ -26,6 +25,7 @@
 * **automation:** stop refinery shift-click from duplicating items ([#846](https://github.com/Indemnity83/logistics/issues/846)) ([e72c218](https://github.com/Indemnity83/logistics/commit/e72c218ae4f656496742b305a02b144f551425ff))
 * **compat:** stop Jade plugin error on dedicated servers ([#878](https://github.com/Indemnity83/logistics/issues/878)) ([659dd01](https://github.com/Indemnity83/logistics/commit/659dd01b5047c314e743b0766e677c18051ad3ad))
 * **energy:** add catalyst engine JEI category ([#874](https://github.com/Indemnity83/logistics/issues/874)) ([e93d5c3](https://github.com/Indemnity83/logistics/commit/e93d5c356d8a8665b246ac81787ab63d04431f51))
+* **energy:** show the reaction engine's recipes in JEI on Fabric ([#886](https://github.com/Indemnity83/logistics/issues/886)) ([c27fb39](https://github.com/Indemnity83/logistics/commit/c27fb392e64de6d0ed0d5135ecad9ae5099ecbd7))
 * **energy:** stop battery and cable taking forever to mine ([#839](https://github.com/Indemnity83/logistics/issues/839)) ([66d6e29](https://github.com/Indemnity83/logistics/commit/66d6e29ef9e69b30f4056b173618993e9dd54268))
 * **fluids:** honor pipe transfer rates set above the default ([#885](https://github.com/Indemnity83/logistics/issues/885)) ([6a6d908](https://github.com/Indemnity83/logistics/commit/6a6d9081621b6fbc70ec6933ab7bfd639aef4d3c))
 * **fluids:** obscure vision and apply Nausea/Poison/Slowness in Crude Oil ([#848](https://github.com/Indemnity83/logistics/issues/848)) ([0e9471c](https://github.com/Indemnity83/logistics/commit/0e9471c892fbd787f12a7bd2607cbbc401302e9d))
