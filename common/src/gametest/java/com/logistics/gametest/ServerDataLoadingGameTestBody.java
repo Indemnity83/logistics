@@ -16,22 +16,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 /**
- * Shared server-data loading GameTest body, compiled directly into both loaders' {@code gametest}
- * source sets (see {@code common/build.gradle}).
+ * Verifies shipped server data — loot tables, worldgen, and registry-backed ids — deserializes into
+ * the live registries, reading what the game loaded rather than re-parsing the files.
  *
- * <p>The counterpart to the static resource contract tests in {@code common/src/test}: those prove
- * the shipped JSON references each other correctly, but they cannot prove a file actually
- * deserializes into a live registry, because that needs a running server. A loot table that parses
- * as JSON but names an unknown loot function is simply absent at runtime, and the block silently
- * drops nothing.
- *
- * <p>Scope is deliberately <em>server</em> data — loot tables, worldgen, and registry-backed ids.
- * Models, item definitions, and blockstates are client resources with no server-side registry to
- * walk; they are covered statically in {@code com.logistics.resource.contract} and, eventually, by
- * client feature tests. Recipes have their own body, {@link RecipeLoadingGameTestBody}.
- *
- * <p>Every check reads a loaded registry rather than re-parsing JSON, so it verifies what the game
- * actually ended up with instead of restating what the files say.
+ * <p>Client resources (models, item definitions, blockstates) have no server-side registry and are
+ * out of scope. Recipes have their own body, {@link RecipeLoadingGameTestBody}.
  */
 public class ServerDataLoadingGameTestBody {
 

@@ -3,12 +3,7 @@ package com.logistics.gametest;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
-/**
- * Fabric entrypoint wiring for the server-data loading GameTests. Test logic lives in
- * {@link ServerDataLoadingGameTestBody} (shared with NeoForge — see {@code common/src/gametest});
- * these methods only carry the {@code @GameTest} annotation Fabric's reflection-based test
- * discovery requires.
- */
+/** Fabric wiring; each method delegates to {@link ServerDataLoadingGameTestBody}. */
 public class ServerDataLoadingGameTest {
 
     @GameTest
