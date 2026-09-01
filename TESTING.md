@@ -272,6 +272,45 @@ failing, so that check wouldn't reliably catch an item-id typo anyway. Verifying
 belongs in a live server-data contract; verifying a specific recipe's content belongs in a
 `*RecipeTest`/`*RecipeSpotCheckTest` unit test.
 
+### Resource contract testing
+
+`common/src/test/java/com/logistics/resource/contract/` proves the shipped asset graph holds
+together — model parents resolve, no parent chain loops, every texture a model names ships, and every
+item definition points at a model that exists. It is plain JUnit that reads JSON off the classpath and
+never boots a server, so it runs on every `./gradlew :common:test` at negligible cost.
+
+**Namespace policy** (`ResourceFiles`), applied to every reference:
+
+- `logistics:` — must resolve to a shipped file. Failing this is a hard error; it is the suite's job.
+- `minecraft:` (and an unqualified reference, which Minecraft itself reads as vanilla) — trusted and
+  not resolved. A classpath-only validator cannot prove a vanilla asset exists without a
+  version-matched index of Minecraft's own resources, and a hand-maintained substitute would rot
+  silently. Tightening this later means adding a real index, not an allowlist.
+- Anything else — rejected, so a stray third-party reference can't slip in unnoticed. Add the
+  namespace to `TRUSTED_NAMESPACES` with a reason if it's ever intentional.
+
+`ALLOWED_UNRESOLVED` is the escape hatch for a reference that deliberately doesn't ship a file
+(dynamic, generated, or loader-supplied). It is empty today, and it should stay small — an explicit
+entry shows up in review, whereas loosening the validator after the first false positive does not.
+
+Item definitions nest models in several shapes (`minecraft:model`, `composite`, `select` with
+fallback/cases, `special` with its model under `base`). The tests walk the whole JSON tree and treat
+any string-valued `model` or `base` as a reference rather than encoding each type's schema, so a new
+definition type is covered without a code change.
+
+**What this deliberately does not cover:** the `hasSizeGreaterThanOrEqualTo` checks are a deletion
+alarm for walking an empty or wrong directory — they are not a coverage measure, and shouldn't be
+described as one. Nothing here verifies that every *registered* block and item actually has an item
+definition and model; that needs the mod's own registries, which the current test bootstrap doesn't
+populate. Blockstates, loot tables, and tags are not covered yet either. Registry-backed id checks
+(unknown items in loot tables or tags) belong in a live feature test, not here — vanilla's registry
+silently resolves an unknown id to `minecraft:air` rather than failing, so a static check can't catch
+that class of typo.
+
+The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
+rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
+nothing under it is validated.
+
 ### Server-data loading contract
 
 `ServerDataLoadingGameTestBody` is the live counterpart to the static resource contract tests, and it
@@ -438,6 +477,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
+- **Resource contracts** — model parent chains (resolution + loop detection), model texture references, item definition model references; see "Resource contract testing" above
 
 Recipe loading is covered by a feature test rather than a unit test — `RecipeLoadingGameTestBody`
 asserts every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) actually loads
