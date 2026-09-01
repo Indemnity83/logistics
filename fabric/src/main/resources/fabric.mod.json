@@ -23,7 +23,11 @@
       "com.logistics.automation.crucible.jei.CrucibleJeiPlugin",
       "com.logistics.automation.refinery.jei.RefineryJeiPlugin",
       "com.logistics.automation.fabricator.jei.FabricatorJeiPlugin",
-      "com.logistics.automation.transposer.jei.TransposerJeiPlugin"
+      "com.logistics.automation.transposer.jei.TransposerJeiPlugin",
+      "com.logistics.power.engine.reaction.jei.ReactionJeiPlugin",
+      "com.logistics.power.engine.fuel.jei.FuelEngineJeiPlugin",
+      "com.logistics.power.engine.magmatic.jei.MagmaticJeiPlugin",
+      "com.logistics.power.engine.jei.EngineFuelJeiPlugin"
     ],
     "jade": ["com.logistics.compat.jade.JadeLogisticsPlugin"]
   },
