@@ -18,30 +18,20 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Shared plumbing for the resource contract tests: locating shipped resources on the test
- * classpath, parsing them, and turning a reference string into the file it should resolve to.
- *
- * <p>These tests are deliberately static — they read JSON off the classpath and never boot a
- * server. That makes them cheap enough to run on every {@code :common:test}, which is the point:
- * a broken model parent or missing texture is invisible until the game loads otherwise.
+ * Locates shipped resources on the test classpath, parses them, and turns a reference string
+ * into the file it must resolve to. Reads JSON only; never boots a server.
  */
 final class ResourceFiles {
 
     static final String NAMESPACE = "logistics";
 
     /**
-     * Namespaces accepted without resolving the reference. A classpath-only validator cannot prove
-     * a vanilla asset exists — that would need a version-matched index of Minecraft's own
-     * resources. Rather than fake it with a hand-maintained list that silently rots, vanilla
-     * references are trusted and only our own are proven.
+     * Namespaces accepted without resolving the reference. Proving a vanilla asset exists would
+     * need a version-matched index of Minecraft's own resources, which is not available here.
      */
     private static final Set<String> TRUSTED_NAMESPACES = Set.of("minecraft");
 
-    /**
-     * References that intentionally do not resolve to a shipped file, each with the reason.
-     * Keep this small and specific — the point of an explicit allowlist is that weakening the
-     * validator shows up in review instead of happening quietly the first time it fails.
-     */
+    /** References that intentionally resolve to no shipped file, each keyed to its reason. */
     private static final Map<String, String> ALLOWED_UNRESOLVED = Map.of();
 
     /** Resolved once: these are called per file and per reference. */
@@ -139,7 +129,7 @@ final class ResourceFiles {
      *
      * @param kind      resource directory, e.g. {@code models} or {@code textures}
      * @param extension file extension including the dot, e.g. {@code .json}
-     * @throws UnexpectedNamespaceException when the namespace is neither ours nor trusted
+     * @throws BadReferenceException when the namespace is untrusted or the path escapes {@code kind}
      */
     static Path resolve(String reference, String kind, String extension) {
         // An unqualified reference means vanilla, matching Minecraft's own default.
@@ -156,7 +146,16 @@ final class ResourceFiles {
         if (!NAMESPACE.equals(namespace)) {
             throw new UnexpectedNamespaceException(reference, namespace);
         }
-        return assetRoot().resolve(kind).resolve(path + extension);
+
+        // Minecraft allows '.' and '/' in a resource path and only rejects ".." in the namespace,
+        // so a reference can climb out of the resource directory. Left unchecked, such a reference
+        // could land on an unrelated real file and be reported as resolved.
+        Path directory = assetRoot().resolve(kind).normalize();
+        Path target = directory.resolve(path + extension).normalize();
+        if (!target.startsWith(directory)) {
+            throw new EscapingReferenceException(reference, kind);
+        }
+        return target;
     }
 
     /** Collects every string value stored under any of {@code keys}, at any depth. */
@@ -181,11 +180,25 @@ final class ResourceFiles {
         }
     }
 
+    /** A reference that cannot be checked as written. */
+    static class BadReferenceException extends RuntimeException {
+        BadReferenceException(String message) {
+            super(message);
+        }
+    }
+
     /** Raised when a reference names a namespace that is neither ours nor explicitly trusted. */
-    static final class UnexpectedNamespaceException extends RuntimeException {
+    static final class UnexpectedNamespaceException extends BadReferenceException {
         UnexpectedNamespaceException(String reference, String namespace) {
             super("unexpected namespace '" + namespace + "' in reference '" + reference
                 + "'; add it to TRUSTED_NAMESPACES with a reason if this is intentional");
+        }
+    }
+
+    /** Raised when a reference resolves outside the resource directory it names. */
+    static final class EscapingReferenceException extends BadReferenceException {
+        EscapingReferenceException(String reference, String kind) {
+            super("reference '" + reference + "' resolves outside assets/" + NAMESPACE + "/" + kind);
         }
     }
 }
