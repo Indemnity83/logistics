@@ -108,4 +108,51 @@ class FluidExtractionTest {
         assertThat(result.energyToConsume()).isZero();
         assertThat(result.carryMb()).isEqualTo(30); // carry untouched
     }
+
+    @Test
+    @DisplayName("re-offers the whole buffer when an all-or-nothing source refuses a rate-sized sip")
+    void gulpsFromAllOrNothingSource() {
+        // A lava cauldron parts with one whole bucket or nothing; the 20 mB rate alone would never move any.
+        FluidBuffer<String> pipe = FluidBuffer.extractor(1000);
+        FakeQuantizedFluidProvider cauldron = new FakeQuantizedFluidProvider(WATER, 1000, 1000);
+        FluidExtraction.Result result = FluidExtraction.tick(pipe, cauldron, 20, RATE, true, 0);
+        assertThat(result.extractedMb()).isEqualTo(1000);
+        assertThat(result.energyToConsume()).isEqualTo(20); // 1000 mB ÷ 50 mB/RF
+        assertThat(cauldron.amount()).isZero();
+        assertThat(pipe.amount()).isEqualTo(1000);
+    }
+
+    @Test
+    @DisplayName("gulping still obeys the energy cap")
+    void gulpRespectsEnergyCap() {
+        // 10 RF buys 500 mB — not enough for a 1000 mB chunk, so nothing moves and nothing is spent.
+        FluidBuffer<String> pipe = FluidBuffer.extractor(1000);
+        FakeQuantizedFluidProvider cauldron = new FakeQuantizedFluidProvider(WATER, 1000, 1000);
+        FluidExtraction.Result result = FluidExtraction.tick(pipe, cauldron, 10, RATE, true, 0);
+        assertThat(result.extractedMb()).isZero();
+        assertThat(result.energyToConsume()).isZero();
+        assertThat(cauldron.amount()).isEqualTo(1000);
+    }
+
+    @Test
+    @DisplayName("gulping is bounded by the buffer, so a chunk larger than the pipe never moves")
+    void gulpBoundedByBuffer() {
+        // The default 250 mB pipe cannot hold a 333 mB cauldron level, so it stays put rather than overfilling.
+        FluidBuffer<String> pipe = FluidBuffer.extractor();
+        FakeQuantizedFluidProvider cauldron = new FakeQuantizedFluidProvider(WATER, 333, 999);
+        FluidExtraction.Result result = FluidExtraction.tick(pipe, cauldron, 1000, RATE, true, 0);
+        assertThat(result.extractedMb()).isZero();
+        assertThat(cauldron.amount()).isEqualTo(999);
+        assertThat(pipe.amount()).isZero();
+    }
+
+    @Test
+    @DisplayName("a divisible source is still drained at the rate, not gulped")
+    void divisibleSourceStillRateLimited() {
+        FluidBuffer<String> pipe = FluidBuffer.extractor(1000);
+        FakeFluidProvider tank = new FakeFluidProvider(WATER, 1000);
+        FluidExtraction.Result result = FluidExtraction.tick(pipe, tank, 1000, RATE, true, 0);
+        assertThat(result.extractedMb()).isEqualTo(RATE);
+        assertThat(tank.amount()).isEqualTo(980);
+    }
 }

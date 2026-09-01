@@ -24,6 +24,7 @@
 			"com.logistics.gametest.pipe.ModuleGameTest",
 			"com.logistics.gametest.pipe.PipeFlowGameTest",
 			"com.logistics.gametest.pipe.FluidPumpGameTest",
+			"com.logistics.gametest.pipe.CauldronFluidGameTest",
 			"com.logistics.gametest.pipe.FluidConnectionGameTest",
 			"com.logistics.gametest.pipe.FluidLightGameTest",
 			"com.logistics.gametest.pipe.FluidProviderGameTest",

@@ -11,6 +11,12 @@ package com.logistics.core.lib.pipe;
  * fluid actually moved; since a single tick usually moves less than one RF's worth, the sub-RF remainder is
  * carried ({@code carryMb}) into the next tick so the buffer still drains gradually instead of rounding the
  * per-tick cost down to zero.
+ *
+ * <p>Some sources are all-or-nothing: a cauldron parts with whole levels only, so a rate-sized sip of a few mB
+ * drains nothing at all rather than a few mB. When the sip comes back empty the pipe re-offers its whole
+ * remaining space, which is large enough to hold the smallest chunk such a source will give up. The energy cap
+ * still applies, and average throughput is still bounded by the transfer rate, because refilling the buffer at
+ * the rate is what paces the next gulp.
  */
 public final class FluidExtraction {
 
@@ -41,7 +47,14 @@ public final class FluidExtraction {
      */
     public static <F> Result tick(
             FluidBuffer<F> pipe, FluidProvider<F> source, long energy, long rate, boolean requiresEngine, long carryMb) {
-        long extracted = pipe.extract(source, allowance(rate, energy, requiresEngine));
+        long sip = allowance(rate, energy, requiresEngine);
+        long extracted = pipe.extract(source, sip);
+        if (extracted == 0) {
+            long gulp = allowance(pipe.space(), energy, requiresEngine);
+            if (gulp > sip) {
+                extracted = pipe.extract(source, gulp);
+            }
+        }
         if (requiresEngine && extracted > 0) {
             return chargeEnergy(extracted, carryMb);
         }
