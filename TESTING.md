@@ -376,6 +376,13 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 15. **Fluid-routing modules** (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
     FluidVoidModule) — zero coverage at any level, real check-valve/routing-policy logic backing 4
     registered pipe blocks.
+16. **Share the 13 `// not-yet-shared:` CableGameTest tests** — NeoForge runs none of them today, so
+    the whole cable domain is Fabric-only in practice: topology (connects/doesn't connect, network
+    splits and rejoins), tier capping, and engine interaction are all unverified there. Five touch no
+    Fabric API and move as-is; the other eight use `Transaction`/`EnergyStorage` only to push and read
+    energy, so they need the same rewrite `PipeFlowGameTest` already got — swap the Fabric calls for
+    a real adjacent `CREATIVE_ENGINE` and plain block-entity reads. Only the two
+    `testAbortedCableTransaction*` tests genuinely stay Fabric-only.
 
 ---
 
@@ -457,11 +464,23 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ---
 
-## NeoForge Game Tests
+## Fabric + NeoForge Game Tests
 
-The same shared bodies run on NeoForge via `./gradlew :neoforge:runGameTestServer`. Registration
-differs from newer Minecraft versions in a way worth knowing before you touch
-`neoforge/src/gametest`:
+`fabric/src/gametest/` and `neoforge/src/gametest/` run **191 shared feature tests** on each loader
+(plus 16 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
+Minecraft server process (real block placement, game ticks). Fabric's are considered
+**deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
+code is restructured to separate pure logic from world dependencies — but they're kept to preserve
+coverage. The primary blocker for conversion is that all tests depend on `GameTestHelper` to place
+blocks in an actual level and tick the server; even "simple" placement tests require registered mod
+blocks and a running level, neither of which is available in a vanilla bootstrap. This applies
+equally to the NeoForge side; nothing below changes that long-term goal, only which loader(s) run
+the tests in the meantime.
+
+### Shared test bodies, per-loader registration glue
+
+The shared bodies run on NeoForge via `./gradlew :neoforge:runGameTestServer`. Registration differs
+from newer Minecraft versions in a way worth knowing before you touch `neoforge/src/gametest`:
 
 - **MC 1.21.1 has no data-driven GameTest registry.** There is no `BuiltInRegistries.TEST_FUNCTION`,
   and no `GameTestInstance`/`FunctionGameTestInstance`/`TestData`/`TestEnvironmentDefinition`.
@@ -507,23 +526,84 @@ differs from newer Minecraft versions in a way worth knowing before you touch
 The exit code is the number of failed required tests, so a non-zero exit with no obvious stack trace
 usually means an assertion failure — read the `LogTestReporter` lines, not just the tail.
 
-## Deprecated: Fabric Game Tests
+### The one real exception: loader-native capability tests
 
-`fabric/src/gametest/` contains **90+ `@GameTest` integration tests** that require a full Minecraft server process (real block placement, game ticks, Fabric transfer API). These are **deprecated** — the long-term goal is to replace them with plain JUnit equivalents as code is restructured to separate pure logic from world dependencies.
+A test that specifically exercises a loader's own capability/interop API — not this mod's code —
+can't be shared, because the two loaders' APIs are genuinely different, not just differently named:
 
-They are kept for now to preserve coverage. The primary blocker for conversion is that all tests depend on `GameTestHelper` to place blocks in an actual level and tick the server. Even "simple" placement tests require registered mod blocks and a running level — neither of which is available in a vanilla bootstrap.
+- `power/CableGameTest#testAbortedCableTransactionDoesNotReachCreativeSink` and
+  `#testAbortedCableTransactionAfterTickDoesNotReachCreativeSink` are genuinely Fabric-only. Both open
+  a Team Reborn `Transaction` (`Transaction.openOuter()`, an unclosed transaction implicitly aborting)
+  to verify the cable's energy capability participates correctly in Fabric's transactional
+  insert/rollback semantics. NeoForge's own energy capability
+  (`IEnergyStorage.insert(amount, simulate)`) has no transaction/rollback concept to test — a
+  `simulate=true` dry run is a different mechanism, not an equivalent.
 
-### Coverage by file
+  The **rest** of `CableGameTest` is not a real exception, only an unfinished port: 5 of its tests
+  touch no Fabric API at all, and the other 8 use `Transaction`/`EnergyStorage` purely as test
+  plumbing to move energy around — exactly the situation `PipeFlowGameTest` was already rewritten out
+  of (next bullet). Those 13 carry a `// not-yet-shared:` marker and are counted by
+  `checkFeatureTestParity`; the count may shrink but never grow. NeoForge currently runs none of
+  them, which is a real coverage gap, not a documented boundary.
+- `pipe/PipeFlowGameTest#testChestItemStorageReachable` stays inline in the Fabric wrapper (not
+  delegated to a Body method, not registered on NeoForge): it specifically verifies Fabric API's own
+  vanilla-chest-to-`ItemStorage` adapter, which has no NeoForge equivalent to test — every other
+  method in that file only used the same Fabric API as incidental test-setup plumbing (filling or
+  reading a chest) and was rewritten to use plain vanilla `ChestBlockEntity` access instead, which
+  behaves identically on both loaders and is now fully shared.
+- `pipe/GlassTankBucketGameTestBody#emptyBucketDrainsGlassTankInCreative` is a partial case: the
+  shared body covers everything genuinely loader-agnostic (tank drains, held item unaffected) and
+  returns the mock player instead of calling `succeed()`; Fabric's wrapper adds one more assertion
+  on top (a water bucket lands elsewhere in the creative inventory) because that's Fabric API's own
+  `FluidStorageUtil` nicety, not something NeoForge's `FluidUtil.interactWithFluidHandler`
+  replicates or something this mod's `GlassTankBlock` promises itself.
 
-| File | Tests | Conversion blocker |
-|------|-------|-------------------|
-| `CableGameTest` | 13 | Energy storage + TR transaction API + ticking |
-| `EngineGameTest` | 16 | Fuel burning and energy production require block entity ticking |
-| `PipeFlowGameTest` | 8 | Item travel requires ticking; enchantment serialization needs live data pack |
-| `ModuleGameTest` | 14 | Filter/sink routing requires live `PipeContext` with real block entities |
-| `PipeInfrastructureGameTest` | 5 | Pipe connectivity and cache invalidation require live blocks |
-| `OreGenerationGameTest` | 11 | Ore feature registration and block placement require data-driven registries |
-| `NetworkIntegrationGameTest` | 5 | Provider/requester delivery requires 100-tick game simulation |
-| `QuarryGameTest` | 7 | Energy acceptance and phase tracking require live block entity |
-| `QuarryMiningGameTest` | 3 | Phase machine progression and block mining require full simulation |
-| `KilnGameTest` | 9 | Inventory slot access control requires live block entity |
+When you hit a test like this, don't force a shared body that only compiles on one loader (or
+silently duplicates the loader-native call under two different names) — leave the loader-specific
+assertion where it belongs and document why, the way the cases above do.
+
+### Parity is enforced, not assumed
+
+`./gradlew checkFeatureTestParity` (wired into `:common:lint`, so it runs in the `lint (common)` CI
+job) builds the catalog of shared tests — every `public static` method taking a `GameTestHelper` in
+`common/src/gametest` — and fails if either loader doesn't wire one up. It also fails on a reference
+to a body method that doesn't exist, and on an unshared Fabric test with no justification marker.
+
+Matching *counts* are not parity and the task never checks them: two loaders can each run 191 tests
+while running different sets. Comparing the catalog against each loader's wiring is what actually
+proves it.
+
+For reference, the current split is 191 shared tests, plus 3 `// loader-only:` and 13
+`// not-yet-shared:` Fabric tests — so Fabric wires 207 methods and NeoForge 191. Read the
+*difference* rather than either total: 16, exactly the unshared Fabric set, and expected rather
+than a defect.
+
+Every unshared Fabric test needs one of two markers directly above its `@GameTest` annotation:
+
+- `// loader-only: <reason>` — genuinely tests a loader-native API with no counterpart. Permanent.
+- `// not-yet-shared: <reason>` — should live in a shared body eventually. Tracked, and the task
+  ratchets the total down: adding one fails the build.
+
+### Adding a new test
+
+1. Write (or extend) the `<Name>GameTestBody` class in `common/src/gametest`.
+2. Add/update the Fabric `<Name>GameTest` wrapper. New wrapper *class* → add it to
+   `fabric/src/gametest/resources/fabric.mod.json`.
+3. Add/update the NeoForge `<Name>GameTestRegistration` class, following an existing one as a
+   template. On 1.21.1 that means a `public static void name(GameTestHelper)` method carrying
+   vanilla `@GameTest(template = "empty", batch = "<class-slug>")` that delegates to the shared
+   body — see "Shared test bodies, per-loader registration glue" above. A new registration *class*
+   additionally needs `@GameTestHolder("logistics_gametest")` + `@PrefixGameTestTemplate(false)`;
+   NeoForge finds it by annotation scan, so there is nothing to add to `LogisticsGameTestMod`.
+4. Run `./gradlew checkFeatureTestParity` — it catches a missing wrapper or registration instantly,
+   without booting a server, and is the check that would otherwise only surface as a silently absent
+   test.
+5. Run both `./gradlew :fabric:runGameTest` and `./gradlew :neoforge:runGameTestServer` and confirm
+   the "N GAME TESTS COMPLETE" count went up by the expected amount on each.
+
+A NeoForge timed test (`runAfterDelay`, a tight tick budget) generally needs slightly more headroom
+than its Fabric counterpart — the structure is placed and ticked differently before control reaches
+the test body. There's no fixed conversion factor; if a new timed test times out on NeoForge but not
+Fabric, that's why — give it more headroom (the existing registrations add roughly 20 ticks as a
+starting point) and re-run. Note the annotation attribute is `timeoutTicks` on 1.21.1's vanilla
+`@GameTest`, not `maxTicks` (which is Fabric's).

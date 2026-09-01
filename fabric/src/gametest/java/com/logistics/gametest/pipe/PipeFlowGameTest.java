@@ -107,6 +107,7 @@ public class PipeFlowGameTest {
      *
      * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testchestitemstoragereachable
      */
+    // loader-only: tests Fabric API's own vanilla-chest ItemStorage adapter, not this mod's code
     @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testChestItemStorageReachable(GameTestHelper context) {
         BlockPos pipePos = new BlockPos(0, 1, 0);
