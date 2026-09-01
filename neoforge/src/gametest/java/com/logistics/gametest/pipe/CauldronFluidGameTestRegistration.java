@@ -34,7 +34,11 @@ public final class CauldronFluidGameTestRegistration {
         new GameTestCase(
             "pipe/insertion_pipe_fills_cauldron_with_lava",
             200,
-            CauldronFluidGameTestBody::insertionPipeFillsCauldronWithLava));
+            CauldronFluidGameTestBody::insertionPipeFillsCauldronWithLava),
+        new GameTestCase(
+            "pipe/pipe_network_fills_cauldron_with_water",
+            400,
+            CauldronFluidGameTestBody::pipeNetworkFillsCauldronWithWater));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

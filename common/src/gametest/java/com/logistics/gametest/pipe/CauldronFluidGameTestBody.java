@@ -2,6 +2,7 @@ package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
@@ -12,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /**
@@ -38,9 +40,6 @@ public class CauldronFluidGameTestBody {
         context.setBlock(pipePos.west(), Blocks.LAVA_CAULDRON);
 
         GlassTankBlockEntity tank = buildExtractorRig(context, pipePos);
-        if (tank == null) {
-            return;
-        }
 
         context.succeedWhen(() -> {
             if (!context.getBlockState(pipePos.west()).is(Blocks.CAULDRON)) {
@@ -63,9 +62,6 @@ public class CauldronFluidGameTestBody {
                 Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
 
         GlassTankBlockEntity tank = buildExtractorRig(context, pipePos);
-        if (tank == null) {
-            return;
-        }
 
         context.succeedWhen(() -> {
             if (!context.getBlockState(pipePos.west()).is(Blocks.CAULDRON)) {
@@ -83,9 +79,7 @@ public class CauldronFluidGameTestBody {
         BlockPos cauldronPos = pipePos.west();
         context.setBlock(cauldronPos, Blocks.CAULDRON);
 
-        if (!chargeInsertionPipe(context, pipePos, Fluids.WATER)) {
-            return;
-        }
+        chargeInsertionPipe(context, pipePos, Fluids.WATER);
 
         context.succeedWhen(() -> {
             if (!context.getBlockState(cauldronPos).is(Blocks.WATER_CAULDRON)) {
@@ -103,9 +97,7 @@ public class CauldronFluidGameTestBody {
         BlockPos cauldronPos = pipePos.west();
         context.setBlock(cauldronPos, Blocks.CAULDRON);
 
-        if (!chargeInsertionPipe(context, pipePos, Fluids.LAVA)) {
-            return;
-        }
+        chargeInsertionPipe(context, pipePos, Fluids.LAVA);
 
         context.succeedWhen(() -> {
             if (!context.getBlockState(cauldronPos).is(Blocks.LAVA_CAULDRON)) {
@@ -115,9 +107,47 @@ public class CauldronFluidGameTestBody {
     }
 
     /**
+     * The realistic fill: a stocked Glass Tank feeding a powered Fluid Extractor Pipe, which feeds an Insertion
+     * Fluid Pipe next to an empty cauldron — no hand-placed fluid anywhere. Fluid reaches the insertion pipe
+     * only in rate-sized hops that never merge afterwards, so this is the case a pre-charged pipe cannot stand
+     * in for: the pipe must pool its stalled arrivals before the cauldron will take any of them.
+     */
+    public static void pipeNetworkFillsCauldronWithWater(GameTestHelper context) {
+        BlockPos cauldronPos = new BlockPos(0, 2, 2);
+        BlockPos insertionPos = cauldronPos.east();
+        BlockPos extractorPos = insertionPos.east();
+        BlockPos tankPos = extractorPos.east();
+        BlockPos enginePos = extractorPos.north();
+
+        context.setBlock(cauldronPos, Blocks.CAULDRON);
+        context.setBlock(insertionPos, LogisticsPipe.BLOCK.INSERTION_FLUID_PIPE);
+        context.setBlock(extractorPos, LogisticsPipe.BLOCK.FLUID_EXTRACTOR_PIPE);
+        context.setBlock(tankPos, LogisticsPipe.BLOCK.GLASS_TANK);
+        context.setBlock(enginePos.north(), Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.SOUTH)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        GlassTankBlockEntity tank = context.getBlockEntity(tankPos, GlassTankBlockEntity.class);
+        FluidPipeBlockEntity extractor = context.getBlockEntity(extractorPos, FluidPipeBlockEntity.class);
+        if (tank == null || extractor == null) {
+            throw context.assertionException("Expected tank and extractor pipe block entities");
+        }
+        tank.setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(BUCKET_MB * 4));
+        extractor.setFeatureDirection(Direction.EAST);
+
+        context.succeedWhen(() -> {
+            if (!context.getBlockState(cauldronPos).is(Blocks.WATER_CAULDRON)) {
+                throw context.assertionException("A pipe network feeding an insertion pipe should fill the cauldron");
+            }
+        });
+    }
+
+    /**
      * Builds an extractor rig around {@code pipePos}: a tank to the east to receive, a powered Creative Engine
      * to the north to drive it, and the pull face pointed west at whatever the caller placed there. Returns the
-     * tank, or {@code null} after failing the test when a block entity is missing.
+     * receiving tank, failing the test if any block entity is missing.
      */
     private static GlassTankBlockEntity buildExtractorRig(GameTestHelper context, BlockPos pipePos) {
         BlockPos enginePos = pipePos.north();
@@ -141,10 +171,9 @@ public class CauldronFluidGameTestBody {
 
     /**
      * Places an insertion pipe at {@code pipePos} holding one bucket of {@code fluid}, entering from the east so
-     * it heads west into whatever the caller placed there. Returns false after failing when the pipe is missing.
+     * it heads west into whatever the caller placed there. Fails the test if the pipe cannot hold the bucket.
      */
-    private static boolean chargeInsertionPipe(
-            GameTestHelper context, BlockPos pipePos, net.minecraft.world.level.material.Fluid fluid) {
+    private static void chargeInsertionPipe(GameTestHelper context, BlockPos pipePos, Fluid fluid) {
         context.setBlock(pipePos, LogisticsPipe.BLOCK.INSERTION_FLUID_PIPE);
         FluidPipeBlockEntity pipe = context.getBlockEntity(pipePos, FluidPipeBlockEntity.class);
         if (pipe == null) {
@@ -155,6 +184,5 @@ public class CauldronFluidGameTestBody {
             throw context.assertionException(
                     "Insertion pipe should buffer a whole bucket, took only " + accepted + " mB");
         }
-        return true;
     }
 }

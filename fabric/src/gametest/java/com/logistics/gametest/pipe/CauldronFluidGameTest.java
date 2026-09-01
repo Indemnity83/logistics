@@ -32,4 +32,10 @@ public class CauldronFluidGameTest {
     public void insertionPipeFillsCauldronWithLava(GameTestHelper context) {
         CauldronFluidGameTestBody.insertionPipeFillsCauldronWithLava(context);
     }
+
+    /** Pulling a whole cauldron level through a real pipe network takes many rate-sized hops. */
+    @GameTest(maxTicks = 400)
+    public void pipeNetworkFillsCauldronWithWater(GameTestHelper context) {
+        CauldronFluidGameTestBody.pipeNetworkFillsCauldronWithWater(context);
+    }
 }
