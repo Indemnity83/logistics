@@ -311,6 +311,39 @@ The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It 
 rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
 nothing under it is validated.
 
+### Server-data loading contract
+
+`ServerDataLoadingGameTestBody` is the live counterpart to the static resource contract tests, and it
+exists because those two layers catch genuinely different bugs. A loot table can be valid JSON with a
+perfectly well-formed structure and still fail to deserialize — name an entry type that doesn't
+exist and the codec rejects it, the table never reaches the registry, and the block silently drops
+nothing when broken. Only a running server reveals that.
+
+It covers **server** data: loot tables, worldgen (configured and placed features), and the
+registry-to-data direction — every block we register that declares a loot table has that table
+actually loaded. That last check is the one file-driven validation structurally cannot do: a block
+pointing at a table that was never shipped is invisible if you only inspect the files that do exist.
+Recipes have their own body (`RecipeLoadingGameTestBody`).
+
+Models, item definitions, and blockstates are deliberately **out of scope** here — they are client
+resources with no server-side registry to walk. Their structure is checked statically in
+`com.logistics.resource.contract`, and their actual loading belongs to client feature tests.
+
+Two conventions worth keeping when extending it:
+
+- **Read loaded registries, not JSON.** The point is to verify what the game ended up with, not to
+  restate what the files say. Don't scan raw JSON for id-shaped strings; where an id needs checking,
+  use `Registry#containsKey` rather than `get`, since a defaulted registry answers an unknown item id
+  with `minecraft:air` instead of failing.
+- **Guard against vacuous passes.** A live enumeration that matches nothing passes without inspecting
+  anything, which is the one way these tests can be silently worthless. Each check asserts it examined
+  a plausible number of entries and fails loudly if not — that floor is a tripwire for a broken
+  enumeration, not a coverage measure.
+
+Tags are not covered yet. Our tag files live under the `c:` and `minecraft:` namespaces rather than
+our own, so "every tag we ship is loaded" needs a file-to-tag mapping that distinguishes our
+contributions from vanilla's and other mods' — worth doing, but not a one-line extension.
+
 ### Feature-test backlog
 
 Recorded here so a pass doesn't have to re-derive priority order or re-discover what's already done.
@@ -512,7 +545,7 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ## Fabric + NeoForge Game Tests
 
-`fabric/src/gametest/` and `neoforge/src/gametest/` run **191 shared feature tests** on each loader
+`fabric/src/gametest/` and `neoforge/src/gametest/` run **195 shared feature tests** on each loader
 (plus 16 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
 Minecraft server process (real block placement, game ticks). Fabric's are considered
 **deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
@@ -604,8 +637,8 @@ Matching *counts* are not parity and the task never checks them: two loaders can
 while running different sets. Comparing the catalog against each loader's wiring is what actually
 proves it.
 
-For reference, the current split is 191 shared tests, plus 3 `// loader-only:` and 13
-`// not-yet-shared:` Fabric tests. The runs report 208 on Fabric and 192 on NeoForge; the totals
+For reference, the current split is 195 shared tests, plus 3 `// loader-only:` and 13
+`// not-yet-shared:` Fabric tests. The runs report 212 on Fabric and 196 on NeoForge; the totals
 include a built-in instance from the test framework itself, so read the *difference* rather than
 either number — 16, exactly the unshared Fabric set, and expected rather than a defect.
 
@@ -671,3 +704,109 @@ A NeoForge timed test (`runAfterDelay`, a tight `maxTicks`) generally needs a sl
 environment/structure differently before handing control to the test body. There's no fixed
 conversion factor; if a new timed test times out on NeoForge but not Fabric, that's why — give it
 more headroom (the existing registrations add roughly 20 ticks as a starting point) and re-run.
+
+---
+
+## Client Feature Tests
+
+Run with `./gradlew :fabric:runClientGameTest`. This starts a **real Minecraft client** with the mod
+loaded, builds a world, renders it, and can capture screenshots — the layer that covers screens,
+models, and rendering, none of which a headless server can see.
+
+**Fabric only.** NeoForge has no equivalent harness here, and unlike server feature tests there is
+nothing to share: these are not portable test bodies, so `common/src/gametest` is not involved.
+
+### A different framework from the server tests
+
+Despite the similar name, this is not vanilla GameTest. It is Fabric API's client test framework
+(`fabric-client-gametest-api-v1`), and it works differently:
+
+| | Server feature tests | Client feature tests |
+|---|---|---|
+| Framework | vanilla GameTest | Fabric API client test |
+| Unit of a test | one `@GameTest` method | one class, run as a script |
+| Discovery | `fabric-gametest` entrypoint | `fabric-client-gametest` entrypoint |
+| Shared across loaders | yes, via `common/src/gametest` | no |
+
+Because a client test is a whole class rather than annotated methods, `checkFeatureTestParity` — which
+scans `@GameTest` methods — does not see them. They neither satisfy nor violate it.
+
+No Gradle wiring was needed: loom's `enableClientGameTests` defaults to true, so `runClientGameTest`
+already existed, and `fabric-client-gametest-api-v1` is already on the gametest classpath via the
+existing `fabric-api` dependency. The one change required was `fabric.mod.json`'s `environment`,
+which was `"server"` and kept the test mod off the client entirely; it is now `"*"`.
+
+### Determinism contract
+
+A screenshot that varies run to run is worse than no screenshot. Fix all of these before adding a
+capture — most are one call, and the framework provides them:
+
+- `context.restoreDefaultGameOptions()` — GUI scale, render distance, graphics options. Without it a
+  developer's local settings change what gets captured.
+- `worldBuilder().setUseConsistentSettings(true)` — fixed world settings and seed. Use
+  `adjustSettings(...)` for per-test time of day, weather, or world type.
+- `getClientLevel().waitForChunksRender()` — capturing earlier yields a partly-empty frame.
+- `TestScreenshotOptions.of(name).disableCounterPrefix()` — stable filename. The default prefixes an
+  incrementing counter, which makes captures impossible to compare between builds.
+- Fixed camera position and angle, once a test actually looks at something specific — and put the
+  player in **spectator** before teleporting. A survival player teleported above ground falls and
+  settles a fraction of a block differently each run, shifting the whole frame by a sub-pixel. That
+  one detail moved the showcase capture from 0.00996 (twice the default tolerance, i.e. unusable as
+  a gate) to 0.00012, comfortably inside it. The symptom is distinctive: the sky compares
+  pixel-identical while nearly every ground pixel differs slightly.
+
+Loom also clears the run directory before each run (`deleteGameTestRunDir`), so stale state doesn't
+leak between runs.
+
+### Never compare screenshots byte-for-byte
+
+Two runs of the same test on the same machine do **not** produce identical PNGs. Measured on this
+repo: same 854x480 dimensions, but different file sizes, and **33% of channel samples differed**.
+The differences are sub-unit GPU noise spread across the whole frame — a normalised mean squared
+difference of **0.000006**.
+
+So `assertScreenshotEquals` is safe but `TestScreenshotComparisonAlgorithm.exact()` is not: it would
+fail on every run. The default algorithm is `meanSquaredDifference(0.005)`, roughly 800x the observed
+noise floor, which is why comparison works without tuning. Use `withRegion(...)` to narrow a
+comparison to the part of the frame under test, and `withGrayscale()` when colour is not the point.
+
+Until a baseline corpus exists, prefer treating captures as **reviewed CI artifacts** rather than a
+pass/fail gate — upload them and look at them. A visual-diff gate is a deliberate later step, not the
+default.
+
+### What runs today
+
+- `ClientBootstrapGameTest` — starts a client, builds a world, renders it, captures a frame. Asserts
+  nothing about our own content; it exists to fail loudly if the harness itself breaks, which is
+  otherwise only discovered when someone tries to add a real client test.
+- `ShowcaseClientGameTest` — renders the block types whose drawing differs from a plain cube, and
+  opens a real machine screen.
+
+The showcase covers what the static resource contract structurally cannot. That suite proves a model
+file *resolves*; only a client proves the model actually draws. Specifically:
+
+| Subject | Why it's in the showcase |
+|---|---|
+| Copper transport pipes | Multipart blockstate — the model is chosen from neighbours, so they are placed in a connected run rather than as a lone stub |
+| Copper cable | Blockstate ships per loader rather than from `common`, and the geometry comes from a dynamic renderer (its base model has empty `elements`) |
+| Kiln | Machine with a block entity renderer, and the screen subject below |
+| Glass tank | Fluid container rendering |
+| Kiln screen | Opened through the server's real menu path, so the menu, its synced data, and the screen layout are all exercised rather than hand-constructed |
+
+The screen test uses `waitForScreen`, so it fails if the screen never opens rather than quietly
+capturing the world behind it.
+
+The HUD is toggled off for the block capture via the real F1 binding: health, hunger, and hotbar
+state have nothing to do with block rendering but would still show up as differences between
+captures. (There is no longer a `hideGui` field to set directly.)
+
+### Cost and CI
+
+A world-creating capture test runs in about 15 seconds locally on a warm cache. CI needs a display —
+the run config inherits from `client` — so the `client-feature-test (fabric)` job installs `xvfb` and
+runs through `xvfb-run`.
+
+That job is gated on a `client_changed` path filter: client sources, shipped assets, or the client
+test sources themselves. A change that a client test could not possibly observe doesn't pay for a
+client boot. Screenshots upload on success as well as failure, because they are review artifacts
+rather than failure diagnostics.

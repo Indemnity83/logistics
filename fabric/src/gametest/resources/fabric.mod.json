@@ -6,7 +6,7 @@
 	"description": "Integration tests for Logistics mod",
 	"authors": ["Logistics Contributors"],
 	"license": "MIT",
-	"environment": "server",
+	"environment": "*",
 
 	"depends": {
 		"minecraft": "*",
@@ -18,6 +18,7 @@
 	"entrypoints": {
 		"fabric-gametest": [
 			"com.logistics.gametest.RecipeLoadingGameTest",
+			"com.logistics.gametest.ServerDataLoadingGameTest",
 			"com.logistics.gametest.core.OreGenerationGameTest",
 			"com.logistics.gametest.core.MaceratorGameTest",
 			"com.logistics.gametest.pipe.PipeInfrastructureGameTest",
@@ -49,6 +50,10 @@
 			"com.logistics.gametest.automation.SequentialFabricatorGameTest",
 			"com.logistics.gametest.automation.TransposerGameTest",
 			"com.logistics.gametest.network.NetworkIntegrationGameTest"
+		],
+		"fabric-client-gametest": [
+			"com.logistics.gametest.client.ClientBootstrapGameTest",
+			"com.logistics.gametest.client.ShowcaseClientGameTest"
 		]
 	}
 }
