@@ -25,11 +25,6 @@ import snownee.jade.api.view.ProgressView;
  * {@link MachineServerDataProvider}. Progress text is shared in {@link MachineHudLines}; fluid tanks are
  * drawn here as a capacity-relative bar (the built-in Jade fluid element is stripped so they don't
  * double up).
- *
- * <p>{@code renderFluidBar} is duplicated in the NeoForge provider rather than shared: Jade is a
- * per-loader compile-only dependency (absent from the common client classpath), so Jade-touching code
- * cannot live in {@code common/src/client}. The whole {@code compat.jade} package follows this pattern.
- * The Jade API itself matches across loaders, so keep the two copies identical.
  */
 public final class MachineComponentProvider implements IBlockComponentProvider {
     public static final MachineComponentProvider INSTANCE = new MachineComponentProvider();
