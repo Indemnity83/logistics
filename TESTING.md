@@ -707,6 +707,38 @@ Every unshared Fabric test needs one of two markers directly above its `@GameTes
 - `// not-yet-shared: <reason>` — should live in a shared body eventually. Tracked, and the task
   ratchets the total down: adding one fails the build.
 
+### Per-test reports
+
+Both loaders write a JUnit-style XML report of every test, uploaded as a CI artifact on the
+`feature-test` jobs:
+
+- Fabric — `fabric/build/test-results/gameTest/report.xml` (via `fabric-api.gametest.report-file`)
+- NeoForge — `neoforge/build/test-results/gameTestServer/report.xml` (via vanilla's `--report`)
+
+Useful when a run fails, since the "N GAME TESTS COMPLETE" line alone doesn't say which test broke.
+The reports also record execution order, which is how the reload question below was settled.
+
+Both frameworks can also run a subset, which is worth knowing when iterating on one test:
+
+- Fabric — `-Dfabric-api.gametest.filter=<name>`
+- NeoForge — `--tests <namespaced selector>` (supports wildcards)
+
+### A datapack reload does not need an isolated lane
+
+Triggering `MinecraftServer#reloadResources` inside a normal run looks like it should disturb the
+rest of the suite — it swaps recipes, loot tables, and tags globally, mid-run. Measured on both
+loaders, it does not.
+
+A probe that reloaded all selected packs mid-suite ran at position 2 of 209 on Fabric (207 tests
+after it) and position 73 of 193 on NeoForge (120 tests after it). Every subsequent test passed on
+both, including the recipe- and machine-dependent ones — kiln, macerator, pipe, engine, and quarry
+tests all ran after the reload and were unaffected.
+
+So a reload test can be an ordinary shared feature test. It does not need a separate run
+configuration, a filtered invocation, or a manually triggered lane. If that ever changes, the
+per-test reports above are how you would notice: a reload-order problem shows up as failures
+clustered after the reload test rather than spread through the run.
+
 ### Adding a new test
 
 1. Write (or extend) the `<Name>GameTestBody` class in `common/src/gametest`.
