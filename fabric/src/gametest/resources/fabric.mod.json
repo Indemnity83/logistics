@@ -51,7 +51,8 @@
 			"com.logistics.gametest.network.NetworkIntegrationGameTest"
 		],
 		"fabric-client-gametest": [
-			"com.logistics.gametest.client.ClientBootstrapGameTest"
+			"com.logistics.gametest.client.ClientBootstrapGameTest",
+			"com.logistics.gametest.client.ShowcaseClientGameTest"
 		]
 	}
 }
