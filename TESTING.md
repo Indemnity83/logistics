@@ -10,7 +10,7 @@ this document. Use these terms in PR titles and discussion:
 | **Unit test** | Pure logic, no live world — state transitions, codecs, planners, config math, single-file JSON decoding | `common/src/test`, and the loader modules' `src/test` | JUnit 5 |
 | **Feature test** | A real Minecraft server verifies player-visible behavior | body in `common/src/gametest`, wired per loader | GameTest |
 | **Loader contract test** | A Fabric/NeoForge adapter fulfills a common contract | `fabric/src/test`, `neoforge/src/test` | JUnit 5 |
-| **Resource contract test** | Every shipped JSON/asset reference resolves | not yet built — `common/src/test` when it lands | JUnit 5 (static, no server) |
+| **Resource contract test** | Every shipped JSON/asset reference resolves | `common/src/test/java/com/logistics/resource/contract` | JUnit 5 (static, no server) |
 | **Client feature test** | A real client verifies screens, models, rendering | not yet built — Fabric-only when it lands | client GameTest |
 | **Journey** | A small end-to-end player workflow | not yet built | real driven client |
 
