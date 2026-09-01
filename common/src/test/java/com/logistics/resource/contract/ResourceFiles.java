@@ -91,13 +91,8 @@ final class ResourceFiles {
     }
 
     /**
-     * Ids of every item we ship a definition for, as {@code logistics:path}.
-     *
-     * <p>Used as a stand-in for "items this mod actually has" when checking data files. It is a
-     * proxy, not proof of registration: a definition can exist for an item that was never
-     * registered. It does reliably catch the realistic failure — a mistyped id in a loot table or
-     * tag, which Minecraft resolves silently to {@code minecraft:air} at runtime rather than
-     * failing, so no amount of live loading reveals it.
+     * Ids of every item we ship a definition for, as {@code logistics:path}. A proxy for "items
+     * this mod has", not proof of registration: a definition can exist for an unregistered item.
      */
     static Set<String> itemDefinitionIds() {
         Path root = assetRoot().resolve("items");
