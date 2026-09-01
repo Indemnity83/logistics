@@ -6,20 +6,10 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
 
 /**
- * Proves the client feature test pipeline works end to end: a real client starts with the mod
- * loaded, builds a world, renders it, and captures a screenshot. Deliberately asserts nothing about
- * our own blocks yet — that is what the showcase tests will do. Its job is to fail loudly if the
- * client test harness itself breaks, which is otherwise only discovered when someone tries to add
- * a real client test.
+ * Starts a real client, builds a world, renders it, and captures a screenshot.
  *
- * <p>Unlike the server-side feature tests, this is not vanilla GameTest and carries no
- * {@code @GameTest} methods: the Fabric client test framework runs a whole class as one script via
- * the {@code fabric-client-gametest} entrypoint. It is therefore invisible to
- * {@code checkFeatureTestParity}, which scans {@code @GameTest} methods, and has no NeoForge
- * counterpart — see TESTING.md.
- *
- * <p>The determinism steps below are load-bearing; see "Client feature tests" in TESTING.md for why
- * each one matters.
+ * <p>Carries no {@code @GameTest} methods: the Fabric client test framework runs the whole class as
+ * one script, discovered through the {@code fabric-client-gametest} entrypoint.
  */
 public class ClientBootstrapGameTest implements FabricClientGameTest {
 
