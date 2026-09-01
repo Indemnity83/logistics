@@ -44,8 +44,11 @@ final class ResourceFiles {
      */
     private static final Map<String, String> ALLOWED_UNRESOLVED = Map.of();
 
-    /** Resolved once: assetRoot() is called per file and per reference. */
+    /** Resolved once: these are called per file and per reference. */
     private static final Path ASSET_ROOT = locate("assets");
+
+    // The namespace directory's parent, so tags under `c` and `minecraft` are reachable too.
+    private static final Path DATA_ROOT = locate("data").getParent();
 
     private ResourceFiles() {}
 
@@ -70,17 +73,7 @@ final class ResourceFiles {
 
     /** Root of the shipped data tree on the test classpath ({@code .../data}). */
     static Path dataRoot() {
-        URL url = ResourceFiles.class.getClassLoader().getResource("data/" + NAMESPACE);
-        if (url == null) {
-            throw new IllegalStateException(
-                "data/" + NAMESPACE + " is not on the test classpath; "
-                    + "resource contract tests cannot run without the shipped resources");
-        }
-        try {
-            return Path.of(url.toURI()).getParent();
-        } catch (URISyntaxException e) {
-            throw new IllegalStateException("could not resolve the data root", e);
-        }
+        return DATA_ROOT;
     }
 
     /** Every {@code .json} file under {@code assets/logistics/<dir>}, in stable order. */
