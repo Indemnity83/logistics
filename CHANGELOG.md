@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.8.7](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.6...mc26.2-v0.8.7) (2026-09-01)
+
+
+### Added
+
+* **automation:** add crude oil to petroleum-block transposer recipes ([#851](https://github.com/Indemnity83/logistics/issues/851)) ([9d5fe2b](https://github.com/Indemnity83/logistics/commit/9d5fe2b5fd2c97f1ab91c7c647e7e338b20f9289))
+* **automation:** add RF cost and recipe system to the Transposer ([65194ae](https://github.com/Indemnity83/logistics/commit/65194ae1659522de7f62e649651e625360144530))
+* **automation:** add RF cost and recipe system to the Transposer ([#829](https://github.com/Indemnity83/logistics/issues/829)) ([65194ae](https://github.com/Indemnity83/logistics/commit/65194ae1659522de7f62e649651e625360144530))
+* **automation:** add stone, concrete, cactus, and seed-oil Transposer recipes ([65194ae](https://github.com/Indemnity83/logistics/commit/65194ae1659522de7f62e649651e625360144530))
+* **core:** add shared gear recipe tags ([#871](https://github.com/Indemnity83/logistics/issues/871)) ([2989ccc](https://github.com/Indemnity83/logistics/commit/2989ccc1377c1baff495a9777e890f765178aa0e))
+* **energy:** show engine fuels in the recipe browser ([#886](https://github.com/Indemnity83/logistics/issues/886)) ([c27fb39](https://github.com/Indemnity83/logistics/commit/c27fb392e64de6d0ed0d5135ecad9ae5099ecbd7))
+* **fluids:** drain and fill cauldrons with fluid pipes ([#885](https://github.com/Indemnity83/logistics/issues/885)) ([6a6d908](https://github.com/Indemnity83/logistics/commit/6a6d9081621b6fbc70ec6933ab7bfd639aef4d3c))
+
+
+### Changed
+
+* **automation:** restyle the Crucible progress gauge as a droplet ([#834](https://github.com/Indemnity83/logistics/issues/834)) ([bde1374](https://github.com/Indemnity83/logistics/commit/bde1374e5a46e6e79e64b5c07bfb3093a9811a0f))
+* **automation:** swap side buckets for glass in the Transposer recipe ([65194ae](https://github.com/Indemnity83/logistics/commit/65194ae1659522de7f62e649651e625360144530))
+
+
+### Fixed
+
+* **automation:** accept raw ore in the quicksilver amalgamation recipes ([#840](https://github.com/Indemnity83/logistics/issues/840)) ([35a926c](https://github.com/Indemnity83/logistics/commit/35a926cc90370036478222cfe8a31732a37311b0))
+* **automation:** stop refinery shift-click from duplicating items ([#846](https://github.com/Indemnity83/logistics/issues/846)) ([e72c218](https://github.com/Indemnity83/logistics/commit/e72c218ae4f656496742b305a02b144f551425ff))
+* **compat:** stop Jade plugin error on dedicated servers ([#878](https://github.com/Indemnity83/logistics/issues/878)) ([659dd01](https://github.com/Indemnity83/logistics/commit/659dd01b5047c314e743b0766e677c18051ad3ad))
+* **energy:** add catalyst engine JEI category ([#874](https://github.com/Indemnity83/logistics/issues/874)) ([e93d5c3](https://github.com/Indemnity83/logistics/commit/e93d5c356d8a8665b246ac81787ab63d04431f51))
+* **energy:** stop battery and cable taking forever to mine ([#839](https://github.com/Indemnity83/logistics/issues/839)) ([66d6e29](https://github.com/Indemnity83/logistics/commit/66d6e29ef9e69b30f4056b173618993e9dd54268))
+* **fluids:** honor pipe transfer rates set above the default ([#885](https://github.com/Indemnity83/logistics/issues/885)) ([6a6d908](https://github.com/Indemnity83/logistics/commit/6a6d9081621b6fbc70ec6933ab7bfd639aef4d3c))
+* **fluids:** obscure vision and apply Nausea/Poison/Slowness in Crude Oil ([#848](https://github.com/Indemnity83/logistics/issues/848)) ([0e9471c](https://github.com/Indemnity83/logistics/commit/0e9471c892fbd787f12a7bd2607cbbc401302e9d))
+* **fluids:** stop over-capacity saved tank amounts from crashing on load ([#849](https://github.com/Indemnity83/logistics/issues/849)) ([e675697](https://github.com/Indemnity83/logistics/commit/e675697a703b18798979e58f2301843349455d53))
+* **macerator:** grind loose raw ore items into dust ([#838](https://github.com/Indemnity83/logistics/issues/838)) ([43a9cb9](https://github.com/Indemnity83/logistics/commit/43a9cb9c7b960748361d0d95b6797dc5c28600b6))
+* **quarry:** stop the arm mining through lava or ignoring reappeared blocks ([#850](https://github.com/Indemnity83/logistics/issues/850)) ([ce3eb60](https://github.com/Indemnity83/logistics/commit/ce3eb6005e47dfab0108218fb598dab6bf23917a))
+* **routing:** treat requester deliveries with no inventory as fulfilled ([#847](https://github.com/Indemnity83/logistics/issues/847)) ([0cdb4c1](https://github.com/Indemnity83/logistics/commit/0cdb4c1af0413009d3c3d4eb7506b8eacb04a20e))
+
 ## [0.8.6](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.5...mc26.2-v0.8.6) (2026-08-07)
 
 
