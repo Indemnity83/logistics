@@ -190,6 +190,32 @@ tasks.named('spotlessApply') {
     dependsOn subprojects.collect { "${it.path}:spotlessApply" }
 }
 
+// Named entry points for the test layers described in TESTING.md. These delegate to the
+// underlying Gradle/plugin tasks; CI calls those directly to keep its per-module matrix.
+tasks.register('unitTest') {
+    description = 'Run all module unit tests (JUnit, no server)'
+    group = 'verification'
+    dependsOn subprojects.collect { "${it.path}:test" }
+}
+
+tasks.register('featureTestFabric') {
+    description = 'Run Fabric feature tests (GameTest, real server)'
+    group = 'verification'
+    dependsOn ':fabric:runGameTest'
+}
+
+tasks.register('featureTestNeoForge') {
+    description = 'Run NeoForge feature tests (GameTest, real server)'
+    group = 'verification'
+    dependsOn ':neoforge:runGameTestServer'
+}
+
+tasks.register('featureTest') {
+    description = 'Run feature tests on every loader'
+    group = 'verification'
+    dependsOn 'featureTestFabric', 'featureTestNeoForge'
+}
+
 tasks.register('testCoverage', JacocoReport) {
     description = 'Generate an aggregate unit test coverage report'
     group = 'verification'
