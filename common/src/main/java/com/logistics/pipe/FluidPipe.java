@@ -50,9 +50,15 @@ public final class FluidPipe extends Pipe {
         return rate;
     }
 
-    /** Buffer capacity in mB — a shared config value across all kinds. */
+    /** Buffer capacity in mB: the configured base capacity folded through each behavior's capacity modifier. */
     public long capacity() {
-        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_BASE_CAPACITY);
+        long capacity = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PIPE_BASE_CAPACITY);
+        for (Module module : getStaticModules()) {
+            if (module instanceof FluidPipeBehavior behavior) {
+                capacity = behavior.modifyCapacity(capacity);
+            }
+        }
+        return capacity;
     }
 
     /** Whether this pipe connects to external (non-pipe) fluid handlers — true unless a behavior vetoes it. */
