@@ -68,4 +68,89 @@ public final class CableGameTestRegistration {
     public static void testRedstoneEngineIsNotPulledByCableNetwork(GameTestHelper context) {
         CableGameTestBody.testRedstoneEngineIsNotPulledByCableNetwork(context);
     }
+
+    /**
+    * Verifies a placed cable exposes an energy storage.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testcableplacementexposesenergystorage
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 100)
+    public static void testCablePlacementExposesEnergyStorage(GameTestHelper context) {
+        CableGameTestBody.testCablePlacementExposesEnergyStorage(context);
+    }
+
+    /**
+    * Verifies energy inserted into a cable passes through to the machine behind it.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testinsertedcableenergypassesthroughtomachine
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 100)
+    public static void testInsertedCableEnergyPassesThroughToMachine(GameTestHelper context) {
+        CableGameTestBody.testInsertedCableEnergyPassesThroughToMachine(context);
+    }
+
+    /**
+    * Verifies a cable charges an idle machine's buffer.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testcablechargesidlemachinebuffer
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 100)
+    public static void testCableChargesIdleMachineBuffer(GameTestHelper context) {
+        CableGameTestBody.testCableChargesIdleMachineBuffer(context);
+    }
+
+    /**
+    * Verifies cable insertion splits energy according to each machine's reported demand.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testcableinsertiondistributesbyreporteddemand
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 100)
+    public static void testCableInsertionDistributesByReportedDemand(GameTestHelper context) {
+        CableGameTestBody.testCableInsertionDistributesByReportedDemand(context);
+    }
+
+    /**
+    * Verifies a mixed-tier cable route is capped by its weakest cable.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testmixedtierrouteiscappedbyweakestcable
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 100)
+    public static void testMixedTierRouteIsCappedByWeakestCable(GameTestHelper context) {
+        CableGameTestBody.testMixedTierRouteIsCappedByWeakestCable(context);
+    }
+
+    /**
+    * Verifies a cable network stops delivering past a cable that was removed.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testcablenetworkstopsatremovedcable
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 60)
+    public static void testCableNetworkStopsAtRemovedCable(GameTestHelper context) {
+        CableGameTestBody.testCableNetworkStopsAtRemovedCable(context);
+    }
+
+    /**
+    * Verifies a cable network rejoins once a removed cable is restored.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testcablenetworkrejoinsaftercableisrestored
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 60)
+    public static void testCableNetworkRejoinsAfterCableIsRestored(GameTestHelper context) {
+        CableGameTestBody.testCableNetworkRejoinsAfterCableIsRestored(context);
+    }
+
+    /**
+    * Verifies a cable does not power an extraction pipe.
+    *
+    * <p>The body doesn't call succeed() itself — Fabric's wrapper adds a grid-visibility assertion
+    * afterward (see {@link CableGameTestBody}), so NeoForge finishes it here instead.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.cabledoesnotpowerextractionpipe
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 100)
+    public static void cableDoesNotPowerExtractionPipe(GameTestHelper context) {
+        if (CableGameTestBody.cableDoesNotPowerExtractionPipe(context) != null) {
+            context.succeed();
+        }
+    }
 }
