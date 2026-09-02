@@ -629,6 +629,22 @@ job) builds the catalog of shared tests — every `public static` method taking 
 `common/src/gametest` — and fails if either loader doesn't wire one up. It also fails on a reference
 to a body method that doesn't exist, and on an unshared Fabric test with no justification marker.
 
+It separately checks that each test class is actually **discovered at runtime**, which is not the
+same as being wired. A class can be correctly written and correctly registered in source and still
+never run, because the step that makes the runtime aware of it is missing — and that failure is
+silent on both loaders: no error, no log line, the test simply isn't in the count. The three
+discovery paths are:
+
+| Class | Must appear in |
+|---|---|
+| NeoForge `*GameTestRegistration` | a `bootstrap()` call in `LogisticsGameTestMod` |
+| Fabric `@GameTest` wrapper | `fabric.mod.json`'s `fabric-gametest` entrypoints |
+| Fabric `FabricClientGameTest` | `fabric.mod.json`'s `fabric-client-gametest` entrypoints |
+
+This gap is not hypothetical: a merge once dropped `ServerDataLoadingGameTestRegistration.bootstrap()`
+and nothing caught it, because the `GameTestCase` entries it registers were still present in source —
+only the initialization call was gone.
+
 Matching *counts* are not parity and the task never checks them: two loaders can each run 191 tests
 while running different sets. Comparing the catalog against each loader's wiring is what actually
 proves it.
