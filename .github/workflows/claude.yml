@@ -35,6 +35,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 1
+          # Safe even though Claude may commit and push here: the action replaces
+          # checkout's credentials with its own before any git operation.
+          persist-credentials: false
 
       - name: Run Claude Code
         uses: anthropics/claude-code-action@8251c103ac8c1d761882c86aba1412c7f583c844 # v1

@@ -33,6 +33,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 1
+          # Keep GITHUB_TOKEN out of .git/config: this job reads untrusted PR
+          # diffs, and the action supplies its own git credentials anyway.
+          persist-credentials: false
 
       - name: Review pull request
         uses: anthropics/claude-code-action@8251c103ac8c1d761882c86aba1412c7f583c844 # v1
