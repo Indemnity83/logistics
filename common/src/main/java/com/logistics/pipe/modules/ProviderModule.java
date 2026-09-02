@@ -1,6 +1,7 @@
 package com.logistics.pipe.modules;
 
 import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 
 import com.logistics.pipe.block.entity.PipeBlockEntity;
@@ -35,7 +36,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -263,7 +266,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
      * then decrements both {@code itemsLeft} and {@code stacksLeft}. The loop stops as soon as
      * either limit is exhausted or the queue is empty.
      */
-    private void processDispatchQueue(PipeContext ctx) {
+    void processDispatchQueue(PipeContext ctx) {
         ProviderDispatchQueue queue = loadQueue(ctx);
         if (queue.isEmpty()) return;
 
@@ -300,7 +303,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 // Extraction already removed the items. If the network can't pay, refund them so an
                 // unpowered network never destroys items, then stop dispatching this tick.
                 if (!ctx.consumeEnergy(RF_PER_ITEM * extracted)) {
-                    extraction.storage().insert(item, extracted, false);
+                    refundExtraction(ctx, extraction, item, extracted);
                     break;
                 }
                 ItemStack stack = item.toStack((int) extracted);
@@ -360,6 +363,50 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         return Extraction.NONE;
     }
 
+    /**
+     * Put an unpayable extraction back where it came from.
+     *
+     * <p>{@code insert} is a partial-transfer API and the source may refuse some or all of it — an
+     * output-only face such as a furnace's bottom, or an inventory that filled up in the same tick.
+     * Whatever the source won't take is offered to the pipe's other inventories and, failing that,
+     * dropped at the pipe, because it has already left the source and would otherwise be destroyed.
+     */
+    private void refundExtraction(PipeContext ctx, Extraction extraction, IItemKey item, long amount) {
+        long remaining = amount - extraction.storage().insert(item, amount, false);
+        if (remaining <= 0) return;
+
+        for (Direction direction : ctx.getInventoryConnections()) {
+            if (remaining <= 0) break;
+            if (direction == extraction.dir()) continue;
+            BlockPos targetPos = ctx.pos().relative(direction);
+            IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
+            if (storage == null) continue;
+            remaining -= storage.insert(item, remaining, false);
+        }
+        if (remaining <= 0) return;
+
+        LogisticsMod.LOGGER.warn("[Provider @ {}] Nothing would take {}x {} back — dropping it at the pipe",
+                ctx.pos(), remaining, item.toStack(1).getItem());
+        dropAtPipe(ctx, item, remaining);
+    }
+
+    /** Spawn a refund nothing would re-accept as a ground item, so it stays recoverable. */
+    private static void dropAtPipe(PipeContext ctx, IItemKey item, long amount) {
+        Level world = ctx.world();
+        if (world == null || world.isClientSide()) return;
+
+        BlockPos pos = ctx.pos();
+        long left = amount;
+        while (left > 0) {
+            int count = (int) Math.min(left, item.toStack(1).getMaxStackSize());
+            ItemEntity entity = new ItemEntity(
+                    world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, item.toStack(count));
+            entity.setDefaultPickUpDelay();
+            world.addFreshEntity(entity);
+            left -= count;
+        }
+    }
+
     // ===== Queue NBT serialisation =====
 
     /** Load the dispatch queue from NBT state. Returns an empty queue if nothing is stored. */
@@ -387,7 +434,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     /** Persist the dispatch queue to NBT state. */
-    private void saveQueue(PipeContext ctx, ProviderDispatchQueue queue) {
+    void saveQueue(PipeContext ctx, ProviderDispatchQueue queue) {
         if (queue.isEmpty()) {
             ctx.moduleState(this).remove(DISPATCH_QUEUE);
         } else {
