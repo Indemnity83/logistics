@@ -143,25 +143,36 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
         ItemStack stack = slot.getItem();
         if (!stack.isEmpty()) {
             ItemStack copy = stack.copy();
+            // placeItemBackInInventory disposes of the whole stack — into the inventory, or onto the
+            // ground when there is no room — but leaves `copy` at full count on that drop path. Clear
+            // the slot up front: writing `copy` back would leave the dropped items in the slot too.
+            slot.set(ItemStack.EMPTY);
             inventory.placeItemBackInInventory(copy, false);
-            slot.set(copy); // leftovers (if the inventory is full) stay in the slot
         }
     }
 
     /** Moves up to {@code count} of {@code item} from the inventory into {@code slot}; true iff all placed. */
-    private static boolean fillSlot(Inventory inventory, Slot slot, Holder<Item> item, int count) {
+    static boolean fillSlot(Inventory inventory, Slot slot, Holder<Item> item, int count) {
         int remaining = count;
         while (remaining > 0) {
-            int slotId = inventory.findSlotMatchingCraftingIngredient(item, slot.getItem());
+            ItemStack current = slot.getItem();
+            // Headroom, not `remaining`, bounds the take: maxMultiples sizes `count` against a whole
+            // empty stack, so a slot that already holds something would otherwise be grown past its limit.
+            int headroom = current.isEmpty()
+                    ? new ItemStack(item.value()).getMaxStackSize()
+                    : current.getMaxStackSize() - current.getCount();
+            if (headroom <= 0) {
+                break;
+            }
+            int slotId = inventory.findSlotMatchingCraftingIngredient(item, current);
             if (slotId == -1) {
                 break;
             }
             ItemStack invStack = inventory.getItem(slotId);
-            ItemStack taken = inventory.removeItem(slotId, Math.min(remaining, invStack.getCount()));
+            ItemStack taken = inventory.removeItem(slotId, Math.min(Math.min(remaining, headroom), invStack.getCount()));
             if (taken.isEmpty()) {
                 break;
             }
-            ItemStack current = slot.getItem();
             if (current.isEmpty()) {
                 slot.set(taken);
             } else if (ItemStack.isSameItemSameComponents(current, taken)) {
