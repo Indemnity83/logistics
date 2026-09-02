@@ -66,6 +66,34 @@ final class ResourceFiles {
         return DATA_ROOT;
     }
 
+    /** Loader modules that may ship a resource common deliberately leaves out. */
+    static final List<String> LOADER_MODULES = List.of("fabric", "neoforge");
+
+    /**
+     * {@code <module>/src/main/resources/assets/logistics}. Loader resources are not on the common
+     * test classpath, so this walks up to the repository root and back down.
+     */
+    static Path loaderAssetRoot(String module) {
+        Path root = repositoryRoot().resolve(module).resolve("src/main/resources/assets").resolve(NAMESPACE);
+        if (!Files.isDirectory(root)) {
+            throw new IllegalStateException(
+                "expected loader assets at " + root + "; the module layout changed and this contract "
+                    + "would silently stop checking loader-supplied resources");
+        }
+        return root;
+    }
+
+    /** The directory holding {@code settings.gradle}, found by walking up from the shipped assets. */
+    private static Path repositoryRoot() {
+        for (Path candidate = ASSET_ROOT; candidate != null; candidate = candidate.getParent()) {
+            if (Files.isRegularFile(candidate.resolve("settings.gradle"))) {
+                return candidate;
+            }
+        }
+        throw new IllegalStateException(
+            "could not find the repository root above " + ASSET_ROOT + "; loader resources are unreachable");
+    }
+
     /** Every {@code .json} file under {@code assets/logistics/<dir>}, in stable order. */
     static List<Path> jsonFiles(String dir) {
         return jsonFilesUnder(assetRoot().resolve(dir));
