@@ -375,6 +375,12 @@ tasks.register('featureTest') {
     dependsOn 'featureTestFabric', 'featureTestNeoForge'
 }
 
+tasks.register('clientFeatureTestFabric') {
+    description = 'Run Fabric client feature tests (real client, captures screenshots)'
+    group = 'verification'
+    dependsOn ':fabric:runClientGameTest'
+}
+
 tasks.register('testCoverage', JacocoReport) {
     description = 'Generate an aggregate unit test coverage report'
     group = 'verification'
