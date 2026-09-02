@@ -269,17 +269,10 @@ belongs in a live server-data contract; verifying a specific recipe's content be
 
 ### Resource contract testing
 
-`common/src/test/java/com/logistics/resource/contract/` proves the shipped resource graph holds
-together. It is plain JUnit that reads JSON off the classpath and never boots a server, so it runs on
-every `./gradlew :common:test` at negligible cost.
-
-| Area | What it proves |
-|---|---|
-| Models | Parents resolve, no parent chain loops, every named texture ships |
-| Item definitions | Every named model ships, and each definition names at least one |
-| Blockstates | Every model named by a `variants` or `multipart` entry ships |
-| Loot tables | Every item dropped is one we ship, and each table declares a type |
-| Tags | Every listed item ships, tag references resolve, no reference loops |
+`common/src/test/java/com/logistics/resource/contract/` proves the shipped asset graph holds
+together — model parents resolve, no parent chain loops, every texture a model names ships, and every
+item definition points at a model that exists. It is plain JUnit that reads JSON off the classpath and
+never boots a server, so it runs on every `./gradlew :common:test` at negligible cost.
 
 **Namespace policy** (`ResourceFiles`), applied to every reference:
 
@@ -295,62 +288,19 @@ every `./gradlew :common:test` at negligible cost.
 (dynamic, generated, or loader-supplied). It is empty today, and it should stay small — an explicit
 entry shows up in review, whereas loosening the validator after the first false positive does not.
 
-Item definitions and blockstates nest models in several shapes (`minecraft:model`, `composite`,
-`select` with fallback/cases, `special` with its model under `base`; `variants` maps and `multipart`
-lists). The tests walk the whole JSON tree and treat any string-valued `model` or `base` as a
-reference rather than encoding each schema, so a new type is covered without a code change.
-
-**Why item and tag ids are checked here rather than on a live server.** A mistyped item id is the one
-data bug a running server cannot reveal: Minecraft resolves an unknown id to `minecraft:air` instead
-of failing, so a loot table with `reaction_engien` in it loads perfectly and the block just silently
-drops nothing. `ServerDataLoadingGameTestBody` proves a table *loads*; only a static cross-reference
-proves it drops something real. Ids are matched against the set of shipped item definitions, which
-stands in for "items this mod has" — a proxy rather than proof of registration, but it catches the
-typo, which is the realistic failure.
-
-Tags are keyed `namespace:registry:path` from their file location, because our tag files live under
-the `c` and `minecraft` namespaces rather than our own — we contribute entries to shared convention
-tags. `EXTERNAL_TAGS` lists the convention tags we reference but don't ship (the loaders provide
-them); a failure quotes the exact key to add, and the list should stay short.
+Item definitions nest models in several shapes (`minecraft:model`, `composite`, `select` with
+fallback/cases, `special` with its model under `base`). The tests walk the whole JSON tree and treat
+any string-valued `model` or `base` as a reference rather than encoding each type's schema, so a new
+definition type is covered without a code change.
 
 **What this deliberately does not cover:** the `hasSizeGreaterThanOrEqualTo` checks are a deletion
 alarm for walking an empty or wrong directory — they are not a coverage measure, and shouldn't be
 described as one. Nothing here verifies that every *registered* block and item actually has an item
-definition, model, and blockstate; that needs the mod's own registries, which the current test
-bootstrap doesn't populate. Note that the cable blocks ship no blockstate in `common` — each loader
-supplies its own — so any such check has to account for loader-specific resources.
-
-### Cross-loader resource parity
-
-`./gradlew checkResourceParity` (wired into `:common:lint`, so it runs in the `lint (common)` CI job)
-compares the content a player actually receives on each loader: everything under `assets/` and
-`data/` in `common` plus that loader's own module. If a file ships on one loader and not the other,
-it fails.
-
-This lives in Gradle rather than alongside the JUnit contract tests because it has to see all three
-modules at once, and a JUnit test only sees its own module's classpath. Mod manifests and
-`META-INF/services` are excluded: they are code wiring, not content, and each loader's
-`ServiceLoaderSmokeTest` already covers them.
-
-Most loader-specific files are duplicated rather than shared for a real reason — the 16 marking-fluid
-recipes exist twice because the component-ingredient syntax genuinely differs
-(`fabric:components` vs `neoforge:components`). Parity is therefore checked by resource **id**, not
-by content.
-
-Two escape hatches, both deliberately narrow:
-
-- `loaderOnly` lists content that exists on one loader because the *mechanism* does — NeoForge biome
-  modifiers and data maps, which Fabric drives from code instead. A new entry here means a
-  player-visible difference unless code compensates, so it should be rare and justified.
-- A **ratchet on identical duplicates**: a file byte-identical in both loader modules and absent from
-  `common` belongs in `common`, because two copies drift and the loader that misses a fix is the one
-  nobody notices. Three exist today (the cable blockstates). The count may shrink, never grow.
-
-Those three are a known consolidation opportunity rather than a design choice. They were in `common`
-until the NeoForge client rendering port moved them out; the format changed at the same time (from a
-single `""` catch-all variant to explicit `waterlogged=` variants), but both loaders ended up with the
-same file. Moving them back is a rendering change that needs verifying on both loaders, so it is
-tracked separately rather than folded into a test change.
+definition and model; that needs the mod's own registries, which the current test bootstrap doesn't
+populate. Blockstates, loot tables, and tags are not covered yet either. Registry-backed id checks
+(unknown items in loot tables or tags) belong in a live feature test, not here — vanilla's registry
+silently resolves an unknown id to `minecraft:air` rather than failing, so a static check can't catch
+that class of typo.
 
 The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
 rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
@@ -522,7 +472,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
-- **Resource contracts** — model parent chains (resolution + loop detection), model texture references, item definition and blockstate model references, loot table and tag item ids, tag references (resolution + loop detection); see "Resource contract testing" above
+- **Resource contracts** — model parent chains (resolution + loop detection), model texture references, item definition model references; see "Resource contract testing" above
 
 Recipe loading is covered by a feature test rather than a unit test — `RecipeLoadingGameTestBody`
 asserts every recipe file under `data/logistics/recipe/**` (~628 files, 13 domains) actually loads
@@ -590,7 +540,7 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ## Fabric + NeoForge Game Tests
 
-`fabric/src/gametest/` and `neoforge/src/gametest/` run **195 shared feature tests** on each loader
+`fabric/src/gametest/` and `neoforge/src/gametest/` run **197 shared feature tests** on each loader
 (plus 16 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
 Minecraft server process (real block placement, game ticks). Fabric's are considered
 **deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
@@ -682,8 +632,8 @@ Matching *counts* are not parity and the task never checks them: two loaders can
 while running different sets. Comparing the catalog against each loader's wiring is what actually
 proves it.
 
-For reference, the current split is 195 shared tests, plus 3 `// loader-only:` and 13
-`// not-yet-shared:` Fabric tests. The runs report 212 on Fabric and 196 on NeoForge; the totals
+For reference, the current split is 197 shared tests, plus 3 `// loader-only:` and 13
+`// not-yet-shared:` Fabric tests. The runs report 214 on Fabric and 198 on NeoForge; the totals
 include a built-in instance from the test framework itself, so read the *difference* rather than
 either number — 16, exactly the unshared Fabric set, and expected rather than a defect.
 
@@ -724,6 +674,22 @@ So a reload test can be an ordinary shared feature test. It does not need a sepa
 configuration, a filtered invocation, or a manually triggered lane. If that ever changes, the
 per-test reports above are how you would notice: a reload-order problem shows up as failures
 clustered after the reload test rather than spread through the run.
+
+`ReloadLifecycleGameTestBody` holds the resulting contract: a smelt already in flight when the
+datapack reloads finishes exactly once for exactly its normal cost, and the kiln still resolves
+recipes afterwards. The energy assertion is what makes the first one meaningful — a run that
+restarted would still finish, just later and after spending more, so asserting only on the output
+item would let a silent progress reset through.
+
+Both tests confirm the reload actually replaced the server's recipe manager before asserting
+anything. Without that they would pass just as happily against a reload that did nothing, which is
+the one way they could be worthless.
+
+These are regression pins rather than bug-finders: `SmeltingRecipeResolver` fetches the recipe
+manager fresh on each resolve and `RecipeProcessorComponent` compares the resolved plan by value
+rather than identity, so today's code is reload-safe by construction. The tests exist so that a
+change to either of those — an innocent-looking switch to identity comparison, say, or caching the
+manager — fails here instead of quietly charging players twice for one smelt.
 
 ### Adding a new test
 
