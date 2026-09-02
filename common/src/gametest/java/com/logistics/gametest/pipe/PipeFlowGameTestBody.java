@@ -11,10 +11,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -245,5 +248,79 @@ public class PipeFlowGameTestBody {
             }
         }
         context.fail("Sharpness V not intact after TravelingItem serialize+deserialize");
+    }
+
+    /**
+     * Verifies an item in transit survives its pipe being torn down and rebuilt from saved NBT,
+     * and still reaches the chest afterwards.
+     *
+     * <p>Layout (y=1): [pipe1] → [pipe2] → [pipe3] → [chest]. A slow item is injected into pipe1,
+     * then pipe2 — carrying it mid-flight — is saved, replaced with a fresh block entity, and
+     * reloaded from that NBT.
+     *
+     * <p>This is <em>reconstruction</em>, not a chunk unload: it exercises the same
+     * save/load path a real unload would, without level unload events, chunk tickets, or manager
+     * cleanup. Those stay untested here.
+     */
+    public static void testTravelingItemSurvivesPipeReconstruction(GameTestHelper context) {
+        BlockPos pipe1 = new BlockPos(0, 1, 0);
+        BlockPos pipe2 = new BlockPos(1, 1, 0);
+        BlockPos pipe3 = new BlockPos(2, 1, 0);
+        BlockPos chestPos = new BlockPos(3, 1, 0);
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(pipe3, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(pipe2, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(pipe1, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+
+        PipeBlockEntity entry = context.getBlockEntity(pipe1, PipeBlockEntity.class);
+        if (entry == null) {
+            context.fail("Entry pipe should have a block entity");
+            return;
+        }
+
+        // Slow enough (~20 ticks per segment) that the item is still inside pipe2 when it is rebuilt.
+        TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.WEST, 0.05f);
+        if (!entry.forceAddItem(diamond, Direction.WEST)) {
+            context.fail("Pipe should accept the force-injected diamond");
+            return;
+        }
+
+        HolderLookup.Provider registries = context.getLevel().registryAccess();
+        boolean[] rebuilt = {false};
+
+        context.succeedWhen(() -> {
+            if (!rebuilt[0]) {
+                PipeBlockEntity middle = context.getBlockEntity(pipe2, PipeBlockEntity.class);
+                if (middle == null) {
+                    throw context.assertionException("Middle pipe should have a block entity");
+                }
+                if (middle.getTravelingItems().isEmpty()) {
+                    throw context.assertionException("Waiting for the diamond to enter the middle pipe");
+                }
+
+                CompoundTag saved = middle.saveCustomOnly(registries);
+                context.setBlock(pipe2, Blocks.AIR);
+                context.setBlock(pipe2, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+
+                PipeBlockEntity rebuiltPipe = context.getBlockEntity(pipe2, PipeBlockEntity.class);
+                if (rebuiltPipe == null) {
+                    throw context.assertionException("Expected a fresh PipeBlockEntity at " + pipe2);
+                }
+                // A fresh pipe starts empty, so a restored item can only have come from the NBT.
+                if (!rebuiltPipe.getTravelingItems().isEmpty()) {
+                    throw context.assertionException(
+                            "Replaced pipe should start empty before its saved data is loaded");
+                }
+                rebuiltPipe.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, registries, saved));
+                if (rebuiltPipe.getTravelingItems().isEmpty()) {
+                    throw context.assertionException(
+                            "Reconstructed pipe lost the in-transit diamond when loading its saved data");
+                }
+                rebuilt[0] = true;
+            }
+
+            context.assertContainerContains(chestPos, Items.DIAMOND);
+        });
     }
 }

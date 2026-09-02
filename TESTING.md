@@ -371,6 +371,30 @@ Tags are not covered yet. Our tag files live under the `c:` and `minecraft:` nam
 our own, so "every tag we ship is loaded" needs a file-to-tag mapping that distinguishes our
 contributions from vanilla's and other mods' — worth doing, but not a one-line extension.
 
+### Persistence reconstruction
+
+Two tests save a block entity's NBT, replace the block (producing a fresh block entity), and load that
+NBT back into it:
+
+- `PipeFlowGameTestBody#testTravelingItemSurvivesPipeReconstruction`
+- `CableGameTestBody#testCableNetworkSurvivesCableReconstruction`
+
+**The name is deliberate — this is not a chunk unload.** It drives the same save/load path a real
+unload would, but level unload events, chunk tickets, and network-manager teardown are untouched. A
+genuine unload/reload test is separate work; calling this one "chunk unload" would claim coverage that
+does not exist.
+
+**The two are not equally strong, and the difference is the point.** A pipe carries items in transit,
+which only NBT can restore — so the pipe test fails if the load is skipped, and the assertion that the
+replaced pipe is empty *before* loading is what makes the restored item unambiguous evidence. A cable
+persists only its render connection mask, and that is recomputed from neighbours on the next tick
+anyway; deleting its `loadCustomOnly` call leaves the cable test passing. That was verified by
+mutation, not assumed.
+
+So the cable test covers `CableNetworkManager` recovery — a rebuilt block entity re-registering, and
+the stale entry not stranding the network — and not persistence. It is kept for that, and its javadoc
+says so, because a test named for something it does not check is worse than no test.
+
 ### Feature-test backlog
 
 Recorded here so a pass doesn't have to re-derive priority order or re-discover what's already done.

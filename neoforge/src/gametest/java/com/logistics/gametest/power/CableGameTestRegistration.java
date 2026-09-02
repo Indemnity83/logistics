@@ -73,7 +73,11 @@ public final class CableGameTestRegistration {
             if (CableGameTestBody.cableDoesNotPowerExtractionPipe(context) != null) {
                 context.succeed();
             }
-        }));
+        }),
+        new GameTestCase(
+            "power/cable_network_survives_cable_reconstruction",
+            60,
+            CableGameTestBody::testCableNetworkSurvivesCableReconstruction));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

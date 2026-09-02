@@ -14,10 +14,14 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.TagValueInput;
 
 /**
  * Cable topology and engine interaction: which neighbours a cable connects to, how that connection
@@ -500,6 +504,81 @@ public class CableGameTestBody {
             context.fail("Could not set creative sink drain rate to " + drainRate
                     + ", got: " + sink.getDrainRate());
         }
+    }
+
+    /**
+     * Verifies a cable network still delivers energy after one of its cables is destroyed and
+     * recreated, with its saved data loaded back.
+     *
+     * <p>What this actually proves is {@code CableNetworkManager} recovery: the rebuilt block entity
+     * must re-register and the stale entry must not strand the network, since
+     * {@code registeredInNetwork} is transient and reset by the rebuild.
+     *
+     * <p>It deliberately does <em>not</em> prove the save/load round-trip, and cannot: a cable's only
+     * persisted field is its render connection mask, which is recomputed from its neighbours on the
+     * next tick regardless. Deleting the {@code loadCustomOnly} call below leaves this test passing —
+     * verified, not assumed. The pipe equivalent in {@code PipeFlowGameTestBody} is the one that
+     * covers persistence, because a pipe carries items in transit that only NBT can restore.
+     *
+     * <p>Reconstruction, not a chunk unload: no level unload events, chunk tickets, or manager
+     * teardown are covered.
+     */
+    public static void testCableNetworkSurvivesCableReconstruction(GameTestHelper context) {
+        BlockPos sourceCablePos = new BlockPos(1, 1, 1);
+        BlockPos rebuiltCablePos = new BlockPos(2, 1, 1);
+        BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
+        BlockPos machinePos = new BlockPos(4, 1, 1);
+
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(rebuiltCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
+
+        HolderLookup.Provider registries = context.getLevel().registryAccess();
+
+        context.runAfterDelay(2, () -> {
+            CableBlockEntity original = context.getBlockEntity(rebuiltCablePos, CableBlockEntity.class);
+            if (original == null) {
+                context.fail("Expected a cable block entity at " + rebuiltCablePos);
+                return;
+            }
+
+            CompoundTag saved = original.saveCustomOnly(registries);
+            context.setBlock(rebuiltCablePos, Blocks.AIR);
+            context.setBlock(rebuiltCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+
+            CableBlockEntity rebuilt = context.getBlockEntity(rebuiltCablePos, CableBlockEntity.class);
+            if (rebuilt == null) {
+                context.fail("Expected a fresh CableBlockEntity at " + rebuiltCablePos);
+                return;
+            }
+            rebuilt.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, registries, saved));
+
+            // Give the rebuilt cable a tick to re-register with the network manager.
+            context.runAfterDelay(2, () -> {
+                CableBlockEntity sourceCable = context.getBlockEntity(sourceCablePos, CableBlockEntity.class);
+                MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+                if (sourceCable == null || machine == null) {
+                    context.fail("Expected source cable and machine block entities after reconstruction");
+                    return;
+                }
+                giveMaceratorWork(machine);
+
+                long inserted = sourceCable.energyStorage(Direction.WEST).insert(640L, false);
+                if (inserted <= 0) {
+                    context.fail("Reconstructed cable should rejoin the network and accept energy");
+                    return;
+                }
+
+                long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
+                if (machineEnergy <= 0) {
+                    context.fail("Energy should reach the machine through the reconstructed cable, got: "
+                            + machineEnergy);
+                    return;
+                }
+                context.succeed();
+            });
+        });
     }
 
     private static void giveMaceratorWork(MaceratorBlockEntity machine) {
