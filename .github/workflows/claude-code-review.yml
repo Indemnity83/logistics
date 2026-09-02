@@ -66,6 +66,14 @@ jobs:
           # it the review runs in full and then stops at "output to terminal",
           # leaving no comment behind. With it, a clean review posts a
           # no-issues-found comment, which is the signal `ship-clean-prs` reads.
+          #
+          # Do NOT verify this against the local marketplace copy under
+          # ~/.claude/plugins/marketplaces/. That is a *different, older* plugin
+          # (marketplace `claude-plugins-official`) which takes no flags and posts
+          # unconditionally. CI installs `claude-code-plugins` from the URL above,
+          # whose step 7 gates every comment on `--comment`. Reading the local copy
+          # is what led #1020 to drop the flag as inert and silence the reviewer.
+          #
           # The command's own pre-flight skips closed PRs, drafts, trivial diffs,
           # and PRs it has already commented on — so expect one review per PR
           # rather than one per push.
