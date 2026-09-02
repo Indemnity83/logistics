@@ -30,7 +30,15 @@ public final class ServerDataLoadingGameTestRegistration {
         new GameTestCase(
             "server_data/all_logistics_placed_features_load",
             100,
-            ServerDataLoadingGameTestBody::allLogisticsPlacedFeaturesLoad));
+            ServerDataLoadingGameTestBody::allLogisticsPlacedFeaturesLoad),
+        new GameTestCase(
+            "server_data/all_logistics_item_tag_entries_load",
+            40,
+            ServerDataLoadingGameTestBody::allLogisticsItemTagEntriesLoad),
+        new GameTestCase(
+            "server_data/all_logistics_block_tag_entries_load",
+            40,
+            ServerDataLoadingGameTestBody::allLogisticsBlockTagEntriesLoad));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
