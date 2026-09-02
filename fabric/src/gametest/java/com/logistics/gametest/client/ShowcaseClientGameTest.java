@@ -45,7 +45,7 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
         server.runCommand("weather clear");
     }
 
-    /** Multipart pipe, loader-supplied cable blockstate, machine renderer, and fluid tank. */
+    /** Multipart pipe, cable blockstate, machine renderer, and fluid tank. */
     private void showcaseBlocks(
             ClientGameTestContext context, TestSingleplayerContext singleplayer, TestServerContext server) {
         // Pipes and cables pick their model from neighbours; a lone one renders an unconnected stub.
