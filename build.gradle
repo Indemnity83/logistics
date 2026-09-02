@@ -239,7 +239,7 @@ tasks.register('checkFeatureTestParity') {
         def neoShared = [] as Set
         javaFiles('neoforge/src/gametest').each { file ->
             def text = file.text
-            (text =~ /@GameTest(?:\s*\([^)]*\))?\s+public\s+static\s+void\s+\w+\s*\(\s*GameTestHelper\s+\w+\s*\)\s*\{/).each { m ->
+            (text =~ /@GameTest(?:\s*\([^)]*\))?\s+public\s+static\s+void\s+(\w+)\s*\(\s*GameTestHelper\s+\w+\s*\)\s*\{/).each { m ->
                 def start = text.indexOf(m[0]) + m[0].length()
                 def body = text.substring(start, Math.min(text.length(), start + 1500))
                 def call = body =~ /(\w*GameTestBody)\.(\w+)\s*\(/
