@@ -42,4 +42,4 @@ It was crafted from a ring of 8 [[Bronze Ingot|bronze ingots]]:
 
 {{Navbox Logistics}}
 
-[[Category:Materials]]
+[[Category:Removed]]

@@ -18,15 +18,7 @@
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1|foot=1
-|name=[[Obsidian Core]]
-|B1=Obsidian Dust
-|B2=End Rod
-|B3=Obsidian Dust
-|Output=Obsidian Core,4
-}}
+Obsidian Dust has no crafting, smelting, or machine recipes — nothing currently consumes it.
 
 == Data values ==
 
@@ -43,7 +35,6 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Obsidian Core]]
 
 {{Navbox Logistics}}
 

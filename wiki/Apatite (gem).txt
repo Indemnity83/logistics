@@ -26,14 +26,6 @@
 
 {{Crafting
 |head=1
-|name=[[Apatite Core]]
-|B1=Apatite
-|B2=Amethyst Shard
-|B3=Apatite
-|Output=Apatite Core,4
-}}
-
-{{Crafting
 |foot=1
 |name=[[Block of Apatite]]
 |A1=Apatite |B1=Apatite |C1=Apatite

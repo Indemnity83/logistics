@@ -19,15 +19,7 @@
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1|foot=1
-|name=[[Echo Chip]]
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Echo Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Echo Chip,4
-}}
+Echo Dust has no crafting, smelting, or machine recipes — nothing currently consumes it.
 
 == Data values ==
 
@@ -43,7 +35,6 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Chips]]
 
 {{Navbox Logistics}}
 

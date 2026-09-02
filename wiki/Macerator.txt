@@ -143,6 +143,8 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 [Nether Quartz] → Macerator → [Quartz Dust] → Kiln → [Quartz Crystal]
 </pre>
 
+Flour stands in for {{Mcw|Wheat|wheat}} in the {{Mcw|Bread|bread}}, {{Mcw|Cake|cake}}, and {{Mcw|Cookie|cookie}} recipes.
+
 == Data values ==
 
 === ID ===

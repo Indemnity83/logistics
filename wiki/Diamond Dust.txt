@@ -24,22 +24,7 @@
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1
-|name=[[Diamond Core]]
-|B1=Diamond Dust
-|B2=Amethyst Shard
-|B3=Diamond Dust
-|Output=Diamond Core,4
-}}
-
-{{Crafting|foot=1
-|name=[[Quicksort Module]]
-|A1=Diamond Dust |B1=Echo Chip |C1=Diamond Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Quicksort Module
-}}
+Diamond Dust has no crafting, smelting, or machine recipes — nothing currently consumes it.
 
 == Data values ==
 
@@ -55,7 +40,6 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Diamond Core]]
 
 {{Navbox Logistics}}
 

@@ -27,19 +27,20 @@
 === Crafting ingredient ===
 
 {{Crafting|head=1
-|name=[[Lapis Core]]
-|B1=Lapis Dust
-|B2=Amethyst Shard
-|B3=Lapis Dust
-|Output=Lapis Core,4
+|name=[[Marker]]
+|A1=Lapis Dust
+|A2=Stick
+|Output=Marker
 }}
 
 {{Crafting|foot=1
-|name=[[Marker]]
-|B1=Lapis Dust
-|B2=Stick
-|Output=Marker,2
+|name=[[Supplier Logistics Pipe]]
+|B1=Iron Gear
+|A2=Lapis Dust |B2=Basic Logistics Pipe |C2=Lapis Dust
+|Output=Supplier Logistics Pipe
 }}
+
+An [[Iron Chipset]] substitutes for the [[Iron Gear]].
 
 == Data values ==
 
@@ -55,7 +56,7 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Lapis Core]]
+* [[Marker]], [[Supplier Logistics Pipe]] - Crafted with Lapis Dust
 * [[Marker]]
 
 {{Navbox Logistics}}

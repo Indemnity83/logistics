@@ -64,6 +64,13 @@ Nether Quartz Ore → Quartz Dust ×2 (+15% Sulfur Dust), but the **Nether Quart
 
 ### A5. Dust pages still show the pre-v0.8.3 module recipes
 
+**Scope was wider than first written.** The v0.8.3 rework orphaned grids on **14** current pages, not
+six: also `Amethyst Dust`, `Coal Dust`, `Diamond Dust`, `Echo Dust`, `Lapis Dust`, `Obsidian Dust`,
+`Bronze Ingot`, and `Apatite (gem)`. All fixed. Two more numeric errors surfaced there:
+**Marker yields 1, not 2**, and `Coal Dust` listed a removed "Rubber Mix" recipe.
+`Sturdy Casing` / `Tin Gear` were also moved to `Category:Removed` (was section E) because they were
+being picked up as current pages.
+
 `Bronze Dust`, `Copper Dust`, `Emerald Dust`, `Iron Dust`, `Sawdust`, `Ender Dust` all carry
 "Usage" grids building modules from **dusts + Redstone/Amethyst/Echo Chips** — chips that were
 **removed in v0.8.3**. The real recipes are *dye + gear* (or *dye + chipset*), e.g.:

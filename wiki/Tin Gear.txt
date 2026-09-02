@@ -42,4 +42,4 @@ It was crafted from four [[Tin Ingot|tin ingots]] around a [[Copper Gear]]:
 
 {{Navbox Logistics}}
 
-[[Category:Materials]]
+[[Category:Removed]]

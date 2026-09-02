@@ -27,24 +27,29 @@
 === Crafting ingredient ===
 
 {{Crafting|head=1
-|name=[[Carbon Chip]]
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Coal Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Carbon Chip,4
+|name=[[Natural Polymer]]
+|A1=Slime Ball |B1=Coal Dust
+|Output=Natural Polymer
 }}
 
 {{Crafting
-|name=[[Rubber|Rubber Mix]]
-|A1=Slime Ball |B1=Coal Dust
-|Output=Rubber Mix
+|name=[[Synthetic Polymer]]
+|A1=Tar |B1=Coal Dust
+|Output=Synthetic Polymer
 }}
 
-{{Crafting|foot=1
-|name=[[Chips|Silicon Mix]]
+{{Crafting
+|name=Silicon Mix
 |A1=Quartz Dust |B1=Quartz Dust |C1=Quartz Dust
 |A2=Coal Dust
 |Output=Silicon Mix
+}}
+
+{{Crafting|foot=1
+|name={{Mcw|Gunpowder}}
+|A1=Coal Dust |B1=Sulfur Dust |C1=Niter
+|A2=Niter
+|Output=Gunpowder
 }}
 
 == Data values ==
@@ -62,7 +67,7 @@
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 * [[Rubber]]
-* [[Chips]]
+* [[Natural Polymer]], [[Synthetic Polymer]] - Crafted with Coal Dust
 
 {{Navbox Logistics}}
 
