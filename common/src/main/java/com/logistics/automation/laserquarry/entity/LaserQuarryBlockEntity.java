@@ -8,7 +8,6 @@ import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.UpgradeComponent;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -104,7 +103,7 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
         }
 
         if (level != null && !level.isClientSide()) {
-            ActiveQuarryRegistry.unregister((ServerLevel) level, pos);
+            quarry.removeFrame((ServerLevel) level, pos, oldState);
             BlockPos currentTarget = quarry.currentTarget();
             if (currentTarget != null) {
                 ((ServerLevel) level).destroyBlockProgress(quarry.breakingEntityIdValue(), currentTarget, -1);
@@ -181,14 +180,6 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
     /** True if the quarry has been placed but hasn't started any clearing yet. */
     public boolean isFreshlyPlaced() {
         return quarry.isFreshlyPlaced();
-    }
-
-    public static List<BlockPos> getActiveQuarries(ServerLevel world) {
-        return ActiveQuarryRegistry.getAll(world);
-    }
-
-    public static void clearActiveQuarries(ServerLevel world) {
-        ActiveQuarryRegistry.clear(world);
     }
 
     // ==================== PipeConnection ====================

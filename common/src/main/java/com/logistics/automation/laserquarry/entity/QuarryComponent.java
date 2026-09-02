@@ -4,6 +4,7 @@ import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsAutomation;
 
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
+import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.ChunkArea;
@@ -62,8 +63,6 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     public void serverTick(MachineContext context) {
         this.ctx = context;
         try {
-            ActiveQuarryRegistry.register((ServerLevel) context.level(), context.pos());
-
             boolean wasConsumedEnergy = energyPolicy.consumedThisTick();
             energyPolicy.resetConsumedThisTick();
 
@@ -93,6 +92,22 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
             }
         } finally {
             this.ctx = null;
+        }
+    }
+
+    /**
+     * Removes the frame this quarry owns. Called when the quarry block goes away, so breaking a
+     * quarry never strands its cage; positions holding something other than a frame are left alone.
+     */
+    public void removeFrame(ServerLevel level, BlockPos quarryPos, BlockState quarryState) {
+        for (BlockPos framePos : FrameLayout.framePositions(
+                LaserQuarryBlock.getMiningDirection(quarryState),
+                quarryPos,
+                bounds,
+                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA))) {
+            if (level.getBlockState(framePos).getBlock() instanceof LaserQuarryFrameBlock) {
+                level.removeBlock(framePos, false);
+            }
         }
     }
 
