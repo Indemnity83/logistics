@@ -315,10 +315,11 @@ It checks both directions, and the reverse direction is what keeps the test hone
 surface as orphans instead of the forward checks quietly covering less. Both exceptions are derived,
 not listed by hand:
 
-- A resource may live in common **or** in every loader module. The three cable blockstates are the
-  current example — common ships none and both loaders ship their own. Requiring *every* loader means
-  dropping one loader's copy fails here rather than silently shipping a cable with no model on that
-  loader.
+- A resource may live in common **or** in every loader module. No resource uses the second case today
+  — every asset lives in common — but the rule stays, because requiring *every* loader means adding a
+  loader-specific resource to one loader and forgetting the other fails here, rather than silently
+  shipping a block with no model on that loader. The three cable blockstates were the last example,
+  moved to common once NeoForge stopped needing its own.
 - Placeable fluids (`FluidDef.placeable()`) get their `LiquidBlock` and bucket registered per loader,
   so common ships the resources and registers neither. Read from `CUSTOM_FLUIDS`, so adding a placeable
   fluid needs no test edit.

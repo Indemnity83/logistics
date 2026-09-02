@@ -72,15 +72,20 @@ final class ResourceFiles {
     /**
      * {@code <module>/src/main/resources/assets/logistics}. Loader resources are not on the common
      * test classpath, so this walks up to the repository root and back down.
+     *
+     * <p>The returned directory need not exist — a loader shipping no assets at all is the normal
+     * case now that every asset lives in common. What must exist is the module's resource root; if
+     * that has moved, this contract would silently stop checking loader-supplied resources, so it
+     * fails loudly instead.
      */
     static Path loaderAssetRoot(String module) {
-        Path root = repositoryRoot().resolve(module).resolve("src/main/resources/assets").resolve(NAMESPACE);
-        if (!Files.isDirectory(root)) {
+        Path resources = repositoryRoot().resolve(module).resolve("src/main/resources");
+        if (!Files.isDirectory(resources)) {
             throw new IllegalStateException(
-                "expected loader assets at " + root + "; the module layout changed and this contract "
-                    + "would silently stop checking loader-supplied resources");
+                "expected a loader resource root at " + resources + "; the module layout changed and "
+                    + "this contract would silently stop checking loader-supplied resources");
         }
-        return root;
+        return resources.resolve("assets").resolve(NAMESPACE);
     }
 
     /** The directory holding {@code settings.gradle}, found by walking up from the shipped assets. */
