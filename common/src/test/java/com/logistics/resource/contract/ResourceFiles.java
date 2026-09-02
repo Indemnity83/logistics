@@ -91,11 +91,16 @@ final class ResourceFiles {
     }
 
     /**
-     * Ids of every item we ship a definition for, as {@code logistics:path}. A proxy for "items
-     * this mod has", not proof of registration: a definition can exist for an unregistered item.
+     * Ids of every item we ship a client resource for, as {@code logistics:path}. A proxy for
+     * "items this mod has", not proof of registration: a resource can exist for an unregistered
+     * item.
+     *
+     * <p>Newer branches read {@code assets/<namespace>/items/} item model definitions. MC 1.21.1
+     * predates that system and resolves an item's model by convention from
+     * {@code models/item/<path>.json}, so that directory is the equivalent inventory here.
      */
     static Set<String> itemDefinitionIds() {
-        Path root = assetRoot().resolve("items");
+        Path root = assetRoot().resolve("models").resolve("item");
         return jsonFilesUnder(root).stream()
             .map(file -> {
                 String relative = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');
