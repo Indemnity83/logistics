@@ -2,7 +2,8 @@
   "parent": "minecraft:block/cube",
   "texture_size": [64, 64],
   "textures": {
-    "0": "logistics:block/power/reaction_engine"
+    "0": "logistics:block/power/reaction_engine",
+    "particle": "logistics:block/power/reaction_engine"
   },
   "elements": [
     {
