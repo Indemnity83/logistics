@@ -25,6 +25,7 @@ import com.logistics.gametest.pipe.PipeFlowGameTestRegistration;
 import com.logistics.gametest.pipe.PipeInfrastructureGameTestRegistration;
 import com.logistics.gametest.pipe.PowerJunctionGameTestRegistration;
 import com.logistics.gametest.power.BatteryGameTestRegistration;
+import com.logistics.gametest.power.CableGameTestRegistration;
 import com.logistics.gametest.power.EngineGameTestRegistration;
 import com.logistics.gametest.power.FuelEngineGameTestRegistration;
 import com.logistics.gametest.power.MagmaticEngineGameTestRegistration;
@@ -84,6 +85,7 @@ public final class LogisticsGameTestMod {
         PowerJunctionGameTestRegistration.bootstrap();
 
         BatteryGameTestRegistration.bootstrap();
+        CableGameTestRegistration.bootstrap();
         EngineGameTestRegistration.bootstrap();
         FuelEngineGameTestRegistration.bootstrap();
         MagmaticEngineGameTestRegistration.bootstrap();

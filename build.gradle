@@ -286,13 +286,13 @@ tasks.register('checkFeatureTestParity') {
         }
 
         // Deletion alarm: the catalog only ever grows in normal work.
-        if (catalog.size() < 197) {
-            failures << "shared feature-test catalog shrank to ${catalog.size()} (expected >= 197); " +
+        if (catalog.size() < 202) {
+            failures << "shared feature-test catalog shrank to ${catalog.size()} (expected >= 202); " +
                     "if tests were deliberately removed, lower the floor in checkFeatureTestParity"
         }
         // Ratchet: the not-yet-shared backlog may shrink, never grow.
-        if (notYetShared.size() > 13) {
-            failures << "not-yet-shared feature tests grew to ${notYetShared.size()} (expected <= 13): " +
+        if (notYetShared.size() > 8) {
+            failures << "not-yet-shared feature tests grew to ${notYetShared.size()} (expected <= 8): " +
                     notYetShared.sort().join(', ')
         }
 
