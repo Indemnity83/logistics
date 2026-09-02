@@ -269,7 +269,7 @@ jobs:
         if: needs.changes.outputs.client_changed == 'true'
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '21'
 
       - name: Setup Gradle
         if: needs.changes.outputs.client_changed == 'true'

@@ -36,11 +36,11 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
 
     /** Pins time, weather, and daylight so a capture does not depend on how long the run took. */
     private void freezeWorld(TestServerContext server) {
-        // MC 26 renamed these rules; the pre-26 ids parse as an unknown gamerule and the command
-        // failure is swallowed, so the world would keep advancing.
-        server.runCommand("gamerule advance_time false");
-        server.runCommand("gamerule advance_weather false");
-        server.runCommand("gamerule spawn_mobs false");
+        // MC 26 renamed these rules; this branch predates the rename, and the MC 26 ids would parse
+        // as an unknown gamerule whose command failure is swallowed, leaving the world advancing.
+        server.runCommand("gamerule doDaylightCycle false");
+        server.runCommand("gamerule doWeatherCycle false");
+        server.runCommand("gamerule doMobSpawning false");
         server.runCommand("time set noon");
         server.runCommand("weather clear");
     }
