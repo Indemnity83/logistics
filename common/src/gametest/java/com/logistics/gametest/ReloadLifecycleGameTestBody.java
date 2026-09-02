@@ -9,18 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * Shared datapack-reload lifecycle GameTest body, compiled directly into both loaders'
- * {@code gametest} source sets (see {@code common/build.gradle}).
- *
- * <p>A reload swaps every recipe, loot table, and tag while the world keeps running, so a machine
- * holding a resolved recipe mid-run is exposed to it. The risk is not a crash but a quiet accounting
- * error: progress silently restarting (the player pays twice), or a run completing twice (the player
- * gets a free ingot). {@code RecipeProcessorComponent} compares the resolved plan by value rather
- * than identity, which is what makes a fresh-but-equivalent plan after a reload continue the run
- * instead of resetting it — these tests pin that behaviour.
- *
- * <p>Reloading does not disturb the rest of the suite, so these are ordinary shared feature tests
- * and need no isolated run; see "A datapack reload does not need an isolated lane" in TESTING.md.
+ * A datapack reload mid-run leaves an in-flight machine recipe intact: it finishes exactly once, for
+ * exactly its normal cost, and the machine still resolves recipes afterwards.
  */
 public class ReloadLifecycleGameTestBody {
 
