@@ -165,7 +165,13 @@ class ModelReferenceContractTest {
     }
 
     /**
-     * Models actually used for rendering: those a blockstate or item definition names.
+     * Models actually used for rendering: every item model, plus those a blockstate names.
+     *
+     * <p>On this branch an item's model is {@code models/item/<id>.json}, resolved by convention with
+     * nothing pointing at it. Collecting only models that something <em>names</em> would cover the
+     * blockstate side and silently skip almost every item — so the whole item model directory counts
+     * as rendered. The newer {@code items/} definitions are still walked, since a few are carried in,
+     * but they are inert here.
      *
      * <p>Templates are deliberately excluded. A model that only exists to be inherited from — our
      * tank and marker-torch bases — legitimately leaves variables and {@code particle} to whichever
@@ -180,7 +186,7 @@ class ModelReferenceContractTest {
             }
         }
 
-        Set<Path> models = new LinkedHashSet<>();
+        Set<Path> models = new LinkedHashSet<>(ResourceFiles.jsonFiles("models/item"));
         for (String reference : references) {
             try {
                 Path target = ResourceFiles.resolve(reference, "models", ".json");
