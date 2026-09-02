@@ -25,6 +25,7 @@ public class ServerDataLoadingGameTest {
     public void allLogisticsPlacedFeaturesLoad(GameTestHelper context) {
         ServerDataLoadingGameTestBody.allLogisticsPlacedFeaturesLoad(context);
     }
+
     @GameTest
     public void allLogisticsItemTagEntriesLoad(GameTestHelper context) {
         ServerDataLoadingGameTestBody.allLogisticsItemTagEntriesLoad(context);

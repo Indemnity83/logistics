@@ -1,6 +1,7 @@
 package com.logistics.gametest;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.logistics.core.lib.resource.ResourceId;
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
@@ -254,7 +256,14 @@ public class ServerDataLoadingGameTestBody {
             TagKey<T> tagKey = TagKey.create(registryKey, ResourceId.in(fileId.getNamespace(), tagPath).toIdentifier());
 
             for (String declaredId : declared) {
-                ResourceId wanted = ResourceId.parse(declaredId);
+                // tryParse, not parse: a malformed id (uppercase, a space) is exactly the typo this
+                // test exists to report, and parse would throw over the top of the useful message.
+                ResourceId wanted = ResourceId.tryParse(declaredId);
+                if (wanted == null) {
+                    failures.add("'" + declaredId + "' in #" + fileId.getNamespace() + ":" + tagPath
+                        + " is not a valid id, so no entry can resolve it");
+                    continue;
+                }
                 boolean present = false;
                 for (Holder<T> holder : registry.getTagOrEmpty(tagKey)) {
                     if (holder.is(wanted.toIdentifier())) {
@@ -281,11 +290,30 @@ public class ServerDataLoadingGameTestBody {
         context.succeed();
     }
 
-    /** The {@code logistics:} ids one tag file lists, in either the plain or object entry form. */
+    /**
+     * The {@code logistics:} ids one tag file lists, in either the plain or object entry form.
+     *
+     * <p>This runs over every tag file in the datapack stack — vanilla's, each loader's, and any other
+     * mod's — so it must not blame us for their data. A file that never mentions our namespace is
+     * skipped before parsing, which both scopes the failures and avoids parsing hundreds of files we
+     * have nothing to say about.
+     */
     private static List<String> logisticsEntriesIn(Resource resource, ResourceId fileId, List<String> failures) {
         List<String> ids = new ArrayList<>();
+        String contents;
         try (BufferedReader reader = resource.openAsReader()) {
-            JsonElement values = JsonParser.parseReader(reader).getAsJsonObject().get("values");
+            contents = reader.lines().collect(Collectors.joining("\n"));
+        } catch (IOException | RuntimeException e) {
+            // Unreadable, and we cannot tell whether it was ours; say so without claiming it is.
+            failures.add("could not read tag file " + fileId + " from pack " + resource.sourcePackId() + ": " + e);
+            return ids;
+        }
+        if (!contents.contains(NAMESPACE + ":")) {
+            return ids;
+        }
+
+        try {
+            JsonElement values = JsonParser.parseString(contents).getAsJsonObject().get("values");
             if (values == null || !values.isJsonArray()) {
                 return ids;
             }
@@ -294,15 +322,21 @@ public class ServerDataLoadingGameTestBody {
                 if (value.isJsonPrimitive()) {
                     id = value.getAsString();
                 } else if (value.isJsonObject() && value.getAsJsonObject().has("id")) {
-                    id = value.getAsJsonObject().get("id").getAsString();
+                    JsonObject object = value.getAsJsonObject();
+                    // {"id": …, "required": false} is the whole reason the object form exists: the
+                    // entry is allowed to be absent and the tag still builds, so it is not a defect.
+                    if (object.has("required") && !object.get("required").getAsBoolean()) {
+                        continue;
+                    }
+                    id = object.get("id").getAsString();
                 }
                 // A '#' entry is a tag reference, resolved by the static TagContractTest.
                 if (id != null && id.startsWith(NAMESPACE + ":")) {
                     ids.add(id);
                 }
             }
-        } catch (IOException | RuntimeException e) {
-            failures.add("could not read " + fileId + " from pack " + resource.sourcePackId() + ": " + e);
+        } catch (RuntimeException e) {
+            failures.add("could not parse tag file " + fileId + " from pack " + resource.sourcePackId() + ": " + e);
         }
         return ids;
     }
