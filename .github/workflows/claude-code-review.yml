@@ -59,12 +59,17 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
-          # Findings are posted to the PR by the command itself. A clean review
-          # deliberately stays quiet there, so print the report to the run log —
-          # otherwise a run that posts nothing leaves no trace to diagnose.
+          # Also mirror the report to the run log, so a run that posts nothing
+          # still leaves a trace to diagnose.
           display_report: true
-          # The plugin command's own pre-flight skips closed PRs, drafts, trivial
-          # diffs, and PRs it has already reviewed.
+          # `--comment` is what makes the command post to the PR at all: without
+          # it the review runs in full and then stops at "output to terminal",
+          # leaving no comment behind. With it, a clean review posts a
+          # no-issues-found comment, which is the signal `ship-clean-prs` reads.
+          # The command's own pre-flight skips closed PRs, drafts, trivial diffs,
+          # and PRs it has already commented on — so expect one review per PR
+          # rather than one per push.
           prompt: >-
             /code-review:code-review
             ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+            --comment
