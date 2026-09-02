@@ -158,6 +158,126 @@ public class QuarryMiningGameTestBody {
      * to mining. Drives the real block break through {@code destroyBlock} so it exercises the same
      * path a player's pickaxe takes.
      */
+    /**
+     * A player dropping a block into a frame slot must not stall the quarry. The block is an
+     * intruder in the band the quarry keeps clear, so the quarry clears it out, puts the frame
+     * block back, and carries on mining.
+     */
+    public static void testQuarryClearsBlockDroppedIntoFrameSlot(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 2, 1);
+
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
+        // Give the quarry something to chew on, so it is still MINING when the frame is broken —
+        // a finished quarry deliberately stops policing its frame.
+        for (int dy = -1; dy >= -3; dy--) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.STONE);
+                }
+            }
+        }
+
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+
+        LaserQuarryBlockEntity quarry = context.getBlockEntity(quarryPos, LaserQuarryBlockEntity.class);
+        if (quarry == null) {
+            context.fail("Expected LaserQuarryBlockEntity at " + quarryPos);
+            return;
+        }
+
+        BlockPos absPos = context.absolutePos(quarryPos);
+        quarry.setCustomBounds(
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
+
+        IEnergyStorage es = quarry.energyStorage(Direction.DOWN);
+        long remaining = QuarryEnergy.energyCapacity();
+        while (remaining > 0) {
+            long inserted = es.insert(remaining, false);
+            if (inserted == 0) {
+                context.fail("Failed to fill quarry energy: insert returned 0 with " + remaining + " RF remaining");
+                return;
+            }
+            remaining -= inserted;
+        }
+
+        AtomicBoolean sawRepairPhase = new AtomicBoolean(false);
+        AtomicReference<BlockPos> brokenPos = new AtomicReference<>(null);
+
+        // Tick 80: the frame is up and mining has started (see testQuarryTransitionsThroughPhases).
+        context.runAfterDelay(80, () -> {
+            if (quarry.getCurrentPhase() != QuarryPhase.MINING) {
+                context.fail("Expected MINING before breaking a frame block, got: " + quarry.getCurrentPhase());
+                return;
+            }
+
+            if (quarry.isFinished()) {
+                context.fail("Quarry finished before the frame could be broken; the test needs more to mine");
+                return;
+            }
+
+            BlockPos target = findStandingFrameBlock(context, quarryPos);
+            if (target == null) {
+                context.fail("No frame block found to break");
+                return;
+            }
+            brokenPos.set(target);
+            // Break the frame block, then squat in its slot with cobble — the case where simply
+            // treating the slot as a "gap" would have wedged the quarry.
+            context.getLevel().destroyBlock(context.absolutePos(target), false);
+            context.setBlock(target, Blocks.COBBLESTONE);
+
+            if (!context.getBlockState(target).is(Blocks.COBBLESTONE)) {
+                context.fail("Cobble was not placed into the frame slot at " + target);
+            }
+        });
+
+        // Poll across the window so the transient repair phase can't be missed by a single sample.
+        for (int tick = 82; tick <= 108; tick++) {
+            context.runAfterDelay(tick, () -> {
+                es.insert(1000, false);
+                if (quarry.getCurrentPhase() == QuarryPhase.MAINTAINING_CLEARANCE) {
+                    sawRepairPhase.set(true);
+                }
+            });
+        }
+
+        context.runAfterDelay(115, () -> {
+            BlockPos target = brokenPos.get();
+            if (target == null) {
+                context.fail("Frame block was never broken");
+                return;
+            }
+            if (!sawRepairPhase.get()) {
+                context.fail("Quarry never entered MAINTAINING_CLEARANCE with cobble in a frame slot");
+                return;
+            }
+            if (context.getBlockState(target).is(Blocks.COBBLESTONE)) {
+                context.fail("Cobble at " + target + " was never cleared out of the frame slot");
+                return;
+            }
+            if (!context.getBlockState(target).is(LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME)) {
+                context.fail("Frame block at " + target + " was not rebuilt after the cobble was cleared; found "
+                        + context.getBlockState(target));
+                return;
+            }
+            if (quarry.getCurrentPhase() != QuarryPhase.MINING) {
+                context.fail("Expected the quarry back in MINING after the repair, got: "
+                        + quarry.getCurrentPhase());
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+
     public static void testQuarryRepairsFrameBrokenByPlayer(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 2, 1);
 

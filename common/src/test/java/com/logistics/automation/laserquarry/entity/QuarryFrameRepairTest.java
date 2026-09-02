@@ -11,12 +11,15 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A frame block broken out from under a running quarry has to be noticed, rebuilt at the normal
@@ -156,6 +159,97 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
         assertThat(runner.frameHasGap(index -> null, states))
                 .as("no frame to check means no repair, not an infinite sweep")
                 .isFalse();
+    }
+
+
+    // ==================== clearance band ====================
+
+    private static final QuarryFrameRect RECT = new QuarryFrameRect(10, 20, 12, 23, 64, 66);
+
+    @Test
+    @DisplayName("the clearance band covers the whole rectangle from bottom to top")
+    void clearanceBandCoversTheRectangle() {
+        int width = RECT.width();
+        int depth = RECT.depth();
+        int height = RECT.topY() - RECT.bottomY() + 1;
+
+        Set<BlockPos> seen = new HashSet<>();
+        for (int i = 0; i < width * depth * height; i++) {
+            BlockPos pos = QuarryPhaseRunner.clearancePositionAt(RECT, i);
+            assertThat(pos).as("index " + i + " must resolve").isNotNull();
+            assertThat(pos.getX()).isBetween(RECT.startX(), RECT.endX());
+            assertThat(pos.getZ()).isBetween(RECT.startZ(), RECT.endZ());
+            assertThat(pos.getY()).isBetween(RECT.bottomY(), RECT.topY());
+            seen.add(pos);
+        }
+        assertThat(seen)
+                .as("every position in the band is visited exactly once")
+                .hasSize(width * depth * height);
+    }
+
+    @Test
+    @DisplayName("the clearance band ends, so the sweep terminates")
+    void clearanceBandTerminates() {
+        int total = RECT.width() * RECT.depth() * (RECT.topY() - RECT.bottomY() + 1);
+        assertThat(QuarryPhaseRunner.clearancePositionAt(RECT, total)).isNull();
+        assertThat(QuarryPhaseRunner.clearancePositionAt(RECT, -1)).isNull();
+    }
+
+    @Test
+    @DisplayName("a block dropped into the band is an intrusion")
+    void droppedBlockIsAnIntrusion() {
+        assertThat(QuarryPhaseRunner.isClearanceIntrusion(
+                        EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Blocks.COBBLESTONE.defaultBlockState()))
+                .as("cobble in a frame slot is exactly the case this phase exists for")
+                .isTrue();
+    }
+
+    @Test
+    @DisplayName("the quarry's own frame is never an intrusion")
+    void frameBlockIsNotAnIntrusion() {
+        assertThat(QuarryPhaseRunner.isClearanceIntrusion(
+                        EmptyBlockGetter.INSTANCE,
+                        BlockPos.ZERO,
+                        LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState()))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("air is not an intrusion")
+    void airIsNotAnIntrusion() {
+        assertThat(QuarryPhaseRunner.isClearanceIntrusion(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Blocks.AIR.defaultBlockState()))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("blocks the quarry could never mine are not intrusions, so they cannot wedge the phase")
+    void unmineableBlocksAreNotIntrusions() {
+        assertThat(QuarryPhaseRunner.isClearanceIntrusion(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Blocks.LAVA.defaultBlockState()))
+                .as("lava is left alone everywhere else in the quarry; clearing must agree")
+                .isFalse();
+        assertThat(QuarryPhaseRunner.isClearanceIntrusion(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Blocks.WATER.defaultBlockState()))
+                .isFalse();
+        assertThat(QuarryPhaseRunner.isClearanceIntrusion(EmptyBlockGetter.INSTANCE, BlockPos.ZERO, Blocks.BEDROCK.defaultBlockState()))
+                .as("bedrock has destroy speed -1; trying to clear it would loop forever")
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("a clearance cursor round-trips through NBT")
+    void clearanceCursorSurvivesSaveAndLoad() {
+        QuarryPhaseRunner runner = new QuarryPhaseRunner();
+        CompoundTag tag = new CompoundTag();
+        tag.putString("CurrentPhase", QuarryPhase.MAINTAINING_CLEARANCE.name());
+        tag.putInt("ClearanceIndex", 91);
+        tag.putInt("MiningY", 6);
+        runner.load(tag);
+
+        assertThat(runner.getPhase()).isEqualTo(QuarryPhase.MAINTAINING_CLEARANCE);
+        assertThat(runner.getMiningY()).as("mining cursor is untouched by a clearance detour").isEqualTo(6);
+
+        CompoundTag written = new CompoundTag();
+        runner.save(written);
+        assertThat(written.getInt("ClearanceIndex")).hasValue(91);
     }
 
     // ==================== persistence ====================
