@@ -65,6 +65,6 @@ class BlockstateContractTest {
     void blockstateSetHasNotCollapsed() {
         assertThat(ResourceFiles.jsonFiles("blockstates"))
             .as("shipped blockstates; lower this floor deliberately if blocks were removed")
-            .hasSizeGreaterThanOrEqualTo(67);
+            .hasSizeGreaterThanOrEqualTo(70);
     }
 }
