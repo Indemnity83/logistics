@@ -20,59 +20,14 @@
 
 === Crafting ingredient ===
 
-{{Crafting|head=1
-|name=[[Amethyst Chip]]
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Amethyst Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Amethyst Chip,4
-}}
+Ender Dust is used to craft the [[Ender Cable]], the fastest [[Cables|cable]] tier:
 
-{{Crafting
-|name=[[Carbon Chip]]
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Coal Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Carbon Chip,4
-}}
-
-{{Crafting
-|name=[[Echo Chip]]
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Echo Dust |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Echo Chip,4
-}}
-
-{{Crafting
-|name=[[Cables|Ender Cable]]
-|A1=Rubber Chunk |B1=Rubber Chunk |C1=Rubber Chunk
+{{Crafting|head=1|foot=1
+|name=[[Ender Cable]]
+|A1=Rubber |B1=Rubber |C1=Rubber
 |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust
-|A3=Rubber Chunk |B3=Rubber Chunk |C3=Rubber Chunk
+|A3=Rubber |B3=Rubber |C3=Rubber
 |Output=Ender Cable,8
-}}
-
-{{Crafting
-|name=[[Ender Core]]
-|B1=Ender Dust
-|B2=End Rod
-|B3=Ender Dust
-|Output=Ender Core,4
-}}
-
-{{Crafting
-|name=[[Redstone Chip]]
-|A1=Ender Dust |B1=Resin Clump |C1=Ender Dust
-|A2=Ender Dust |B2=Redstone |C2=Ender Dust
-|A3=Ender Dust |B3=Silicon Wafer |C3=Ender Dust
-|Output=Redstone Chip,4
-}}
-
-{{Crafting|foot=1
-|name=[[Terminus Module]]
-|A1=Ender Dust |B1=Redstone Chip |C1=Ender Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Terminus Module
 }}
 
 == Data values ==
@@ -89,8 +44,8 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Ender Core]]
-* [[Chips]]
+* [[Ender Cable]], [[Cables]] - Crafted with Ender Dust
+* [[Rubber]] - The cable's other ingredient
 
 {{Navbox Logistics}}
 

@@ -26,8 +26,8 @@
 {{Crafting|head=1
 |name=[[Basic Logistics Pipe]]
 |A1=Glass |B1=Redstone Torch |C1=Glass
-|A2=Copper Transport Pipe |B2=Item Filter Pipe |C2=Copper Transport Pipe
-|B3=Gold Gear
+|A2=Gold Gear |B2=Item Filter Pipe |C2=Gold Gear
+|A3=Glass |B3=Redstone Torch |C3=Glass
 |Output=Basic Logistics Pipe,8
 }}
 

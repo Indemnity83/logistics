@@ -28,6 +28,7 @@ The Sequential Fabricator is mined with a stone pickaxe or better; without one i
 |B1=Netherite Gear
 |A2=Obsidian |B2=Machine Frame |C2=Obsidian
 |A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Sequential Fabricator
 }}
 
 Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with a [[Netherite Gear]] and {{Mcw|Obsidian|obsidian}} on top.

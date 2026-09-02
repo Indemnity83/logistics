@@ -21,7 +21,7 @@ Crafted eight at a time from a pane of {{Mcw|Glass}} flanked by its defining mat
 |head=1
 |foot=1
 |showname=0
-|A2=Cobblestone |B2=Glass |C2=Cobblestone
+|A2=Stone |B2=Glass |C2=Stone
 |Output=Stone Transport Pipe,8
 }}
 

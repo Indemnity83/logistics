@@ -38,21 +38,11 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 |Output=Iron Ingot
 }}
 
-=== Crafting ingredient ===
+=== Alloy smelting ===
 
-{{Crafting|head=1
-|name=[[Provider Module|Provider MkII Module]]
-|A1=Iron Dust |B1=Amethyst Chip |C1=Iron Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Provider MkII Module
-}}
+With sand as flux the [[Alloy Smelter]] returns the ingot directly, with a chance of [[Slag]]:
 
-{{Crafting|foot=1
-|name=[[Provider Module]]
-|A1=Iron Dust |B1=Redstone Chip |C1=Iron Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Provider Module
-}}
+{{Alloy Smelter|head=1|foot=1 |Input=Iron Dust |Input2=Sand;Red Sand |Output=Iron Ingot |Byproduct=Slag |ByproductChance=25%}}
 
 == Data values ==
 
@@ -70,7 +60,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 * [[Kiln]] - Smelts dust into ingots and crystals
-* [[Provider Module]]
+* [[Alloy Smelter]] - Smelts dust with sand into ingots
 
 {{Navbox Logistics}}
 

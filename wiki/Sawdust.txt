@@ -28,29 +28,7 @@ Every [[Sawmill]] recipe also drops Sawdust as a byproduct — guaranteed from l
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1
-|name=[[Wooden Core]]
-|B1=Sawdust
-|B2=Slime Ball
-|B3=Sawdust
-|Output=Wooden Core,4}}
-{{Crafting
-|name=[[Extractor Module]]
-|A1=Sawdust |B1=Redstone Chip |C1=Sawdust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor Module}}
-{{Crafting
-|name=[[Extractor Module|Extractor MkII Module]]
-|A1=Sawdust |B1=Amethyst Chip |C1=Sawdust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor MkII Module}}
-{{Crafting|foot=1
-|name=[[Extractor Module|Extractor MkIII Module]]
-|A1=Sawdust |B1=Echo Chip |C1=Sawdust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Extractor MkIII Module}}
+Sawdust has no crafting, smelting, or machine recipes — nothing currently consumes it.
 
 == Data values ==
 
@@ -66,8 +44,6 @@ Every [[Sawmill]] recipe also drops Sawdust as a byproduct — guaranteed from l
 
 * [[Sawmill]] - Produces Sawdust
 * [[Macerator]] - Grinds wood into Sawdust
-* [[Wooden Core]] - Crafted from Sawdust
-* [[Extractor Module]] - Crafted with Sawdust
 * [[Materials]] - Material overview
 
 {{Navbox Logistics}}

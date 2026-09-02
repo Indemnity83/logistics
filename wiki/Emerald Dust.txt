@@ -24,29 +24,7 @@
 
 == Usage ==
 
-=== Crafting ingredient ===
-
-{{Crafting|head=1
-|name=[[Active Supplier Module]]
-|A1=Emerald Dust |B1=Amethyst Chip |C1=Emerald Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Active Supplier Module
-}}
-
-{{Crafting
-|name=[[Emerald Core]]
-|B1=Emerald Dust
-|B2=Amethyst Shard
-|B3=Emerald Dust
-|Output=Emerald Core,4
-}}
-
-{{Crafting|foot=1
-|name=[[Passive Supplier Module]]
-|A1=Emerald Dust |B1=Redstone Chip |C1=Emerald Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Passive Supplier Module
-}}
+Emerald Dust has no crafting, smelting, or machine recipes — nothing currently consumes it.
 
 == Data values ==
 
@@ -62,7 +40,6 @@
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Emerald Core]]
 
 {{Navbox Logistics}}
 

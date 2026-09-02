@@ -40,40 +40,19 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 === Crafting ingredient ===
 
-{{Crafting|head=1
+{{Crafting|head=1|foot=1
 |name=[[Bronze Dust]]
 |A1=Copper Dust |B1=Copper Dust |C1=Copper Dust
 |A2=Tin Dust
 |Output=Bronze Dust,4
 }}
 
-{{Crafting
-|name=[[Enchantment Sink Module]]
-|A1=Copper Dust |B1=Amethyst Chip |C1=Copper Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Enchantment Sink Module
-}}
+=== Alloy smelting ===
 
-{{Crafting
-|name=[[Item Sink Module]]
-|A1=Copper Dust |B1=Carbon Chip |C1=Copper Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Item Sink Module
-}}
+With sand as flux the [[Alloy Smelter]] returns the ingot directly, with a chance of [[Slag]]; paired with tin it alloys straight to bronze:
 
-{{Crafting
-|name=[[Mod Item Sink Module]]
-|A1=Copper Dust |B1=Redstone Chip |C1=Copper Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Mod Item Sink Module
-}}
-
-{{Crafting|foot=1
-|name=[[Polymorphic Sink Module]]
-|A1=Copper Dust |B1=Echo Chip |C1=Copper Dust
-|A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Polymorphic Sink Module
-}}
+{{Alloy Smelter|head=1 |Input=Copper Dust |Input2=Sand;Red Sand |Output=Copper Ingot |Byproduct=Slag |ByproductChance=25%}}
+{{Alloy Smelter|foot=1 |Input=Copper Dust |InputCount=3 |Input2=Tin Dust |Output=Bronze Ingot |OutputCount=4}}
 
 == Data values ==
 
@@ -91,6 +70,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 * [[Kiln]] - Smelts dust into ingots and crystals
+* [[Alloy Smelter]] - Smelts dust with sand, or alloys it with tin
 * [[Bronze Dust]]
 * [[Tin Dust]]
 

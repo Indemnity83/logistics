@@ -9,7 +9,7 @@
 |added            = v0.5.0
 }}
 
-The '''Macerator''' is an RF-powered grinding machine that converts items into [[Dusts|dust]] and other ground materials. Dusts are used as crafting ingredients for [[Modules|modules]] and can be smelted into ingots for higher ore yields.
+The '''Macerator''' is an RF-powered grinding machine that converts items into [[Dusts|dust]] and other ground materials. Dust is smelted back into ingots in a [[Kiln]] or an [[Alloy Smelter]], which is what makes grinding an ore worth more than smelting it whole.
 
 == Obtaining ==
 
@@ -55,34 +55,35 @@ The Macerator runs on [[RF Energy|RF]]. It holds 10,000 RF, accepts up to 128 RF
 Grinding ores produces more dust than grinding the ingot directly, making the Macerator a key part of an efficient ore processing chain. Metal ores also have a 10% chance of a bonus dust on the side.
 
 {{Grinding|head=1 |Input=Iron Ore;Deepslate Iron Ore |Output=Iron Dust,2 |Byproduct=Tin Dust |ByproductChance=10%}}
-{{Grinding |Input=Raw Iron |Output=Iron Dust}}
+{{Grinding |Input=Raw Iron |Output=Iron Dust,2 |Byproduct=Tin Dust |ByproductChance=10%}}
 {{Grinding |Input=Block of Iron |Output=Iron Dust,9}}
 {{Grinding |Input=Copper Ore;Deepslate Copper Ore |Output=Copper Dust,2 |Byproduct=Gold Dust |ByproductChance=10%}}
-{{Grinding |Input=Raw Copper |Output=Copper Dust}}
+{{Grinding |Input=Raw Copper |Output=Copper Dust,2 |Byproduct=Gold Dust |ByproductChance=10%}}
 {{Grinding |Input=Block of Copper |Output=Copper Dust,9}}
-{{Grinding |Input=Gold Ore;Deepslate Gold Ore;Nether Gold Ore |Output=Gold Dust,2 |Byproduct=Quicksilver |ByproductChance=10%}}
-{{Grinding |Input=Raw Gold |Output=Gold Dust}}
+{{Grinding |Input=Gold Ore;Deepslate Gold Ore |Output=Gold Dust,2 |Byproduct=Quicksilver |ByproductChance=10%}}
+{{Grinding |Input=Nether Gold Ore |Output=Gold Dust |Byproduct=Quicksilver |ByproductChance=10%}}
+{{Grinding |Input=Raw Gold |Output=Gold Dust,2 |Byproduct=Quicksilver |ByproductChance=10%}}
 {{Grinding |Input=Block of Gold |Output=Gold Dust,9}}
 {{Grinding |Input=Tin Ore;Deepslate Tin Ore |Output=Tin Dust,2 |Byproduct=Iron Dust |ByproductChance=10%}}
+{{Grinding |Input=Raw Tin |Output=Tin Dust,2 |Byproduct=Iron Dust |ByproductChance=10%}}
 {{Grinding |Input=Tin Ingot |Output=Tin Dust}}
 {{Grinding |Input=Bronze Ingot |Output=Bronze Dust}}
 {{Grinding |Input=Diamond Ore;Deepslate Diamond Ore |Output=Diamond Dust,2}}
-{{Grinding |Input=Block of Diamond |Output=Diamond Dust,9}}
 {{Grinding |Input=Emerald Ore;Deepslate Emerald Ore |Output=Emerald Dust,2}}
-{{Grinding |Input=Block of Emerald |Output=Emerald Dust,9}}
-{{Grinding |Input=Lapis Lazuli Ore;Deepslate Lapis Lazuli Ore |Output=Lapis Dust,4}}
-{{Grinding |Input=Block of Lapis Lazuli |Output=Lapis Dust,9}}
+{{Grinding |Input=Lapis Lazuli Ore;Deepslate Lapis Lazuli Ore |Output=Lapis Dust,8 |Byproduct=Sulfur Dust |ByproductChance=20%}}
 {{Grinding |Input=Coal Ore;Deepslate Coal Ore |Output=Coal Dust,2}}
-{{Grinding |Input=Coal |Output=Coal Dust,2}}
+{{Grinding |Input=Coal |Output=Coal Dust,2 |Byproduct=Sulfur Dust |ByproductChance=15%}}
 {{Grinding |Input=Charcoal |Output=Coal Dust,2}}
-{{Grinding |Input=Redstone Ore;Deepslate Redstone Ore |Output=Redstone,4}}
-{{Grinding |Input=Nether Quartz;Nether Quartz Ore |Output=Quartz Dust,2}}
-{{Grinding |Input=Block of Quartz |Output=Quartz Dust,4}}
+{{Grinding |Input=Redstone Ore;Deepslate Redstone Ore |Output=Redstone,2 |Byproduct=Quicksilver |ByproductChance=25%}}
+{{Grinding |Input=Nether Quartz Ore |Output=Quartz Dust,2 |Byproduct=Sulfur Dust |ByproductChance=15%}}
+{{Grinding |Input=Nether Quartz |Output=Quartz Dust}}
+{{Grinding |Input=Block of Quartz |Output=Nether Quartz,4}}
 {{Grinding |Input=Apatite Ore |Output=Apatite Dust,6}}
 {{Grinding |Input=Amethyst Shard |Output=Amethyst Dust}}
 {{Grinding |Input=Echo Shard |Output=Echo Dust}}
 {{Grinding |Input=Prismarine Shard |Output=Prismarine Dust}}
-{{Grinding |foot=1 |Input=Prismarine Bricks |Output=Prismarine Dust,4}}
+{{Grinding |Input=Prismarine |Output=Prismarine Dust,4}}
+{{Grinding |foot=1 |Input=Prismarine Bricks |Output=Prismarine Dust,9}}
 
 ==== Recycling ====
 
@@ -115,7 +116,7 @@ The Macerator grinds wood and wooden tools into [[Sawdust]]. To cut logs into pl
 
 {{Grinding|head=1 |Input=Wheat |Output=Flour,2}}
 {{Grinding |Input=Bone |Output=Bone Meal,6}}
-{{Grinding |Input=Blaze Rod |Output=Blaze Powder,4}}
+{{Grinding |Input=Blaze Rod |Output=Blaze Powder,4 |Byproduct=Sulfur Dust |ByproductChance=50%}}
 {{Grinding |Input=Breeze Rod |Output=Wind Charge,4}}
 {{Grinding |Input=Glowstone |Output=Glowstone Dust,4}}
 {{Grinding |foot=1 |Input=Magma Block |Output=Magma Cream,4}}
@@ -132,18 +133,15 @@ Any flower can be ground into its corresponding dye color (Poppy → {{Mcw|Red D
 </pre>
 Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively doubling your ore output compared to direct smelting.
 
-'''Module crafting:'''
+'''Bronze alloying:'''
 <pre>
-[Iron Ore] → Macerator → [Iron Dust] → craft Provider Module
-[Emerald] → Macerator → [Emerald Dust] → craft Supplier Module
+[Copper Dust × 3] + [Tin Dust] → craft → [Bronze Dust × 4] → Kiln → [Bronze Ingot × 4]
 </pre>
 
 '''Quartz Crystal production (required for Valves):'''
 <pre>
 [Nether Quartz] → Macerator → [Quartz Dust] → Kiln → [Quartz Crystal]
 </pre>
-
-[[Sawdust]] from grinding wood is a versatile crafting component, and Flour from {{Mcw|Wheat|wheat}} can be baked into bread and other food.
 
 == Data values ==
 
@@ -155,7 +153,8 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 
 {{History|head=1|v0.5.0|[[File:Grid Macerator (v0.5.0).png|32px]] Added '''Macerator'''.}}
 {{History|v0.8.0|[[File:Grid Macerator.png|32px]] The texture of the Macerator has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]]; added chance byproducts and block recycling; renamed Wood Pulp to [[Sawdust]].}}
-{{History|foot=1|v0.8.2|Added grinding for the oil blocks into [[Bitumen]] and [[Tar]].}}
+{{History|v0.8.2|Added grinding for the oil blocks into [[Bitumen]] and [[Tar]].}}
+{{History|foot=1|v0.8.7|Loose raw iron, raw copper, raw gold, and [[Raw Tin|raw tin]] can now be ground into dust.}}
 
 == See also ==
 * [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components

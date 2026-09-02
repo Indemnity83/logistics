@@ -14,7 +14,7 @@ The '''Blank Module''' is the base crafting component for all [[Modules|modules]
 {{Crafting|head=1|foot=1|showname=0
 |A1=Paper |B1=Redstone |C1=Paper
 |A2=Paper |B2=Redstone |C2=Paper
-|A3=Paper |B3=Gold Nugget |C3=Paper
+|A3=Paper |B3=Copper Nugget |C3=Paper
 |Output=Blank Module
 }}
 
@@ -31,7 +31,7 @@ The Blank Module is consumed when crafting any other module type. Craft it in ba
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Blank Module (v0.2.0).png|32px]] Added '''Blank Module'''.}}
-{{History|foot=1|v0.8.3|[[File:Grid Blank Module.png|32px]] The texture of the Blank Module has been changed.}}
+{{History|foot=1|v0.8.3|[[File:Grid Blank Module.png|32px]] The texture of the Blank Module has been changed. The recipe now uses a [[Copper Nugget|copper nugget]] instead of a {{Mcw|Gold Nugget|gold nugget}}.}}
 
 == See also ==
 * [[Modules]] - All available modules
