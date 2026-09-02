@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -27,6 +28,7 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
 
     private final RequestInventory requestInventory;
     private final PipeBlockEntity pipeEntity;
+    @Nullable private final ServerPlayer viewer;
     @Nullable private final String targetModuleStateKey;
     private BlockPos pipePos;
     private boolean initialSyncSent = false;
@@ -38,6 +40,7 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
     public RequesterScreenHandler(int syncId, Container playerInventory) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
         this.pipeEntity = null;
+        this.viewer = null;
         this.targetModuleStateKey = null;
         this.pipePos = BlockPos.ZERO;
         this.requestInventory = new RequestInventory(null);
@@ -51,9 +54,22 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
             int syncId, Container playerInventory, PipeBlockEntity pipeEntity, @Nullable String targetModuleStateKey) {
         super(LogisticsPipe.SCREEN.REQUESTER, syncId);
         this.pipeEntity = pipeEntity;
+        this.viewer = viewerOf(playerInventory);
         this.targetModuleStateKey = targetModuleStateKey;
         this.pipePos = pipeEntity.getBlockPos();
         this.requestInventory = new RequestInventory(pipeEntity, targetModuleStateKey);
+    }
+
+    /**
+     * The single player a menu opened over {@code playerInventory} syncs to, or {@code null} when no
+     * server player owns it (client-side menus, synthetic containers). Requester contents are private
+     * to their viewer and must never reach the wider player list.
+     */
+    @Nullable
+    static ServerPlayer viewerOf(Container playerInventory) {
+        return playerInventory instanceof Inventory inventory && inventory.player instanceof ServerPlayer serverPlayer
+                ? serverPlayer
+                : null;
     }
 
     /**
@@ -117,6 +133,21 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
      */
     public void setPipePos(BlockPos pos) {
         this.pipePos = pos;
+    }
+
+    /**
+     * Apply a sync payload to this menu (client-side). A payload addressed to a different menu is
+     * dropped, leaving this menu's pipe position and item list untouched.
+     *
+     * @return {@code true} when the payload was applied
+     */
+    public boolean applySync(SyncRequesterInventoryPacket packet) {
+        if (packet.containerId() != containerId) {
+            return false;
+        }
+        setPipePos(packet.pipePos());
+        setAvailableItems(packet.items(), packet.amounts());
+        return true;
     }
 
     /**
@@ -192,19 +223,15 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
     public void broadcastChanges() {
         super.broadcastChanges();
 
-        // Send initial sync on first broadcast
-        if (!initialSyncSent && pipeEntity != null && !pipeEntity.getLevel().isClientSide()) {
+        // Send initial sync on first broadcast, to the viewer only
+        if (!initialSyncSent && pipeEntity != null && viewer != null && !pipeEntity.getLevel().isClientSide()) {
             var itemsAndAmounts = requestInventory.getAllItemsWithAmounts();
-            SyncRequesterInventoryPacket packet = new SyncRequesterInventoryPacket(
+            ServerNetworking.send(viewer, new SyncRequesterInventoryPacket(
+                    containerId,
                     pipeEntity.getBlockPos(),
                     itemsAndAmounts.items(),
                     itemsAndAmounts.amounts()
-            );
-
-            // Send to all players on the server (they'll filter based on open screen)
-            for (ServerPlayer player : pipeEntity.getLevel().getServer().getPlayerList().getPlayers()) {
-                ServerNetworking.send(player, packet);
-            }
+            ));
 
             initialSyncSent = true;
         }

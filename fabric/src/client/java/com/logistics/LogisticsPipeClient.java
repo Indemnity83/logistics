@@ -56,9 +56,9 @@ public final class LogisticsPipeClient implements ClientDomainBootstrap {
         // Sync requester inventory from server
         ClientPlayNetworking.registerGlobalReceiver(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
             context.client().execute(() -> {
-                // Update the requester screen if it's open
+                // Update the requester screen if the payload is addressed to the open menu
                 if (ClientScreenCompat.currentScreen() instanceof RequesterScreen requesterScreen) {
-                    requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+                    requesterScreen.applySync(packet);
                 }
             });
         });
