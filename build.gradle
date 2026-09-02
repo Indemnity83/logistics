@@ -265,6 +265,32 @@ tasks.register('checkFeatureTestParity') {
             failures << "unshared feature test needs a '// loader-only: <reason>' or " +
                     "'// not-yet-shared: <reason>' comment: ${it}"
         }
+        // Being wired is not the same as being discovered. A test class can be correctly written
+        // and correctly registered in source, yet never run, because the step that makes the
+        // runtime aware of it is missing. That failure is silent on both loaders — no error, no
+        // log line, the test simply isn't in the count — so each discovery path is checked here.
+        def bootstrapCalls = file('neoforge/src/gametest/java/com/logistics/gametest/LogisticsGameTestMod.java').text
+        javaFiles('neoforge/src/gametest').each { file ->
+            def name = file.name - '.java'
+            if (name.endsWith('GameTestRegistration') && !bootstrapCalls.contains("${name}.bootstrap()")) {
+                failures << "NeoForge registration never initialized (add ${name}.bootstrap() to " +
+                        "LogisticsGameTestMod): ${name}"
+            }
+        }
+
+        def modJson = file('fabric/src/gametest/resources/fabric.mod.json').text
+        javaFiles('fabric/src/gametest').each { file ->
+            def text = file.text
+            def qualified = "${(text =~ /package ([\w.]+);/)[0][1]}.${file.name - '.java'}"
+            def annotated = text =~ /@GameTest(?:\s*\([^)]*\))?\s+public\s+void\s+\w+\s*\(\s*GameTestHelper/
+            def clientTest = text =~ /implements\s+FabricClientGameTest/
+            if ((annotated || clientTest) && !modJson.contains("\"${qualified}\"")) {
+                def entrypoint = clientTest ? 'fabric-client-gametest' : 'fabric-gametest'
+                failures << "Fabric test class never discovered (add it to fabric.mod.json's " +
+                        "${entrypoint} entrypoints): ${qualified}"
+            }
+        }
+
         // Deletion alarm: the catalog only ever grows in normal work.
         if (catalog.size() < 197) {
             failures << "shared feature-test catalog shrank to ${catalog.size()} (expected >= 197); " +
