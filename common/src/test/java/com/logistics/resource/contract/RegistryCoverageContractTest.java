@@ -2,6 +2,7 @@ package com.logistics.resource.contract;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.JsonElement;
 import com.logistics.DomainRegistrations;
 import com.logistics.LogisticsCore;
 import com.logistics.test.MinecraftTestEnvironment;
@@ -146,11 +147,38 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
         Set<String> orphans = new TreeSet<>(shippedAnywhere(ITEM_RESOURCES));
         orphans.removeAll(registeredPaths(BuiltInRegistries.ITEM));
         orphans.removeAll(loaderRegistered());
+        orphans.removeAll(overrideTargets());
 
         assertThat(orphans)
             .as("item definitions with no registered item — either the item was removed and its "
                 + "definition left behind, or DomainRegistrations no longer registers it")
             .isEmpty();
+    }
+
+    /**
+     * Item models reachable only as an {@code overrides[].model} target of another item model.
+     *
+     * <p>MC 1.21.1 expresses a variant (copper oxidation stage, a waxed pipe) as a separate model
+     * file selected by a {@code custom_model_data} override, not as a separate registered item — so
+     * these have no registry entry by design and are not orphans. Newer branches fold the same
+     * variants into one {@code items/} definition, which is why this exclusion is specific to here.
+     * Computed from the shipped files, so a genuinely unreferenced leftover is still reported.
+     */
+    private static Set<String> overrideTargets() {
+        Set<String> targets = new TreeSet<>();
+        for (Path file : ResourceFiles.jsonFilesUnder(ResourceFiles.assetRoot().resolve(ITEM_RESOURCES))) {
+            JsonElement overrides = ResourceFiles.parse(file).get("overrides");
+            if (overrides == null || !overrides.isJsonArray()) {
+                continue;
+            }
+            for (String reference : ResourceFiles.collectStrings(overrides, Set.of("model"))) {
+                String prefix = ResourceFiles.NAMESPACE + ":item/";
+                if (reference.startsWith(prefix)) {
+                    targets.add(reference.substring(prefix.length()));
+                }
+            }
+        }
+        return targets;
     }
 
     @Test
