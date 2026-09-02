@@ -72,15 +72,21 @@ final class ResourceFiles {
     /**
      * {@code <module>/src/main/resources/assets/logistics}. Loader resources are not on the common
      * test classpath, so this walks up to the repository root and back down.
+     *
+     * <p>The returned directory need not exist — a loader shipping no assets at all is the normal case
+     * now that every asset lives in common. That is also why this cannot detect an assets directory
+     * that <em>moved</em>: "moved" and "ships none" look identical from here. The check below is only
+     * a sanity check that {@link #repositoryRoot()} landed on the real source tree rather than
+     * somewhere in a build directory, which would make every loader lookup silently empty.
      */
     static Path loaderAssetRoot(String module) {
-        Path root = repositoryRoot().resolve(module).resolve("src/main/resources/assets").resolve(NAMESPACE);
-        if (!Files.isDirectory(root)) {
+        Path resources = repositoryRoot().resolve(module).resolve("src/main/resources");
+        if (!Files.isDirectory(resources)) {
             throw new IllegalStateException(
-                "expected loader assets at " + root + "; the module layout changed and this contract "
-                    + "would silently stop checking loader-supplied resources");
+                "expected a loader resource root at " + resources + "; the repository root resolved to "
+                    + "the wrong tree, so every loader resource lookup would silently come back empty");
         }
-        return root;
+        return resources.resolve("assets").resolve(NAMESPACE);
     }
 
     /** The directory holding {@code settings.gradle}, found by walking up from the shipped assets. */
@@ -119,16 +125,11 @@ final class ResourceFiles {
     }
 
     /**
-     * Ids of every item we ship a client resource for, as {@code logistics:path}. A proxy for
-     * "items this mod has", not proof of registration: a resource can exist for an unregistered
-     * item.
-     *
-     * <p>Newer branches read {@code assets/<namespace>/items/} item model definitions. MC 1.21.1
-     * predates that system and resolves an item's model by convention from
-     * {@code models/item/<path>.json}, so that directory is the equivalent inventory here.
+     * Ids of every item we ship a definition for, as {@code logistics:path}. A proxy for "items
+     * this mod has", not proof of registration: a definition can exist for an unregistered item.
      */
     static Set<String> itemDefinitionIds() {
-        Path root = assetRoot().resolve("models").resolve("item");
+        Path root = assetRoot().resolve("items");
         return jsonFilesUnder(root).stream()
             .map(file -> {
                 String relative = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');

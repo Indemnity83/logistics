@@ -288,7 +288,7 @@ neoforge/src/main/    # NeoForge adapter code; client-only code must stay under 
 - NeoForge common initialization runs once from `RegisterEvent`, because built-in registries are writable during that event.
 - NeoForge deferred services such as creative tabs and resource reload listeners collect registrations through common SPIs, then attach to the correct NeoForge event bus from `LogisticsNeoForge`.
 - Shared dynamic renderers and extra model keys live in `common/src/client`; Fabric and NeoForge only provide model-loader/event wiring.
-- NeoForge custom cable blockstate models use loader-specific blockstate JSON in `neoforge/src/main/resources`, leaving the common Fabric blockstate JSON untouched.
+- NeoForge custom cable blockstate models use loader-specific blockstate JSON in `neoforge/src/main/resources`, leaving the common Fabric blockstate JSON untouched. Newer branches share one vanilla blockstate from common, because cables there are drawn by a `CableBlockEntityRenderer` in common client code. On this branch each loader still bakes its own custom model (`fabric/.../CableModel`, `neoforge/.../NeoForgeCableModel`, sharing only `CableGeometry`), so the two blockstates must stay different: NeoForge's points at a `*_cable_dynamic` model carrying `"loader": "logistics:cable_model"`, which Fabric cannot read.
 
 ### Small PR Strategy For NeoForge Work
 

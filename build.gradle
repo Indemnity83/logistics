@@ -384,16 +384,16 @@ tasks.register('checkResourceParity') {
         def duplicated = fabric.keySet().intersect(neoforge.keySet()).findAll { id ->
             !common.containsKey(id) && fabric[id].bytes == neoforge[id].bytes
         }.sort()
-        if (duplicated.size() > 3) {
-            failures << "identical files duplicated in both loaders grew to ${duplicated.size()} " +
-                    "(expected <= 3) — move these to common/src/main/resources instead: " + duplicated.join(', ')
+        if (!duplicated.isEmpty()) {
+            failures << "identical files duplicated in both loaders: ${duplicated.size()} " +
+                    "(expected none) — move these to common/src/main/resources instead: " + duplicated.join(', ')
         }
 
         if (!failures.isEmpty()) {
             throw new GradleException(failures.join(System.lineSeparator()))
         }
         logger.lifecycle("resource parity: ${effective(fabric, 'fabric').size()} content files on each loader; " +
-                "${duplicated.size()} identical duplicates pending a move to common")
+                "no identical duplicates")
     }
 }
 

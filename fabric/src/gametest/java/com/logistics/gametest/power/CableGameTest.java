@@ -201,7 +201,7 @@ public class CableGameTest {
     }
 
     /** A cable network still delivers energy after one cable is rebuilt from saved NBT. */
-    @GameTest(maxTicks = 60)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testCableNetworkSurvivesCableReconstruction(GameTestHelper context) {
         CableGameTestBody.testCableNetworkSurvivesCableReconstruction(context);
     }
