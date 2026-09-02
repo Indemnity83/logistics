@@ -81,3 +81,14 @@ jobs:
             /code-review:code-review
             ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
             --comment
+          # `--comment` alone is not enough. This action runs in "agent mode",
+          # where it installs the `github_inline_comment` MCP server only if that
+          # tool is named in --allowedTools (src/mcp/install-mcp-server.ts). With
+          # no claude_args the server is absent, so the command's step 9 calls a
+          # tool that does not exist and every finding is denied instead of
+          # posted — a full review that ends in permission_denials_count > 0 and
+          # silence. The list mirrors the plugin command's own `allowed-tools`
+          # frontmatter; keep the two in step.
+          claude_args: >-
+            --allowedTools
+            "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*)"
