@@ -269,12 +269,19 @@ tasks.register('checkFeatureTestParity') {
         // and correctly registered in source, yet never run, because the step that makes the
         // runtime aware of it is missing. That failure is silent on both loaders — no error, no
         // log line, the test simply isn't in the count — so each discovery path is checked here.
-        def bootstrapCalls = file('neoforge/src/gametest/java/com/logistics/gametest/LogisticsGameTestMod.java').text
+        // On 1.21.1 NeoForge discovers tests by scanning annotated classes rather than by a
+        // bootstrap() call from LogisticsGameTestMod (newer branches check that instead). A
+        // registration class missing @GameTestHolder is simply never scanned.
         javaFiles('neoforge/src/gametest').each { file ->
             def name = file.name - '.java'
-            if (name.endsWith('GameTestRegistration') && !bootstrapCalls.contains("${name}.bootstrap()")) {
-                failures << "NeoForge registration never initialized (add ${name}.bootstrap() to " +
-                        "LogisticsGameTestMod): ${name}"
+            def text = file.text
+            if (name.endsWith('GameTestRegistration') && !(text =~ /@GameTestHolder\(\s*"logistics_gametest"\s*\)/)) {
+                failures << "NeoForge registration never scanned (add " +
+                        "@GameTestHolder(\"logistics_gametest\") to the class): ${name}"
+            }
+            if (name.endsWith('GameTestRegistration') && !(text =~ /@PrefixGameTestTemplate\(\s*false\s*\)/)) {
+                failures << "NeoForge registration would resolve the wrong template id (add " +
+                        "@PrefixGameTestTemplate(false) to the class): ${name}"
             }
         }
 
@@ -282,12 +289,12 @@ tasks.register('checkFeatureTestParity') {
         javaFiles('fabric/src/gametest').each { file ->
             def text = file.text
             def qualified = "${(text =~ /package ([\w.]+);/)[0][1]}.${file.name - '.java'}"
+            // No client-gametest branch here: fabric-client-gametest-api-v1 is not published for
+            // the 1.21.1 Fabric API line, so this branch has no client feature tests to discover.
             def annotated = text =~ /@GameTest(?:\s*\([^)]*\))?\s+public\s+void\s+\w+\s*\(\s*GameTestHelper/
-            def clientTest = text =~ /implements\s+FabricClientGameTest/
-            if ((annotated || clientTest) && !modJson.contains("\"${qualified}\"")) {
-                def entrypoint = clientTest ? 'fabric-client-gametest' : 'fabric-gametest'
+            if (annotated && !modJson.contains("\"${qualified}\"")) {
                 failures << "Fabric test class never discovered (add it to fabric.mod.json's " +
-                        "${entrypoint} entrypoints): ${qualified}"
+                        "fabric-gametest entrypoints): ${qualified}"
             }
         }
 
