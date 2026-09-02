@@ -507,26 +507,15 @@ public class CableGameTestBody {
     }
 
     /**
-     * Verifies a cable network still delivers energy after one of its cables is destroyed and
-     * recreated, with its saved data loaded back.
+     * Verifies a cable network still delivers energy after one of its cables is destroyed, recreated,
+     * and reloaded from its saved NBT.
      *
-     * <p>What this proves is {@code CableNetworkManager} recovery: {@code registeredInNetwork} is
-     * transient, so the rebuilt block entity has to re-register itself on its next tick before the
-     * network will carry energy through that position again.
+     * <p>Covers {@code CableNetworkManager} recovery rather than persistence: {@code registeredInNetwork}
+     * is transient, so the rebuilt block entity must re-register before energy crosses that position
+     * again. Loading the saved data changes nothing observable here — see TESTING.md for why, and why
+     * the pipe equivalent is the one that covers persistence.
      *
-     * <p>It deliberately does <em>not</em> prove the save/load round-trip, and cannot. A cable's only
-     * persisted field is its connection mask, and that mask is derivable from its neighbours:
-     * {@code getRenderConnectionMask()} rebuilds it whenever the cache is dirty, so a freshly placed
-     * cable arrives at the same value with or without the load. Deleting the {@code loadCustomOnly}
-     * call below leaves this test passing — verified by mutation, not assumed. The pipe equivalent in
-     * {@code PipeFlowGameTestBody} is the one that covers persistence, because a pipe carries items in
-     * transit that nothing but NBT can restore.
-     *
-     * <p>The mask drives rendering and the collision shape only. Cable-to-cable topology comes from
-     * {@code CableNetwork.buildFrom} testing for a {@code CableBlockEntity}, and consumers are found
-     * through {@code EnergyCapabilityLookup} — neither consults the mask.
-     *
-     * <p>Reconstruction, not a chunk unload: no level unload events or chunk tickets are involved.
+     * <p>Reconstruction, not a chunk unload.
      */
     public static void testCableNetworkSurvivesCableReconstruction(GameTestHelper context) {
         BlockPos sourceCablePos = new BlockPos(1, 1, 1);
