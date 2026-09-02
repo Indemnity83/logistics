@@ -19,7 +19,7 @@
 
 A Redstone Chipset can stand in for its gear when crafting:
 
-* [[Chassis Logistics Pipe MK1]]
+* [[Chassis Logistics Pipe MkI]]
 
 == Data values ==
 

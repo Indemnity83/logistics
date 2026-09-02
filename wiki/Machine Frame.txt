@@ -47,11 +47,11 @@ The Machine Frame sits in the center of every machine recipe, paired with a [[Re
 |A3=Diamond Gear |B3=Redstone Reception Coil |C3=Diamond Gear
 |Output=Laser Quarry}}
 {{Crafting
-|name=[[Pump|Fluid Pump]] |description=Pumps fluid sources from the world
+|name=[[Fluid Pump|Fluid Pump]] |description=Pumps fluid sources from the world
 |B1=Glass Tank
 |A2=Bucket |B2=Machine Frame |C2=Bucket
 |A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
-|Output=Pump}}
+|Output=Fluid Pump}}
 {{Crafting|foot=1
 |name=[[Power Junction]] |description=Feeds power into a logistics network
 |B1=Basic Logistics Pipe

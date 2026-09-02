@@ -43,7 +43,7 @@ Smelt raw tin in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel) t
 |A1=Raw Tin |B1=Raw Tin |C1=Raw Tin
 |A2=Raw Tin |B2=Raw Tin |C2=Raw Tin
 |A3=Raw Tin |B3=Raw Tin |C3=Raw Tin
-|Output=Raw Tin Block
+|Output=Block of Raw Tin
 }}
 
 == Data values ==

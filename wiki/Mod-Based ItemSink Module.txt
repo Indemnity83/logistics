@@ -1,0 +1,63 @@
+{{Item
+|image     = Grid Mod-Based ItemSink Module.png
+|type      = Item (Module)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''Mod-Based ItemSink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''all items from a configured mod namespace''' from the [[Pipe Networks|logistics network]]. It routes items from a specific mod into a designated adjacent inventory, regardless of item type.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Green Dye |B1=Gold Gear |C1=Green Dye
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Green Dye |B3=Redstone |C3=Green Dye
+|Output=Mod-Based ItemSink Module
+}}
+
+The matching [[Chipsets|chipset]] can replace the gear — use a [[Gold Chipset]] in place of the [[Gold Gear]] to craft it with a [[Sequential Fabricator]].
+
+== Usage ==
+
+When installed in a [[Chassis Logistics Pipe]], this module checks the namespace (mod ID) of every item arriving at the chassis. If an item's namespace matches the configured mod ID, the module claims it and deposits it into the adjacent inventory. Items from other mods or vanilla Minecraft pass through.
+
+* Accepts all items from a single configured mod namespace (e.g., <code>create</code>, <code>thermal</code>, <code>ae2</code>).
+* Namespace-based matching — any item whose item ID begins with <code>modid:</code> is accepted.
+* Useful for modpacks where you want to store all items from a specific mod together.
+* Multiple Mod Item Sink Modules can be combined in one chassis to cover multiple mods.
+
+=== Configuration ===
+
+Use a [[Wrench]] to open the chassis GUI, then configure the module:
+
+'''Mod namespace field:''' Enter the mod ID of the mod whose items this module should accept (e.g., <code>logistics</code>, <code>minecraft</code>, <code>create</code>).
+
+It is most useful in large modpacks for keeping a mod's resources together in dedicated storage. Combine several in one chassis to route items from multiple mods at once, or pair one with an [[ItemSink Module]] so specific items are handled separately from the broader catch-all.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/mod_item_sink_module|item.logistics.pipe.mod_item_sink_module}}
+
+== History ==
+
+{{History|head=1|v0.2.0|[[File:Grid Mod-Based ItemSink Module (v0.2.0).png|32px]] Added '''Mod-Based ItemSink Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid Mod-Based ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+
+== See also ==
+* [[ItemSink Module]] - Accept a specific configured item type
+* [[Polymorphic ItemSink Module]] - Accept items that already exist in the adjacent inventory
+* [[Enchantment Sink Module]] - Accept any enchanted item
+* [[Modules]] - All available modules
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
+
+{{Navbox Logistics}}
+
+[[Category:Modules]]

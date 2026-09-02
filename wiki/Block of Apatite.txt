@@ -1,6 +1,6 @@
 {{About|the mineral block|the gem|Apatite (gem)|the ore|Apatite Ore|the dust|Apatite Dust|the material and all its forms|Apatite}}
 {{Block
-|image     = Grid Apatite Block.png
+|image     = Grid Block of Apatite.png
 |type      = Block
 |tool      = Stone Pickaxe
 |hardness  = 5
@@ -20,7 +20,7 @@ A block of apatite can be mined only with a stone pickaxe or better. Mined witho
 
 {{Breaking
 |tier=stone
-|name1=Block of Apatite |icon1=Grid Apatite Block.png |hardness1=5
+|name1=Block of Apatite |icon1=Grid Block of Apatite.png |hardness1=5
 }}
 
 === Crafting ===
@@ -32,7 +32,7 @@ A block of apatite can be mined only with a stone pickaxe or better. Mined witho
 |A1=Apatite |B1=Apatite |C1=Apatite
 |A2=Apatite |B2=Apatite |C2=Apatite
 |A3=Apatite |B3=Apatite |C3=Apatite
-|Output=Apatite Block
+|Output=Block of Apatite
 }}
 
 == Usage ==
@@ -45,7 +45,7 @@ A block of apatite stores apatite compactly. It can be unpacked back into nine g
 |head=1
 |foot=1
 |name=[[Apatite (gem)|Apatite]]
-|B2=Apatite Block
+|B2=Block of Apatite
 |Output=Apatite,9
 }}
 
@@ -57,7 +57,7 @@ A block of apatite stores apatite compactly. It can be unpacked back into nine g
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Apatite Block.png|32px]] Added '''Block of Apatite'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Block of Apatite.png|32px]] Added '''Block of Apatite'''.}}
 
 == See also ==
 

@@ -29,7 +29,7 @@ When installed in a [[Chassis Logistics Pipe]], the Terminus Module prevents ite
 * Prevents routing loops in complex networks.
 * Can be combined with filter modules to create a selective terminus.
 
-Place it at the physical end of a pipe run to stop items from bouncing back into the network, and combine it with an [[Item Sink Module]] to deposit specific item types at the terminus.
+Place it at the physical end of a pipe run to stop items from bouncing back into the network, and combine it with an [[ItemSink Module]] to deposit specific item types at the terminus.
 
 == Data values ==
 
@@ -46,7 +46,7 @@ Place it at the physical end of a pipe run to stop items from bouncing back into
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[Item Sink Module]] - Accept specific items at the terminus
+* [[ItemSink Module]] - Accept specific items at the terminus
 * [[Satellite Logistics Pipe]] - Named remote destinations
 * [[Pipe Networks]] - Network topology concepts
 * [[Gears]] - Crafting component

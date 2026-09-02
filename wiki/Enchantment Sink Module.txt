@@ -29,7 +29,7 @@ When installed in a [[Chassis Logistics Pipe]], this module checks every item ar
 * Does not filter by enchantment type — any enchantment triggers acceptance.
 * Useful for automatically segregating enchanted loot from non-enchanted items.
 
-Place it next to an enchanted-item storage chest to collect enchanted drops from mob farms or quarry output, and combine it with a [[Mod Item Sink Module]] to route enchanted items and specific mod items in the same chassis.
+Place it next to an enchanted-item storage chest to collect enchanted drops from mob farms or quarry output, and combine it with a [[Mod-Based ItemSink Module]] to route enchanted items and specific mod items in the same chassis.
 
 == Data values ==
 
@@ -43,8 +43,8 @@ Place it next to an enchanted-item storage chest to collect enchanted drops from
 {{History|foot=1|v0.8.3|[[File:Grid Enchantment Sink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
 
 == See also ==
-* [[Item Sink Module]] - Accept a specific configured item type
-* [[Mod Item Sink Module]] - Accept all items from a specific mod namespace
+* [[ItemSink Module]] - Accept a specific configured item type
+* [[Mod-Based ItemSink Module]] - Accept all items from a specific mod namespace
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base

@@ -31,7 +31,7 @@
 |A1=Apatite |B1=Apatite |C1=Apatite
 |A2=Apatite |B2=Apatite |C2=Apatite
 |A3=Apatite |B3=Apatite |C3=Apatite
-|Output=Apatite Block
+|Output=Block of Apatite
 }}
 
 == Data values ==

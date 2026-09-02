@@ -1,6 +1,6 @@
 {{About|the raw mineral block|the raw item|Raw Tin|the ingot block|Block of Tin|the dust|Tin Dust|the metal in general|Tin}}
 {{Block
-|image     = Grid Raw Tin Block.png
+|image     = Grid Block of Raw Tin.png
 |type      = Block
 |tool      = Stone Pickaxe
 |hardness  = 5
@@ -20,7 +20,7 @@ A block of raw tin can be mined only with a stone pickaxe or better. Mined witho
 
 {{Breaking
 |tier=stone
-|name1=Block of Raw Tin |icon1=Grid Raw Tin Block.png |hardness1=5
+|name1=Block of Raw Tin |icon1=Grid Block of Raw Tin.png |hardness1=5
 }}
 
 === Crafting ===
@@ -32,7 +32,7 @@ A block of raw tin can be mined only with a stone pickaxe or better. Mined witho
 |A1=Raw Tin |B1=Raw Tin |C1=Raw Tin
 |A2=Raw Tin |B2=Raw Tin |C2=Raw Tin
 |A3=Raw Tin |B3=Raw Tin |C3=Raw Tin
-|Output=Raw Tin Block
+|Output=Block of Raw Tin
 }}
 
 == Usage ==
@@ -45,7 +45,7 @@ A block of raw tin stores raw tin compactly. It can be unpacked back into nine a
 |head=1
 |foot=1
 |name=[[Raw Tin]]
-|B2=Raw Tin Block
+|B2=Block of Raw Tin
 |Output=Raw Tin,9
 }}
 
@@ -57,7 +57,7 @@ A block of raw tin stores raw tin compactly. It can be unpacked back into nine a
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Raw Tin Block.png|32px]] Added '''Block of Raw Tin'''.}}
+{{History|head=1|foot=1|v0.2.0|[[File:Grid Block of Raw Tin.png|32px]] Added '''Block of Raw Tin'''.}}
 
 == See also ==
 

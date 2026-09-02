@@ -27,20 +27,11 @@ import sys
 import zlib
 
 # Block items whose wiki page title differs from the mod's lang string (item id -> wiki name).
-BLOCK_NAME_OVERRIDES = {
-    "fluid/fluid_pump": "Pump",  # page is titled "Pump"
-    # chassis pages + valve anchor links use "MK1".."MK5", not lang's "MkI".."MkV"
-    "pipe/chassis_logistics_pipe_mk1": "Chassis Logistics Pipe MK1",
-    "pipe/chassis_logistics_pipe_mk2": "Chassis Logistics Pipe MK2",
-    "pipe/chassis_logistics_pipe_mk3": "Chassis Logistics Pipe MK3",
-    "pipe/chassis_logistics_pipe_mk4": "Chassis Logistics Pipe MK4",
-    "pipe/chassis_logistics_pipe_mk5": "Chassis Logistics Pipe MK5",
-    # storage blocks: pages reference "X Block", not lang's "Block of X"
-    "core/apatite_block": "Apatite Block",
-    "core/bronze_block": "Bronze Block",
-    "core/tin_block": "Tin Block",
-    "core/raw_tin_block": "Raw Tin Block",
-}
+# The wiki uses the game's own display names, so no overrides are needed here. Keep this table
+# empty rather than deleting it: it is the documented hook for the case where a page must differ.
+# Anything added here also has to be taught to Module:ItemLink, which is generated straight from
+# en_us.json — otherwise the item links out to the Minecraft Wiki instead of its local page.
+BLOCK_NAME_OVERRIDES = {}
 
 PNG_SIG = b"\x89PNG\r\n\x1a\n"
 SHADE = {"up": 1.0, "down": 0.5, "north": 0.8, "south": 0.8, "east": 0.6, "west": 0.6}

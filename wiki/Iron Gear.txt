@@ -40,11 +40,11 @@
 }}
 
 {{Crafting|foot=1
-|name=[[Pump]]
+|name=[[Fluid Pump|Pump]]
 |A1=Iron Ingot |B1=Redstone |C1=Iron Ingot
 |A2=Iron Ingot |B2=Iron Gear |C2=Iron Ingot
 |A3=Glass Tank |B3=Bucket |C3=Glass Tank
-|Output=Pump
+|Output=Fluid Pump
 }}
 
 == Data values ==

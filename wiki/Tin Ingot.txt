@@ -20,7 +20,7 @@
 {{Crafting
 |head=1
 |name=Tin Ingot
-|B2=Tin Block
+|B2=Block of Tin
 |Output=Tin Ingot,9
 }}
 
@@ -78,7 +78,7 @@ Smelt raw tin or tin ore in a furnace, blast furnace, or a [[Kiln]] (RF-powered,
 |A1=Tin Ingot |B1=Tin Ingot |C1=Tin Ingot
 |A2=Tin Ingot |B2=Tin Ingot |C2=Tin Ingot
 |A3=Tin Ingot |B3=Tin Ingot |C3=Tin Ingot
-|Output=Tin Block
+|Output=Block of Tin
 }}
 
 {{Crafting

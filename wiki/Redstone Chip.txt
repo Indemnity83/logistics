@@ -48,10 +48,10 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 }}
 
 {{Crafting
-|name=[[Mod Item Sink Module]]
+|name=[[Mod-Based ItemSink Module]]
 |A1=Copper Dust |B1=Redstone Chip |C1=Copper Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Mod Item Sink Module
+|Output=Mod-Based ItemSink Module
 }}
 
 {{Crafting

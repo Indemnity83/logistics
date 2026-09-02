@@ -122,7 +122,7 @@ Soaking sand or gravel in [[Crude Oil]] recreates the oil-bearing blocks, closin
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system
-* [[Pump]] - Draws fluid from the world instead of a bucket
+* [[Fluid Pump|Pump]] - Draws fluid from the world instead of a bucket
 * [[Glass Tank]] - Buffer fluid before or after the Transposer
 * [[Seed Oil]] - Pressed here from seeds
 * [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Soaked here from sand and gravel

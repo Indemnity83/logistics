@@ -69,9 +69,9 @@ Grinding ores produces more dust than grinding the ingot directly, making the Ma
 {{Grinding |Input=Block of Bronze |Output=Bronze Dust,9}}
 {{Grinding |Input=Block of Tin |Output=Tin Dust,9}}
 {{Grinding |Input=Block of Raw Tin |Output=Tin Dust,9}}
-{{Grinding |Input=Raw Iron Block |Output=Iron Dust,9}}
-{{Grinding |Input=Raw Copper Block |Output=Copper Dust,9}}
-{{Grinding |Input=Raw Gold Block |Output=Gold Dust,9}}
+{{Grinding |Input=Block of Raw Iron |Output=Iron Dust,9}}
+{{Grinding |Input=Block of Raw Copper |Output=Copper Dust,9}}
+{{Grinding |Input=Block of Raw Gold |Output=Gold Dust,9}}
 {{Grinding |Input=Iron Ingot |Output=Iron Dust}}
 {{Grinding |Input=Copper Ingot |Output=Copper Dust}}
 {{Grinding |Input=Gold Ingot |Output=Gold Dust}}
@@ -114,7 +114,7 @@ The Macerator also breaks worked blocks back down into raw materials, and recove
 {{Grinding |Input=Bricks |Output=Brick,4}}
 {{Grinding |Input=Flower Pot |Output=Brick}}
 {{Grinding |Input=Nether Bricks |Output=Nether Brick,4}}
-{{Grinding |Input=Wool |ingredients=Wool of any colour |Output=String,4}}
+{{Grinding |Input=White Wool |ingredients=Wool of any colour |Output=String,4}}
 {{Grinding |Input=Note Block |Output=Redstone |notes=Also returns 4 [[Sawdust]]}}
 {{Grinding |Input=Jukebox |Output=Diamond |notes=Also returns 4 [[Sawdust]]}}
 {{Grinding |Input=Sulfur |ingredients=Sulfur (and variants) |Output=Sulfur Dust,4 |notes=Since Minecraft 26.2}}

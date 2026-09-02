@@ -1,0 +1,62 @@
+{{Item
+|image     = Grid ItemSink Module.png
+|type      = Item (Module)
+|stackable = Yes (64)
+|added     = v0.2.0
+}}
+
+The '''ItemSink Module''' is a [[Chassis Logistics Pipe]] module that accepts a '''specific configured item type''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It is the module-form equivalent of a [[Basic Logistics Pipe]] with a strict item filter.
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Green Dye |B1=Iron Gear |C1=Green Dye
+|A2=Redstone |B2=Blank Module |C2=Redstone
+|A3=Green Dye |B3=Redstone |C3=Green Dye
+|Output=ItemSink Module
+}}
+
+The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset]] in place of the [[Iron Gear]] to craft it with a [[Sequential Fabricator]].
+
+== Usage ==
+
+When installed in a [[Chassis Logistics Pipe]], this module registers itself as a delivery destination for a configured item type. Network items of the matching type are routed to this chassis and deposited into an adjacent inventory.
+
+* Accepts one configured item type from the network.
+* Deposits received items into an adjacent inventory.
+* Multiple Item Sink Modules can be installed in a single chassis (using multiple module slots) to accept multiple item types.
+* Does not accept unconfigured or non-matching items.
+
+=== Configuration ===
+
+Use a [[Wrench]] to open the chassis GUI, then configure the module:
+
+'''Target item slot:''' Place the item type this module should accept. Only items matching this type will be routed here.
+
+Install several Item Sink Modules in one chassis to make a multi-item sorting station in a single pipe, or pair one with a [[QuickSort Module]] so quicksort handles known items and the Item Sink catches the rest.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:pipe/item_sink_module|item.logistics.pipe.item_sink_module}}
+
+== History ==
+
+{{History|head=1|v0.2.0|[[File:Grid ItemSink Module (v0.2.0).png|32px]] Added '''ItemSink Module'''.}}
+{{History|foot=1|v0.8.3|[[File:Grid ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+
+== See also ==
+* [[Polymorphic ItemSink Module]] - Accepts any item type that already exists in the adjacent inventory
+* [[Mod-Based ItemSink Module]] - Accepts all items from a specific mod namespace
+* [[Modules]] - All available modules
+* [[Chassis Logistics Pipe]] - Required container
+* [[Blank Module]] - Crafting base
+* [[Gears]] - Crafting component
+* [[Chipsets]] - Alternative to the gear
+
+{{Navbox Logistics}}
+
+[[Category:Modules]]

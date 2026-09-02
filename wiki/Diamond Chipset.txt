@@ -19,11 +19,11 @@
 
 A Diamond Chipset can stand in for its gear when crafting:
 
-* [[Chassis Logistics Pipe MK4]]
+* [[Chassis Logistics Pipe MkIV]]
 * [[Crafter Module|Crafter MKIII Module]]
 * [[Extractor Module|Extractor Module MKIII]]
 * [[Provider Module|Provider MKII Module]]
-* [[Quicksort Module]]
+* [[QuickSort Module]]
 * [[Requester Logistics Pipe]]
 
 == Data values ==

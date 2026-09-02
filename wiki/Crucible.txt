@@ -35,7 +35,7 @@ Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception
 
 == Usage ==
 
-Place a block or item in the single input slot; the Crucible melts it over time and deposits the resulting fluid into its 10,000 mB output-only tank. Drain the tank with a [[Fluid Extractor Pipe]] or [[Pump]], or connect [[Fluid Pipes]] directly. The front face shows a gauge of the stored fluid.
+Place a block or item in the single input slot; the Crucible melts it over time and deposits the resulting fluid into its 10,000 mB output-only tank. Drain the tank with a [[Fluid Extractor Pipe]] or [[Fluid Pump|Pump]], or connect [[Fluid Pipes]] directly. The front face shows a gauge of the stored fluid.
 
 === Power ===
 

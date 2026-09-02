@@ -71,7 +71,7 @@ Use a [[Wrench]] to rotate the output face and to reset a thermal shutdown.
 * [[Engines]] - All engines
 * [[Crude Oil]], [[Bio Fuel]], [[Fuel Oil]] - Its fuels
 * [[Refinery]] - Refines the fuels
-* [[Fluid Pipes]], [[Pump]] - Supply fuel and coolant
+* [[Fluid Pipes]], [[Fluid Pump|Pump]] - Supply fuel and coolant
 * [[Wrench]] - Rotates the output face and resets overheats
 
 {{Navbox Logistics}}

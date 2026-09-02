@@ -1,6 +1,6 @@
 {{About|the mineral block|the ingot|Bronze Ingot|the nugget|Bronze Nugget|the dust|Bronze Dust|the metal in general|Bronze}}
 {{Block
-|image     = Grid Bronze Block.png
+|image     = Grid Block of Bronze.png
 |type      = Block
 |tool      = Stone Pickaxe
 |hardness  = 3
@@ -20,7 +20,7 @@ A block of bronze can be mined only with a stone pickaxe or better. Mined withou
 
 {{Breaking
 |tier=stone
-|name1=Block of Bronze |icon1=Grid Bronze Block.png |hardness1=3
+|name1=Block of Bronze |icon1=Grid Block of Bronze.png |hardness1=3
 }}
 
 === Crafting ===
@@ -32,7 +32,7 @@ A block of bronze can be mined only with a stone pickaxe or better. Mined withou
 |A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
 |A2=Bronze Ingot |B2=Bronze Ingot |C2=Bronze Ingot
 |A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
-|Output=Bronze Block
+|Output=Block of Bronze
 }}
 
 == Usage ==
@@ -45,7 +45,7 @@ A block of bronze stores bronze ingots compactly. It can be unpacked back into n
 |head=1
 |foot=1
 |name=[[Bronze Ingot]]
-|B2=Bronze Block
+|B2=Block of Bronze
 |Output=Bronze Ingot,9
 }}
 
@@ -57,8 +57,8 @@ A block of bronze stores bronze ingots compactly. It can be unpacked back into n
 
 == History ==
 
-{{History|head=1|v0.2.0|[[File:Grid Bronze Block (v0.2.0).png|32px]] Added '''Block of Bronze'''.}}
-{{History|foot=1|v0.8.4|[[File:Grid Bronze Block.png|32px]] The texture has been changed.}}
+{{History|head=1|v0.2.0|[[File:Grid Block of Bronze (v0.2.0).png|32px]] Added '''Block of Bronze'''.}}
+{{History|foot=1|v0.8.4|[[File:Grid Block of Bronze.png|32px]] The texture has been changed.}}
 
 == See also ==
 

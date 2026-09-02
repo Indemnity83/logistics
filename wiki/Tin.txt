@@ -6,8 +6,8 @@
 * [[File:Grid Raw Tin.png|24px|link=Raw Tin]] '''[[Raw Tin]]''' — an item that drops from tin ore when mined
 * [[File:Grid Tin Ingot.png|24px|link=Tin Ingot]] '''[[Tin Ingot]]''' — an item created by smelting raw tin
 * [[File:Grid Tin Nugget.png|24px|link=Tin Nugget]] '''[[Tin Nugget]]''' — one-ninth of a tin ingot
-* [[File:Grid Raw Tin Block.png|24px|link=Block of Raw Tin]] '''[[Block of Raw Tin]]''' — a block used for compact raw tin storage
-* [[File:Grid Tin Block.png|24px|link=Block of Tin]] '''[[Block of Tin]]''' — a block used for compact tin ingot storage
+* [[File:Grid Block of Raw Tin.png|24px|link=Block of Raw Tin]] '''[[Block of Raw Tin]]''' — a block used for compact raw tin storage
+* [[File:Grid Block of Tin.png|24px|link=Block of Tin]] '''[[Block of Tin]]''' — a block used for compact tin ingot storage
 * [[File:Grid Tin Dust.png|24px|link=Tin Dust]] '''[[Tin Dust]]''' — produced by grinding tin ore in a [[Macerator]] (ore doubling)
 
 == Uses ==

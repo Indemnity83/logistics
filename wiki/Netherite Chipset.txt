@@ -19,7 +19,7 @@
 
 A Netherite Chipset can stand in for its gear when crafting:
 
-* [[Chassis Logistics Pipe MK5]]
+* [[Chassis Logistics Pipe MkV]]
 
 == Data values ==
 

@@ -29,7 +29,7 @@ Alloy three copper with one [[Tin Ingot|tin]] (shapeless):
 
 {{Crafting
 |name=Bronze Ingot
-|B2=Bronze Block
+|B2=Block of Bronze
 |Output=Bronze Ingot,9
 }}
 
@@ -78,7 +78,7 @@ Smelt [[Bronze Dust]] back into an ingot in a furnace, blast furnace, or a [[Kil
 |A1=Bronze Ingot |B1=Bronze Ingot |C1=Bronze Ingot
 |A2=Bronze Ingot |B2=Bronze Ingot |C2=Bronze Ingot
 |A3=Bronze Ingot |B3=Bronze Ingot |C3=Bronze Ingot
-|Output=Bronze Block
+|Output=Block of Bronze
 }}
 
 {{Crafting

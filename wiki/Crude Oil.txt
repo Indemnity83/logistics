@@ -15,7 +15,7 @@
 
 === Oil seeps ===
 
-Crude Oil pools naturally in rare '''oil seeps''' — small surface lakes that generate across the Overworld, ringed by [[Oil Sand]], [[Oil Red Sand]], or [[Oil Shale]] depending on the biome. Scoop it up with a bucket or a [[Pump]].
+Crude Oil pools naturally in rare '''oil seeps''' — small surface lakes that generate across the Overworld, ringed by [[Oil Sand]], [[Oil Red Sand]], or [[Oil Shale]] depending on the biome. Scoop it up with a bucket or a [[Fluid Pump|Pump]].
 
 === Crucible ===
 

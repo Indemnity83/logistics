@@ -54,7 +54,7 @@ Move and store liquids with dedicated fluid pipes, tanks, and pumps.
 * '''[[Fluid Extractor Pipe]]''' - Pull fluid from tanks (engine-paced)
 * '''[[Merger Fluid Pipe]]''' / '''[[Insertion Fluid Pipe]]''' / '''[[Bypass Fluid Pipe]]''' / '''[[Void Fluid Pipe]]''' - Routing and disposal
 * '''[[Glass Tank]]''' - Fluid storage
-* '''[[Pump]]''' - Pull fluid from the world
+* '''[[Fluid Pump|Pump]]''' - Pull fluid from the world
 
 [[Fluid Pipes|Browse all fluid pipes →]]
 
@@ -67,9 +67,9 @@ Modules are installed into [[Chassis Logistics Pipe|Chassis Logistics Pipes]] to
 * '''[[Provider Module]]''' - Advertise inventory contents to the network
 * '''[[Passive Supplier Module]]''' / '''[[Active Supplier Module]]''' - Maintain inventory stock levels (skim in-transit vs actively request)
 * '''[[Crafter Module]]''' - Craft items on demand within the chassis
-* '''[[Quicksort Module]]''' - Sort items into designated storage
+* '''[[QuickSort Module]]''' - Sort items into designated storage
 * '''[[Terminus Module]]''' - Mark a network dead-end
-* '''[[Item Sink Module]]''' / '''[[Polymorphic Sink Module|Polymorphic Sink]]''' / '''[[Enchantment Sink Module|Enchantment Sink]]''' / '''[[Mod Item Sink Module|Mod Item Sink]]''' - Accept items by type, content, or mod namespace
+* '''[[ItemSink Module]]''' / '''[[Polymorphic ItemSink Module|Polymorphic Sink]]''' / '''[[Enchantment Sink Module|Enchantment Sink]]''' / '''[[Mod-Based ItemSink Module|Mod Item Sink]]''' - Accept items by type, content, or mod namespace
 
 [[Modules|Browse all modules →]]
 
@@ -131,6 +131,13 @@ Gears, valves, ores, and crafting components.
 * '''[[Apatite Ore]]''' → '''[[Apatite]]''' - Gem material
 
 [[Materials|Browse all materials →]]
+
+==Creative menu==
+
+Logistics splits its blocks and items across four creative-inventory tabs rather than one:
+'''Logistics Resources''' (materials, dusts, gears, valves, chipsets), '''Logistics Pipes'''
+(every pipe and [[Modules|module]]), '''Logistics Power''' (engines, cables, batteries), and
+'''Logistics Automation''' (the machines).
 
 ==Quick Reference==
 

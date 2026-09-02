@@ -42,7 +42,7 @@ The Glass Tank stores '''16,000 mB (16 buckets)''' of one fluid type. It accepts
 
 Tanks placed in a vertical column form one logical reservoir whose capacity is the sum of all tanks, filling '''bottom-up'''. Stack several to build a tall reservoir — "scale is the feature," done as tileable blocks rather than a multiblock.
 
-Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it onward, and because each tank holds one fluid type, keep separate columns for different fluids. Use an [[Insertion Fluid Pipe]] or [[Merger Fluid Pipe]] to control how fluid enters the tank.
+Buffer the output of a [[Fluid Pump|Pump]] or [[Fluid Extractor Pipe]] before feeding it onward, and because each tank holds one fluid type, keep separate columns for different fluids. Use an [[Insertion Fluid Pipe]] or [[Merger Fluid Pipe]] to control how fluid enters the tank.
 
 == Data values ==
 
@@ -56,7 +56,7 @@ Buffer the output of a [[Pump]] or [[Fluid Extractor Pipe]] before feeding it on
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system
-* [[Pump]] - Fill tanks from world fluid sources
+* [[Fluid Pump|Pump]] - Fill tanks from world fluid sources
 * [[Fluid Extractor Pipe]] - Pull fluid from machines into a tank
 * [[Copper Fluid Pipe]], [[Golden Fluid Pipe]] - Connect tanks to your network
 

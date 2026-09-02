@@ -4,7 +4,7 @@
 
 * [[File:Grid Apatite Ore.png|24px|link=Apatite Ore]] '''[[Apatite Ore]]''' — an ore found underground that drops apatite when mined
 * [[File:Grid Apatite.png|24px|link=Apatite (gem)]] '''[[Apatite (gem)|Apatite]]''' — the gem dropped by apatite ore
-* [[File:Grid Apatite Block.png|24px|link=Block of Apatite]] '''[[Block of Apatite]]''' — a block used for compact apatite storage
+* [[File:Grid Block of Apatite.png|24px|link=Block of Apatite]] '''[[Block of Apatite]]''' — a block used for compact apatite storage
 * [[File:Grid Apatite Dust.png|24px|link=Apatite Dust]] '''[[Apatite Dust]]''' — produced by grinding apatite ore in a [[Macerator]]
 
 == Uses ==

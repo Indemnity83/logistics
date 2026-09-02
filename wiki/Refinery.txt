@@ -35,7 +35,7 @@ Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception
 
 == Usage ==
 
-Pipe a fluid into the input tank; the Refinery processes it over time and deposits the product into its output tank, from which a [[Fluid Extractor Pipe]] or [[Pump]] can draw it. Recipes that carry a byproduct also drop a solid item into the machine's output. Every recipe appears in the Just Enough Items (JEI) viewer.
+Pipe a fluid into the input tank; the Refinery processes it over time and deposits the product into its output tank, from which a [[Fluid Extractor Pipe]] or [[Fluid Pump|Pump]] can draw it. Recipes that carry a byproduct also drop a solid item into the machine's output. Every recipe appears in the Just Enough Items (JEI) viewer.
 
 === Power ===
 

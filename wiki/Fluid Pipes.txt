@@ -15,14 +15,14 @@
 
 * '''One fluid per line''' — each connected run carries a single fluid type and won't accept another until it drains (no mixing).
 * '''Pressure equalization''' — fluid flows from fuller pipes toward emptier ones and toward sinks, capped each tick by the pipe's transfer rate.
-* '''Passive transport is free''' — the stone, copper, golden, insertion, merger, bypass, and void pipes move fluid with no power. Only active extraction (the [[Fluid Extractor Pipe]] and the [[Pump]]) costs energy.
+* '''Passive transport is free''' — the stone, copper, golden, insertion, merger, bypass, and void pipes move fluid with no power. Only active extraction (the [[Fluid Extractor Pipe]] and the [[Fluid Pump|Pump]]) costs energy.
 * Works with any mod's fluid storage on both Fabric and NeoForge.
 
 == See also ==
 
 * [[Transport Pipes]] — the item-carrying counterparts
 * [[Glass Tank]] — fluid storage (16,000 mB; stack to merge)
-* [[Pump]] — extract fluid source blocks from the world
+* [[Fluid Pump|Pump]] — extract fluid source blocks from the world
 * [[Transposer]] — convert buckets to fluid and back
 * [[Fluid Provider Pipe]], [[Fluid Supplier Pipe]] — move fluid across the item [[Logistics Pipes|logistics network]] instead, as [[Fluid Packet|fluid packets]]
 * [[Redstone Engine]], [[Stirling Engine]] — drive the Fluid Extractor Pipe

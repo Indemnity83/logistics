@@ -38,7 +38,7 @@ Load solid fuel into the firebox and pipe water into the boiler with a [[Fluid P
 
 === Fuel ===
 
-The firebox accepts any furnace fuel — coal, charcoal, wood, and the mod's [[Peat]], [[Bitumen]], and [[Tar]]. Water is drawn from its internal tank (4,000 mB), so keep it fed from a [[Pump]] or [[Glass Tank]].
+The firebox accepts any furnace fuel — coal, charcoal, wood, and the mod's [[Peat]], [[Bitumen]], and [[Tar]]. Water is drawn from its internal tank (4,000 mB), so keep it fed from a [[Fluid Pump|Pump]] or [[Glass Tank]].
 
 === Configuration ===
 
@@ -60,7 +60,7 @@ Use a [[Wrench]] to rotate the output face.
 * [[RF Energy]] - Understanding the power system
 * [[Engines]] - All engines
 * [[Magmatic Engine]], [[Fuel Engine]] - Other fuel-driven engines
-* [[Fluid Pipes]], [[Pump]] - Feed water to the boiler
+* [[Fluid Pipes]], [[Fluid Pump|Pump]] - Feed water to the boiler
 * [[Wrench]] - Rotates the output face
 * [[Bronze Gear]] - Crafting component
 

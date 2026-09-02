@@ -21,11 +21,11 @@ A Gold Chipset can stand in for its gear when crafting:
 
 * [[Active Supplier Module]]
 * [[Basic Logistics Pipe]]
-* [[Chassis Logistics Pipe MK3]]
+* [[Chassis Logistics Pipe MkIII]]
 * [[Crafter Module|Crafter MKII Module]]
 * [[Enchantment Sink Module]]
 * [[Extractor Module|Extractor Module MKII]]
-* [[Mod Item Sink Module]]
+* [[Mod-Based ItemSink Module]]
 * [[Provider Logistics Pipe]]
 * [[Provider Module]]
 

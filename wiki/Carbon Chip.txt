@@ -34,10 +34,10 @@ The binder differs by version — a resin clump on Minecraft 1.21.11 and newer, 
 === Crafting ingredient ===
 
 {{Crafting|head=1|foot=1
-|name=[[Item Sink Module]]
+|name=[[ItemSink Module]]
 |A1=Copper Dust |B1=Carbon Chip |C1=Copper Dust
 |A2=Redstone |B2=Blank Module |C2=Redstone
-|Output=Item Sink Module
+|Output=ItemSink Module
 }}
 
 == Data values ==

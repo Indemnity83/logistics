@@ -10,7 +10,7 @@ Pipes are the core of the Logistics mod, transporting items and fluids through y
 
 == Fluid Pipes ==
 
-Fluids use a '''separate''' pipe set and a standalone transport system — they never join the item network. See [[Fluid Pipes]] for the passive transport pipes, the engine-driven Fluid Extractor, the behavior pipes, and the [[Glass Tank]] and [[Pump]].
+Fluids use a '''separate''' pipe set and a standalone transport system — they never join the item network. See [[Fluid Pipes]] for the passive transport pipes, the engine-driven Fluid Extractor, the behavior pipes, and the [[Glass Tank]] and [[Fluid Pump|Pump]].
 
 == See also ==
 

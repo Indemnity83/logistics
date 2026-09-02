@@ -11,7 +11,7 @@
 * [[File:Grid Crafting Logistics Pipe.png|24px|link=Crafting Logistics Pipe]] '''[[Crafting Logistics Pipe]]'''
 * [[File:Grid Process Logistics Pipe.png|24px|link=Process Logistics Pipe]] '''[[Process Logistics Pipe]]'''
 * [[File:Grid Satellite Logistics Pipe.png|24px|link=Satellite Logistics Pipe]] '''[[Satellite Logistics Pipe]]'''
-* [[File:Grid Chassis Logistics Pipe MK1.png|24px|link=Chassis Logistics Pipe]] '''[[Chassis Logistics Pipe]]'''
+* [[File:Grid Chassis Logistics Pipe MkI.png|24px|link=Chassis Logistics Pipe]] '''[[Chassis Logistics Pipe]]'''
 
 == Power ==
 

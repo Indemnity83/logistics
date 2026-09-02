@@ -19,13 +19,13 @@
 
 An Iron Chipset can stand in for its gear when crafting:
 
-* [[Chassis Logistics Pipe MK2]]
+* [[Chassis Logistics Pipe MkII]]
 * [[Crafter Module]]
 * [[Crafting Logistics Pipe]]
 * [[Extractor Module]]
-* [[Item Sink Module]]
+* [[ItemSink Module]]
 * [[Passive Supplier Module]]
-* [[Polymorphic Sink Module]]
+* [[Polymorphic ItemSink Module]]
 * [[Process Logistics Pipe]]
 * [[Supplier Logistics Pipe]]
 * [[Terminus Module]]

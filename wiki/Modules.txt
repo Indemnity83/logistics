@@ -48,17 +48,17 @@ Automate item crafting within the chassis.
 
 Control where items go within the network.
 
-* [[File:Grid Quicksort Module.png|24px|link=Quicksort Module]] '''[[Quicksort Module]]''' - Sort items by type into designated storage locations
+* [[File:Grid QuickSort Module.png|24px|link=QuickSort Module]] '''[[QuickSort Module]]''' - Sort items by type into designated storage locations
 * [[File:Grid Terminus Module.png|24px|link=Terminus Module]] '''[[Terminus Module]]''' - Mark a pipe as a network terminus; items reaching this pipe are held or redirected
 
 ==Sink Modules==
 
 Accept and store specific items or categories.
 
-* [[File:Grid Item Sink Module.png|24px|link=Item Sink Module]] '''[[Item Sink Module]]''' - Accept a specific configured item type and deposit it into an adjacent inventory
-* [[File:Grid Polymorphic Sink Module.png|24px|link=Polymorphic Sink Module]] '''[[Polymorphic Sink Module]]''' - Accept any item that matches an already-stored item type in the adjacent inventory (fills existing stacks)
+* [[File:Grid ItemSink Module.png|24px|link=ItemSink Module]] '''[[ItemSink Module]]''' - Accept a specific configured item type and deposit it into an adjacent inventory
+* [[File:Grid Polymorphic ItemSink Module.png|24px|link=Polymorphic ItemSink Module]] '''[[Polymorphic ItemSink Module]]''' - Accept any item that matches an already-stored item type in the adjacent inventory (fills existing stacks)
 * [[File:Grid Enchantment Sink Module.png|24px|link=Enchantment Sink Module]] '''[[Enchantment Sink Module]]''' - Accept any enchanted item and deposit into a book or chest
-* [[File:Grid Mod Item Sink Module.png|24px|link=Mod Item Sink Module]] '''[[Mod Item Sink Module]]''' - Accept any item from a specified mod namespace
+* [[File:Grid Mod-Based ItemSink Module.png|24px|link=Mod-Based ItemSink Module]] '''[[Mod-Based ItemSink Module]]''' - Accept any item from a specified mod namespace
 
 ==See Also==
 * [[Chassis Logistics Pipe]] - The pipe that holds modules

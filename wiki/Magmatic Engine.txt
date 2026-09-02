@@ -58,7 +58,7 @@ Use a [[Wrench]] to rotate the output face.
 * [[RF Energy]] - Understanding the power system
 * [[Engines]] - All engines
 * [[Crucible]] - Produces lava to feed the engine
-* [[Fluid Pipes]], [[Pump]] - Supply the lava
+* [[Fluid Pipes]], [[Fluid Pump|Pump]] - Supply the lava
 * [[Wrench]] - Rotates the output face
 * [[Gold Gear]] - Crafting component
 
