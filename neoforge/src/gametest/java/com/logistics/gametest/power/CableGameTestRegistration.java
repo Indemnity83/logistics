@@ -153,4 +153,14 @@ public final class CableGameTestRegistration {
             context.succeed();
         }
     }
+
+    /**
+    * Verifies a cable network still delivers after a cable is saved, torn down, and reloaded.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testcablenetworksurvivescablereconstruction
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 80)
+    public static void testCableNetworkSurvivesCableReconstruction(GameTestHelper context) {
+        CableGameTestBody.testCableNetworkSurvivesCableReconstruction(context);
+    }
 }

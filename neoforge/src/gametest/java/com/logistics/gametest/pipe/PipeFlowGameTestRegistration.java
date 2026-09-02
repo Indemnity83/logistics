@@ -91,4 +91,14 @@ public final class PipeFlowGameTestRegistration {
     public static void testEnchantedTravelingItemSerialization(GameTestHelper context) {
         PipeFlowGameTestBody.testEnchantedTravelingItemSerialization(context);
     }
+
+    /**
+    * Verifies an item in transit survives its pipe being torn down and rebuilt from saved NBT.
+    *
+    * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testtravelingitemsurvivespipereconstruction
+    */
+    @GameTest(template = "empty", batch = "pipeflow", timeoutTicks = 120)
+    public static void testTravelingItemSurvivesPipeReconstruction(GameTestHelper context) {
+        PipeFlowGameTestBody.testTravelingItemSurvivesPipeReconstruction(context);
+    }
 }

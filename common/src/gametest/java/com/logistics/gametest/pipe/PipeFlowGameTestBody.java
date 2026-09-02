@@ -10,7 +10,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
@@ -257,4 +259,83 @@ public class PipeFlowGameTestBody {
         context.fail("Sharpness V not intact after TravelingItem serialize+deserialize");
     }
 
+    /**
+     * Verifies an item in transit survives its pipe being torn down and rebuilt from saved NBT,
+     * and still reaches the chest afterwards.
+     *
+     * <p>Layout (y=1): [pipe1] → [pipe2] → [pipe3] → [chest]. A slow item is injected into pipe1,
+     * then pipe2 — carrying it mid-flight — is saved, replaced with a fresh block entity, and
+     * reloaded from that NBT.
+     *
+     * <p>Reconstruction, not a chunk unload: {@code setBlock(AIR)} fires
+     * {@code PipeBlockEntity#preRemoveSideEffects}, which drops the in-transit items as entities and
+     * is never called on a real unload. A stray diamond is therefore left on the floor — assert on
+     * the chest, never on a world-wide item count. See TESTING.md.
+     */
+    public static void testTravelingItemSurvivesPipeReconstruction(GameTestHelper context) {
+        BlockPos pipe1 = new BlockPos(0, 1, 0);
+        BlockPos pipe2 = new BlockPos(1, 1, 0);
+        BlockPos pipe3 = new BlockPos(2, 1, 0);
+        BlockPos chestPos = new BlockPos(3, 1, 0);
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(pipe3, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(pipe2, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(pipe1, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+
+        PipeBlockEntity entry = (PipeBlockEntity) context.getBlockEntity(pipe1);
+        if (entry == null) {
+            context.fail("Entry pipe should have a block entity");
+            return;
+        }
+
+        // Slow enough (~20 ticks per segment) that the item is still inside pipe2 when it is rebuilt.
+        TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.WEST, 0.05f);
+        if (!entry.forceAddItem(diamond, Direction.WEST)) {
+            context.fail("Pipe should accept the force-injected diamond");
+            return;
+        }
+
+        HolderLookup.Provider registries = context.getLevel().registryAccess();
+        boolean[] rebuilt = {false};
+
+        context.succeedWhen(() -> {
+            if (!rebuilt[0]) {
+                PipeBlockEntity middle = (PipeBlockEntity) context.getBlockEntity(pipe2);
+                if (middle == null) {
+                    throw new GameTestAssertException("Middle pipe should have a block entity");
+                }
+                if (middle.getTravelingItems().isEmpty()) {
+                    throw new GameTestAssertException("Waiting for the diamond to enter the middle pipe");
+                }
+
+                CompoundTag saved = middle.saveCustomOnly(registries);
+                context.setBlock(pipe2, Blocks.AIR);
+                context.setBlock(pipe2, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+                // Set before the assertions below: they run inside succeedWhen's retry loop, which
+                // swallows the exception and re-runs each tick. Rebuilding again would re-drop items
+                // every tick and bury the real failure behind a misleading "waiting" message.
+                rebuilt[0] = true;
+
+                PipeBlockEntity rebuiltPipe = (PipeBlockEntity) context.getBlockEntity(pipe2);
+                if (rebuiltPipe == null) {
+                    throw new GameTestAssertException("Expected a fresh PipeBlockEntity at " + pipe2);
+                }
+                // A fresh pipe starts empty, so a restored item can only have come from the NBT.
+                if (!rebuiltPipe.getTravelingItems().isEmpty()) {
+                    throw new GameTestAssertException(
+                            "Replaced pipe should start empty before its saved data is loaded");
+                }
+                rebuiltPipe.loadCustomOnly(saved, registries);
+                // If this ever trips, succeedWhen swallows it and the run reports the chest
+                // assertion timing out instead; check this message in the log for the real cause.
+                if (rebuiltPipe.getTravelingItems().isEmpty()) {
+                    throw new GameTestAssertException(
+                            "Reconstructed pipe lost the in-transit diamond when loading its saved data");
+                }
+            }
+
+            context.assertContainerContains(chestPos, Items.DIAMOND);
+        });
+    }
 }
