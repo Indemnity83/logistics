@@ -22,7 +22,7 @@ public class ClientBootstrapGameTest implements FabricClientGameTest {
         try (TestSingleplayerContext singleplayer =
                 context.worldBuilder().setUseConsistentSettings(true).create()) {
             // Capturing before chunks finish rendering yields a partly-empty frame.
-            singleplayer.getClientLevel().waitForChunksRender();
+            singleplayer.getClientWorld().waitForChunksRender();
 
             // disableCounterPrefix keeps the filename stable across runs; the default prefixes an
             // incrementing counter, which makes captures hard to compare between builds.

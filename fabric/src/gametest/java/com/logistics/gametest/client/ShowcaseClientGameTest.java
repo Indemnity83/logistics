@@ -71,7 +71,7 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
         context.getInput().pressKey(options -> options.keyToggleGui);
         context.waitTick();
 
-        singleplayer.getClientLevel().waitForChunksRender();
+        singleplayer.getClientWorld().waitForChunksRender();
         context.takeScreenshot(TestScreenshotOptions.of("showcase-blocks").disableCounterPrefix());
 
         // Restore the HUD so a later test in this class isn't captured without it.
