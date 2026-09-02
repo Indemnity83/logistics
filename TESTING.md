@@ -322,11 +322,31 @@ not listed by hand:
 Chained with the reference checks above, this covers registry → definition → model → texture end to
 end. It found the Seed Oil Bucket shipping with no model at all.
 
+**Required textures, not just declared ones.** Following declared references cannot see a texture a
+model *needs* and never supplies — the gap that shipped 17 models with no `particle`, rendering their
+break particles as the missing-texture checkerboard. Two checks close it, over the models a blockstate
+or item definition actually names:
+
+- every `#variable` the chain's faces use is defined somewhere in that chain, including a `textures`
+  entry that is itself a variable (our tank base sets `"particle": "#side"` and lets each child supply
+  `side`, so checking only that the `particle` key exists would wave through an alias to nothing);
+- every model with geometry supplies `particle` — the one texture reached through no `#variable` at
+  all, so nothing else can see it missing.
+
+**Templates are excluded on purpose.** A model that exists only to be inherited from legitimately
+leaves variables to its children. `block/tank/tank.json` is the example: one Glass Tank block, but its
+blockstate picks between `glass_tank` and `glass_tank_stacked` on `joined_below`, and those two differ
+only in the `side` texture — so the shared geometry lives in a base neither renders directly. Requiring
+every file on disk to be self-sufficient would report those as failures and invite weakening the check.
+
+Validated against the real failure rather than by construction: run over the tree before the fix, the
+particle check flags exactly the 17 models Minecraft warned about and no others.
+
 **What this deliberately does not cover:** the `hasSizeGreaterThanOrEqualTo` checks are a deletion
 alarm for walking an empty or wrong directory — they are not a coverage measure, and shouldn't be
-described as one. A model is only checked for the textures it *names*; a texture its parent chain
-requires but it never supplies is not caught here (see the missing `particle` entries on the engine and
-battery models). Registry-backed id checks (unknown items in loot tables or tags) belong in a live
+described as one. Parent chains stop at the first model we do not ship, so a variable that only a
+vanilla ancestor supplies is out of reach, for the same reason the namespace policy trusts
+`minecraft:` references without resolving them. Registry-backed id checks (unknown items in loot tables or tags) belong in a live
 feature test, not here — vanilla's registry silently resolves an unknown id to `minecraft:air` rather
 than failing, so a static check can't catch that class of typo.
 
