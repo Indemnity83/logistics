@@ -2,6 +2,7 @@ package com.logistics.resource.contract;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.nio.file.Files;
@@ -20,6 +21,9 @@ import org.junit.jupiter.api.Test;
  */
 @DisplayName("Model reference contract")
 class ModelReferenceContractTest {
+
+    /** Keys naming a model, matching the sibling blockstate and item-definition contracts. */
+    private static final Set<String> MODEL_KEYS = Set.of("model", "base");
 
     @Test
     @DisplayName("every model parent resolves to a shipped model")
@@ -136,6 +140,13 @@ class ModelReferenceContractTest {
      *
      * <p>Validated against the real failure: run over the tree before the fix that added these, this
      * flags exactly the 17 models Minecraft warned about, and no others.
+     *
+     * <p><strong>Limit:</strong> geometry inherited from a vanilla parent is invisible here, so a
+     * model whose only {@code elements} come from Minecraft is not checked. It cannot be: 33 of our
+     * block models correctly take {@code particle} from {@code orientable_with_bottom} or
+     * {@code cube_all}, and telling those apart from a parent that supplies none needs a
+     * version-matched index of vanilla's models. Listing the safe parents by hand would be the
+     * rotting substitute the namespace policy in {@link ResourceFiles} exists to avoid.
      */
     @Test
     @DisplayName("every rendered model with geometry supplies a particle texture")
@@ -165,7 +176,7 @@ class ModelReferenceContractTest {
         Set<String> references = new LinkedHashSet<>();
         for (String directory : List.of("blockstates", "items")) {
             for (Path file : ResourceFiles.jsonFiles(directory)) {
-                collectModelReferences(ResourceFiles.parse(file), references);
+                references.addAll(ResourceFiles.collectStrings(ResourceFiles.parse(file), MODEL_KEYS));
             }
         }
 
@@ -183,22 +194,6 @@ class ModelReferenceContractTest {
         return models;
     }
 
-    /** Any string-valued "model" or "base", at any depth — covers every definition shape. */
-    private static void collectModelReferences(JsonElement node, Set<String> into) {
-        if (node.isJsonObject()) {
-            for (Map.Entry<String, JsonElement> entry : node.getAsJsonObject().entrySet()) {
-                boolean isModel = ("model".equals(entry.getKey()) || "base".equals(entry.getKey()))
-                    && entry.getValue().isJsonPrimitive();
-                if (isModel) {
-                    into.add(entry.getValue().getAsString());
-                } else {
-                    collectModelReferences(entry.getValue(), into);
-                }
-            }
-        } else if (node.isJsonArray()) {
-            node.getAsJsonArray().forEach(child -> collectModelReferences(child, into));
-        }
-    }
 
     /**
      * The model and its parents, nearest first, stopping at the first parent we do not ship.
@@ -267,34 +262,44 @@ class ModelReferenceContractTest {
         return variables;
     }
 
-    private static boolean hasGeometry(List<JsonObject> chain) {
+    /**
+     * The geometry the game will actually draw: the nearest non-empty {@code elements} in the chain.
+     *
+     * <p>Only the nearest counts — a child declaring {@code elements} replaces its parent's outright
+     * rather than adding to it, so faces from a shadowed parent must not be read. No chain we ship
+     * overrides geometry today, which is exactly why this is worth pinning down now: it would
+     * otherwise surface later as a failure against variables the game never resolves.
+     */
+    private static JsonArray nearestGeometry(List<JsonObject> chain) {
         for (JsonObject model : chain) {
             JsonElement elements = model.get("elements");
             if (elements != null && elements.isJsonArray() && !elements.getAsJsonArray().isEmpty()) {
-                return true;
+                return elements.getAsJsonArray();
             }
         }
-        return false;
+        return null;
+    }
+
+    private static boolean hasGeometry(List<JsonObject> chain) {
+        return nearestGeometry(chain) != null;
     }
 
     private static void forEachFace(List<JsonObject> chain, java.util.function.Consumer<JsonObject> action) {
-        for (JsonObject model : chain) {
-            JsonElement elements = model.get("elements");
-            if (elements == null || !elements.isJsonArray()) {
+        JsonArray elements = nearestGeometry(chain);
+        if (elements == null) {
+            return;
+        }
+        for (JsonElement element : elements) {
+            if (!element.isJsonObject()) {
                 continue;
             }
-            for (JsonElement element : elements.getAsJsonArray()) {
-                if (!element.isJsonObject()) {
-                    continue;
-                }
-                JsonElement faces = element.getAsJsonObject().get("faces");
-                if (faces == null || !faces.isJsonObject()) {
-                    continue;
-                }
-                for (Map.Entry<String, JsonElement> face : faces.getAsJsonObject().entrySet()) {
-                    if (face.getValue().isJsonObject()) {
-                        action.accept(face.getValue().getAsJsonObject());
-                    }
+            JsonElement faces = element.getAsJsonObject().get("faces");
+            if (faces == null || !faces.isJsonObject()) {
+                continue;
+            }
+            for (Map.Entry<String, JsonElement> face : faces.getAsJsonObject().entrySet()) {
+                if (face.getValue().isJsonObject()) {
+                    action.accept(face.getValue().getAsJsonObject());
                 }
             }
         }
