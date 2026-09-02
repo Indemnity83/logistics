@@ -89,6 +89,16 @@ Or just try crafting a [[Copper Transport Pipe]]!
 * Check for mod compatibility issues
 * Try with only Logistics and Fabric API installed first
 
+==Classic crafting recipes==
+
+Logistics ships a built-in resource pack, '''Classic Logistics Pipes crafting recipes''', that swaps
+16 pipe and [[Modules|module]] recipes for ones closer to the original ''LogisticsPipes'' mod — gears
+and dyes in place of the current [[Chipsets|chipset]] and dye recipes. Enable it from
+''Options → Resource Packs'' and restart the world for the recipes to reload.
+
+The pack is currently registered on '''Fabric only'''; on NeoForge it does not appear in the
+resource pack list.
+
 ==Next Steps==
 
 Once installed, learn how to build your first network:

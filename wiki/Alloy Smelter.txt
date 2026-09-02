@@ -56,6 +56,9 @@ Smelting an ore with '''sand''' as flux yields two ingots and a chance of [[Rich
 Feeding the ore alongside a richer flux gives a third ingot. [[Rich Slag]] pushes metal ores to three ingots (with a 75% chance of ordinary [[Slag]]), and [[Quicksilver]] does the same while returning a bonus metal — copper yields a gold ingot, tin yields an iron ingot:
 
 {{Alloy Smelter|head=1 |Input=Iron Ore;Deepslate Iron Ore |Input2=Rich Slag |Output=Iron Ingot |OutputCount=3 |Byproduct=Slag |ByproductChance=75%}}
+{{Alloy Smelter |Input=Copper Ore;Deepslate Copper Ore |Input2=Rich Slag |Output=Copper Ingot |OutputCount=3 |Byproduct=Slag |ByproductChance=75%}}
+{{Alloy Smelter |Input=Gold Ore;Deepslate Gold Ore |Input2=Rich Slag |Output=Gold Ingot |OutputCount=3 |Byproduct=Slag |ByproductChance=75%}}
+{{Alloy Smelter |Input=Tin Ore;Deepslate Tin Ore |Input2=Rich Slag |Output=Tin Ingot |OutputCount=3 |Byproduct=Slag |ByproductChance=75%}}
 {{Alloy Smelter |Input=Gold Ore;Deepslate Gold Ore |Input2=Quicksilver |Output=Gold Ingot |OutputCount=3 |Byproduct=Rich Slag |ByproductChance=75%}}
 {{Alloy Smelter |Input=Copper Ore;Deepslate Copper Ore |Input2=Quicksilver |Output=Copper Ingot |OutputCount=3 |Byproduct=Gold Ingot |ByproductChance=100%}}
 {{Alloy Smelter |foot=1 |Input=Tin Ore;Deepslate Tin Ore |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
@@ -66,13 +69,26 @@ Quicksilver also takes the raw ore item, for the same yield:
 {{Alloy Smelter |Input=Raw Copper |Input2=Quicksilver |Output=Copper Ingot |OutputCount=3 |Byproduct=Gold Ingot |ByproductChance=100%}}
 {{Alloy Smelter |foot=1 |Input=Raw Tin |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
 
-Dusts from the [[Macerator]] also smelt here — one dust plus sand gives one ingot and a chance of [[Slag]].
+Dusts from the [[Macerator]] also smelt here — one dust plus sand gives one ingot and a chance of [[Slag]]:
+
+{{Alloy Smelter|head=1 |Input=Iron Dust |Input2=Sand;Red Sand |Output=Iron Ingot |Byproduct=Slag |ByproductChance=25%}}
+{{Alloy Smelter |Input=Copper Dust |Input2=Sand;Red Sand |Output=Copper Ingot |Byproduct=Slag |ByproductChance=25%}}
+{{Alloy Smelter |Input=Gold Dust |Input2=Sand;Red Sand |Output=Gold Ingot |Byproduct=Rich Slag |ByproductChance=20%}}
+{{Alloy Smelter |Input=Tin Dust |Input2=Sand;Red Sand |Output=Tin Ingot |Byproduct=Slag |ByproductChance=25%}}
+{{Alloy Smelter|foot=1 |Input=Bronze Dust |Input2=Sand;Red Sand |Output=Bronze Ingot |Byproduct=Slag |ByproductChance=25%}}
 
 === Alloying ===
 
 Bronze is smelted from three copper and one tin, in ingot or [[Dusts|dust]] form:
 
 {{Alloy Smelter|head=1|foot=1 |Input=Copper Ingot |InputCount=3 |Input2=Tin Ingot |Output=Bronze Ingot |OutputCount=4}}
+
+=== Rubber ===
+
+Either [[Polymers|polymer]] vulcanises into [[Rubber]] with [[Sulfur Dust]]:
+
+{{Alloy Smelter|head=1 |Input=Natural Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2}}
+{{Alloy Smelter|foot=1 |Input=Synthetic Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2}}
 
 === Building blocks ===
 

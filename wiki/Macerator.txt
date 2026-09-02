@@ -66,8 +66,18 @@ Grinding ores produces more dust than grinding the ingot directly, making the Ma
 {{Grinding |Input=Block of Gold |Output=Gold Dust,9}}
 {{Grinding |Input=Tin Ore;Deepslate Tin Ore |Output=Tin Dust,2 |Byproduct=Iron Dust |ByproductChance=10%}}
 {{Grinding |Input=Raw Tin |Output=Tin Dust,2 |Byproduct=Iron Dust |ByproductChance=10%}}
+{{Grinding |Input=Block of Bronze |Output=Bronze Dust,9}}
+{{Grinding |Input=Block of Tin |Output=Tin Dust,9}}
+{{Grinding |Input=Block of Raw Tin |Output=Tin Dust,9}}
+{{Grinding |Input=Raw Iron Block |Output=Iron Dust,9}}
+{{Grinding |Input=Raw Copper Block |Output=Copper Dust,9}}
+{{Grinding |Input=Raw Gold Block |Output=Gold Dust,9}}
+{{Grinding |Input=Iron Ingot |Output=Iron Dust}}
+{{Grinding |Input=Copper Ingot |Output=Copper Dust}}
+{{Grinding |Input=Gold Ingot |Output=Gold Dust}}
 {{Grinding |Input=Tin Ingot |Output=Tin Dust}}
 {{Grinding |Input=Bronze Ingot |Output=Bronze Dust}}
+{{Grinding |Input=Netherite Ingot |Output=Netherite Dust}}
 {{Grinding |Input=Diamond Ore;Deepslate Diamond Ore |Output=Diamond Dust,2}}
 {{Grinding |Input=Emerald Ore;Deepslate Emerald Ore |Output=Emerald Dust,2}}
 {{Grinding |Input=Lapis Lazuli Ore;Deepslate Lapis Lazuli Ore |Output=Lapis Dust,8 |Byproduct=Sulfur Dust |ByproductChance=20%}}
@@ -83,7 +93,12 @@ Grinding ores produces more dust than grinding the ingot directly, making the Ma
 {{Grinding |Input=Echo Shard |Output=Echo Dust}}
 {{Grinding |Input=Prismarine Shard |Output=Prismarine Dust}}
 {{Grinding |Input=Prismarine |Output=Prismarine Dust,4}}
-{{Grinding |foot=1 |Input=Prismarine Bricks |Output=Prismarine Dust,9}}
+{{Grinding |Input=Prismarine Bricks |Output=Prismarine Dust,9}}
+{{Grinding |Input=Diamond |Output=Diamond Dust}}
+{{Grinding |Input=Emerald |Output=Emerald Dust}}
+{{Grinding |Input=Lapis Lazuli |Output=Lapis Dust}}
+{{Grinding |Input=Ender Pearl |Output=Ender Dust}}
+{{Grinding |foot=1 |Input=Obsidian;Crying Obsidian |Output=Obsidian Dust}}
 
 ==== Recycling ====
 
@@ -92,10 +107,19 @@ The Macerator also breaks worked blocks back down into raw materials, and recove
 {{Grinding|head=1 |Input=Cobblestone |Output=Gravel |Byproduct=Sand |ByproductChance=15%}}
 {{Grinding |Input=Gravel |Output=Sand |Byproduct=Flint |ByproductChance=15%}}
 {{Grinding |Input=Sandstone |ingredients=Sandstone (and variants) |Output=Sand,2 |Byproduct=Niter |ByproductChance=40%}}
-{{Grinding |Input=Glass |Output=Sand}}
+{{Grinding |Input=Glass |ingredients=Glass, any stained glass, or a {{Mcw|Glass Bottle|glass bottle}} |Output=Sand}}
+{{Grinding |Input=Netherrack |Output=Gravel |Byproduct=Sulfur Dust |ByproductChance=15%}}
+{{Grinding |Input=Clay |Output=Clay Ball,4}}
+{{Grinding |Input=Terracotta |Output=Clay Ball,4}}
+{{Grinding |Input=Bricks |Output=Brick,4}}
+{{Grinding |Input=Flower Pot |Output=Brick}}
+{{Grinding |Input=Nether Bricks |Output=Nether Brick,4}}
+{{Grinding |Input=Wool |ingredients=Wool of any colour |Output=String,4}}
+{{Grinding |Input=Note Block |Output=Redstone |notes=Also returns 4 [[Sawdust]]}}
+{{Grinding |Input=Jukebox |Output=Diamond |notes=Also returns 4 [[Sawdust]]}}
 {{Grinding |Input=Sulfur |ingredients=Sulfur (and variants) |Output=Sulfur Dust,4 |notes=Since Minecraft 26.2}}
 {{Grinding |Input=Cinnabar |ingredients=Cinnabar (and variants) |Output=Quicksilver,4 |notes=Since Minecraft 26.2}}
-{{Grinding |foot=1 |Input=Diamond Pickaxe |ingredients=Diamond tools / armor |Output=Diamond,3}}
+{{Grinding |foot=1 |Input=Diamond Pickaxe |ingredients=Diamond tools and armour |Output=Diamond,3 |notes=1–8 diamonds depending on the piece}}
 
 ==== Oil blocks ====
 
@@ -103,6 +127,12 @@ Oil-bearing blocks grind into [[Bitumen]], with a chance byproduct — [[Tar]] f
 
 {{Grinding|head=1 |Input=Oil Sand;Oil Red Sand |ingredients=[[Oil Sand]] or [[Oil Red Sand]] |Output=Bitumen,3 |Byproduct=Tar |ByproductChance=50%}}
 {{Grinding |foot=1 |Input=Oil Shale |Output=Bitumen,3 |Byproduct=Flint |ByproductChance=50%}}
+
+==== Concrete ====
+
+Grinding {{Mcw|Concrete|concrete}} returns it to powder, which a [[Transposer]] can cure again:
+
+{{Grinding|head=1|foot=1 |Input=White Concrete |ingredients=Any of the 16 {{Mcw|Concrete|concretes}}, returned as the matching powder |Output=White Concrete Powder}}
 
 ==== Wood → Sawdust ====
 

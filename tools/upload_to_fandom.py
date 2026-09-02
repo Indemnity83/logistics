@@ -263,8 +263,15 @@ FILE_LITERAL = re.compile(r"\[\[File:([^\]|]+?\.(?:png|gif))\s*[|\]]")
 INFOBOX_IMG = re.compile(r"\|\s*image2?\s*=\s*([^\n|}]+?\.(?:png|gif))")
 # recipe blocks whose slot / Input / Output / Byproduct params name items:
 RECIPE_TABLE = re.compile(
-    r"\{\{(?:Grid (?:Crafting|Grinding|Smelting|Crucible|Alloy Smelter) Table|Crafting|Grinding|Milling|Smelting|Crucible|Alloy Smelter)(.*?)\}\}", re.S)
-TABLE_PARAM = re.compile(r"\|\s*(?:A[123]|B[123]|C[123]|Output|Input2?|Byproduct)\s*=\s*([^|}\n]+)")
+    r"\{\{(?:Grid (?:Crafting|Grinding|Smelting|Crucible|Alloy Smelter|Refinery|Transposer) Table"
+    r"|Crafting|Grinding|Milling|Smelting|Crucible|Alloy Smelter|Refinery|Transposer"
+    r"|Sequential Fabricator)"
+    # tolerate one level of nesting ({{Mcw|...}} inside name=) — a non-greedy .*? stops at that
+    # inner }} and silently misses every param after it, so its icons never upload
+    r"((?:[^{}]|\{\{[^{}]*\}\})*)\}\}", re.S)
+# FluidIn/FluidOut are the Transposer's fluid slots, which need icons too
+TABLE_PARAM = re.compile(
+    r"\|\s*(?:A[123]|B[123]|C[123]|Output|Input2?|Byproduct|FluidIn|FluidOut)\s*=\s*([^|}\n]+)")
 
 
 def _icon_name(val):
