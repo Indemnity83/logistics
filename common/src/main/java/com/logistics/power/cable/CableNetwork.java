@@ -356,19 +356,38 @@ public class CableNetwork {
             if (route == null || route.remainingTransfer() <= 0) continue;
 
             long toMove = Math.min(maxAmount - movedTotal, route.remainingTransfer());
-            long canExtract = source.storage().extract(toMove, true);
-            if (canExtract <= 0) continue;
-            long canInsert = target.storage().insert(canExtract, true);
-            if (canInsert <= 0) continue;
-            long actualToMove = Math.min(canExtract, canInsert);
-            long extracted = source.storage().extract(actualToMove, false);
-            target.storage().insert(extracted, false);
-            if (extracted > 0) {
-                recordTransfer(extracted, route);
-                movedTotal += extracted;
+            long moved = moveEnergy(source.storage(), target.storage(), toMove);
+            if (moved > 0) {
+                recordTransfer(moved, route);
+                movedTotal += moved;
             }
         }
         return movedTotal;
+    }
+
+    /**
+     * Pulls up to {@code maxAmount} from {@code source} into {@code target}.
+     *
+     * <p>A simulated insert is only a hint: a rate-limited storage may accept less on commit
+     * than it reported. Anything the target refuses is put back into the source instead of
+     * being destroyed, and only what actually arrived is billed to the network.
+     *
+     * @return the amount the target actually accepted
+     */
+    static long moveEnergy(IEnergyStorage source, IEnergyStorage target, long maxAmount) {
+        if (maxAmount <= 0) return 0;
+        long canExtract = source.extract(maxAmount, true);
+        if (canExtract <= 0) return 0;
+        long canInsert = target.insert(canExtract, true);
+        if (canInsert <= 0) return 0;
+        long actualToMove = Math.min(canExtract, canInsert);
+        long extracted = source.extract(actualToMove, false);
+        if (extracted <= 0) return 0;
+
+        long accepted = target.insert(extracted, false);
+        long shortfall = extracted - accepted;
+        if (shortfall > 0) source.insert(shortfall, false);
+        return Math.max(0, accepted);
     }
 
     private List<CableNetworkPlanner.Allocation<DeviceConnection>> allocateToDemand(
