@@ -68,10 +68,10 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
     }
 
     /**
-     * Ids covered for {@code kind}: shipped by common, or shipped by every loader. Cable
-     * blockstates are the current example of the second case — common ships none and both loaders
-     * ship their own. Requiring <em>every</em> loader means dropping one loader's copy fails here
-     * rather than silently shipping a cable with no model on that loader.
+     * Ids covered for {@code kind}: shipped by common, or shipped by every loader. Nothing uses the
+     * second case today — every asset lives in common — but requiring <em>every</em> loader means a
+     * loader-specific resource added to one loader and forgotten on the other fails here, rather than
+     * silently shipping a block with no model on that loader.
      */
     private static Set<String> covered(String kind) {
         Set<String> ids = new TreeSet<>(idsUnder(ResourceFiles.assetRoot().resolve(kind)));
