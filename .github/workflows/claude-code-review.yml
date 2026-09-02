@@ -59,22 +59,12 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
-          # Print the review to the run log too, so a run that posts nothing can
-          # still be diagnosed without reading step timings.
+          # Findings are posted to the PR by the command itself. A clean review
+          # deliberately stays quiet there, so print the report to the run log —
+          # otherwise a run that posts nothing leaves no trace to diagnose.
           display_report: true
           # The plugin command's own pre-flight skips closed PRs, drafts, trivial
           # diffs, and PRs it has already reviewed.
-          #
-          # The trailing instruction overrides the command's step 6, which stops
-          # without commenting when nothing clears its confidence threshold. That
-          # made a clean review indistinguishable from a skipped one: both leave a
-          # green check and an empty PR. This check gates merges, so "reviewed,
-          # found nothing" has to be visible on the PR.
           prompt: >-
             /code-review:code-review
             ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
-
-
-            Always finish by commenting on the pull request, even when no issues
-            clear the confidence threshold — in that case post the command's
-            "No issues found" format. Never end the run silently.
