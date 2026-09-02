@@ -60,12 +60,19 @@ class ItemDefinitionContractTest {
         assertThat(failures).as("item definitions with no model reference").isEmpty();
     }
 
-    /** Guards against walking an empty or wrong directory; says nothing about correctness. */
+    /**
+     * Guards against walking an empty or wrong directory; says nothing about correctness.
+     *
+     * <p>The floor is far lower here than on newer branches: MC 1.21.1 predates {@code
+     * assets/<namespace>/items/} item model definitions and resolves an item's model by convention
+     * from {@code models/item/<id>.json} instead, so only the definitions carried in by
+     * cross-version cherry-picks exist on this branch. The checks above still hold for those.
+     */
     @Test
     @DisplayName("the shipped item definition set has not collapsed")
     void itemDefinitionSetHasNotCollapsed() {
         assertThat(ResourceFiles.jsonFiles("items"))
             .as("shipped item definitions; lower this floor deliberately if items were removed")
-            .hasSizeGreaterThanOrEqualTo(184);
+            .hasSizeGreaterThanOrEqualTo(34);
     }
 }
