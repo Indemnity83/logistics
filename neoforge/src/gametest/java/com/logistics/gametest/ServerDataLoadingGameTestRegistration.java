@@ -58,4 +58,24 @@ public final class ServerDataLoadingGameTestRegistration {
     public static void allLogisticsPlacedFeaturesLoad(GameTestHelper context) {
         ServerDataLoadingGameTestBody.allLogisticsPlacedFeaturesLoad(context);
     }
+
+    /**
+    * Verifies every logistics item a shipped tag lists survives into the loaded tag.
+    *
+    * <p>Run in-game: /test run logistics-gametest.serverdataloadinggametest.alllogisticsitemtagentriesload
+    */
+    @GameTest(template = "empty", batch = "serverdata", timeoutTicks = 100)
+    public static void allLogisticsItemTagEntriesLoad(GameTestHelper context) {
+        ServerDataLoadingGameTestBody.allLogisticsItemTagEntriesLoad(context);
+    }
+
+    /**
+    * Verifies every logistics block a shipped tag lists survives into the loaded tag.
+    *
+    * <p>Run in-game: /test run logistics-gametest.serverdataloadinggametest.alllogisticsblocktagentriesload
+    */
+    @GameTest(template = "empty", batch = "serverdata", timeoutTicks = 100)
+    public static void allLogisticsBlockTagEntriesLoad(GameTestHelper context) {
+        ServerDataLoadingGameTestBody.allLogisticsBlockTagEntriesLoad(context);
+    }
 }

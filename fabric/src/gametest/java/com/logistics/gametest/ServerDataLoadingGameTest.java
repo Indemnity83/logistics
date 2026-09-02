@@ -25,4 +25,14 @@ public class ServerDataLoadingGameTest {
     public void allLogisticsPlacedFeaturesLoad(GameTestHelper context) {
         ServerDataLoadingGameTestBody.allLogisticsPlacedFeaturesLoad(context);
     }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void allLogisticsItemTagEntriesLoad(GameTestHelper context) {
+        ServerDataLoadingGameTestBody.allLogisticsItemTagEntriesLoad(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void allLogisticsBlockTagEntriesLoad(GameTestHelper context) {
+        ServerDataLoadingGameTestBody.allLogisticsBlockTagEntriesLoad(context);
+    }
 }
