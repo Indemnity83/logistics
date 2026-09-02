@@ -443,7 +443,10 @@ public final class PipeRuntime {
             PipeItemStorage pipeStorage = targetPipe.getItemStorage(direction.getOpposite());
             if (pipeStorage != null) {
                 long inserted = pipeStorage.insertTravelingItem(item);
-                if (inserted <= 0) {
+                if (unacceptedCount(item, inserted) > 0) {
+                    // Only the accepted portion continues in the target pipe; the source item is
+                    // shrunk to what was left over and that remainder is reported and dropped.
+                    item.getStack().shrink((int) inserted);
                     notifyDropAndDrop(world, pos, item);
                 }
             } else {
@@ -518,6 +521,15 @@ public final class PipeRuntime {
 
         // Item could not enter any storage — drop it.
         notifyDropAndDrop(world, pos, item);
+    }
+
+    /**
+     * How much of {@code item} a hand-off left behind, given the {@code inserted} count the target
+     * reported. The source pipe discards the whole traveling item after a hand-off, so anything the
+     * target did not take must be accounted for here or it is destroyed.
+     */
+    static long unacceptedCount(TravelingItem item, long inserted) {
+        return Math.max(0, item.getStack().getCount() - Math.max(0, inserted));
     }
 
     private static void notifyDropAndDrop(Level world, BlockPos pos, TravelingItem item) {
