@@ -1,12 +1,16 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
   review_status: false
-  # Fail the commit status when CodeRabbit can't review (e.g. rate-limited), so an
-  # unreviewed PR shows red instead of a misleading pass.
-  fail_commit_status: true
+  # Claude Code Review (.github/workflows/claude-code-review.yml) is the gating
+  # reviewer. CodeRabbit must never post a status that can block a merge.
+  fail_commit_status: false
   # Don't append the high-level summary to the PR description.
   high_level_summary: false
   auto_review:
+    # Off: Claude reviews every PR automatically. CodeRabbit stays available on
+    # demand via `@coderabbitai review` for a second opinion. Flip back to true
+    # to restore automatic dual review — the filters below still apply.
+    enabled: false
     # Skip release-please PRs (negative match); review everything else.
     labels:
       - "!autorelease: pending"
