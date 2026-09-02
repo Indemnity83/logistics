@@ -37,6 +37,7 @@ cost far more in cherry-pick conflicts than the naming consistency is worth.
 ./gradlew featureTest                 # Feature tests on both loaders
 ./gradlew featureTestFabric           # Fabric feature tests only
 ./gradlew featureTestNeoForge         # NeoForge feature tests only
+./gradlew clientFeatureTestFabric     # Fabric client feature tests (opens a real client)
 ./gradlew testCoverage                # Aggregate local JaCoCo coverage report
 ```
 
@@ -720,9 +721,10 @@ more headroom (the existing registrations add roughly 20 ticks as a starting poi
 
 ## Client Feature Tests
 
-Run with `./gradlew :fabric:runClientGameTest`. This starts a **real Minecraft client** with the mod
-loaded, builds a world, renders it, and can capture screenshots — the layer that covers screens,
-models, and rendering, none of which a headless server can see.
+Run with `./gradlew clientFeatureTestFabric` (or `:fabric:runClientGameTest` directly). This starts a
+**real Minecraft client** with the mod loaded, builds a world, renders it, and can capture
+screenshots — the layer that covers screens, models, and rendering, none of which a headless server
+can see.
 
 **Fabric only.** NeoForge has no equivalent harness here, and unlike server feature tests there is
 nothing to share: these are not portable test bodies, so `common/src/gametest` is not involved.

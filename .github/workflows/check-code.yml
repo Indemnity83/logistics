@@ -76,10 +76,15 @@ jobs:
                 code_changed=true
                 ;;
             esac
+            # Build files count: fabric/build.gradle is where the client test harness is configured
+            # (fabricApi.configureTests), and gradle.properties pins the loom and fabric-api
+            # versions it comes from. A change there can remove the run config entirely, so the job
+            # that would notice must not skip.
             case "$file" in
               */src/client/*|*/src/main/resources/assets/*|\
               fabric/src/gametest/java/com/logistics/gametest/client/*|\
               fabric/src/gametest/resources/fabric.mod.json|\
+              fabric/build.gradle|build.gradle|gradle.properties|\
               .github/workflows/check-code.yml)
                 client_changed=true
                 ;;
