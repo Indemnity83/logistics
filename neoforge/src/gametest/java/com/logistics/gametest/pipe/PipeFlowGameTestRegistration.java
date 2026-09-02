@@ -27,7 +27,11 @@ public final class PipeFlowGameTestRegistration {
         new GameTestCase("pipe/void_pipe_deletes_incoming_items", 50, PipeFlowGameTestBody::testVoidPipeDeletesIncomingItems),
         new GameTestCase("pipe/extractor_pulls_item_from_chest", 120, PipeFlowGameTestBody::testExtractorPullsItemFromChest),
         new GameTestCase(
-            "pipe/enchanted_traveling_item_serialization", 20, PipeFlowGameTestBody::testEnchantedTravelingItemSerialization));
+            "pipe/enchanted_traveling_item_serialization", 20, PipeFlowGameTestBody::testEnchantedTravelingItemSerialization),
+        new GameTestCase(
+            "pipe/traveling_item_survives_pipe_reconstruction",
+            220,
+            PipeFlowGameTestBody::testTravelingItemSurvivesPipeReconstruction));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
