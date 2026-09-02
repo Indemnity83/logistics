@@ -17,10 +17,15 @@ jobs:
     name: review (claude)
     runs-on: ubuntu-latest
 
+    # Skip fork PRs: GitHub resolves secrets to an empty string for pull_request
+    # runs from forks, so the action cannot authenticate and the check would fail
+    # on every external contribution. Review those by commenting @claude, which
+    # runs in the base repo and does get the secret.
     # Skip release-please and dependabot PRs: neither benefits from a code review,
     # and both would spend review budget that human-authored PRs need.
     if: >-
-      !contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
+      github.event.pull_request.head.repo.full_name == github.repository
+      && !contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
       && github.event.pull_request.user.login != 'dependabot[bot]'
 
     permissions:
