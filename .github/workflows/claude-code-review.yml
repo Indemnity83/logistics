@@ -1,0 +1,49 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    branches: ['mc/**']
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    name: review (claude)
+    runs-on: ubuntu-latest
+
+    # Skip release-please and dependabot PRs: neither benefits from a code review,
+    # and both would spend review budget that human-authored PRs need.
+    if: >-
+      !contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        with:
+          fetch-depth: 1
+
+      - name: Review pull request
+        uses: anthropics/claude-code-action@8251c103ac8c1d761882c86aba1412c7f583c844 # v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
+          # --comment is required. Without it the review is printed to the run log
+          # and never reaches the PR. The command's own pre-flight skips drafts,
+          # trivial diffs, and PRs Claude has already reviewed.
+          prompt: >-
+            /code-review:code-review
+            ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+            --comment
