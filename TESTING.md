@@ -366,6 +366,42 @@ Tags are not covered yet. Our tag files live under the `c:` and `minecraft:` nam
 our own, so "every tag we ship is loaded" needs a file-to-tag mapping that distinguishes our
 contributions from vanilla's and other mods' — worth doing, but not a one-line extension.
 
+### Persistence reconstruction
+
+Two tests save a block entity's NBT, replace the block (producing a fresh block entity), and load that
+NBT back into it:
+
+- `PipeFlowGameTestBody#testTravelingItemSurvivesPipeReconstruction`
+- `CableGameTestBody#testCableNetworkSurvivesCableReconstruction`
+
+**The name is deliberate — this is not a chunk unload.** They cover the block entity's own
+`saveCustomOnly`/`loadCustomOnly` round-trip, but they reach it by a different route than an unload
+does. `setBlock(AIR)` fires `PipeBlockEntity#preRemoveSideEffects`, which drops in-transit items as
+entities and detaches the pipe from its network — and that method is explicitly *not* called on chunk
+unload. So the pipe test leaves a stray diamond on the floor that a real unload would never produce
+(assert on the chest, never on a world-wide item count), and level unload events and chunk tickets are
+not involved at all. A genuine unload/reload test is separate work; calling this one "chunk unload"
+would claim coverage that does not exist.
+
+**The two are not equally strong, and the difference is the point.** A pipe carries items in transit
+that nothing but NBT can restore — so the pipe test fails if the load is skipped, and the assertion
+that the replaced pipe is empty *before* loading is what makes the restored item unambiguous evidence.
+
+A cable persists only its connection mask, and that mask is *derivable from its neighbours*:
+`getRenderConnectionMask()` rebuilds it whenever the cache is dirty, so a freshly placed cable reaches
+the same value with or without the load. Deleting its `loadCustomOnly` call leaves the cable test
+passing — verified by mutation, not assumed. Asserting on the mask would not fix this, for the same
+reason.
+
+So the cable test covers `CableNetworkManager` recovery — `registeredInNetwork` is transient, so the
+rebuilt block entity must re-register before the network carries energy through that position again —
+and not persistence. It is kept for that, and its javadoc says so, because a test named for something
+it does not check is worse than no test.
+
+For the record on what the mask is *not*: it drives rendering and the collision shape only. Cable
+topology comes from `CableNetwork.buildFrom` testing for a `CableBlockEntity`, and consumers are found
+through `EnergyCapabilityLookup` — neither consults it.
+
 ### Feature-test backlog
 
 Recorded here so a pass doesn't have to re-derive priority order or re-discover what's already done.
