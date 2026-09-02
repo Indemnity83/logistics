@@ -363,9 +363,28 @@ Two conventions worth keeping when extending it:
   a plausible number of entries and fails loudly if not — that floor is a tripwire for a broken
   enumeration, not a coverage measure.
 
-Tags are not covered yet. Our tag files live under the `c:` and `minecraft:` namespaces rather than
-our own, so "every tag we ship is loaded" needs a file-to-tag mapping that distinguishes our
-contributions from vanilla's and other mods' — worth doing, but not a one-line extension.
+Tags are covered by `allLogisticsItemTagEntriesLoad` and `allLogisticsBlockTagEntriesLoad`: every
+`logistics:` id a tag file lists must be in the tag the game actually loaded.
+
+The obstacle was that our tag files live under the `c:` and `minecraft:` namespaces rather than our
+own, so there is no file-owner mapping to key off. The way around it is to key off our **entries**
+instead of our files — a `logistics:` id in any tag is ours by construction, whoever owns the file.
+
+Two details keep it honest:
+
+- It reads the whole resource **stack**, not the winning resource. We add entries to six `minecraft:`
+  tag files vanilla also ships; reading only the top resource would read vanilla's copy and silently
+  examine nothing for those tags.
+- Floors of 18 item tags and 10 block tags, for the same vacuous-pass reason as the other checks here.
+
+What this catches is worse than a single bad entry: one unresolvable id makes Minecraft discard the
+**whole tag** (`Couldn't load tag … as it is missing following references`), and it only logs an error
+rather than failing startup. Verified by mutation — a single typo in `minecraft:mineable/pickaxe`
+removed all 25 of our blocks from it, so every machine in that tag stopped being pickaxe-mineable while
+the game ran on regardless.
+
+Biome tags are out of scope: they belong to a dynamic registry rather than `BuiltInRegistries`, and the
+one we ship lists no `logistics:` entries.
 
 ### Persistence reconstruction
 
