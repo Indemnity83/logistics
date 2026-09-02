@@ -29,6 +29,13 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Registry coverage")
 class RegistryCoverageContractTest extends MinecraftTestEnvironment {
 
+    /**
+     * Where an item's client resource lives. Newer branches use {@code assets/<namespace>/items/}
+     * item model definitions; MC 1.21.1 predates that system and resolves an item's model by
+     * convention from {@code models/item/<path>.json}, so that is the file an item must ship here.
+     */
+    private static final String ITEM_RESOURCES = "models/item";
+
     @BeforeAll
     static void registerDomains() {
         DomainRegistrations.ensureRegistered();
@@ -48,7 +55,7 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
 
     private static Set<String> registeredPaths(Registry<?> registry) {
         return registry.entrySet().stream()
-            .map(entry -> ResourceId.wrap(entry.getKey().identifier()))
+            .map(entry -> ResourceId.wrap(entry.getKey().location()))
             .filter(id -> ResourceFiles.NAMESPACE.equals(id.getNamespace()))
             .map(ResourceId::getPath)
             .collect(Collectors.toCollection(TreeSet::new));
@@ -111,11 +118,11 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
     @DisplayName("every registered item has an item definition")
     void everyRegisteredItemHasAnItemDefinition() {
         Set<String> missing = new TreeSet<>(registeredPaths(BuiltInRegistries.ITEM));
-        missing.removeAll(covered("items"));
+        missing.removeAll(covered(ITEM_RESOURCES));
 
         assertThat(missing)
             .as("registered items with no item definition — these render as the missing-texture "
-                + "checkerboard in game; add assets/logistics/items/<id>.json")
+                + "checkerboard in game; add assets/logistics/models/item/<id>.json")
             .isEmpty();
     }
 
@@ -136,7 +143,7 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("every item definition belongs to a registered item")
     void everyItemDefinitionBelongsToARegisteredItem() {
-        Set<String> orphans = new TreeSet<>(shippedAnywhere("items"));
+        Set<String> orphans = new TreeSet<>(shippedAnywhere(ITEM_RESOURCES));
         orphans.removeAll(registeredPaths(BuiltInRegistries.ITEM));
         orphans.removeAll(loaderRegistered());
 
