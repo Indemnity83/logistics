@@ -1,12 +1,8 @@
 package com.logistics.gametest.power;
 
-import com.logistics.LogisticsAutomation;
-import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
-import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
-import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -16,43 +12,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 import team.reborn.energy.api.EnergyStorage;
 
 /**
  * Game tests for power cables.
  */
 public class CableGameTest {
-    // not-yet-shared: uses Fabric EnergyStorage lookup as plumbing only
     @GameTest
     public void testCablePlacementExposesEnergyStorage(GameTestHelper context) {
-        BlockPos cablePos = new BlockPos(1, 1, 1);
-
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-
-        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
-        if (cable == null) {
-            context.fail("Copper cable should have block entity");
-            return;
-        }
-
-        for (Direction direction : Direction.values()) {
-            EnergyStorage storage = findStorage(context, cablePos, direction);
-            if (!storage.supportsInsertion()) {
-                context.fail("Copper cable should support insertion from " + direction);
-                return;
-            }
-            if (storage.supportsExtraction()) {
-                context.fail("Copper cable should not expose extractable battery storage from " + direction);
-                return;
-            }
-            if (storage.getAmount() != 0L || storage.getCapacity() != 0L) {
-                context.fail("Copper cable should report zero stored energy and capacity");
-                return;
-            }
-        }
-
-        context.succeed();
+        CableGameTestBody.testCablePlacementExposesEnergyStorage(context);
     }
 
     // loader-only: asserts Fabric Transaction abort semantics; NeoForge's simulate flag is not equivalent
@@ -103,77 +71,14 @@ public class CableGameTest {
         context.succeed();
     }
 
-    // not-yet-shared: uses Fabric Transaction as plumbing only
-    @GameTest(maxTicks = 30)
+    @GameTest
     public void testInsertedCableEnergyPassesThroughToMachine(GameTestHelper context) {
-        BlockPos sourceCablePos = new BlockPos(1, 1, 1);
-        BlockPos relayCablePos = new BlockPos(2, 1, 1);
-        BlockPos machinePos = new BlockPos(3, 1, 1);
-
-        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(relayCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
-
-        CableBlockEntity sourceCable = context.getBlockEntity(sourceCablePos, CableBlockEntity.class);
-        MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
-        if (sourceCable == null || machine == null) {
-            context.fail("Expected cable and machine block entities");
-            return;
-        }
-        giveMaceratorWork(machine);
-
-        try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = findStorage(context, sourceCablePos, Direction.WEST).insert(640L, transaction);
-            if (inserted <= 0) {
-                context.fail("Cable network should pass inserted energy through to the machine");
-                return;
-            }
-            transaction.commit();
-        }
-
-        long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
-        if (machineEnergy <= 0) {
-            context.fail("Cable network should deliver inserted energy to machine, got: " + machineEnergy);
-            return;
-        }
-        if (sourceCable.energyStorage(Direction.WEST).getAmount() != 0) {
-            context.fail("Cable should not retain delivered energy");
-            return;
-        }
-        context.succeed();
+        CableGameTestBody.testInsertedCableEnergyPassesThroughToMachine(context);
     }
 
-    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest
     public void testCableChargesIdleMachineBuffer(GameTestHelper context) {
-        BlockPos cablePos = new BlockPos(1, 1, 1);
-        BlockPos machinePos = new BlockPos(2, 1, 1);
-
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
-
-        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
-        MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
-        if (cable == null || machine == null) {
-            context.fail("Expected cable and idle machine block entities");
-            return;
-        }
-
-        try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = findStorage(context, cablePos, Direction.WEST).insert(30L, transaction);
-            if (inserted != 30L) {
-                context.fail("Idle machine buffer should accept cable energy, got: " + inserted);
-                return;
-            }
-            transaction.commit();
-        }
-
-        long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
-        if (machineEnergy != 30L) {
-            context.fail("Idle machine buffer should charge without work, got: " + machineEnergy);
-            return;
-        }
-        context.succeed();
+        CableGameTestBody.testCableChargesIdleMachineBuffer(context);
     }
 
     // loader-only: asserts Fabric Transaction abort semantics; NeoForge's simulate flag is not equivalent
@@ -214,84 +119,14 @@ public class CableGameTest {
         context.succeed();
     }
 
-    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest
     public void testCableInsertionDistributesByReportedDemand(GameTestHelper context) {
-        BlockPos cablePos = new BlockPos(1, 1, 1);
-        BlockPos smallSinkPos = new BlockPos(2, 1, 1);
-        BlockPos largeSinkPos = new BlockPos(1, 1, 2);
-
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(smallSinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
-        context.setBlock(largeSinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
-
-        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
-        CreativeSinkBlockEntity smallSink = context.getBlockEntity(smallSinkPos, CreativeSinkBlockEntity.class);
-        CreativeSinkBlockEntity largeSink = context.getBlockEntity(largeSinkPos, CreativeSinkBlockEntity.class);
-        if (cable == null || smallSink == null || largeSink == null) {
-            context.fail("Expected cable and creative sink block entities");
-            return;
-        }
-        setSinkDrainRate(largeSink, 10L, context);
-
-        try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = findStorage(context, cablePos, Direction.WEST).insert(9L, transaction);
-            if (inserted != 9L) {
-                context.fail("Cable should accept all energy demanded by sinks, got: " + inserted);
-                return;
-            }
-            transaction.commit();
-        }
-
-        long smallDemand = smallSink.networkDemandPerTick();
-        long largeDemand = largeSink.networkDemandPerTick();
-        if (smallDemand != 2L || largeDemand != 4L) {
-            context.fail("Cable should split 9 RF across 5/10 demand as 3/6, remaining demands: "
-                    + smallDemand + "/" + largeDemand);
-            return;
-        }
-
-        context.succeed();
+        CableGameTestBody.testCableInsertionDistributesByReportedDemand(context);
     }
 
-    // not-yet-shared: uses Fabric Transaction as plumbing only
     @GameTest
     public void testMixedTierRouteIsCappedByWeakestCable(GameTestHelper context) {
-        BlockPos enderCablePos = new BlockPos(1, 1, 1);
-        BlockPos copperCablePos = new BlockPos(2, 1, 1);
-        BlockPos sinkPos = new BlockPos(3, 1, 1);
-
-        context.setBlock(enderCablePos, LogisticsPower.BLOCK.ENDER_CABLE);
-        context.setBlock(copperCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
-
-        CableBlockEntity enderCable = context.getBlockEntity(enderCablePos, CableBlockEntity.class);
-        CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
-        if (enderCable == null || sink == null) {
-            context.fail("Expected ender cable and creative sink block entities");
-            return;
-        }
-        sink.setUnlimitedDrainRate();
-
-        try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = findStorage(context, enderCablePos, Direction.WEST).insert(60L, transaction);
-            if (inserted != 30L) {
-                context.fail("Ender-to-copper route should be capped at 30 RF/t, got: " + inserted);
-                return;
-            }
-            transaction.commit();
-        }
-
-        try (Transaction transaction = Transaction.openOuter()) {
-            long inserted = findStorage(context, enderCablePos, Direction.WEST).insert(60L, transaction);
-            if (inserted != 0L) {
-                context.fail("Copper bottleneck should be spent for the tick, got extra: " + inserted);
-                return;
-            }
-            transaction.commit();
-        }
-
-        context.succeed();
+        CableGameTestBody.testMixedTierRouteIsCappedByWeakestCable(context);
     }
 
     @GameTest
@@ -299,50 +134,9 @@ public class CableGameTest {
         CableGameTestBody.testCreativeEnginePowersCableNetwork(context);
     }
 
-    // not-yet-shared: uses Fabric Transaction as plumbing only
-    @GameTest(maxTicks = 40)
+    @GameTest
     public void testCableNetworkStopsAtRemovedCable(GameTestHelper context) {
-        BlockPos sourceCablePos = new BlockPos(1, 1, 1);
-        BlockPos removedCablePos = new BlockPos(2, 1, 1);
-        BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
-        BlockPos machinePos = new BlockPos(4, 1, 1);
-
-        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(removedCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
-
-        context.runAfterDelay(2, () -> {
-            context.setBlock(removedCablePos, Blocks.AIR);
-
-            CableBlockEntity sourceCable = context.getBlockEntity(sourceCablePos, CableBlockEntity.class);
-            CableBlockEntity downstreamCable = context.getBlockEntity(downstreamCablePos, CableBlockEntity.class);
-            MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
-            if (sourceCable == null || downstreamCable == null || machine == null) {
-                context.fail("Expected source cable, downstream cable, and machine block entities");
-                return;
-            }
-            giveMaceratorWork(machine);
-
-            EnergyStorage sourceStorage = findStorage(context, sourceCablePos, Direction.WEST);
-            try (Transaction transaction = Transaction.openOuter()) {
-                long inserted = sourceStorage.insert(640L, transaction);
-                if (inserted != 0) {
-                    context.fail("Split cable network should reject energy without connected consumers, got: " + inserted);
-                    return;
-                }
-                transaction.commit();
-            }
-
-            context.runAfterDelay(10, () -> {
-                long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
-                if (machineEnergy != 0) {
-                    context.fail("Removed cable should split network before energy reaches machine, got: " + machineEnergy);
-                    return;
-                }
-                context.succeed();
-            });
-        });
+        CableGameTestBody.testCableNetworkStopsAtRemovedCable(context);
     }
 
     @GameTest
@@ -365,49 +159,9 @@ public class CableGameTest {
         CableGameTestBody.testRedstoneEngineIsNotPulledByCableNetwork(context);
     }
 
-    // not-yet-shared: uses Fabric Transaction as plumbing only
-    @GameTest(maxTicks = 50)
+    @GameTest
     public void testCableNetworkRejoinsAfterCableIsRestored(GameTestHelper context) {
-        BlockPos sourceCablePos = new BlockPos(1, 1, 1);
-        BlockPos restoredCablePos = new BlockPos(2, 1, 1);
-        BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
-        BlockPos machinePos = new BlockPos(4, 1, 1);
-
-        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(restoredCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
-
-        context.runAfterDelay(2, () -> {
-            context.setBlock(restoredCablePos, Blocks.AIR);
-            context.runAfterDelay(2, () -> {
-                context.setBlock(restoredCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-
-                CableBlockEntity sourceCable = context.getBlockEntity(sourceCablePos, CableBlockEntity.class);
-                MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
-                if (sourceCable == null || machine == null) {
-                    context.fail("Expected source cable and machine block entities after restoring cable");
-                    return;
-                }
-                giveMaceratorWork(machine);
-
-                try (Transaction transaction = Transaction.openOuter()) {
-                    long inserted = findStorage(context, sourceCablePos, Direction.WEST).insert(640L, transaction);
-                    if (inserted <= 0) {
-                        context.fail("Restored cable should rejoin network and deliver energy");
-                        return;
-                    }
-                    transaction.commit();
-                }
-
-                long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
-                if (machineEnergy <= 0) {
-                    context.fail("Restored cable network should deliver energy to machine, got: " + machineEnergy);
-                    return;
-                }
-                context.succeed();
-            });
-        });
+        CableGameTestBody.testCableNetworkRejoinsAfterCableIsRestored(context);
     }
 
     /**
@@ -416,44 +170,21 @@ public class CableGameTest {
      * other mods cannot find it). The engine's direct path — inserting into {@code energyStorage} —
      * must still fill the buffer.
      */
-    // not-yet-shared: uses Fabric EnergyStorage lookup as plumbing only
+    // loader-only: asserts the pipe's buffer is invisible to Fabric's own energy grid lookup,
+    // which NeoForge's capability system has no shared equivalent for. The portable half of this
+    // scenario lives in CableGameTestBody#cableDoesNotPowerExtractionPipe.
     @GameTest
     public void testCableDoesNotPowerExtractionPipe(GameTestHelper context) {
-        BlockPos cablePos = new BlockPos(1, 1, 1);
-        BlockPos pipePos = new BlockPos(2, 1, 1);
-
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(pipePos, LogisticsPipe.BLOCK.ITEM_EXTRACTOR_PIPE);
-
-        PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+        PipeBlockEntity pipe = CableGameTestBody.cableDoesNotPowerExtractionPipe(context);
         if (pipe == null) {
-            context.fail("Item extractor pipe should have a block entity");
             return;
         }
-
-        // The cable must report NO connection toward the pipe, via the cached path the game actually uses.
-        CableBlock cableBlock = (CableBlock) LogisticsPower.BLOCK.COPPER_CABLE;
-        CableBlock.ConnectionType connection =
-                cableBlock.getConnectionType(context.getLevel(), context.absolutePos(cablePos), Direction.EAST);
-        if (connection != CableBlock.ConnectionType.NONE) {
-            context.fail("Cable should not connect to an extraction pipe, got: " + connection);
-            return;
-        }
-
-        // The pipe's energy buffer must be invisible to the loader energy grid.
-        EnergyStorage gridView = EnergyStorage.SIDED.find(context.getLevel(), context.absolutePos(pipePos), Direction.WEST);
+        EnergyStorage gridView =
+                EnergyStorage.SIDED.find(context.getLevel(), context.absolutePos(new BlockPos(2, 1, 1)), Direction.WEST);
         if (gridView != null) {
             context.fail("Extraction pipe must not expose energy to the grid; got a non-null storage");
             return;
         }
-
-        // But an engine's direct delivery (insert into energyStorage) still fills the buffer.
-        IEnergyStorage buffer = pipe.energyStorage(Direction.WEST);
-        if (buffer == null || buffer.insert(10, false) <= 0 || buffer.getAmount() <= 0) {
-            context.fail("Engine direct delivery into the pipe's energy buffer should still work");
-            return;
-        }
-
         context.succeed();
     }
 
