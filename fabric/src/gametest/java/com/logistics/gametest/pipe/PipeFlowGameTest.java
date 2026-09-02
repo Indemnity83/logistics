@@ -142,4 +142,12 @@ public class PipeFlowGameTest {
         context.assertContainerContains(chestPos, Items.DIAMOND);
         context.succeed();
     }
+    /**
+     * An item in transit survives its pipe being rebuilt from saved NBT and still reaches the chest.
+     * Slow item (~20 ticks/segment) across three segments plus the rebuild, so allow ample ticks.
+     */
+    @GameTest(maxTicks = 200)
+    public void testTravelingItemSurvivesPipeReconstruction(GameTestHelper context) {
+        PipeFlowGameTestBody.testTravelingItemSurvivesPipeReconstruction(context);
+    }
 }

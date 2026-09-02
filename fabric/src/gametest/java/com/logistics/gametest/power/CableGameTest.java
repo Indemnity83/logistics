@@ -200,6 +200,12 @@ public class CableGameTest {
         machine.setItem(0, new ItemStack(Items.IRON_INGOT));
     }
 
+    /** A cable network still delivers energy after one cable is rebuilt from saved NBT. */
+    @GameTest(maxTicks = 60)
+    public void testCableNetworkSurvivesCableReconstruction(GameTestHelper context) {
+        CableGameTestBody.testCableNetworkSurvivesCableReconstruction(context);
+    }
+
     private static void setSinkDrainRate(
             CreativeSinkBlockEntity sink, long drainRate, GameTestHelper context) {
         for (int attempts = 0; attempts < 20 && sink.getDrainRate() != drainRate; attempts++) {
