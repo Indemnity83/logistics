@@ -19,21 +19,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Ties the registry to the shipped resource tree, in both directions.
+ * Ties the registry to the shipped resource tree, in both directions: every registered block and
+ * item ships a resource, and every shipped resource belongs to something registered.
  *
- * <p>The other contract tests in this package start from a file and follow its references. That can
- * only find broken links between files that exist — it cannot see a block or item that was
- * registered and never given a resource at all, which is how a registered thing ends up rendering
- * as the missing-texture checkerboard in a world.
- *
- * <p>The reverse direction matters just as much, and guards this test itself: if
- * {@link DomainRegistrations} ever stops driving part of the registration, the resources for the
- * missing part surface here as orphans rather than quietly shrinking what the forward checks cover.
- *
- * <p>Coverage stops at the definition/blockstate file. That file's own references are followed by
+ * <p>Coverage stops at the definition/blockstate file. Its own references are followed by
  * {@link ItemDefinitionContractTest}, {@link BlockstateContractTest}, and
- * {@link ModelReferenceContractTest}, so registry to definition to model to texture is covered
- * end to end by the package as a whole.
+ * {@link ModelReferenceContractTest}. See TESTING.md.
  */
 @DisplayName("Registry coverage")
 class RegistryCoverageContractTest extends MinecraftTestEnvironment {
@@ -100,6 +91,20 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
         return ids;
     }
 
+    /**
+     * Every id shipped for {@code kind} anywhere — common or any single loader. The union is
+     * deliberate, and the mirror of {@link #covered}'s intersection: a resource counts as
+     * <em>covered</em> only when every loader has it, but an orphan in <em>one</em> loader is still
+     * an orphan.
+     */
+    private static Set<String> shippedAnywhere(String kind) {
+        Set<String> ids = new TreeSet<>(idsUnder(ResourceFiles.assetRoot().resolve(kind)));
+        for (String module : ResourceFiles.LOADER_MODULES) {
+            ids.addAll(idsUnder(ResourceFiles.loaderAssetRoot(module).resolve(kind)));
+        }
+        return ids;
+    }
+
     // ==================== registry to resource ====================
 
     @Test
@@ -131,7 +136,7 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("every item definition belongs to a registered item")
     void everyItemDefinitionBelongsToARegisteredItem() {
-        Set<String> orphans = new TreeSet<>(idsUnder(ResourceFiles.assetRoot().resolve("items")));
+        Set<String> orphans = new TreeSet<>(shippedAnywhere("items"));
         orphans.removeAll(registeredPaths(BuiltInRegistries.ITEM));
         orphans.removeAll(loaderRegistered());
 
@@ -144,7 +149,7 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("every blockstate belongs to a registered block")
     void everyBlockstateBelongsToARegisteredBlock() {
-        Set<String> orphans = new TreeSet<>(idsUnder(ResourceFiles.assetRoot().resolve("blockstates")));
+        Set<String> orphans = new TreeSet<>(shippedAnywhere("blockstates"));
         orphans.removeAll(registeredPaths(BuiltInRegistries.BLOCK));
         orphans.removeAll(loaderRegistered());
 
@@ -161,7 +166,7 @@ class RegistryCoverageContractTest extends MinecraftTestEnvironment {
     void registrationPopulatedTheRegistries() {
         // Both directions above pass trivially against an empty registry on the forward side, so
         // assert the domains really registered. Floors are a deletion alarm, not a coverage claim.
-        assertThat(registeredPaths(BuiltInRegistries.ITEM)).as("registered items").hasSizeGreaterThan(150);
-        assertThat(registeredPaths(BuiltInRegistries.BLOCK)).as("registered blocks").hasSizeGreaterThan(60);
+        assertThat(registeredPaths(BuiltInRegistries.ITEM)).as("registered items").hasSizeGreaterThanOrEqualTo(184);
+        assertThat(registeredPaths(BuiltInRegistries.BLOCK)).as("registered blocks").hasSizeGreaterThanOrEqualTo(69);
     }
 }
