@@ -1,6 +1,7 @@
 {
   "textures": {
-    "charge": "logistics:block/power/battery_charge"
+    "charge": "logistics:block/power/battery_charge",
+    "particle": "logistics:block/power/battery_sides"
   },
   "elements": [
     {
