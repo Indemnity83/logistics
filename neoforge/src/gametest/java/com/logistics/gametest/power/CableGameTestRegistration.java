@@ -37,7 +37,7 @@ public final class CableGameTestRegistration {
             CableGameTestBody::testCableDoesNotConnectToRedstoneEngine),
         new GameTestCase(
             "power/cable_redstone_engine_not_pulled_by_network",
-            60,
+            90,
             CableGameTestBody::testRedstoneEngineIsNotPulledByCableNetwork));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =

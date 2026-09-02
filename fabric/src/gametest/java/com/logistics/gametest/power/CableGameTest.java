@@ -360,7 +360,7 @@ public class CableGameTest {
         CableGameTestBody.testCableDoesNotConnectToRedstoneEngine(context);
     }
 
-    @GameTest
+    @GameTest(maxTicks = 60)
     public void testRedstoneEngineIsNotPulledByCableNetwork(GameTestHelper context) {
         CableGameTestBody.testRedstoneEngineIsNotPulledByCableNetwork(context);
     }

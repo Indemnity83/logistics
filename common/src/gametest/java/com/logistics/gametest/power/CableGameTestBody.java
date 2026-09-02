@@ -17,10 +17,6 @@ import net.minecraft.world.item.Items;
 /**
  * Cable topology and engine interaction: which neighbours a cable connects to, how that connection
  * reacts to a neighbour rotating, and which engines the network may and may not draw from.
- *
- * <p>The rest of {@code fabric/.../power/CableGameTest} stays Fabric-only for now — those tests
- * move energy through Team Reborn {@code Transaction}s, which needs rewriting against a real engine
- * before it can be shared.
  */
 public class CableGameTestBody {
 
@@ -151,25 +147,58 @@ public class CableGameTestBody {
         context.succeed();
     }
 
+    /**
+     * The same layout as {@link #testCreativeEnginePowersCableNetwork}, swapping the engine. A
+     * machine with work to do sits behind the cable so the network genuinely wants energy —
+     * without a consumer nothing would be pulled either way, and the test would pass without
+     * showing that the redstone engine is the reason.
+     */
     public static void testRedstoneEngineIsNotPulledByCableNetwork(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(1, 1, 1);
         BlockPos cablePos = new BlockPos(2, 1, 1);
+        BlockPos machinePos = new BlockPos(3, 1, 1);
 
         context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
         context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)
                 .setValue(AbstractEngineBlock.POWERED, true));
 
+        MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+        if (machine == null) {
+            context.fail("Expected macerator block entity");
+            return;
+        }
+        giveMaceratorWork(machine);
+
+        long[] engineEnergyWhileDemanded = new long[1];
         context.runAfterDelay(20, () -> {
+            RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
+            if (engine == null) {
+                context.fail("Expected redstone engine block entity");
+                return;
+            }
+            if (engine.getEnergy() <= 0) {
+                context.fail("Redstone engine should have generated energy to be drained of");
+                return;
+            }
+            engineEnergyWhileDemanded[0] = engine.getEnergy();
+        });
+
+        context.runAfterDelay(40, () -> {
             RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
             CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
             if (engine == null || cable == null) {
                 context.fail("Expected redstone engine and cable block entities");
                 return;
             }
-            if (engine.getEnergy() <= 0) {
-                context.fail("Cable network should not pull directly from redstone engine buffer");
+            if (machine.energyStorage(Direction.EAST).getAmount() != 0) {
+                context.fail("Cable network should not deliver redstone engine energy to a demanding machine");
+                return;
+            }
+            if (engine.getEnergy() < engineEnergyWhileDemanded[0]) {
+                context.fail("Redstone engine buffer was drained despite demand on the network");
                 return;
             }
             if (cable.energyStorage(Direction.WEST).getAmount() != 0) {
