@@ -1,0 +1,186 @@
+package com.logistics.gametest.power;
+
+import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsCore;
+import com.logistics.LogisticsPower;
+import com.logistics.automation.macerator.MaceratorBlockEntity;
+import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.cable.CableBlock;
+import com.logistics.power.cable.CableBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+
+/**
+ * Cable topology and engine interaction: which neighbours a cable connects to, how that connection
+ * reacts to a neighbour rotating, and which engines the network may and may not draw from.
+ *
+ * <p>The rest of {@code fabric/.../power/CableGameTest} stays Fabric-only for now — those tests
+ * move energy through Team Reborn {@code Transaction}s, which needs rewriting against a real engine
+ * before it can be shared.
+ */
+public class CableGameTestBody {
+
+    public static void testCreativeEnginePowersCableNetwork(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos firstCablePos = new BlockPos(1, 1, 1);
+        BlockPos secondCablePos = new BlockPos(2, 1, 1);
+        BlockPos machinePos = new BlockPos(3, 1, 1);
+
+        context.setBlock(firstCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(secondCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        CableBlockEntity firstCable = context.getBlockEntity(firstCablePos, CableBlockEntity.class);
+        CableBlockEntity secondCable = context.getBlockEntity(secondCablePos, CableBlockEntity.class);
+        MaceratorBlockEntity machine = context.getBlockEntity(machinePos, MaceratorBlockEntity.class);
+        if (firstCable == null || secondCable == null || machine == null) {
+            context.fail("Expected cable and machine block entities");
+            return;
+        }
+        giveMaceratorWork(machine);
+
+        context.runAfterDelay(20, () -> {
+            long machineEnergy = machine.energyStorage(Direction.WEST).getAmount();
+            if (machineEnergy <= 0) {
+                context.fail("Creative engine should power machine through cable network");
+                return;
+            }
+            if (firstCable.energyStorage(Direction.WEST).getAmount() != 0
+                    || secondCable.energyStorage(Direction.WEST).getAmount() != 0) {
+                context.fail("Cables should not retain creative engine energy");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    public static void testCableConnectionUpdatesWhenNeighborOutputRotates(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(1, 1, 1);
+        BlockPos cablePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        if (cable == null) {
+            context.fail("Expected cable block entity");
+            return;
+        }
+
+        if (cable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.DEVICE) {
+            context.fail("Cable should initially connect to engine output");
+            return;
+        }
+
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.NORTH)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        if (cable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.NONE) {
+            context.fail("Cable connection cache should update when neighboring output rotates away");
+            return;
+        }
+
+        context.succeed();
+    }
+
+    public static void testCableConnectsToBufferlessEngineOutputs(GameTestHelper context) {
+        BlockPos steamEnginePos = new BlockPos(1, 1, 1);
+        BlockPos steamCablePos = new BlockPos(2, 1, 1);
+        BlockPos reactionEnginePos = new BlockPos(4, 1, 1);
+        BlockPos reactionCablePos = new BlockPos(5, 1, 1);
+
+        context.setBlock(steamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(steamEnginePos, LogisticsPower.BLOCK.STEAM_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST));
+        context.setBlock(reactionCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(reactionEnginePos, LogisticsPower.BLOCK.REACTION_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST));
+
+        CableBlockEntity steamCable = context.getBlockEntity(steamCablePos, CableBlockEntity.class);
+        CableBlockEntity reactionCable = context.getBlockEntity(reactionCablePos, CableBlockEntity.class);
+        if (steamCable == null || reactionCable == null) {
+            context.fail("Expected cable block entities");
+            return;
+        }
+        if (steamCable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.DEVICE
+                || reactionCable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.DEVICE) {
+            context.fail("Cables should connect to bufferless engine output faces");
+            return;
+        }
+        context.succeed();
+    }
+
+    public static void testCableDoesNotConnectToRedstoneEngine(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(1, 1, 1);
+        BlockPos cablePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST));
+
+        RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
+        if (engine == null) {
+            context.fail("Expected redstone engine block entity");
+            return;
+        }
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        if (cable == null) {
+            context.fail("Expected cable block entity");
+            return;
+        }
+        if (cable.getCachedConnectionType(Direction.WEST) != CableBlock.ConnectionType.NONE) {
+            context.fail("Cable should not connect to redstone engine");
+            return;
+        }
+        context.succeed();
+    }
+
+    public static void testRedstoneEngineIsNotPulledByCableNetwork(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(1, 1, 1);
+        BlockPos cablePos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        context.runAfterDelay(20, () -> {
+            RedstoneEngineBlockEntity engine = context.getBlockEntity(enginePos, RedstoneEngineBlockEntity.class);
+            CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+            if (engine == null || cable == null) {
+                context.fail("Expected redstone engine and cable block entities");
+                return;
+            }
+            if (engine.getEnergy() <= 0) {
+                context.fail("Cable network should not pull directly from redstone engine buffer");
+                return;
+            }
+            if (cable.energyStorage(Direction.WEST).getAmount() != 0) {
+                context.fail("Cable should not buffer redstone engine energy");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    private static void giveMaceratorWork(MaceratorBlockEntity machine) {
+        machine.setItem(0, new ItemStack(Items.IRON_INGOT));
+    }
+}

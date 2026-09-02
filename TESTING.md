@@ -455,12 +455,12 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 15. **Fluid-routing modules** (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
     FluidVoidModule) — zero coverage at any level, real check-valve/routing-policy logic backing 4
     registered pipe blocks.
-16. **Share the 13 `// not-yet-shared:` CableGameTest tests** — NeoForge runs none of them today, so
-    the whole cable domain is Fabric-only in practice: topology (connects/doesn't connect, network
-    splits and rejoins), tier capping, and engine interaction are all unverified there. Five touch no
-    Fabric API and move as-is; the other eight use `Transaction`/`EnergyStorage` only to push and read
+16. **Share the remaining 8 `// not-yet-shared:` CableGameTest tests** — the five that touched no
+    Fabric API now live in `CableGameTestBody`, so NeoForge covers cable topology and engine
+    interaction. The eight still to move use `Transaction`/`EnergyStorage` only to push and read
     energy, so they need the same rewrite `PipeFlowGameTest` already got — swap the Fabric calls for
-    a real adjacent `CREATIVE_ENGINE` and plain block-entity reads. Only the two
+    a real adjacent `CREATIVE_ENGINE` and plain block-entity reads. That would also bring network
+    split/rejoin and tier capping to NeoForge, which are still Fabric-only. The two
     `testAbortedCableTransaction*` tests genuinely stay Fabric-only.
 
 ---
@@ -546,8 +546,8 @@ These classes take a `Level` in their constructor or rely on world state during 
 
 ## Fabric + NeoForge Game Tests
 
-`fabric/src/gametest/` and `neoforge/src/gametest/` run **197 shared feature tests** on each loader
-(plus 16 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
+`fabric/src/gametest/` and `neoforge/src/gametest/` run **202 shared feature tests** on each loader
+(plus 11 unshared Fabric ones — see "Parity is enforced, not assumed" below), all requiring a full
 Minecraft server process (real block placement, game ticks). Fabric's are considered
 **deprecated** as a long-term matter — the goal is to replace them with plain JUnit equivalents as
 code is restructured to separate pure logic from world dependencies — but they're kept to preserve
@@ -604,12 +604,13 @@ can't be shared, because the two loaders' APIs are genuinely different, not just
   (`IEnergyStorage.insert(amount, simulate)`) has no transaction/rollback concept to test — a
   `simulate=true` dry run is a different mechanism, not an equivalent.
 
-  The **rest** of `CableGameTest` is not a real exception, only an unfinished port: 5 of its tests
-  touch no Fabric API at all, and the other 8 use `Transaction`/`EnergyStorage` purely as test
-  plumbing to move energy around — exactly the situation `PipeFlowGameTest` was already rewritten out
-  of (next bullet). Those 13 carry a `// not-yet-shared:` marker and are counted by
-  `checkFeatureTestParity`; the count may shrink but never grow. NeoForge currently runs none of
-  them, which is a real coverage gap, not a documented boundary.
+  The **remaining 8** in `CableGameTest` are not a real exception, only an unfinished port: they use
+  `Transaction`/`EnergyStorage` purely as test plumbing to move energy around — exactly the situation
+  `PipeFlowGameTest` was already rewritten out of (next bullet). They carry a `// not-yet-shared:`
+  marker and are counted by `checkFeatureTestParity`; the count may shrink but never grow. The five
+  that touched no Fabric API have already moved to `CableGameTestBody`, so NeoForge now covers cable
+  topology and engine interaction — what it still lacks is anything that moves energy through the
+  network.
 - `pipe/PipeFlowGameTest#testChestItemStorageReachable` stays inline in the Fabric wrapper (not
   delegated to a Body method, not registered on NeoForge): it specifically verifies Fabric API's own
   vanilla-chest-to-`ItemStorage` adapter, which has no NeoForge equivalent to test — every other
@@ -654,10 +655,10 @@ Matching *counts* are not parity and the task never checks them: two loaders can
 while running different sets. Comparing the catalog against each loader's wiring is what actually
 proves it.
 
-For reference, the current split is 197 shared tests, plus 3 `// loader-only:` and 13
-`// not-yet-shared:` Fabric tests. The runs report 214 on Fabric and 198 on NeoForge; the totals
+For reference, the current split is 202 shared tests, plus 3 `// loader-only:` and 8
+`// not-yet-shared:` Fabric tests. The runs report 214 on Fabric and 203 on NeoForge; the totals
 include a built-in instance from the test framework itself, so read the *difference* rather than
-either number — 16, exactly the unshared Fabric set, and expected rather than a defect.
+either number — 11, exactly the unshared Fabric set, and expected rather than a defect.
 
 Every unshared Fabric test needs one of two markers directly above its `@GameTest` annotation:
 
