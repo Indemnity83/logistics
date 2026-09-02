@@ -935,7 +935,7 @@ captures. (There is no longer a `hideGui` field to set directly.)
 ### Cost and CI
 
 A world-creating capture test runs in about 15 seconds locally on a warm cache. CI needs a display —
-the run config inherits from `client` — so the `client-feature-test (fabric)` job installs `xvfb` and
+the run config inherits from `client` — so the `client-test (fabric)` job installs `xvfb` and
 runs through `xvfb-run`.
 
 That job is gated on a `client_changed` path filter: client sources, shipped assets, or the client

@@ -17,16 +17,21 @@ jobs:
     name: review (claude)
     runs-on: ubuntu-latest
 
-    # Skip fork PRs: GitHub resolves secrets to an empty string for pull_request
-    # runs from forks, so the action cannot authenticate and the check would fail
-    # on every external contribution. Review those by commenting @claude, which
-    # runs in the base repo and does get the secret.
-    # Skip release-please and dependabot PRs: neither benefits from a code review,
-    # and both would spend review budget that human-authored PRs need.
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository
-      && !contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
-      && github.event.pull_request.user.login != 'dependabot[bot]'
+    # Deliberately no job-level `if`: a job skipped that way never reports its check,
+    # and `review (claude)` is a required context on mc/** — a PR that skipped it
+    # would sit pending forever. The job always runs and always reports; the steps
+    # below no-op instead. Same shape the check-code.yml suites use for their path
+    # filters.
+    env:
+      # Fork PRs: GitHub resolves secrets to an empty string for pull_request runs
+      # from forks, so the action cannot authenticate. Review those by commenting
+      # @claude, which runs in the base repo and does get the secret.
+      # release-please and dependabot PRs: neither benefits from a code review, and
+      # both would spend review budget that human-authored PRs need.
+      REVIEWABLE: >-
+        ${{ github.event.pull_request.head.repo.full_name == github.repository
+        && !contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
+        && github.event.pull_request.user.login != 'dependabot[bot]' }}
 
     permissions:
       contents: read
@@ -35,7 +40,12 @@ jobs:
       id-token: write
 
     steps:
+      - name: Skip review for fork, release, and dependabot pull requests
+        if: env.REVIEWABLE != 'true'
+        run: echo "Not a reviewable pull request; reporting success without reviewing."
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        if: env.REVIEWABLE == 'true'
         with:
           fetch-depth: 1
           # Keep GITHUB_TOKEN out of .git/config: this job reads untrusted PR
@@ -43,6 +53,7 @@ jobs:
           persist-credentials: false
 
       - name: Review pull request
+        if: env.REVIEWABLE == 'true'
         uses: anthropics/claude-code-action@8251c103ac8c1d761882c86aba1412c7f583c844 # v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
