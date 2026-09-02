@@ -4,9 +4,12 @@ import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsAutomation;
 
 import com.logistics.automation.laserquarry.LaserQuarryBlock;
+import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
 import com.logistics.core.lib.compat.NbtCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,8 +24,17 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class QuarryPhaseRunner {
 
+    /** Frame positions checked per mining tick; the whole ring is swept over many ticks. */
+    private static final int FRAME_SCAN_PER_TICK = 8;
+
     private QuarryPhase phase = QuarryPhase.CLEARING;
     private int frameBuildIndex = 0;
+
+    /** Rolling cursor for the background frame-integrity sweep run during MINING. */
+    private int frameScanIndex = 0;
+
+    /** Cursor into the frame sequence while REPAIRING_FRAME walks it looking for gaps. */
+    private int frameRepairIndex = 0;
 
     private int miningX = 0;
     private int miningY = 0;
@@ -75,6 +87,8 @@ public final class QuarryPhaseRunner {
     public void onCustomBoundsSet() {
         phase = QuarryPhase.CLEARING;
         frameBuildIndex = 0;
+        frameScanIndex = 0;
+        frameRepairIndex = 0;
         miningX = 0;
         miningY = 0;
         miningZ = 0;
@@ -94,6 +108,7 @@ public final class QuarryPhaseRunner {
             case CLEARING -> tickClearing(q);
             case BUILDING_FRAME -> tickBuildingFrame(q);
             case MINING -> tickMining(q);
+            case REPAIRING_FRAME -> tickRepairingFrame(q);
             default -> {}
         }
     }
@@ -158,22 +173,14 @@ public final class QuarryPhaseRunner {
     }
 
     private void tickBuildingFrame(QuarryContext q) {
-        if (!q.hasEnergy(q.frameBuildCost())) {
-            return;
-        }
-
-        BlockPos framePos = FrameLayout.nextFramePosition(
-                LaserQuarryBlock.getMiningDirection(q.quarryState()),
-                q.pos(),
-                q.bounds(),
-                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA),
-                frameBuildIndex);
+        BlockPos framePos = framePositionAt(q, frameBuildIndex);
         if (framePos == null) {
             // Frame built — transition to mining.
             phase = QuarryPhase.MINING;
             miningX = 0;
             miningY = 0;
             miningZ = 0;
+            frameScanIndex = 0;
             q.arm().resetExpectedTravelTicks();
             // armInitialized flips false so first MINING tick re-anchors the arm.
             q.arm().enterMoving();
@@ -183,24 +190,143 @@ public final class QuarryPhaseRunner {
             return;
         }
 
-        q.consumeEnergy(q.frameBuildCost());
-
-        BlockState existingState = q.level().getBlockState(framePos);
-        if (existingState.isAir() || existingState.canBeReplaced()) {
-            BlockState frameState = FrameLayout.frameBlockState(
-                    LaserQuarryBlock.getMiningDirection(q.quarryState()),
-                    q.pos(),
-                    framePos,
-                    q.bounds(),
-                    LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA));
-            q.level().setBlockAndUpdate(framePos, frameState);
+        if (!placeFrameBlock(q, framePos)) {
+            // Can't afford it yet — hold this index and retry next tick.
+            return;
         }
 
         frameBuildIndex++;
         q.markChanged();
     }
 
+    /**
+     * Paused mining while the frame is put back together. Walks the frame sequence for gaps and
+     * rebuilds one block per tick, charging only for blocks actually placed. The mining cursor and
+     * in-flight break progress are left untouched, so mining resumes exactly where it stopped.
+     */
+    private void tickRepairingFrame(QuarryContext q) {
+        int gap = nextGapIndex(index -> framePositionAt(q, index), pos -> q.level().getBlockState(pos), frameRepairIndex);
+        if (gap >= 0) {
+            frameRepairIndex = gap;
+        }
+        BlockPos framePos = gap < 0 ? null : framePositionAt(q, gap);
+
+        if (framePos == null) {
+            phase = QuarryPhase.MINING;
+            frameRepairIndex = 0;
+            frameScanIndex = 0;
+            q.markChanged();
+            q.sync();
+            return;
+        }
+
+        if (!placeFrameBlock(q, framePos)) {
+            return;
+        }
+
+        frameRepairIndex++;
+        q.markChanged();
+    }
+
+    /**
+     * Sweeps a slice of the frame each mining tick. True as soon as a gap turns up, which sends the
+     * quarry into {@link QuarryPhase#REPAIRING_FRAME}. The cursor rolls across ticks so the whole
+     * frame is covered without ever scanning it all at once.
+     */
+    boolean frameHasGap(IntFunction<@Nullable BlockPos> positionAt, Function<BlockPos, BlockState> stateAt) {
+        for (int checked = 0; checked < FRAME_SCAN_PER_TICK; checked++) {
+            BlockPos framePos = positionAt.apply(frameScanIndex);
+            if (framePos == null) {
+                if (frameScanIndex == 0) {
+                    return false; // no resolvable frame at all — nothing to police
+                }
+                frameScanIndex = 0;
+                continue;
+            }
+            frameScanIndex++;
+            if (isGap(stateAt.apply(framePos))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Index of the first gap at or after {@code from}, or -1 when the frame is whole. */
+    static int nextGapIndex(
+            IntFunction<@Nullable BlockPos> positionAt, Function<BlockPos, BlockState> stateAt, int from) {
+        for (int index = from; ; index++) {
+            BlockPos framePos = positionAt.apply(index);
+            if (framePos == null) {
+                return -1;
+            }
+            if (isGap(stateAt.apply(framePos))) {
+                return index;
+            }
+        }
+    }
+
+    private void enterFrameRepair(QuarryContext q) {
+        phase = QuarryPhase.REPAIRING_FRAME;
+        frameRepairIndex = 0;
+        // Drop the crack overlay; break progress itself is kept so no mining work is wasted.
+        if (currentTarget != null) {
+            q.level().destroyBlockProgress(q.breakingEntityId(), currentTarget, -1);
+        }
+        q.markChanged();
+        q.sync();
+    }
+
+    /**
+     * True when the position is a hole the quarry should fill. A player-placed solid block is not a
+     * hole — it can't be replaced, so treating it as one would wedge the repair phase forever.
+     */
+    static boolean isGap(BlockState state) {
+        if (state.getBlock() instanceof LaserQuarryFrameBlock) {
+            return false;
+        }
+        return state.isAir() || state.canBeReplaced();
+    }
+
+    /**
+     * Places the frame block at {@code framePos}, charging the build cost only when a block is
+     * actually placed. False means the buffer couldn't afford the placement and the caller should
+     * retry the same index next tick.
+     */
+    private boolean placeFrameBlock(QuarryContext q, BlockPos framePos) {
+        if (!isGap(q.level().getBlockState(framePos))) {
+            return true;
+        }
+        if (!q.hasEnergy(q.frameBuildCost())) {
+            return false;
+        }
+        q.consumeEnergy(q.frameBuildCost());
+        q.level()
+                .setBlockAndUpdate(
+                        framePos,
+                        FrameLayout.frameBlockState(
+                                LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                                q.pos(),
+                                framePos,
+                                q.bounds(),
+                                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA)));
+        return true;
+    }
+
+    private static @Nullable BlockPos framePositionAt(QuarryContext q, int index) {
+        return FrameLayout.nextFramePosition(
+                LaserQuarryBlock.getMiningDirection(q.quarryState()),
+                q.pos(),
+                q.bounds(),
+                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA),
+                index);
+    }
+
     private void tickMining(QuarryContext q) {
+        if (!finished && frameHasGap(index -> framePositionAt(q, index), pos -> q.level().getBlockState(pos))) {
+            enterFrameRepair(q);
+            return;
+        }
+
         ArmController arm = q.arm();
         int topY = q.pos().getY() - 1;
 
@@ -477,6 +603,8 @@ public final class QuarryPhaseRunner {
         tag.putBoolean("MiningFinished", finished);
         tag.putString("CurrentPhase", phase.name());
         tag.putInt("FrameBuildIndex", frameBuildIndex);
+        tag.putInt("FrameRepairIndex", frameRepairIndex);
+        tag.putInt("FrameScanIndex", frameScanIndex);
     }
 
     public void load(CompoundTag tag) {
@@ -486,6 +614,8 @@ public final class QuarryPhaseRunner {
         breakProgress = NbtCompat.getFloat(tag, "BreakProgress", 0f);
         finished = NbtCompat.getBoolean(tag, "MiningFinished", false);
         frameBuildIndex = NbtCompat.getInt(tag, "FrameBuildIndex", 0);
+        frameRepairIndex = Math.max(0, NbtCompat.getInt(tag, "FrameRepairIndex", 0));
+        frameScanIndex = Math.max(0, NbtCompat.getInt(tag, "FrameScanIndex", 0));
 
         String phaseName = NbtCompat.getString(tag, "CurrentPhase", "CLEARING");
         try {
