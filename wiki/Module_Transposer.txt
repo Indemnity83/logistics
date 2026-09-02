@@ -8,6 +8,16 @@
 -- Transposer page carries ~48 recipes, and an #ifexist per fluid slot would run into Fandom's
 -- 100-expensive-parser-call cap.
 
+local itemlink = require('Module:ItemLink')
+
+-- Local page link for a mod item, plain text for anything else. Uses [[Module:ItemLink]]'s
+-- table (targetFor returns the bare name for a mod item, a Minecraft Wiki URL for a vanilla
+-- one) instead of a title-existence check, which is an EXPENSIVE parser call: Fandom allows
+-- only 100 of those per page and a long recipe table blows straight through the cap.
+local function linkIfMod(v)
+	return (itemlink.targetFor(v) == v) and ('[[' .. v .. ']]') or v
+end
+
 local p = {}
 
 local function trim(s)
@@ -41,8 +51,7 @@ local function ingredientsCell(args, fluidIn, inAmount)
 	for part in (trim(args.Input) or trim(args.input) or ''):gmatch('[^;]+') do
 		local v = trim(part)
 		if v then
-			local t = mw.title.new(v)
-			parts[#parts + 1] = (t and t.exists) and ('[[' .. v .. ']]') or v
+			parts[#parts + 1] = linkIfMod(v)
 		end
 	end
 
@@ -52,8 +61,7 @@ local function ingredientsCell(args, fluidIn, inAmount)
 	end
 
 	if fluidIn then
-		local t = mw.title.new(fluidIn)
-		local link = (t and t.exists) and ('[[' .. fluidIn .. ']]') or fluidIn
+		local link = linkIfMod(fluidIn)
 		local label = inAmount and (inAmount .. ' mB ' .. link) or link
 		out[#out + 1] = '<span class="logi-recipes-ingredient">' .. label .. '</span>'
 	end

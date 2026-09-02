@@ -5,6 +5,16 @@
 -- (fluid in + mB → fluid out + mB, plus a byproduct slot with its chance). head=1 opens the table +
 -- header, foot=1 closes it.
 
+local itemlink = require('Module:ItemLink')
+
+-- Local page link for a mod item, plain text for anything else. Uses [[Module:ItemLink]]'s
+-- table (targetFor returns the bare name for a mod item, a Minecraft Wiki URL for a vanilla
+-- one) instead of a title-existence check, which is an EXPENSIVE parser call: Fandom allows
+-- only 100 of those per page and a long recipe table blows straight through the cap.
+local function linkIfMod(v)
+	return (itemlink.targetFor(v) == v) and ('[[' .. v .. ']]') or v
+end
+
 local p = {}
 
 local function trim(s)
@@ -58,8 +68,7 @@ end
 
 -- one item/fluid, linked if it names a wiki page, else plain text
 local function linkItem(v)
-	local t = mw.title.new(v)
-	return (t and t.exists) and ('[[' .. v .. ']]') or v
+	return linkIfMod(v)
 end
 
 -- Ingredients column: explicit |ingredients=, else the input fluid prefixed by its mB amount.

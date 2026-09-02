@@ -3,6 +3,8 @@
 -- renders one row; head=1 opens the table + header, foot=1 closes it. A standalone single
 -- recipe sets head=1|foot=1. The Recipe cell reuses our own {{Grid Crafting Table}}.
 
+local itemlink = require('Module:ItemLink')
+
 local p = {}
 
 local SLOTS = {'A1','B1','C1','A2','B2','C2','A3','B3','C3'}
@@ -41,8 +43,7 @@ local function ingredientsCell(args)
 		if v and not seen[v] then
 			seen[v] = true
 			-- Link items that have a wiki page or redirect; leave vanilla items (no page) plain.
-			local t = mw.title.new(v)
-			if t and t.exists then
+			if itemlink.targetFor(v) == v then
 				list[#list + 1] = '[[' .. v .. ']]'
 			else
 				list[#list + 1] = v
