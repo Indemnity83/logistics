@@ -15,15 +15,25 @@ base {
 }
 
 repositories {
-    // Scope each repo to the groups it serves: Gradle advances to the next repo only on a 404, not on
-    // a transport error (e.g. read timeout), so an unscoped unreachable repo would stall any dependency
-    // it gets probed for. BlameJared precedes TerraformersMC so JEI resolves from the mirror during an outage.
-    maven { name = "Jared's maven"; url = "https://maven.blamejared.com/"; content { includeGroup "mezz.jei" } }
-    maven { url = "https://maven.terraformersmc.com/releases/"; content { includeGroup "mezz.jei"; includeGroup "com.terraformersmc" } }
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-        content { includeGroup "maven.modrinth" }
+    // exclusiveContent, not content: `content` says a repo *serves* a group, but does not stop other
+    // repos being probed for it. Maven Central (added by the loader plugins) was still asked for JEI
+    // and Jade, which it has never hosted -- normally a harmless 404, but a 429 or timeout from
+    // Central is a transport error, and Gradle fails the build instead of advancing to the next repo.
+    // exclusiveContent makes these groups resolvable *only* here, so Central is never asked at all.
+    // Both JEI mirrors stay in one block, BlameJared first, so failover survives a TerraformersMC outage.
+    exclusiveContent {
+        forRepositories(
+            maven { name = "Jared's maven"; url = "https://maven.blamejared.com/" },
+            maven { name = "TerraformersMC"; url = "https://maven.terraformersmc.com/releases/" }
+        )
+        filter {
+            includeGroup "mezz.jei"
+            includeGroup "com.terraformersmc"
+        }
+    }
+    exclusiveContent {
+        forRepository { maven { name = "Modrinth"; url = "https://api.modrinth.com/maven" } }
+        filter { includeGroup "maven.modrinth" }
     }
 }
 
