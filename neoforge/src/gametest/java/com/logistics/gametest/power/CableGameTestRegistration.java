@@ -38,7 +38,42 @@ public final class CableGameTestRegistration {
         new GameTestCase(
             "power/cable_redstone_engine_not_pulled_by_network",
             90,
-            CableGameTestBody::testRedstoneEngineIsNotPulledByCableNetwork));
+            CableGameTestBody::testRedstoneEngineIsNotPulledByCableNetwork),
+        new GameTestCase(
+            "power/cable_placement_exposes_energy_storage",
+            100,
+            CableGameTestBody::testCablePlacementExposesEnergyStorage),
+        new GameTestCase(
+            "power/cable_inserted_energy_passes_through_to_machine",
+            100,
+            CableGameTestBody::testInsertedCableEnergyPassesThroughToMachine),
+        new GameTestCase(
+            "power/cable_charges_idle_machine_buffer",
+            100,
+            CableGameTestBody::testCableChargesIdleMachineBuffer),
+        new GameTestCase(
+            "power/cable_insertion_distributes_by_reported_demand",
+            100,
+            CableGameTestBody::testCableInsertionDistributesByReportedDemand),
+        new GameTestCase(
+            "power/cable_mixed_tier_route_capped_by_weakest",
+            100,
+            CableGameTestBody::testMixedTierRouteIsCappedByWeakestCable),
+        new GameTestCase(
+            "power/cable_network_stops_at_removed_cable",
+            60,
+            CableGameTestBody::testCableNetworkStopsAtRemovedCable),
+        new GameTestCase(
+            "power/cable_network_rejoins_after_cable_restored",
+            60,
+            CableGameTestBody::testCableNetworkRejoinsAfterCableIsRestored),
+        // The body doesn't call succeed() itself — Fabric's wrapper adds a grid-visibility
+        // assertion afterward (see CableGameTestBody), so NeoForge finishes it here instead.
+        new GameTestCase("power/cable_does_not_power_extraction_pipe", 100, context -> {
+            if (CableGameTestBody.cableDoesNotPowerExtractionPipe(context) != null) {
+                context.succeed();
+            }
+        }));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
