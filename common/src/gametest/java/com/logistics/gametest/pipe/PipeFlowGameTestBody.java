@@ -258,22 +258,10 @@ public class PipeFlowGameTestBody {
      * then pipe2 — carrying it mid-flight — is saved, replaced with a fresh block entity, and
      * reloaded from that NBT.
      *
-     * <p>This is <em>reconstruction</em>, not a chunk unload. It covers the block entity's own
-     * {@code saveCustomOnly}/{@code loadCustomOnly} round-trip — which is what restores the item —
-     * but it reaches that round-trip by a different route than an unload does, and the difference
-     * matters:
-     *
-     * <ul>
-     *   <li>{@code setBlock(AIR)} fires {@code PipeBlockEntity#preRemoveSideEffects}, which drops
-     *       every in-transit item as an {@code ItemEntity} and detaches the pipe from its network.
-     *       That method is explicitly <em>not</em> called on chunk unload, so a stray diamond ends up
-     *       on the floor here that a real unload would never produce. Assert on the chest, never on a
-     *       world-wide item count.</li>
-     *   <li>Level unload events and chunk tickets are not involved at all.</li>
-     * </ul>
-     *
-     * <p>So a regression in the save/load round-trip is caught; a regression specific to the unload
-     * path is not.
+     * <p>Reconstruction, not a chunk unload: {@code setBlock(AIR)} fires
+     * {@code PipeBlockEntity#preRemoveSideEffects}, which drops the in-transit items as entities and
+     * is never called on a real unload. A stray diamond is therefore left on the floor — assert on
+     * the chest, never on a world-wide item count. See TESTING.md.
      */
     public static void testTravelingItemSurvivesPipeReconstruction(GameTestHelper context) {
         BlockPos pipe1 = new BlockPos(0, 1, 0);
