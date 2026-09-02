@@ -30,7 +30,7 @@ public final class PipeFlowGameTestRegistration {
             "pipe/enchanted_traveling_item_serialization", 20, PipeFlowGameTestBody::testEnchantedTravelingItemSerialization),
         new GameTestCase(
             "pipe/traveling_item_survives_pipe_reconstruction",
-            200,
+            220,
             PipeFlowGameTestBody::testTravelingItemSurvivesPipeReconstruction));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =

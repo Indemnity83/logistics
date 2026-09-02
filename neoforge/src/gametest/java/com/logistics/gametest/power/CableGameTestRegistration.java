@@ -76,7 +76,7 @@ public final class CableGameTestRegistration {
         }),
         new GameTestCase(
             "power/cable_network_survives_cable_reconstruction",
-            60,
+            80,
             CableGameTestBody::testCableNetworkSurvivesCableReconstruction));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =

@@ -258,9 +258,22 @@ public class PipeFlowGameTestBody {
      * then pipe2 — carrying it mid-flight — is saved, replaced with a fresh block entity, and
      * reloaded from that NBT.
      *
-     * <p>This is <em>reconstruction</em>, not a chunk unload: it exercises the same
-     * save/load path a real unload would, without level unload events, chunk tickets, or manager
-     * cleanup. Those stay untested here.
+     * <p>This is <em>reconstruction</em>, not a chunk unload. It covers the block entity's own
+     * {@code saveCustomOnly}/{@code loadCustomOnly} round-trip — which is what restores the item —
+     * but it reaches that round-trip by a different route than an unload does, and the difference
+     * matters:
+     *
+     * <ul>
+     *   <li>{@code setBlock(AIR)} fires {@code PipeBlockEntity#preRemoveSideEffects}, which drops
+     *       every in-transit item as an {@code ItemEntity} and detaches the pipe from its network.
+     *       That method is explicitly <em>not</em> called on chunk unload, so a stray diamond ends up
+     *       on the floor here that a real unload would never produce. Assert on the chest, never on a
+     *       world-wide item count.</li>
+     *   <li>Level unload events and chunk tickets are not involved at all.</li>
+     * </ul>
+     *
+     * <p>So a regression in the save/load round-trip is caught; a regression specific to the unload
+     * path is not.
      */
     public static void testTravelingItemSurvivesPipeReconstruction(GameTestHelper context) {
         BlockPos pipe1 = new BlockPos(0, 1, 0);
@@ -302,6 +315,10 @@ public class PipeFlowGameTestBody {
                 CompoundTag saved = middle.saveCustomOnly(registries);
                 context.setBlock(pipe2, Blocks.AIR);
                 context.setBlock(pipe2, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+                // Set before the assertions below: they run inside succeedWhen's retry loop, which
+                // swallows the exception and re-runs each tick. Rebuilding again would re-drop items
+                // every tick and bury the real failure behind a misleading "waiting" message.
+                rebuilt[0] = true;
 
                 PipeBlockEntity rebuiltPipe = context.getBlockEntity(pipe2, PipeBlockEntity.class);
                 if (rebuiltPipe == null) {
@@ -313,11 +330,12 @@ public class PipeFlowGameTestBody {
                             "Replaced pipe should start empty before its saved data is loaded");
                 }
                 rebuiltPipe.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, registries, saved));
+                // If this ever trips, succeedWhen swallows it and the run reports the chest
+                // assertion timing out instead; check this message in the log for the real cause.
                 if (rebuiltPipe.getTravelingItems().isEmpty()) {
                     throw context.assertionException(
                             "Reconstructed pipe lost the in-transit diamond when loading its saved data");
                 }
-                rebuilt[0] = true;
             }
 
             context.assertContainerContains(chestPos, Items.DIAMOND);
