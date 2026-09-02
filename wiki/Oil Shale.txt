@@ -28,6 +28,14 @@ Oil Shale breaks fastest with a shovel and always drops itself.
 
 Oil Shale generates as underground veins replacing gravel, in '''desert''', '''badlands''', and '''savanna''' biomes.
 
+=== Transposer ===
+
+Soaking gravel in [[Crude Oil]] recreates the block, so it is renewable once an oil supply is running:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Gravel |FluidIn=Crude Oil |InAmount=1000 |Output=Oil Shale
+|notes=4,000 RF}}
+
 == Usage ==
 
 === Crucible ===
@@ -50,7 +58,8 @@ The [[Macerator]] extracts [[Bitumen]] from it, with a chance of flint:
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.2|[[File:Grid Oil Shale.png|32px]] Added '''Oil Shale'''.}}
+{{History|head=1|v0.8.2|[[File:Grid Oil Shale.png|32px]] Added '''Oil Shale'''.}}
+{{History|foot=1|v0.8.7|Can now be made in a [[Transposer]] by soaking gravel in [[Crude Oil]].}}
 
 == See also ==
 

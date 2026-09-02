@@ -28,6 +28,14 @@ Oil Sand breaks fastest with a shovel and always drops itself.
 
 Oil Sand generates in large surface blobs throughout '''sandy''' biomes such as deserts and beaches, and rings the [[Crude Oil]] pools of oil seeps.
 
+=== Transposer ===
+
+Soaking sand in [[Crude Oil]] recreates the block, so it is renewable once an oil supply is running:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Sand |FluidIn=Crude Oil |InAmount=1000 |Output=Oil Sand
+|notes=4,000 RF}}
+
 == Usage ==
 
 === Crucible ===
@@ -50,7 +58,8 @@ The [[Macerator]] extracts [[Bitumen]] from it, with a chance of [[Tar]]:
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.2|[[File:Grid Oil Sand.png|32px]] Added '''Oil Sand'''.}}
+{{History|head=1|v0.8.2|[[File:Grid Oil Sand.png|32px]] Added '''Oil Sand'''.}}
+{{History|foot=1|v0.8.7|Can now be made in a [[Transposer]] by soaking sand in [[Crude Oil]].}}
 
 == See also ==
 

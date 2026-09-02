@@ -26,7 +26,11 @@ The [[Crucible]] liquefies oil-bearing blocks and [[Bitumen]] into Crude Oil:
 
 == Usage ==
 
-Crude Oil is refined into [[Fuel Oil]] in a [[Refinery]], or burned directly in a [[Fuel Engine]] for [[RF Energy|RF]]. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+Crude Oil is refined into [[Fuel Oil]] in a [[Refinery]], or burned directly in a [[Fuel Engine]] for [[RF Energy|RF]]. A [[Transposer]] soaks sand and gravel in it to make [[Oil Sand]], [[Oil Red Sand]], and [[Oil Shale]]. Move it with [[Fluid Pipes]] and buffer it in a [[Glass Tank]].
+
+=== Swimming in it ===
+
+Crude Oil is unpleasant to be in. While your eyes are below the surface it clouds your vision almost completely, and it applies {{Mcw|Nausea}}, {{Mcw|Poison}}, and {{Mcw|Slowness}} III for as long as you stay under. The effects refresh every few seconds and wear off shortly after you surface, so a brief dip costs a little health rather than a life — but swimming a deep seep without milk or a way out is a poor idea.
 
 === Bucket ===
 
@@ -41,13 +45,15 @@ The '''Crude Oil Bucket''' places and picks up the fluid like a {{Mcw|Water|wate
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.2|[[File:Grid Crude Oil.png|32px]] Added '''Crude Oil''', the oil-bearing blocks, and [[Bitumen]].}}
+{{History|head=1|v0.8.2|[[File:Grid Crude Oil.png|32px]] Added '''Crude Oil''', the oil-bearing blocks, and [[Bitumen]].}}
+{{History|foot=1|v0.8.7|Being submerged in Crude Oil now obscures vision and applies Nausea, Poison, and Slowness III. A [[Transposer]] can now soak sand and gravel in it to make the oil-bearing blocks.}}
 
 == See also ==
 
 * [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Oil-bearing blocks
 * [[Bitumen]], [[Tar]] - Extracted oil products from the [[Macerator]]
 * [[Crucible]] - Liquefies oil blocks into Crude Oil
+* [[Transposer]] - Soaks sand and gravel back into oil blocks
 * [[Fluids]] - All mod fluids
 * [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
 

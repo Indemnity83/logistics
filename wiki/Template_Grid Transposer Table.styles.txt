@@ -1,0 +1,22 @@
+/* Transposer-widget styling, loaded via <templatestyles> from [[Template:Grid Transposer Table]] and
+   [[Module:Transposer]]. Complements [[Template:Grid Crafting Table/styles.css]] (the shared
+   .logi-grid panel, slots, and arrow). Layout: the input item and any fluid drawn from the tank on
+   the left, the arrow, then the resulting item and any fluid deposited into the tank on the right,
+   each fluid followed by its amount in millibuckets. */
+.logi-transposer-grid {
+	border-collapse: separate;
+	border-spacing: 3px;
+	background: transparent;
+}
+/* The mB amount sits to the right of its fluid slot. Fixed-width so rows line up down the table
+   even when one side of the recipe has no fluid at all. */
+.logi-transposer-amount {
+	width: 4.2em;
+	vertical-align: middle;
+	text-align: left;
+	padding-left: 4px;
+	/* "Minecraft" must be installed site-wide (MediaWiki:Common.css @font-face); falls back to monospace */
+	font-family: "Minecraft", monospace;
+	color: #4d4d4d;
+	white-space: nowrap;
+}

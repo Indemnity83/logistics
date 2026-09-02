@@ -11,6 +11,12 @@
 * [[File:Grid Diamond Gear.png|24px|link=Diamond Gear]] '''[[Diamond Gear]]'''
 * [[File:Grid Netherite Gear.png|24px|link=Netherite Gear]] '''[[Netherite Gear]]'''
 
+== Data values ==
+
+Gears are published under the conventional <code>#c:gears</code> item tag, with a per-material
+subtag (<code>#c:gears/copper</code>, <code>#c:gears/iron</code>, and so on), so other mods' recipes
+can accept a Logistics gear and vice versa.
+
 == See also ==
 
 * [[Valves]], [[Chipsets]] — other crafting components

@@ -1,0 +1,45 @@
+<includeonly>{| class="logi-grid"
+|-
+| class="logi-grid-cell" |
+{| class="logi-transposer-grid"
+|-
+| class="logi-grid-slot" | {{#if:{{{Input|}}}|{{Grid Cycle|{{{Input}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{FluidIn|}}}|{{Grid|{{{FluidIn}}}}}|&nbsp;}}
+| class="logi-transposer-amount" | {{#if:{{{InAmount|}}}|{{{InAmount}}}&nbsp;mB}}
+| class="logi-grid-arrow" | →
+| class="logi-grid-slot" | {{#if:{{{Output|}}}|{{Grid Cycle|{{{Output}}}}}|&nbsp;}}
+| class="logi-grid-slot" | {{#if:{{{FluidOut|}}}|{{Grid|{{{FluidOut}}}}}|&nbsp;}}
+| class="logi-transposer-amount" | {{#if:{{{OutAmount|}}}|{{{OutAmount}}}&nbsp;mB}}
+|}
+|}<templatestyles src="Grid Crafting Table/styles.css" /><templatestyles src="Grid Transposer Table/styles.css" /></includeonly><noinclude>
+Renders a [[Transposer]] recipe. The Transposer trades an item against the fluid in its internal
+tank, so a recipe has an item and/or a fluid on each side: the input item and any fluid '''drawn
+from''' the tank on the left, then the resulting item and any fluid '''deposited into''' the tank on
+the right, each fluid labelled with its amount in millibuckets.
+
+Fluids are drawn with their static <code>Grid &lt;Fluid&gt;.png</code> swatch rather than the
+animated gif used by [[Template:Grid Crucible Table]]. That is deliberate: the Transposer page
+carries far more recipes than the Crucible's, and the gif lookup needs an <code>#ifexist:</code>,
+which counts against Fandom's 100-expensive-parser-call budget per page. Swatches keep the page
+well clear of the cap.
+
+Usage:
+ {{Grid Transposer Table
+ |Input=Bucket |FluidIn=Water |InAmount=1000 |Output=Water Bucket
+ }}
+ {{Grid Transposer Table
+ |Input=Wheat Seeds |FluidOut=Seed Oil |OutAmount=50
+ }}
+
+Parameters:
+ Input     — the item placed in the input slot (via {{Grid Cycle}}; ";"-separated alternatives cycle)
+ FluidIn   — fluid drawn from the tank (optional)
+ InAmount  — millibuckets drawn, e.g. "1000"
+ Output    — the resulting item (optional — some recipes only produce fluid)
+ FluidOut  — fluid deposited into the tank (optional)
+ OutAmount — millibuckets deposited, e.g. "50"
+
+Depends on [[Template:Grid]], [[Template:Grid Cycle]].
+
+[[Category:Templates]]
+</noinclude>

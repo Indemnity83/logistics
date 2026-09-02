@@ -34,17 +34,80 @@ The Transposer is mined with a stone pickaxe or better; without one it drops not
 
 == Usage ==
 
-Drop an item into the input slot and, given enough RF and tank room, the Transposer converts it:
-
-* An '''empty bucket''' plus at least 1,000 mB in the tank becomes a filled bucket of that fluid; the tank loses 1,000 mB.
-* A '''filled bucket''' — water, lava, or any Logistics fluid bucket — plus room for 1,000 mB becomes a plain empty bucket; the tank gains 1,000 mB.
-* A handful of other item + fluid conversions (mossy cobblestone/stone bricks, curing concrete powder, pressing cactus into water, pressing seed oil from seeds, and more) — check JEI for the full list.
+Drop an item into the input slot and, given enough RF and tank room, the Transposer converts it. Every recipe trades the item against the tank: some draw fluid out of it, some put fluid into it, and a few do nothing but press an item for its liquid.
 
 The conversion is atomic: if the output slot can't hold the result or there isn't enough RF banked, nothing is consumed and the tank is untouched. The tank holds '''16,000 mB (16 buckets)''' by default. Pipe fluid in and out with a [[Fluid Pipes|fluid pipe]], and automate the item side with [[Item Pipes|item pipes]] or a hopper. Breaking the Transposer drops its slot contents but voids whatever fluid remains in the tank.
 
 === Power ===
 
 The Transposer runs on [[RF Energy|RF]]. It holds 20,000 RF and accepts up to 128 RF/tick. A bucket fill/empty costs 800 RF, drawn at 20 RF/tick (about 2 seconds); other recipes cost more depending on what they produce. Connect a [[Stirling Engine]] or any RF source to a side or top face.
+
+=== Recipes ===
+
+Every recipe appears in the Just Enough Items (JEI) viewer. The RF cost is noted under each one.
+
+==== Buckets ====
+
+Filling and emptying buckets is the Transposer's main job, and works the same for {{Mcw|Water|water}}, {{Mcw|Lava|lava}}, and every Logistics fluid:
+
+{{Transposer|head=1
+|name=Filling a bucket
+|Input=Bucket |FluidIn=Water |InAmount=1000 |Output=Water Bucket
+|ingredients=A {{Mcw|Bucket|bucket}} plus 1,000 mB of whatever the tank holds — {{Mcw|Water|water}}, {{Mcw|Lava|lava}}, [[Crude Oil]], [[Bio Fuel]], [[Fuel Oil]], [[Liquid Biomass]], [[Liquid Ender]], [[Liquid Glowstone]], [[Liquid Redstone]], or [[Seed Oil]]
+|notes=800 RF}}
+{{Transposer|foot=1
+|name=Emptying a bucket
+|Input=Water Bucket |Output=Bucket |FluidOut=Water |OutAmount=1000
+|ingredients=Any filled bucket of those same ten fluids, with room in the tank for 1,000 mB
+|notes=800 RF}}
+
+==== Wetting and curing ====
+
+{{Transposer|head=1
+|name={{Mcw|Concrete}}
+|Input=White Concrete Powder |FluidIn=Water |InAmount=1000 |Output=White Concrete
+|ingredients=Any of the 16 {{Mcw|Concrete Powder|concrete powders}}, cured to the matching colour
+|notes=400 RF}}
+{{Transposer
+|Input=Cobblestone |FluidIn=Water |InAmount=250 |Output=Mossy Cobblestone
+|notes=4,000 RF}}
+{{Transposer
+|Input=Stone Bricks |FluidIn=Water |InAmount=250 |Output=Mossy Stone Bricks
+|notes=4,000 RF}}
+{{Transposer
+|Input=Sponge |FluidIn=Water |InAmount=1000 |Output=Wet Sponge
+|notes=1,600 RF}}
+{{Transposer|foot=1
+|Input=Wet Sponge |Output=Sponge |FluidOut=Water |OutAmount=1000
+|notes=1,600 RF}}
+
+==== Pressing ====
+
+Some plant matter is pressed for its liquid and leaves no item behind:
+
+{{Transposer|head=1
+|name=[[Seed Oil]]
+|Input=Wheat Seeds;Beetroot Seeds;Melon Seeds;Pumpkin Seeds |FluidOut=Seed Oil |OutAmount=50
+|ingredients=[[Seed Oil|Wheat, beetroot, melon, or pumpkin seeds]]
+|notes=1,600 RF}}
+{{Transposer|foot=1
+|name={{Mcw|Water}}
+|Input=Cactus |FluidOut=Water |OutAmount=500
+|notes=2,400 RF}}
+
+==== Petroleum blocks ====
+
+Soaking sand or gravel in [[Crude Oil]] recreates the oil-bearing blocks, closing the loop with the [[Crucible]] and [[Macerator]]:
+
+{{Transposer|head=1
+|Input=Sand |FluidIn=Crude Oil |InAmount=1000 |Output=Oil Sand
+|notes=4,000 RF}}
+{{Transposer
+|Input=Red Sand |FluidIn=Crude Oil |InAmount=1000 |Output=Oil Red Sand
+|notes=4,000 RF}}
+{{Transposer|foot=1
+|Input=Gravel |FluidIn=Crude Oil |InAmount=1000 |Output=Oil Shale
+|notes=4,000 RF}}
 
 == Data values ==
 
@@ -55,12 +118,14 @@ The Transposer runs on [[RF Energy|RF]]. It holds 20,000 RF and accepts up to 12
 == History ==
 
 {{History|head=1|v0.8.6|[[File:Grid Transposer.png|32px]] Added '''Transposer'''.}}
-{{History|foot=1|v0.8.7|Added an RF cost (previously free); recipes moved to a data-driven system with several new conversions; crafting recipe swapped side buckets for glass.}}
+{{History|foot=1|v0.8.7|Added an RF cost (previously free); recipes moved to a data-driven system with several new conversions, including [[Seed Oil]] and the oil-bearing blocks; crafting recipe swapped side buckets for glass.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system
 * [[Pump]] - Draws fluid from the world instead of a bucket
 * [[Glass Tank]] - Buffer fluid before or after the Transposer
+* [[Seed Oil]] - Pressed here from seeds
+* [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Soaked here from sand and gravel
 * [[Stirling Engine]] - Recommended power source
 * [[RF Energy]] - Power system overview
 * [[Machine Frame]], [[Redstone Reception Coil]] - Recipe components

@@ -14,11 +14,11 @@ The '''Battery''' is an RF storage block. It is charged by [[Engines|engines]] t
 
 === Breaking ===
 
-The Battery can be broken with any tool, though a pickaxe is fastest.
+The Battery is mined with a pickaxe of any tier; without one it drops nothing.
 
 {{Breaking
-|tool=none
-|tier=none
+|tool=pickaxe
+|tier=wood
 |name1=Battery |icon1=Grid Battery.png |hardness1=3
 }}
 
@@ -56,7 +56,8 @@ Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pi
 == History ==
 
 {{History|head=1|v0.7.0|[[File:Grid Battery.png|32px]] Added '''Battery'''.}}
-{{History|foot=1|v0.8.0|A Battery no longer powers a logistics network directly; route its RF through a [[Power Junction]] instead.}}
+{{History|v0.8.0|A Battery no longer powers a logistics network directly; route its RF through a [[Power Junction]] instead.}}
+{{History|foot=1|v0.8.7|A Battery now requires a pickaxe to drop; previously any tool worked.}}
 
 == See also ==
 * [[RF Energy]] - How the power system works

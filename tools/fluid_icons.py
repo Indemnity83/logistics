@@ -46,6 +46,7 @@ FLUIDS = {
 TINTED = {
     "bio_fuel": ("Bio Fuel", 0xFFFC5C),
     "fuel_oil": ("Fuel Oil", 0xFE8C01),
+    "seed_oil": ("Seed Oil", 0xD9C74A),
 }
 
 

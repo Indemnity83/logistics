@@ -50,6 +50,8 @@ Each reaction consumes 1,000 mB of the reactant plus one reagent:
 | [[Liquid Glowstone]] || {{Mcw|Enchanted Golden Apple}} || 200,000 RF || 500 ticks
 |}
 
+Every reaction is listed in the Just Enough Items (JEI) recipe browser, with the RF it returns and how long it runs.
+
 === Configuration ===
 
 Use a [[Wrench]] to rotate the output face.

@@ -1,0 +1,128 @@
+-- Module:Transposer — builds Transposer recipe tables (Name / Ingredients / Transposer recipe).
+-- Clean-room implementation, structured like [[Module:Crucible]] but for a machine that trades an
+-- item against the fluid in its internal tank: a recipe may consume an item, a fluid, or both, and
+-- may produce an item, a fluid, or both. The Recipe cell reuses our own {{Grid Transposer Table}}
+-- widget. head=1 opens the table + header, foot=1 closes it.
+--
+-- Fluid slots render the static "Grid <Fluid>.png" swatch (see the widget's own notes): the
+-- Transposer page carries ~48 recipes, and an #ifexist per fluid slot would run into Fandom's
+-- 100-expensive-parser-call cap.
+
+local p = {}
+
+local function trim(s)
+	if s == nil then return nil end
+	s = mw.text.trim(s)
+	if s == '' then return nil end
+	return s
+end
+
+local function truthy(v)
+	v = trim(v)
+	return v ~= nil and v ~= '0'
+end
+
+-- Accepts "Name,Amount" on either fluid, as well as explicit InAmount / OutAmount.
+local function parseFluid(value, amount)
+	local v = trim(value)
+	if v == nil then return nil, trim(amount) end
+	local n, a = v:match('^(.-)%s*,%s*(%d+)$')
+	if n then return n, trim(amount) or a end
+	return v, trim(amount)
+end
+
+-- Ingredients column: explicit |ingredients=, else the input item plus any fluid drawn from the
+-- tank, since both are things the player has to supply.
+local function ingredientsCell(args, fluidIn, inAmount)
+	local ing = trim(args.ingredients)
+	if ing then return ing end
+
+	local parts = {}
+	for part in (trim(args.Input) or trim(args.input) or ''):gmatch('[^;]+') do
+		local v = trim(part)
+		if v then
+			local t = mw.title.new(v)
+			parts[#parts + 1] = (t and t.exists) and ('[[' .. v .. ']]') or v
+		end
+	end
+
+	local out = {}
+	for i, item in ipairs(parts) do
+		out[#out + 1] = '<span class="logi-recipes-ingredient">' .. item .. ((i < #parts) and ' or' or '') .. '</span>'
+	end
+
+	if fluidIn then
+		local t = mw.title.new(fluidIn)
+		local link = (t and t.exists) and ('[[' .. fluidIn .. ']]') or fluidIn
+		local label = inAmount and (inAmount .. ' mB ' .. link) or link
+		out[#out + 1] = '<span class="logi-recipes-ingredient">' .. label .. '</span>'
+	end
+
+	return table.concat(out)
+end
+
+-- Recipe column: our transposer widget (item/fluid in -> item/fluid out).
+local function recipeCell(frame, args, fluidIn, inAmount, fluidOut, outAmount)
+	local g = {}
+	local input = trim(args.Input) or trim(args.input)
+	if input then g.Input = input end
+	local output = trim(args.Output) or trim(args.output)
+	if output then g.Output = output end
+	if fluidIn then g.FluidIn = fluidIn end
+	if inAmount then g.InAmount = inAmount end
+	if fluidOut then g.FluidOut = fluidOut end
+	if outAmount then g.OutAmount = outAmount end
+
+	local grid = frame:expandTemplate{ title = 'Grid Transposer Table', args = g }
+	grid = grid:gsub('<templatestyles.-/>', '')
+	return mw.text.trim(grid)
+end
+
+function p.transposer(frame)
+	local args = frame:getParent().args
+	local fluidIn, inAmount = parseFluid(args.FluidIn or args.fluidin, args.InAmount or args.inamount)
+	local fluidOut, outAmount = parseFluid(args.FluidOut or args.fluidout, args.OutAmount or args.outamount)
+	local output = trim(args.Output) or trim(args.output)
+	local showName = trim(args.showname) ~= '0'
+	local head = truthy(args.head)
+	local foot = truthy(args.foot)
+
+	local out = {}
+
+	if head then
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Crafting/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Crafting Table/styles.css' } }
+		out[#out + 1] = frame:extensionTag{ name = 'templatestyles', args = { src = 'Grid Transposer Table/styles.css' } }
+		out[#out + 1] = '\n{| class="logi-recipes"'
+		out[#out + 1] = '\n|- class="logi-recipes-head"'
+		if showName then out[#out + 1] = '\n! Name' end
+		out[#out + 1] = '\n! Ingredients\n! Transposer recipe'
+	end
+
+	out[#out + 1] = '\n|-'
+	if showName then
+		-- Default name: the produced item, or the produced fluid when the recipe only makes fluid.
+		local nm = trim(args.name)
+		if not nm then
+			local subject = output or fluidOut
+			nm = subject and ('[[' .. subject .. ']]') or ''
+		end
+		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
+	end
+
+	local ingredients = ingredientsCell(args, fluidIn, inAmount)
+	local notes = trim(args.notes)
+	if notes then
+		ingredients = ingredients .. '<div class="logi-recipes-note">' .. notes .. '</div>'
+	end
+	out[#out + 1] = '\n| class="logi-recipes-ingredients" | ' .. ingredients
+	out[#out + 1] = '\n| class="logi-recipes-recipe" |\n' .. recipeCell(frame, args, fluidIn, inAmount, fluidOut, outAmount)
+
+	if foot then
+		out[#out + 1] = '\n|}'
+	end
+
+	return table.concat(out)
+end
+
+return p

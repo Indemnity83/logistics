@@ -9,7 +9,7 @@
 |added           = v0.8.2
 }}
 
-The '''Crucible''' is an RF-powered machine that melts solid blocks and items into [[Fluids|fluids]], filling an internal tank that feeds a [[Fluid Pipes|fluid network]]. It turns ore blocks, nether materials, and ice into molten metals, [[Crude Oil]], lava, and water.
+The '''Crucible''' is an RF-powered machine that melts solid blocks and items into [[Fluids|fluids]], filling an internal tank that feeds a [[Fluid Pipes|fluid network]]. It liquefies redstone, glowstone, and ender materials, renders oil-bearing blocks down to [[Crude Oil]], melts stone and nether blocks into lava, and thaws ice and snow into water.
 
 == Obtaining ==
 
@@ -76,7 +76,8 @@ Recipes appear in the Just Enough Items (JEI) viewer. Amounts are the millibucke
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.2|[[File:Grid Crucible.png|32px]] Added '''Crucible'''.}}
+{{History|head=1|v0.8.2|[[File:Grid Crucible.png|32px]] Added '''Crucible'''.}}
+{{History|foot=1|v0.8.7|The progress gauge is now drawn as a falling droplet.}}
 
 == See also ==
 

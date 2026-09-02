@@ -60,6 +60,12 @@ Feeding the ore alongside a richer flux gives a third ingot. [[Rich Slag]] pushe
 {{Alloy Smelter |Input=Copper Ore;Deepslate Copper Ore |Input2=Quicksilver |Output=Copper Ingot |OutputCount=3 |Byproduct=Gold Ingot |ByproductChance=100%}}
 {{Alloy Smelter |foot=1 |Input=Tin Ore;Deepslate Tin Ore |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
 
+Quicksilver also takes the raw ore item, for the same yield:
+
+{{Alloy Smelter|head=1 |Input=Raw Gold |Input2=Quicksilver |Output=Gold Ingot |OutputCount=3 |Byproduct=Rich Slag |ByproductChance=75%}}
+{{Alloy Smelter |Input=Raw Copper |Input2=Quicksilver |Output=Copper Ingot |OutputCount=3 |Byproduct=Gold Ingot |ByproductChance=100%}}
+{{Alloy Smelter |foot=1 |Input=Raw Tin |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
+
 Dusts from the [[Macerator]] also smelt here — one dust plus sand gives one ingot and a chance of [[Slag]].
 
 === Alloying ===
@@ -91,7 +97,8 @@ The full recycling list — every anvil tier, minecart, pressure plate, and iron
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.2|[[File:Grid Alloy Smelter.png|32px]] Added '''Alloy Smelter'''.}}
+{{History|head=1|v0.8.2|[[File:Grid Alloy Smelter.png|32px]] Added '''Alloy Smelter'''.}}
+{{History|foot=1|v0.8.7|The [[Quicksilver]] amalgamation recipes now accept raw ore as well as the ore block.}}
 
 == See also ==
 

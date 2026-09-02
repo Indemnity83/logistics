@@ -29,6 +29,8 @@ Combine the [[Item Extractor Pipe]] with a {{Mcw|Slime Ball}} (shapeless):
 
 The Fluid Extractor Pipe pulls fluid from an adjacent tank or machine and pushes it down the line. Like the [[Item Extractor Pipe]] it must be driven by an adjacent engine — a [[Stirling Engine]] pulls faster than a [[Redstone Engine]], and a [[Creative Engine]] runs at full speed. With no engine it stops; passive pipes alone can't pull fluid from a handler. To draw fluid sources straight from the world, use a [[Pump]] instead.
 
+A {{Mcw|Cauldron|cauldron}} counts as a tank: a powered Fluid Extractor Pipe drains one and leaves it empty. Cauldrons are all-or-nothing, though — they part with a whole level at a time, 1,000 mB for lava and 333⅓ mB for each of water's three levels — so the pipe needs room for a full level before it can take anything.
+
 == Data values ==
 
 === ID ===

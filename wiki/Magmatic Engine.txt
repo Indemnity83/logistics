@@ -36,6 +36,8 @@ The Magmatic Engine is mined with an iron pickaxe or better; without one it drop
 
 Pipe {{Mcw|Lava|lava}} into the engine's tank (4,000 mB) with a [[Fluid Pipes|fluid pipe]] — or feed it from a [[Crucible]]. It draws lava in small batches and heat-soaks as it runs: a cold engine generates about '''5 RF/t''', a warmed one '''10 RF/t''', and a fully heat-soaked one up to '''15 RF/t'''. A bucket of lava (1,000 mB) lasts roughly 20,000 powered ticks. Output flows from a configurable face; if the buffer fills, excess generation is wasted. A [[Jade]] readout shows its temperature, output, and lava level.
 
+Its fuels are listed in the Just Enough Items (JEI) recipe browser, with the burn time and RF/t each one yields.
+
 === Configuration ===
 
 Use a [[Wrench]] to rotate the output face.

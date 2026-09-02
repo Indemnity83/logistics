@@ -31,6 +31,12 @@ In the [[Alloy Smelter]], Quicksilver works as a flux that smelts an ore into ''
 {{Alloy Smelter |Input=Tin Ore;Deepslate Tin Ore |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
 {{Alloy Smelter |foot=1 |Input=Gold Ore;Deepslate Gold Ore |Input2=Quicksilver |Output=Gold Ingot |OutputCount=3 |Byproduct=Rich Slag |ByproductChance=75%}}
 
+The raw ore item works just as well:
+
+{{Alloy Smelter|head=1 |Input=Raw Copper |Input2=Quicksilver |Output=Copper Ingot |OutputCount=3 |Byproduct=Gold Ingot |ByproductChance=100%}}
+{{Alloy Smelter |Input=Raw Tin |Input2=Quicksilver |Output=Tin Ingot |OutputCount=3 |Byproduct=Iron Ingot |ByproductChance=100%}}
+{{Alloy Smelter |foot=1 |Input=Raw Gold |Input2=Quicksilver |Output=Gold Ingot |OutputCount=3 |Byproduct=Rich Slag |ByproductChance=75%}}
+
 == Data values ==
 
 === ID ===
@@ -40,7 +46,8 @@ In the [[Alloy Smelter]], Quicksilver works as a flux that smelts an ore into ''
 == History ==
 
 {{History|head=1|v0.8.0|[[File:Grid Quicksilver.png|32px]] Added '''Quicksilver'''.}}
-{{History|foot=1|v0.8.2|Became a flux in the [[Alloy Smelter]].}}
+{{History|v0.8.2|Became a flux in the [[Alloy Smelter]].}}
+{{History|foot=1|v0.8.7|The amalgamation recipes now accept raw ore as well as the ore block.}}
 
 == See also ==
 

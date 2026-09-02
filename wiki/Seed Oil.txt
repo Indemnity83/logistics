@@ -1,0 +1,55 @@
+{{Item
+|image     = Fluid Seed Oil.gif
+|image2    = Bucket of Seed Oil.png
+|imagesize = 96
+|caption   = Seed Oil
+|caption2  = Seed Oil Bucket
+|type      = Fluid
+|renewable = Yes
+|added     = v0.8.7
+}}
+
+'''Seed Oil''' is a pale yellow fluid pressed from {{Mcw|Seeds|seeds}} in a [[Transposer]]. Because seeds are farmed, it is fully renewable — but it is slow to gather, at 50 mB per seed.
+
+== Obtaining ==
+
+=== Transposer ===
+
+Any of the four common seed types presses for the same amount:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Wheat Seeds;Beetroot Seeds;Melon Seeds;Pumpkin Seeds |FluidOut=Seed Oil |OutAmount=50
+|ingredients=Wheat, beetroot, melon, or pumpkin seeds
+|notes=1,600 RF}}
+
+Twenty seeds fill one bucket's worth. Farming the seeds is the cheap part; the [[RF Energy|RF]] is not — a full bucket costs 32,000 RF to press.
+
+== Usage ==
+
+Seed Oil is not yet consumed by any machine or recipe. It can be tanked, piped, and bucketed like any other fluid, but nothing currently burns or refines it.
+
+=== Bucket ===
+
+The '''Seed Oil Bucket''' is a container-only item: it fills and drains tanks and machines, but cannot be poured into the world, emptying back to an ordinary {{Mcw|Bucket|bucket}}. A [[Transposer]] fills and empties it for 800 RF a time, like every other fluid bucket.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|logistics:core/seed_oil|fluid.logistics.core.seed_oil|name=Seed Oil}}
+{{ID|foot=1|logistics:core/seed_oil|item.logistics.core.seed_oil|name=Seed Oil Bucket}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.7|[[File:Grid Seed Oil.png|32px]] Added '''Seed Oil'''.}}
+
+== See also ==
+
+* [[Transposer]] - Presses seeds into Seed Oil
+* [[Bio Fuel]], [[Fuel Oil]] - The mod's other refined fluids
+* [[Fluids]] - All mod fluids
+* [[Glass Tank]], [[Fluid Pipes]] - Store and move fluids
+
+{{Navbox Logistics}}
+
+[[Category:Fluids]]

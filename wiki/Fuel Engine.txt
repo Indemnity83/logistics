@@ -38,7 +38,7 @@ Pipe a liquid fuel into the fuel tank and water into the coolant tank (4,000 mB 
 
 === Fuels ===
 
-Each fuel carries a different amount of energy and burns at a different heat:
+Each fuel carries a different amount of energy and burns at a different heat. All three are listed in the Just Enough Items (JEI) recipe browser, with their RF per bucket and coolant draw:
 
 {| class="wikitable"
 ! Fuel !! Energy per bucket !! Heat

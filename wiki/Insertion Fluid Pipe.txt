@@ -34,6 +34,8 @@ Seal the [[Item Insertion Pipe]] with a {{Mcw|Slime Ball|slime ball}} or [[Tar]]
 
 The Insertion Fluid Pipe fills adjacent tanks and machines before passing fluid further down the line. Chain several to top off a row of tanks in sequence.
 
+It also fills a {{Mcw|Cauldron|cauldron}}, which accepts fluid a whole level at a time — 1,000 mB for lava, 333⅓ mB per water level.
+
 == Data values ==
 
 === ID ===

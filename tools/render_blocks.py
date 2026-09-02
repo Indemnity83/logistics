@@ -474,8 +474,14 @@ _REFPAT = (
     re.compile(r"Grid ([^\n|}\]=]+?)\.png"),                                   # literal File:Grid X.png
     re.compile(r"\{\{Grid\|([^}|]+)"),                                          # {{Grid|X}}
     # recipe blocks whose slot/Input/Output/Byproduct params name items:
-    re.compile(r"\{\{(?:Grid (?:Crafting|Grinding|Smelting|Crucible|Alloy Smelter) Table|Crafting|Grinding|Milling|Smelting|Crucible|Alloy Smelter)(.*?)\}\}", re.S),
-    re.compile(r"\|\s*(?:[ABC][123]|Output|Input2?|Byproduct)\s*=\s*([^|}\n]+)"),  # those params
+    re.compile(r"\{\{(?:Grid (?:Crafting|Grinding|Smelting|Crucible|Alloy Smelter|Refinery|Transposer) Table"
+               r"|Crafting|Grinding|Milling|Smelting|Crucible|Alloy Smelter|Refinery|Transposer"
+               r"|Sequential Fabricator)"
+               # tolerate one level of nesting ({{Mcw|...}} inside name=) — a non-greedy .*? would
+               # stop at that inner }} and silently miss every param after it
+               r"((?:[^{}]|\{\{[^{}]*\}\})*)\}\}", re.S),
+    # those params — FluidIn/FluidOut are the Transposer's fluid slots, which also need icons
+    re.compile(r"\|\s*(?:[ABC][123]|Output|Input2?|Byproduct|FluidIn|FluidOut)\s*=\s*([^|}\n]+)"),
 )
 
 

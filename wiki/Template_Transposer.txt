@@ -1,0 +1,35 @@
+<includeonly>{{#invoke:Transposer|transposer}}</includeonly><noinclude>
+Builds a row of a [[Transposer]] recipe table (Name / Ingredients / Transposer recipe), powered by
+[[Module:Transposer]]. The Transposer trades an item against the fluid in its internal tank, so a
+recipe may take an item, a fluid, or both, and may produce an item, a fluid, or both. Each call is
+one row; group several into one table with <code>head=1</code> on the first and <code>foot=1</code>
+on the last. A standalone single recipe sets both. The '''Transposer recipe''' column reuses
+[[Template:Grid Transposer Table]].
+
+Usage (a 2-recipe table):
+ {{Transposer
+ |head=1
+ |Input=Bucket |FluidIn=Water |InAmount=1000 |Output=Water Bucket |notes=800 RF
+ }}
+ {{Transposer
+ |foot=1
+ |Input=Wheat Seeds |FluidOut=Seed Oil |OutAmount=50 |notes=1,600 RF
+ }}
+
+Parameters:
+ Input       — the item placed in the input slot (";"-separated alternatives cycle)
+ FluidIn     — fluid drawn from the tank (optional); "Name,Amount" is accepted
+ InAmount    — millibuckets drawn, e.g. "1000"
+ Output      — the resulting item (optional — some recipes only produce fluid)
+ FluidOut    — fluid deposited into the tank (optional); "Name,Amount" is accepted
+ OutAmount   — millibuckets deposited, e.g. "50"
+ notes       — a small per-recipe annotation under the ingredients; used for the RF cost
+ head/foot   — open / close the table
+ name        — override the Name cell (default: a link to the output item, else the output fluid)
+ ingredients — override the Ingredients cell (default: the input item plus any fluid drawn)
+ showname=0  — hide the Name column
+
+Depends on [[Module:Transposer]] and [[Template:Grid Transposer Table]].
+
+[[Category:Templates]]
+</noinclude>
