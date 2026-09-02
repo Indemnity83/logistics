@@ -1,9 +1,14 @@
 package com.logistics.gametest;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.logistics.core.lib.resource.ResourceId;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,6 +17,9 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 
@@ -33,6 +41,8 @@ public class ServerDataLoadingGameTestBody {
     private static final int MINIMUM_BLOCKS = 60;
     private static final int MINIMUM_CONFIGURED_FEATURES = 7;
     private static final int MINIMUM_PLACED_FEATURES = 7;
+    private static final int MINIMUM_ITEM_TAGS = 18;
+    private static final int MINIMUM_BLOCK_TAGS = 10;
 
     /**
      * Every shipped loot table deserializes into the live loot registry.
@@ -179,5 +189,121 @@ public class ServerDataLoadingGameTestBody {
         return "Only examined " + examined + " logistics " + what + " (expected at least " + minimum
             + ") — this check passed without inspecting anything meaningful, so the enumeration is "
             + "probably broken rather than the data being clean";
+    }
+
+    /** Every {@code logistics:} item a shipped tag lists survives into the loaded tag. */
+    public static void allLogisticsItemTagEntriesLoad(GameTestHelper context) {
+        checkTagEntries(context, "item", BuiltInRegistries.ITEM, Registries.ITEM, MINIMUM_ITEM_TAGS);
+    }
+
+    /** Every {@code logistics:} block a shipped tag lists survives into the loaded tag. */
+    public static void allLogisticsBlockTagEntriesLoad(GameTestHelper context) {
+        checkTagEntries(context, "block", BuiltInRegistries.BLOCK, Registries.BLOCK, MINIMUM_BLOCK_TAGS);
+    }
+
+    /**
+     * Asserts each {@code logistics:} id a tag file lists is actually in the tag the game loaded.
+     *
+     * <p>This is the check a static pass cannot make, and the failure it catches is worse than a
+     * single bad entry: one unresolvable id makes Minecraft discard the <em>whole tag</em>
+     * ({@code Couldn't load tag … as it is missing following references}). Renaming one block and
+     * missing one tag file takes every other entry in that tag down with it — verified by mutation,
+     * where a single typo in {@code minecraft:mineable/pickaxe} removed all 25 of our blocks from it.
+     * It is logged as an error but does not stop startup, so the game runs on with a dead tag.
+     *
+     * <p>Two details make it non-vacuous:
+     *
+     * <ul>
+     *   <li>It keys off our <em>entries</em>, not our files. Our tags live under the {@code c} and
+     *       {@code minecraft} namespaces, so there is no file-owner mapping to rely on — but a
+     *       {@code logistics:} id in any tag is ours by construction.</li>
+     *   <li>It reads the whole resource <em>stack</em>. We add entries to six {@code minecraft:} tag
+     *       files vanilla also ships; taking only the winning resource would read vanilla's copy and
+     *       silently examine nothing for those tags.</li>
+     * </ul>
+     *
+     * <p>Biome tags are out of scope: they belong to a dynamic registry rather than
+     * {@code BuiltInRegistries}, and the one we ship lists no {@code logistics:} entries.
+     */
+    private static <T> void checkTagEntries(
+            GameTestHelper context,
+            String registryDirectory,
+            Registry<T> registry,
+            ResourceKey<? extends Registry<T>> registryKey,
+            int minimumTags) {
+        ResourceManager resources = context.getLevel().getServer().getResourceManager();
+        String prefix = "tags/" + registryDirectory;
+        String suffix = ".json";
+
+        List<String> failures = new ArrayList<>();
+        int examined = 0;
+
+        for (var entry : resources.listResourceStacks(prefix, id -> id.getPath().endsWith(suffix)).entrySet()) {
+            ResourceId fileId = ResourceId.wrap(entry.getKey());
+            List<String> declared = new ArrayList<>();
+            for (Resource resource : entry.getValue()) {
+                declared.addAll(logisticsEntriesIn(resource, fileId, failures));
+            }
+            if (declared.isEmpty()) {
+                continue;
+            }
+            examined++;
+
+            String path = fileId.getPath();
+            String tagPath = path.substring(prefix.length() + 1, path.length() - suffix.length());
+            TagKey<T> tagKey = TagKey.create(registryKey, ResourceId.in(fileId.getNamespace(), tagPath).toIdentifier());
+
+            for (String declaredId : declared) {
+                ResourceId wanted = ResourceId.parse(declaredId);
+                boolean present = false;
+                for (Holder<T> holder : registry.getTagOrEmpty(tagKey)) {
+                    if (holder.is(wanted.toIdentifier())) {
+                        present = true;
+                        break;
+                    }
+                }
+                if (!present) {
+                    failures.add(declaredId + " is listed in #" + fileId.getNamespace() + ":" + tagPath
+                        + " but is not in the loaded tag");
+                }
+            }
+        }
+
+        if (!failures.isEmpty()) {
+            context.fail("Logistics " + registryDirectory + " tag entries were dropped on load: "
+                + String.join(", ", failures));
+            return;
+        }
+        if (examined < minimumTags) {
+            context.fail(vacuous(registryDirectory + " tags", examined, minimumTags));
+            return;
+        }
+        context.succeed();
+    }
+
+    /** The {@code logistics:} ids one tag file lists, in either the plain or object entry form. */
+    private static List<String> logisticsEntriesIn(Resource resource, ResourceId fileId, List<String> failures) {
+        List<String> ids = new ArrayList<>();
+        try (BufferedReader reader = resource.openAsReader()) {
+            JsonElement values = JsonParser.parseReader(reader).getAsJsonObject().get("values");
+            if (values == null || !values.isJsonArray()) {
+                return ids;
+            }
+            for (JsonElement value : values.getAsJsonArray()) {
+                String id = null;
+                if (value.isJsonPrimitive()) {
+                    id = value.getAsString();
+                } else if (value.isJsonObject() && value.getAsJsonObject().has("id")) {
+                    id = value.getAsJsonObject().get("id").getAsString();
+                }
+                // A '#' entry is a tag reference, resolved by the static TagContractTest.
+                if (id != null && id.startsWith(NAMESPACE + ":")) {
+                    ids.add(id);
+                }
+            }
+        } catch (IOException | RuntimeException e) {
+            failures.add("could not read " + fileId + " from pack " + resource.sourcePackId() + ": " + e);
+        }
+        return ids;
     }
 }
