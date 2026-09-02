@@ -269,9 +269,12 @@ belongs in a live server-data contract; verifying a specific recipe's content be
 ### Resource contract testing
 
 `common/src/test/java/com/logistics/resource/contract/` proves the shipped asset graph holds
-together — model parents resolve, no parent chain loops, every texture a model names ships, and every
-item definition points at a model that exists. It is plain JUnit that reads JSON off the classpath and
-never boots a server, so it runs on every `./gradlew :common:test` at negligible cost.
+together — model parents resolve, no parent chain loops, every texture a model names ships, every item
+definition and blockstate points at a model that exists, loot tables are structurally sound, and tags
+contain no tag-of-tag cycles. It also checks the graph against the registries, so a registered block or
+item cannot ship with no resource at all. It is plain JUnit that reads JSON off the classpath and boots
+only Minecraft's registries, never a server, so it runs on every `./gradlew :common:test` at negligible
+cost.
 
 **Namespace policy** (`ResourceFiles`), applied to every reference:
 
@@ -292,14 +295,37 @@ fallback/cases, `special` with its model under `base`). The tests walk the whole
 any string-valued `model` or `base` as a reference rather than encoding each type's schema, so a new
 definition type is covered without a code change.
 
+**Registry coverage.** Following references from a file can only find broken links between files that
+already exist. It cannot see a block or item that was registered and never given a resource at all —
+which is how a registered thing ends up rendering as the missing-texture checkerboard in a world.
+`RegistryCoverageContractTest` closes that by reading the real registries: `DomainRegistrations` drives
+each domain's package-private `BLOCK`/`ITEM`/`BUCKET` `register()`, which write straight into
+`BuiltInRegistries`. Block entities, menus, and creative tabs are skipped — they resolve loader
+services that have no implementation on the common test classpath.
+
+It checks both directions, and the reverse direction is what keeps the test honest: if
+`DomainRegistrations` ever stops driving part of the registration, the resources for the missing part
+surface as orphans instead of the forward checks quietly covering less. Both exceptions are derived,
+not listed by hand:
+
+- A resource may live in common **or** in every loader module. The three cable blockstates are the
+  current example — common ships none and both loaders ship their own. Requiring *every* loader means
+  dropping one loader's copy fails here rather than silently shipping a cable with no model on that
+  loader.
+- Placeable fluids (`FluidDef.placeable()`) get their `LiquidBlock` and bucket registered per loader,
+  so common ships the resources and registers neither. Read from `CUSTOM_FLUIDS`, so adding a placeable
+  fluid needs no test edit.
+
+Chained with the reference checks above, this covers registry → definition → model → texture end to
+end. It found the Seed Oil Bucket shipping with no model at all.
+
 **What this deliberately does not cover:** the `hasSizeGreaterThanOrEqualTo` checks are a deletion
 alarm for walking an empty or wrong directory — they are not a coverage measure, and shouldn't be
-described as one. Nothing here verifies that every *registered* block and item actually has an item
-definition and model; that needs the mod's own registries, which the current test bootstrap doesn't
-populate. Blockstates, loot tables, and tags are not covered yet either. Registry-backed id checks
-(unknown items in loot tables or tags) belong in a live feature test, not here — vanilla's registry
-silently resolves an unknown id to `minecraft:air` rather than failing, so a static check can't catch
-that class of typo.
+described as one. A model is only checked for the textures it *names*; a texture its parent chain
+requires but it never supplies is not caught here (see the missing `particle` entries on the engine and
+battery models). Registry-backed id checks (unknown items in loot tables or tags) belong in a live
+feature test, not here — vanilla's registry silently resolves an unknown id to `minecraft:air` rather
+than failing, so a static check can't catch that class of typo.
 
 The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
 rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
