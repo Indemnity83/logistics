@@ -1,10 +1,33 @@
 #!/bin/sh
-# Pre-push hook: verify formatting with Spotless as a safety net.
+# Pre-push hook: guard what CI cannot guard in time.
 #
-# Auto-formatting runs on commit, but the pre-commit hook intentionally skips
-# itself during cherry-pick/rebase/merge/revert (which also bypass CI in our
-# normal porting flow). This check should almost never fire; when it does, it
-# stops unformatted code from reaching a branch.
+# Two checks, both bypassable in an emergency with `git push --no-verify`:
+#
+#   1. Spotless, on every push. Auto-formatting runs on commit, but the
+#      pre-commit hook intentionally skips itself during cherry-pick/rebase/
+#      merge/revert -- exactly the operations used for porting. This should
+#      almost never fire; when it does, it stops unformatted code reaching a
+#      branch.
+#
+#   2. Unit tests, only when pushing straight to an mc/* branch. Those pushes
+#      are ports that never went through a pull request, so nothing has run the
+#      tests on the adapted code yet. Check Code does run on push to mc/**, but
+#      only after the commit has landed on a branch other worktrees pull from.
+#      Game tests stay in CI -- they boot Minecraft and are far too slow here.
+
+# Read the refs being pushed before anything else consumes stdin.
+# Each line is: <local ref> <local oid> <remote ref> <remote oid>
+pushing_to_version_branch=0
+while read -r _local_ref local_oid remote_ref _remote_oid; do
+    case "$remote_ref" in
+        refs/heads/mc/*)
+            # An all-zero local oid means the ref is being deleted; nothing to test.
+            case "$local_oid" in
+                *[!0]*) pushing_to_version_branch=1 ;;
+            esac
+            ;;
+    esac
+done
 
 echo "Checking formatting with Spotless..."
 
@@ -13,6 +36,19 @@ if ! ./gradlew spotlessCheck --daemon --quiet; then
     echo "  Run './gradlew spotlessApply', commit the result, then push again."
     echo "  (To bypass in an emergency: git push --no-verify)"
     exit 1
+fi
+
+if [ "$pushing_to_version_branch" -eq 1 ]; then
+    echo "Direct push to an mc/* branch; running unit tests..."
+
+    if ! ./gradlew test --daemon --quiet; then
+        echo "✗ Unit tests failed."
+        echo "  This push goes straight to a version branch with no pull request,"
+        echo "  so nothing else will catch this before it lands. Fix the port, or"
+        echo "  open a pull request if the fix is specific to this version."
+        echo "  (To bypass in an emergency: git push --no-verify)"
+        exit 1
+    fi
 fi
 
 exit 0
