@@ -725,7 +725,7 @@ When creating or modifying PRs:
 - [Documentation](https://indemnity83.github.io/logistics/) - Detailed information on pipes, power, automation, and technical design
 
 **Development:**
-- `CLAUDE.md` (this file) - Primary development guidance for Claude Code
+- `CLAUDE.md` and `AGENTS.md` - Primary development guidance for coding agents. The two are the same document apart from their opening two lines; change one and mirror the change to the other.
 - `README.md` - Project overview and user-facing documentation
 - `CHANGELOG.md` - Auto-generated release notes
 
