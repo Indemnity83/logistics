@@ -396,7 +396,7 @@ neoforge/src/main/    # NeoForge adapter code; client-only code must stay under 
 - NeoForge common initialization runs once from `RegisterEvent`, because built-in registries are writable during that event.
 - NeoForge deferred services such as creative tabs and resource reload listeners collect registrations through common SPIs, then attach to the correct NeoForge event bus from `LogisticsNeoForge`.
 - Shared dynamic renderers and extra model keys live in `common/src/client`; Fabric and NeoForge only provide model-loader/event wiring.
-- Cable blockstates are shared from `common/src/main/resources`. They were loader-specific while NeoForge used a `neoforge:definition_type` custom blockstate; since cables render through `CableBlockEntityRenderer` in common client code, both loaders read the same plain vanilla blockstate.
+- NeoForge custom cable blockstate models use loader-specific blockstate JSON in `neoforge/src/main/resources`, leaving the common Fabric blockstate JSON untouched. Newer branches share one vanilla blockstate from common, because cables there are drawn by a `CableBlockEntityRenderer` in common client code. On this branch each loader still bakes its own custom model (`fabric/.../CableModel`, `neoforge/.../NeoForgeCableModel`, sharing only `CableGeometry`), so the two blockstates must stay different: NeoForge's points at a `*_cable_dynamic` model carrying `"loader": "logistics:cable_model"`, which Fabric cannot read.
 
 ### Small PR Strategy For NeoForge Work
 
@@ -535,6 +535,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 - **Formatting:** Automated via Spotless (minimal rules for consistency)
 - **Single-line if/for allowed** but braces preferred for multi-line
 - Keep nesting depth reasonable (prefer max 3 levels)
+- **Comments: terse, and about the code — not the change.** State the non-obvious *what* a future reader needs; don't narrate why this edit was made, version history, or context around the change (meaningless to the next reader). Put change rationale in the commit/PR, not the code.
 
 ### Code Formatting (Spotless)
 
