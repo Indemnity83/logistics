@@ -37,6 +37,9 @@ public class ProcessScreenHandler extends CustomSlotScreenHandler {
     private static final int DATA_SAT_TAKEN = INPUT_SLOTS + 3; // index 12
     private static final int DATA_SIZE = INPUT_SLOTS + 4;      // 13
 
+    static final int BUTTON_PREV = 0;
+    static final int BUTTON_NEXT = 1;
+
     // Input row: 9 slots in a single row at (8,18), 18px spacing
     private static final int GRID_X = 8;
     private static final int GRID_Y = 18;
@@ -125,24 +128,38 @@ public class ProcessScreenHandler extends CustomSlotScreenHandler {
     @Override
     public boolean clickMenuButton(Player player, int button) {
         if (pipeEntity == null) return false;
+        // The button id is an unconstrained int straight off the wire.
+        if (button != BUTTON_PREV && button != BUTTON_NEXT) return false;
 
         int currentId = getCurrentSatelliteIdFromModule();
         List<Integer> available = getAvailableSatelliteIds();
 
-        int idx = available.indexOf(currentId);
-        if (button == 0) { // prev
-            idx = (idx <= 0) ? available.size() - 1 : idx - 1;
-        } else if (button == 1) { // next
-            idx = (idx >= available.size() - 1) ? 0 : idx + 1;
-        }
-
-        int nextId = available.get(idx);
+        int nextId = resolveSatelliteId(available, currentId, button);
         if (nextId != currentId) {
             PipeModuleHelper.withModule(pipeEntity, ProcessModule.class, targetModuleStateKey, (ctx, module) ->
                     module.setInputSatelliteId(ctx, nextId));
         }
         broadcastChanges();
         return true;
+    }
+
+    /**
+     * Satellite id that a prev/next press selects from {@code available}, or {@code currentId}
+     * for any other button. {@code indexOf} misses when the configured satellite is no longer
+     * registered, so the index is clamped rather than passed through to {@code get}.
+     */
+    static int resolveSatelliteId(List<Integer> available, int currentId, int button) {
+        if (available.isEmpty()) return currentId;
+
+        int idx = available.indexOf(currentId);
+        if (button == BUTTON_PREV) {
+            idx = (idx <= 0) ? available.size() - 1 : idx - 1;
+        } else if (button == BUTTON_NEXT) {
+            idx = (idx >= available.size() - 1) ? 0 : idx + 1;
+        } else {
+            return currentId;
+        }
+        return available.get(Math.max(idx, 0));
     }
 
     @Override
