@@ -259,8 +259,8 @@ jobs:
           name: gametest-report-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.report }}
 
-  client-feature-test:
-    name: client-feature-test (fabric)
+  client-test:
+    name: client-test (fabric)
     # Boots a real Minecraft client, so it needs a display (xvfb) and costs more than the headless
     # suites. Gated on changes it could actually see rather than run on every PR.
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
