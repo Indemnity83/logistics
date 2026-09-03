@@ -49,3 +49,9 @@ scripts/
 
 # Worktree tooling (air)
 .air/
+# Ignore .claude contents (local settings, scheduled_tasks.lock) but track the
+# skills the CI review workflow checks out and runs. Listing the contents rather
+# than the directory is deliberate: git cannot re-include a path whose parent
+# directory is excluded.
+.claude/*
+!.claude/skills/

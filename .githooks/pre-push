@@ -14,6 +14,31 @@
 #      tests on the adapted code yet. Check Code does run on push to mc/**, but
 #      only after the commit has landed on a branch other worktrees pull from.
 #      Game tests stay in CI -- they boot Minecraft and are far too slow here.
+#
+# Gradle output is captured and printed only on failure, so a passing push stays
+# quiet and a failing one shows why.
+
+# Distinguish "the check ran and found a problem" from "the check could not run
+# at all" (dependency resolution, a broken build script, no network). Reporting
+# the latter as a formatting or test failure sends you looking in the wrong place.
+report_failure() {
+    output="$1"
+    found_problem="$2"
+    problem_message="$3"
+    fix_message="$4"
+
+    printf '%s\n' "$output" | tail -30
+
+    if [ -n "$found_problem" ]; then
+        echo "✗ $problem_message"
+        echo "  $fix_message"
+    else
+        echo "✗ Gradle failed before it could finish the check (output above)."
+        echo "  This is a build or dependency failure, not a code problem."
+    fi
+
+    echo "  (To bypass in an emergency: git push --no-verify)"
+}
 
 # Read the refs being pushed before anything else consumes stdin.
 # Each line is: <local ref> <local oid> <remote ref> <remote oid>
@@ -31,22 +56,28 @@ done
 
 echo "Checking formatting with Spotless..."
 
-if ! ./gradlew spotlessCheck --daemon --quiet; then
-    echo "✗ Spotless found unformatted code."
-    echo "  Run './gradlew spotlessApply', commit the result, then push again."
-    echo "  (To bypass in an emergency: git push --no-verify)"
+if ! spotless_output=$(./gradlew spotlessCheck --daemon --quiet 2>&1); then
+    found=""
+    if printf '%s' "$spotless_output" | grep -qE 'spotlessApply|format violations'; then
+        found="yes"
+    fi
+    report_failure "$spotless_output" "$found" \
+        "Spotless found unformatted code." \
+        "Run './gradlew spotlessApply', commit the result, then push again."
     exit 1
 fi
 
 if [ "$pushing_to_version_branch" -eq 1 ]; then
     echo "Direct push to an mc/* branch; running unit tests..."
 
-    if ! ./gradlew test --daemon --quiet; then
-        echo "✗ Unit tests failed."
-        echo "  This push goes straight to a version branch with no pull request,"
-        echo "  so nothing else will catch this before it lands. Fix the port, or"
-        echo "  open a pull request if the fix is specific to this version."
-        echo "  (To bypass in an emergency: git push --no-verify)"
+    if ! test_output=$(./gradlew test --daemon --quiet 2>&1); then
+        found=""
+        if printf '%s' "$test_output" | grep -qE 'failing test|test FAILED|Test .* FAILED'; then
+            found="yes"
+        fi
+        report_failure "$test_output" "$found" \
+            "Unit tests failed." \
+            "This push goes straight to a version branch with no pull request, so nothing else will catch it. Fix the port, or open a pull request if the fix is version-specific."
         exit 1
     fi
 fi
