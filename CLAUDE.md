@@ -86,6 +86,8 @@ The [legacy-only exception](#cross-version-workflow) is unaffected: those fixes 
 
 **Direct pushes to `mc/*` run the unit tests locally first.** The `pre-push` hook (installed by `./gradlew installGitHooks`) runs `./gradlew test` whenever the destination ref is an `mc/*` branch, because a port has no PR and so nothing else has tested the adapted code. Check Code does run on push to `mc/**`, but only after the commit has landed. Game tests stay in CI. Bypass with `git push --no-verify` in an emergency.
 
+**Pre-release branches are exempt from the hook**, decided from `minecraft_version` rather than a branch list: a bare version (`26.2`) is released and enforces the checks, anything carrying a qualifier (`26.3-snapshot-7`, `26.3-pre-1`, `26.3-rc1`) is pre-release and skips them. Such a branch tracks upstream snapshot artifacts that get rotated and deleted, so Gradle often cannot resolve its dependencies — and a failed *configuration* fails every task, not just the tests, which would block every push and train everyone to pass `--no-verify`. The roles rotate on their own: when the pre-release ships and `minecraft_version` becomes bare, that branch starts enforcing the checks, and the next alpha branch is exempt from the day it is created. Nothing to remember, no list to edit.
+
 ### Git Town
 
 Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as perennial) and is used headlessly — no interactive prompts, safe to run from scripts/agents. Prefer these over plain `git` for the standard feature-branch flow:

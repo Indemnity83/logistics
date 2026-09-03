@@ -139,7 +139,9 @@ git -C "$p" push origin HEAD:<branch>
 - Conflicts are expected on legacy branches; resolve them for that branch's API, and keep
   the commit message identical so the branches read as the same change.
 - The `pre-push` hook runs the unit tests for any `mc/*` destination. Let it. Only
-  `--no-verify` when the change contains no code at all, and say so.
+  `--no-verify` when the change contains no code at all, and say so. Pre-release
+  branches skip the hook automatically (decided from `minecraft_version`), so a
+  push there running no checks is expected, not a bypass.
 - Commits touching `.github/workflows/**` cannot be pushed over HTTPS (the token lacks
   `workflow` scope). Push those over SSH; if port 22 times out, use port 443 —
   see the `env_push_workflow_files_needs_ssh` memory for the exact incantation.
