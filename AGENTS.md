@@ -55,6 +55,9 @@ steps do not, and the difference is worth knowing before spinning up four or fiv
 - `git town sync` / `propose` on your own branch. Git Town's runstate is keyed by **worktree
   path**, not by repository, so sessions in different worktrees cannot corrupt each other's.
 - `git fetch`, and reads generally. Git locks refs internally.
+- Git Town's configuration. It is read from `.git-town.toml` in each worktree's own checkout
+  rather than from shared git metadata, so a worktree sitting on an older branch can be a
+  config revision behind until it syncs. See [Git Town](#git-town).
 
 **Serialised — take the ship lock first:**
 
@@ -177,7 +180,11 @@ The [legacy-only exception](#cross-version-workflow) is unaffected: those fixes 
 
 ### Git Town
 
-Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as perennial) and is used headlessly — no interactive prompts, safe to run from scripts/agents. Prefer these over plain `git` for the standard feature-branch flow:
+Git Town is configured by [`.git-town.toml`](.git-town.toml) in the repo root — main branch
+`mc/26.2`, `^mc/` perennial, `^release-please--` observed, ship via the GitHub API. It is
+committed, so a fresh clone is already configured: nothing to run, and every contributor and
+session sees the same branch policy. Git Town runs headlessly here — no interactive prompts, safe
+to run from scripts/agents. Prefer these over plain `git` for the standard feature-branch flow:
 
 | Instead of… | Use |
 |---|---|
@@ -188,6 +195,20 @@ Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as p
 | Squash-merging a PR | `git town ship` |
 | Deleting a merged/obsolete feature branch | `git town delete` |
 | `git checkout <branch>` when you don't remember the name | `git town switch` |
+
+**Local git metadata overrides the file.** `git config git-town.main-branch …` in a clone silently
+wins over `.git-town.toml`, and list settings like `perennials` *merge* rather than replace, so a
+stale local key is invisible until behavior diverges. Change repo-level settings by editing the
+file, not with `git config`. Check for leftovers with `git config --local --list | grep '^git-town\.'`
+— that should come back empty.
+
+**Branch lineage stays local.** `git-town-branch.<name>.parent` and `.branchtype` describe *your*
+in-flight branches, not the repo, and belong in local metadata where Git Town writes them.
+
+Because the file is version-controlled it travels with cherry-picks, so every `mc/*` branch carries
+the same config, and a fresh clone needs no setup. The flip side: a worktree on a branch that
+predates the file has *no* config, and Git Town hard-errors with "no main branch configured". The
+fix is `git town sync` to pick the file up from the parent — not a local `git config`.
 
 **Exceptions that stay plain `git`:** cherry-picks between `mc/*` branches (perennial-to-perennial, not a Git Town workflow), the tag-based hotfix branch in [Hotfix Workflow](#hotfix-workflow) below (branches off a tag, not main, so `git town hack` doesn't apply), and read-only inspection commands (`git status`, `git log`, `git branch --show-current`, `git diff`).
 
