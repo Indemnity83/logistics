@@ -82,12 +82,24 @@ jobs:
           # untrusted PR content — with an app token carrying contents/workflows
           # write. See the app permission table linked from the docs above.
           #
-          # The command's own pre-flight skips closed PRs, drafts, trivial diffs,
-          # and PRs it has already commented on — so expect one review per PR
-          # rather than one per push.
-          prompt: >-
-            /code-review:code-review --comment
-            ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+          # The command's step 1 pre-flight stops on four conditions: closed PRs,
+          # drafts, changes that need no review, and "Claude has already
+          # commented on this PR". That fourth one is overridden below, because
+          # it capped reviews at one per PR: commits pushed to address findings
+          # were never themselves reviewed, which matters most when an agent is
+          # writing those commits. The other three still apply, so a trivial
+          # change is still allowed to pass without a review.
+          #
+          # The command body has no $ARGUMENTS placeholder, so trailing text
+          # lands as instruction rather than being parsed as the review target.
+          prompt: |-
+            /code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+
+            Override one condition in the step 1 pre-flight: do not stop because
+            Claude has already commented on this pull request. Review it again and
+            post again, so that commits pushed to address earlier findings are
+            themselves reviewed. Every other stop condition still applies — closed
+            pull requests, drafts, and changes that genuinely do not need review.
           claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
 
       # The Actions row renders its own "Successful in Nm" and carries no
