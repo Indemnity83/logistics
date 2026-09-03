@@ -1,0 +1,7 @@
+# Changes under .github/ alter CI, releases, and the review workflow itself.
+#
+# These paths cannot rely on automated review to catch problems: a pull request
+# that edits code-review.yml fails the action's workflow-validation check and
+# reports a green `review (claude)` having reviewed nothing. Name an owner so
+# the review request is raised explicitly instead.
+/.github/ @Indemnity83
