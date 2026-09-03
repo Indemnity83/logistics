@@ -38,7 +38,7 @@ jobs:
       pull-requests: write
       issues: read
       id-token: write
-      # Lets the final step publish the `claude review` commit status.
+      # Lets the final step publish the `Code Review / summary` commit status.
       statuses: write
 
     steps:
@@ -91,9 +91,14 @@ jobs:
             ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
           claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
 
-      # The Actions row renders its own "Successful in Nm" and carries no
-      # settable text, so the outcome goes on a separate `claude review` commit
-      # status — the same mechanism CodeRabbit and Codecov use for their notes.
+      # The Actions row renders its own "Successful in Nm" from the run
+      # duration and carries no settable text — only the app that created a check
+      # run may update it, and even then that row shows the duration, not
+      # output.title. So the outcome goes on a commit status, the same mechanism
+      # CodeRabbit and Codecov use for their notes. A status is always its own
+      # row; the context is named to sort directly beneath the Actions row so the
+      # two read as a pair.
+      #
       # Informational only: it always reports success, and gating stays on the
       # required `review (claude)` context. Never fails the job; a missing note
       # must not turn a finished review red.
@@ -143,7 +148,7 @@ jobs:
           note=$(printf '%.137s' "$note")
           gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${HEAD_SHA}" \
             -f state=success \
-            -f context='claude review' \
+            -f context='Code Review / summary' \
             -f description="$note" \
             -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
             >/dev/null && echo "Posted: $note"
