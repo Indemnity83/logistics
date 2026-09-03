@@ -102,6 +102,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           EXECUTION_FILE: ${{ steps.review.outputs.execution_file }}
         run: |
           if [ "$REVIEWABLE" != "true" ]; then
@@ -111,11 +112,31 @@ jobs:
             # this PR edits the review workflow and fails workflow validation.
             note="Skipped: this pull request modifies the review workflow"
           else
-            # Claude's own closing summary, e.g. "No issues found. Checked for
-            # bugs and CLAUDE.md compliance." or its reason for skipping.
-            note=$(jq -r 'map(select(.type == "result") | .result // empty) | last // empty' \
-              "$EXECUTION_FILE" 2>/dev/null | head -1)
-            [ -z "$note" ] && note="Review finished; see the run summary"
+            # Derive the note from what Claude actually posted. Its closing
+            # prose is not a summary — it is whatever the model happened to say
+            # last, which produced notes like "the 4 review agents are running
+            # in the background" on a finished run.
+            findings=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/comments" \
+              --paginate --jq '[.[] | select(.user.login == "claude[bot]")] | length' 2>/dev/null || echo 0)
+            # A clean review posts this exact wording; the same endpoint also
+            # carries reviews whose findings went into one summary comment
+            # rather than inline, so match the text rather than just counting.
+            clean=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --paginate --jq '[.[] | select(.user.login == "claude[bot]")
+                | select(.body | test("No issues found"))] | length' 2>/dev/null || echo 0)
+            summaries=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --paginate --jq '[.[] | select(.user.login == "claude[bot]")] | length' 2>/dev/null || echo 0)
+            if [ "${findings:-0}" -gt 1 ]; then
+              note="${findings} findings posted as inline comments"
+            elif [ "${findings:-0}" -eq 1 ]; then
+              note="1 finding posted as an inline comment"
+            elif [ "${clean:-0}" -gt 0 ]; then
+              note="No issues found"
+            elif [ "${summaries:-0}" -gt 0 ]; then
+              note="Findings posted as a summary comment"
+            else
+              note="No review needed: trivial, or reviewed earlier"
+            fi
           fi
           # GitHub truncates status descriptions past 140 characters.
           note=$(printf '%.137s' "$note")
