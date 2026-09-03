@@ -67,28 +67,44 @@ steps do not, and the difference is worth knowing before spinning up four or fiv
 The lock is one atomic `mkdir` in the shared git dir, so every worktree sees the same lock:
 
 ```bash
-LOCK="$(git rev-parse --git-common-dir)/ship.lock"
+# --path-format=absolute matters: a bare --git-common-dir prints a *relative*
+# `.git` when run from the main worktree, so the lock path would depend on cwd.
+LOCK="$(git rev-parse --path-format=absolute --git-common-dir)/ship.lock"
 
 if mkdir "$LOCK" 2>/dev/null; then
-  date +%s > "$LOCK/since"; echo "pr-<n>" > "$LOCK/owner"
+  echo "pr-<n>" > "$LOCK/owner"; date +%s > "$LOCK/since"
 
   # ... git town ship, then port to the other branches ...
 
   rm -rf "$LOCK"                             # release: only ever on this path
 else
-  echo "held by $(cat "$LOCK/owner") for $(( $(date +%s) - $(cat "$LOCK/since") ))s"
+  owner=$(cat "$LOCK/owner" 2>/dev/null) || true
+  since=$(cat "$LOCK/since" 2>/dev/null) || true
+  if [ -n "$since" ]; then age="$(( $(date +%s) - since ))s"; else age="unknown age"; fi
+  echo "held by ${owner:-unknown} ($age)"
   # Do not touch the lock. Wait and retry, or go work a different PR.
 fi
 ```
+
+The fallbacks on `owner`/`since` are not cosmetic: a lock directory can exist without its two
+files — a session killed between the `mkdir` and the writes leaves exactly that — and
+`$(( $(date +%s) - $(cat missing) ))` is a **syntax error** that aborts the whole `echo`, so the
+losing session would print nothing at all instead of saying who holds the lock.
 
 **Release only on the path that acquired it.** Putting `rm -rf "$LOCK"` after the `if`/`else`
 instead of inside the success branch means the session that *lost* the race deletes the winner's
 lock on its way past — the next contender then acquires it while the original holder is still
 mid-ship, which is precisely the collision the lock exists to prevent.
 
-Release even when the ship fails, but only if you are the holder. If a lock is held by a PR that
-is clearly finished, or is hours old, it is stale — say so, confirm the holder is really gone,
-then clear it. Waiting is usually cheap: a ship plus a port is a few minutes.
+Release even when the ship fails, but only if you are the holder. **The release is its own
+step** — acquire, ship, port and release are separate commands in an agent session, each in its
+own shell, so a `trap ... EXIT` on the acquiring command would fire the moment that command
+returns and drop the lock immediately. That also means a ship that fails partway will strand the
+lock rather than unwinding it: if a step fails, release explicitly before moving on.
+
+Because a lock can be stranded that way, treat one held by a PR that is clearly finished, or one
+that is hours old, as stale — say so, confirm the holder is really gone, then clear it. Waiting
+is usually cheap: a ship plus a port is a few minutes.
 
 **Hard constraints, whatever else you do:**
 
