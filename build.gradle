@@ -14,7 +14,7 @@ spotless {
     // Keep this intentionally minimal to avoid churny formatting diffs.
     // Whitespace hygiene for common text files.
     format('misc') {
-        target '*.gradle', '**/*.gradle', '*.md', '*.yml', '*.yaml', '*.json', '*.properties', '.gitignore'
+        target '*.gradle', '**/*.gradle', '*.md', '*.yml', '*.yaml', '*.json', '*.properties', '.gitignore', '.git-town.toml'
         trimTrailingWhitespace()
         endWithNewline()
     }
