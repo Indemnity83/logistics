@@ -129,6 +129,11 @@ Decide applicability first. Port player-facing fixes/features and internal work 
 the branches converging. Do **not** port a change that is version-specific: if it touches
 an API or asset that only exists on some branches, adapt it or skip it, and say which.
 
+**For anything beyond a clean cherry-pick, use the `backport` skill** (`.claude/skills/backport/`).
+It covers already-present detection, resolving conflicts toward structural convergence, the
+per-version API cheat-sheet, the verification suites, and working without per-branch worktrees.
+The steps below are the short path for a port that applies cleanly.
+
 ```bash
 p=/Users/kklaus/Dev/Minecraft/logistics-<version>
 git -C "$p" fetch origin <branch> -q && git -C "$p" merge --ff-only origin/<branch> -q
