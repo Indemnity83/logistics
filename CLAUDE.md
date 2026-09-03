@@ -67,6 +67,25 @@ If worktrees are detected at these paths, they may be referenced when working on
 
 **In auto mode:** Still pause and confirm before any push when the current branch is `mc/*` or when no feature branch has been created yet. A wrong push to a protected branch is very hard to undo cleanly.
 
+#### How the rulesets enforce this
+
+Two rulesets implement the above, and they differ only in who may bypass them:
+
+| Ruleset | Targets | Bypass |
+|---|---|---|
+| `default-branch` | `~DEFAULT_BRANCH` | **none** |
+| `version-branches` | `refs/heads/mc/**` | repository admin |
+
+Both require a PR, the same ten status checks, and resolution of every review thread. The default branch matches both, and bypassing one ruleset does not exempt you from another's rules — so **nothing can be pushed directly to the default branch, by anyone, including admins and agent sessions.** The other `mc/*` branches match only `version-branches`, where the admin bypass keeps the cherry-pick-and-push porting flow working.
+
+`~DEFAULT_BRANCH` resolves dynamically, so when main moves to a newer `mc/2x.y` the roles follow automatically. Nothing here hardcodes which branch is main.
+
+**Consequence — port *up* into the default branch through a PR.** Porting down or sideways (mc/26.2 → mc/26.1, → mc/1.21.11, → mc/1.21.1, → mc/26.3) stays a direct push. But a fix that originates on a non-default branch and needs to reach the default branch cannot be pushed there; open a normal PR for that hop. This is the intended behavior: the adapted commit is different code from what was reviewed, and the default branch is where review happens. It also makes the existing "new work starts on the default branch" rule enforceable rather than aspirational — so if a change affects multiple versions, propose it on the default branch first.
+
+The [legacy-only exception](#cross-version-workflow) is unaffected: those fixes originate on the highest affected branch and are cherry-picked *down*, never touching the default branch.
+
+**Direct pushes to `mc/*` run the unit tests locally first.** The `pre-push` hook (installed by `./gradlew installGitHooks`) runs `./gradlew test` whenever the destination ref is an `mc/*` branch, because a port has no PR and so nothing else has tested the adapted code. Check Code does run on push to `mc/**`, but only after the commit has landed. Game tests stay in CI. Bypass with `git push --no-verify` in an emergency.
+
 ### Git Town
 
 Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as perennial) and is used headlessly — no interactive prompts, safe to run from scripts/agents. Prefer these over plain `git` for the standard feature-branch flow:
