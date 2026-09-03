@@ -43,6 +43,88 @@ The current working directory path indicates which branch you're on.
 
 If worktrees are detected at these paths, they may be referenced when working on cross-version changes.
 
+### Running Several Sessions in Parallel
+
+Several sessions can work different PRs at once. Most of the work parallelises cleanly; two
+steps do not, and the difference is worth knowing before spinning up four or five.
+
+**Independent per session** — each session gets its own worktree and stays in it:
+
+- Editing, committing, and pushing a feature branch.
+- Addressing review findings and resolving threads.
+- `git town sync` / `propose` on your own branch. Git Town's runstate is keyed by **worktree
+  path**, not by repository, so sessions in different worktrees cannot corrupt each other's.
+- `git fetch`, and reads generally. Git locks refs internally.
+- Git Town's configuration. It is read from `.git-town.toml` in each worktree's own checkout
+  rather than from shared git metadata, so a worktree sitting on an older branch can be a
+  config revision behind until it syncs. See [Git Town](#git-town).
+
+**Serialised — take the ship lock first:**
+
+- **`git town ship`.** Shipping moves the default branch, and every other session's feature
+  branch immediately becomes "not in sync with its parent".
+- **Porting.** Cherry-picking uses the shared `mc/*` worktrees; two sessions cherry-picking in
+  the same worktree collide outright, and two pushing the same branch race for a
+  non-fast-forward rejection.
+
+The lock is one atomic `mkdir` in the shared git dir, so every worktree sees the same lock:
+
+```bash
+# --path-format=absolute matters: a bare --git-common-dir prints a *relative*
+# `.git` when run from the main worktree, so the lock path would depend on cwd.
+LOCK="$(git rev-parse --path-format=absolute --git-common-dir)/ship.lock"
+
+if mkdir "$LOCK" 2>/dev/null; then
+  echo "pr-<n>" > "$LOCK/owner"; date +%s > "$LOCK/since"
+
+  # ... git town ship, then port to the other branches ...
+
+  rm -rf "$LOCK"                             # release: only ever on this path
+else
+  owner=$(cat "$LOCK/owner" 2>/dev/null) || true
+  since=$(cat "$LOCK/since" 2>/dev/null) || true
+  if [ -n "$since" ]; then age="$(( $(date +%s) - since ))s"; else age="unknown age"; fi
+  echo "held by ${owner:-unknown} ($age)"
+  # Do not touch the lock. Wait and retry, or go work a different PR.
+fi
+```
+
+The fallbacks on `owner`/`since` are not cosmetic: a lock directory can exist without its two
+files — a session killed between the `mkdir` and the writes leaves exactly that — and
+`$(( $(date +%s) - $(cat missing) ))` is a **syntax error** that aborts the whole `echo`, so the
+losing session would print nothing at all instead of saying who holds the lock.
+
+**Release only on the path that acquired it.** Putting `rm -rf "$LOCK"` after the `if`/`else`
+instead of inside the success branch means the session that *lost* the race deletes the winner's
+lock on its way past — the next contender then acquires it while the original holder is still
+mid-ship, which is precisely the collision the lock exists to prevent.
+
+Release even when the ship fails, but only if you are the holder. **The release is its own
+step** — acquire, ship, port and release are separate commands in an agent session, each in its
+own shell, so a `trap ... EXIT` on the acquiring command would fire the moment that command
+returns and drop the lock immediately. That also means a ship that fails partway will strand the
+lock rather than unwinding it: if a step fails, release explicitly before moving on.
+
+Because a lock can be stranded that way, treat one held by a PR that is clearly finished, or one
+that is hours old, as stale — say so, confirm the holder is really gone, then clear it. Waiting
+is usually cheap: a ship plus a port is a few minutes.
+
+**Hard constraints, whatever else you do:**
+
+- **A branch can be checked out in only one worktree.** `git worktree add` refuses a branch that
+  is already checked out anywhere and fails with `fatal: '<branch>' is already used by worktree
+  at ...`. Look before you create.
+- **Never run anything in a worktree you do not own** — not a build, not a checkout, not a
+  `pkill`. Another session is probably mid-operation in it.
+- **`pkill -f` matches prefixes.** `pkill -f "logistics-mc-1.21.1"` also kills
+  `logistics-mc-1.21.11`. Anchor with a trailing slash, or inspect with `pgrep -fl` first.
+  Generic patterns (`GradleWorkerMain`, `devlaunchinjector`) hit every worktree — never use them.
+- **Minecraft dev servers collide on port 25565.** A second `runServer` fails to bind and dies,
+  which reads as a broken port rather than a busy one. Serialise them, or give each worktree its
+  own `server-port`.
+- Gradle daemons are per-worktree but share `~/.gradle`. Four or five concurrent builds are
+  heavy; the ship lock already serialises the ones that run during a push.
+
 ### Development Strategy
 
 - **`mc/26.2`**: Primary development target (main branch) — new features, refactors, and fixes start here
@@ -53,13 +135,21 @@ If worktrees are detected at these paths, they may be referenced when working on
 
 ### Branch Protection Rules (CRITICAL)
 
-**Never push or commit directly to `mc/*` branches** (`mc/26.3`, `mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected branches (configured as Git Town perennial branches — see [Git Town](#git-town) below). All work — including in auto mode — must go through a feature branch and PR.
+**New work never goes directly to an `mc/*` branch** (`mc/26.3`, `mc/26.2`, `mc/26.1`, `mc/1.21.11`, `mc/1.21.1`). These are protected branches (configured as Git Town perennial branches — see [Git Town](#git-town) below). Writing a fix or a feature — including in auto mode — means a feature branch and a PR.
+
+**Porting an already-merged commit is different, and is expected to push directly.** `git push origin HEAD:mc/1.21.1` after a cherry-pick is the *sanctioned* way to keep the version branches in parity — not a violation of the rule above, which is about where new work originates. The [Cross-Version Workflow](#cross-version-workflow) depends on it, and the `version-branches` ruleset is configured to permit it. The one place this does not apply is the default branch, which accepts no direct pushes at all; see [How the rulesets enforce this](#how-the-rulesets-enforce-this).
 
 **Required workflow for any new work:**
 1. Create a feature branch first: `git town hack descriptive-branch-name`
 2. Make commits on the feature branch
 3. Sync/push the feature branch: `git town sync --push` (the explicit `--push` guarantees the branch reaches the remote regardless of the user's Git Town push defaults; or let `propose` do it)
 4. Open a PR targeting the appropriate `mc/*` branch: `git town propose`
+
+**Issue each push as its own command.** Permission rules match a single command; a `for` loop or
+an `&&` chain that ports to several branches at once matches no rule and falls through to the
+permission classifier, which then has to judge a compound string containing a push to a protected
+branch. One `git -C <worktree> push origin HEAD:<branch>` per branch is both allowable by rule and
+easier to read in a transcript — batch the cherry-picks if you like, but not the pushes.
 
 **Exceptions:**
 - Cherry-picking between `mc/*` branches for porting already-merged commits. Confirm with the user before pushing.
@@ -86,9 +176,15 @@ The [legacy-only exception](#cross-version-workflow) is unaffected: those fixes 
 
 **Direct pushes to `mc/*` run the unit tests locally first.** The `pre-push` hook (installed by `./gradlew installGitHooks`) runs `./gradlew test` whenever the destination ref is an `mc/*` branch, because a port has no PR and so nothing else has tested the adapted code. Check Code does run on push to `mc/**`, but only after the commit has landed. Game tests stay in CI. Bypass with `git push --no-verify` in an emergency.
 
+**Pre-release branches are exempt from the hook**, decided from `minecraft_version` rather than a branch list: a bare version (`26.2`) is released and enforces the checks, anything carrying a qualifier (`26.3-snapshot-7`, `26.3-pre-1`, `26.3-rc1`) is pre-release and skips them. Such a branch tracks upstream snapshot artifacts that get rotated and deleted, so Gradle often cannot resolve its dependencies — and a failed *configuration* fails every task, not just the tests, which would block every push and train everyone to pass `--no-verify`. The roles rotate on their own: when the pre-release ships and `minecraft_version` becomes bare, that branch starts enforcing the checks, and the next alpha branch is exempt from the day it is created. Nothing to remember, no list to edit.
+
 ### Git Town
 
-Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as perennial) and is used headlessly — no interactive prompts, safe to run from scripts/agents. Prefer these over plain `git` for the standard feature-branch flow:
+Git Town is configured by [`.git-town.toml`](.git-town.toml) in the repo root — main branch
+`mc/26.2`, `^mc/` perennial, `^release-please--` observed, ship via the GitHub API. It is
+committed, so a fresh clone is already configured: nothing to run, and every contributor and
+session sees the same branch policy. Git Town runs headlessly here — no interactive prompts, safe
+to run from scripts/agents. Prefer these over plain `git` for the standard feature-branch flow:
 
 | Instead of… | Use |
 |---|---|
@@ -99,6 +195,20 @@ Git Town is configured for this repo (main branch `mc/26.2`, `^mc/` treated as p
 | Squash-merging a PR | `git town ship` |
 | Deleting a merged/obsolete feature branch | `git town delete` |
 | `git checkout <branch>` when you don't remember the name | `git town switch` |
+
+**Local git metadata overrides the file.** `git config git-town.main-branch …` in a clone silently
+wins over `.git-town.toml`, and list settings like `perennials` *merge* rather than replace, so a
+stale local key is invisible until behavior diverges. Change repo-level settings by editing the
+file, not with `git config`. Check for leftovers with `git config --local --list | grep '^git-town\.'`
+— that should come back empty.
+
+**Branch lineage stays local.** `git-town-branch.<name>.parent` and `.branchtype` describe *your*
+in-flight branches, not the repo, and belong in local metadata where Git Town writes them.
+
+Because the file is version-controlled it travels with cherry-picks, so every `mc/*` branch carries
+the same config, and a fresh clone needs no setup. The flip side: a worktree on a branch that
+predates the file has *no* config, and Git Town hard-errors with "no main branch configured". The
+fix is `git town sync` to pick the file up from the parent — not a local `git config`.
 
 **Exceptions that stay plain `git`:** cherry-picks between `mc/*` branches (perennial-to-perennial, not a Git Town workflow), the tag-based hotfix branch in [Hotfix Workflow](#hotfix-workflow) below (branches off a tag, not main, so `git town hack` doesn't apply), and read-only inspection commands (`git status`, `git log`, `git branch --show-current`, `git diff`).
 
@@ -660,7 +770,7 @@ When creating or modifying PRs:
 - [Documentation](https://indemnity83.github.io/logistics/) - Detailed information on pipes, power, automation, and technical design
 
 **Development:**
-- `CLAUDE.md` (this file) - Primary development guidance for Claude Code
+- `CLAUDE.md` and `AGENTS.md` - Primary development guidance for coding agents. The two are the same document apart from their opening two lines; change one and mirror the change to the other.
 - `README.md` - Project overview and user-facing documentation
 - `CHANGELOG.md` - Auto-generated release notes
 

@@ -1,0 +1,22 @@
+# Git Town configuration. See https://www.git-town.com/configuration-file
+#
+# Local git metadata overrides this file, so do not set repo-level `git-town.*`
+# keys with `git config` — they win silently and drift from what everyone else
+# runs. Branch lineage (`git-town-branch.<name>.parent`) is per-developer and
+# stays in local metadata.
+
+[branches]
+main = "mc/26.2"
+# Every mc/* version branch is protected; new work never starts on one.
+perennial-regex = "^mc/"
+perennials = ["docs"]
+# Release-please branches are machine-owned: sync them, never propose them.
+observed-regex = "^release-please--"
+
+[hosting]
+forge-type = "github"
+github-connector = "gh"
+
+[ship]
+# Squash-merge through the GitHub API so branch protection still applies.
+strategy = "api"

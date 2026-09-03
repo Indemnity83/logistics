@@ -262,35 +262,24 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
      * Each iteration extracts one stack (up to {@code itemsLeft} items), injects a TravelingItem,
      * then decrements both {@code itemsLeft} and {@code stacksLeft}. The loop stops as soon as
      * either limit is exhausted or the queue is empty.
+     *
+     * <p>Draining an entry can advance the head to the next order, so the item is resolved from the
+     * head on every iteration — entries in the same cycle may be for different items.
      */
-    private void processDispatchQueue(PipeContext ctx) {
+    void processDispatchQueue(PipeContext ctx) {
         ProviderDispatchQueue queue = loadQueue(ctx);
         if (queue.isEmpty()) return;
-
-        ProviderDispatchQueue.Entry head = queue.peekHead();
-        if (head == null) return;
-
-        ResourceId rid = ResourceId.tryParse(head.itemId());
-        if (rid == null) { queue.removeHead(); saveQueue(ctx, queue); return; }
-        var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
-        if (holder.isEmpty()) { queue.removeHead(); saveQueue(ctx, queue); return; }
-        IItemKey item;
-        if (head.itemTag() != null) {
-            RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-            ItemStack stack = ItemStack.CODEC.parse(ops, head.itemTag()).result()
-                    .orElse(new ItemStack(holder.get().value()));
-            item = ItemStorageLookup.of(stack);
-        } else {
-            item = ItemStorageLookup.of(new ItemStack(holder.get().value()));
-        }
 
         ProviderMode mode = getMode(ctx);
         long itemsLeft = itemLimit;
         int stacksLeft = stackLimit;
 
         while (itemsLeft > 0 && stacksLeft > 0) {
-            head = queue.peekHead();
+            ProviderDispatchQueue.Entry head = queue.peekHead();
             if (head == null) break;
+
+            IItemKey item = resolveQueuedItem(ctx, head);
+            if (item == null) { queue.removeHead(); break; }
 
             long toExtract = Math.min(head.remaining(), Math.min(itemsLeft, item.toStack(1).getMaxStackSize()));
             Extraction extraction = extractFromNeighbors(ctx, item, toExtract, mode);
@@ -334,6 +323,26 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         }
 
         saveQueue(ctx, queue);
+    }
+
+    /**
+     * Rebuild the item key a queue entry was enqueued for, preferring the serialized stack so data
+     * components survive. Returns {@code null} when the entry names an item this game no longer has.
+     */
+    @Nullable
+    private IItemKey resolveQueuedItem(PipeContext ctx, ProviderDispatchQueue.Entry entry) {
+        ResourceId rid = ResourceId.tryParse(entry.itemId());
+        if (rid == null) return null;
+        var holder = BuiltInRegistries.ITEM.get(rid.toIdentifier());
+        if (holder.isEmpty()) return null;
+
+        if (entry.itemTag() != null) {
+            RegistryOps<Tag> ops = ctx.world().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+            ItemStack stack = ItemStack.CODEC.parse(ops, entry.itemTag()).result()
+                    .orElse(new ItemStack(holder.get().value()));
+            return ItemStorageLookup.of(stack);
+        }
+        return ItemStorageLookup.of(new ItemStack(holder.get().value()));
     }
 
     /** Items pulled from a neighboring inventory: the amount and where it came from (for refunds/routing). */
@@ -387,7 +396,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     }
 
     /** Persist the dispatch queue to NBT state. */
-    private void saveQueue(PipeContext ctx, ProviderDispatchQueue queue) {
+    void saveQueue(PipeContext ctx, ProviderDispatchQueue queue) {
         if (queue.isEmpty()) {
             ctx.moduleState(this).remove(DISPATCH_QUEUE);
         } else {
