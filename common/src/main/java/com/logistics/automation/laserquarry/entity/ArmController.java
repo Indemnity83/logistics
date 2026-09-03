@@ -15,6 +15,12 @@ import net.minecraft.world.level.Level;
  * when to push state to clients.
  */
 public final class ArmController {
+    /**
+     * Upper bound on any travel or settling estimate, in ticks. Caps what a degenerate
+     * arm speed can stamp onto the timer, and clamps values already saved to NBT.
+     */
+    public static final int MAX_TRAVEL_TICKS = 6000;
+
     private QuarryArmState state = QuarryArmState.MOVING;
     private float x = 0f;
     private float y = 0f;
@@ -76,11 +82,15 @@ public final class ArmController {
 
     public void enterSettling(int ticks) {
         this.state = QuarryArmState.SETTLING;
-        this.settlingTicksRemaining = Math.max(1, ticks);
+        this.settlingTicksRemaining = Math.max(1, Math.min(ticks, MAX_TRAVEL_TICKS));
     }
 
     public void enterBreaking() {
         this.state = QuarryArmState.BREAKING;
+    }
+
+    public int getSettlingTicksRemaining() {
+        return settlingTicksRemaining;
     }
 
     /** Decrement the settling timer; returns {@code true} when it reaches zero. */
@@ -113,7 +123,7 @@ public final class ArmController {
         this.x = tx;
         this.y = ty;
         this.z = tz;
-        this.expectedTravelTicks = (int) Math.ceil(distance / speed);
+        this.expectedTravelTicks = ticksForDistance(distance, speed);
     }
 
     // ==================== Kinematics ====================
@@ -154,7 +164,25 @@ public final class ArmController {
         float dy = ty - y;
         float dz = tz - z;
         float distance = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-        return (int) Math.ceil(distance / speed);
+        return ticksForDistance(distance, speed);
+    }
+
+    /**
+     * Ticks needed to cover {@code distance} at {@code speed}, capped at {@link #MAX_TRAVEL_TICKS}.
+     * A non-positive or non-finite speed means "no travel estimate" (0) rather than a division
+     * that overflows to {@link Integer#MAX_VALUE}.
+     */
+    private static int ticksForDistance(float distance, float speed) {
+        if (!Float.isFinite(distance) || !Float.isFinite(speed) || distance <= 0f || speed <= 0f) {
+            return 0;
+        }
+        double ticks = Math.ceil((double) distance / (double) speed);
+        return (int) Math.min(ticks, MAX_TRAVEL_TICKS);
+    }
+
+    /** Keep a tick count inside the sane range, including values read back from older saves. */
+    private static int clampTicks(int ticks) {
+        return Math.max(0, Math.min(ticks, MAX_TRAVEL_TICKS));
     }
 
     // ==================== Cost + speed (depend on energy buffer / world) ====================
@@ -199,8 +227,8 @@ public final class ArmController {
         y = NbtCompat.getFloat(tag, "ArmY", 0f);
         z = NbtCompat.getFloat(tag, "ArmZ", 0f);
         initialized = NbtCompat.getBoolean(tag, "ArmInitialized", false);
-        settlingTicksRemaining = NbtCompat.getInt(tag, "ArmSettlingTicks", 0);
-        expectedTravelTicks = NbtCompat.getInt(tag, "ArmExpectedTravelTicks", 0);
+        settlingTicksRemaining = clampTicks(NbtCompat.getInt(tag, "ArmSettlingTicks", 0));
+        expectedTravelTicks = clampTicks(NbtCompat.getInt(tag, "ArmExpectedTravelTicks", 0));
         syncedSpeed = NbtCompat.getFloat(tag, "ArmSyncedSpeed", 0.0f);
     }
 }
