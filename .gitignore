@@ -3,6 +3,10 @@
 build/
 out/
 classes/
+/common/bin/
+/fabric/bin/
+/neoforge/bin/
+/neoforge/runs/
 
 # Eclipse
 *.launch
@@ -28,9 +32,6 @@ patches/
 patches.lzma
 ats/
 /config.json
-
-# NeoForge
-/neoforge/runs/
 
 # MacOS
 .DS_Store
