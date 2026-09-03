@@ -13,8 +13,7 @@ class CableNetworkEnergyTransferTest {
     @DisplayName("conserves energy when the target's simulate overstates what it accepts")
     void moveEnergy_optimisticSimulate_conservesEnergy() {
         FakeStorage source = FakeStorage.full(10_000);
-        // Models a rate-limited machine behind a dishonest simulate (the Fabric TR
-        // adapter approximated simulate as free room, ignoring per-operation limits).
+        // Models a rate-limited machine behind a dishonest simulate.
         RateLimitedStorage target = new RateLimitedStorage(100_000, 32);
 
         long moved = CableNetwork.moveEnergy(source, target, 1_000);
@@ -47,6 +46,19 @@ class CableNetworkEnergyTransferTest {
 
         assertThat(moved).isZero();
         assertThat(source.getAmount()).isEqualTo(10_000);
+        assertConserved(source, target, 10_000, 0, moved);
+    }
+
+    @Test
+    @DisplayName("returns every stranded unit to a source that rate-limits its own refund")
+    void moveEnergy_rateLimitedSource_refundsInFull() {
+        // A Power Junction outruns its own input rate: 1000 out per operation, 128 back in.
+        RateLimitedStorage source = RateLimitedStorage.full(10_000, 128);
+        RateLimitedStorage target = new RateLimitedStorage(100_000, 32);
+
+        long moved = CableNetwork.moveEnergy(source, target, 1_000);
+
+        assertThat(moved).isEqualTo(32);
         assertConserved(source, target, 10_000, 0, moved);
     }
 
@@ -130,6 +142,13 @@ class CableNetworkEnergyTransferTest {
             this.maxInsert = maxInsert;
         }
 
+        /** Starts full, so the storage can act as a source as well as a target. */
+        static RateLimitedStorage full(long capacity, long maxInsert) {
+            RateLimitedStorage storage = new RateLimitedStorage(capacity, maxInsert);
+            storage.amount = capacity;
+            return storage;
+        }
+
         @Override
         public long insert(long maxAmount, boolean simulate) {
             if (maxAmount <= 0) return 0;
@@ -142,7 +161,10 @@ class CableNetworkEnergyTransferTest {
 
         @Override
         public long extract(long maxAmount, boolean simulate) {
-            return 0;
+            if (maxAmount <= 0) return 0;
+            long extracted = Math.min(maxAmount, amount);
+            if (!simulate) amount -= extracted;
+            return extracted;
         }
 
         @Override
@@ -153,11 +175,6 @@ class CableNetworkEnergyTransferTest {
         @Override
         public long getCapacity() {
             return capacity;
-        }
-
-        @Override
-        public boolean canExtract() {
-            return false;
         }
     }
 }

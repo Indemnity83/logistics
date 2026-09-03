@@ -9,7 +9,7 @@ import team.reborn.energy.api.base.SimpleEnergyStorage;
 @DisplayName("Team Reborn energy adapter")
 class TrToIEnergyStorageAdapterTest {
 
-    /** Big buffer, small per-operation transfer rate — the shape that used to void energy. */
+    /** Big buffer, small per-operation transfer rate. */
     private static SimpleEnergyStorage rateLimited(long amount) {
         SimpleEnergyStorage storage = new SimpleEnergyStorage(100_000, 32, 32);
         storage.amount = amount;
