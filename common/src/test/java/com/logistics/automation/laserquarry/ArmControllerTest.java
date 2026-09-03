@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.within;
 import com.logistics.automation.laserquarry.entity.ArmController;
 import com.logistics.automation.laserquarry.entity.QuarryArmState;
 import com.logistics.test.MinecraftTestEnvironment;
+import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -207,6 +208,111 @@ class ArmControllerTest extends MinecraftTestEnvironment {
 
             arm.enterMoving();
             assertThat(arm.getState()).isEqualTo(QuarryArmState.MOVING);
+        }
+    }
+
+    @Nested
+    @DisplayName("degenerate speeds")
+    class DegenerateSpeeds {
+
+        @Test
+        @DisplayName("travelTicksFor yields no estimate for a zero speed instead of a huge tick count")
+        void zeroSpeedTravelTicks() {
+            ArmController arm = armAt(0f, 0f, 0f);
+
+            assertThat(arm.travelTicksFor(10f, 0f, 0f, 0f)).isZero();
+        }
+
+        @Test
+        @DisplayName("travelTicksFor yields no estimate for a negative or non-finite speed")
+        void nonFiniteSpeedTravelTicks() {
+            ArmController arm = armAt(0f, 0f, 0f);
+
+            assertThat(arm.travelTicksFor(10f, 0f, 0f, -1f)).isZero();
+            assertThat(arm.travelTicksFor(10f, 0f, 0f, Float.NaN)).isZero();
+        }
+
+        @Test
+        @DisplayName("warpTo records no travel ticks when the speed is zero")
+        void zeroSpeedWarp() {
+            ArmController arm = armAt(0f, 0f, 0f);
+
+            arm.warpTo(0f, 40f, 0f, 0f);
+
+            assertThat(arm.getX()).isEqualTo(0f);
+            assertThat(arm.getY()).isEqualTo(40f);
+            assertThat(arm.getExpectedTravelTicks()).isZero();
+        }
+
+        @Test
+        @DisplayName("a tiny speed is capped rather than producing a multi-year estimate")
+        void tinySpeedIsCapped() {
+            ArmController arm = armAt(0f, 0f, 0f);
+
+            int ticks = arm.travelTicksFor(100f, 0f, 0f, 1e-7f);
+
+            assertThat(ticks).isLessThanOrEqualTo(ArmController.MAX_TRAVEL_TICKS);
+        }
+
+        @Test
+        @DisplayName("enterSettling caps the settling duration")
+        void enterSettlingIsCapped() {
+            ArmController arm = new ArmController();
+
+            arm.enterSettling(Integer.MAX_VALUE);
+
+            assertThat(arm.getSettlingTicksRemaining()).isEqualTo(ArmController.MAX_TRAVEL_TICKS);
+        }
+    }
+
+    @Nested
+    @DisplayName("NBT round-trip")
+    class Nbt {
+
+        @Test
+        @DisplayName("clamps a poisoned settling timer on load so a wedged save recovers")
+        void clampsPoisonedSettlingTicks() {
+            CompoundTag tag = new CompoundTag();
+            tag.putString("ArmState", QuarryArmState.SETTLING.name());
+            tag.putInt("ArmSettlingTicks", Integer.MAX_VALUE);
+            tag.putInt("ArmExpectedTravelTicks", Integer.MAX_VALUE);
+
+            ArmController arm = new ArmController();
+            arm.load(tag);
+
+            assertThat(arm.getSettlingTicksRemaining()).isEqualTo(ArmController.MAX_TRAVEL_TICKS);
+            assertThat(arm.getExpectedTravelTicks()).isEqualTo(ArmController.MAX_TRAVEL_TICKS);
+        }
+
+        @Test
+        @DisplayName("preserves a sane settling timer across save and load")
+        void preservesSaneSettlingTicks() {
+            ArmController saved = new ArmController();
+            saved.initializeAt(1f, 2f, 3f);
+            saved.enterSettling(7);
+            saved.setExpectedTravelTicks(7);
+
+            CompoundTag tag = new CompoundTag();
+            saved.save(tag);
+
+            ArmController loaded = new ArmController();
+            loaded.load(tag);
+
+            assertThat(loaded.getState()).isEqualTo(QuarryArmState.SETTLING);
+            assertThat(loaded.getSettlingTicksRemaining()).isEqualTo(7);
+            assertThat(loaded.getExpectedTravelTicks()).isEqualTo(7);
+        }
+
+        @Test
+        @DisplayName("clamps a negative settling timer to zero on load")
+        void clampsNegativeSettlingTicks() {
+            CompoundTag tag = new CompoundTag();
+            tag.putInt("ArmSettlingTicks", -500);
+
+            ArmController arm = new ArmController();
+            arm.load(tag);
+
+            assertThat(arm.getSettlingTicksRemaining()).isZero();
         }
     }
 }
