@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
   review_status: false
-  # Claude Code Review (.github/workflows/claude-code-review.yml) is the gating
-  # reviewer. CodeRabbit must never post a status that can block a merge.
+  # Code Review (.github/workflows/code-review.yml) is the gating reviewer.
+  # CodeRabbit must never post a status that can block a merge.
   fail_commit_status: false
   # Don't append the high-level summary to the PR description.
   high_level_summary: false
