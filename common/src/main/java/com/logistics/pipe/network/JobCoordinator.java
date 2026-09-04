@@ -126,14 +126,20 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
             NetDbg.out("[Jobs] Reconciliation: job {} lost {}x {}",
                     job.id().toString().substring(0, 8), lost, job.item().toStack(1).getItem());
 
-            // Attempt to replan from alternative supply
-            Optional<FulfillmentPlan> replan = service.replan(job, lost, view);
-            if (replan.isPresent()) {
+            // Replan the whole outstanding amount, not just the lost slice: the order about to be
+            // cancelled covers all of it, so planning only the difference would abandon the part
+            // that is still perfectly sourceable.
+            Optional<FulfillmentPlan> replan = service.replan(job, job.outstanding(), view);
+            if (replan.isPresent() && replan.get().plannedAmount() > 0) {
                 FulfillmentPlan newPlan = replan.get();
                 // Cancel stale order and place a new one for the replanned amount
                 controller.cancelOrder(orderId);
                 UUID newOrderId = controller.placeOrder(
                         job.item(), newPlan.plannedAmount(), job.destination(), job.fulfillmentMode());
+                // Follow the plan down, or outstanding() keeps reporting the original figure and the
+                // job can never reach a terminal state.
+                job.setPlannedAmount(
+                        job.deliveredAmount() + job.invalidatedAmount() + newPlan.plannedAmount());
                 orderToJob.remove(orderId);
                 adoptReplacementOrder(job, newOrderId);
                 NetDbg.out("[Jobs] Replanned job {} | {} items from new sources",
@@ -239,6 +245,12 @@ public class JobCoordinator implements NetworkController.OrderFailureListener {
             if (e.getValue().state().isTerminal()) toRemove.add(e.getKey());
         }
         for (UUID id : toRemove) {
+            // The no-replan branch above can settle a job terminal while its order is still queued.
+            // Dropping the job without cancelling leaves an untracked standing order and a
+            // permanently inflated orderedForRequester — the figure requesters read to decide
+            // whether to re-order.
+            UUID orderId = jobToOrder.get(id);
+            if (orderId != null) controller.cancelOrder(orderId);
             jobs.remove(id);
         }
         orderToJob.entrySet().removeIf(e -> !jobs.containsKey(e.getValue()));
