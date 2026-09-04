@@ -392,8 +392,16 @@ public final class FluidPumpComponent implements MachineComponent {
     }
 
     private boolean isBlocked(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        return !state.isAir() && level.getFluidState(pos).isEmpty() && state.blocksMotion();
+        return blocksTube(level.getBlockState(pos));
+    }
+
+    /**
+     * True when a block physically stops the intake tube. A standalone liquid has no collision
+     * shape and so never blocks motion on its own; testing the fluid state as well would let the
+     * tube pass through any waterlogged solid a player laid down to seal a pocket off.
+     */
+    static boolean blocksTube(BlockState state) {
+        return state.blocksMotion();
     }
 
     @Override
