@@ -142,7 +142,7 @@ public class SupplierScreenHandler extends CustomSlotScreenHandler {
         if (itemConfigPlayer != null) {
             return isPinnedItemStillHeld();
         }
-        return true;
+        return PipeMenuValidity.stillValid(context, player);
     }
 
     @Override
