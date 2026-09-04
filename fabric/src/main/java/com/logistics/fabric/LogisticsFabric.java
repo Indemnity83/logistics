@@ -12,7 +12,6 @@ import com.logistics.fabric.energy.EnergyStorageAccess;
 import com.logistics.power.cable.CableNetworkManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
@@ -54,7 +53,6 @@ public final class LogisticsFabric implements ModInitializer {
 
         // Cable network lifecycle events
         ServerTickEvents.END_SERVER_TICK.register(CableNetworkManager::tickAll);
-        ServerWorldEvents.UNLOAD.register((server, level) -> CableNetworkManager.clearLevel(level));
     }
 
     private void registerEnergyServices() {

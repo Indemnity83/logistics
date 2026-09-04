@@ -51,6 +51,18 @@ public class LaserQuarryBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        // Tear down the frame for any real removal (player break, explosion, /setblock), while the
+        // block entity is still present. BlockEntity has no preRemoveSideEffects on this version.
+        if (!state.is(newState.getBlock())) {
+            if (level.getBlockEntity(pos) instanceof LaserQuarryBlockEntity quarryEntity) {
+                quarryEntity.preRemoveSideEffects(pos, state);
+            }
+        }
+        super.onRemove(state, level, pos, newState, isMoving);
+    }
+
+    @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }

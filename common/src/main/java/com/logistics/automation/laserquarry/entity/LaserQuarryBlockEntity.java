@@ -8,7 +8,6 @@ import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.upgrade.UpgradeComponent;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -95,20 +94,30 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
 
     // ==================== Lifecycle ====================
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-
+    /**
+     * Real removal of the quarry block: tears down the frame and clears any break progress.
+     * Driven by {@code LaserQuarryBlock#onRemove}, not {@link #setRemoved()}, which also fires
+     * on chunk unload.
+     */
+    public void preRemoveSideEffects(BlockPos pos, BlockState oldState) {
         if (level != null && level.isClientSide()) {
-            ClientRenderCacheHooks.clearQuarryInterpolationCache(worldPosition);
+            ClientRenderCacheHooks.clearQuarryInterpolationCache(pos);
         }
 
         if (level != null && !level.isClientSide()) {
-            ActiveQuarryRegistry.unregister((ServerLevel) level, worldPosition);
+            quarry.removeFrame((ServerLevel) level, pos, oldState);
             BlockPos currentTarget = quarry.currentTarget();
             if (currentTarget != null) {
                 ((ServerLevel) level).destroyBlockProgress(quarry.breakingEntityIdValue(), currentTarget, -1);
             }
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level != null && level.isClientSide()) {
+            ClientRenderCacheHooks.clearQuarryInterpolationCache(worldPosition);
         }
     }
 
@@ -173,14 +182,6 @@ public class LaserQuarryBlockEntity extends MachineEntity implements PipeConnect
     /** True if the quarry has been placed but hasn't started any clearing yet. */
     public boolean isFreshlyPlaced() {
         return quarry.isFreshlyPlaced();
-    }
-
-    public static List<BlockPos> getActiveQuarries(ServerLevel world) {
-        return ActiveQuarryRegistry.getAll(world);
-    }
-
-    public static void clearActiveQuarries(ServerLevel world) {
-        ActiveQuarryRegistry.clear(world);
     }
 
     // ==================== PipeConnection ====================
