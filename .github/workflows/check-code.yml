@@ -144,6 +144,25 @@ jobs:
 
           echo "AGENTS.md mirrors CLAUDE.md."
 
+  actions:
+    name: lint (actions)
+    # Deliberately not gated on the changes job: a workflow edit is not a code
+    # change, so a path filter would skip precisely the case this catches. It
+    # also runs on push, because a direct port push is how an unpinned action
+    # would reach a perennial branch without review.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Actions must be pinned to a commit SHA
+        shell: bash
+        run: python3 .github/scripts/check-action-pinning.py
+
   lint:
     name: lint (${{ matrix.module }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
