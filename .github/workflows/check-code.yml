@@ -98,6 +98,52 @@ jobs:
           echo "client_changed=$client_changed" >> "$GITHUB_OUTPUT"
           echo "code_changed=$code_changed client_changed=$client_changed"
 
+  docs:
+    name: lint (docs)
+    # Deliberately not gated on the changes job: AGENTS.md drift is a docs-only
+    # change, so a path filter would skip precisely the case this catches. It
+    # also runs on push, because a direct port push is how the two last drifted
+    # apart.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: AGENTS.md must mirror CLAUDE.md
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          fail() { echo "::error file=AGENTS.md::$1"; exit 1; }
+
+          [ -f CLAUDE.md ] || fail "CLAUDE.md is missing."
+          [ -f AGENTS.md ] || fail "AGENTS.md is missing. It must mirror CLAUDE.md."
+
+          # The two files are identical except for their opening two lines, which
+          # name the agent each one addresses.
+          [ "$(sed -n 1p CLAUDE.md)" = "# CLAUDE.md" ] \
+            || fail "CLAUDE.md line 1 must be '# CLAUDE.md'."
+          [ "$(sed -n 1p AGENTS.md)" = "# AGENTS.md" ] \
+            || fail "AGENTS.md line 1 must be '# AGENTS.md'."
+          [ "$(sed -n 3p AGENTS.md)" = "This file provides guidance to codex when working with code in this repository." ] \
+            || fail "AGENTS.md line 3 must be the codex guidance line."
+
+          if ! diff -u <(tail -n +4 CLAUDE.md) <(tail -n +4 AGENTS.md) \
+                 --label CLAUDE.md --label AGENTS.md; then
+            echo
+            echo "AGENTS.md has drifted from CLAUDE.md. Edit CLAUDE.md, then regenerate:"
+            echo
+            echo "  { sed -n '1,3p' AGENTS.md; tail -n +4 CLAUDE.md; } > /tmp/a && mv /tmp/a AGENTS.md"
+            echo
+            fail "AGENTS.md and CLAUDE.md differ below their opening lines."
+          fi
+
+          echo "AGENTS.md mirrors CLAUDE.md."
+
   lint:
     name: lint (${{ matrix.module }})
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false

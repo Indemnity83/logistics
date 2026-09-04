@@ -40,6 +40,36 @@ report_failure() {
     echo "  (To bypass in an emergency: git push --no-verify)"
 }
 
+# Pre-release branches are exempt from both checks below.
+#
+# A branch is pre-release when its minecraft_version carries a qualifier, e.g.
+# `26.3-snapshot-7` versus a bare `26.2`. That is deliberately derived from
+# metadata rather than a hardcoded branch list: the roles rotate, and when the
+# pre-release ships, bumping minecraft_version to a bare version makes the branch
+# start enforcing these checks on its own. A new alpha branch is exempt the day
+# it is created, with nothing to remember.
+#
+# The reason is practical. A pre-release branch tracks upstream snapshot
+# artifacts that get rotated and deleted, so Gradle frequently cannot resolve its
+# dependencies -- and when configuration fails, *every* Gradle task fails, not
+# just the tests. A hook that cannot run and blocks every push only teaches
+# people to pass --no-verify, which is worse than not running it. Check Code
+# still runs on push to mc/**, so nothing here goes unchecked; it is checked
+# after the push rather than before.
+# A released version is digits and dots only (26.2, 1.21.11). Anything else is a
+# qualifier of some kind -- 26.3-snapshot-7, 1.21.2-pre1, 24w14a -- and means
+# pre-release. An unreadable value falls through and runs the checks, so a
+# missing file can never silently disable them.
+minecraft_version=$(sed -n 's/^minecraft_version=//p' gradle.properties 2>/dev/null)
+case "$minecraft_version" in
+    "") ;;
+    *[!0-9.]*)
+        echo "Pre-release branch (minecraft_version=$minecraft_version); skipping pre-push checks."
+        echo "  Check Code still runs on push. See .githooks/pre-push for why."
+        exit 0
+        ;;
+esac
+
 # Read the refs being pushed before anything else consumes stdin.
 # Each line is: <local ref> <local oid> <remote ref> <remote oid>
 pushing_to_version_branch=0
