@@ -171,5 +171,15 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         return 256;
     }
 
+    /**
+     * The marker's beam and area box reach well outside the marker's own section, so culling on
+     * that section alone would drop the whole thing from view. {@link #getViewDistance()} is a
+     * separate gate and does not cover this.
+     */
+    @Override
+    public boolean shouldRenderOffScreen(MarkerBlockEntity blockEntity) {
+        return true;
+    }
+
     private record BeamLengths(int north, int south, int east, int west) {}
 }

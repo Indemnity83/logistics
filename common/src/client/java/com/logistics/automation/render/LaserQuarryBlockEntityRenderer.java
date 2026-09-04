@@ -502,4 +502,14 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
     public int getViewDistance() {
         return 256; // Visible from far away
     }
+
+    /**
+     * The frame and laser reach well outside the quarry's own section, so culling on
+     * that section alone would drop the whole thing from view. {@link #getViewDistance()} is a
+     * separate gate and does not cover this.
+     */
+    @Override
+    public boolean shouldRenderOffScreen(LaserQuarryBlockEntity blockEntity) {
+        return true;
+    }
 }

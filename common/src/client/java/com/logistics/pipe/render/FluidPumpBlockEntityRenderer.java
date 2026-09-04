@@ -66,4 +66,24 @@ public class FluidPumpBlockEntityRenderer implements BlockEntityRenderer<FluidPu
             poseStack.popPose();
         }
     }
+
+    /**
+     * The intake tube follows the fluid surface down, so it routinely reaches far past the 64-block
+     * default and past its own block's section. Both gates are checked independently: this one is
+     * the distance radius, {@link #shouldRenderOffScreen} is the frustum escape.
+     */
+    @Override
+    public int getViewDistance() {
+        return 256;
+    }
+
+    /**
+     * Renders even when the pump's own section is out of frustum — standing beside a long tube
+     * looking along it would otherwise make the whole tube disappear. Same reason vanilla's beacon
+     * beam does this.
+     */
+    @Override
+    public boolean shouldRenderOffScreen(FluidPumpBlockEntity blockEntity) {
+        return true;
+    }
 }
