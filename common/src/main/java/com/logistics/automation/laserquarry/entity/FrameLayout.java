@@ -2,6 +2,8 @@ package com.logistics.automation.laserquarry.entity;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.automation.laserquarry.LaserQuarryFrameBlock;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
@@ -57,6 +59,23 @@ public final class FrameLayout {
         }
 
         return null;
+    }
+
+    /**
+     * Every position the frame occupies, in build order. Empty when the rectangle cannot be
+     * resolved. Drives frame teardown, so it must stay the exact set that
+     * {@link #nextFramePosition} places.
+     */
+    public static List<BlockPos> framePositions(
+            Direction facing, BlockPos quarryPos, QuarryBounds bounds, int defaultArea) {
+        List<BlockPos> positions = new ArrayList<>();
+        for (int index = 0; ; index++) {
+            BlockPos pos = nextFramePosition(facing, quarryPos, bounds, defaultArea, index);
+            if (pos == null) {
+                return positions;
+            }
+            positions.add(pos);
+        }
     }
 
     /** Perimeter count for a rectangle of the given width and depth, with corners counted once. */
