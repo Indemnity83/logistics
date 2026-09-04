@@ -31,18 +31,13 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Verifies that a Provider never destroys items when the network can't pay for an extraction it
- * has already committed.
+ * Verifies what a Provider does to its source inventory when the network can't pay.
  *
- * <h2>Regression context</h2>
- * <p>Extraction is eager: {@code extractFromNeighbors} pulls the items out of the source before the
- * energy cost is charged. When {@code consumeEnergy} then failed, the drain loop pushed the items
- * back with {@code storage().insert(...)} and discarded the return value. {@code insert} is a
- * partial-transfer API, so a source that refuses the refund — an output-only face such as a
- * furnace's bottom, or an inventory filled in the same tick — silently destroyed the items, every
- * drain cycle, for as long as the network stayed unpowered.
+ * <p>The dispatch is priced from a simulated extraction, so an unpowered network must leave the
+ * source untouched rather than pull a stack out and then try to give it back — {@code insert} is a
+ * partial-transfer API and an output-only face such as a furnace's bottom refuses the refund.
  */
-@DisplayName("ProviderModule refund after an energy failure")
+@DisplayName("ProviderModule dispatch on an unpowered network")
 class ProviderModuleRefundTest extends MinecraftTestEnvironment {
 
     private static final BlockPos PIPE_POS = BlockPos.ZERO;
@@ -78,48 +73,80 @@ class ProviderModuleRefundTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("a source that refuses the refund does not lose the items")
-    void refundRefusedBySource_itemsAreNotDestroyed() {
+    @DisplayName("a source that would refuse a refund is never drained in the first place")
+    void unpoweredNetwork_outputOnlySource_isLeftUntouched() {
         furnace.setItem(0, new ItemStack(Items.IRON_INGOT, 64));
 
-        drainOneCycle();
+        // Repeated cycles: the queue entry survives an unaffordable dispatch, so a drain that
+        // extracts before charging empties the machine one stack at a time.
+        drainCycles(5);
 
         assertThat(access.getInjectedItems())
                 .as("the network can't pay, so nothing may be shipped")
                 .isEmpty();
-        assertThat(furnace.countItem(Items.IRON_INGOT) + chest.countItem(Items.IRON_INGOT))
-                .as("every extracted ingot must still exist somewhere")
+        assertThat(furnace.countItem(Items.IRON_INGOT))
+                .as("the items must stay in the machine, not be pulled out and dropped")
                 .isEqualTo(64);
+        assertThat(chest.countItem(Items.IRON_INGOT))
+                .as("nor relocated into another connected inventory")
+                .isZero();
     }
 
     @Test
-    @DisplayName("a source that accepts the refund keeps the items where they were")
-    void refundAcceptedBySource_itemsStayInPlace() {
+    @DisplayName("a source that would accept a refund is left untouched too")
+    void unpoweredNetwork_insertableSource_isLeftUntouched() {
         chest.setItem(0, new ItemStack(Items.IRON_INGOT, 64));
 
-        drainOneCycle();
+        drainCycles(5);
 
         assertThat(access.getInjectedItems()).isEmpty();
         assertThat(chest.countItem(Items.IRON_INGOT)).isEqualTo(64);
         assertThat(furnace.countItem(Items.IRON_INGOT)).isZero();
     }
 
+    @Test
+    @DisplayName("a funded network still dispatches, extracting exactly once")
+    void poweredNetwork_dispatchesWithoutDoubleExtracting() {
+        access.setNetwork(fundedNetwork());
+        furnace.setItem(0, new ItemStack(Items.IRON_INGOT, 64));
+
+        drainCycles(1);
+
+        assertThat(access.getInjectedItems())
+                .as("pricing the dispatch from a simulated pass must not stop a paid one")
+                .hasSize(1);
+        assertThat(furnace.countItem(Items.IRON_INGOT))
+                .as("the simulated pass must not remove anything, so exactly 32 leaves the furnace")
+                .isEqualTo(32);
+    }
+
     // ==================== Helpers ====================
 
-    private void drainOneCycle() {
+    private void drainCycles(int cycles) {
         ProviderModule provider = new ProviderModule(64, 4);
         ProviderDispatchQueue queue = new ProviderDispatchQueue();
         queue.enqueue("minecraft:iron_ingot", 32, REQUESTER, UUID.randomUUID());
         provider.saveQueue(ctx, queue);
 
-        provider.processDispatchQueue(ctx);
+        for (int i = 0; i < cycles; i++) {
+            provider.processDispatchQueue(ctx);
+        }
     }
 
     /** A network whose only battery has run dry, so every {@code consumeEnergy} call fails. */
     private static PipeNetwork drainedNetwork() {
+        return networkWithCharge(0);
+    }
+
+    /** A network with enough stored energy to pay for the whole dispatch. */
+    private static PipeNetwork fundedNetwork() {
+        return networkWithCharge(1000);
+    }
+
+    private static PipeNetwork networkWithCharge(long charge) {
         BlockPos batteryPos = new BlockPos(0, 5, 0);
         EnergyComponent battery = new EnergyComponent(1000, 1000, 1000, () -> {});
-        battery.setAmount(0);
+        battery.setAmount(charge);
 
         IWorldView view = new IWorldView() {
             @Override public boolean isPipe(BlockPos pos) { return false; }

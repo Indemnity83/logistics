@@ -285,13 +285,22 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             if (item == null) { queue.removeHead(); break; }
 
             long toExtract = Math.min(head.remaining(), Math.min(itemsLeft, item.toStack(1).getMaxStackSize()));
-            Extraction extraction = extractFromNeighbors(ctx, item, toExtract, mode);
+
+            // Price the dispatch before committing to it: a simulated pass reports what a real
+            // extraction would yield without touching the source, so an unpowered network stalls
+            // with the items still in the machine instead of draining it a stack per cycle.
+            Extraction planned = extractFromNeighbors(ctx, item, toExtract, mode, true);
+            if (planned.amount() > 0 && !ctx.consumeEnergy(RF_PER_ITEM * planned.amount())) break;
+
+            Extraction extraction = extractFromNeighbors(ctx, item, toExtract, mode, false);
 
             if (extraction.amount() > 0) {
                 long extracted = extraction.amount();
-                // Extraction already removed the items. If the network can't pay, refund them so an
-                // unpowered network never destroys items, then stop dispatching this tick.
-                if (!ctx.consumeEnergy(RF_PER_ITEM * extracted)) {
+                // A source whose simulate overstates what it gives up leaves the surplus charge
+                // spent; one that understates it leaves the excess unpaid, so refund it rather than
+                // dispatch items the network hasn't paid for.
+                if (extracted > planned.amount()
+                        && !ctx.consumeEnergy(RF_PER_ITEM * (extracted - planned.amount()))) {
                     refundExtraction(ctx, extraction, item, extracted);
                     break;
                 }
@@ -355,16 +364,20 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     /**
      * Scan each connected inventory in turn, extracting from the first that yields items.
-     * Extraction is eager (items are removed from the source immediately), so the caller must
-     * refund via {@link Extraction#storage()} if it can't complete the dispatch.
+     *
+     * <p>With {@code simulate} the source is left untouched and the result only reports what a real
+     * call would yield. A committed extraction is eager — the items are gone from the source as soon
+     * as it returns — so the caller must refund via {@link Extraction#storage()} if it then can't
+     * complete the dispatch.
      */
-    private Extraction extractFromNeighbors(PipeContext ctx, IItemKey item, long toExtract, ProviderMode mode) {
+    private Extraction extractFromNeighbors(
+            PipeContext ctx, IItemKey item, long toExtract, ProviderMode mode, boolean simulate) {
         for (Direction direction : ctx.getInventoryConnections()) {
             BlockPos targetPos = ctx.pos().relative(direction);
             IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
             if (storage == null) continue;
 
-            long got = extractItems(storage, item, toExtract, mode);
+            long got = extractItems(storage, item, toExtract, mode, simulate);
             if (got > 0) {
                 return new Extraction(got, direction, storage);
             }
@@ -594,7 +607,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     // ==================== Item Extraction ====================
 
-    private long extractItems(IItemStorage storage, IItemKey key, long requested, ProviderMode mode) {
+    private long extractItems(IItemStorage storage, IItemKey key, long requested, ProviderMode mode, boolean simulate) {
         List<IItemView> views = new ArrayList<>();
         for (IItemView view : storage.contents()) {
             if (view.amount() > 0) views.add(view);
@@ -617,7 +630,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             if (adjustedAmount <= 0) continue;
 
             long canExtract = Math.min(adjustedAmount, remaining);
-            long extracted = storage.extract(key, canExtract, false);
+            long extracted = storage.extract(key, canExtract, simulate);
             totalExtracted += extracted;
             remaining -= extracted;
         }
