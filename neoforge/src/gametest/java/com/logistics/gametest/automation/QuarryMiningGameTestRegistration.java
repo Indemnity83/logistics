@@ -27,6 +27,10 @@ public final class QuarryMiningGameTestRegistration {
             "automation/quarry_leaves_loose_items_when_breaking_a_non_container",
             30,
             QuarryMiningGameTestBody::testQuarryLeavesLooseItemsWhenBreakingANonContainer),
+        new GameTestCase(
+            "automation/quarry_leaves_loose_items_lying_beside_a_broken_container",
+            30,
+            QuarryMiningGameTestBody::testQuarryLeavesLooseItemsLyingBesideABrokenContainer),
         new GameTestCase("automation/quarry_stalls_without_energy", 50, QuarryMiningGameTestBody::testQuarryStallsWithoutEnergy),
         new GameTestCase(
             "automation/quarry_transitions_through_phases", 220, QuarryMiningGameTestBody::testQuarryTransitionsThroughPhases),

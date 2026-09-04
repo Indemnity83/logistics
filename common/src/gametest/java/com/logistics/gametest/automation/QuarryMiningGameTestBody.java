@@ -734,9 +734,6 @@ public class QuarryMiningGameTestBody {
      * Breaking anything that is not a container must leave the ground alone. A quarry frame block is
      * used as the no-drop block because it has no loot table at all, so the case is deterministic;
      * in real play the common triggers are leaves failing their sapling roll, grass and fire.
-     *
-     * <p>Regression guard: the sweep used to fire on any empty-drop break, which vacuumed whatever a
-     * player had dropped nearby into the quarry's output.
      */
     public static void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
@@ -752,6 +749,35 @@ public class QuarryMiningGameTestBody {
 
         context.assertItemEntityPresent(Items.DIAMOND, droppedPos, 1.0);
         context.assertContainerEmpty(outputPos);
+        context.succeed();
+    }
+
+    /**
+     * A container's spilled contents are the quarry's; anything that was already lying beside it is
+     * not. The same distinction covers the block entities that spill nothing at all — a bed, sign or
+     * spawner mined next to a dropped stack adds no items, so there is nothing for the quarry to take.
+     */
+    public static void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 1, 1);
+        BlockPos outputPos = quarryPos.above();
+        BlockPos containerPos = new BlockPos(3, 1, 1);
+        BlockPos droppedPos = new BlockPos(3, 1, 2);
+
+        context.setBlock(outputPos, Blocks.CHEST);
+        context.setBlock(containerPos, Blocks.CHEST);
+
+        ChestBlockEntity container = context.getBlockEntity(containerPos, ChestBlockEntity.class);
+        if (container == null) {
+            context.fail("Expected a chest block entity at " + containerPos);
+            return;
+        }
+        container.setItem(0, new ItemStack(Items.DIAMOND));
+        context.spawnItem(Items.EMERALD, droppedPos);
+
+        mine(context, quarryPos, containerPos);
+
+        context.assertContainerContains(outputPos, Items.DIAMOND);
+        context.assertItemEntityPresent(Items.EMERALD, droppedPos, 1.0);
         context.succeed();
     }
 

@@ -1,6 +1,7 @@
 package com.logistics.automation.laserquarry.entity;
 
 import java.util.List;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -21,6 +22,12 @@ public final class QuarryBlockBreaker {
         BlockEntity blockEntity = world.getBlockEntity(target);
         List<ItemStack> drops = Block.getDrops(targetState, world, target, blockEntity, null, ItemStack.EMPTY);
 
+        // A container spills its contents as loose items instead of returning them from getDrops, so
+        // those have to be swept off the ground afterwards. Only what this break spawns belongs to
+        // the quarry, so record what was lying there first: plenty of block entities spill nothing
+        // (signs, beds, spawners), and a container can stand next to items already on the ground.
+        Set<Integer> alreadyOnGround = blockEntity == null ? Set.of() : output.itemsNear(world, target);
+
         // Break the block without natural drops so we can route them ourselves.
         world.destroyBlock(target, false);
 
@@ -28,12 +35,8 @@ public final class QuarryBlockBreaker {
             output.accept(world, drop);
         }
 
-        // A broken container spills its contents as loose items rather than returning them from
-        // getDrops, so sweep them up. Gated on the block entity alone: an empty-drop break — leaves
-        // failing their sapling roll, grass, fire — is not a spill, and sweeping there would vacuum
-        // up whatever else happens to be lying nearby.
         if (blockEntity != null) {
-            output.sweepNearby(world, target);
+            output.sweepNearby(world, target, alreadyOnGround);
         }
     }
 }

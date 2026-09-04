@@ -155,4 +155,10 @@ public class QuarryMiningGameTest {
     public void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryLeavesLooseItemsWhenBreakingANonContainer(context);
     }
+
+    /** A container's spill is collected; a stack already lying beside it is not. */
+    @GameTest(maxTicks = 30)
+    public void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryLeavesLooseItemsLyingBesideABrokenContainer(context);
+    }
 }
