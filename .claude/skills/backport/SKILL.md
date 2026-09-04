@@ -57,10 +57,6 @@ branches and worktree paths with `git`.
   from `minecraft_version`; see "Branch stage" below), so a push there running no checks is
   expected rather than a bypass. Only `--no-verify` when the commit contains no code at all,
   and say so.
-- **Commits touching `.github/workflows/**` push over plain HTTPS** like any other commit,
-  provided the token carries the `workflow` scope. Check with `gh auth status` if a push is
-  refused with "refusing to allow an OAuth App to create or update workflow"; the fix is
-  `gh auth refresh -s workflow`, not an SSH workaround.
 - **Identical messages, not empty commits.** The goal is the same commit *messages* on each
   branch. If a commit's content is already present (see "already-present detection"), **skip
   it** — do not record an empty placeholder commit (it would create duplicate changelog
