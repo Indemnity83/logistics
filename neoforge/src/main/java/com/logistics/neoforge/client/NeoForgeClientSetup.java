@@ -310,7 +310,7 @@ public final class NeoForgeClientSetup {
     private static void handleSyncRequesterInventory(SyncRequesterInventoryPacket packet) {
         var screen = ClientScreenCompat.currentScreen();
         if (screen instanceof RequesterScreen requesterScreen) {
-            requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+            requesterScreen.applySync(packet);
         }
     }
 
