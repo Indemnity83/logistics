@@ -16,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
-import net.minecraft.core.BlockPos;
 
 /**
  * Real inventory for the Chassis Logistics Pipe GUI.
@@ -202,9 +201,7 @@ public class ChassisInventory implements Container {
 
     @Override
     public boolean stillValid(Player player) {
-        if (pipeEntity == null || pipeEntity.isRemoved()) return false;
-        BlockPos pos = pipeEntity.getBlockPos();
-        return player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0;
+        return PipeMenuValidity.stillValid(pipeEntity, player);
     }
 
     @Override
