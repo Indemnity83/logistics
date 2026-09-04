@@ -263,6 +263,25 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 
 **Requirements:** See `gradle.properties` for current versions (`java_version`, `minecraft_version`, `loader_version`, `fabric_version`).
 
+### Third-party mod dependencies on a pre-release branch
+
+JEI, Jade and spark are all compile-only or dev-only, and none of them publish for a Minecraft
+pre-release on day one. That used to make a pre-release branch unbuildable — and therefore
+untestable — until every one of them caught up, which is weeks after the code itself is ready.
+
+Only **JEI** is genuinely coupled: its *artifact id* embeds a Minecraft version
+(`mezz.jei:jei-<mc>-fabric`), so bumping `minecraft_version` changes what Gradle asks for and
+resolution fails. `jei_mc_version` in `gradle.properties` is that artifact's Minecraft line, kept
+separate so a pre-release branch can compile against the last line JEI shipped for. The API surface
+the mod uses is stable across lines. Raise it to match `minecraft_version` once JEI catches up.
+
+Jade and spark need no equivalent — their Minecraft line lives in the version string
+(`jade_fabric_version=26.2.11+fabric`), so pointing them at an older build is an ordinary version
+change. One spark build usually spans several Minecraft lines.
+
+This decouples the *dependencies* only. A new Minecraft release still needs its own API migration
+before the branch compiles.
+
 **Build output:** `build/libs/logistics-{version}.jar`
 - Local: `logistics-dev-local.jar`
 - CI: `logistics-0.5.5+mc1.21.11.fabric.jar` (SemVer build metadata format)
