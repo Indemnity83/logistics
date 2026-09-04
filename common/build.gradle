@@ -66,7 +66,7 @@ dependencies {
     implementation("maven.modrinth:configory:${rootProject.configory_version}")
 
     // JEI — compile only; players install separately at runtime
-    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
+    compileOnly("mezz.jei:jei-${rootProject.jei_mc_version}-fabric:${rootProject.jei_version}")
 
     // Jade HUD — compile only; players install separately at runtime. The Jade API is identical across
     // loaders, so the shared compat.jade providers compile here once and both loaders reuse them; each
