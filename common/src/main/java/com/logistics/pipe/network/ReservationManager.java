@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * Tracks soft and hard reservations against provider supply.
@@ -106,18 +107,36 @@ public class ReservationManager {
     }
 
     /**
-     * Mark the first {@link AllocationState#IN_TRANSIT} reservation matching
-     * {@code (requester, item)} as {@link AllocationState#DELIVERED} and release it.
-     * Called when a {@code TravelingItem} physically arrives at its destination.
+     * Release {@code amount} units of the in-flight reservation backing {@code orderId}.
+     *
+     * <p>Called when part of a shipment is resolved — delivered or lost. The reservation shrinks
+     * by exactly that much and is removed only at zero, so the undelivered remainder of a partial
+     * delivery stays committed against the provider.
      */
-    public void markDelivered(BlockPos requester, IItemKey item) {
-        for (var it = byId.entrySet().iterator(); it.hasNext(); ) {
+    public void releaseInFlight(UUID orderId, IItemKey item, long amount) {
+        releaseInFlight(res -> res.orderId.equals(orderId) && res.item.equals(item), amount);
+    }
+
+    /**
+     * Release {@code amount} units in flight to {@code requester}, for a delivery that carries no
+     * order id and so can only be matched on where it arrived.
+     */
+    public void releaseInFlight(BlockPos requester, IItemKey item, long amount) {
+        releaseInFlight(res -> res.requester.equals(requester) && res.item.equals(item), amount);
+    }
+
+    private void releaseInFlight(Predicate<ItemReservation> match, long amount) {
+        if (amount <= 0) return;
+        long remaining = amount;
+        for (var it = byId.entrySet().iterator(); it.hasNext() && remaining > 0; ) {
             ItemReservation res = it.next().getValue();
-            if (res.requester.equals(requester) && res.item.equals(item)
-                    && res.state == AllocationState.IN_TRANSIT) {
-                it.remove(); // DELIVERED → release immediately, no replanning needed
+            if (res.state != AllocationState.IN_TRANSIT || !match.test(res)) continue;
+            if (res.amount > remaining) {
+                res.amount -= remaining;
                 return;
             }
+            remaining -= res.amount;
+            it.remove();
         }
     }
 

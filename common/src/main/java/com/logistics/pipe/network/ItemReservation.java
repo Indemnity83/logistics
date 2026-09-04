@@ -9,7 +9,8 @@ import java.util.UUID;
  * A single item reservation: a commitment that a specific provider holds {@code amount} units
  * of {@code item} for a specific order. State transitions are managed by {@link ReservationManager}.
  *
- * <p>Mutable (state field changes over the reservation lifecycle). Not a record.
+ * <p>Mutable: state changes over the lifecycle, and amount shrinks as parts of the shipment
+ * are acknowledged. Not a record.
  */
 public final class ItemReservation {
     public final ReservationId id;
@@ -17,7 +18,7 @@ public final class ItemReservation {
     public final BlockPos provider;
     public final BlockPos requester;
     public final IItemKey item;
-    public final long amount;
+    public long amount;
     public final boolean hard;
     AllocationState state;
 
