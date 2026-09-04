@@ -162,7 +162,7 @@ public class SinkScreenHandler extends CustomSlotScreenHandler {
         if (itemConfigPlayer != null) {
             return isPinnedItemStillHeld();
         }
-        return true;
+        return PipeMenuValidity.stillValid(context, player);
     }
 
     @Override
