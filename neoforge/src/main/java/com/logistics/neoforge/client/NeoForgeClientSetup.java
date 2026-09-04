@@ -285,7 +285,7 @@ public final class NeoForgeClientSetup {
         event.register(SyncRequesterInventoryPacket.TYPE, (packet, context) -> {
             var screen = ClientScreenCompat.currentScreen();
             if (screen instanceof RequesterScreen requesterScreen) {
-                requesterScreen.updateAvailableItems(packet.pipePos(), packet.items(), packet.amounts());
+                requesterScreen.applySync(packet);
             }
         });
         event.register(SyncFabricatorOutputsPacket.TYPE, (packet, context) -> {
