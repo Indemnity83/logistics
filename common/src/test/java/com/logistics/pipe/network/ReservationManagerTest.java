@@ -170,25 +170,51 @@ class ReservationManagerTest extends MinecraftTestEnvironment {
         assertEquals(44, manager.effectiveAvailable(PROVIDER2, diamond(), 64));
     }
 
-    // ===== markDelivered =====
+    // ===== releaseInFlight =====
 
     @Test
-    void testMarkDelivered_removesInTransitReservation() {
+    void testReleaseInFlight_releasesTheWholeReservationWhenFullyResolved() {
         UUID orderId = UUID.randomUUID();
         ReservationId rid = manager.reserve(orderId, PROVIDER, REQUESTER, diamond(), 10, true);
         manager.transition(rid, AllocationState.IN_TRANSIT);
-        manager.markDelivered(REQUESTER, diamond());
-        // Reservation removed → no longer counted
+
+        manager.releaseInFlight(orderId, diamond(), 10);
+
         assertEquals(64, manager.effectiveAvailable(PROVIDER, diamond(), 64));
     }
 
     @Test
-    void testMarkDelivered_onlyMatchesInTransit() {
+    void testReleaseInFlight_keepsTheRemainderCommitted() {
         UUID orderId = UUID.randomUUID();
         ReservationId rid = manager.reserve(orderId, PROVIDER, REQUESTER, diamond(), 10, true);
-        // Still in RESERVED state, not IN_TRANSIT
-        manager.markDelivered(REQUESTER, diamond());
-        // Should NOT be removed (still reserved)
+        manager.transition(rid, AllocationState.IN_TRANSIT);
+
+        manager.releaseInFlight(orderId, diamond(), 4);
+
+        assertEquals(58, manager.effectiveAvailable(PROVIDER, diamond(), 64),
+                "Only the delivered portion is freed; the rest is still in flight");
+    }
+
+    @Test
+    void testReleaseInFlight_leavesADifferentOrdersReservationAlone() {
+        UUID mine = UUID.randomUUID();
+        UUID theirs = UUID.randomUUID();
+        ReservationId rid = manager.reserve(theirs, PROVIDER, REQUESTER, diamond(), 10, true);
+        manager.transition(rid, AllocationState.IN_TRANSIT);
+
+        manager.releaseInFlight(mine, diamond(), 10);
+
+        assertEquals(54, manager.effectiveAvailable(PROVIDER, diamond(), 64),
+                "Two orders to the same requester must not resolve each other's reservations");
+    }
+
+    @Test
+    void testReleaseInFlight_onlyMatchesInTransit() {
+        UUID orderId = UUID.randomUUID();
+        manager.reserve(orderId, PROVIDER, REQUESTER, diamond(), 10, true);
+        // Still RESERVED: nothing has shipped, so nothing can have arrived.
+        manager.releaseInFlight(orderId, diamond(), 10);
+
         assertEquals(54, manager.effectiveAvailable(PROVIDER, diamond(), 64));
     }
 
