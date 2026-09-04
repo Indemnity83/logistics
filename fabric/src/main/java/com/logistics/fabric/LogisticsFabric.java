@@ -14,9 +14,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
-import net.fabricmc.loader.api.FabricLoader;
 
 public final class LogisticsFabric implements ModInitializer {
     private static final LogisticsCommonBootstrap COMMON_BOOTSTRAP = new LogisticsCommonBootstrap();
@@ -45,14 +42,6 @@ public final class LogisticsFabric implements ModInitializer {
             builder.add(LogisticsCore.ITEM.BITUMEN, 3200);
             builder.add(LogisticsCore.ITEM.TAR, 800);
         });
-
-        FabricLoader.getInstance().getModContainer(LogisticsMod.MOD_ID).ifPresent(container ->
-            ResourceManagerHelper.registerBuiltinResourcePack(
-                LogisticsMod.modId("classic_crafting").toIdentifier(),
-                container,
-                ResourcePackActivationType.NORMAL
-            )
-        );
 
         // Cable network lifecycle events
         ServerTickEvents.END_SERVER_TICK.register(CableNetworkManager::tickAll);
