@@ -224,12 +224,23 @@ public final class PipeRuntime {
             mask |= (1 << d.get3DDataValue());
         }
 
+        boolean changed = false;
         if (mask != ctx.blockEntity().getLastConnectionsMask()) {
             ctx.blockEntity().setLastConnectionsMask(mask);
             ctx.pipe().onConnectionsChanged(ctx.pipeContext(), connected);
-            return ctx.isServer();
+            changed = true;
         }
-        return false;
+
+        // Connectedness alone misses a side that stays connected but changes what it connects to —
+        // a POWER arm becoming an INVENTORY arm renders differently, so the client has to hear
+        // about it. Topology callbacks stay on the mask above; only the sync gate widens.
+        int signature = ctx.blockEntity().getConnectionSignature();
+        if (signature != ctx.blockEntity().getLastConnectionSignature()) {
+            ctx.blockEntity().setLastConnectionSignature(signature);
+            changed = true;
+        }
+
+        return changed && ctx.isServer();
     }
 
     private static void processItems(TickContext ctx, ItemTickState itemState) {

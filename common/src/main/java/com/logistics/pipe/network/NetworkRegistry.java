@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -492,21 +491,18 @@ public class NetworkRegistry {
     private static List<BlockPos> getNeighbors(Level level, BlockPos pos) {
         List<BlockPos> neighbors = new ArrayList<>();
 
+        // Ask *this* pipe whether it connects each way. Reading the block out of the neighbour's
+        // state would evaluate this pipe's coordinates against the neighbour's module policy.
+        if (!(level.getBlockState(pos).getBlock() instanceof PipeBlock pipeBlock)) {
+            return neighbors;
+        }
+
         // Only include neighbors where pipes are actually connected
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = pos.relative(direction);
-            BlockState state = level.getBlockState(neighborPos);
-
-            if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                PipeConnection.Type connectionType =
-                    pipeBlock.getConnectionType(level, pos, direction);
-
-                if (connectionType != PipeConnection.Type.NONE) {
-                    // Check if neighbor is also a pipe
-                    if (isPipe(level, neighborPos)) {
-                        neighbors.add(neighborPos);
-                    }
-                }
+            if (pipeBlock.getConnectionType(level, pos, direction) != PipeConnection.Type.NONE
+                    && isPipe(level, neighborPos)) {
+                neighbors.add(neighborPos);
             }
         }
 
