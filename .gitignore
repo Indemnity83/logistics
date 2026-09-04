@@ -46,10 +46,6 @@ Thumbs.db
 
 # Scripts
 scripts/
-# ...but CI scripts are part of the build and must be tracked. The directory
-# itself is re-included, not the files: git cannot re-include a path whose
-# parent directory is excluded.
-!.github/scripts/
 
 # Worktree tooling (air)
 .air/
