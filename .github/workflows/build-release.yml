@@ -18,6 +18,16 @@ on:
 permissions:
   contents: write
 
+# One release publication at a time, keyed on the tag being released so separate version
+# lines can still publish concurrently. Never cancel an in-flight run: re-running a failed
+# build while the first is still uploading would run two publish jobs against Modrinth and
+# CurseForge at once, and a half-cancelled publish can leave a release live on one platform
+# and missing on the other. Keyed on the bare tag name in both trigger paths so a manual
+# dispatch and the release-triggered run for the same tag share one group.
+concurrency:
+  group: release-${{ inputs.tag || github.event.release.tag_name || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     # Skip prereleases (e.g. Release Candidates from build-rc.yml). Those publish
@@ -69,16 +79,24 @@ jobs:
 
           # Extract version from tag
           # Tag format: mc1.21.11-v0.4.0 (component-based for release-please tracking)
-          if [[ "$TAG" =~ ^mc([0-9.]+)-v(.+)$ ]]; then
-            VERSION="${BASH_REMATCH[2]}"        # "0.4.0" or "0.4.0-SNAPSHOT"
-          else
-            # Fallback for old/unexpected tag formats
-            echo "⚠️  Tag didn't match expected format: $TAG"
-            VERSION="${TAG#v}"
+          # Publishing to Modrinth and CurseForge is effectively irreversible, so an
+          # unrecognised tag fails the run instead of falling through to an invented version.
+          if [[ ! "$TAG" =~ ^(mc[0-9.]+)-v(.+)$ ]]; then
+            echo "::error::Tag '$TAG' does not match the expected format mc<mcversion>-v<version> (e.g. mc1.21.11-v0.4.0)" >&2
+            exit 1
           fi
+          TAG_COMPONENT="${BASH_REMATCH[1]}"    # "mc1.21.11"
+          VERSION="${BASH_REMATCH[2]}"          # "0.4.0" or "0.4.0-SNAPSHOT"
 
-          # Ensure version doesn't have leading 'v' (strip it if present)
-          VERSION="${VERSION#v}"
+          # Cross-check the tag against the checked-out tree's release-please component, so a
+          # tag from another version line can't be built and published as this one. Compared
+          # against the component rather than minecraft_version because a pre-release branch's
+          # minecraft_version carries a qualifier (26.3-snapshot-7) the tag never contains.
+          COMPONENT="$(jq -r '.packages["."].component' release-please-config.json)"
+          if [[ "$TAG_COMPONENT" != "$COMPONENT" ]]; then
+            echo "::error::Tag '$TAG' targets '$TAG_COMPONENT', but the checked-out tree releases as '$COMPONENT'" >&2
+            exit 1
+          fi
 
           # Extract MC version from gradle.properties
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
@@ -140,16 +158,24 @@ jobs:
           finalize: true
           environment: production
 
-      - name: List build artifacts
+      - name: Verify built jar
+        env:
+          LIBS: ${{ matrix.loader }}/build/libs
+          JAR: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
         run: |
           echo "📦 Build artifacts created:"
-          ls -lh ${{ matrix.loader }}/build/libs/
+          ls -lh "$LIBS"
+          [[ -f "$JAR" ]] || { echo "::error::Expected jar not found: $JAR" >&2; exit 1; }
+          echo "✅ Built $JAR"
 
       - name: Upload JAR
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: logistics-${{ matrix.loader }}-${{ steps.version.outputs.full_version }}
           path: ${{ matrix.loader }}/build/libs/logistics-${{ steps.version.outputs.full_version }}.jar
+          # Default is a warning: without this a name drift uploads nothing and the build
+          # still goes green, with the failure surfacing only after the release is public.
+          if-no-files-found: error
 
   publish:
     needs: build
@@ -182,14 +208,19 @@ jobs:
             TAG="$RELEASE_TAG"
           fi
 
-          # Extract version from tag
-          if [[ "$TAG" =~ ^mc([0-9.]+)-v(.+)$ ]]; then
-            VERSION="${BASH_REMATCH[2]}"
-          else
-            VERSION="${TAG#v}"
+          # Extract version from tag (same strict contract as the build job)
+          if [[ ! "$TAG" =~ ^(mc[0-9.]+)-v(.+)$ ]]; then
+            echo "::error::Tag '$TAG' does not match the expected format mc<mcversion>-v<version> (e.g. mc1.21.11-v0.4.0)" >&2
+            exit 1
           fi
+          TAG_COMPONENT="${BASH_REMATCH[1]}"
+          VERSION="${BASH_REMATCH[2]}"
 
-          VERSION="${VERSION#v}"
+          COMPONENT="$(jq -r '.packages["."].component' release-please-config.json)"
+          if [[ "$TAG_COMPONENT" != "$COMPONENT" ]]; then
+            echo "::error::Tag '$TAG' targets '$TAG_COMPONENT', but the checked-out tree releases as '$COMPONENT'" >&2
+            exit 1
+          fi
 
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
           LOADER="$MATRIX_LOADER"
