@@ -347,10 +347,6 @@ vanilla ancestor supplies is out of reach, for the same reason the namespace pol
 feature test, not here — vanilla's registry silently resolves an unknown id to `minecraft:air` rather
 than failing, so a static check can't catch that class of typo.
 
-The built-in `resourcepacks/classic_crafting` pack is also outside the walk. It is a nested pack root
-rather than part of the merged `assets/`+`data/` tree, and it is deprecated and slated for removal, so
-nothing under it is validated.
-
 ### Server-data loading contract
 
 `ServerDataLoadingGameTestBody` is the live counterpart to the static resource contract tests, and it
