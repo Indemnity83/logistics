@@ -194,4 +194,14 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
     public int getViewDistance() {
         return 256;
     }
+
+    /**
+     * The marker's beam and area box reach well outside the marker's own section, so culling on
+     * that section alone would drop the whole thing from view. {@link #getViewDistance()} is a
+     * separate gate and does not cover this.
+     */
+    @Override
+    public boolean shouldRenderOffScreen() {
+        return true;
+    }
 }
