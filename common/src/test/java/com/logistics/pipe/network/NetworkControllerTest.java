@@ -314,6 +314,69 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
                 "Retry delivery should clear the remaining requester accounting exactly once");
     }
 
+    // ===== reservation accounting =====
+
+    @Test
+    void testNotifyDeliveryFailed_returnsTheReservationToTheProvider() {
+        // The provider still physically holds the stock — a failed delivery must not leave it
+        // advertised as spoken for.
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+        UUID orderId = controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 32L);
+        controller.notifyDeliveryFailed(orderId, REQUESTER, diamond(), 32L);
+
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+
+        NetworkController.DispatchCommand retry = controller.nextDispatchable();
+        assertNotNull(retry, "A failed delivery must not permanently reserve the provider's stock");
+        assertEquals(32L, retry.amount());
+    }
+
+    @Test
+    void testNotifyDelivery_releasesOnlyTheAmountDelivered() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+        UUID orderId = controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 32L);
+        controller.notifyDelivery(orderId, REQUESTER, diamond(), 12L);
+
+        // 20 of the 32 are still in flight, so only 12 of the provider's stock is free again.
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+        controller.placeOrder(diamond(), 32L, REQUESTER2);
+
+        NetworkController.DispatchCommand second = controller.nextDispatchable();
+        assertNotNull(second);
+        assertEquals(12L, second.amount(),
+                "A partial delivery must release only what arrived, not the whole reservation");
+    }
+
+    @Test
+    void testDispatch_fallsThroughToALowerPriorityProviderWhenTheFirstIsFullyReserved() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+        UUID first = controller.placeOrder(diamond(), 32L, REQUESTER);
+
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), 32L);
+
+        // The provider rescans before the items physically leave, so it re-advertises stock that
+        // is entirely spoken for. A second chest holds the same item at lower priority.
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 32L), 2);
+        controller.placeOrder(diamond(), 32L, REQUESTER2);
+
+        NetworkController.DispatchCommand second = controller.nextDispatchable();
+        assertNotNull(second, "A fully reserved provider must not stall the order");
+        assertEquals(PROVIDER2, second.provider());
+        assertEquals(32L, second.amount());
+        assertNotEquals(first, second.orderId());
+    }
+
     // ===== cancelOrder =====
 
     @Test
