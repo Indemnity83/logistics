@@ -11,6 +11,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,6 +43,13 @@ import java.util.Set;
  * delivered is rejected rather than stored.
  */
 public class CableNetwork {
+    private static final Logger LOGGER = LoggerFactory.getLogger("logistics/cable");
+
+    /** Bounds the refund loop so a source that only takes a sliver per call cannot stall a tick. */
+    private static final int MAX_REFUND_ATTEMPTS = 16;
+
+    private static boolean strandedEnergyReported = false;
+
     private final Set<BlockPos> cablePositions = new HashSet<>();
     private final Map<CableNetworkPlanner.ConnectionKey, Double> allocationDebt = new HashMap<>();
     private final Map<BlockPos, Long> cableTransferredThisTick = new HashMap<>();
@@ -356,19 +365,70 @@ public class CableNetwork {
             if (route == null || route.remainingTransfer() <= 0) continue;
 
             long toMove = Math.min(maxAmount - movedTotal, route.remainingTransfer());
-            long canExtract = source.storage().extract(toMove, true);
-            if (canExtract <= 0) continue;
-            long canInsert = target.storage().insert(canExtract, true);
-            if (canInsert <= 0) continue;
-            long actualToMove = Math.min(canExtract, canInsert);
-            long extracted = source.storage().extract(actualToMove, false);
-            target.storage().insert(extracted, false);
-            if (extracted > 0) {
-                recordTransfer(extracted, route);
-                movedTotal += extracted;
+            long moved = moveEnergy(source.storage(), target.storage(), toMove);
+            if (moved > 0) {
+                recordTransfer(moved, route);
+                movedTotal += moved;
             }
         }
         return movedTotal;
+    }
+
+    /**
+     * Pulls up to {@code maxAmount} from {@code source} into {@code target}.
+     *
+     * <p>A simulated insert is only a hint: a rate-limited storage may accept less on commit
+     * than it reported. Anything the target refuses is put back into the source instead of
+     * being destroyed, and only what actually arrived is billed to the network.
+     *
+     * @return the amount the target actually accepted
+     */
+    static long moveEnergy(IEnergyStorage source, IEnergyStorage target, long maxAmount) {
+        if (maxAmount <= 0) return 0;
+        long canExtract = source.extract(maxAmount, true);
+        if (canExtract <= 0) return 0;
+        long canInsert = target.insert(canExtract, true);
+        if (canInsert <= 0) return 0;
+        long actualToMove = Math.min(canExtract, canInsert);
+        long extracted = source.extract(actualToMove, false);
+        if (extracted <= 0) return 0;
+
+        long accepted = Math.max(0, target.insert(extracted, false));
+        long stranded = refund(source, extracted - accepted);
+        if (stranded > 0) reportStrandedEnergy(source, target, stranded);
+        return accepted;
+    }
+
+    /**
+     * Puts {@code amount} back into {@code source}.
+     *
+     * <p>Sources clamp each insert to their own per-operation input rate, so one call can
+     * return far less than the refund. Repeats until the source stops accepting; the source
+     * has room by construction, having just given this energy up.
+     *
+     * @return the amount the source would not take back, which now exists nowhere
+     */
+    private static long refund(IEnergyStorage source, long amount) {
+        long remaining = Math.max(0, amount);
+        for (int attempt = 0; remaining > 0 && attempt < MAX_REFUND_ATTEMPTS; attempt++) {
+            long put = source.insert(remaining, false);
+            if (put <= 0) break;
+            remaining -= put;
+        }
+        return Math.max(0, remaining);
+    }
+
+    /** Warns once per run: repeating every tick would drown the log. */
+    private static void reportStrandedEnergy(IEnergyStorage source, IEnergyStorage target, long amount) {
+        if (strandedEnergyReported) return;
+        strandedEnergyReported = true;
+        LOGGER.warn(
+                "Lost {} energy moving from {} to {}: the target accepted less than its simulated insert"
+                        + " promised and the source would not take the remainder back."
+                        + " Later occurrences are not logged.",
+                amount,
+                source.getClass().getName(),
+                target.getClass().getName());
     }
 
     private List<CableNetworkPlanner.Allocation<DeviceConnection>> allocateToDemand(
