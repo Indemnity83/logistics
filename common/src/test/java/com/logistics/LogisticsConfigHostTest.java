@@ -140,6 +140,61 @@ class LogisticsConfigHostTest {
                 "logistics.reporting");
     }
 
+    /**
+     * A config standing in for one of the real per-domain files. Deliberately created off-registry with an
+     * id that is <em>not</em> under {@code logistics.} — {@link ConfigRegistry} has no removal API, so a
+     * registered test config would leak into {@link LogisticsConfigHost#domainConfigs()} forever.
+     */
+    private static Config strayConfig(Path dir, String id) {
+        return Config.create(id, new JsonFileConfigStorage(dir));
+    }
+
+    @Test
+    @DisplayName("a config file with a syntax error is set aside and replaced with defaults")
+    void malformedConfigIsQuarantinedAndDefaulted(@TempDir Path dir) throws IOException {
+        Path file = dir.resolve("configtest/machines/kiln.json");
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, "{ \"speed\": 10"); // unbalanced brace
+        Config config = strayConfig(dir, "configtest.machines.kiln");
+        ConfigKey<Long> speed = config.defineLong("speed", 7L).min(0L).register();
+
+        LogisticsConfigHost.loadOrRecover(config, dir);
+
+        // Defaults in memory and on disk, with the player's broken file preserved beside it.
+        assertThat(config.get(speed)).isEqualTo(7L);
+        assertThat(Files.readString(file)).contains("speed").contains("7");
+        assertThat(Files.readString(dir.resolve("configtest/machines/kiln.json.invalid")))
+                .isEqualTo("{ \"speed\": 10");
+    }
+
+    @Test
+    @DisplayName("a config file whose root is not a JSON object is recovered too")
+    void nonObjectRootIsQuarantinedAndDefaulted(@TempDir Path dir) throws IOException {
+        Path file = dir.resolve("configtest2.json");
+        Files.writeString(file, "[1, 2, 3]"); // parses, but casting the root to JsonObject throws
+        Config config = strayConfig(dir, "configtest2");
+        ConfigKey<Long> speed = config.defineLong("speed", 7L).min(0L).register();
+
+        LogisticsConfigHost.loadOrRecover(config, dir);
+
+        assertThat(config.get(speed)).isEqualTo(7L);
+        assertThat(Files.readString(dir.resolve("configtest2.json.invalid"))).isEqualTo("[1, 2, 3]");
+    }
+
+    @Test
+    @DisplayName("a readable config file is loaded normally and never set aside")
+    void validConfigIsLeftAlone(@TempDir Path dir) throws IOException {
+        Path file = dir.resolve("configtest3.json");
+        Files.writeString(file, "{\n  \"speed\": 42\n}");
+        Config config = strayConfig(dir, "configtest3");
+        ConfigKey<Long> speed = config.defineLong("speed", 7L).min(0L).register();
+
+        LogisticsConfigHost.loadOrRecover(config, dir);
+
+        assertThat(config.get(speed)).isEqualTo(42L);
+        assertThat(Files.exists(dir.resolve("configtest3.json.invalid"))).isFalse();
+    }
+
     @Test
     @DisplayName("save writes a JSON file with the defined values")
     void savesFileAsJson(@TempDir Path dir) throws IOException {

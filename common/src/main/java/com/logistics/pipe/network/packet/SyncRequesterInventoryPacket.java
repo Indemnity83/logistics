@@ -13,8 +13,13 @@ import java.util.List;
 /**
  * Server-to-client packet that syncs available network items to the requester screen.
  * Includes both display items (with counts capped at 64) and full amounts.
+ *
+ * <p>{@code containerId} addresses the payload to one open menu. The receiving client applies it
+ * only when it matches the menu it currently has open, so a stale or misdirected payload can never
+ * repoint a requester screen at another player's pipe.
  */
-public record SyncRequesterInventoryPacket(BlockPos pipePos, List<ItemStack> items, List<Long> amounts)
+public record SyncRequesterInventoryPacket(
+        int containerId, BlockPos pipePos, List<ItemStack> items, List<Long> amounts)
         implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SyncRequesterInventoryPacket> TYPE =
@@ -22,6 +27,7 @@ public record SyncRequesterInventoryPacket(BlockPos pipePos, List<ItemStack> ite
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncRequesterInventoryPacket> CODEC =
             StreamCodec.composite(
+                    ByteBufCodecs.VAR_INT, SyncRequesterInventoryPacket::containerId,
                     BlockPos.STREAM_CODEC, SyncRequesterInventoryPacket::pipePos,
                     ItemStack.OPTIONAL_LIST_STREAM_CODEC, SyncRequesterInventoryPacket::items,
                     ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.list()), SyncRequesterInventoryPacket::amounts,
