@@ -1,179 +1,501 @@
 ---
 name: fix-bug
 description: >-
-  Fix one bug test-first — prove it with a failing test, fix it, watch the test go green — from a
-  GitHub issue number or an inline description. Use when asked to fix a bug, work an issue, or
-  address a defect. Weighs the maintenance cost of the test it adds rather than always adding one,
-  and can optionally carry the change all the way to merged and ported via `ship-pr-queue`.
+  Fix one bug from a GitHub issue number or inline description. Verify the report,
+  establish proof of the defect before changing production code, make the smallest
+  correct fix, and confirm the proof goes green. Prefer permanent regression tests
+  for behavioral bugs, but weigh their maintenance cost rather than adding tests
+  mechanically. Opens a PR by default and can optionally hand off to ship-pr-queue
+  for merge and porting.
 ---
 
 # Fix a bug
 
-One pass = one bug, taken from a report to a PR (and optionally to merged). The shape is
-**prove it, fix it, confirm it** — but the proof is not always a permanent test, and deciding
-which it is, is part of the job.
+Fix **one bug per pass**.
 
-**Input** is either a GitHub issue (`/fix-bug 1014`) or a plain description
-(`/fix-bug the quarry drops its frame when the chunk unloads`). With an issue, read the whole
-thing including linked issues; the body carries context the title does not.
+The workflow is:
 
-**Scope is one bug.** If you find a second while fixing the first, file it or say so — do not
-quietly widen the PR.
+**verify → prove → fix → confirm → PR**
 
-## 1. Verify the report before writing anything
+The proof is usually a regression test, but it may instead be a throwaway test or direct
+verification when a permanent test would cost more to maintain than the behavior it protects.
 
-**Issue bodies are wrong often enough that you must check.** They are usually right about
-*symptom* and less reliable about *mechanism* and *prescribed fix*. Real examples from this repo:
+Input may be:
 
-- #993 named the wrong exception type — the mechanism was right, the class was not.
-- #931 proposed guarding on `pipePos`, which cannot work: the client has no pipe position until
-  the very packet being guarded arrives.
-- #1014's fix shape was right, but its "no test-first shape" assumption was wrong.
-- #1026 was correct, but the bug did not exist on `mc/1.21.1` at all — that menu has no
-  `handlePlacement`.
+```text
+/fix-bug 1014
+/fix-bug the quarry drops its frame when the chunk unloads
+```
 
-So: read the code the issue points at, confirm the mechanism yourself, and **say in the PR when
-the issue was wrong about something.** If a reviewer's or reporter's prescription is wrong, fix
-the bug correctly and explain the divergence rather than implementing a broken prescription.
+For a GitHub issue, read the entire issue and relevant linked issues before changing code.
+The issue is evidence, not ground truth.
 
-If you cannot reproduce or locate the defect, stop and say so. Do not fix code speculatively to
-close an issue.
+Do not quietly widen scope. If you discover another defect while fixing this one, report or
+file it separately.
 
-## 2. Decide where the fix originates
+---
 
-Read the branch roles from `CLAUDE.md`; never hardcode which branch is main.
+## 1. Verify the report
 
-- Bug exists on the default branch → start there (`git town hack <name>`), PR into it.
-- **Legacy-only bug** (does not reproduce on the newest branches) → originate on the highest
-  *affected* branch and cherry-pick down. This is the exception; most bugs are not this.
+Before writing a test or changing production code, inspect the implementation and confirm:
 
-New work never starts directly on an `mc/*` branch. Feature branch, then PR.
+1. The reported symptom can actually occur.
+2. The suspected mechanism is correct, or determine the real mechanism.
+3. The bug exists on the branch where the issue claims it exists.
+4. The requested behavior is consistent with the surrounding system.
 
-## 3. Write the failing test first
+Issue reports are often right about the symptom and wrong about the mechanism or prescribed
+fix.
 
-The test is the specification of the bug: it should read as "what should have happened".
+Examples seen in this repository include:
 
-- **Plain JUnit in `src/test`** for logic, accounting, state machines, and anything a reviewer
-  should be able to run in seconds.
-- **GameTest** only for feature-level claims that must be proven through real blocks — a real
-  Hopper, Cable or Pipe — rather than by poking a capability interface directly. GameTests are
-  slow and cannot run many-way parallel, so they are the exception.
-- Assert the *invariant*, not the mechanism. "No item is destroyed" survives a refactor;
-  "`insert` returns 44" does not.
+- an issue naming the wrong exception type while correctly identifying the failure path;
+- a proposed guard depending on state the client cannot yet possess;
+- an issue claiming there was no reasonable test shape when one existed;
+- a bug affecting a newer Minecraft branch but not an older branch because the relevant code
+  did not exist there.
 
-**Then prove it fails.** Run it against the code *before* the fix and keep the output:
+Do not implement a reporter's proposed patch merely because it appears in the issue.
+
+If the report is wrong but the correct fix is clear, remains within the described behavior,
+and does not introduce a product decision, fix the actual defect and explain the divergence
+in the PR.
+
+Stop when:
+
+- the defect cannot be reproduced or located;
+- the expected behavior itself is ambiguous;
+- the correct fix would intentionally change behavior beyond the issue's scope.
+
+Do not make speculative production changes just to close an issue.
+
+---
+
+## 2. Determine affected branches
+
+Read branch roles from `CLAUDE.md`. Do not hardcode which branch is current or primary.
+
+Determine where the defect actually exists before choosing the origin branch.
+
+### Normal case
+
+If the bug exists on the default development branch:
 
 ```bash
-git stash            # or check out the pre-fix commit
+git town hack <name>
+```
+
+Fix it there and PR into that branch.
+
+### Legacy-only case
+
+If newer branches do not contain the defect, originate the fix from the **highest affected
+branch**, then port downward as appropriate.
+
+Never start new work directly on an `mc/*` branch when the repository workflow requires a
+feature branch and PR.
+
+Record which branches are:
+
+- affected;
+- unaffected;
+- structurally different enough to require adaptation.
+
+Check this from code. Do not infer it solely from branch ancestry.
+
+---
+
+## 3. Choose the proof strategy
+
+Before building test infrastructure, decide what kind of proof this bug deserves.
+
+The default for a behavioral bug is a permanent regression test.
+
+There are three valid proof strategies.
+
+| Strategy | Use when | Repository result |
+| --- | --- | --- |
+| **Permanent regression test** | Behavioral bug in code likely to change or regress. Default. | Commit the test. |
+| **Throwaway proof** | The defect can be demonstrated automatically, but keeping the required harness would create disproportionate maintenance debt. | Keep before/after output in the PR; remove the temporary test/harness. |
+| **Direct verification** | The defect is a constant, configuration, generated output, workflow behavior, rendering issue, or similar case where an automated behavioral assertion adds little value. | Document the verification method and why no regression test was retained. |
+
+### Test selection
+
+Prefer:
+
+- **Plain JUnit under `src/test`** for logic, accounting, state transitions, serialization,
+  algorithms, and behavior that can be tested without launching Minecraft.
+- **GameTest** only when the contract depends on actual game behavior involving real blocks,
+  entities, capabilities, worlds, or loader integration.
+
+GameTests are expensive and serialize more of the build, so do not use them merely because the
+code happens to run inside Minecraft.
+
+### Assert the contract
+
+Test what must remain true, not the implementation used to achieve it.
+
+Prefer:
+
+```text
+No item is destroyed when the network cannot accept it.
+```
+
+over:
+
+```text
+insert() returns 44.
+```
+
+A good regression test should survive a reasonable refactor of the implementation.
+
+---
+
+## 4. Check whether the proof is worth keeping
+
+A regression test is production code with maintenance cost.
+
+Before creating substantial harness infrastructure, consider:
+
+### Test-to-fix ratio
+
+Compare the amount and complexity of:
+
+- the production fix;
+- the regression test;
+- any new harness, fake implementation, parser, linter, fixture system, or framework required
+  solely to support that test.
+
+A large test is not automatically wrong. A large **new testing abstraction protecting a tiny,
+stable behavior** is a warning sign.
+
+If you find yourself building a test framework rather than a test, reconsider whether the proof
+should be temporary.
+
+### Recurrence
+
+Look for evidence that this class of defect has happened before.
+
+For example:
+
+```bash
+git log --since='12 months ago' -p -- <path>
+```
+
+Search the relevant history for the mistake or pattern rather than guessing about recurrence.
+
+Repeated defects strongly favor a permanent guard.
+
+### Escalate disproportionate test debt
+
+If the test or harness is substantially larger or more complex than the fix, do not silently
+choose.
+
+Report:
+
+- approximate production-fix size;
+- approximate test/harness size;
+- whether similar bugs have recurred;
+- your recommendation.
+
+Let the user choose between a permanent regression guard and a throwaway proof when the trade-off
+is genuinely significant.
+
+Do this **before** investing heavily in the harness.
+
+---
+
+## 5. Establish the failure before fixing production code
+
+For an executable proof, demonstrate that the current code fails.
+
+A test that was never observed failing is not evidence of the bug.
+
+Run the smallest targeted proof possible:
+
+```bash
 ./gradlew :common:test --tests '*YourNewTest*'
-git stash pop
 ```
 
-A test you did not watch fail is not evidence — it may be asserting something that was already
-true. Paste the failure into the PR body.
+For a GameTest, run the smallest appropriate GameTest target.
 
-## 4. Weigh the test debt — do not reflexively keep the test
+Capture the relevant failure output for the PR.
 
-A test is not free. It is code that must be maintained, ported to every other `mc/*` branch, and
-kept green forever. Usually it earns that; sometimes it does not, and noticing which is the point
-of this step.
+The failure should demonstrate the reported behavioral contract, not merely fail because of a
+broken fixture or missing setup.
 
-Ask two questions:
+If the test unexpectedly passes, stop and investigate. Do not weaken or distort the assertion
+just to manufacture a red test.
 
-- **What is the ratio of test (plus harness) to fix?** A 200-line harness guarding a one-line
-  constant is a bad trade — the guard becomes the thing most likely to break.
-- **Does this class of bug recur?** Check the history, don't guess:
-  `git log --since='12 months ago' -p -- <path> | grep '^+.*<pattern>'`. A defect that has
-  happened repeatedly justifies a permanent guard; a genuine one-off usually does not.
+For direct verification, capture equivalent before-state evidence such as:
 
-Three legitimate outcomes:
+- CI output;
+- generated configuration;
+- rendered output;
+- reproducible logs;
+- deterministic inspection of the incorrect value.
 
-| Outcome | When | What you leave behind |
-|---|---|---|
-| **Permanent test** | Behavioural bug in code that changes. The default. | The test, committed. |
-| **Throwaway proof** | The fix is real but a permanent guard needs disproportionate scaffolding. | No test. The before/after output pasted in the PR body as the evidence. |
-| **No test** | Config/constant with no behaviour to assert; verification is direct observation (a CI job log, a rendered screenshot). | An explicit note in the PR saying how it was verified and why there is no test. |
+---
 
-**Warning sign:** if you are writing a test *framework* rather than a test, you are probably in
-row 2 or 3. A cautionary case from this repo — #1014 was a one-line action pin; the first attempt
-carried a 93-line linter plus a 136-line test suite, and review found **two correctness bugs in
-the linter itself**. The guard was more defect-prone than the thing it guarded. The enforcement
-question was split into its own issue and the PR shipped as one line.
+## 6. Fix the cause
 
-**When the test is substantially larger than the fix, surface the trade-off rather than deciding
-alone.** Give the size numbers and the recurrence data, recommend, and let the user choose.
+Make the smallest change that correctly fixes the underlying defect.
 
-## 5. Fix the bug
+Prefer:
 
-Minimal change; fix the cause, not the symptom. Match the surrounding code's idiom.
+- fixing the cause rather than masking the symptom;
+- the idiom already used by nearby code;
+- existing abstractions over new ones;
+- ordering that avoids irreversible work before validation.
 
-Prefer the ordering the rest of the codebase already uses — e.g. check affordability *before*
-committing to an irreversible extraction, rather than extracting and refunding.
+For example, when surrounding code validates affordability before extraction, follow that
+pattern rather than extracting first and attempting to refund afterward.
 
-## 6. Beware the vacuous pass
+Do not refactor unrelated code merely because you are nearby.
 
-**After the fix, re-read the tests that already existed around it.** A change in approach can
-make a previously meaningful test trivially true.
+If fixing the bug exposes an unrelated cleanup opportunity, leave it for another change unless
+the cleanup is necessary to make the bug fix correct.
 
-Real case: `ProviderModuleRefundTest` asserted "every extracted ingot still exists somewhere".
-Once the fix stopped the extraction happening at all, that assertion passed *because nothing was
-extracted* — it no longer tested the refund it was written for.
+---
 
-The check is mechanical, and worth doing on the key tests every time:
+## 7. Confirm the proof goes green
+
+Run the same proof that failed before the fix.
 
 ```bash
-# revert only the production change, keep the tests
-git stash push -- <production files>
-./gradlew :common:test --tests '*Relevant*'   # MUST fail
+./gradlew :common:test --tests '*YourNewTest*'
+```
+
+The evidence should now show the exact same behavioral claim succeeding.
+
+For throwaway proof:
+
+1. preserve the before/after result for the PR;
+2. remove the temporary harness or test;
+3. verify the production fix remains present;
+4. run the normal repository validation.
+
+For direct verification, repeat the same observation after the fix and record the changed result.
+
+---
+
+## 8. Check for vacuous tests
+
+After changing behavior, inspect the existing tests closest to the modified contract.
+
+A formerly meaningful test can become trivially true after the implementation changes.
+
+Example:
+
+A test asserts:
+
+```text
+Every extracted ingot still exists somewhere.
+```
+
+If the new fix prevents extraction entirely, the assertion may succeed because zero ingots were
+extracted. The test is green but no longer proves the behavior its name claims.
+
+For important affected tests, verify that they can still detect a regression.
+
+One useful technique is to temporarily remove only the production fix while keeping the tests:
+
+```bash
+git stash push -- <production-files>
+./gradlew :common:test --tests '*Relevant*'
 git stash pop
 ```
 
-If a test still passes with the fix reverted, it is no longer testing anything. Re-target it at
-the new contract instead of leaving it green.
+At least the regression proof must fail without the production fix.
 
-## 7. Confirm
+Do not mechanically require every neighboring test to fail against every reverted implementation;
+the goal is to identify tests whose asserted contract has become vacuous.
+
+If an existing test no longer exercises its claimed behavior, retarget it to the correct contract.
+
+---
+
+## 9. Run repository validation
+
+At minimum:
 
 ```bash
 ./gradlew :common:test spotlessCheck
 ```
 
-Plus the loader modules if you touched them (`:fabric:`, `:neoforge:`), and compile the client
-source sets when the change reaches them.
+Also run the affected loader modules when applicable:
 
-## 8. Open the PR
+```text
+:fabric:
+:neoforge:
+```
 
-Follow `CLAUDE.md` ("Pull Requests", "Release notes and PR title strategy"):
+Compile client source sets when client code is touched.
 
-- **Title:** scoped conventional commit, player-facing wording, 4–8 words after the colon.
-  `fix(routing): stop Providers destroying items on an unpowered network`.
-- **Body:** release notes — Summary / Changes / Notes / Tests / Porting. Include `Fixes #N`.
-- **Evidence:** the failing-before output, and what verified it if there is no committed test.
-- **Porting:** state which other `mc/*` branches carry the defect, and which do not and why.
-  Check, don't assume — the same file may not have the same bug.
-- Several player-facing changes in one PR → one Conventional Commit line each in the squash body.
+Use the narrow test during development, then the repository-level validation before opening the
+PR.
 
-Commits touching `.github/workflows/**` push over plain HTTPS like anything else; confirm the
-token's scopes with `gh auth status` if a push is ever refused.
+Do not report the fix as complete while required validation is known to be failing.
 
-## 9. Optionally: carry it to merged
+---
 
-Only when the user asked for end-to-end. Hand off to **`ship-pr-queue`**, which squash-merges the
-PR with its changelog body, then ports it to the other `mc/*` branches and verifies they
-converged. For a port needing real adaptation it defers to **`backport`**.
+## 10. Open the PR
 
-Stop at the PR by default — a fix wants a review before it is merged, and the review is what
-catches the misread issue.
+Follow the repository rules in `CLAUDE.md`, especially:
 
-## Stop and ask
+- Pull Requests
+- Release notes
+- PR title strategy
+- branch and porting conventions
 
-- The defect does not reproduce, or the issue names code that does not exist.
-- The correct fix would change behaviour beyond what the issue describes.
-- The test (or its harness) is substantially larger than the fix — give the numbers and recommend.
-- The issue's prescribed fix is wrong; propose the alternative rather than silently diverging.
-- The fix is version-specific and you are unsure the adaptation is right on another branch.
+### Title
 
-## Done when
+Use a scoped Conventional Commit with concise player-facing behavior.
 
-The bug is fixed, the proof is recorded (as a committed test or as evidence in the PR body), the
-full suite and `spotlessCheck` are green, and the PR is open with its porting applicability
-stated — or, when asked for end-to-end, merged and ported with the branches verified identical.
+Example:
+
+```text
+fix(routing): stop Providers destroying items
+```
+
+Prefer roughly 4–8 words after the colon. Describe the corrected behavior rather than the
+implementation detail.
+
+### Body
+
+Use the repository's release-note structure, including:
+
+- Summary
+- Changes
+- Notes
+- Tests
+- Porting
+
+Include:
+
+```text
+Fixes #N
+```
+
+when applicable.
+
+### Evidence
+
+For a permanent regression test, include:
+
+- what failed before;
+- the relevant failure;
+- what passes afterward.
+
+For a throwaway proof, explicitly say that the test was temporary and why retaining its harness
+would create disproportionate maintenance cost.
+
+For direct verification, state:
+
+- why an automated regression test was not appropriate;
+- the exact before/after verification performed.
+
+### Divergence from the issue
+
+If the issue's diagnosis or prescribed implementation was wrong, say so plainly in the PR.
+
+Explain:
+
+- what the issue claimed;
+- what inspection showed;
+- why the implemented fix differs.
+
+### Porting
+
+State explicitly which `mc/*` branches:
+
+- contain the defect;
+- do not contain the defect;
+- require adaptation.
+
+Do not say "all branches" without checking them.
+
+Several independently player-facing fixes should normally be separate PRs. If repository policy
+allows several release-note-worthy changes in one PR, preserve each Conventional Commit line in
+the squash body as required by `CLAUDE.md`.
+
+If a workflow push under `.github/workflows/**` is rejected, inspect:
+
+```bash
+gh auth status
+```
+
+and verify the token has the necessary scopes rather than changing repository behavior to work
+around authentication.
+
+---
+
+## 11. Stop at the PR unless asked to ship
+
+Opening the PR is the default endpoint.
+
+A bug fix benefits from review, especially because review can catch:
+
+- a misread issue;
+- an incorrect behavioral assumption;
+- an overbuilt test;
+- a branch-specific difference;
+- an accidental scope expansion.
+
+When the user explicitly asks for end-to-end delivery, hand off to:
+
+```text
+ship-pr-queue
+```
+
+That workflow is responsible for:
+
+1. merging using the correct squash/changelog body;
+2. porting to the applicable `mc/*` branches;
+3. verifying convergence.
+
+If a port requires semantic adaptation rather than a clean mechanical port, defer that branch to:
+
+```text
+backport
+```
+
+Do not silently improvise a risky version-specific adaptation.
+
+---
+
+# Stop conditions
+
+Stop and report the situation when:
+
+- the defect cannot be reproduced or located;
+- the expected behavior is ambiguous;
+- the correct fix would expand product behavior beyond the issue;
+- the proof unexpectedly passes before the production fix;
+- a permanent test requires disproportionate scaffolding and the user should choose whether to
+  retain it;
+- a branch-specific adaptation is unclear or behaviorally different.
+
+You do **not** need to stop merely because the issue's proposed implementation is wrong.
+
+If the intended behavior is clear and the correct fix remains within scope, implement the correct
+fix and explain the discrepancy.
+
+---
+
+# Done when
+
+For the default workflow:
+
+- the defect has been independently verified;
+- the affected branches have been identified;
+- the defect was proven before the fix;
+- the smallest correct production change was made;
+- the same proof succeeds afterward;
+- retained regression tests are meaningful rather than vacuous;
+- repository validation and formatting checks are green;
+- the PR is open;
+- the PR records the evidence and branch applicability.
+
+For end-to-end delivery, it is done only when the PR is merged and the applicable branches have
+been ported and verified.
