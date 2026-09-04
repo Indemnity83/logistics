@@ -143,4 +143,16 @@ public class QuarryMiningGameTest {
     public void testQuarryReMinesBlockPlacedManyLayersBehindCursor(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryReMinesBlockPlacedManyLayersBehindCursor(context);
     }
+
+    /** Breaking a container still routes its spilled contents into the quarry's output. */
+    @GameTest(maxTicks = 30)
+    public void testQuarryCollectsBrokenContainerContents(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryCollectsBrokenContainerContents(context);
+    }
+
+    /** Breaking a non-container leaves items already lying on the ground where they are. */
+    @GameTest(maxTicks = 30)
+    public void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryLeavesLooseItemsWhenBreakingANonContainer(context);
+    }
 }

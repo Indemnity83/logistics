@@ -6,6 +6,8 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPower;
 import com.logistics.automation.laserquarry.LaserQuarryGeometry;
 import com.logistics.automation.laserquarry.entity.LaserQuarryBlockEntity;
+import com.logistics.automation.laserquarry.entity.QuarryBlockBreaker;
+import com.logistics.automation.laserquarry.entity.QuarryOutput;
 import com.logistics.automation.laserquarry.entity.QuarryPhase;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
@@ -16,8 +18,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.storage.TagValueInput;
 
 /**
@@ -694,5 +699,67 @@ public class QuarryMiningGameTestBody {
                         "Quarry must re-mine a block placed back several layers behind the cursor at " + firstLayerPos);
             }
         });
+    }
+
+    /**
+     * Breaking a container spills its contents as loose items before the quarry ever sees them, so
+     * the quarry sweeps the area around what it just mined. That sweep must still work.
+     *
+     * <p>Drives {@link QuarryBlockBreaker#mineBlock} directly rather than running the phase machine:
+     * the contract under test is what one break does to the items around it, and the state machine
+     * is already covered above.
+     */
+    public static void testQuarryCollectsBrokenContainerContents(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 1, 1);
+        BlockPos outputPos = quarryPos.above();
+        BlockPos containerPos = new BlockPos(3, 1, 1);
+
+        context.setBlock(outputPos, Blocks.CHEST);
+        context.setBlock(containerPos, Blocks.CHEST);
+
+        ChestBlockEntity container = context.getBlockEntity(containerPos, ChestBlockEntity.class);
+        if (container == null) {
+            context.fail("Expected a chest block entity at " + containerPos);
+            return;
+        }
+        container.setItem(0, new ItemStack(Items.DIAMOND));
+
+        mine(context, quarryPos, containerPos);
+
+        context.assertContainerContains(outputPos, Items.DIAMOND);
+        context.succeed();
+    }
+
+    /**
+     * Breaking anything that is not a container must leave the ground alone. A quarry frame block is
+     * used as the no-drop block because it has no loot table at all, so the case is deterministic;
+     * in real play the common triggers are leaves failing their sapling roll, grass and fire.
+     *
+     * <p>Regression guard: the sweep used to fire on any empty-drop break, which vacuumed whatever a
+     * player had dropped nearby into the quarry's output.
+     */
+    public static void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 1, 1);
+        BlockPos outputPos = quarryPos.above();
+        BlockPos targetPos = new BlockPos(3, 1, 1);
+        BlockPos droppedPos = new BlockPos(3, 1, 2);
+
+        context.setBlock(outputPos, Blocks.CHEST);
+        context.setBlock(targetPos, LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME);
+        context.spawnItem(Items.DIAMOND, droppedPos);
+
+        mine(context, quarryPos, targetPos);
+
+        context.assertItemEntityPresent(Items.DIAMOND, droppedPos, 1.0);
+        context.assertContainerEmpty(outputPos);
+        context.succeed();
+    }
+
+    /** Mines {@code targetPos} exactly as the quarry would, routing output through {@code quarryPos}. */
+    private static void mine(GameTestHelper context, BlockPos quarryPos, BlockPos targetPos) {
+        ServerLevel level = context.getLevel();
+        BlockPos absTarget = context.absolutePos(targetPos);
+        QuarryBlockBreaker.mineBlock(
+                level, absTarget, level.getBlockState(absTarget), new QuarryOutput(context.absolutePos(quarryPos)));
     }
 }

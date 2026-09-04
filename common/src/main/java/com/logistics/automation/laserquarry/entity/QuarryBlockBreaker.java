@@ -28,8 +28,11 @@ public final class QuarryBlockBreaker {
             output.accept(world, drop);
         }
 
-        // For container drops the engine spawns items separately — sweep them up.
-        if (drops.isEmpty() || blockEntity != null) {
+        // A broken container spills its contents as loose items rather than returning them from
+        // getDrops, so sweep them up. Gated on the block entity alone: an empty-drop break — leaves
+        // failing their sapling roll, grass, fire — is not a spill, and sweeping there would vacuum
+        // up whatever else happens to be lying nearby.
+        if (blockEntity != null) {
             output.sweepNearby(world, target);
         }
     }
