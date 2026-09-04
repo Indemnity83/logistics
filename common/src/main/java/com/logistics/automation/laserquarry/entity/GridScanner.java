@@ -3,6 +3,7 @@ package com.logistics.automation.laserquarry.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
@@ -87,10 +88,19 @@ public final class GridScanner {
         if (state.isAir()) {
             return true;
         }
-        if (!state.getFluidState().isEmpty()) {
+        if (isFluidBlock(state)) {
             return true;
         }
         return state.getDestroySpeed(world, pos) < 0;
+    }
+
+    /**
+     * True when the block <em>is</em> the fluid, rather than merely holding one. A waterlogged
+     * stair, slab, fence or chest reports a full fluid state, so asking the fluid state alone
+     * would leave every submerged structure standing in the pit.
+     */
+    private static boolean isFluidBlock(BlockState state) {
+        return state.getBlock() instanceof LiquidBlock;
     }
 
     /**
@@ -100,6 +110,9 @@ public final class GridScanner {
      * in the plain unit-test bootstrap.
      */
     public static boolean isHazardousFluid(BlockState state) {
+        if (!isFluidBlock(state)) {
+            return false;
+        }
         var fluid = state.getFluidState().getType();
         return fluid == Fluids.LAVA || fluid == Fluids.FLOWING_LAVA;
     }

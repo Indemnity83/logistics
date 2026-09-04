@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -178,6 +179,16 @@ class GridScannerTest extends MinecraftTestEnvironment {
 
             assertThat(GridScanner.shouldSkip(null, BlockPos.ZERO, lava)).isTrue();
         }
+
+        @Test
+        @DisplayName("mines a waterlogged block rather than leaving it standing")
+        void minesWaterloggedBlocks() {
+            for (BlockState state : waterlogged()) {
+                assertThat(GridScanner.shouldSkip(null, BlockPos.ZERO, state))
+                        .as("%s holds water but is not water", state.getBlock())
+                        .isFalse();
+            }
+        }
     }
 
     @Nested
@@ -202,5 +213,23 @@ class GridScannerTest extends MinecraftTestEnvironment {
             assertThat(GridScanner.isHazardousFluid(Blocks.AIR.defaultBlockState())).isFalse();
             assertThat(GridScanner.isHazardousFluid(Blocks.STONE.defaultBlockState())).isFalse();
         }
+
+        @Test
+        @DisplayName("false for a block that merely holds a fluid")
+        void falseForWaterloggedBlocks() {
+            for (BlockState state : waterlogged()) {
+                assertThat(GridScanner.isHazardousFluid(state))
+                        .as("%s holds water but is not water", state.getBlock())
+                        .isFalse();
+            }
+        }
+    }
+
+    /** The shapes players actually find submerged: shipwreck stairs and slabs, ruin walls, chests. */
+    private static java.util.List<BlockState> waterlogged() {
+        return java.util.stream.Stream
+                .of(Blocks.OAK_STAIRS, Blocks.OAK_SLAB, Blocks.OAK_FENCE, Blocks.COBBLESTONE_WALL, Blocks.CHEST)
+                .map(block -> block.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true))
+                .toList();
     }
 }
