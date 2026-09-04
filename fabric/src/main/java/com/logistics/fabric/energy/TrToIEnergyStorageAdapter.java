@@ -2,6 +2,8 @@ package com.logistics.fabric.energy;
 
 import com.logistics.core.lib.energy.IEnergyStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 
 /**
@@ -20,33 +22,51 @@ final class TrToIEnergyStorageAdapter implements IEnergyStorage {
     @Override
     public long insert(long maxAmount, boolean simulate) {
         if (maxAmount <= 0) return 0;
-        if (simulate) {
-            // Approximate simulate using capacity math — avoids opening a transaction,
-            // so this is safe to call from within any transaction context.
-            long available = Math.max(0, Math.max(0, delegate.getCapacity()) - Math.max(0, delegate.getAmount()));
-            return Math.min(maxAmount, available);
-        } else {
-            try (Transaction tx = Transaction.openOuter()) {
-                long accepted = delegate.insert(maxAmount, tx);
-                if (accepted > 0) tx.commit();
-                return accepted;
-            }
+        Transaction tx = openTransaction();
+        if (tx == null) return simulate ? Math.min(maxAmount, freeRoom()) : 0;
+
+        try (tx) {
+            long accepted = delegate.insert(maxAmount, tx);
+            if (!simulate && accepted > 0) tx.commit();
+            return Math.max(0, accepted);
         }
     }
 
     @Override
     public long extract(long maxAmount, boolean simulate) {
         if (maxAmount <= 0) return 0;
-        if (simulate) {
-            // Approximate simulate using stored amount — avoids opening a transaction.
-            return Math.min(maxAmount, Math.max(0, delegate.getAmount()));
-        } else {
-            try (Transaction tx = Transaction.openOuter()) {
-                long extracted = delegate.extract(maxAmount, tx);
-                if (extracted > 0) tx.commit();
-                return extracted;
-            }
+        Transaction tx = openTransaction();
+        if (tx == null) return simulate ? Math.min(maxAmount, Math.max(0, delegate.getAmount())) : 0;
+
+        try (tx) {
+            long extracted = delegate.extract(maxAmount, tx);
+            if (!simulate && extracted > 0) tx.commit();
+            return Math.max(0, extracted);
         }
+    }
+
+    /**
+     * Opens a transaction the caller may abort, nesting inside any transaction already
+     * open on this thread.
+     *
+     * <p>A simulate runs the delegate's real transfer and aborts it, because Team Reborn
+     * exposes no per-operation rate getters — capacity arithmetic would overstate what a
+     * rate-limited storage actually accepts.
+     *
+     * @return {@code null} when no transaction can be opened (inside a close callback)
+     */
+    @Nullable
+    private static Transaction openTransaction() {
+        try {
+            TransactionContext current = Transaction.getCurrentUnsafe();
+            return current == null ? Transaction.openOuter() : Transaction.openNested(current);
+        } catch (IllegalStateException insideCloseCallback) {
+            return null;
+        }
+    }
+
+    private long freeRoom() {
+        return Math.max(0, Math.max(0, delegate.getCapacity()) - Math.max(0, delegate.getAmount()));
     }
 
     @Override
