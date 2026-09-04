@@ -15,24 +15,37 @@ import yaml
 SHA = re.compile(r"^[0-9a-f]{40}$")
 
 
-def refs(doc):
-    """Every `uses:` a workflow can carry: reusable-workflow calls and step actions."""
-    for name, job in (doc.get("jobs") or {}).items():
-        if not isinstance(job, dict):
+def entry(node, key):
+    """The value node for `key` in a mapping node, or None."""
+    if not isinstance(node, yaml.MappingNode):
+        return None
+    for name, value in node.value:
+        if isinstance(name, yaml.ScalarNode) and name.value == key:
+            return value
+    return None
+
+
+def refs(root):
+    """(ref, line) for every `uses:` a workflow can carry.
+
+    Walked structurally rather than by text search, so a `with:` input named
+    `uses` is not mistaken for an action, and each occurrence carries its own
+    line even when the same action is referenced twice in one file.
+    """
+    jobs = entry(root, "jobs")
+    if not isinstance(jobs, yaml.MappingNode):
+        return
+    for _, job in jobs.value:
+        called = entry(job, "uses")  # reusable-workflow call
+        if isinstance(called, yaml.ScalarNode):
+            yield called.value, called.start_mark.line + 1
+        steps = entry(job, "steps")
+        if not isinstance(steps, yaml.SequenceNode):
             continue
-        if isinstance(job.get("uses"), str):
-            yield job["uses"]
-        for step in job.get("steps") or []:
-            if isinstance(step, dict) and isinstance(step.get("uses"), str):
-                yield step["uses"]
-
-
-def line_of(path, ref):
-    with open(path, encoding="utf-8") as handle:
-        for number, text in enumerate(handle, 1):
-            if ref in text:
-                return number
-    return 1
+        for step in steps.value:
+            used = entry(step, "uses")
+            if isinstance(used, yaml.ScalarNode):
+                yield used.value, used.start_mark.line + 1
 
 
 def main():
@@ -41,15 +54,15 @@ def main():
         glob.glob(".github/workflows/*.yml") + glob.glob(".github/workflows/*.yaml")
     ):
         with open(path, encoding="utf-8") as handle:
-            doc = yaml.safe_load(handle)
-        if not isinstance(doc, dict):
+            root = yaml.compose(handle)
+        if root is None:
             continue
-        for ref in refs(doc):
+        for ref, line in refs(root):
             # Local actions and container images have no commit to pin to.
             if ref.startswith("./") or ref.startswith("docker://"):
                 continue
             if not SHA.match(ref.rpartition("@")[2]):
-                unpinned.append((path, line_of(path, ref), ref))
+                unpinned.append((path, line, ref))
 
     for path, line, ref in unpinned:
         print(
