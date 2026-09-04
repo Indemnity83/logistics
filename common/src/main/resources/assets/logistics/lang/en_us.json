@@ -395,6 +395,8 @@
   "jade.logistics.quarry.phase.clearing": "Clearing",
   "jade.logistics.quarry.phase.building_frame": "Building Frame",
   "jade.logistics.quarry.phase.mining": "Mining",
+  "jade.logistics.quarry.phase.maintaining_clearance": "Clearing Obstruction",
+  "jade.logistics.quarry.phase.repairing_frame": "Repairing Frame",
   "jade.logistics.quarry.phase.finished": "Finished",
   "jade.logistics.quarry.power_in": "Power In",
   "jade.logistics.quarry.arm_speed": "Arm Speed",

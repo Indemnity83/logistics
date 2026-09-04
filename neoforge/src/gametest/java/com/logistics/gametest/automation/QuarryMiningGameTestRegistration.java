@@ -23,6 +23,12 @@ public final class QuarryMiningGameTestRegistration {
         new GameTestCase(
             "automation/quarry_transitions_through_phases", 220, QuarryMiningGameTestBody::testQuarryTransitionsThroughPhases),
         new GameTestCase(
+            "automation/quarry_repairs_frame_broken_by_player", 220, QuarryMiningGameTestBody::testQuarryRepairsFrameBrokenByPlayer),
+        new GameTestCase(
+            "automation/quarry_clears_block_dropped_into_frame_slot",
+            220,
+            QuarryMiningGameTestBody::testQuarryClearsBlockDroppedIntoFrameSlot),
+        new GameTestCase(
             "automation/quarry_outputs_mined_block_to_chest", 220, QuarryMiningGameTestBody::testQuarryOutputsMinedBlockToChest),
         new GameTestCase(
             "automation/quarry_mines_and_outputs_via_real_engine", 220, QuarryMiningGameTestBody::testQuarryMinesAndOutputsViaRealEngine),

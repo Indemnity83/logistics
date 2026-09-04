@@ -78,6 +78,16 @@ public class QuarryMiningGameTest {
      * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Item_collection">wiki/Laser Quarry.txt § Item collection</a>
      */
     @GameTest(maxTicks = 200)
+    public void testQuarryClearsBlockDroppedIntoFrameSlot(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryClearsBlockDroppedIntoFrameSlot(context);
+    }
+
+    @GameTest(maxTicks = 200)
+    public void testQuarryRepairsFrameBrokenByPlayer(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryRepairsFrameBrokenByPlayer(context);
+    }
+
+    @GameTest(maxTicks = 200)
     public void testQuarryOutputsMinedBlockToChest(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryOutputsMinedBlockToChest(context);
     }
