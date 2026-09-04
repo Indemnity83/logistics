@@ -44,16 +44,16 @@ public class MinecraftWorldView implements IWorldView {
     public List<BlockPos> getConnectedNeighbors(BlockPos pos) {
         List<BlockPos> neighbors = new ArrayList<>();
 
+        // Ask *this* pipe whether it connects each way — see NetworkRegistry.getNeighbors.
+        if (!(level.getBlockState(pos).getBlock() instanceof PipeBlock pipeBlock)) {
+            return neighbors;
+        }
+
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = pos.relative(direction);
-            BlockState state = level.getBlockState(neighborPos);
-
-            if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                PipeConnection.Type connectionType =
-                    pipeBlock.getConnectionType(level, pos, direction);
-                if (connectionType != PipeConnection.Type.NONE && isPipe(neighborPos)) {
-                    neighbors.add(neighborPos);
-                }
+            if (pipeBlock.getConnectionType(level, pos, direction) != PipeConnection.Type.NONE
+                    && isPipe(neighborPos)) {
+                neighbors.add(neighborPos);
             }
         }
 

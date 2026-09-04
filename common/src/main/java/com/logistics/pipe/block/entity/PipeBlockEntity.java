@@ -56,6 +56,7 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     // Tracks changes in connected sides so modules can react deterministically.
     private int lastConnectionsMask = -1;
+    private int lastConnectionSignature = -1;
 
     // Per-arm power-status bitmask (one bit per direction; set = that arm is "powered"/green).
     // Computed on the server tick and synced to the client for arm tinting.
@@ -131,6 +132,19 @@ public class PipeBlockEntity extends BaseBlockEntity
 
     public void setConnectionType(Direction direction, PipeConnection.Type type) {
         connectionTypes[direction.ordinal()] = type;
+    }
+
+    /** Packed form of all six cached connection types — see {@link PipeConnection.Type#signature}. */
+    public int getConnectionSignature() {
+        return PipeConnection.Type.signature(connectionTypes);
+    }
+
+    public int getLastConnectionSignature() {
+        return lastConnectionSignature;
+    }
+
+    public void setLastConnectionSignature(int signature) {
+        this.lastConnectionSignature = signature;
     }
 
     /**
