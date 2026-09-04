@@ -4,6 +4,7 @@ import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.modules.RequesterModule;
 import com.logistics.pipe.network.packet.RequestItemPacket;
+import com.logistics.pipe.network.packet.SyncRequesterInventoryPacket;
 import com.logistics.pipe.screen.widget.NetworkItemButton;
 import com.logistics.pipe.screen.widget.PageButton;
 import com.logistics.pipe.ui.RequesterScreenHandler;
@@ -16,7 +17,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -259,11 +259,13 @@ public class RequesterScreen extends AbstractContainerScreen<RequesterScreenHand
     }
 
     /**
-     * Called by packet receiver to update available items from server.
+     * Called by the loader packet receivers. Payloads addressed to a different menu are ignored, so a
+     * sync for another player's requester can never replace this screen's contents.
      */
-    public void updateAvailableItems(BlockPos pipePos, List<ItemStack> items, List<Long> amounts) {
-        getMenu().setPipePos(pipePos);
-        getMenu().setAvailableItems(items, amounts);
+    public void applySync(SyncRequesterInventoryPacket packet) {
+        if (!getMenu().applySync(packet)) {
+            return;
+        }
         getMenu().refreshSearch(searchBox.getValue());
         refreshItems();
     }
