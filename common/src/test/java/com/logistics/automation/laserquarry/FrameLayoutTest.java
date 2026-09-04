@@ -8,6 +8,8 @@ import com.logistics.automation.laserquarry.entity.QuarryFrameRect;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -138,6 +140,55 @@ class FrameLayoutTest extends MinecraftTestEnvironment {
             assertThat(FrameLayout.nextFramePosition(
                             Direction.NORTH, QUARRY, new QuarryBounds(), AREA, totalBlocks))
                     .isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("framePositions")
+    class FramePositions {
+
+        /** The same sequence BUILDING_FRAME walks, collected the long way. */
+        private List<BlockPos> builtSequence(Direction facing, QuarryBounds bounds, int area) {
+            List<BlockPos> built = new ArrayList<>();
+            for (int index = 0; ; index++) {
+                BlockPos pos = FrameLayout.nextFramePosition(facing, QUARRY, bounds, area, index);
+                if (pos == null) {
+                    return built;
+                }
+                built.add(pos);
+            }
+        }
+
+        @Test
+        @DisplayName("is exactly what the build phase places, in build order")
+        void matchesTheBuildSequence() {
+            List<BlockPos> positions = FrameLayout.framePositions(Direction.NORTH, QUARRY, new QuarryBounds(), AREA);
+
+            // Teardown walks this list; anything the build placed but this misses is stranded.
+            assertThat(positions)
+                    .containsExactlyElementsOf(builtSequence(Direction.NORTH, new QuarryBounds(), AREA))
+                    .hasSize(FrameLayout.ringSize(AREA, AREA) * 2 + FrameLayout.PILLAR_COUNT)
+                    .doesNotHaveDuplicates();
+        }
+
+        @Test
+        @DisplayName("covers custom bounds too")
+        void coversCustomBounds() {
+            QuarryBounds bounds = new QuarryBounds();
+            bounds.setCustom(-40, -70, -11, -41);
+
+            List<BlockPos> positions = FrameLayout.framePositions(Direction.NORTH, QUARRY, bounds, AREA);
+
+            assertThat(positions)
+                    .containsExactlyElementsOf(builtSequence(Direction.NORTH, bounds, AREA))
+                    .hasSize(FrameLayout.ringSize(30, 30) * 2 + FrameLayout.PILLAR_COUNT);
+        }
+
+        @Test
+        @DisplayName("is empty when the rectangle cannot be resolved")
+        void emptyWhenUnresolvable() {
+            assertThat(FrameLayout.framePositions(Direction.UP, QUARRY, new QuarryBounds(), AREA))
+                    .isEmpty();
         }
     }
 
