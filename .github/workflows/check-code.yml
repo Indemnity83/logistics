@@ -159,6 +159,10 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Test the pinning checker
+        shell: bash
+        run: python3 .github/scripts/test_check_action_pinning.py
+
       - name: Actions must be pinned to a commit SHA
         shell: bash
         run: python3 .github/scripts/check-action-pinning.py

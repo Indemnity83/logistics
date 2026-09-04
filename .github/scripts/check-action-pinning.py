@@ -7,6 +7,7 @@ Only a full commit SHA is immutable.
 """
 
 import glob
+import os
 import re
 import sys
 
@@ -48,10 +49,10 @@ def refs(root):
                 yield used.value, used.start_mark.line + 1
 
 
-def main():
+def main(root=".github/workflows"):
     unpinned = []
     for path in sorted(
-        glob.glob(".github/workflows/*.yml") + glob.glob(".github/workflows/*.yaml")
+        glob.glob(os.path.join(root, "*.yml")) + glob.glob(os.path.join(root, "*.yaml"))
     ):
         with open(path, encoding="utf-8") as handle:
             root = yaml.compose(handle)
@@ -62,7 +63,12 @@ def main():
             if ref.startswith("./") or ref.startswith("docker://"):
                 continue
             if not SHA.match(ref.rpartition("@")[2]):
-                unpinned.append((path, line, ref))
+                # An anchored ref reached through aliases composes to one shared
+                # node, so every alias reports the anchor's line. That line is
+                # the only editable copy of the value, so collapse the repeats
+                # rather than annotating it once per alias site.
+                if (path, line, ref) not in unpinned:
+                    unpinned.append((path, line, ref))
 
     for path, line, ref in unpinned:
         print(
@@ -84,4 +90,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(*sys.argv[1:]))
