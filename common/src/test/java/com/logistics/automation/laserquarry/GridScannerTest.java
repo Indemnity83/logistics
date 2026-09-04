@@ -189,6 +189,16 @@ class GridScannerTest extends MinecraftTestEnvironment {
                         .isFalse();
             }
         }
+
+        @Test
+        @DisplayName("still skips watery blocks that are not solid, so a regenerating one is no detour")
+        void skipsNonSolidWateryBlocks() {
+            for (BlockState state : wateryButNotSolid()) {
+                assertThat(GridScanner.shouldSkip(null, BlockPos.ZERO, state))
+                        .as("%s is part of the water, not a block to break", state.getBlock())
+                        .isTrue();
+            }
+        }
     }
 
     @Nested
@@ -223,6 +233,17 @@ class GridScannerTest extends MinecraftTestEnvironment {
                         .isFalse();
             }
         }
+    }
+
+    /**
+     * Watery blocks with no collision. A bubble column matters most: it regenerates from the magma
+     * block below, and the quarry would mine it forever without ever advancing its cursor.
+     */
+    private static java.util.List<BlockState> wateryButNotSolid() {
+        return java.util.stream.Stream
+                .of(Blocks.BUBBLE_COLUMN, Blocks.KELP, Blocks.KELP_PLANT, Blocks.SEAGRASS, Blocks.TALL_SEAGRASS)
+                .map(block -> block.defaultBlockState())
+                .toList();
     }
 
     /** The shapes players actually find submerged: shipwreck stairs and slabs, ruin walls, chests. */
