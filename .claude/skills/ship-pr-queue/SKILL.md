@@ -147,9 +147,10 @@ git -C "$p" push origin HEAD:<branch>
   `--no-verify` when the change contains no code at all, and say so. Pre-release
   branches skip the hook automatically (decided from `minecraft_version`), so a
   push there running no checks is expected, not a bypass.
-- Commits touching `.github/workflows/**` cannot be pushed over HTTPS (the token lacks
-  `workflow` scope). Push those over SSH; if port 22 times out, use port 443 —
-  see the `env_push_workflow_files_needs_ssh` memory for the exact incantation.
+- Commits touching `.github/workflows/**` push over plain HTTPS like any other commit, provided
+  the token carries the `workflow` scope. Check with `gh auth status` if a push is refused with
+  "refusing to allow an OAuth App to create or update workflow"; the fix is
+  `gh auth refresh -s workflow`, not an SSH workaround.
 - A change that must go **up into the default branch** cannot be direct-pushed; open a PR
   for that hop.
 
