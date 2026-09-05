@@ -76,6 +76,14 @@ public final class NeoForgeEnergyStorage implements IEnergyStorage {
         }
     }
 
+    @Override
+    public boolean acceptsEnergy() {
+        // Our own handlers carry a real direction flag. NeoForge exposes none for anyone else, so
+        // the probe below cannot tell "full right now" from "never accepts" — report presence and
+        // let the transfer decide, rather than mis-answering a one-shot placement question.
+        return !(handler instanceof CommonEnergyHandler common) || common.canInsert();
+    }
+
     private static Transaction openTransaction() {
         TransactionContext current = Transaction.getCurrentOpenedTransaction();
         return current == null ? Transaction.openRoot() : Transaction.open(current);
