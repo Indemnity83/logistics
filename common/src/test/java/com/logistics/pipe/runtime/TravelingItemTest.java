@@ -32,7 +32,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         TravelingItem item = createItem(0.05f);
 
         float initialProgress = item.getProgress();
-        item.tick(0f, 0f, 0.08f);
+        item.tick(0f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getProgress()).isCloseTo(initialProgress + 0.05f, within(TOLERANCE));
         assertThat(item.getSpeed()).isCloseTo(0.05f, within(TOLERANCE));
@@ -43,7 +43,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void accelerationIncreasesSpeed() {
         TravelingItem item = createItem(0.05f);
 
-        item.tick(0.01f, 0f, 0.08f);
+        item.tick(0.01f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getSpeed()).isCloseTo(0.06f, within(TOLERANCE));
     }
@@ -53,7 +53,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void negativeAccelerationDecreasesSpeed() {
         TravelingItem item = createItem(0.05f);
 
-        item.tick(-0.01f, 0f, 0.08f);
+        item.tick(-0.01f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getSpeed()).isCloseTo(0.04f, within(TOLERANCE));
     }
@@ -66,7 +66,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         TravelingItem item = createItem(0.15f);
         float maxSpeed = 0.08f;
 
-        item.tick(0f, 0f, maxSpeed);
+        item.tick(0f, 0f, maxSpeed, TravelingItem.DEFAULT_MIN_SPEED);
 
         // Should use quadratic deceleration
         assertThat(item.getSpeed()).isLessThan(0.15f);
@@ -82,7 +82,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         boolean reachedEnd = false;
         int tickCount = 0;
         while (!reachedEnd && tickCount < 100) {
-            reachedEnd = item.tick(0f, 0f, maxSpeed);
+            reachedEnd = item.tick(0f, 0f, maxSpeed, TravelingItem.DEFAULT_MIN_SPEED);
             tickCount++;
 
             assertThat(item.getSpeed()).isGreaterThanOrEqualTo(maxSpeed);
@@ -97,7 +97,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void maxSpeedClampingWhenNotDecelerating() {
         TravelingItem item = createItem(0.05f);
 
-        item.tick(0.10f, 0f, 0.08f);
+        item.tick(0.10f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getSpeed()).isCloseTo(0.08f, within(TOLERANCE));
     }
@@ -110,7 +110,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         TravelingItem item = createItem(0.10f);
         float dragCoefficient = 0.1f;
 
-        item.tick(0f, dragCoefficient, 0.15f);
+        item.tick(0f, dragCoefficient, 0.15f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getSpeed()).isCloseTo(0.09f, within(TOLERANCE));
     }
@@ -120,32 +120,46 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void noDragWhileAccelerating() {
         TravelingItem item = createItem(0.10f);
 
-        item.tick(0.01f, 0.1f, 0.15f);
+        item.tick(0.01f, 0.1f, 0.15f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getSpeed()).isCloseTo(0.11f, within(TOLERANCE));
     }
 
     // ==================== Min Speed Enforcement Tests ====================
 
+    /** A floor deliberately unlike the 0.02 default, so a hardcoded one cannot satisfy these. */
+    private static final float RAISED_MIN_SPEED = 0.05f;
+
     @Test
-    @DisplayName("should enforce minimum speed floor")
+    @DisplayName("should enforce the minimum speed it is given, not a built-in one")
     void minSpeedEnforcement() {
         TravelingItem item = createItem(0.03f);
         float dragCoefficient = 0.5f;
 
-        item.tick(0f, dragCoefficient, 0.15f);
+        item.tick(0f, dragCoefficient, 0.15f, RAISED_MIN_SPEED);
 
-        assertThat(item.getSpeed()).isCloseTo(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED), within(TOLERANCE));
+        assertThat(item.getSpeed()).isCloseTo(RAISED_MIN_SPEED, within(TOLERANCE));
     }
 
     @Test
-    @DisplayName("should not go below minimum speed with negative acceleration")
+    @DisplayName("should not go below the given minimum with negative acceleration")
     void minSpeedWithNegativeAcceleration() {
         TravelingItem item = createItem(0.03f);
 
-        item.tick(-0.02f, 0f, 0.15f);
+        item.tick(-0.02f, 0f, 0.15f, RAISED_MIN_SPEED);
 
-        assertThat(item.getSpeed()).isCloseTo(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED), within(TOLERANCE));
+        assertThat(item.getSpeed()).isCloseTo(RAISED_MIN_SPEED, within(TOLERANCE));
+    }
+
+    @Test
+    @DisplayName("the configured floor is what a pipe actually applies")
+    void configuredFloorIsUsed() {
+        float configured = LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED);
+        TravelingItem item = createItem(0.03f);
+
+        item.tick(0f, 0.5f, 0.15f, configured);
+
+        assertThat(item.getSpeed()).isCloseTo(configured, within(TOLERANCE));
     }
 
     // ==================== Progress Tracking Tests ====================
@@ -155,11 +169,11 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void segmentCompletion() {
         TravelingItem item = createItem(0.5f);
 
-        boolean firstTick = item.tick(0f, 0f, 0.8f);
+        boolean firstTick = item.tick(0f, 0f, 0.8f, TravelingItem.DEFAULT_MIN_SPEED);
         assertThat(firstTick).isFalse();
         assertThat(item.getProgress()).isCloseTo(0.5f, within(TOLERANCE));
 
-        boolean secondTick = item.tick(0f, 0f, 0.8f);
+        boolean secondTick = item.tick(0f, 0f, 0.8f, TravelingItem.DEFAULT_MIN_SPEED);
         assertThat(secondTick).isTrue();
         assertThat(item.getProgress()).isGreaterThanOrEqualTo(1.0f);
     }
@@ -170,7 +184,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         TravelingItem item = createItem(0.1f);
 
         for (int i = 0; i < 5; i++) {
-            item.tick(0f, 0f, 0.15f);
+            item.tick(0f, 0f, 0.15f, TravelingItem.DEFAULT_MIN_SPEED);
         }
 
         assertThat(item.getProgress()).isCloseTo(0.5f, within(TOLERANCE));
@@ -183,8 +197,8 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void directionPersistence() {
         TravelingItem item = createItem(0.05f);
 
-        item.tick(0f, 0f, 0.08f);
-        item.tick(0f, 0f, 0.08f);
+        item.tick(0f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
+        item.tick(0f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getDirection()).isEqualTo(Direction.NORTH);
     }
@@ -225,7 +239,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
 
         assertThat(item.getSpeed()).isCloseTo(0.10f, within(TOLERANCE));
 
-        item.tick(0f, 0f, 0.15f);
+        item.tick(0f, 0f, 0.15f, TravelingItem.DEFAULT_MIN_SPEED);
         assertThat(item.getProgress()).isCloseTo(0.10f, within(TOLERANCE));
     }
 
@@ -257,8 +271,8 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void itemStackPersistence() {
         TravelingItem item = createItem(0.05f);
 
-        item.tick(0f, 0f, 0.08f);
-        item.tick(0f, 0f, 0.08f);
+        item.tick(0f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
+        item.tick(0f, 0f, 0.08f, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getStack().getItem()).isEqualTo(Items.DIAMOND);
         assertThat(item.getStack().getCount()).isEqualTo(1);
@@ -273,7 +287,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         item.setProgress(0.9999f);
         float maxSpeed = 0.08f;
 
-        item.tick(0f, 0f, maxSpeed);
+        item.tick(0f, 0f, maxSpeed, TravelingItem.DEFAULT_MIN_SPEED);
 
         assertThat(item.getSpeed()).isFinite();
         assertThat(item.getSpeed()).isGreaterThanOrEqualTo(maxSpeed);
@@ -284,7 +298,7 @@ class TravelingItemTest extends MinecraftTestEnvironment {
     void zeroMaxSpeed() {
         TravelingItem item = createItem(0.05f);
 
-        item.tick(0f, 0f, 0.0f);
+        item.tick(0f, 0f, 0.0f, TravelingItem.DEFAULT_MIN_SPEED);
 
         // When maxSpeed is 0 and current speed > 0, uses deceleration mode
         // Speed will decelerate toward 0 but get clamped to LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED)
