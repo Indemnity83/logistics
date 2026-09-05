@@ -14,12 +14,9 @@ import com.logistics.core.engine.block.RedstoneEngineBlock;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
-import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
 import com.logistics.core.worldgen.OilSeepFeature;
-import com.logistics.core.worldgen.OilSandsConfiguration;
 import com.logistics.core.worldgen.OilSandsFeature;
-import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +37,6 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -225,25 +221,26 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class WORLDGEN {
-        public static Feature<BogPatchConfiguration> BOG_PATCH;
-        public static Feature<LakeFeature.Configuration> OIL_SEEP;
-        public static Feature<OilSandsConfiguration> OIL_SANDS;
 
         private WORLDGEN() {}
 
+        /**
+         * Features are data-driven objects now: the code registry holds their codecs, and each instance
+         * lives in {@code data/logistics/worldgen/feature/} with its configuration inline.
+         */
         static void register() {
-            BOG_PATCH = Registry.register(
-                BuiltInRegistries.FEATURE,
+            Registry.register(
+                BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
-                new BogPatchFeature(BogPatchConfiguration.CODEC));
-            OIL_SEEP = Registry.register(
-                BuiltInRegistries.FEATURE,
+                BogPatchFeature.CODEC);
+            Registry.register(
+                BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("oil_seep").toIdentifier(),
-                new OilSeepFeature());
-            OIL_SANDS = Registry.register(
-                BuiltInRegistries.FEATURE,
+                OilSeepFeature.CODEC);
+            Registry.register(
+                BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("oil_sands").toIdentifier(),
-                new OilSandsFeature(OilSandsConfiguration.CODEC));
+                OilSandsFeature.CODEC);
         }
     }
 
