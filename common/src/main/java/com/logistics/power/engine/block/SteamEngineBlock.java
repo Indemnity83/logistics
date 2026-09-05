@@ -3,12 +3,10 @@ package com.logistics.power.engine.block;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
-import com.mojang.serialization.MapCodec;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -31,17 +29,11 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class SteamEngineBlock extends AbstractEngineBlock<SteamEngineBlockEntity> {
-    public static final MapCodec<SteamEngineBlock> CODEC = simpleCodec(SteamEngineBlock::new);
     public static final BooleanProperty LIT = BlockStateProperties.LIT; // true when the firebox is lit
 
     public SteamEngineBlock(Properties settings) {
         super(settings);
         registerDefaultState(defaultBlockState().setValue(LIT, false));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

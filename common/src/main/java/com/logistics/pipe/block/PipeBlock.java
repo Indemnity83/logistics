@@ -14,7 +14,6 @@ import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeFamily;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.LogisticsPipe;
-import com.mojang.serialization.MapCodec;
 import com.logistics.core.lib.fluids.FluidStorageLookup;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
@@ -53,8 +52,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class PipeBlock extends BaseEntityBlock
         implements SimpleWaterloggedBlock, WrenchBehavior.Wrenchable, ModularPipeBlock, CreativeVariantProvider {
-    public static final MapCodec<PipeBlock> CODEC = simpleCodec(PipeBlock::new);
-
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty CRAFTING = BooleanProperty.create("crafting");
@@ -131,11 +128,6 @@ public class PipeBlock extends BaseEntityBlock
     @Override
     public PipeFamily family() {
         return PipeFamily.ITEM;
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

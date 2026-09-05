@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Prediction;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -123,7 +124,7 @@ public class ModSinkScreenHandler extends CustomSlotScreenHandler {
             ItemStack preview = previewContainer.getItem(0);
             if (!preview.isEmpty()) {
                 if (!player.getInventory().add(preview)) {
-                    player.drop(preview, false);
+                    player.drop(preview, false, Prediction.SERVER_ONLY);
                 }
                 previewContainer.setItem(0, ItemStack.EMPTY);
             }

@@ -401,7 +401,7 @@ public final class FluidPumpComponent implements MachineComponent {
      * tube pass through any waterlogged solid a player laid down to seal a pocket off.
      */
     static boolean blocksTube(BlockState state) {
-        return state.blocksMotion();
+        return state.isSolid();
     }
 
     @Override

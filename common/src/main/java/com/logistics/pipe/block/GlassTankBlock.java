@@ -8,11 +8,11 @@ import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.tank.TankColumn;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.pipe.tank.TankTier;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.util.Prediction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -49,8 +49,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class GlassTankBlock extends BaseEntityBlock {
 
-    public static final MapCodec<GlassTankBlock> CODEC = simpleCodec(GlassTankBlock::new);
-
     /** True when a tank sits directly below, so the seamless {@code side_stacked} texture is used. */
     public static final BooleanProperty JOINED_BELOW = BooleanProperty.create("joined_below");
 
@@ -60,11 +58,6 @@ public class GlassTankBlock extends BaseEntityBlock {
     public GlassTankBlock(Properties properties) {
         super(properties.lightLevel(state -> state.getValue(LIGHT_LEVEL)));
         registerDefaultState(defaultBlockState().setValue(JOINED_BELOW, false).setValue(LIGHT_LEVEL, 0));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -193,12 +186,9 @@ public class GlassTankBlock extends BaseEntityBlock {
 
     @Nullable
     private static PotionContents potionOf(IFluidKey key) {
-        for (var entry : key.getComponents().entrySet()) {
-            if (entry.getKey() == DataComponents.POTION_CONTENTS) {
-                return (PotionContents) entry.getValue().orElse(null);
-            }
-        }
-        return null;
+        // split() separates components the patch sets from the ones it removes, so `added`
+        // holds only real values — the removal markers the old entrySet loop had to skip.
+        return key.getComponents().split().added().get(DataComponents.POTION_CONTENTS);
     }
 
     private static boolean sameFluid(IFluidKey a, IFluidKey b) {
@@ -213,7 +203,7 @@ public class GlassTankBlock extends BaseEntityBlock {
         if (held.isEmpty()) {
             player.setItemInHand(hand, result);
         } else if (!player.getInventory().add(result)) {
-            player.drop(result, false);
+            player.drop(result, false, Prediction.SERVER_ONLY);
         }
     }
 

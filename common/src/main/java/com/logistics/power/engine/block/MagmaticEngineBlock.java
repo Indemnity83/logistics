@@ -3,10 +3,8 @@ package com.logistics.power.engine.block;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -20,15 +18,8 @@ import org.jetbrains.annotations.Nullable;
  * output direction; POWERED gates operation.
  */
 public class MagmaticEngineBlock extends AbstractEngineBlock<MagmaticEngineBlockEntity> {
-    public static final MapCodec<MagmaticEngineBlock> CODEC = simpleCodec(MagmaticEngineBlock::new);
-
     public MagmaticEngineBlock(Properties settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Nullable @Override

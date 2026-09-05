@@ -305,7 +305,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     .isValidSpawn((s, w, p, t) -> false)
                     .isRedstoneConductor((s, w, p) -> false)
                     .isSuffocating((s, w, p) -> false)
-                    .isViewBlocking((s, w, p) -> false);
+                    .isViewBlocking((s, w, p, box) -> false);
         }
 
         static void register() {

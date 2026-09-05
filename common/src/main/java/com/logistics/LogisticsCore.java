@@ -287,7 +287,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 .replaceable()
                 .noCollision()
                 .strength(100.0f)
-                .pushReaction(PushReaction.DESTROY)
+                .pushReaction(PushReaction.POPPED)
                 .noLootTable()
                 .liquid()
                 .sound(SoundType.EMPTY));

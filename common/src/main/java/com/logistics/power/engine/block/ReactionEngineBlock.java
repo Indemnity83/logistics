@@ -4,11 +4,9 @@ import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.power.HeatStage;
 import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,15 +20,8 @@ import org.jetbrains.annotations.Nullable;
  * output direction; POWERED gates <em>starting</em> a reaction (a running reaction ignores redstone).
  */
 public class ReactionEngineBlock extends AbstractEngineBlock<ReactionEngineBlockEntity> {
-    public static final MapCodec<ReactionEngineBlock> CODEC = simpleCodec(ReactionEngineBlock::new);
-
     public ReactionEngineBlock(Properties settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     /** Place in the "off" (dark) tint immediately; the tick flips it to HOT once a reaction starts. */

@@ -3,10 +3,8 @@ package com.logistics.core.engine.block;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.LogisticsCore;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,15 +23,8 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class RedstoneEngineBlock extends AbstractEngineBlock<RedstoneEngineBlockEntity> {
-    public static final MapCodec<RedstoneEngineBlock> CODEC = simpleCodec(RedstoneEngineBlock::new);
-
     public RedstoneEngineBlock(Properties settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Nullable @Override

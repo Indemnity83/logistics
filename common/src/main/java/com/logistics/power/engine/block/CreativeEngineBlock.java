@@ -3,13 +3,11 @@ package com.logistics.power.engine.block;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.LogisticsPower;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -29,15 +27,8 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class CreativeEngineBlock extends AbstractEngineBlock<CreativeEngineBlockEntity> {
-    public static final MapCodec<CreativeEngineBlock> CODEC = simpleCodec(CreativeEngineBlock::new);
-
     public CreativeEngineBlock(Properties settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override
