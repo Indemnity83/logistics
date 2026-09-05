@@ -359,7 +359,7 @@ public class CableNetwork {
         long movedTotal = 0;
         for (DeviceConnection source : sources) {
             if (movedTotal >= maxAmount) break;
-            if (source.storage() == target.storage()) continue;
+            if (isSameDevice(source, target)) continue;
 
             CableNetworkPlanner.CableRoute route = findBestRoute(level, source.cablePos(), target.cablePos());
             if (route == null || route.remainingTransfer() <= 0) continue;
@@ -502,9 +502,21 @@ public class CableNetwork {
         return blockEntity instanceof EngineEntity;
     }
 
+    /**
+     * True when both ends are the same device, so it would be transferring into itself.
+     *
+     * <p>Compares the device, not the wrapper. A block touching the network on two faces produces one
+     * {@code DeviceConnection} per face, and every energy-capability lookup allocates a fresh storage
+     * wrapper on both loaders, so the reference check alone only ever catches a single-face device —
+     * where the same record instance lands in both lists. The position is the stable identity.
+     */
+    static boolean isSameDevice(DeviceConnection source, DeviceConnection target) {
+        return source.storage() == target.storage() || source.pos().equals(target.pos());
+    }
+
     private record DeviceConnections(List<DeviceConnection> sources, List<DeviceConnection> targets) {}
 
-    private record DeviceConnection(
+    record DeviceConnection(
             BlockPos cablePos, BlockPos pos, Direction side, IEnergyStorage storage, @Nullable BlockEntity blockEntity) {
         private static final Comparator<DeviceConnection> ORDER = Comparator
                 .comparingInt((DeviceConnection connection) -> connection.pos().getX())
