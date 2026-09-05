@@ -1,6 +1,5 @@
 package com.logistics.automation.laserquarry;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -23,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
  * the quarry is removed. Anything left over is breakable by hand, for no drops.
  */
 public class LaserQuarryFrameBlock extends Block {
-    public static final MapCodec<LaserQuarryFrameBlock> CODEC = simpleCodec(LaserQuarryFrameBlock::new);
-
     public static final BooleanProperty NORTH = BooleanProperty.create("north");
     public static final BooleanProperty SOUTH = BooleanProperty.create("south");
     public static final BooleanProperty EAST = BooleanProperty.create("east");
@@ -49,11 +46,6 @@ public class LaserQuarryFrameBlock extends Block {
                 .setValue(WEST, false)
                 .setValue(UP, false)
                 .setValue(DOWN, false));
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.tank.TankColumn;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.pipe.tank.TankTier;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
@@ -49,8 +48,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class GlassTankBlock extends BaseEntityBlock {
 
-    public static final MapCodec<GlassTankBlock> CODEC = simpleCodec(GlassTankBlock::new);
-
     /** True when a tank sits directly below, so the seamless {@code side_stacked} texture is used. */
     public static final BooleanProperty JOINED_BELOW = BooleanProperty.create("joined_below");
 
@@ -60,11 +57,6 @@ public class GlassTankBlock extends BaseEntityBlock {
     public GlassTankBlock(Properties properties) {
         super(properties.lightLevel(state -> state.getValue(LIGHT_LEVEL)));
         registerDefaultState(defaultBlockState().setValue(JOINED_BELOW, false).setValue(LIGHT_LEVEL, 0));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

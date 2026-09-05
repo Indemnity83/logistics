@@ -7,7 +7,6 @@ import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.power.DirectEnergyReceiver;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.LowTierEnergySource;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -45,7 +44,6 @@ import org.jetbrains.annotations.Nullable;
  * and connects to any block exposing energy storage via the loader's capability system.
  */
 public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<CableBlock> CODEC = simpleCodec(CableBlock::new);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     private static final double CABLE_SIZE = 4.0;
@@ -100,11 +98,6 @@ public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     public CableTier tier() {
         return tier;
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

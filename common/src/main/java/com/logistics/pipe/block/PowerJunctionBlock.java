@@ -2,7 +2,6 @@ package com.logistics.pipe.block;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -26,18 +25,12 @@ import org.jetbrains.annotations.Nullable;
  */
 public class PowerJunctionBlock extends BaseEntityBlock {
 
-    public static final MapCodec<PowerJunctionBlock> CODEC = simpleCodec(PowerJunctionBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, 10);
 
     public PowerJunctionBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(CHARGE, 0));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

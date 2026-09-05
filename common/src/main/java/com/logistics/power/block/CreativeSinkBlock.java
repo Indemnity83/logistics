@@ -3,7 +3,6 @@ package com.logistics.power.block;
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.LogisticsPower;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -27,15 +26,8 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class CreativeSinkBlock extends BaseEntityBlock implements WrenchBehavior.Wrenchable {
-    public static final MapCodec<CreativeSinkBlock> CODEC = simpleCodec(CreativeSinkBlock::new);
-
     public CreativeSinkBlock(Properties settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

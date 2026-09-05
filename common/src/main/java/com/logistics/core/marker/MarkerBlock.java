@@ -1,7 +1,6 @@
 package com.logistics.core.marker;
 
 import com.logistics.core.lib.block.behavior.WrenchBehavior;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
  * to create a bounding box that a quarry can use.
  */
 public class MarkerBlock extends Block implements EntityBlock, WrenchBehavior.Wrenchable {
-    public static final MapCodec<MarkerBlock> CODEC = simpleCodec(MarkerBlock::new);
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     // Blue particle color for active markers
     private static final int ACTIVE_PARTICLE_COLOR = 0x0132FD;
@@ -39,11 +37,6 @@ public class MarkerBlock extends Block implements EntityBlock, WrenchBehavior.Wr
     public MarkerBlock(Properties properties) {
         super(properties.lightLevel(state -> state.getValue(ACTIVE) ? 7 : 0));
         this.registerDefaultState(this.getStateDefinition().any().setValue(ACTIVE, false));
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 
     @Override

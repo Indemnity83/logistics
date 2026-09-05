@@ -1,7 +1,6 @@
 package com.logistics.automation.pump;
 
 import com.logistics.LogisticsAutomation;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -13,15 +12,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public class FluidPumpBlock extends BaseEntityBlock {
-    public static final MapCodec<FluidPumpBlock> CODEC = simpleCodec(FluidPumpBlock::new);
-
     public FluidPumpBlock(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

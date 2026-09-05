@@ -2,12 +2,10 @@ package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineBlock;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -23,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
  * Block for the Crucible: melts input items into fluids using RF energy.
  */
 public class CrucibleBlock extends MachineBlock {
-    public static final MapCodec<CrucibleBlock> CODEC = simpleCodec(CrucibleBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
@@ -32,11 +29,6 @@ public class CrucibleBlock extends MachineBlock {
         registerDefaultState(defaultBlockState()
             .setValue(FACING, Direction.NORTH)
             .setValue(LIT, false));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override
