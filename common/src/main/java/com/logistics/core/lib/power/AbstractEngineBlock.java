@@ -260,7 +260,7 @@ public abstract class AbstractEngineBlock<E extends EngineEntity> extends Machin
         if (world.getBlockEntity(pos.relative(direction)) instanceof DirectEnergyReceiver receiver
                 && receiver instanceof HasEnergyStorage hasStorage) {
             IEnergyStorage storage = hasStorage.energyStorage(direction.getOpposite());
-            return storage != null && storage.canInsert();
+            return storage != null && storage.acceptsEnergy();
         }
         if (energyPresenceChecker == null) return false;
         return energyPresenceChecker.hasEnergyStorage(world, pos, direction);
