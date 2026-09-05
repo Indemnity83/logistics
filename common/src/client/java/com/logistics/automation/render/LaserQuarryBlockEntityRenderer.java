@@ -243,7 +243,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
                 // Beam extends along X axis (east-west)
                 // Position at segment, centered on startZ
                 matrices.translate(startX + i + 0.5, startY + 0.5, startZ);
-                matrices.mulPose(Axis.YP.rotationDegrees(-90)); // Point east
+                matrices.rotate(Axis.YP.rotationDegrees(-90)); // Point east
                 // Center the model (model is at X=0.5, Y=0.5)
                 matrices.translate(-0.5, -0.5, 0.0);
             } else {
@@ -288,7 +288,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
             // Partial segment starts at startY and grows downward
             matrices.translate(x, startY, z);
-            matrices.mulPose(Axis.XP.rotationDegrees(90));
+            matrices.rotate(Axis.XP.rotationDegrees(90));
             // Scale the partial segment in Z (which is now -Y after rotation)
             matrices.scale(1.0f, 1.0f, remainder);
             matrices.translate(-0.5, -0.5, 0.0);
@@ -305,7 +305,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             // Full segments start below the partial segment
             matrices.translate(x, startY - remainder - i, z);
             // Rotate to point downward
-            matrices.mulPose(Axis.XP.rotationDegrees(90));
+            matrices.rotate(Axis.XP.rotationDegrees(90));
             matrices.translate(-0.5, -0.5, 0.0);
 
             queue.submitBlockModel(matrices, renderLayer, modelParts, new int[]{0xFFFFFF}, lightmap, OverlayTexture.NO_OVERLAY, 0);
@@ -370,7 +370,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         for (int i = 0; i < length; i++) {
             matrices.pushPose();
             matrices.translate(relX + 0.5, relY - 0.0625, relZ + 0.5);
-            matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
+            matrices.rotate(Axis.YP.rotationDegrees(yRotation));
             matrices.translate(0, 0, i);
             matrices.translate(-0.5, 0, 0);
             queue.submitBlockModel(
@@ -398,7 +398,7 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         for (int i = 0; i < height; i++) {
             matrices.pushPose();
             matrices.translate(relX + 0.5, relStartY + 0.5 + i, relZ + 1.0625);
-            matrices.mulPose(Axis.XP.rotationDegrees(-90));
+            matrices.rotate(Axis.XP.rotationDegrees(-90));
             matrices.translate(-0.5, 0, 0);
             queue.submitBlockModel(
                     matrices, renderLayer, parts, new int[]{0xFFFFFF}, lightmap, OverlayTexture.NO_OVERLAY, 0);

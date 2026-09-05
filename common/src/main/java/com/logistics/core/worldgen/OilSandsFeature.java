@@ -1,13 +1,15 @@
 package com.logistics.core.worldgen;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 /**
  * A standalone oil-sands deposit: an irregular blob of a semi-random radius centred on the placement point,
@@ -15,7 +17,13 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
  * speckled oil-ore/natural mix chosen by biome (see {@link OilOreMix}). Mostly ore with some natural ground
  * mixed in. Capped to low surface heights so deposits stay off hills and mesas.
  */
-public class OilSandsFeature extends Feature<OilSandsConfiguration> {
+public record OilSandsFeature(int minRadius, int maxRadius, int maxY) implements Feature {
+
+    public static final MapCodec<OilSandsFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.intRange(1, 48).fieldOf("min_radius").forGetter(OilSandsFeature::minRadius),
+            Codec.intRange(1, 48).fieldOf("max_radius").forGetter(OilSandsFeature::maxRadius),
+            Codec.intRange(-64, 320).fieldOf("max_y").forGetter(OilSandsFeature::maxY))
+        .apply(instance, OilSandsFeature::new));
 
     // Oil-sands banks are mostly ore with some natural ground mixed in.
     private static final int ORE_WEIGHT = 3;
@@ -24,24 +32,21 @@ public class OilSandsFeature extends Feature<OilSandsConfiguration> {
     private static final double FREQUENCY = 0.5; // low -> smooth lumps rather than noise
     private static final double AMPLITUDE_FACTOR = 0.15; // how far the surface bulges/dents from a true sphere
 
-    public OilSandsFeature(Codec<OilSandsConfiguration> codec) {
-        super(codec);
+    @Override
+    public MapCodec<OilSandsFeature> codec() {
+        return CODEC;
     }
 
     @Override
-    public boolean place(FeaturePlaceContext<OilSandsConfiguration> context) {
-        WorldGenLevel level = context.level();
-        RandomSource random = context.random();
-        OilSandsConfiguration config = context.config();
-        BlockPos origin = context.origin();
+    public boolean place(WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos origin) {
         // Keep deposits at low elevations — off hills and high badlands mesas.
-        if (origin.getY() > config.maxY()) {
+        if (origin.getY() > maxY) {
             return false;
         }
         OilOreMix mix = OilOreMix.forBiome(level, origin);
 
-        int min = Math.min(config.minRadius(), config.maxRadius());
-        int max = Math.max(config.minRadius(), config.maxRadius());
+        int min = Math.min(minRadius, maxRadius);
+        int max = Math.max(minRadius, maxRadius);
         int radius = min + (max > min ? random.nextInt(max - min + 1) : 0);
 
         return forEachInBlob(random, radius, origin,

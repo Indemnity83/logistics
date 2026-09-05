@@ -2,6 +2,8 @@ package com.logistics.core.worldgen;
 
 import com.logistics.LogisticsCore;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -11,31 +13,32 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 /**
- * Turns soil into bog earth in organic patches: seeds on the surface block at the origin (whatever the
- * config's {@code target} matches — mud in mangrove swamps, grass/dirt at regular-swamp water edges),
- * then flood-fills (6-neighbour, 3D) through adjacent matching blocks, each step a {@code spread_chance}
- * roll, capped at {@code max_count}. Only {@code target} blocks are ever replaced.
+ * Turns soil into bog earth in organic patches: seeds on the surface block at the origin (whatever
+ * {@code target} matches — mud in mangrove swamps, grass/dirt at regular-swamp water edges), then
+ * flood-fills (6-neighbour, 3D) through adjacent matching blocks, each step a {@code spreadChance}
+ * roll, capped at {@code maxCount}. Only {@code target} blocks are ever replaced.
  */
-public class BogPatchFeature extends Feature<BogPatchConfiguration> {
+public record BogPatchFeature(BlockPredicate target, float spreadChance, int maxCount) implements Feature {
 
-    public BogPatchFeature(Codec<BogPatchConfiguration> codec) {
-        super(codec);
+    public static final MapCodec<BogPatchFeature> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BlockPredicate.CODEC.fieldOf("target").forGetter(BogPatchFeature::target),
+            Codec.floatRange(0.0f, 1.0f).fieldOf("spread_chance").forGetter(BogPatchFeature::spreadChance),
+            Codec.intRange(1, 4096).fieldOf("max_count").forGetter(BogPatchFeature::maxCount))
+        .apply(instance, BogPatchFeature::new));
+
+    @Override
+    public MapCodec<BogPatchFeature> codec() {
+        return CODEC;
     }
 
     @Override
-    public boolean place(FeaturePlaceContext<BogPatchConfiguration> context) {
-        WorldGenLevel level = context.level();
-        RandomSource random = context.random();
-        BogPatchConfiguration config = context.config();
-        BlockPredicate target = config.target();
-
+    public boolean place(WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos origin) {
         // The heightmap origin sits just above the surface; the soil is the block below it.
-        BlockPos origin = context.origin();
         BlockPos below = origin.below();
         BlockPos seed = target.test(level, below) ? below : (target.test(level, origin) ? origin : null);
         if (seed == null) {
@@ -49,7 +52,7 @@ public class BogPatchFeature extends Feature<BogPatchConfiguration> {
         visited.add(seed.asLong());
 
         int placed = 0;
-        while (!queue.isEmpty() && placed < config.maxCount()) {
+        while (!queue.isEmpty() && placed < maxCount) {
             BlockPos pos = queue.poll();
             if (!target.test(level, pos)) {
                 continue;
@@ -60,7 +63,7 @@ public class BogPatchFeature extends Feature<BogPatchConfiguration> {
                 BlockPos next = pos.relative(dir);
                 if (visited.add(next.asLong())
                         && target.test(level, next)
-                        && random.nextFloat() < config.spreadChance()) {
+                        && random.nextFloat() < spreadChance) {
                     queue.add(next.immutable());
                 }
             }

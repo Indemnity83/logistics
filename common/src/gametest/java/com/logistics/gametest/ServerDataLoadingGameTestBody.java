@@ -41,7 +41,7 @@ public class ServerDataLoadingGameTestBody {
     // plausible number of entries; lower a floor deliberately if content is genuinely removed.
     private static final int MINIMUM_LOOT_TABLES = 68;
     private static final int MINIMUM_BLOCKS = 60;
-    private static final int MINIMUM_CONFIGURED_FEATURES = 7;
+    private static final int MINIMUM_FEATURES = 7;
     private static final int MINIMUM_PLACED_FEATURES = 7;
     private static final int MINIMUM_ITEM_TAGS = 18;
     private static final int MINIMUM_BLOCK_TAGS = 10;
@@ -137,7 +137,7 @@ public class ServerDataLoadingGameTestBody {
     /** Every shipped configured feature deserializes into the live worldgen registry. */
     public static void allLogisticsConfiguredFeaturesLoad(GameTestHelper context) {
         checkWorldgen(
-            context, Registries.CONFIGURED_FEATURE, "worldgen/configured_feature", MINIMUM_CONFIGURED_FEATURES);
+            context, Registries.FEATURE, "worldgen/feature", MINIMUM_FEATURES);
     }
 
     /** Every shipped placed feature deserializes into the live worldgen registry. */

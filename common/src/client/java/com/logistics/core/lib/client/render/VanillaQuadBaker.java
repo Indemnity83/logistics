@@ -2,10 +2,9 @@ package com.logistics.core.lib.client.render;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.mojang.blaze3d.platform.Transparency;
 import net.minecraft.client.model.geom.builders.UVPair;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -34,9 +33,17 @@ public final class VanillaQuadBaker {
     private final List<BakedQuad> quads = new ArrayList<>();
 
     public VanillaQuadBaker(TextureAtlasSprite sprite, int tintIndex, boolean shade, int lightEmission) {
-        this.materialInfo = new BakedQuad.MaterialInfo(
-                sprite, ChunkSectionLayer.CUTOUT, Sheets.cutoutBlockItemSheet(), tintIndex, shade, lightEmission);
         this.particleMaterial = new Material.Baked(sprite, false);
+        // MaterialInfo.of derives the three item render types and the section layer from the
+        // transparency, replacing the hand-picked cutout sheet. The old `shade` flag is now a
+        // direction override: null keeps each quad's own facing (normal directional shading), while
+        // pinning it to UP — the brightest face — is how an unshaded quad is expressed.
+        this.materialInfo = BakedQuad.MaterialInfo.of(
+                this.particleMaterial,
+                Transparency.TRANSPARENT,
+                tintIndex,
+                shade ? null : Direction.UP,
+                lightEmission);
     }
 
     /** {@code QuadSink}-shaped entry point; {@code cullFace} is intentionally ignored (see class doc). */

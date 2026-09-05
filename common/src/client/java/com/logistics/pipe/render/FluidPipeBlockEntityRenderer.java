@@ -295,11 +295,11 @@ public class FluidPipeBlockEntityRenderer
 
     private static void applyDirectionRotation(PoseStack matrices, Direction direction) {
         switch (direction) {
-            case SOUTH -> matrices.mulPose(Axis.YP.rotationDegrees(180));
-            case EAST -> matrices.mulPose(Axis.YP.rotationDegrees(-90));
-            case WEST -> matrices.mulPose(Axis.YP.rotationDegrees(90));
-            case UP -> matrices.mulPose(Axis.XP.rotationDegrees(90));
-            case DOWN -> matrices.mulPose(Axis.XP.rotationDegrees(-90));
+            case SOUTH -> matrices.rotate(Axis.YP.rotationDegrees(180));
+            case EAST -> matrices.rotate(Axis.YP.rotationDegrees(-90));
+            case WEST -> matrices.rotate(Axis.YP.rotationDegrees(90));
+            case UP -> matrices.rotate(Axis.XP.rotationDegrees(90));
+            case DOWN -> matrices.rotate(Axis.XP.rotationDegrees(-90));
             default -> {}
         }
     }

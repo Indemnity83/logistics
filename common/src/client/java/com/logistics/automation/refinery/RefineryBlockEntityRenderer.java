@@ -96,7 +96,7 @@ public class RefineryBlockEntityRenderer
 
         matrices.pushPose();
         matrices.translate(0.5, 0.5, 0.5);
-        matrices.mulPose(Axis.YP.rotationDegrees(-angle));
+        matrices.rotate(Axis.YP.rotationDegrees(-angle));
         matrices.translate(-0.5, -0.5, -0.5);
         queue.submitCustomGeometry(
                 matrices,

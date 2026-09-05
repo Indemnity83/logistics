@@ -1,0 +1,6 @@
+{
+  "type": "logistics:oil_sands",
+  "min_radius": 4,
+  "max_radius": 8,
+  "max_y": 75
+}
