@@ -253,7 +253,8 @@ public final class PipeRuntime {
         float progressBefore = item.getProgress();
 
         // Advance item progress
-        if (item.tick(ctx.accelerationRate(), ctx.dragCoefficient(), ctx.maxSpeed())) {
+        if (item.tick(ctx.accelerationRate(), ctx.dragCoefficient(), ctx.maxSpeed(),
+                LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED))) {
             itemState.markForRouting(item);
         }
 

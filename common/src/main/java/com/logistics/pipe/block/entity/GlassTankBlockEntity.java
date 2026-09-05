@@ -86,6 +86,14 @@ public class GlassTankBlockEntity extends BaseBlockEntity implements HasFluidSto
         return level.getBlockEntity(getBlockPos().above()) instanceof GlassTankBlockEntity above && above.amount() > 0;
     }
 
+    /** The same, downward — a gas settles against the ceiling, so its free surface is the bottom one. */
+    public boolean hasFluidBelow() {
+        if (level == null) {
+            return false;
+        }
+        return level.getBlockEntity(getBlockPos().below()) instanceof GlassTankBlockEntity below && below.amount() > 0;
+    }
+
     // ==================== Capability ====================
 
     @Override
