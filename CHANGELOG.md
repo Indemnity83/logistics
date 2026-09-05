@@ -1,5 +1,57 @@
 # Changelog
 
+## [0.8.8](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.7...mc1.21.11-v0.8.8) (2026-09-05)
+
+
+### Changed
+
+* **routing:** serve pipe shapes from the connection cache ([de0bd86](https://github.com/Indemnity83/logistics/commit/de0bd86d2885df55f24aba8ff5b94d80b2f26103))
+
+
+### Removed
+
+* **crafting:** drop the classic crafting resource pack ([c24b160](https://github.com/Indemnity83/logistics/commit/c24b16003244bce76f3c364aea08a40df1f00c34)), closes [#960](https://github.com/Indemnity83/logistics/issues/960)
+
+
+### Fixed
+
+* **automation:** stop the Alloy Smelter duplicating recipe inputs ([d17f48d](https://github.com/Indemnity83/logistics/commit/d17f48dcfbe725d28cfeff12b548b09e3f35a73f))
+* **ci:** stop the release pipeline publishing broken releases ([3aa7a64](https://github.com/Indemnity83/logistics/commit/3aa7a6431f25c7ee8b53f9b1ac4d29d7e19a9e4c))
+* **core:** give the Seed Oil Bucket its missing model and texture ([#904](https://github.com/Indemnity83/logistics/issues/904)) ([f30a1d3](https://github.com/Indemnity83/logistics/commit/f30a1d37f19335bab13803b53380964446436882))
+* **core:** survive a malformed config file at startup ([0305550](https://github.com/Indemnity83/logistics/commit/03055504816376395e2ba248f35c9ff7e23afbdf))
+* **crafting:** keep the sourceable remainder when a request is replanned ([2a98d88](https://github.com/Indemnity83/logistics/commit/2a98d88aa2e13e55fa60fe24dceff7b2d509fa3b))
+* **crafting:** order only what was requested from a crafting batch ([2a98d88](https://github.com/Indemnity83/logistics/commit/2a98d88aa2e13e55fa60fe24dceff7b2d509fa3b))
+* **energy:** face a newly placed engine at a full machine on NeoForge ([4d4879b](https://github.com/Indemnity83/logistics/commit/4d4879be70e13a181caceb4661261dcefe9587c7)), closes [#977](https://github.com/Indemnity83/logistics/issues/977) [#989](https://github.com/Indemnity83/logistics/issues/989)
+* **energy:** give engine and battery models their missing particle texture ([#909](https://github.com/Indemnity83/logistics/issues/909)) ([1bf0684](https://github.com/Indemnity83/logistics/commit/1bf0684b4c1066c70e10732420021a5d8e0657c6))
+* **energy:** stop a battery starving its own cable network ([4d4879b](https://github.com/Indemnity83/logistics/commit/4d4879be70e13a181caceb4661261dcefe9587c7))
+* **energy:** stop cables voiding power into slow machines ([1a3780e](https://github.com/Indemnity83/logistics/commit/1a3780e9fba6766fe4166d5cfe0f785fd2fc8b28))
+* **energy:** stop duplicating and voiding energy on Fabric ([ab6b225](https://github.com/Indemnity83/logistics/commit/ab6b22547d2b06959633e4234eff4384545ead16))
+* **fluids:** fade fluid out of a pipe instead of popping it ([efcf709](https://github.com/Indemnity83/logistics/commit/efcf709192c65ba5a50fb64c8f734775a82a24c2))
+* **fluids:** keep the fill animation steady at any frame rate ([efcf709](https://github.com/Indemnity83/logistics/commit/efcf709192c65ba5a50fb64c8f734775a82a24c2))
+* **pump:** keep long intake tubes visible off screen ([73cac73](https://github.com/Indemnity83/logistics/commit/73cac7353a90d501d85d3140e99e3b1e59244549))
+* **pump:** stop the intake tube descending through waterlogged blocks ([cfa4ee3](https://github.com/Indemnity83/logistics/commit/cfa4ee39642f117b56bd4c498d9d9c5f2eea4840)), closes [#968](https://github.com/Indemnity83/logistics/issues/968) [#969](https://github.com/Indemnity83/logistics/issues/969)
+* **quarry:** keep marker beams visible off screen ([73cac73](https://github.com/Indemnity83/logistics/commit/73cac7353a90d501d85d3140e99e3b1e59244549)), closes [#940](https://github.com/Indemnity83/logistics/issues/940)
+* **quarry:** keep the frame and laser visible off screen ([73cac73](https://github.com/Indemnity83/logistics/commit/73cac7353a90d501d85d3140e99e3b1e59244549))
+* **quarry:** let players break abandoned frames in survival ([2118f45](https://github.com/Indemnity83/logistics/commit/2118f45d5cb060b2cd8b7a7ec00772300af8d65a))
+* **quarry:** mine waterlogged blocks instead of skipping them ([cfa4ee3](https://github.com/Indemnity83/logistics/commit/cfa4ee39642f117b56bd4c498d9d9c5f2eea4840))
+* **quarry:** remove the unintended duplicate recipe ([81d6e2b](https://github.com/Indemnity83/logistics/commit/81d6e2bc44dc708b62ca9b53bec0156e1bbfdfe4))
+* **quarry:** stop a zero arm speed freezing the quarry forever ([a1536c5](https://github.com/Indemnity83/logistics/commit/a1536c526fb8e51fcc1eb0042bb3b2a0a72c23f2))
+* **quarry:** stop frame blocks vanishing without warning ([2118f45](https://github.com/Indemnity83/logistics/commit/2118f45d5cb060b2cd8b7a7ec00772300af8d65a))
+* **quarry:** stop vacuuming loose items off the ground ([d8bcf4d](https://github.com/Indemnity83/logistics/commit/d8bcf4d465c7c044cb128b297a645453228aa57c)), closes [#973](https://github.com/Indemnity83/logistics/issues/973)
+* **routing:** apply one interaction range to every pipe menu ([2afb47f](https://github.com/Indemnity83/logistics/commit/2afb47f567813b5b863ecea4f1b46cd4792aef6b)), closes [#937](https://github.com/Indemnity83/logistics/issues/937) [#942](https://github.com/Indemnity83/logistics/issues/942)
+* **routing:** cancel the order behind a job that has finished ([2a98d88](https://github.com/Indemnity83/logistics/commit/2a98d88aa2e13e55fa60fe24dceff7b2d509fa3b)), closes [#933](https://github.com/Indemnity83/logistics/issues/933) [#944](https://github.com/Indemnity83/logistics/issues/944) [#947](https://github.com/Indemnity83/logistics/issues/947)
+* **routing:** close module menus when the pipe is broken ([2afb47f](https://github.com/Indemnity83/logistics/commit/2afb47f567813b5b863ecea4f1b46cd4792aef6b))
+* **routing:** fall through to the next provider when one is fully reserved ([9b99466](https://github.com/Indemnity83/logistics/commit/9b994667983edddbb002bc28564149635aff0aac)), closes [#928](https://github.com/Indemnity83/logistics/issues/928) [#938](https://github.com/Indemnity83/logistics/issues/938) [#939](https://github.com/Indemnity83/logistics/issues/939)
+* **routing:** release only the delivered part of a shipment ([9b99466](https://github.com/Indemnity83/logistics/commit/9b994667983edddbb002bc28564149635aff0aac))
+* **routing:** render the right pipe arm after a neighbour changes ([de0bd86](https://github.com/Indemnity83/logistics/commit/de0bd86d2885df55f24aba8ff5b94d80b2f26103))
+* **routing:** stop a bad button id crashing the server ([b41652d](https://github.com/Indemnity83/logistics/commit/b41652da833b22e750263f14cecb077906d6eb7e))
+* **routing:** stop broadcasting requester contents to every player ([166088a](https://github.com/Indemnity83/logistics/commit/166088a611459b0ad5af278b924db5f27c2b3f6d))
+* **routing:** stop failed deliveries shrinking a provider's stock ([9b99466](https://github.com/Indemnity83/logistics/commit/9b994667983edddbb002bc28564149635aff0aac))
+* **routing:** stop Providers destroying items on an unpowered network ([55583d5](https://github.com/Indemnity83/logistics/commit/55583d58ee8da6291e0b81b324f755a9496d2e2e))
+* **routing:** stop the Provider MkII shipping the wrong item to the next order ([68f4429](https://github.com/Indemnity83/logistics/commit/68f4429278b592e25def0ec66653d4aa95ca4bed))
+* **transport:** apply the configured minimum pipe speed ([efcf709](https://github.com/Indemnity83/logistics/commit/efcf709192c65ba5a50fb64c8f734775a82a24c2)), closes [#950](https://github.com/Indemnity83/logistics/issues/950)
+* **transport:** stop losing items on a partial pipe handoff ([086f01c](https://github.com/Indemnity83/logistics/commit/086f01c3611e52724fbf40b5bbc2bac3bc40c1c9))
+
 ## [0.8.7](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.6...mc1.21.11-v0.8.7) (2026-09-01)
 
 
