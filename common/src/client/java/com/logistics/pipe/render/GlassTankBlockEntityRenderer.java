@@ -1,6 +1,7 @@
 package com.logistics.pipe.render;
 
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.tank.TankCellLookup;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -51,7 +52,10 @@ public class GlassTankBlockEntityRenderer implements BlockEntityRenderer<GlassTa
         if (fillRatio <= 0.0F) {
             return;
         }
-        boolean renderTop = !entity.hasFluidAbove();
+        // A gas settles against the ceiling (FluidColumn.settle fills top-down for it), so its free
+        // surface is the bottom face and its continuation neighbour is below, not above.
+        boolean gas = TankCellLookup.isGas(entity.tank().getFluidKey());
+        boolean renderSurface = !(gas ? entity.hasFluidBelow() : entity.hasFluidAbove());
 
         FluidBoxRenderer.Appearance appearance =
                 FluidBoxRenderer.resolve(entity.tank().getFluidKey().getFluid(), level, entity.getBlockPos());
@@ -64,9 +68,13 @@ public class GlassTankBlockEntityRenderer implements BlockEntityRenderer<GlassTa
         // Surface tracks the fill, capped a hair below the block top to avoid z-fighting; if fluid continues
         // above, fill to the full block top (seamless stack) and hide the surface.
         // Keep the surface at/above the floor so a tiny fill never inverts the box's Y bounds.
-        float top = renderTop ? Math.max(FLOOR, Math.min(fillRatio, CEILING)) : 1.0F;
+        float surface = Math.max(FLOOR, Math.min(fillRatio, CEILING));
+        float y0 = gas ? (renderSurface ? 1.0F - surface : 0.0F) : FLOOR;
+        float y1 = gas ? CEILING : (renderSurface ? surface : 1.0F);
+        boolean top = !gas && renderSurface;
+        boolean bottom = gas && renderSurface;
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.translucent());
         FluidBoxRenderer.renderBox(
-                poseStack.last(), buffer, sprite, color, packedLight, MIN, FLOOR, MIN, MAX, top, MAX, renderTop, false);
+                poseStack.last(), buffer, sprite, color, packedLight, MIN, y0, MIN, MAX, y1, MAX, top, bottom);
     }
 }

@@ -147,6 +147,12 @@ public class FluidPipeBlockEntityRenderer implements BlockEntityRenderer<FluidPi
     /** Build (and cache) the code-generated quads for a fluid pipe part model id. */
     private List<BakedQuad> codeQuads(ResourceId modelId) {
         return codeQuadCache.computeIfAbsent(modelId, id -> {
+            // Same contract the item pipe renderer enforces: ids are produced as
+            // logistics:block/pipe/<name>. Module is a public extension seam, so a foreign id would
+            // otherwise strip the wrong prefix length — a wrong sprite, or StringIndexOutOfBounds.
+            if (!"logistics".equals(id.getNamespace()) || !id.getPath().startsWith(MODEL_PREFIX)) {
+                throw new IllegalStateException("Unexpected pipe model id (expected logistics:block/pipe/...): " + id);
+            }
             String base = id.getPath().substring(MODEL_PREFIX.length());
             List<BakedQuad> out = new ArrayList<>();
             for (PipeModelResolver.Layer layer : PipeModelResolver.resolve(base)) {
