@@ -89,12 +89,7 @@ public final class TankColumn {
         if (fluid.isBlank()) {
             return false;
         }
-        for (var entry : fluid.getComponents().entrySet()) {
-            if (entry.getKey() == DataComponents.POTION_CONTENTS && entry.getValue().isPresent()) {
-                return true;
-            }
-        }
-        return false;
+        return fluid.getComponents().split().added().has(DataComponents.POTION_CONTENTS);
     }
 
     // ==================== fluid-API operations ====================

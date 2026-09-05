@@ -18,13 +18,13 @@ import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomModelData;
@@ -175,7 +175,7 @@ public class WeatheringModule implements Module, RandomTickModule {
         }
 
         // Handle axe scraping
-        if (stack.getItem() instanceof AxeItem) {
+        if (stack.is(ItemTags.AXES)) {
             return handleScraping(ctx, usage, player, stack);
         }
 
@@ -219,11 +219,11 @@ public class WeatheringModule implements Module, RandomTickModule {
         if (waxed) {
             // Remove wax first, keep oxidation stage
             ctx.saveInt(this, WAXED_KEY, 0);
-            ctx.world().playSound(null, ctx.pos(), SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0f, 1.0f);
+            ctx.world().playSound(null, ctx.pos(), SoundEvents.AXE_WAX_OFF.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
         } else {
             // Reduce oxidation by one stage
             ctx.saveInt(this, OXIDATION_KEY, stage - 1);
-            ctx.world().playSound(null, ctx.pos(), SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0f, 1.0f);
+            ctx.world().playSound(null, ctx.pos(), SoundEvents.AXE_SCRAPE.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
         }
 
         ctx.markDirtyAndSync();

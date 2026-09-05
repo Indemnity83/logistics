@@ -103,7 +103,7 @@ public final class GridScanner {
      * mining cursor only advances on the sequential cell, so mining one is an endless detour.
      */
     private static boolean isFluid(BlockState state) {
-        return !state.getFluidState().isEmpty() && !state.blocksMotion();
+        return !state.getFluidState().isEmpty() && !state.isSolid();
     }
 
     /**
