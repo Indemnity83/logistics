@@ -124,16 +124,17 @@ public class FluidPipeBlockEntityRenderer
             info.model = modelsCache.computeIfAbsent(info.modelId, this::buildModel);
         }
 
-        extractFluid(entity, state);
+        extractFluid(entity, state, tickDelta);
     }
 
-    private void extractFluid(FluidPipeBlockEntity entity, FluidPipeRenderState state) {
+    private void extractFluid(FluidPipeBlockEntity entity, FluidPipeRenderState state, float tickDelta) {
         long amount = entity.totalMillibuckets();
         long capacity = entity.capacityMillibuckets();
         Level level = entity.getLevel();
         float target = amount > 0 && capacity > 0 ? Math.min(1.0F, (float) amount / capacity) : 0.0F;
         // Ease toward the (coarsely synced) target so the fill moves fluidly between steps instead of jittering.
-        float ratio = entity.advanceDisplayFill(target);
+        float nowTicks = level != null ? level.getGameTime() + tickDelta : 0.0F;
+        float ratio = entity.advanceDisplayFill(target, nowTicks);
         state.fillRatio = ratio;
         state.hasFluid = ratio > EMPTY_EPSILON && level != null;
         if (!state.hasFluid) {
@@ -142,7 +143,7 @@ public class FluidPipeBlockEntityRenderer
         }
 
         FluidBoxRenderer.Appearance appearance =
-                FluidBoxRenderer.resolve(entity.containedFluid().getFluid(), level, entity.getBlockPos());
+                FluidBoxRenderer.resolve(entity.advanceDisplayFluid().getFluid(), level, entity.getBlockPos());
         if (appearance == null) {
             state.hasFluid = false;
             state.sprite = null;
@@ -157,6 +158,13 @@ public class FluidPipeBlockEntityRenderer
     }
 
     private BlockStateModel buildModel(ResourceId modelId) {
+        // Same contract the item pipe renderer enforces: ids are produced as
+        // logistics:block/pipe/<name>. Module is a public extension seam, so a third-party module
+        // returning a foreign id would otherwise strip the wrong prefix length — a wrong sprite, or
+        // StringIndexOutOfBounds if the id is shorter than the prefix.
+        if (!"logistics".equals(modelId.getNamespace()) || !modelId.getPath().startsWith(MODEL_PREFIX)) {
+            throw new IllegalStateException("Unexpected pipe model id (expected logistics:block/pipe/...): " + modelId);
+        }
         String base = modelId.getPath().substring(MODEL_PREFIX.length());
         List<BlockModelPart> parts = new ArrayList<>();
         TextureAtlasSprite particle = null;

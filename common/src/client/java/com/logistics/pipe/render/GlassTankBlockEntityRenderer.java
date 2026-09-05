@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import com.logistics.core.lib.tank.TankCellLookup;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -52,7 +53,11 @@ public class GlassTankBlockEntityRenderer
         Level level = entity.getLevel();
         state.hasFluid = amount > 0 && capacity > 0 && !entity.tank().isEmpty() && level != null;
         state.fillRatio = state.hasFluid ? Math.min(1.0F, (float) amount / capacity) : 0.0F;
-        state.renderTop = state.hasFluid && !entity.hasFluidAbove();
+        // A gas settles against the ceiling (FluidColumn.settle fills top-down for it), so its free
+        // surface is the bottom face and its continuation neighbour is below, not above.
+        state.gas = TankCellLookup.isGas(entity.tank().getFluidKey());
+        state.renderSurface =
+                state.hasFluid && !(state.gas ? entity.hasFluidBelow() : entity.hasFluidAbove());
         if (!state.hasFluid) {
             state.sprite = null;
             return;
@@ -78,15 +83,21 @@ public class GlassTankBlockEntityRenderer
         TextureAtlasSprite sprite = state.sprite;
         int color = FluidBoxRenderer.opaque(state.tintColor);
         int light = state.lightCoords;
-        // Surface tracks the fill, capped a hair below the block top to avoid z-fighting; if fluid continues
-        // above, fill to the full block top (seamless stack) and hide the surface.
-        // Keep the surface at/above the floor so a tiny fill never inverts the box's Y bounds.
-        float top = state.renderTop ? Math.max(FLOOR, Math.min(state.fillRatio, CEILING)) : 1.0F;
-        boolean renderTop = state.renderTop;
+        // The surface tracks the fill, inset a hair from the block face to avoid z-fighting; where the
+        // fluid continues into the neighbouring tank the box runs to the full block edge instead and the
+        // surface is hidden, so a stack reads as one column. Clamped so a tiny fill never inverts the
+        // box's Y bounds.
+        float surface = Math.max(FLOOR, Math.min(state.fillRatio, CEILING));
+        boolean renderSurface = state.renderSurface;
+        // Gas hangs from the ceiling: the box grows downward and the free surface is its bottom face.
+        float y0 = state.gas ? (renderSurface ? 1.0F - surface : 0.0F) : FLOOR;
+        float y1 = state.gas ? CEILING : (renderSurface ? surface : 1.0F);
+        boolean top = !state.gas && renderSurface;
+        boolean bottom = state.gas && renderSurface;
         queue.submitCustomGeometry(
                 matrices,
                 RenderTypes.translucentMovingBlock(),
                 (entry, buffer) -> FluidBoxRenderer.renderBox(
-                        entry, buffer, sprite, color, light, MIN, FLOOR, MIN, MAX, top, MAX, renderTop, false));
+                        entry, buffer, sprite, color, light, MIN, y0, MIN, MAX, y1, MAX, top, bottom));
     }
 }
