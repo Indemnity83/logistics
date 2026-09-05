@@ -55,7 +55,7 @@ public final class LogisticsFabric implements ModInitializer {
         AbstractEngineBlock.setEnergyPresenceChecker((world, pos, direction) -> {
             IEnergyStorage target = EnergyCapabilityLookup.INSTANCE.find(
                     world, pos.relative(direction), direction.getOpposite());
-            return target != null && target.canInsert();
+            return target != null && target.acceptsEnergy();
         });
     }
 }
