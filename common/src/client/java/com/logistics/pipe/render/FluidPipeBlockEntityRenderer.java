@@ -101,7 +101,7 @@ public class FluidPipeBlockEntityRenderer implements BlockEntityRenderer<FluidPi
             renderCodeModel(info.modelId(), info.armDirection(), info.color(), poseStack, body, packedLight, packedOverlay);
         }
 
-        renderFluid(entity, connectedArms, poseStack, bufferSource, packedLight, level);
+        renderFluid(entity, connectedArms, poseStack, bufferSource, packedLight, level, partialTick);
     }
 
     /** Build the ordered list of body parts (core, decorations, arms) for this pipe's current state. */
@@ -199,18 +199,20 @@ public class FluidPipeBlockEntityRenderer implements BlockEntityRenderer<FluidPi
             PoseStack poseStack,
             MultiBufferSource bufferSource,
             int light,
-            Level level) {
+            Level level,
+            float partialTick) {
         long amount = entity.totalMillibuckets();
         long capacity = entity.capacityMillibuckets();
         float target = amount > 0 && capacity > 0 ? Math.min(1.0F, (float) amount / capacity) : 0.0F;
         // Ease toward the (coarsely synced) target so the fill moves fluidly between steps instead of jittering.
-        float ratio = entity.advanceDisplayFill(target);
+        float nowTicks = level.getGameTime() + partialTick;
+        float ratio = entity.advanceDisplayFill(target, nowTicks);
         if (ratio <= EMPTY_EPSILON) {
             return;
         }
 
         FluidBoxRenderer.Appearance appearance =
-                FluidBoxRenderer.resolve(entity.containedFluid().getFluid(), level, entity.getBlockPos());
+                FluidBoxRenderer.resolve(entity.advanceDisplayFluid().getFluid(), level, entity.getBlockPos());
         if (appearance == null) {
             return;
         }
