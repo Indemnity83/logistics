@@ -140,6 +140,11 @@ public final class ItemInventoryComponent implements Container {
         onChanged.run();
     }
 
+    /**
+     * Always true, as in vanilla's {@code SimpleContainer}: this holder has no position, so it
+     * cannot tell whether the block it belongs to is still standing. Menu validity is the host
+     * block entity's decision — see {@link com.logistics.core.lib.menu.MenuValidity}.
+     */
     @Override
     public boolean stillValid(Player player) {
         return true;

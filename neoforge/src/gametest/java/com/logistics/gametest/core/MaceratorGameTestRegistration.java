@@ -29,6 +29,10 @@ public final class MaceratorGameTestRegistration {
             280,
             MaceratorGameTestBody::testMaceratesViaRealEngineAndHoppers),
         new GameTestCase(
+            "core/macerator_screen_closes_when_broken",
+            100,
+            MaceratorGameTestBody::testScreenClosesWhenMachineIsBroken),
+        new GameTestCase(
             "core/macerator_hopper_cannot_jam_input", 60, MaceratorGameTestBody::testHopperCannotJamInputWithUnusableItem));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =

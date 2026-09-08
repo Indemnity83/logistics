@@ -1,5 +1,6 @@
 package com.logistics.pipe.ui;
 
+import com.logistics.core.lib.menu.MenuValidity;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -13,31 +14,24 @@ import org.jetbrains.annotations.Nullable;
  * <p>Shared by every pipe screen handler and by packet validation so the two cannot disagree —
  * a menu that stays open past what a packet accepts, or vice versa, is how an edit ends up
  * applied to a block the player can no longer see.
+ *
+ * <p>The reach itself comes from {@link MenuValidity}, so pipe menus and machine menus agree.
  */
 public final class PipeMenuValidity {
 
-    /**
-     * Interaction reach in blocks, measured from the block centre.
-     *
-     * <p>Vanilla's own container check is {@code isWithinBlockInteractionRange(pos, 4.0)} — the
-     * {@code block_interaction_range} attribute, 4.5 by default, padded by 4 and measured to the
-     * block's AABB. Eight blocks from the centre is the equivalent here.
-     */
-    public static final double MAX_REACH = 8.0;
-
-    private static final double MAX_REACH_SQR = MAX_REACH * MAX_REACH;
+    /** Interaction reach in blocks, measured from the block centre. See {@link MenuValidity#MAX_REACH}. */
+    public static final double MAX_REACH = MenuValidity.MAX_REACH;
 
     private PipeMenuValidity() {}
 
     /** True while {@code distanceSqr} from a block centre is inside {@link #MAX_REACH}. */
     public static boolean isWithinReach(double distanceSqr) {
-        return distanceSqr <= MAX_REACH_SQR;
+        return MenuValidity.isWithinReach(distanceSqr);
     }
 
     /** True while {@code player} is close enough to {@code pos} to interact with it. */
     public static boolean isWithinReach(Player player, BlockPos pos) {
-        return isWithinReach(
-                player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
+        return MenuValidity.isWithinReach(player, pos);
     }
 
     /**
