@@ -125,7 +125,10 @@ public final class FabricatorProcessorComponent
 
     private void completeRun(
             FabricatorRecipe recipe, Map<ResourceId, RecipeHolder<FabricatorRecipe>> byId, MachineContext ctx) {
-        consumeIngredients(recipe);
+        if (!consumeIngredients(recipe)) {
+            // Materials went missing after the craftability check: produce nothing, retry next tick.
+            return;
+        }
         if (ctx.level() instanceof ServerLevel serverLevel) {
             NeighborItemOutput.eject(serverLevel, ctx.pos(), recipe.getResultItem());
         }
@@ -148,16 +151,22 @@ public final class FabricatorProcessorComponent
         onChanged.run();
     }
 
-    /** Every fabricator recipe currently craftable from the pool, tagged with its selection state. */
+    /**
+     * Every fabricator recipe currently craftable from the pool, plus every queued recipe whether or
+     * not its materials are present, each tagged with its selection state. A queued recipe stays
+     * listed while it is starved so the player can still click it to cancel the order.
+     */
     public List<Output> outputs(RecipeManager rm) {
         List<ItemStack> pool = pool();
         List<Output> out = new ArrayList<>();
         for (RecipeHolder<FabricatorRecipe> holder : fabricatorRecipes(rm)) {
-            if (holder.value().canCraftFrom(pool)) {
-                ResourceId rid = ResourceId.wrap(holder.id().identifier());
-                int state = rid.equals(activeId) ? STATE_ACTIVE : (selected.contains(rid) ? STATE_QUEUED : STATE_AVAILABLE);
-                out.add(new Output(rid, holder.value().getResultItem(), state));
+            ResourceId rid = ResourceId.wrap(holder.id().identifier());
+            boolean queued = selected.contains(rid);
+            if (!queued && !holder.value().canCraftFrom(pool)) {
+                continue;
             }
+            int state = rid.equals(activeId) ? STATE_ACTIVE : (queued ? STATE_QUEUED : STATE_AVAILABLE);
+            out.add(new Output(rid, holder.value().getResultItem(), state));
         }
         return out;
     }
@@ -187,9 +196,12 @@ public final class FabricatorProcessorComponent
         return holder != null && holder.value().canCraftFrom(pool);
     }
 
-    /** Consume ingredient counts from the input slots via the recipe's shared greedy allocation. */
-    private void consumeIngredients(FabricatorRecipe recipe) {
-        recipe.allocateFrom(pool(), (slot, amount) -> items.consumeInput(slot, amount));
+    /**
+     * Consume ingredient counts from the input slots via the recipe's shared greedy allocation.
+     * Returns false — having consumed nothing — when the pool no longer satisfies the recipe.
+     */
+    private boolean consumeIngredients(FabricatorRecipe recipe) {
+        return recipe.allocateFrom(pool(), (slot, amount) -> items.consumeInput(slot, amount));
     }
 
     private List<ItemStack> pool() {

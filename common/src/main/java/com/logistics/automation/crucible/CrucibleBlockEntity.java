@@ -8,6 +8,7 @@ import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.RecipeInputFilter;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
@@ -85,7 +86,7 @@ public class CrucibleBlockEntity extends MachineEntity {
 
         var items = machine.items("inventory")
                 .slots(SlotRole.INPUT)
-                .furnaceAccess()
+                .furnaceAccess(RecipeInputFilter.of(this, CrucibleRecipe.class, CrucibleRecipe::matches))
                 .build();
 
         fluidStore = machine.fluids("tank")
