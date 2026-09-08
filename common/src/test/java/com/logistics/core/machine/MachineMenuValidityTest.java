@@ -18,7 +18,12 @@ import org.junit.jupiter.api.Test;
  * Refinery, Alloy Smelter, Transposer, Sequential Fabricator — routes its {@code stillValid}
  * through {@link MachineEntity}, so the rule is pinned once here.
  *
- * <p>The machine-is-gone cases pass no player on purpose: a machine that is not there must close
+ * <p>Covers what is decidable without a level: a machine that was never placed, and the reach
+ * boundary. The real-world case — a placed machine mined out from under an open screen — needs a
+ * live level to distinguish a stale block entity from a live one, and is covered by the
+ * {@code core/macerator_screen_closes_when_broken} GameTest.
+ *
+ * <p>The machine-is-gone case passes no player on purpose: a machine that is not there must close
  * for everyone, so the player is never consulted.
  */
 @DisplayName("Machine menu validity")
@@ -46,15 +51,6 @@ class MachineMenuValidityTest extends MinecraftTestEnvironment {
         public MenuProvider createMenuProvider() {
             return null;
         }
-    }
-
-    @Test
-    @DisplayName("a broken machine closes its screen")
-    void aBrokenMachineClosesItsScreen() {
-        TestMachine machine = new TestMachine();
-        machine.setRemoved(); // what breaking the block does to the block entity
-
-        assertThat(machine.stillValid(ANY_PLAYER)).isFalse();
     }
 
     @Test

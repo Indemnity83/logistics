@@ -53,4 +53,9 @@ public class MaceratorGameTest {
     public void testMaceratesViaRealEngineAndHoppers(GameTestHelper context) {
         MaceratorGameTestBody.testMaceratesViaRealEngineAndHoppers(context);
     }
+
+    @GameTest
+    public void testScreenClosesWhenMachineIsBroken(GameTestHelper context) {
+        MaceratorGameTestBody.testScreenClosesWhenMachineIsBroken(context);
+    }
 }
