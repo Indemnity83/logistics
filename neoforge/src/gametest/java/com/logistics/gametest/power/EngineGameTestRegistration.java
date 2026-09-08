@@ -162,4 +162,10 @@ public final class EngineGameTestRegistration {
     public static void testRedstoneEngineProducesNoEnergyWhenUnpowered(GameTestHelper context) {
         EngineGameTestBody.testRedstoneEngineProducesNoEnergyWhenUnpowered(context);
     }
+
+    /** A vanilla hopper fills a Stirling Engine's empty fuel slot. */
+    @GameTest(template = "empty", batch = "engine", timeoutTicks = 300)
+    public static void testHopperFillsEmptyEngineFuelSlot(GameTestHelper context) {
+        EngineGameTestBody.testHopperFillsEmptyEngineFuelSlot(context);
+    }
 }

@@ -163,6 +163,16 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
     }
 
     @Override
+    public long slotCapacity(int slot) {
+        int actual = actualSlot(slot);
+        ItemStack stack = container.getItem(actual);
+        // An empty slot still holds a stack's worth; only a filled one narrows it to that item's limit.
+        return stack.isEmpty()
+                ? container.getMaxStackSize()
+                : Math.min(container.getMaxStackSize(), stack.getMaxStackSize());
+    }
+
+    @Override
     @Nullable
     public IItemView slotView(int slot) {
         return viewForSlot(actualSlot(slot));
@@ -188,9 +198,11 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
         if (stack.isEmpty()) return null;
         IItemKey key = ItemStorageLookup.of(stack);
         long amount = stack.getCount();
+        long capacity = Math.min(container.getMaxStackSize(), stack.getMaxStackSize());
         return new IItemView() {
             @Override public IItemKey resource() { return key; }
             @Override public long amount() { return amount; }
+            @Override public long capacity() { return capacity; }
         };
     }
 }
