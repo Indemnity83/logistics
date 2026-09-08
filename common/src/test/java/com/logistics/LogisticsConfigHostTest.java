@@ -211,4 +211,117 @@ class LogisticsConfigHostTest {
             assertThat(json).contains("redstone").contains("output").contains("10");
         }
     }
+
+    /** The config a key is registered on, whichever domain declared it. */
+    private static Config configOf(ConfigKey<?> key) {
+        return ConfigRegistry.config(key.configId());
+    }
+
+    @Test
+    @DisplayName("a capacity of zero is rejected, not accepted as a dead block")
+    void zeroCapacityIsRejected() {
+        // At zero the block holds nothing, produces nothing and logs nothing — indistinguishable in
+        // game from a broken mod.
+        assertThat(configOf(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY)
+                        .trySet(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY, 0L))
+                .isFalse();
+        assertThat(configOf(LogisticsCore.CONFIG.REDSTONE_BUFFER_CAPACITY)
+                        .trySet(LogisticsCore.CONFIG.REDSTONE_BUFFER_CAPACITY, 0L))
+                .isFalse();
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_CAPACITY)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_CAPACITY, 0L))
+                .isFalse();
+        assertThat(configOf(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY)
+                        .trySet(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY, 0L))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("a machine cannot be cut off from power by its own max input")
+    void zeroMaxEnergyInputIsRejected() {
+        // canInsert() is maxInsert > 0, so zero here means nothing can ever power the machine.
+        assertThat(configOf(LogisticsAutomation.CONFIG.MACERATOR_MAX_ENERGY_INPUT)
+                        .trySet(LogisticsAutomation.CONFIG.MACERATOR_MAX_ENERGY_INPUT, 0L))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("a machine cannot be told to spend more per tick than it can ever hold")
+    void energyPerTickCannotExceedCapacity() {
+        long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY);
+
+        // RecipeProcessPlan refuses progress while stored < perTick, and stored can never exceed
+        // capacity — so this makes every recipe unsatisfiable forever, silently.
+        assertThat(configOf(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_PER_TICK)
+                        .trySet(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_PER_TICK, capacity + 1))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("a machine's capacity cannot be dropped below what it spends per tick")
+    void capacityCannotFallBelowEnergyPerTick() {
+        long perTick = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_PER_TICK);
+
+        // The same dead state as the test above, reached from the other key: stored is capped at
+        // capacity, so a capacity below perTick leaves advance() permanently unsatisfiable.
+        assertThat(configOf(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY)
+                        .trySet(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY, perTick - 1))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("the pump's capacity cannot be dropped below what one source costs")
+    void pumpCapacityCannotFallBelowPerSource() {
+        long perSource = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE);
+
+        assertThat(configOf(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY)
+                        .trySet(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY, perSource - 1))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("the battery's per-side push cannot exceed its own I/O ceiling")
+    void batteryOutputPerSideIsBoundedByMaxIo() {
+        long maxIo = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_MAX_IO);
+
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE, maxIo + 1))
+                .isFalse();
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, 0L))
+                .isFalse();
+        // And from the other side: dropping the ceiling below the push it already permits.
+        long perSide = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE);
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, perSide - 1))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("steam cannot be made free")
+    void zeroPressurePerRfIsRejected() {
+        // At zero the pressure limit vanishes and the draw is `accepted * 0`, so the engine produces
+        // its full output forever while spending no steam and no water.
+        assertThat(configOf(LogisticsPower.CONFIG.STEAM_PRESSURE_PER_RF)
+                        .trySet(LogisticsPower.CONFIG.STEAM_PRESSURE_PER_RF, 0.0))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("the fluid extractor must still hold the bucket its description promises")
+    void extractorCapacityHoldsOneBucket() {
+        assertThat(configOf(LogisticsPipe.CONFIG.FLUID_PIPE_EXTRACTOR_CAPACITY)
+                        .trySet(LogisticsPipe.CONFIG.FLUID_PIPE_EXTRACTOR_CAPACITY, 999))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("the pump cannot be told to spend more per source than it can ever store")
+    void pumpEnergyPerSourceIsBoundedByCapacity() {
+        long capacity = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY);
+
+        assertThat(configOf(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE)
+                        .trySet(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE, capacity + 1))
+                .isFalse();
+    }
 }

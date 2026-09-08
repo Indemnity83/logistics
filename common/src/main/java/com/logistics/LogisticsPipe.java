@@ -162,7 +162,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         public static final ConfigKey<Integer> FLUID_PIPE_EXTRACTOR_CAPACITY = fluids.defineInt(
                         "pipe_extractor_capacity", 1000)
-                .min(1)
+                .min(1000)
                 .describe("Buffer capacity (mB) of the Fluid Extractor Pipe. Must hold one bucket to drain a "
                         + "cauldron, which only gives up whole levels.")
                 .register();
@@ -184,6 +184,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                         .register();
 
         public static final ConfigKey<Long> FLUID_PUMP_ENERGY_CAPACITY = fluids.defineLong("pump_energy_capacity", 1_000L)
+                .minValueOf(() -> CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE)
                 .min(1L)
                 .describe("Fluid Pump energy buffer capacity (RF)")
                 .register();
@@ -195,6 +196,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         public static final ConfigKey<Long> FLUID_PUMP_ENERGY_PER_SOURCE = fluids.defineLong("pump_energy_per_source", 100L)
                 .min(0L)
+                .maxValueOf(() -> CONFIG.FLUID_PUMP_ENERGY_CAPACITY)
                 .describe("RF consumed per source block pumped")
                 .register();
 
