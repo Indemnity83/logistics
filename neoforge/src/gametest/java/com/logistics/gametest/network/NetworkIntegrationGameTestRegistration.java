@@ -110,4 +110,10 @@ public final class NetworkIntegrationGameTestRegistration {
     public static void testBasicSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
         NetworkIntegrationGameTestBody.testBasicSinkStillReceivesAfterNetworkSplit(context);
     }
+
+    /** A Provider set to "Leave First Slot" must not drain the slot it promises to leave. */
+    @GameTest(template = "empty", batch = "network", timeoutTicks = 120)
+    public static void testProviderReserveModeLeavesFirstSlot(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testProviderReserveModeLeavesFirstSlot(context);
+    }
 }

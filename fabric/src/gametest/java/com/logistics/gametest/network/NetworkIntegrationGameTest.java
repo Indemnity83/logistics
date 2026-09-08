@@ -107,4 +107,15 @@ public class NetworkIntegrationGameTest {
     public void testBasicSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
         NetworkIntegrationGameTestBody.testBasicSinkStillReceivesAfterNetworkSplit(context);
     }
+
+    /**
+     * A Provider set to "Leave First Slot" must not drain the slot it promises to leave.
+     *
+     * <p>The source chest holds diamonds in slots 0 and 1 with the Provider in RESERVE mode, so
+     * only slot 1 is in scope and slot 0 must survive untouched.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 120)
+    public void testProviderReserveModeLeavesFirstSlot(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testProviderReserveModeLeavesFirstSlot(context);
+    }
 }

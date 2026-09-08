@@ -7,6 +7,7 @@ import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.pipe.modules.ProviderModule;
 import com.logistics.pipe.modules.RequesterModule;
 import com.logistics.pipe.modules.SinkModule;
 import com.logistics.pipe.network.NetworkRegistry;
@@ -433,4 +434,95 @@ public class NetworkIntegrationGameTestBody {
     // testSinkPriorityRoutesItemToHigherPrioritySink:
     //   Two basic logistics pipes connected to separate chests, one with higher priority.
     //   Items injected into the network should be routed to the higher-priority sink first.
+
+    /**
+     * A Provider set to "Leave First Slot" must not drain the slot it promises to leave.
+     *
+     * <p>The same layout as {@link #testProviderDeliversItemToRequester}, but the source chest
+     * holds diamonds in slots 0 and 1 and the Provider is in RESERVE mode. Only slot 1 is in
+     * scope, so the requester's 4 diamonds must come out of slot 1 and slot 0 must be untouched.
+     *
+     * <p>This runs through a real chest, so it covers the loader storage adapter as well as the
+     * module: a resource-scoped extract always drains from slot 0 regardless of the crop.
+     *
+     * <p>Layout (y=1):
+     * [source_chest] &#8592; [provider_pipe] &#8594; [transport_pipe] &#8594; [requester_pipe] &#8594; [dest_chest]
+     *   (0,1,0)            (1,1,0)           (2,1,0)             (3,1,0)          (4,1,0)
+     */
+    public static void testProviderReserveModeLeavesFirstSlot(GameTestHelper context) {
+        BlockPos sourceChestPos = new BlockPos(0, 1, 0);
+        BlockPos providerPos = new BlockPos(1, 1, 0);
+        BlockPos transportPos = new BlockPos(2, 1, 0);
+        BlockPos requesterPos = new BlockPos(3, 1, 0);
+        BlockPos destChestPos = new BlockPos(4, 1, 0);
+
+        context.setBlock(destChestPos, Blocks.CHEST);
+        context.setBlock(requesterPos, LogisticsPipe.BLOCK.REQUESTER_LOGISTICS_PIPE);
+        context.setBlock(transportPos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(providerPos, LogisticsPipe.BLOCK.PROVIDER_LOGISTICS_PIPE);
+        context.setBlock(sourceChestPos, Blocks.CHEST);
+        placeChargedPowerJunction(context, transportPos.above());
+
+        ChestBlockEntity sourceChest = (ChestBlockEntity) context.getBlockEntity(sourceChestPos);
+        if (sourceChest == null) {
+            context.fail("Expected source chest block entity");
+            return;
+        }
+        sourceChest.setItem(0, new ItemStack(Items.DIAMOND, 4)); // the slot RESERVE protects
+        sourceChest.setItem(1, new ItemStack(Items.DIAMOND, 4)); // the only slot in scope
+
+        PipeBlockEntity providerEntity = (PipeBlockEntity) context.getBlockEntity(providerPos);
+        if (providerEntity == null) {
+            context.fail("Provider pipe should have a block entity");
+            return;
+        }
+        if (!(providerEntity.getBlockState().getBlock() instanceof PipeBlock providerBlock)
+                || providerBlock.getPipe() == null) {
+            throw new IllegalStateException("Pipe missing for block entity at providerPos");
+        }
+        ProviderModule provider = providerBlock.getPipe().getModule(ProviderModule.class, providerEntity);
+        if (provider == null) {
+            throw new IllegalStateException("ProviderModule missing from pipe at providerPos");
+        }
+        provider.setMode(providerEntity.createContext(), ProviderModule.ProviderMode.RESERVE);
+
+        PipeBlockEntity requesterEntity = (PipeBlockEntity) context.getBlockEntity(requesterPos);
+        if (requesterEntity == null) {
+            context.fail("Requester pipe should have a block entity");
+            return;
+        }
+        if (!(requesterEntity.getBlockState().getBlock() instanceof PipeBlock requesterBlock)
+                || requesterBlock.getPipe() == null) {
+            throw new IllegalStateException("Pipe missing for block entity at requesterPos");
+        }
+        RequesterModule requester = requesterBlock.getPipe().getModule(RequesterModule.class, requesterEntity);
+        if (requester == null) {
+            throw new IllegalStateException("RequesterModule missing from pipe at requesterPos");
+        }
+        requester.setRequestConfig(requesterEntity.createContext(), 0, "minecraft:diamond", 4);
+
+        context.succeedWhen(() -> {
+            ChestBlockEntity chest = (ChestBlockEntity) context.getBlockEntity(sourceChestPos);
+            if (chest == null) {
+                context.assertTrue(false, "Source chest disappeared");
+            }
+            ItemStack reserved = chest.getItem(0);
+            if (!reserved.is(Items.DIAMOND) || reserved.getCount() != 4) {
+                context.assertTrue(false, "Slot 0 is reserved by Leave First Slot but held: " + reserved);
+            }
+            ChestBlockEntity destChest = (ChestBlockEntity) context.getBlockEntity(destChestPos);
+            long delivered = 0;
+            if (destChest != null) {
+                for (int slot = 0; slot < destChest.getContainerSize(); slot++) {
+                    ItemStack stack = destChest.getItem(slot);
+                    if (stack.is(Items.DIAMOND)) {
+                        delivered += stack.getCount();
+                    }
+                }
+            }
+            if (delivered < 4) {
+                context.assertTrue(false, "Expected >= 4 diamonds delivered from slot 1, found: " + delivered);
+            }
+        });
+    }
 }

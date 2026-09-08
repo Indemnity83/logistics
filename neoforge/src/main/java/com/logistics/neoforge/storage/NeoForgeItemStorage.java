@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * The common interface is key-based and uses a simulate boolean. This class translates
  * between both directions.
  */
-public final class NeoForgeItemStorage implements IItemStorage {
+public final class NeoForgeItemStorage implements ISlottedItemStorage {
     private final IItemHandler handler;
 
     private NeoForgeItemStorage(IItemHandler handler) {
@@ -109,6 +109,50 @@ public final class NeoForgeItemStorage implements IItemStorage {
             });
         }
         return views;
+    }
+
+    @Override
+    public int slotCount() {
+        return handler.getSlots();
+    }
+
+    @Override
+    @Nullable
+    public IItemView slotView(int slot) {
+        ItemStack stack = handler.getStackInSlot(slot);
+        if (stack.isEmpty()) {
+            return null;
+        }
+        IItemKey key = NeoForgeItemKey.of(stack);
+        long amount = stack.getCount();
+        return new IItemView() {
+            @Override public IItemKey resource() { return key; }
+            @Override public long amount() { return amount; }
+        };
+    }
+
+    @Override
+    public long insert(int slot, IItemKey item, long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) {
+            return 0;
+        }
+        int toInsert = clampToInt(maxAmount);
+        ItemStack leftover = handler.insertItem(slot, item.toStack(1).copyWithCount(toInsert), simulate);
+        return toInsert - leftover.getCount();
+    }
+
+    @Override
+    public long extract(int slot, IItemKey item, long maxAmount, boolean simulate) {
+        if (maxAmount <= 0) {
+            return 0;
+        }
+        // extractItem takes no item, so the slot has to be confirmed to hold this one first —
+        // the same check the resource-scoped extract makes per slot.
+        ItemStack inSlot = handler.getStackInSlot(slot);
+        if (inSlot.isEmpty() || !item.matches(inSlot)) {
+            return 0;
+        }
+        return handler.extractItem(slot, clampToInt(maxAmount), simulate).getCount();
     }
 
     private static int clampToInt(long amount) {
