@@ -279,6 +279,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .register();
         public static final ConfigKey<Long> BATTERY_MAX_IO = battery.defineLong("max_io", 1_000L)
                 .min(1L)
+                .minValueOf(() -> CONFIG.BATTERY_OUTPUT_PER_SIDE)
                 .describe("Max RF/t inserted or extracted per side")
                 .register();
         public static final ConfigKey<Long> BATTERY_OUTPUT_PER_SIDE = battery.defineLong("output_per_side", 200L)

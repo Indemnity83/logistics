@@ -220,8 +220,8 @@ class LogisticsConfigHostTest {
     @Test
     @DisplayName("a capacity of zero is rejected, not accepted as a dead block")
     void zeroCapacityIsRejected() {
-        // Each of these used to be legal. At zero the block holds nothing, produces nothing and logs
-        // nothing — indistinguishable in game from a broken mod.
+        // At zero the block holds nothing, produces nothing and logs nothing — indistinguishable in
+        // game from a broken mod.
         assertThat(configOf(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY)
                         .trySet(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY, 0L))
                 .isFalse();
@@ -258,6 +258,28 @@ class LogisticsConfigHostTest {
     }
 
     @Test
+    @DisplayName("a machine's capacity cannot be dropped below what it spends per tick")
+    void capacityCannotFallBelowEnergyPerTick() {
+        long perTick = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_PER_TICK);
+
+        // The same dead state as the test above, reached from the other key: stored is capped at
+        // capacity, so a capacity below perTick leaves advance() permanently unsatisfiable.
+        assertThat(configOf(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY)
+                        .trySet(LogisticsAutomation.CONFIG.MACERATOR_ENERGY_CAPACITY, perTick - 1))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("the pump's capacity cannot be dropped below what one source costs")
+    void pumpCapacityCannotFallBelowPerSource() {
+        long perSource = LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE);
+
+        assertThat(configOf(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY)
+                        .trySet(LogisticsPipe.CONFIG.FLUID_PUMP_ENERGY_CAPACITY, perSource - 1))
+                .isFalse();
+    }
+
+    @Test
     @DisplayName("the battery's per-side push cannot exceed its own I/O ceiling")
     void batteryOutputPerSideIsBoundedByMaxIo() {
         long maxIo = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_MAX_IO);
@@ -267,6 +289,11 @@ class LogisticsConfigHostTest {
                 .isFalse();
         assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
                         .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, 0L))
+                .isFalse();
+        // And from the other side: dropping the ceiling below the push it already permits.
+        long perSide = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE);
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, perSide - 1))
                 .isFalse();
     }
 

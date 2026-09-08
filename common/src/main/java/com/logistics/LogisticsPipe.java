@@ -184,6 +184,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                         .register();
 
         public static final ConfigKey<Long> FLUID_PUMP_ENERGY_CAPACITY = fluids.defineLong("pump_energy_capacity", 1_000L)
+                .minValueOf(() -> CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE)
                 .min(1L)
                 .describe("Fluid Pump energy buffer capacity (RF)")
                 .register();
