@@ -23,6 +23,20 @@ public interface ISlottedItemStorage extends IItemStorage {
     @Nullable IItemView slotView(int slot);
 
     /**
+     * What {@code slot} could hold, whether or not anything is in it. An empty slot still has a
+     * capacity, which {@link #slotView} cannot report because it produces no view for one.
+     *
+     * <p>Defaults to the view's capacity, or {@link #DEFAULT_SLOT_CAPACITY} when the slot is empty.
+     */
+    default long slotCapacity(int slot) {
+        IItemView view = slotView(slot);
+        return view != null ? view.capacity() : DEFAULT_SLOT_CAPACITY;
+    }
+
+    /** General capacity of a vanilla-shaped slot, for storages that track no explicit limit. */
+    long DEFAULT_SLOT_CAPACITY = 64;
+
+    /**
      * Insert into a single exposed slot.
      *
      * @param slot      the exposed slot index
