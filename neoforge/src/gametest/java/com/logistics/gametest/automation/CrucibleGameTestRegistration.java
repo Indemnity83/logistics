@@ -23,7 +23,9 @@ public final class CrucibleGameTestRegistration {
         new GameTestCase("automation/crucible_tank_is_output_only", 100, CrucibleGameTestBody::testTankIsOutputOnly),
         new GameTestCase("automation/crucible_melts_ice_into_water", 80, CrucibleGameTestBody::testMeltsIceIntoWater),
         new GameTestCase(
-            "automation/crucible_melts_via_real_engine_and_hopper", 120, CrucibleGameTestBody::testMeltsViaRealEngineAndHopper));
+            "automation/crucible_melts_via_real_engine_and_hopper", 120, CrucibleGameTestBody::testMeltsViaRealEngineAndHopper),
+        new GameTestCase(
+            "automation/crucible_hopper_cannot_jam_input", 60, CrucibleGameTestBody::testHopperCannotJamInputWithUnusableItem));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
