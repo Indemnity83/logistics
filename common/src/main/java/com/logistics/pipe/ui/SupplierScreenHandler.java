@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -103,6 +104,11 @@ public class SupplierScreenHandler extends CustomSlotScreenHandler {
         addDataSlots(data);
     }
 
+    /** The ghost slots backing this menu — a display of the configured supplies, not their source of truth. */
+    SupplyInventory supplyInventory() {
+        return supplyInventory;
+    }
+
     private void withSupplierModule(BiConsumer<PipeContext, SupplierModule> action) {
         PipeModuleHelper.withModule(context, SupplierModule.class, targetModuleStateKey, action);
     }
@@ -168,7 +174,7 @@ public class SupplierScreenHandler extends CustomSlotScreenHandler {
             if (slotItem.isEmpty()) {
                 newAmount = addAmount;
             } else if (ItemStack.isSameItemSameComponents(cursor, slotItem)) {
-                newAmount = Math.min(slotItem.getCount() + addAmount, 999); // Cap at 999
+                newAmount = Math.min(configuredAmount(slotIndex) + addAmount, 999); // Cap at 999
             } else {
                 newAmount = addAmount;
             }
@@ -198,7 +204,27 @@ public class SupplierScreenHandler extends CustomSlotScreenHandler {
         }
     }
 
-    private void saveSupplySlot(int slotIndex, String itemId, int amount) {
+    /**
+     * Current stock target configured for a supply slot, or {@code 0} when the slot is unconfigured.
+     *
+     * <p>Read from the authoritative config — the pipe module's state, or the module item's NBT — never
+     * from the ghost slot, whose count is capped at one stack for display (see {@link SupplyInventory}).
+     */
+    int configuredAmount(int slotIndex) {
+        if (itemConfigPlayer != null) {
+            return SupplyInventory.configuredAmount(itemConfigPlayer.getItemInHand(itemConfigHand), slotIndex);
+        }
+        int[] amount = {0};
+        withSupplierModule((ctx, module) -> {
+            List<SupplierModule.SupplyConfig> configs = module.getSupplyConfigs(ctx);
+            if (slotIndex < configs.size()) {
+                amount[0] = configs.get(slotIndex).amount();
+            }
+        });
+        return amount[0];
+    }
+
+    void saveSupplySlot(int slotIndex, String itemId, int amount) {
         if (itemConfigPlayer != null) {
             final int s = slotIndex;
             ItemTagUtils.writeToItemTag(itemConfigPlayer, itemConfigHand, tag -> {
