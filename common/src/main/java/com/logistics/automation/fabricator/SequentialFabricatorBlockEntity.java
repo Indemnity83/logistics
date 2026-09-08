@@ -96,7 +96,7 @@ public class SequentialFabricatorBlockEntity extends MachineEntity {
         setChanged();
     }
 
-    /** Currently-craftable outputs with their selection state, for the menu sync. Empty off the server. */
+    /** Craftable and queued outputs with their selection state, for the menu sync. Empty off the server. */
     public List<FabricatorProcessorComponent.Output> currentOutputs() {
         if (level instanceof ServerLevel serverLevel) {
             RecipeManager rm = serverLevel.getServer().getRecipeManager();

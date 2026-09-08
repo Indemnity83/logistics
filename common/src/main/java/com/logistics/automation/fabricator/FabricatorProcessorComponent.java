@@ -150,16 +150,22 @@ public final class FabricatorProcessorComponent
         onChanged.run();
     }
 
-    /** Every fabricator recipe currently craftable from the pool, tagged with its selection state. */
+    /**
+     * Every fabricator recipe currently craftable from the pool, plus every queued recipe whether or
+     * not its materials are present, each tagged with its selection state. A queued recipe stays
+     * listed while it is starved so the player can still click it to cancel the order.
+     */
     public List<Output> outputs(RecipeManager rm) {
         List<ItemStack> pool = pool();
         List<Output> out = new ArrayList<>();
         for (RecipeHolder<FabricatorRecipe> holder : fabricatorRecipes(rm)) {
-            if (holder.value().canCraftFrom(pool)) {
-                ResourceId rid = ResourceId.wrap(holder.id());
-                int state = rid.equals(activeId) ? STATE_ACTIVE : (selected.contains(rid) ? STATE_QUEUED : STATE_AVAILABLE);
-                out.add(new Output(rid, holder.value().getResultItem(), state));
+            ResourceId rid = ResourceId.wrap(holder.id());
+            boolean queued = selected.contains(rid);
+            if (!queued && !holder.value().canCraftFrom(pool)) {
+                continue;
             }
+            int state = rid.equals(activeId) ? STATE_ACTIVE : (queued ? STATE_QUEUED : STATE_AVAILABLE);
+            out.add(new Output(rid, holder.value().getResultItem(), state));
         }
         return out;
     }
