@@ -210,7 +210,14 @@ public final class TankColumn {
     private void distribute(IFluidKey fluid, long total) {
         long[] settled = settle(fluid, total);
         for (int i = 0; i < cells.size(); i++) {
-            cells.get(i).setContents(fluid, settled[i]);
+            TankCell cell = cells.get(i);
+            long target = settled[i];
+            // Rewriting content a cell already holds still marks its chunk unsaved and syncs a packet,
+            // so filling one cell used to touch every tank in the column. Mirrors rebalance().
+            if (cell.amount() == target && (target == 0 || keysEqual(cell.fluid(), fluid))) {
+                continue;
+            }
+            cell.setContents(fluid, target);
         }
     }
 
