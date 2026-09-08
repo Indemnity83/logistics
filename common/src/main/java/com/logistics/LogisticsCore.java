@@ -197,7 +197,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                         .describe("Ticks between generation pulses when powered")
                         .register();
         public static final ConfigKey<Long> REDSTONE_BUFFER_CAPACITY = redstone.defineLong("buffer_capacity", 1_000L)
-                .min(0L)
+                .min(1L)
                 .describe("Internal RF buffer capacity")
                 .register();
 
