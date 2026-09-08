@@ -10,6 +10,7 @@ import com.logistics.core.lib.power.gen.Generation;
 import com.logistics.core.machine.FakeMachineContext;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.test.MinecraftTestEnvironment;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class EngineBurnComponentTest extends MinecraftTestEnvironment {
@@ -30,6 +31,25 @@ class EngineBurnComponentTest extends MinecraftTestEnvironment {
 
     private EngineHeatComponent heat(EngineEnergyOutputComponent energy) {
         return new EngineHeatComponent("heat", energy, 20, 250, true, 10, null, () -> false, () -> false, () -> {});
+    }
+
+    @Test
+    void anIdleEngineNeverMarksItsChunkUnsaved() {
+        AtomicInteger changes = new AtomicInteger();
+        EngineEnergyOutputComponent energy =
+                new EngineEnergyOutputComponent("energy", () -> 10_000L, changes::incrementAndGet);
+        EngineBurnComponent burn = new EngineBurnComponent(
+                "burn", energy, heat(energy), () -> false, new SingleShotFuel(), new FixedGeneration(5),
+                CoolantSource.NONE, (ctx, lit) -> {}, changes::incrementAndGet);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        for (int tick = 0; tick < 20; tick++) {
+            burn.serverTick(ctx);
+        }
+
+        assertThat(changes.get())
+                .as("an unpowered, unfuelled engine has nothing to save; every notify here rewrites its chunk")
+                .isZero();
     }
 
     @Test

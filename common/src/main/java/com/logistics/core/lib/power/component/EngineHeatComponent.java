@@ -81,7 +81,12 @@ public final class EngineHeatComponent implements MachineComponent, EngineCompon
         }
 
         if (!running.getAsBoolean()) {
-            energy.setAmount(Math.max(0, energy.getAmount() - decayRate));
+            // An engine already at zero has nothing to decay; writing it again marks the chunk unsaved
+            // every tick forever.
+            long decayed = Math.max(0, energy.getAmount() - decayRate);
+            if (decayed != energy.getAmount()) {
+                energy.setAmount(decayed);
+            }
         }
 
         HeatStage newStage = stageOverride != null
