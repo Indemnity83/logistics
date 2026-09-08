@@ -54,6 +54,11 @@ public class MaceratorGameTest {
         MaceratorGameTestBody.testMaceratesViaRealEngineAndHoppers(context);
     }
 
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testScreenClosesWhenMachineIsBroken(GameTestHelper context) {
+        MaceratorGameTestBody.testScreenClosesWhenMachineIsBroken(context);
+    }
+
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
         MaceratorGameTestBody.testHopperCannotJamInputWithUnusableItem(context);

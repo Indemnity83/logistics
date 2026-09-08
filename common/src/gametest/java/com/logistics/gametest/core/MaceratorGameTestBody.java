@@ -12,6 +12,7 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -198,6 +199,48 @@ public class MaceratorGameTestBody {
         inputHopper.setItem(0, new ItemStack(Items.IRON_ORE));
 
         context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.IRON_DUST));
+    }
+
+    /**
+     * A machine screen must close once the machine is gone. The open menu polls {@code stillValid}
+     * every tick; a stale block entity that keeps answering "yes" leaves the player editing
+     * whatever block took its place. Stands in for every machine — they all route the check
+     * through {@code MachineEntity}.
+     */
+    public static void testScreenClosesWhenMachineIsBroken(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
+
+        MaceratorBlockEntity macerator = (MaceratorBlockEntity) context.getBlockEntity(pos);
+        if (macerator == null) {
+            context.fail("Macerator block entity should exist");
+            return;
+        }
+
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        BlockPos absolute = context.absolutePos(pos);
+        player.setPos(absolute.getX() + 0.5, absolute.getY() + 1, absolute.getZ() + 0.5);
+
+        if (!macerator.stillValid(player)) {
+            context.fail("A standing macerator should keep its screen open for a player beside it");
+            return;
+        }
+
+        // Well past the eight-block interaction reach.
+        player.setPos(absolute.getX() + 12.5, absolute.getY() + 1, absolute.getZ() + 0.5);
+        if (macerator.stillValid(player)) {
+            context.fail("A macerator out of reach should close its screen");
+            return;
+        }
+
+        player.setPos(absolute.getX() + 0.5, absolute.getY() + 1, absolute.getZ() + 0.5);
+        context.setBlock(pos, Blocks.AIR);
+
+        if (macerator.stillValid(player)) {
+            context.fail("A broken macerator should close its screen");
+            return;
+        }
+        context.succeed();
     }
 
     /**

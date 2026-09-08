@@ -67,4 +67,10 @@ public final class MaceratorGameTestRegistration {
     public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
         MaceratorGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
     }
+
+    /** A machine screen must close when the machine is broken or the player walks out of reach. */
+    @GameTest(template = "empty", batch = "macerator")
+    public static void testScreenClosesWhenMachineIsBroken(GameTestHelper context) {
+        MaceratorGameTestBody.testScreenClosesWhenMachineIsBroken(context);
+    }
 }

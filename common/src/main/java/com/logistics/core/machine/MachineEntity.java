@@ -9,6 +9,7 @@ import com.logistics.core.lib.block.capability.HasFluidStorage;
 import com.logistics.core.lib.block.capability.HasItemStorage;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.IFluidStorage;
+import com.logistics.core.lib.menu.MenuValidity;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import com.logistics.core.lib.storage.ContainerItemStorage;
 import com.logistics.core.lib.storage.IItemStorage;
@@ -156,9 +157,13 @@ public abstract class MachineEntity extends BaseBlockEntity
         sidedItems().ifPresent(s -> s.container().setItem(slot, stack));
     }
 
+    /**
+     * Decided here rather than by the item component: the component is a positionless holder and
+     * cannot tell whether the machine it belongs to is still standing.
+     */
     @Override
     public boolean stillValid(Player player) {
-        return sidedItems().map(s -> s.container().stillValid(player)).orElse(true);
+        return MenuValidity.stillValid(this, player);
     }
 
     @Override
