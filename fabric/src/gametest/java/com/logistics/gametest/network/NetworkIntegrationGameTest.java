@@ -96,6 +96,19 @@ public class NetworkIntegrationGameTest {
         NetworkIntegrationGameTestBody.testProviderDeliversItemToRequester(context);
     }
 
+    /**
+     * A Provider set to "Leave First Slot" must not drain the slot it promises to leave.
+     *
+     * <p>Same layout as {@link #testProviderDeliversItemToRequester}, but the source chest holds
+     * diamonds in slots 0 and 1 and the Provider is in RESERVE mode, so only slot 1 is in scope.
+     *
+     * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testproviderreservemodeleavesfirstslot
+     */
+    @GameTest(maxTicks = 100)
+    public void testProviderReserveModeLeavesFirstSlot(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testProviderReserveModeLeavesFirstSlot(context);
+    }
+
     // testSinkPriorityRoutesItemToHigherPrioritySink:
     //   Two basic logistics pipes connected to separate chests, one with higher priority.
     //   Items injected into the network should be routed to the higher-priority sink first.
