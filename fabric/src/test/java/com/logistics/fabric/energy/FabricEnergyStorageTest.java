@@ -115,6 +115,23 @@ class FabricEnergyStorageTest {
     }
 
     @Test
+    @DisplayName("Repeated inserts into one conduit in a transaction must not exceed its network room")
+    void repeatedInserts_intoConduit_accountForStagedEnergy() {
+        // Parity with NeoForge's insert_respectsPendingDelta. Nothing reaches the network until
+        // commit, so only the adapter's staged delta can stop the second insert over-accepting.
+        FakeConduit conduit = new FakeConduit(80);
+        EnergyStorageAccess.SimulateBooleanAdapter adapter = adapter(conduit);
+
+        try (Transaction tx = Transaction.openOuter()) {
+            assertThat(adapter.insert(60L, tx)).isEqualTo(60);
+            assertThat(adapter.insert(200L, tx)).isEqualTo(20); // only 20 of the network room is left
+            tx.commit();
+        }
+
+        assertThat(conduit.forwarded).isEqualTo(80);
+    }
+
+    @Test
     @DisplayName("Repeated extracts in one transaction must not offer more energy than exists")
     void repeatedExtracts_inOneTransaction_accountForStagedEnergy() {
         EnergyComponent storage = battery(1000, 150);
@@ -274,7 +291,10 @@ class FabricEnergyStorageTest {
         @Override
         public long insert(long maxAmount, boolean simulate) {
             if (maxAmount <= 0) return 0;
-            long accepted = Math.min(maxAmount, networkRoom);
+            // Subtracting what was already forwarded is what makes the fake able to over-accept if
+            // the adapter forgets its staged delta; the NeoForge twin models it the same way.
+            long remaining = Math.max(0, networkRoom - forwarded);
+            long accepted = Math.min(maxAmount, remaining);
             if (!simulate) forwarded += accepted;
             return accepted;
         }
