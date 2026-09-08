@@ -1,15 +1,14 @@
 package com.logistics;
 
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
-import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.power.render.CableBlockEntityRenderer;
 import com.logistics.power.render.EngineBlockEntityRenderer;
+import com.logistics.power.render.PowerClientHooks;
 import com.logistics.power.screen.ReactionEngineScreen;
 import com.logistics.power.screen.MagmaticEngineScreen;
 import com.logistics.power.screen.SteamEngineScreen;
 import com.logistics.power.screen.FuelEngineScreen;
 import com.logistics.power.screen.StirlingEngineScreen;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -58,10 +57,9 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         MenuScreens.register(LogisticsPower.SCREEN.STEAM_ENGINE, SteamEngineScreen::new);
         MenuScreens.register(LogisticsPower.SCREEN.FUEL_ENGINE, FuelEngineScreen::new);
 
-        // Register cleanup callback for engine animation cache
-        EngineEntity.setOnRemovedCallback(EngineBlockEntityRenderer::clearAnimationCache);
-
-        // Clear all animation caches when disconnecting from server
-        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> EngineBlockEntityRenderer.clearAllAnimationCache());
+        // This loader's engine renderer owns its own cache; when it is evicted is PowerClientHooks'
+        // business, and LogisticsAutomationClient fires the disconnect/shutdown triggers.
+        PowerClientHooks.install(
+                EngineBlockEntityRenderer::clearAnimationCache, EngineBlockEntityRenderer::clearAllAnimationCache);
     }
 }
