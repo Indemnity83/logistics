@@ -37,7 +37,6 @@ public final class ClientMachineRecipes {
         fabricator = List.copyOf(packet.fabricator());
         transposer = List.copyOf(packet.transposer());
         MachineRecipeJeiSync.pushToJei(AutomationJeiSyncAdapter.INSTANCE);
-        MachineRecipeJeiSync.pushToJei(AutomationJeiSyncAdapter.INSTANCE);
     }
 
     /** Drops cached recipes on disconnect so a later server's sync starts clean. */
