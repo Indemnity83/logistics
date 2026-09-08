@@ -11,6 +11,8 @@ import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -447,6 +449,36 @@ public class EngineGameTestBody {
                 return;
             }
             context.succeed();
+        });
+    }
+
+    /**
+     * A vanilla hopper fills a Stirling Engine's empty fuel slot.
+     *
+     * <p>Engines are not {@code Container}s, so a hopper reaches them through the loader's item
+     * capability — the path every other ingress test here bypasses with direct inventory writes.
+     * An adapter reporting capacity 0 for an empty slot reads as permanently full to the hopper,
+     * so it would never start feeding an engine that had run dry.
+     */
+    public static void testHopperFillsEmptyEngineFuelSlot(GameTestHelper context) {
+        BlockPos hopperPos = new BlockPos(1, 3, 1);
+        BlockPos enginePos = new BlockPos(1, 2, 1);
+
+        context.setBlock(enginePos, LogisticsPower.BLOCK.STIRLING_ENGINE);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        StirlingEngineBlockEntity engine = context.getBlockEntity(enginePos, StirlingEngineBlockEntity.class);
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (engine == null || hopper == null) {
+            context.fail("Expected a Stirling Engine and a hopper");
+            return;
+        }
+        hopper.setItem(0, new ItemStack(Items.COAL));
+
+        context.succeedWhen(() -> {
+            if (engine.getTheItem().isEmpty()) {
+                throw context.assertionException("hopper never fed the engine's empty fuel slot");
+            }
         });
     }
 }

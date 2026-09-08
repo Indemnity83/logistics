@@ -130,7 +130,17 @@ public final class NeoForgeFluidStorage implements IFluidStorage {
         @Override
         public long getCapacityAsLong(int index, FluidResource resource) {
             checkIndex(index);
+            // An empty resource is the contract's general-capacity probe, not a request for zero:
+            // FluidResourceHandlerAdapter.getTankCapacity passes it, so legacy IFluidHandler
+            // consumers were reading every tank as capacity 0.
             if (resource.isEmpty()) {
+                // The general-capacity probe FluidResourceHandlerAdapter.getTankCapacity passes.
+                // A tank holding something can answer it; an empty one cannot, because IFluidStorage
+                // exposes no capacity of its own — so that case still reports 0. Narrower than
+                // before, when every tank did.
+                for (IFluidView view : storage.contents()) {
+                    return view.capacity();
+                }
                 return 0;
             }
             // Report the live capacity backing the stored fluid when the resource matches;

@@ -140,17 +140,26 @@ public final class NeoForgeItemStorage implements IItemStorage {
         @Override
         public long getCapacityAsLong(int index, ItemResource resource) {
             checkIndex(index);
-            if (resource.isEmpty()) {
-                return 0;
-            }
-            IItemKey key = new NeoForgeItemKey(resource);
-            return Math.max(0, storage.insert(index, key, Integer.MAX_VALUE, true) - pendingFor(index, key));
+            // NeoForge asks for capacity "irrespective of the current amount or resource at that
+            // index", and an empty resource means "the general capacity here" — not zero. Returning
+            // insert room made a full slot look like it had no capacity, and an empty slot report
+            // 0 < 0, which ResourceHandlerUtil.isFull reads as full.
+            return storage.slotCapacity(index);
         }
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
             checkIndex(index);
-            return !resource.isEmpty() && getCapacityAsLong(index, resource) > 0;
+            if (resource.isEmpty()) {
+                return false;
+            }
+            // Would this resource ever be accepted here, not "is there room right now". Asked
+            // against an empty slot so a full-but-compatible one still answers yes.
+            IItemKey key = new NeoForgeItemKey(resource);
+            IItemView view = storage.slotView(index);
+            return view == null
+                    ? storage.insert(index, key, Integer.MAX_VALUE, true) > 0
+                    : view.resource().equals(key) || storage.insert(index, key, Integer.MAX_VALUE, true) > 0;
         }
 
         @Override
@@ -267,37 +276,70 @@ public final class NeoForgeItemStorage implements IItemStorage {
         public ItemResource getResource(int index) {
             checkIndex(index);
             for (IItemView view : storage.contents()) {
-                if (view.amount() > 0) {
+                if (view.amount() + pendingDeltas.getOrDefault(view.resource(), 0L) > 0) {
                     return toResource(view.resource());
                 }
             }
-            return ItemResource.EMPTY;
+            IItemKey pending = firstPositivePending();
+            return pending == null ? ItemResource.EMPTY : toResource(pending);
         }
 
         @Override
         public long getAmountAsLong(int index) {
             checkIndex(index);
             for (IItemView view : storage.contents()) {
-                if (view.amount() > 0) {
-                    return view.amount();
+                long amount = Math.max(0, view.amount() + pendingDeltas.getOrDefault(view.resource(), 0L));
+                if (amount > 0) {
+                    return amount;
                 }
             }
-            return 0;
+            IItemKey pending = firstPositivePending();
+            return pending == null ? 0 : pendingDeltas.get(pending);
+        }
+
+        /**
+         * An item this transaction has staged that the backing storage cannot see yet. Without it a
+         * caller reading back inside its own transaction never observes its own write, so a
+         * read-until-empty loop spins. The slotted adapter beside this one already folds these in.
+         */
+        @Nullable
+        private IItemKey firstPositivePending() {
+            for (Map.Entry<IItemKey, Long> entry : pendingDeltas.entrySet()) {
+                if (entry.getValue() > 0) {
+                    return entry.getKey();
+                }
+            }
+            return null;
         }
 
         @Override
         public long getCapacityAsLong(int index, ItemResource resource) {
             checkIndex(index);
-            if (resource.isEmpty()) {
-                return 0;
+            // The total this handler could hold, independent of what is in it — see the slotted
+            // adapter above. Reporting 0 for an empty resource made ResourceHandlerUtil.isFull read
+            // an empty pipe or engine fuel slot as full, so a hopper never inserted into one.
+            for (IItemView view : storage.contents()) {
+                if (view.amount() > 0) {
+                    return view.capacity();
+                }
             }
-            return storage.insert(new NeoForgeItemKey(resource), Integer.MAX_VALUE, true);
+            return ISlottedItemStorage.DEFAULT_SLOT_CAPACITY;
         }
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
             checkIndex(index);
-            return !resource.isEmpty() && getCapacityAsLong(index, resource) > 0;
+            // Compatibility, not current room: a full-but-compatible storage still accepts this item.
+            if (resource.isEmpty()) {
+                return false;
+            }
+            IItemKey key = new NeoForgeItemKey(resource);
+            for (IItemView view : storage.contents()) {
+                if (view.resource().equals(key)) {
+                    return true;
+                }
+            }
+            return storage.insert(key, Integer.MAX_VALUE, true) > 0;
         }
 
         @Override
