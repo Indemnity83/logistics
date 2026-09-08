@@ -154,7 +154,7 @@ public class CrucibleGameTestBody {
         CrucibleBlockEntity crucible = place(context, cruciblePos);
         context.setBlock(hopperPos, Blocks.HOPPER);
 
-        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        HopperBlockEntity hopper = (HopperBlockEntity) context.getBlockEntity(hopperPos);
         if (crucible == null || hopper == null) {
             context.fail("Expected crucible and hopper block entities");
             return;

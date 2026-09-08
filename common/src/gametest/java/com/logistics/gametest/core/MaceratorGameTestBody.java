@@ -212,8 +212,8 @@ public class MaceratorGameTestBody {
         context.setBlock(maceratorPos, LogisticsAutomation.BLOCK.MACERATOR);
         context.setBlock(hopperPos, Blocks.HOPPER);
 
-        MaceratorBlockEntity macerator = context.getBlockEntity(maceratorPos, MaceratorBlockEntity.class);
-        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        MaceratorBlockEntity macerator = (MaceratorBlockEntity) context.getBlockEntity(maceratorPos);
+        HopperBlockEntity hopper = (HopperBlockEntity) context.getBlockEntity(hopperPos);
         if (macerator == null || hopper == null) {
             context.fail("Expected macerator and hopper block entities");
             return;

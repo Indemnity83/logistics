@@ -47,7 +47,7 @@ public class CrucibleGameTest {
         CrucibleGameTestBody.testMeltsViaRealEngineAndHopper(context);
     }
 
-    @GameTest(maxTicks = 60)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
         CrucibleGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
     }

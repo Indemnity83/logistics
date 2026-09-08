@@ -114,7 +114,7 @@ public class TransposerGameTest {
         TransposerGameTestBody.fillsBucketViaRealEngineAndHoppers(context);
     }
 
-    @GameTest(maxTicks = 60)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void hopperCannotJamInputWithUnusableItem(GameTestHelper context) {
         TransposerGameTestBody.hopperCannotJamInputWithUnusableItem(context);
     }

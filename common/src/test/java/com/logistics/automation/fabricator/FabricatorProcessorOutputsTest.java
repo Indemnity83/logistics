@@ -16,13 +16,10 @@ import java.util.Collection;
 import java.util.List;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.ItemLike;
@@ -123,8 +120,8 @@ class FabricatorProcessorOutputsTest extends MinecraftTestEnvironment {
     }
 
     private static RecipeHolder<FabricatorRecipe> holder(ResourceId id, FabricatorRecipe recipe) {
-        ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, Identifier.parse(id.toString()));
-        return new RecipeHolder<>(key, recipe);
+        // 1.21.1 keys a RecipeHolder by ResourceLocation; 26.x keys it by ResourceKey<Recipe<?>>.
+        return new RecipeHolder<>(ResourceLocation.parse(id.toString()), recipe);
     }
 
     /** A RecipeManager that serves a fixed recipe list — the component only ever reads {@code getRecipes()}. */

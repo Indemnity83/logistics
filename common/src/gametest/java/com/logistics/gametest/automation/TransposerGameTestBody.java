@@ -421,7 +421,7 @@ public class TransposerGameTestBody {
         TransposerBlockEntity be = place(context, transposerPos);
         context.setBlock(hopperPos, Blocks.HOPPER);
 
-        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        HopperBlockEntity hopper = (HopperBlockEntity) context.getBlockEntity(hopperPos);
         if (be == null || hopper == null) {
             context.fail("Expected transposer and hopper block entities");
             return;
