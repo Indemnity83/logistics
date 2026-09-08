@@ -22,6 +22,9 @@ class TankColumnTest extends MinecraftTestEnvironment {
         private IFluidKey fluid = SimpleFluidKey.BLANK;
         private long amount;
         private final long capacity;
+        // A real cell notifies its block entity on every write, so a redundant write is a saved chunk
+        // and a synced packet. Recording only the final value cannot see that.
+        private int writes;
 
         FakeCell(long capacity) {
             this.capacity = capacity;
@@ -31,8 +34,11 @@ class TankColumnTest extends MinecraftTestEnvironment {
         @Override public long amount() { return amount; }
         @Override public long capacity() { return capacity; }
 
+        int writes() { return writes; }
+
         @Override
         public void setContents(IFluidKey fluid, long amount) {
+            writes++;
             if (fluid == null || fluid.isBlank() || amount <= 0) {
                 this.fluid = SimpleFluidKey.BLANK;
                 this.amount = 0;
@@ -175,5 +181,26 @@ class TankColumnTest extends MinecraftTestEnvironment {
 
         assertThat(top.amount()).isEqualTo(60);
         assertThat(bottom.amount()).isZero();
+    }
+
+    @Test
+    @DisplayName("filling one cell does not rewrite the rest of the column")
+    void insertOnlyWritesTheCellsItChanges() {
+        FakeCell[] cells = new FakeCell[10];
+        for (int i = 0; i < cells.length; i++) {
+            cells[i] = new FakeCell(100);
+        }
+
+        long inserted = liquidColumn(cells).insert(WATER, 50, false);
+
+        assertThat(inserted).isEqualTo(50);
+        assertThat(cells[0].writes())
+                .as("the bottom cell actually changed, so it is written")
+                .isEqualTo(1);
+        for (int i = 1; i < cells.length; i++) {
+            assertThat(cells[i].writes())
+                    .as("cell %d was empty before and after; writing it saves its chunk for nothing", i)
+                    .isZero();
+        }
     }
 }
