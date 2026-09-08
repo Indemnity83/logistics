@@ -64,6 +64,8 @@ public final class EngineBurnComponent implements MachineComponent, EngineCompon
     public void serverTick(MachineContext ctx) {
         boolean isPowered = powered.getAsBoolean();
         boolean overheated = heat.isOverheated();
+        int previousBurnTime = burnTime;
+        int previousFuelTime = fuelTime;
 
         if (!isPowered || overheated) {
             burnTime = 0;
@@ -95,7 +97,11 @@ public final class EngineBurnComponent implements MachineComponent, EngineCompon
         wasRunning = running;
 
         lit.setLit(ctx, burnTime > 0);
-        onChanged.run();
+        // An unpowered, unfuelled engine zeroes two already-zero counters every tick; notifying for
+        // that marks the chunk unsaved forever. Mirrors EnginePistonCycleComponent.
+        if (burnTime != previousBurnTime || fuelTime != previousFuelTime) {
+            onChanged.run();
+        }
     }
 
     private boolean tryRefuel(MachineContext ctx) {
