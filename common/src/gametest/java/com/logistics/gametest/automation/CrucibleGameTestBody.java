@@ -141,4 +141,40 @@ public class CrucibleGameTestBody {
         context.succeedWhen(() -> context.assertTrue(!(crucible.tank().getAmount() < FluidUnits.mb(1_000)
                     || crucible.tank().getFluidKey().getFluid() != Fluids.WATER), "Engine-and-hopper-fed crucible should melt ice into water"));
     }
+
+    /**
+     * An item with no crucible recipe must never enter the input slot. The crucible has no output
+     * slot at all, so anything a hopper or pipe pushes into the input is stuck there permanently —
+     * only a player opening the GUI can get it back.
+     */
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        BlockPos cruciblePos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = cruciblePos.above();
+
+        CrucibleBlockEntity crucible = place(context, cruciblePos);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (crucible == null || hopper == null) {
+            context.fail("Expected crucible and hopper block entities");
+            return;
+        }
+
+        // Dirt has no crucible recipe — the sort of byproduct an upstream machine sends downstream.
+        hopper.setItem(0, new ItemStack(Items.DIRT));
+
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            if (!crucible.getItem(INPUT_SLOT).isEmpty()) {
+                context.fail("Crucible must refuse an item it has no recipe for, input holds: "
+                        + crucible.getItem(INPUT_SLOT));
+                return;
+            }
+            if (!hopper.getItem(0).is(Items.DIRT)) {
+                context.fail("Refused dirt should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
+        });
+    }
 }

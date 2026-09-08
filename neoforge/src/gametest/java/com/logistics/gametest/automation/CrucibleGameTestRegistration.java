@@ -54,4 +54,10 @@ public final class CrucibleGameTestRegistration {
     public static void testMeltsViaRealEngineAndHopper(GameTestHelper context) {
         CrucibleGameTestBody.testMeltsViaRealEngineAndHopper(context);
     }
+
+    /** A machine must refuse an item it has no recipe for, or automation can never get it back out. */
+    @GameTest(template = "empty", batch = "crucible")
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        CrucibleGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

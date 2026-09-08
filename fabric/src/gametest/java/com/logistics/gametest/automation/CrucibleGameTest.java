@@ -46,4 +46,9 @@ public class CrucibleGameTest {
     public void testMeltsViaRealEngineAndHopper(GameTestHelper context) {
         CrucibleGameTestBody.testMeltsViaRealEngineAndHopper(context);
     }
+
+    @GameTest(maxTicks = 60)
+    public void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        CrucibleGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

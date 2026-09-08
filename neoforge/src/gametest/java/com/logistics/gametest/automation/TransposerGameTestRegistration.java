@@ -121,4 +121,10 @@ public final class TransposerGameTestRegistration {
     public static void fillsBucketViaRealEngineAndHoppers(GameTestHelper context) {
         TransposerGameTestBody.fillsBucketViaRealEngineAndHoppers(context);
     }
+
+    /** A machine must refuse an item it has no recipe for, or automation can never get it back out. */
+    @GameTest(template = "empty", batch = "transposer")
+    public static void hopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        TransposerGameTestBody.hopperCannotJamInputWithUnusableItem(context);
+    }
 }

@@ -97,6 +97,11 @@ public class TransposerRecipe extends AbstractLogisticsRecipe<SingleRecipeInput>
         return byproduct;
     }
 
+    /** Whether {@code stack} could ever feed this recipe, ignoring count (used to gate insertion). */
+    public boolean acceptsAsInput(ItemStack stack) {
+        return this.input.test(stack);
+    }
+
     @Override
     public boolean matches(@NotNull SingleRecipeInput input, @NotNull Level level) {
         // Matching also depends on the tank's current fluid — never matched via the item-keyed

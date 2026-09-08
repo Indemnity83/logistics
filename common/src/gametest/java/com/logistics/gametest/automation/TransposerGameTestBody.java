@@ -408,4 +408,40 @@ public class TransposerGameTestBody {
 
         context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, Items.LAVA_BUCKET));
     }
+
+    /**
+     * An item with no transposer recipe must never enter the input slot. Only the output slot is
+     * extractable, so anything a hopper or pipe pushes into the input is stuck there until a player
+     * clears it by hand.
+     */
+    public static void hopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        BlockPos transposerPos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = transposerPos.above();
+
+        TransposerBlockEntity be = place(context, transposerPos);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (be == null || hopper == null) {
+            context.fail("Expected transposer and hopper block entities");
+            return;
+        }
+
+        // Dirt has no transposer recipe — the sort of byproduct an upstream machine sends downstream.
+        hopper.setItem(0, new ItemStack(Items.DIRT));
+
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            if (!be.getItem(INPUT_SLOT).isEmpty()) {
+                context.fail("Transposer must refuse an item it has no recipe for, input holds: "
+                        + be.getItem(INPUT_SLOT));
+                return;
+            }
+            if (!hopper.getItem(0).is(Items.DIRT)) {
+                context.fail("Refused dirt should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
+        });
+    }
 }

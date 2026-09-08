@@ -61,4 +61,10 @@ public final class MaceratorGameTestRegistration {
     public static void testMaceratesViaRealEngineAndHoppers(GameTestHelper context) {
         MaceratorGameTestBody.testMaceratesViaRealEngineAndHoppers(context);
     }
+
+    /** A machine must refuse an item it has no recipe for, or automation can never get it back out. */
+    @GameTest(template = "empty", batch = "macerator")
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        MaceratorGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

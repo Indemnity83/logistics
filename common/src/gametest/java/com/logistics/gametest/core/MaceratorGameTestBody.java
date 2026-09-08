@@ -199,4 +199,41 @@ public class MaceratorGameTestBody {
 
         context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.IRON_DUST));
     }
+
+    /**
+     * An item with no macerator recipe must never enter the input slot. Only the output slots are
+     * extractable, so anything a hopper or pipe pushes into the input is stuck there until a player
+     * clears it by hand — the automation failure a mixed-output chain produces routinely.
+     */
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        BlockPos maceratorPos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = maceratorPos.above();
+
+        context.setBlock(maceratorPos, LogisticsAutomation.BLOCK.MACERATOR);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        MaceratorBlockEntity macerator = context.getBlockEntity(maceratorPos, MaceratorBlockEntity.class);
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (macerator == null || hopper == null) {
+            context.fail("Expected macerator and hopper block entities");
+            return;
+        }
+
+        // Dirt has no macerator recipe — the sort of byproduct an upstream machine sends downstream.
+        hopper.setItem(0, new ItemStack(Items.DIRT));
+
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            if (!macerator.getItem(INPUT_SLOT).isEmpty()) {
+                context.fail("Macerator must refuse an item it has no recipe for, input holds: "
+                        + macerator.getItem(INPUT_SLOT));
+                return;
+            }
+            if (!hopper.getItem(0).is(Items.DIRT)) {
+                context.fail("Refused dirt should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
+        });
+    }
 }
