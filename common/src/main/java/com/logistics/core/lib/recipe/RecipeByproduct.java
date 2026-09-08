@@ -1,5 +1,6 @@
 package com.logistics.core.lib.recipe;
 
+import com.logistics.core.machine.component.ChanceOutput;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,5 +39,14 @@ public record RecipeByproduct(Item item, float chance) {
 
     public ItemStack stack(int count) {
         return new ItemStack(item, count);
+    }
+
+    /**
+     * The framework form that owns the guaranteed-count / bonus-chance split. Recipe resolvers and
+     * recipe listings both go through this, so what a listing shows is derived from the same value
+     * the machine rolls.
+     */
+    public ChanceOutput toChanceOutput() {
+        return new ChanceOutput(stack(1), chance);
     }
 }

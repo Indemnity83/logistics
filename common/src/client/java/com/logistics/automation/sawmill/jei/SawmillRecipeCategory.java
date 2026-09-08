@@ -3,6 +3,7 @@ package com.logistics.automation.sawmill.jei;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.automation.sawmill.SawmillRecipe;
+import com.logistics.core.lib.jei.ByproductSlot;
 import com.logistics.core.lib.resource.ResourceId;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -90,13 +91,7 @@ public class SawmillRecipeCategory implements IRecipeCategory<SawmillRecipe> {
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .add(recipe.getResultItem());
 
-        recipe.byproduct().ifPresent(bp -> {
-            float pct = bp.chance() * 100f;
-            String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
-            builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
-                .add(bp.stack(1))
-                .addRichTooltipCallback((view, tooltip) ->
-                    tooltip.add(Component.translatable("jei.logistics.sawmill.byproduct_chance", pctStr)));
-        });
+        recipe.byproduct().ifPresent(bp -> ByproductSlot.add(
+            builder, BYPRODUCT_X, BYPRODUCT_Y, bp.toChanceOutput(), "jei.logistics.sawmill.byproduct_chance"));
     }
 }

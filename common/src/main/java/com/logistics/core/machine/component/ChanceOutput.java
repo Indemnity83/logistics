@@ -34,8 +34,21 @@ public record ChanceOutput(ItemStack template, float chance) {
     }
 
     /** The fractional part of the chance — the probability of one extra item beyond the guaranteed count. */
-    private float fractionalBonus() {
+    public float fractionalBonus() {
         return chance - guaranteedCount();
+    }
+
+    /**
+     * The count to show in a recipe listing: the guaranteed count, floored at one so a purely
+     * fractional byproduct still renders a visible item alongside its chance.
+     */
+    public int displayCount() {
+        return Math.max(1, guaranteedCount());
+    }
+
+    /** The {@link #displayCount()} as a stack. */
+    public ItemStack displayStack() {
+        return stack(displayCount());
     }
 
     /** A copy of the template with the given count. */
