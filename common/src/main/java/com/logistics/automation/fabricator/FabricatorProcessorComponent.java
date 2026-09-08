@@ -124,7 +124,10 @@ public final class FabricatorProcessorComponent
 
     private void completeRun(
             FabricatorRecipe recipe, Map<ResourceId, RecipeHolder<FabricatorRecipe>> byId, MachineContext ctx) {
-        consumeIngredients(recipe);
+        if (!consumeIngredients(recipe)) {
+            // Materials went missing after the craftability check: produce nothing, retry next tick.
+            return;
+        }
         if (ctx.level() instanceof ServerLevel serverLevel) {
             NeighborItemOutput.eject(serverLevel, ctx.pos(), recipe.getResultItem());
         }
@@ -186,9 +189,12 @@ public final class FabricatorProcessorComponent
         return holder != null && holder.value().canCraftFrom(pool);
     }
 
-    /** Consume ingredient counts from the input slots via the recipe's shared greedy allocation. */
-    private void consumeIngredients(FabricatorRecipe recipe) {
-        recipe.allocateFrom(pool(), (slot, amount) -> items.consumeInput(slot, amount));
+    /**
+     * Consume ingredient counts from the input slots via the recipe's shared greedy allocation.
+     * Returns false — having consumed nothing — when the pool no longer satisfies the recipe.
+     */
+    private boolean consumeIngredients(FabricatorRecipe recipe) {
+        return recipe.allocateFrom(pool(), (slot, amount) -> items.consumeInput(slot, amount));
     }
 
     private List<ItemStack> pool() {
