@@ -34,7 +34,9 @@ public final class TransposerGameTestRegistration {
         new GameTestCase(
             "automation/transposer_fills_bucket_via_real_engine_and_hoppers",
             120,
-            TransposerGameTestBody::fillsBucketViaRealEngineAndHoppers));
+            TransposerGameTestBody::fillsBucketViaRealEngineAndHoppers),
+        new GameTestCase(
+            "automation/transposer_hopper_cannot_jam_input", 60, TransposerGameTestBody::hopperCannotJamInputWithUnusableItem));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
