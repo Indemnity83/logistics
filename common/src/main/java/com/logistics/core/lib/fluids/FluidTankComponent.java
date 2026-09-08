@@ -104,6 +104,9 @@ public class FluidTankComponent implements IFluidStorage {
      * An {@code amount} of 0 or a blank key empties the tank; otherwise the amount is clamped to capacity.
      */
     public void setContents(IFluidKey key, long amount) {
+        Fluid previousFluid = fluid;
+        DataComponentPatch previousComponents = components;
+        long previousAmount = this.amount;
         if (key == null || key.isBlank() || amount <= 0) {
             fluid = Fluids.EMPTY;
             components = DataComponentPatch.EMPTY;
@@ -113,7 +116,11 @@ public class FluidTankComponent implements IFluidStorage {
             components = key.getComponents();
             this.amount = Math.min(amount, capacity);
         }
-        onChanged.run();
+        // Writing the value a cell already holds still marks the chunk unsaved and syncs a packet.
+        // Column rebalances rewrite every cell, so a single insert used to notify once per tank.
+        if (fluid != previousFluid || this.amount != previousAmount || !components.equals(previousComponents)) {
+            onChanged.run();
+        }
     }
 
     /** Returns the current amount of fluid stored, in platform-native units. */
