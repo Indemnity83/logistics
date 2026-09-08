@@ -36,7 +36,7 @@ public final class MaceratorRecipeResolver implements RecipeResolver {
                 .map(holder -> {
                     MaceratorRecipeWrapper recipe = holder.value();
                     List<ChanceOutput> byproducts = recipe.byproduct()
-                            .map(b -> List.of(new ChanceOutput(b.stack(1), b.chance())))
+                            .map(b -> List.of(b.toChanceOutput()))
                             .orElse(List.of());
                     return new RecipePlan(
                             recipe.energy(), recipe.ingredientCount(), recipe.getResultItem(),
