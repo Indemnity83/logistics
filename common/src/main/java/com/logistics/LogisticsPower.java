@@ -117,7 +117,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .describe("Maximum RF/t output")
                 .register();
         public static final ConfigKey<Long> STIRLING_BUFFER_CAPACITY = stirling.defineLong("buffer_capacity", 10_000L)
-                .min(0L)
+                .min(1L)
                 .describe("Internal RF buffer capacity")
                 .register();
 
@@ -125,7 +125,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         // straight to the network (no buffer_capacity knob; unaccepted RF is discarded). Reactant, reagent,
         // energy, and duration are datapack recipe values; only the tank size is a machine property.
         public static final ConfigKey<Long> REACTION_TANK_CAPACITY = reaction.defineLong("reactant_tank_capacity_mb", 4_000L)
-                .min(0L)
+                .min(100L)
                 .describe("Reactant tank capacity in mB")
                 .register();
         // Steam engine — a thermal-mass boiler: fuel -> boiler heat -> steam -> pressure -> RF.
@@ -163,7 +163,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .describe("Maximum pressure produced per tick, at full steam quality (target heat)")
                 .register();
         public static final ConfigKey<Double> STEAM_PRESSURE_PER_RF = steam.defineDouble("pressure_per_rf", 0.25)
-                .min(0.0)
+                .greaterThan(0.0)
                 .finite()
                 .describe("Pressure consumed per RF generated")
                 .register();
@@ -215,7 +215,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         // Creative engine
         public static final ConfigKey<Long> CREATIVE_BUFFER_CAPACITY = creative.defineLong("buffer_capacity", 10_000L)
-                .min(0L)
+                .min(1L)
                 .describe("Internal RF buffer capacity")
                 .register();
 
@@ -225,7 +225,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .describe("Warm (furnace-parity) RF/t; cold is 50% and fully heat-soaked is 150% of this")
                 .register();
         public static final ConfigKey<Long> MAGMATIC_BUFFER_CAPACITY = magmatic.defineLong("buffer_capacity", 40_000L)
-                .min(0L)
+                .min(1L)
                 .describe("Internal RF buffer capacity (holds one full hot batch plus headroom)")
                 .register();
         public static final ConfigKey<Long> MAGMATIC_TANK_CAPACITY = magmatic.defineLong("lava_tank_capacity_mb", 4_000L)
@@ -248,7 +248,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .describe("Maximum RF/t generated")
                 .register();
         public static final ConfigKey<Long> FUEL_BUFFER_CAPACITY = fuel.defineLong("buffer_capacity", 10_000L)
-                .min(0L)
+                .min(1L)
+                .minValueOf(() -> CONFIG.FUEL_MAX_OUTPUT)
                 .describe("Internal RF buffer capacity")
                 .register();
         public static final ConfigKey<Double> FUEL_MAX_TEMPERATURE = fuel.defineDouble("max_temperature", 250.0)
@@ -272,15 +273,17 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
 
         // Battery
         public static final ConfigKey<Long> BATTERY_CAPACITY = battery.defineLong("capacity", 100_000L)
-                .min(0L)
+                .min(1L)
                 .describe("Total RF storage")
                 .register();
         public static final ConfigKey<Long> BATTERY_MAX_IO = battery.defineLong("max_io", 1_000L)
-                .min(0L)
+                .min(1L)
+                .minValueOf(() -> CONFIG.BATTERY_OUTPUT_PER_SIDE)
                 .describe("Max RF/t inserted or extracted per side")
                 .register();
         public static final ConfigKey<Long> BATTERY_OUTPUT_PER_SIDE = battery.defineLong("output_per_side", 200L)
                 .min(0L)
+                .maxValueOf(() -> CONFIG.BATTERY_MAX_IO)
                 .describe("Max RF/t actively pushed into each adjacent machine")
                 .register();
 
