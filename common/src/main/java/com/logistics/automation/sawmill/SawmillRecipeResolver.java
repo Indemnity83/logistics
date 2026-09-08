@@ -37,7 +37,7 @@ public final class SawmillRecipeResolver implements RecipeResolver {
                 .map(holder -> {
                     SawmillRecipe recipe = holder.value();
                     List<ChanceOutput> byproducts = recipe.byproduct()
-                            .map(b -> List.of(new ChanceOutput(b.stack(1), b.chance())))
+                            .map(b -> List.of(b.toChanceOutput()))
                             .orElse(List.of());
                     return new RecipePlan(
                             recipe.energy(),

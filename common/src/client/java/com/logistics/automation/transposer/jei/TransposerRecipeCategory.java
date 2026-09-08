@@ -17,6 +17,7 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import com.logistics.core.lib.jei.ByproductSlot;
 
 /**
  * JEI recipe category for the Transposer: an input item converted into a result item, plus one fluid
@@ -105,13 +106,7 @@ public class TransposerRecipeCategory implements IRecipeCategory<TransposerRecip
             .setFluidRenderer(amount, false, 16, 16)
             .addFluidStack(fluid.fluid(), amount, DataComponentPatch.EMPTY);
 
-        recipe.byproduct().ifPresent(bp -> {
-            float pct = bp.chance() * 100f;
-            String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
-            builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
-                .addItemStack(bp.stack(1))
-                .addRichTooltipCallback((view, tooltip) ->
-                    tooltip.add(Component.translatable("jei.logistics.transposer.byproduct_chance", pctStr)));
-        });
+        recipe.byproduct().ifPresent(bp -> ByproductSlot.add(
+            builder, BYPRODUCT_X, BYPRODUCT_Y, bp.toChanceOutput(), "jei.logistics.transposer.byproduct_chance"));
     }
 }

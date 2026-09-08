@@ -75,6 +75,6 @@ public final class TransposerRecipeResolver implements RecipeResolver {
     }
 
     private static List<ChanceOutput> chanceOutput(RecipeByproduct byproduct) {
-        return List.of(new ChanceOutput(byproduct.stack(1), byproduct.chance()));
+        return List.of(byproduct.toChanceOutput());
     }
 }

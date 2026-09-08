@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import com.logistics.core.lib.jei.ByproductSlot;
 
 /**
  * JEI recipe category for the Macerator.
@@ -92,18 +93,7 @@ public class MaceratorRecipeCategory implements IRecipeCategory<MaceratorRecipeW
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
             .addItemStack(recipe.getResultItem());
 
-        recipe.byproduct().ifPresent(bp -> {
-            // chance doubles as count: floor(chance) is guaranteed, the remainder is a bonus chance.
-            int guaranteed = (int) bp.chance();
-            float bonus = bp.chance() - guaranteed;
-            var slot = builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
-                .addItemStack(bp.stack(Math.max(1, guaranteed)));
-            if (bonus > 0f) {
-                float pct = bonus * 100f;
-                String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
-                slot.addRichTooltipCallback((view, tooltip) ->
-                    tooltip.add(Component.translatable("jei.logistics.macerator.byproduct_chance", pctStr)));
-            }
-        });
+        recipe.byproduct().ifPresent(bp -> ByproductSlot.add(
+            builder, BYPRODUCT_X, BYPRODUCT_Y, bp.toChanceOutput(), "jei.logistics.macerator.byproduct_chance"));
     }
 }
