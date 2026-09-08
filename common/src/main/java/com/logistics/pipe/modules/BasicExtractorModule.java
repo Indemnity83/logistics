@@ -26,12 +26,12 @@ import java.util.List;
 /**
  * Basic extractor module — pulls items from an adjacent inventory into the pipe on a fixed timer.
  *
- * <p>Parameterised at construction so the same class serves multiple marks:
- * <ul>
- *   <li>MkI  — 1 item every 100 ticks</li>
- *   <li>MkII — 1 item every 20 ticks</li>
- *   <li>MkIII — 64 items every tick</li>
- * </ul>
+ * <p>A pull fills its item budget across as many resources as the inventory offers, and takes
+ * whatever fits when the pipe is nearly full.
+ *
+ * <p>Parameterised at construction so the same class serves two tiers of the ladder in
+ * {@link ExtractorTier} — {@link ExtractorTier#BASIC} and {@link ExtractorTier#MKII}.
+ * {@link ExtractorTier#MKIII} runs on {@link AdvancedExtractorModule} instead.
  *
  * <p>No GUI, no energy requirement.
  */
@@ -41,6 +41,10 @@ public class BasicExtractorModule implements Module, TickingModule {
 
     private final int itemsPerPull;
     private final int ticksBetweenPulls;
+
+    public BasicExtractorModule(ExtractorTier tier) {
+        this(tier.itemsPerPull(), tier.ticksBetweenPulls());
+    }
 
     public BasicExtractorModule(int itemsPerPull, int ticksBetweenPulls) {
         this.itemsPerPull = itemsPerPull;
