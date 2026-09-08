@@ -171,6 +171,18 @@ public class SupplyInventory implements Container {
     }
 
     /**
+     * Target amount configured for one supply slot of a module item, or {@code 0} when unconfigured.
+     * Keyed by slot the same way {@link #loadFromItem} reads it.
+     */
+    public static int configuredAmount(ItemStack stack, int slotIndex) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) return 0;
+        CompoundTag supplies = NbtCompat.getCompoundOrEmpty(customData.copyTag(), SupplierModule.SUPPLIES);
+        CompoundTag slotTag = NbtCompat.getCompoundOrEmpty(supplies, String.valueOf(slotIndex));
+        return NbtCompat.getInt(slotTag, "amount", 0);
+    }
+
+    /**
      * Refresh the inventory from the module.
      * Call this to update configured supplies.
      */
