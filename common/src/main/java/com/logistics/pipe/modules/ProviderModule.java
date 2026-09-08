@@ -17,6 +17,7 @@ import com.logistics.core.lib.filter.FilterSlots;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
+import com.logistics.core.lib.storage.ISlottedItemStorage;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeHud;
@@ -607,10 +608,26 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     // ==================== Item Extraction ====================
 
-    private long extractItems(IItemStorage storage, IItemKey key, long requested, ProviderMode mode, boolean simulate) {
+    long extractItems(IItemStorage storage, IItemKey key, long requested, ProviderMode mode, boolean simulate) {
+        // A resource-scoped extract always drains from slot 0, so the crop has to be applied by
+        // addressing slots directly — otherwise it only limits the total, not which slots pay it.
+        ISlottedItemStorage slotted = storage instanceof ISlottedItemStorage s ? s : null;
+
         List<IItemView> views = new ArrayList<>();
-        for (IItemView view : storage.contents()) {
-            if (view.amount() > 0) views.add(view);
+        List<Integer> slots = new ArrayList<>();
+        if (slotted != null) {
+            // Same compaction contents() performs, but keeping each view's slot index.
+            for (int slot = 0; slot < slotted.slotCount(); slot++) {
+                IItemView view = slotted.slotView(slot);
+                if (view != null && view.amount() > 0) {
+                    views.add(view);
+                    slots.add(slot);
+                }
+            }
+        } else {
+            for (IItemView view : storage.contents()) {
+                if (view.amount() > 0) views.add(view);
+            }
         }
 
         int startIndex = mode.getCropStart();
@@ -630,7 +647,9 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             if (adjustedAmount <= 0) continue;
 
             long canExtract = Math.min(adjustedAmount, remaining);
-            long extracted = storage.extract(key, canExtract, simulate);
+            long extracted = slotted != null
+                    ? slotted.extract(slots.get(i), key, canExtract, simulate)
+                    : storage.extract(key, canExtract, simulate);
             totalExtracted += extracted;
             remaining -= extracted;
         }
