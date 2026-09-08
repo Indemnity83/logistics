@@ -6,6 +6,8 @@ import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.automation.render.AutomationClientHooks;
+import com.logistics.power.render.PowerClientHooks;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
 import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
@@ -15,7 +17,6 @@ import com.logistics.automation.refinery.RefineryBlockEntityRenderer;
 import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.automation.transposer.TransposerScreen;
-import com.logistics.automation.render.ClientRenderCacheHooks;
 import com.logistics.automation.render.LaserQuarryBlockEntityRenderer;
 import com.logistics.core.bootstrap.ClientDomainBootstrap;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -66,20 +67,18 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         ClientPlayNetworking.registerGlobalReceiver(ReactionRecipeSyncPacket.TYPE, (packet, context) ->
                 context.client().execute(() -> ReactionJeiSyncAdapter.INSTANCE.set(packet)));
 
-        ClientRenderCacheHooks.setQuarryInterpolationClearer(LaserQuarryBlockEntityRenderer::clearInterpolationCache);
-        ClientRenderCacheHooks.setClearAllInterpolationCaches(LaserQuarryBlockEntityRenderer::clearAllInterpolationCaches);
+        // What gets evicted lives in AutomationClientHooks/PowerClientHooks; only the events are ours.
+        AutomationClientHooks.install();
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.level != null) {
-                LaserQuarryBlockEntityRenderer.pruneInterpolationCache(client.level);
-            }
-        });
+        ClientTickEvents.END_CLIENT_TICK.register(client -> AutomationClientHooks.onClientTick(client.level));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            ClientRenderCacheHooks.clearAllInterpolationCaches();
-            ClientMachineRecipes.clear();
-            ReactionJeiSyncAdapter.INSTANCE.clear();
+            AutomationClientHooks.clearAll();
+            PowerClientHooks.clearAll();
         });
-        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ClientRenderCacheHooks.clearAllInterpolationCaches());
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+            AutomationClientHooks.clearAll();
+            PowerClientHooks.clearAll();
+        });
     }
 
 }

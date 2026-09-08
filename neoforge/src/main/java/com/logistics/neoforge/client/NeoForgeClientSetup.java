@@ -12,9 +12,12 @@ import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.refinery.RefineryScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
+import com.logistics.automation.render.AutomationClientHooks;
+import com.logistics.power.render.PowerClientHooks;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.minecraft.client.Minecraft;
 import com.logistics.automation.jei.ClientMachineRecipes;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
-import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.render.FluidSpriteLookup;
@@ -96,6 +99,23 @@ public final class NeoForgeClientSetup {
         modBus.addListener(NeoForgeModelLoader::registerGeometryLoaders);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientDisconnect);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onRenderFog);
+        NeoForge.EVENT_BUS.addListener(NeoForgeClientSetup::onClientTick);
+
+        // What gets evicted lives in the shared hooks; only the events below are NeoForge's. This
+        // whole block was missing, so every eviction path for both caches was dead on this loader.
+        AutomationClientHooks.install();
+        PowerClientHooks.install(
+                NeoForgeEngineBlockEntityRenderer::clearAnimationCache,
+                NeoForgeEngineBlockEntityRenderer::clearAllAnimationCache);
+    }
+
+    private static void onClientTick(ClientTickEvent.Post event) {
+        AutomationClientHooks.onClientTick(Minecraft.getInstance().level);
+    }
+
+    private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        AutomationClientHooks.clearAll();
+        PowerClientHooks.clearAll();
     }
 
     /**
@@ -325,8 +345,4 @@ public final class NeoForgeClientSetup {
         ClientMachineRecipes.set(packet);
     }
 
-    private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
-        ClientMachineRecipes.clear();
-        ReactionJeiSyncAdapter.INSTANCE.clear();
-    }
 }
