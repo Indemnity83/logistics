@@ -31,7 +31,11 @@ public final class NetworkIntegrationGameTestRegistration {
         new GameTestCase(
             "network/provider_delivers_item_to_requester",
             120,
-            NetworkIntegrationGameTestBody::testProviderDeliversItemToRequester));
+            NetworkIntegrationGameTestBody::testProviderDeliversItemToRequester),
+        new GameTestCase(
+            "network/provider_reserve_mode_leaves_first_slot",
+            120,
+            NetworkIntegrationGameTestBody::testProviderReserveModeLeavesFirstSlot));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
