@@ -103,14 +103,27 @@ class FabricatorRecipeAllocationTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("a failed multi-ingredient allocation may already have reported partial takes")
-    void failedAllocation_mayReportPartialTakes() {
-        // Copper is satisfied first, then gold is missing: the copper takes are already reported, so
-        // callers using the sink to consume must treat a false result as a rollback signal.
+    @DisplayName("a failed multi-ingredient allocation reports no takes at all")
+    void failedAllocation_takesNothing() {
+        // Copper is satisfied first, then gold is missing. Allocation is all-or-nothing: a caller that
+        // consumes through the sink must never lose the copper to a craft that cannot happen.
         Result r = allocate(
                 recipe(ing(Items.COPPER_INGOT, 3), ing(Items.GOLD_INGOT, 1)),
                 new ItemStack(Items.COPPER_INGOT, 3));
         assertThat(r.satisfied()).isFalse();
-        assertThat(r.takes()).containsExactly(new Take(0, 3));
+        assertThat(r.takes()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("a failed allocation leaves the pool untouched when the sink consumes")
+    void failedAllocation_leavesPoolIntact() {
+        ItemStack copper = new ItemStack(Items.COPPER_INGOT, 3);
+        FabricatorRecipe recipe = recipe(ing(Items.COPPER_INGOT, 3), ing(Items.GOLD_INGOT, 1));
+
+        List<ItemStack> pool = List.of(copper);
+        boolean ok = recipe.allocateFrom(pool, (slot, amount) -> pool.get(slot).shrink(amount));
+
+        assertThat(ok).isFalse();
+        assertThat(copper.getCount()).isEqualTo(3);
     }
 }
