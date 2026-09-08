@@ -17,4 +17,18 @@ public interface IItemView {
 
     /** The number of items available in this view. Always {@code > 0}. */
     long amount();
+
+    /**
+     * The total this slot or resource group could hold, not the room left in it. Always
+     * {@code >= amount()}. Mirrors {@code IFluidView#capacity()}.
+     *
+     * <p>Both loaders' storage APIs ask for capacity independently of the current contents, so
+     * deriving it from an insert simulation reports a full slot as having zero capacity — which
+     * reads as "nothing fits here ever" rather than "this is full right now".
+     *
+     * <p>Defaults to {@link #amount()} for storages that track no distinct capacity.
+     */
+    default long capacity() {
+        return amount();
+    }
 }

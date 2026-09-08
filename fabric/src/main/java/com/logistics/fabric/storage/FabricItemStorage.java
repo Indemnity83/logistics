@@ -259,6 +259,9 @@ public final class FabricItemStorage implements IItemStorage {
         public long getAmount() { return view.amount(); }
 
         @Override
-        public long getCapacity() { return view.amount(); }
+        // Fabric's StorageView contract asks for the total this view could hold, not what is in it.
+        // Returning the amount reported every view as exactly full, so any comparator derived from
+        // our machines read 15 on the first item.
+        public long getCapacity() { return view.capacity(); }
     }
 }
