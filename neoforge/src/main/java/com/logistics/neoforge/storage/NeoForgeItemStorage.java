@@ -15,7 +15,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
-public final class NeoForgeItemStorage implements IItemStorage {
+public final class NeoForgeItemStorage implements ISlottedItemStorage {
     private final ResourceHandler<ItemResource> handler;
 
     private NeoForgeItemStorage(ResourceHandler<ItemResource> handler) {
@@ -84,6 +84,56 @@ public final class NeoForgeItemStorage implements IItemStorage {
             });
         }
         return views;
+    }
+
+    @Override
+    public int slotCount() {
+        return handler.size();
+    }
+
+    @Override
+    @Nullable
+    public IItemView slotView(int slot) {
+        ItemResource resource = handler.getResource(slot);
+        long amount = handler.getAmountAsLong(slot);
+        if (resource.isEmpty() || amount <= 0) {
+            return null;
+        }
+        IItemKey key = new NeoForgeItemKey(resource);
+        return new IItemView() {
+            @Override public IItemKey resource() { return key; }
+            @Override public long amount() { return amount; }
+        };
+    }
+
+    @Override
+    public long insert(int slot, IItemKey item, long maxAmount, boolean simulate) {
+        ItemResource resource = toResource(item);
+        if (resource.isEmpty() || maxAmount <= 0) {
+            return 0;
+        }
+        try (Transaction tx = Transaction.openRoot()) {
+            int inserted = handler.insert(slot, resource, clampToInt(maxAmount), tx);
+            if (!simulate) {
+                tx.commit();
+            }
+            return inserted;
+        }
+    }
+
+    @Override
+    public long extract(int slot, IItemKey item, long maxAmount, boolean simulate) {
+        ItemResource resource = toResource(item);
+        if (resource.isEmpty() || maxAmount <= 0) {
+            return 0;
+        }
+        try (Transaction tx = Transaction.openRoot()) {
+            int extracted = handler.extract(slot, resource, clampToInt(maxAmount), tx);
+            if (!simulate) {
+                tx.commit();
+            }
+            return extracted;
+        }
     }
 
     private static ItemResource toResource(IItemKey key) {

@@ -4,6 +4,7 @@ import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -27,11 +28,11 @@ import java.util.Map;
  * {@link com.logistics.core.lib.block.capability.HasItemStorage} block entities to Fabric's
  * capability system.
  */
-public final class FabricItemStorage implements IItemStorage {
+public sealed class FabricItemStorage implements IItemStorage permits SlottedFabricItemStorage {
 
     private final Storage<ItemVariant> storage;
 
-    private FabricItemStorage(Storage<ItemVariant> storage) {
+    FabricItemStorage(Storage<ItemVariant> storage) {
         this.storage = storage;
     }
 
@@ -43,7 +44,20 @@ public final class FabricItemStorage implements IItemStorage {
      */
     @Nullable
     public static IItemStorage wrap(@Nullable Storage<ItemVariant> storage) {
-        return storage == null ? null : new FabricItemStorage(storage);
+        if (storage == null) {
+            return null;
+        }
+        // Slot identity is not part of the Storage contract, so callers that reserve particular
+        // slots only get it when the underlying storage actually exposes them.
+        if (storage instanceof SlottedStorage<ItemVariant> slotted) {
+            return new SlottedFabricItemStorage(slotted);
+        }
+        return new FabricItemStorage(storage);
+    }
+
+    /** The Fabric variant for {@code item}, without a round-trip through ItemStack when avoidable. */
+    static ItemVariant variantOf(IItemKey item) {
+        return item instanceof FabricItemKey fk ? fk.variant() : ItemVariant.of(item.toStack(1));
     }
 
     /**
@@ -65,7 +79,7 @@ public final class FabricItemStorage implements IItemStorage {
 
     @Override
     public long insert(IItemKey item, long maxAmount, boolean simulate) {
-        ItemVariant variant = item instanceof FabricItemKey fk ? fk.variant() : ItemVariant.of(item.toStack(1));
+        ItemVariant variant = variantOf(item);
         if (simulate) {
             try (Transaction t = Transaction.openOuter()) {
                 return storage.insert(variant, maxAmount, t);
@@ -81,7 +95,7 @@ public final class FabricItemStorage implements IItemStorage {
 
     @Override
     public long extract(IItemKey item, long maxAmount, boolean simulate) {
-        ItemVariant variant = item instanceof FabricItemKey fk ? fk.variant() : ItemVariant.of(item.toStack(1));
+        ItemVariant variant = variantOf(item);
         if (simulate) {
             try (Transaction t = Transaction.openOuter()) {
                 return storage.extract(variant, maxAmount, t);
