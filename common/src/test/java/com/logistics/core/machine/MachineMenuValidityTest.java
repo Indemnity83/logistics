@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +39,7 @@ class MachineMenuValidityTest extends MinecraftTestEnvironment {
     /** A machine shell backed by a vanilla BE type so no mod registration is needed. */
     private static final class TestMachine extends MachineEntity {
         TestMachine() {
-            super(BlockEntityTypes.FURNACE, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
+            super(BlockEntityType.FURNACE, BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
         }
 
         @Override
