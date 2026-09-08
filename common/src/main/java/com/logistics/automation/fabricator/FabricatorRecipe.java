@@ -59,7 +59,7 @@ public class FabricatorRecipe extends AbstractLogisticsRecipe<FabricatorInput> {
         return result.toStack();
     }
 
-    /** Reports one greedy allocation from {@link #allocateFrom}: {@code slot} contributed {@code amount}. */
+    /** Reports one allocation from {@link #allocateFrom}: {@code slot} contributed {@code amount}. */
     @FunctionalInterface
     public interface Allocation {
         void take(int slot, int amount);
@@ -68,14 +68,18 @@ public class FabricatorRecipe extends AbstractLogisticsRecipe<FabricatorInput> {
     /**
      * Greedy per-ingredient / per-slot allocation over {@code pool}: for each ingredient, walk the
      * slots in order taking {@code Math.min(available, needed)} until satisfied, never counting a slot
-     * toward two ingredients. Each take is reported to {@code sink}. Returns {@code true} iff every
-     * ingredient is fully satisfied (stopping short may already have reported partial takes).
+     * toward two ingredients. Returns {@code true} iff every ingredient is fully satisfied.
+     *
+     * <p>All-or-nothing: takes are totalled per slot and reported to {@code sink} only once the whole
+     * recipe is satisfied, so a sink that consumes can never strip a partial allocation for a craft
+     * that cannot happen.
      *
      * <p>Shared by {@link #canCraftFrom} (no-op sink) and the machine's consume step so the
      * availability check and the actual consumption can never diverge.
      */
     public boolean allocateFrom(List<ItemStack> pool, Allocation sink) {
         int[] remaining = new int[pool.size()];
+        int[] taken = new int[pool.size()];
         for (int i = 0; i < pool.size(); i++) {
             remaining[i] = pool.get(i).getCount();
         }
@@ -85,12 +89,17 @@ public class FabricatorRecipe extends AbstractLogisticsRecipe<FabricatorInput> {
                 if (remaining[i] > 0 && ingredient.test(pool.get(i))) {
                     int take = Math.min(remaining[i], needed);
                     remaining[i] -= take;
+                    taken[i] += take;
                     needed -= take;
-                    sink.take(i, take);
                 }
             }
             if (needed > 0) {
                 return false;
+            }
+        }
+        for (int i = 0; i < pool.size(); i++) {
+            if (taken[i] > 0) {
+                sink.take(i, taken[i]);
             }
         }
         return true;
