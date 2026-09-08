@@ -53,4 +53,9 @@ public class MaceratorGameTest {
     public void testMaceratesViaRealEngineAndHoppers(GameTestHelper context) {
         MaceratorGameTestBody.testMaceratesViaRealEngineAndHoppers(context);
     }
+
+    @GameTest(maxTicks = 60)
+    public void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        MaceratorGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }
