@@ -96,6 +96,15 @@ public class QuarryMiningGameTest {
         QuarryMiningGameTestBody.testQuarryMinesAndOutputsViaRealEngine(context);
     }
 
+    /**
+     * A waterlogged block is a block, and the quarry mines it — otherwise a quarry over a shipwreck
+     * leaves the whole submerged skeleton standing in the pit.
+     */
+    @GameTest(maxTicks = 200)
+    public void testQuarryMinesWaterloggedBlock(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryMinesWaterloggedBlock(context);
+    }
+
     /** Verifies lava is treated as unminable — like bedrock: never mined, never replaced — and the quarry still finishes. */
     @GameTest(maxTicks = 200)
     public void testQuarryTreatsLavaAsUnminableAndSkipsThatColumn(GameTestHelper context) {

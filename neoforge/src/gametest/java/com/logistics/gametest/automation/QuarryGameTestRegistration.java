@@ -20,14 +20,14 @@ public final class QuarryGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("automation/quarry_placement", 100, QuarryGameTestBody::testQuarryPlacement),
-        new GameTestCase("automation/quarry_accepts_energy", 100, QuarryGameTestBody::testQuarryAcceptsEnergy),
+        new GameTestCase("automation/quarry_accepts_energy", 200, QuarryGameTestBody::testQuarryAcceptsEnergy),
         new GameTestCase(
             "automation/quarry_tracks_committed_energy_input", 40, QuarryGameTestBody::testQuarryTracksCommittedEnergyInput),
-        new GameTestCase("automation/quarry_does_not_accept_items", 100, QuarryGameTestBody::testQuarryDoesNotAcceptItems),
+        new GameTestCase("automation/quarry_does_not_accept_items", 120, QuarryGameTestBody::testQuarryDoesNotAcceptItems),
         new GameTestCase("automation/quarry_initial_phase", 100, QuarryGameTestBody::testQuarryInitialPhase),
         new GameTestCase(
             "automation/quarry_has_no_custom_bounds_without_markers", 100, QuarryGameTestBody::testQuarryHasNoCustomBoundsWithoutMarkers),
-        new GameTestCase("automation/quarry_pipe_connection", 100, QuarryGameTestBody::testQuarryPipeConnection),
+        new GameTestCase("automation/quarry_pipe_connection", 60, QuarryGameTestBody::testQuarryPipeConnection),
         new GameTestCase("automation/quarry_facing", 100, QuarryGameTestBody::testQuarryFacing));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =

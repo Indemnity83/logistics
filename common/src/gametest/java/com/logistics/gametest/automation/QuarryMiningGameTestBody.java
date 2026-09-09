@@ -23,6 +23,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.TagValueInput;
 
 /**
@@ -277,6 +279,72 @@ public class QuarryMiningGameTestBody {
         }
 
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIRT));
+    }
+
+    /**
+     * A waterlogged block is a block, and the quarry mines it.
+     *
+     * <p>{@code BlockState.getFluidState()} reports water for anything with {@code WATERLOGGED=true},
+     * so a "is this cell fluid?" check written that way skips every waterlogged stair, slab, fence
+     * and chest — a quarry over a shipwreck mines the plain blocks and leaves the submerged skeleton
+     * standing in the pit, chests and all. {@code GridScanner} therefore asks whether the cell also
+     * blocks motion; this is that rule in the world, mirroring the fluid pump's waterlog test.
+     *
+     * <p>The slab is the inner mining column's top cell, boxed in by stone on every side but the
+     * cleared air above it, so its water cannot spread and confuse the run.
+     */
+    public static void testQuarryMinesWaterloggedBlock(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 2, 1);
+        BlockPos chestPos = new BlockPos(1, 3, 1);
+        BlockPos slabPos = new BlockPos(1, 1, 3); // inside the 1×1 inner mining area
+        BlockPos enginePos = new BlockPos(0, 2, 1);
+        BlockPos redstoneBlockPos = new BlockPos(-1, 2, 1);
+
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
+        // Solid stone under the bounds so the waterlogged slab's water has nowhere to flow.
+        for (int dy = -1; dy >= -3; dy--) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.STONE);
+                }
+            }
+        }
+
+        context.setBlock(
+                slabPos, Blocks.OAK_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true));
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+        context.setBlock(redstoneBlockPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        LaserQuarryBlockEntity quarry = context.getBlockEntity(quarryPos, LaserQuarryBlockEntity.class);
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        if (quarry == null || engine == null) {
+            context.fail("Expected quarry and engine block entities");
+            return;
+        }
+
+        BlockPos absPos = context.absolutePos(quarryPos);
+        quarry.setCustomBounds(
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
+
+        for (int i = 0; i < 6; i++) {
+            engine.cycleOutputLevel();
+        }
+
+        // The slab arriving in the chest is the whole claim: it was mined, not skipped as fluid.
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.OAK_SLAB));
     }
 
     /** Verifies lava is treated as unminable — like bedrock: never mined, never replaced — and the quarry still finishes. */
