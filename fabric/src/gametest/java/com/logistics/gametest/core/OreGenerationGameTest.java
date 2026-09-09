@@ -68,29 +68,42 @@ public class OreGenerationGameTest {
     }
 
     /**
-    * Test that tin ore (stone variant) target predicate accepts stone blocks.
-    * Verifies the ore generation target configuration is correct.
-    */
+     * Test that the real tin ore feature turns stone into tin ore when it generates.
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty")
-    public void testTinOreCanReplaceStone(GameTestHelper context) {
-        OreGenerationGameTestBody.testTinOreCanReplaceStone(context);
+    public void testTinOreStoneFeatureGeneratesTinOre(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreStoneFeatureGeneratesTinOre(context);
     }
 
     /**
-    * Test that deepslate tin ore target predicate accepts deepslate blocks.
-    * Verifies the deepslate variant ore generation target configuration is correct.
-    */
+     * Test that the real deepslate tin ore feature turns deepslate into deepslate tin ore.
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty")
-    public void testTinOreCanReplaceDeepslate(GameTestHelper context) {
-        OreGenerationGameTestBody.testTinOreCanReplaceDeepslate(context);
+    public void testTinOreDeepslateFeatureGeneratesDeepslateTinOre(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreDeepslateFeatureGeneratesDeepslateTinOre(context);
     }
 
     /**
-    * Test that apatite ore target predicate accepts stone blocks.
-    * Verifies the ore generation target configuration is correct.
-    */
+     * Test that tin ore (stone variant) declares stone as its replace target.
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty")
-    public void testApatiteOreCanReplaceStone(GameTestHelper context) {
-        OreGenerationGameTestBody.testApatiteOreCanReplaceStone(context);
+    public void testTinOreTargetsStone(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreTargetsStone(context);
+    }
+
+    /**
+     * Test that deepslate tin ore declares deepslate as its replace target.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testTinOreTargetsDeepslate(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreTargetsDeepslate(context);
+    }
+
+    /**
+     * Test that apatite ore declares stone as its replace target.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testApatiteOreTargetsStone(GameTestHelper context) {
+        OreGenerationGameTestBody.testApatiteOreTargetsStone(context);
     }
 }

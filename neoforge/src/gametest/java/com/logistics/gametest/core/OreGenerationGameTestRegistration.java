@@ -76,29 +76,47 @@ public final class OreGenerationGameTestRegistration {
     }
 
     /**
-    * Test that tin ore (stone variant) target predicate accepts stone blocks.
-    * Verifies the ore generation target configuration is correct.
+    * Test that the real tin ore feature turns stone into tin ore when it generates.
     */
     @GameTest(template = "empty", batch = "oregeneration")
-    public static void testTinOreCanReplaceStone(GameTestHelper context) {
-        OreGenerationGameTestBody.testTinOreCanReplaceStone(context);
+    public static void testTinOreStoneFeatureGeneratesTinOre(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreStoneFeatureGeneratesTinOre(context);
     }
 
-    /**
-    * Test that deepslate tin ore target predicate accepts deepslate blocks.
-    * Verifies the deepslate variant ore generation target configuration is correct.
-    */
-    @GameTest(template = "empty", batch = "oregeneration")
-    public static void testTinOreCanReplaceDeepslate(GameTestHelper context) {
-        OreGenerationGameTestBody.testTinOreCanReplaceDeepslate(context);
-    }
 
     /**
-    * Test that apatite ore target predicate accepts stone blocks.
-    * Verifies the ore generation target configuration is correct.
+    * Test that the real deepslate tin ore feature turns deepslate into deepslate tin ore.
     */
     @GameTest(template = "empty", batch = "oregeneration")
-    public static void testApatiteOreCanReplaceStone(GameTestHelper context) {
-        OreGenerationGameTestBody.testApatiteOreCanReplaceStone(context);
+    public static void testTinOreDeepslateFeatureGeneratesDeepslateTinOre(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreDeepslateFeatureGeneratesDeepslateTinOre(context);
     }
+
+
+    /**
+    * Test that tin ore (stone variant) declares stone as its replace target.
+    */
+    @GameTest(template = "empty", batch = "oregeneration")
+    public static void testTinOreTargetsStone(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreTargetsStone(context);
+    }
+
+
+    /**
+    * Test that deepslate tin ore declares deepslate as its replace target.
+    */
+    @GameTest(template = "empty", batch = "oregeneration")
+    public static void testTinOreTargetsDeepslate(GameTestHelper context) {
+        OreGenerationGameTestBody.testTinOreTargetsDeepslate(context);
+    }
+
+
+    /**
+    * Test that apatite ore declares stone as its replace target.
+    */
+    @GameTest(template = "empty", batch = "oregeneration")
+    public static void testApatiteOreTargetsStone(GameTestHelper context) {
+        OreGenerationGameTestBody.testApatiteOreTargetsStone(context);
+    }
+
 }
