@@ -5,6 +5,7 @@ import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.network.INetworkGraph;
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.core.lib.network.NetworkGraph;
+import com.logistics.core.lib.network.NetworkTopologyListener;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -500,6 +501,10 @@ public class NetworkRegistry {
      * connections change — every other pipe would otherwise keep believing it is still registered.
      * Clearing the cached connection mask is the same nudge the chassis inventory uses after a
      * module is inserted.
+     *
+     * <p>Blocks beside the component cache the network too and get the same nudge: a Power Junction
+     * holds the network it registered as an energy source with, and would otherwise leave the
+     * surviving half unpowered until its own periodic rescan came round.
      */
     private static void requestReregistration(Level level, Set<BlockPos> component) {
         for (BlockPos pos : component) {
@@ -508,6 +513,18 @@ public class NetworkRegistry {
             if (level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
                 pipe.setLastConnectionsMask(-1);
                 pipe.invalidateConnectionCache();
+            }
+            notifyAdjacentListeners(level, pos);
+        }
+    }
+
+    /** Tell every {@link NetworkTopologyListener} beside a pipe that its network was replaced. */
+    private static void notifyAdjacentListeners(Level level, BlockPos pipePos) {
+        for (Direction direction : Direction.values()) {
+            BlockPos neighbor = pipePos.relative(direction);
+            if (!level.hasChunkAt(neighbor)) continue;
+            if (level.getBlockEntity(neighbor) instanceof NetworkTopologyListener listener) {
+                listener.onNetworkTopologyChanged();
             }
         }
     }

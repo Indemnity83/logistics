@@ -11,6 +11,7 @@ import com.logistics.pipe.network.PipeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Shared power junction GameTest bodies, compiled directly into both loaders' {@code gametest}
@@ -91,6 +92,59 @@ public class PowerJunctionGameTestBody {
             }
             if (net.consumeEnergy(1)) {
                 context.fail("An empty junction should not be able to power the network");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * A junction must power the network it lands on straight after a split, not a second later.
+     *
+     * <p>Regression test: the junction registers itself as an energy source from a polled scan that
+     * backs off to a 20-tick interval once it holds a registration. A split replaces the network
+     * instance under it, and the cached registration for the now-dead network kept the fast path
+     * alive, so the surviving half was unpowered until the next scheduled scan came round.
+     *
+     * <p>The bridge is broken at tick 30 and the check runs at tick 33: the junction's own periodic
+     * scans land near ticks 22 and 42, so a pass here can only come from the split itself driving
+     * the re-registration.
+     */
+    public static void testJunctionPowersNewNetworkAfterSplit(GameTestHelper context) {
+        BlockPos nearPipe = new BlockPos(0, 1, 0);
+        BlockPos bridgePos = new BlockPos(0, 1, 1);
+        BlockPos farPipe = new BlockPos(0, 1, 2);
+        BlockPos junctionPos = new BlockPos(0, 2, 0); // above the near pipe, off the split path
+
+        context.setBlock(nearPipe, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(bridgePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(farPipe, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        PowerJunctionBlockEntity junction = (PowerJunctionBlockEntity) context.getBlockEntity(junctionPos);
+        if (junction == null) {
+            context.fail("Junction should have a block entity");
+            return;
+        }
+        fill(context, junction);
+
+        // Let the network form and the junction register, then break the bridge to split it.
+        context.runAfterDelay(30, () -> {
+            PipeNetwork before = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(nearPipe));
+            if (before == null || !before.consumeEnergy(1)) {
+                context.fail("Junction should power the network before the split");
+                return;
+            }
+            context.setBlock(bridgePos, Blocks.AIR);
+        });
+
+        context.runAfterDelay(33, () -> {
+            PipeNetwork net = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(nearPipe));
+            if (net == null) {
+                context.fail("Surviving half should have a network after the split");
+                return;
+            }
+            if (!net.consumeEnergy(500)) {
+                context.fail("Junction should power the network it now belongs to within a few ticks of a split");
                 return;
             }
             context.succeed();

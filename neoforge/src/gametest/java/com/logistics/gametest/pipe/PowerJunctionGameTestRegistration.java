@@ -48,4 +48,10 @@ public final class PowerJunctionGameTestRegistration {
     public static void testQuarryArmIsNotTreatedAsPower(GameTestHelper context) {
         PowerJunctionGameTestBody.testQuarryArmIsNotTreatedAsPower(context);
     }
+
+    /** A junction must power the network it now belongs to as soon as a split creates it. */
+    @GameTest(template = "empty", batch = "powerjunction", timeoutTicks = 80)
+    public static void testJunctionPowersNewNetworkAfterSplit(GameTestHelper context) {
+        PowerJunctionGameTestBody.testJunctionPowersNewNetworkAfterSplit(context);
+    }
 }
