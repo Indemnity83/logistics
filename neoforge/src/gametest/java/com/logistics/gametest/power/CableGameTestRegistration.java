@@ -169,4 +169,28 @@ public final class CableGameTestRegistration {
     public static void testMidTickRebuildKeepsTheThroughputCap(GameTestHelper context) {
         CableGameTestBody.testMidTickRebuildKeepsTheThroughputCap(context);
     }
+
+    /**
+    * A consumer placed between two pushes in the same tick still receives the second one.
+    *
+    * <p>The tick's device scan is shared by every push in it, so the network has to notice the
+    * neighbourhood changing underneath that scan rather than serving the rest of the tick from a
+    * picture taken before the consumer existed.
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 60)
+    public static void testDeviceAddedMidTickReceivesEnergy(GameTestHelper context) {
+        CableGameTestBody.testDeviceAddedMidTickReceivesEnergy(context);
+    }
+
+    /**
+    * A consumer broken between two pushes in the same tick receives nothing further.
+    *
+    * <p>The first push is simulated so it finds the sink without spending the tick's throughput
+    * budget — after a committed push the second would return zero whether or not the sink was
+    * still there, which would prove nothing.
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 60)
+    public static void testDeviceRemovedMidTickReceivesNothing(GameTestHelper context) {
+        CableGameTestBody.testDeviceRemovedMidTickReceivesNothing(context);
+    }
 }
