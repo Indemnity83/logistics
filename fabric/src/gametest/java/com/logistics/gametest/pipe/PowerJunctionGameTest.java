@@ -23,6 +23,12 @@ public class PowerJunctionGameTest {
         PowerJunctionGameTestBody.testEmptyJunctionDoesNotPowerNetwork(context);
     }
 
+    /** A junction must power the network it lands on straight after a split, not a second later. */
+    @GameTest(maxTicks = 60)
+    public void testJunctionPowersNewNetworkAfterSplit(GameTestHelper context) {
+        PowerJunctionGameTestBody.testJunctionPowersNewNetworkAfterSplit(context);
+    }
+
     /** An adjacent pipe forms a POWER connection (rendered arm) toward the junction, not a route. */
     @GameTest(maxTicks = 40)
     public void testPipeFormsPowerConnectionToJunction(GameTestHelper context) {
