@@ -19,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -216,9 +215,9 @@ public class SupplierScreenHandler extends CustomSlotScreenHandler {
         }
         int[] amount = {0};
         withSupplierModule((ctx, module) -> {
-            List<SupplierModule.SupplyConfig> configs = module.getSupplyConfigs(ctx);
-            if (slotIndex < configs.size()) {
-                amount[0] = configs.get(slotIndex).amount();
+            SupplierModule.SupplyConfig config = module.getSupplyConfig(ctx, slotIndex);
+            if (config != null) {
+                amount[0] = config.amount();
             }
         });
         return amount[0];
