@@ -639,7 +639,9 @@ public class PipeBlockEntity extends BaseBlockEntity
      */
     @Override
     public boolean canAcceptFrom(Direction from, ItemStack stack) {
-        PipeBlock pipeBlock = (PipeBlock) getBlockState().getBlock();
+        if (!(getBlockState().getBlock() instanceof PipeBlock pipeBlock)) {
+            return false;
+        }
         ItemPipe pipe = pipeBlock.getPipe();
         if (pipe == null) {
             return false;
