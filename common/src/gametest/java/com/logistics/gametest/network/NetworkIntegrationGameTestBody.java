@@ -11,11 +11,14 @@ import com.logistics.pipe.modules.RequesterModule;
 import com.logistics.pipe.modules.SinkModule;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
+import com.logistics.pipe.ui.ChassisInventory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 
@@ -305,6 +308,125 @@ public class NetworkIntegrationGameTestBody {
             if (count < 4) {
                 context.assertTrue(false, "Expected >= 4 diamonds in dest chest, found: " + count);
             }
+        });
+    }
+
+    /**
+     * Build the shared split-recovery layout and return the position of the pipe the player breaks.
+     *
+     * <p>Layout (y=1):
+     * <pre>
+     *   z=0:  [injector] [sink pipe] [chest]      (0,1,0) (1,1,0) (2,1,0)
+     *   z=1:  [bridge]                            (0,1,1)  &#8592; broken to force the split
+     *   z=2:  [leaf]                              (0,1,2)
+     * </pre>
+     * Breaking the bridge strands the leaf, so the network splits and both components get
+     * brand-new {@code PipeNetwork} instances with empty sink registries. The sink pipe's own
+     * connections never change, so nothing about its physical state tells it to re-register.
+     */
+    private static BlockPos buildSplitRecoveryLayout(GameTestHelper context) {
+        BlockPos injectorPos = new BlockPos(0, 1, 0);
+        BlockPos bridgePos = new BlockPos(0, 1, 1);
+        BlockPos leafPos = new BlockPos(0, 1, 2);
+
+        context.setBlock(leafPos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(bridgePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(injectorPos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        placeChargedPowerJunction(context, injectorPos.above());
+
+        return bridgePos;
+    }
+
+    /** Force-inject an item into the injector pipe from the west, as an upstream pipe would. */
+    private static void injectFromWest(GameTestHelper context, ItemStack stack) {
+        PipeBlockEntity injector = (PipeBlockEntity) context.getBlockEntity(new BlockPos(0, 1, 0));
+        if (injector == null) {
+            context.fail("Injector pipe should have a block entity");
+            return;
+        }
+        if (!injector.forceAddItem(new TravelingItem(stack, Direction.WEST, 0.5f), Direction.WEST)) {
+            context.fail("Injector pipe should accept the force-injected " + stack.getItem());
+        }
+    }
+
+    /**
+     * An Enchantment Sink chassis must still be a routing target after the network splits.
+     *
+     * <p>Regression test: the module registers as a sink only from {@code onConnectionsChanged},
+     * and a split elsewhere in the component leaves this pipe's own connections untouched. Before
+     * the fix the rebuilt network had an empty sink registry, so the router found no destination
+     * for the enchanted sword and dropped it on the floor instead of delivering it.
+     */
+    public static void testEnchantmentSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
+        BlockPos chassisPos = new BlockPos(1, 1, 0);
+        BlockPos chestPos = new BlockPos(2, 1, 0);
+        BlockPos bridgePos = buildSplitRecoveryLayout(context);
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(chassisPos, LogisticsPipe.BLOCK.CHASSIS_LOGISTICS_PIPE_MK1);
+
+        PipeBlockEntity chassis = (PipeBlockEntity) context.getBlockEntity(chassisPos);
+        if (chassis == null) {
+            context.fail("Chassis pipe should have a block entity");
+            return;
+        }
+        // Insert the module the way a player does — through the chassis inventory.
+        new ChassisInventory(chassis).setItem(0, new ItemStack(LogisticsPipe.ITEM.ENCHANTMENT_SINK_MODULE));
+
+        ItemStack enchantedSword = new ItemStack(Items.DIAMOND_SWORD);
+        enchantedSword.enchant(
+                context.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT)
+                        .getOrThrow(Enchantments.SHARPNESS),
+                1);
+
+        // Let the network form and the sink register, then break the bridge to split it.
+        context.runAfterDelay(25, () -> context.setBlock(bridgePos, Blocks.AIR));
+
+        // Inject well after the split: the Power Junction rescans every 20 ticks, so by now the
+        // rebuilt network can pay the routing cost. Anything still missing is a sink-registry gap.
+        context.runAfterDelay(50, () -> {
+            injectFromWest(context, enchantedSword);
+            context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND_SWORD));
+        });
+    }
+
+    /**
+     * The plain Sink module must keep recovering from a split exactly as it does today.
+     *
+     * <p>Guards the modules that already work against a regression from changing how split
+     * recovery is driven. Same layout as
+     * {@link #testEnchantmentSinkStillReceivesAfterNetworkSplit}, with a default-route Basic
+     * Logistics Pipe in place of the Enchantment Sink chassis.
+     */
+    public static void testBasicSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
+        BlockPos sinkPos = new BlockPos(1, 1, 0);
+        BlockPos chestPos = new BlockPos(2, 1, 0);
+        BlockPos bridgePos = buildSplitRecoveryLayout(context);
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(sinkPos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+
+        PipeBlockEntity sinkEntity = (PipeBlockEntity) context.getBlockEntity(sinkPos);
+        if (sinkEntity == null) {
+            context.fail("Sink pipe should have a block entity");
+            return;
+        }
+        if (!(sinkEntity.getBlockState().getBlock() instanceof PipeBlock sinkBlock)
+                || sinkBlock.getPipe() == null) {
+            throw new IllegalStateException("Pipe missing for block entity at sinkPos");
+        }
+        SinkModule sink = sinkBlock.getPipe().getModule(SinkModule.class, sinkEntity);
+        if (sink == null) {
+            throw new IllegalStateException("SinkModule missing from pipe at sinkPos");
+        }
+        // Enable default route, as a player would through the wrench GUI.
+        sink.setDefaultRoute(sinkEntity.createContext(), true);
+
+        context.runAfterDelay(25, () -> context.setBlock(bridgePos, Blocks.AIR));
+
+        context.runAfterDelay(50, () -> {
+            injectFromWest(context, new ItemStack(Items.IRON_INGOT));
+            context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.IRON_INGOT));
         });
     }
 

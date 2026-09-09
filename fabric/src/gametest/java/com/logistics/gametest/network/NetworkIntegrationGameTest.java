@@ -95,4 +95,16 @@ public class NetworkIntegrationGameTest {
     public void testProviderDeliversItemToRequester(GameTestHelper context) {
         NetworkIntegrationGameTestBody.testProviderDeliversItemToRequester(context);
     }
+
+    /** An Enchantment Sink chassis must still receive items after the network splits. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void testEnchantmentSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testEnchantmentSinkStillReceivesAfterNetworkSplit(context);
+    }
+
+    /** The plain Sink module must keep recovering from a split exactly as it does today. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void testBasicSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testBasicSinkStillReceivesAfterNetworkSplit(context);
+    }
 }
