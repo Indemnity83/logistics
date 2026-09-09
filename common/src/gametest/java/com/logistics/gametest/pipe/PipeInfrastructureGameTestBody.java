@@ -1,8 +1,10 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsPipe;
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
 
@@ -81,30 +83,60 @@ public class PipeInfrastructureGameTestBody {
     }
 
     /**
-     * Test that pipes can connect to each other.
+     * A pipe surrounded by four pipes must record those four as PIPE connections, and record
+     * nothing above or below it.
+     *
+     * <p>Reads the cached connection types the renderer and the router both consume, after letting
+     * the server tick the pipe — placing the neighbours is not enough on its own, the recalculation
+     * has to run. Asserting only that the centre has a block entity (all this test used to do)
+     * passes even when connection tracking is completely broken.
      */
     public static void testPipeConnections(GameTestHelper context) {
         BlockPos center = new BlockPos(1, 1, 1);
 
-        // Place a central pipe with pipes on all sides
+        // Place a central pipe with pipes on all four horizontal sides
         context.setBlock(center, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
         context.setBlock(center.north(), LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
         context.setBlock(center.south(), LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
         context.setBlock(center.east(), LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
         context.setBlock(center.west(), LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
 
-        // Verify center pipe has block entity
-        PipeBlockEntity centerEntity = context.getBlockEntity(center, PipeBlockEntity.class);
-        if (centerEntity == null) {
-            context.fail("Center pipe should have block entity");
-        }
+        // The connection cache is recalculated on tick, so give the server a few before reading it.
+        context.runAfterDelay(3, () -> {
+            PipeBlockEntity centerEntity = context.getBlockEntity(center, PipeBlockEntity.class);
+            if (centerEntity == null) {
+                context.fail("Center pipe should have block entity");
+                return;
+            }
 
-        context.succeed();
+            for (Direction direction : Direction.Plane.HORIZONTAL) {
+                PipeConnection.Type type = centerEntity.getCachedConnectionType(direction);
+                if (type != PipeConnection.Type.PIPE) {
+                    context.fail("Center pipe should report a PIPE connection to its " + direction
+                            + " neighbour, got: " + type);
+                    return;
+                }
+            }
+
+            for (Direction direction : Direction.Plane.VERTICAL) {
+                PipeConnection.Type type = centerEntity.getCachedConnectionType(direction);
+                if (type != PipeConnection.Type.NONE) {
+                    context.fail("Center pipe should report no connection " + direction
+                            + " (nothing is there), got: " + type);
+                    return;
+                }
+            }
+
+            context.succeed();
+        });
     }
 
     /**
-     * Test that connection cache is only recalculated when neighbors change.
-     * This verifies the performance optimization that avoids per-tick recalculation.
+     * The connection cache is recalculated once after a topology change and then left alone.
+     *
+     * <p>Driven by the server's own tick loop rather than by calling {@code PipeBlockEntity.tick}
+     * directly: the flag going clean is then evidence that the pipe is actually registered as a
+     * ticking block entity in the world, which a direct static call cannot show.
      */
     public static void testConnectionCacheOptimization(GameTestHelper context) {
         BlockPos pipePos = new BlockPos(1, 1, 1);
@@ -117,62 +149,41 @@ public class PipeInfrastructureGameTestBody {
             return;
         }
 
-        // Cache should be dirty initially
+        // Cache is dirty the moment the pipe is placed, before the world has ticked it.
         context.assertTrue(
                 pipeEntity.isConnectionCacheDirty(),
                 "Connection cache should be dirty on first tick"
         );
 
-        // Manually tick the pipe - should recalculate connections
-        PipeBlockEntity.tick(
-                context.getLevel(),
-                pipePos,
-                context.getBlockState(pipePos),
-                pipeEntity
-        );
+        // Let the world tick the pipe — that, not a direct tick() call, is what must clean it.
+        context.runAfterDelay(2, () -> {
+            context.assertFalse(
+                    pipeEntity.isConnectionCacheDirty(),
+                    "Connection cache should be clean once the server has ticked the pipe"
+            );
 
-        // After first tick, cache should be clean
-        context.assertFalse(
-                pipeEntity.isConnectionCacheDirty(),
-                "Connection cache should be clean after first tick"
-        );
+            // More ticks with no topology change must not dirty it again.
+            context.runAfterDelay(3, () -> {
+                context.assertFalse(
+                        pipeEntity.isConnectionCacheDirty(),
+                        "Connection cache should remain clean when no neighbors change"
+                );
 
-        // Tick again - cache should remain clean (no topology change)
-        PipeBlockEntity.tick(
-                context.getLevel(),
-                pipePos,
-                context.getBlockState(pipePos),
-                pipeEntity
-        );
+                // A neighbor change invalidates it through neighborChanged.
+                context.setBlock(pipePos.north(), Blocks.CHEST);
+                context.assertTrue(
+                        pipeEntity.isConnectionCacheDirty(),
+                        "Connection cache should be dirty after neighbor change"
+                );
 
-        context.assertFalse(
-                pipeEntity.isConnectionCacheDirty(),
-                "Connection cache should remain clean when no neighbors change"
-        );
-
-        // Place a neighbor block
-        context.setBlock(pipePos.north(), Blocks.CHEST);
-
-        // Cache should be dirty after neighbor change
-        // (neighborChanged should have invalidated it automatically)
-        context.assertTrue(
-                pipeEntity.isConnectionCacheDirty(),
-                "Connection cache should be dirty after neighbor change"
-        );
-
-        // Tick - should recalculate and clean cache
-        PipeBlockEntity.tick(
-                context.getLevel(),
-                pipePos,
-                context.getBlockState(pipePos),
-                pipeEntity
-        );
-
-        context.assertFalse(
-                pipeEntity.isConnectionCacheDirty(),
-                "Connection cache should be clean after recalculation"
-        );
-
-        context.succeed();
+                context.runAfterDelay(2, () -> {
+                    context.assertFalse(
+                            pipeEntity.isConnectionCacheDirty(),
+                            "Connection cache should be clean after the server recalculates it"
+                    );
+                    context.succeed();
+                });
+            });
+        });
     }
 }

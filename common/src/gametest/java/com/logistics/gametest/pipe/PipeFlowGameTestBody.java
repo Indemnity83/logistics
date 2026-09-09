@@ -23,8 +23,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.phys.AABB;
+import java.util.List;
 
 /**
  * Shared pipe-flow GameTest bodies (see {@code common/build.gradle}). One Fabric test in the
@@ -194,6 +198,61 @@ public class PipeFlowGameTestBody {
         energy.setAmount(640L);
 
         context.succeedWhen(() -> context.assertContainerContains(destChestPos, Items.DIAMOND));
+    }
+
+    /**
+     * A vanilla hopper aimed at a transport pipe must neither get its item in nor lose it.
+     *
+     * <p>This is the pipe's real doorway, driven by a real block rather than by
+     * {@code forceAddItem}. Refusing non-pipe insertion is deliberate — {@code ItemPipe.canAcceptFrom}
+     * turns it away to preserve the extraction energy cost, and the Extractor Module is the intended
+     * way in (see {@link #testExtractorPullsItemFromChest}) — but the item must stay in the hopper
+     * rather than vanish. {@code PipeBlockEntity.addItem} drops a refused stack into the world, so a
+     * loader adapter that hands the hopper a storage and then refuses the stack would delete it; the
+     * item-entity assertion is what catches that.
+     *
+     * <p>Layout: [hopper at (0,2,0), facing down] → [copper_transport_pipe at (0,1,0)] → [chest at (1,1,0)]
+     */
+    public static void testHopperCannotInsertIntoTransportPipe(GameTestHelper context) {
+        BlockPos hopperPos = new BlockPos(0, 2, 0);
+        BlockPos pipePos = new BlockPos(0, 1, 0);
+        BlockPos chestPos = new BlockPos(1, 1, 0);
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(hopperPos, Blocks.HOPPER); // default facing is DOWN, into the pipe
+
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (hopper == null) {
+            context.fail("Hopper should have a block entity");
+            return;
+        }
+        hopper.setItem(0, new ItemStack(Items.DIAMOND));
+
+        // A hopper retries every 8 ticks; 40 gives it several attempts.
+        context.runAfterDelay(40, () -> {
+            context.assertContainerContains(hopperPos, Items.DIAMOND);
+            context.assertContainerEmpty(chestPos);
+
+            PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+            if (pipe != null && !pipe.getTravelingItems().isEmpty()) {
+                context.fail("Pipe accepted a hopper insertion it should have refused, found "
+                        + pipe.getTravelingItems().size() + " item(s) in transit");
+                return;
+            }
+
+            List<ItemEntity> dropped = context.getLevel().getEntitiesOfClass(
+                    ItemEntity.class,
+                    new AABB(context.absolutePos(pipePos)).inflate(3.0),
+                    entity -> entity.getItem().is(Items.DIAMOND));
+            if (!dropped.isEmpty()) {
+                context.fail("Refused hopper insertion dropped the diamond into the world instead of "
+                        + "leaving it in the hopper, found " + dropped.size() + " item entit(ies)");
+                return;
+            }
+
+            context.succeed();
+        });
     }
 
     /**
