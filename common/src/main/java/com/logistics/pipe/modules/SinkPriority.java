@@ -1,8 +1,9 @@
 package com.logistics.pipe.modules;
 
 /**
- * The sink priority ladder. Higher wins; ties are broken deterministically by
- * position (see {@code SinkResolver#findSink}).
+ * The sink priority ladder. Higher wins; ties are broken by
+ * {@link com.logistics.core.lib.network.RoutingPreference} — the nearer sink first, then the
+ * most positive position (see {@code SinkResolver#findSink}).
  *
  * <p>Every sink registration in the mod draws its priority from here, so the ladder
  * can be read in one place rather than from literals scattered across registration
@@ -14,7 +15,7 @@ package com.logistics.pipe.modules;
  * deliberately sits below {@link #ITEM_SINK} rather than shadowing configured filters.
  *
  * <p>One rung is still shared: {@link #MOD_SINK} and {@link #BASIC_LOGISTICS_PIPE_SINK}
- * are both 5, so sinks on those two are separated only by the positional tiebreak.
+ * are both 5, so sinks on those two are separated by distance and then position.
  * {@link SinkModule} also sits on two different rungs — {@link #ITEM_SINK} as a chassis
  * module item, and {@link #BASIC_LOGISTICS_PIPE_SINK} as the Basic Logistics Pipe block.
  */

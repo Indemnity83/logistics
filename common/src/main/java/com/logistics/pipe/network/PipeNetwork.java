@@ -37,7 +37,7 @@ public class PipeNetwork implements ILogisticsNetwork {
     private final INetworkGraph graph;
     private final IWorldView worldView;
     private final NetworkController controller;
-    private final FluidOrderBook fluidOrderBook = new FluidOrderBook();
+    private final FluidOrderBook fluidOrderBook;
     private final JobCoordinator jobCoordinator;
     private final SinkResolver sinkResolver;
 
@@ -63,7 +63,8 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.id = id;
         this.graph = graph;
         this.worldView = worldView;
-        this.controller = new NetworkController();
+        this.controller = new NetworkController(graph::hopDistance);
+        this.fluidOrderBook = new FluidOrderBook(graph::hopDistance);
         this.jobCoordinator = new JobCoordinator(controller);
         this.sinkResolver = new SinkResolver(graph, worldView);
         controller.setOrderFailureListener((orderId, requester, item, amount, missing) -> {
@@ -91,7 +92,8 @@ public class PipeNetwork implements ILogisticsNetwork {
         this.id = id;
         this.graph = new NetworkGraph();
         this.worldView = null;
-        this.controller = new NetworkController();
+        this.controller = new NetworkController(graph::hopDistance);
+        this.fluidOrderBook = new FluidOrderBook(graph::hopDistance);
         this.jobCoordinator = new JobCoordinator(controller);
         this.sinkResolver = new SinkResolver(graph, null);
     }
@@ -436,6 +438,11 @@ public class PipeNetwork implements ILogisticsNetwork {
      */
     @Override
     public BlockPos findSinkFor(ItemStack stack) {
+        return findSinkFor(stack, null);
+    }
+
+    @Override
+    public BlockPos findSinkFor(ItemStack stack, @Nullable BlockPos source) {
         if (worldView == null) {
             throw new IllegalStateException("Cannot use findSinkFor without IWorldView - update tests to use proper constructor");
         }
@@ -443,7 +450,7 @@ public class PipeNetwork implements ILogisticsNetwork {
         NetDbg.out("[Network {}] Finding sink for {} (members: {}, registered sinks: {})",
                 getNetworkIdShort(id), stack.getItem(), graph.size(), sinkResolver.registeredSinkCount());
 
-        BlockPos bestSink = sinkResolver.findSinkFor(stack);
+        BlockPos bestSink = sinkResolver.findSinkFor(stack, source);
 
         if (bestSink == null) {
             NetDbg.out("[Network {}] No sink found for {}", getNetworkIdShort(id), stack.getItem());
@@ -456,10 +463,15 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     @Override
     public BlockPos findFilteredSinkFor(ItemStack stack) {
+        return findFilteredSinkFor(stack, null);
+    }
+
+    @Override
+    public BlockPos findFilteredSinkFor(ItemStack stack, @Nullable BlockPos source) {
         if (worldView == null) {
             throw new IllegalStateException("Cannot use findFilteredSinkFor without IWorldView - update tests to use proper constructor");
         }
-        return sinkResolver.findFilteredSinkFor(stack);
+        return sinkResolver.findFilteredSinkFor(stack, source);
     }
 
     @Override

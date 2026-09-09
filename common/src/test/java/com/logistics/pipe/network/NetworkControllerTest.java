@@ -1,6 +1,8 @@
 package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.FulfillmentMode;
+import com.logistics.core.lib.network.NetworkGraph;
+import com.logistics.core.lib.network.RoutingPreference;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.test.MinecraftTestEnvironment;
 import com.logistics.test.TestItemKey;
@@ -416,6 +418,96 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
         controller.cancelOrdersFor(REQUESTER);
 
         assertEquals(8L, controller.getOrderedAmountFor(REQUESTER2, diamond()));
+    }
+
+    // ===== Equal-priority provider ties: distance, then position =====
+
+    // A straight run of pipes from x=-6 to x=6 at y=z=0, with the requester in the middle.
+    private static final BlockPos ORDER_SOURCE = new BlockPos(0, 0, 0);
+    private static final BlockPos NEAR_PROVIDER = new BlockPos(-2, 0, 0); // 2 hops, less positive
+    private static final BlockPos FAR_PROVIDER = new BlockPos(6, 0, 0);   // 6 hops, more positive
+
+    private NetworkGraph pipeLine() {
+        NetworkGraph graph = new NetworkGraph();
+        for (int x = -6; x <= 6; x++) graph.addNode(new BlockPos(x, 0, 0));
+        return graph;
+    }
+
+    /** Registers both tied providers in the given order and returns the provider that wins. */
+    private BlockPos tiedProviderWinner(NetworkController controller, boolean nearFirst) {
+        BlockPos first = nearFirst ? NEAR_PROVIDER : FAR_PROVIDER;
+        BlockPos second = nearFirst ? FAR_PROVIDER : NEAR_PROVIDER;
+        controller.registerSupply(first, Map.of(diamond(), 64L), 1);
+        controller.registerSupply(second, Map.of(diamond(), 64L), 1);
+        controller.placeOrder(diamond(), 8L, ORDER_SOURCE);
+        return controller.nextDispatchable().provider();
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityProvidersGoToTheNearestOne() {
+        NetworkController controller = new NetworkController(pipeLine()::hopDistance);
+        // FAR_PROVIDER is the more positive position, so only distance can pick the near one.
+        assertTrue(RoutingPreference.mostPositiveFirst(FAR_PROVIDER, NEAR_PROVIDER) < 0);
+        assertEquals(NEAR_PROVIDER, tiedProviderWinner(controller, false));
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityWinnerIgnoresRegistrationOrder() {
+        NetworkGraph graph = pipeLine();
+        assertEquals(
+                tiedProviderWinner(new NetworkController(graph::hopDistance), true),
+                tiedProviderWinner(new NetworkController(graph::hopDistance), false),
+                "Equal-priority providers must resolve the same way whichever registered first");
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityWinnerIsTheSameAfterAMerge() {
+        NetworkGraph graph = pipeLine();
+        BlockPos builtWhole = tiedProviderWinner(new NetworkController(graph::hopDistance), true);
+
+        // Same providers, but the network was assembled from two halves that later merged.
+        NetworkController left = new NetworkController(graph::hopDistance);
+        left.registerSupply(FAR_PROVIDER, Map.of(diamond(), 64L), 1);
+        NetworkController right = new NetworkController(graph::hopDistance);
+        right.registerSupply(NEAR_PROVIDER, Map.of(diamond(), 64L), 1);
+        left.merge(right);
+        left.placeOrder(diamond(), 8L, ORDER_SOURCE);
+
+        assertEquals(builtWhole, left.nextDispatchable().provider(),
+                "A merged network must draw from the same provider as one built in one go");
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityWinnerIsStableWithoutAnyDistanceKnowledge() {
+        // With no graph the distance tier collapses and position alone decides — still a total
+        // order, so the answer must not depend on registration order.
+        assertEquals(FAR_PROVIDER, tiedProviderWinner(new NetworkController(), true));
+        assertEquals(FAR_PROVIDER, tiedProviderWinner(new NetworkController(), false));
+    }
+
+    @Test
+    void nextDispatchable_priorityStillOutranksDistance() {
+        NetworkController controller = new NetworkController(pipeLine()::hopDistance);
+        controller.registerSupply(NEAR_PROVIDER, Map.of(diamond(), 64L), 2); // nearer, worse priority
+        controller.registerSupply(FAR_PROVIDER, Map.of(diamond(), 64L), 1);
+        controller.placeOrder(diamond(), 8L, ORDER_SOURCE);
+
+        assertEquals(FAR_PROVIDER, controller.nextDispatchable().provider());
+    }
+
+    @Test
+    void nextDispatchable_nearestProviderIsSkippedWhenItsStockIsExhausted() {
+        // The distance tier must only reorder candidates, never hide the ones behind the winner.
+        NetworkController controller = new NetworkController(pipeLine()::hopDistance);
+        controller.registerSupply(NEAR_PROVIDER, Map.of(diamond(), 4L), 1);
+        controller.registerSupply(FAR_PROVIDER, Map.of(diamond(), 64L), 1);
+
+        controller.placeOrder(diamond(), 4L, ORDER_SOURCE);
+        assertEquals(NEAR_PROVIDER, controller.nextDispatchable().provider());
+
+        controller.placeOrder(diamond(), 4L, ORDER_SOURCE);
+        assertEquals(FAR_PROVIDER, controller.nextDispatchable().provider(),
+                "Once the nearest provider is fully reserved the next one must still be reachable");
     }
 
     // ===== merge =====

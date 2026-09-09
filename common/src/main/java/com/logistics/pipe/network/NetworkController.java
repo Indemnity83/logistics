@@ -63,8 +63,21 @@ public class NetworkController implements PlanningView {
                            long amount, List<IItemKey> missing);
     }
 
-    // Per-item supply entries, sorted by priority ascending (1 = real stock first, 5 = crafter fallback)
+    // Per-item supply entries, held in the priority-then-position base order below. The base order
+    // is what makes the table independent of registration order; the distance tier can only be
+    // applied per dispatch, since it is measured from the requester (see orderedFor).
     private final Map<IItemKey, List<SupplyEntry>> supplyTable = new HashMap<>();
+
+    /**
+     * Base order for the supply table: priority ascending (1 = real stock first, 5 = crafter
+     * fallback), then the most positive position. Registration order never leaks into the result.
+     */
+    private static final Comparator<SupplyEntry> BASE_ORDER =
+            Comparator.comparingInt((SupplyEntry e) -> e.priority)
+                    .thenComparing(e -> e.pos, RoutingPreference::mostPositiveFirst);
+
+    // Routed distance oracle used to break priority ties in favour of the nearer provider.
+    private final HopDistance hopDistance;
 
     // Standing orders in insertion order (FIFO)
     private final Map<UUID, Order> orderQueue = new LinkedHashMap<>();
@@ -92,6 +105,18 @@ public class NetworkController implements PlanningView {
     private OrderFailureListener failureListener;
 
     // ===== Provider Check Registration =====
+
+    /** Creates a controller with no distance knowledge; priority ties fall through to position. */
+    public NetworkController() {
+        this(HopDistance.UNKNOWN);
+    }
+
+    /**
+     * @param hopDistance routed-distance oracle, normally the owning network's graph
+     */
+    public NetworkController(HopDistance hopDistance) {
+        this.hopDistance = hopDistance;
+    }
 
     public void registerProviderCheck(BlockPos pos, ProviderCanFulfill check) {
         providerChecks.put(pos, check);
@@ -122,12 +147,12 @@ public class NetworkController implements PlanningView {
         }
         supplyTable.entrySet().removeIf(e -> e.getValue().isEmpty());
 
-        // Add fresh entries, maintaining sorted order by priority
+        // Add fresh entries, keeping the list in the priority-then-position base order
         for (Map.Entry<IItemKey, Long> entry : items.entrySet()) {
             if (entry.getValue() < 0) continue;
             List<SupplyEntry> list = supplyTable.computeIfAbsent(entry.getKey(), k -> new ArrayList<>());
             list.add(new SupplyEntry(pos, entry.getValue(), priority));
-            list.sort(Comparator.comparingInt(e -> e.priority));
+            list.sort(BASE_ORDER);
         }
     }
 
@@ -246,8 +271,8 @@ public class NetworkController implements PlanningView {
 
     /**
      * Attempt to create a dispatch command for a single order given its current supply entries.
-     * Always operates on the first (highest-priority) entry in the list; the list is sorted by
-     * priority so real stock (priority 1) always precedes crafters (priority 5).
+     * Providers are considered in {@link #orderedFor} order — priority first, so real stock
+     * (priority 1) always precedes crafters (priority 5), then nearest to the requester.
      * Validates the ingredient chain before committing to any crafter or partial-stock dispatch.
      *
      * @return a dispatch command if ready, or null if the order cannot be dispatched now
@@ -259,15 +284,33 @@ public class NetworkController implements PlanningView {
         // Walk every entry rather than committing to the first: a provider that is deferred this
         // tick, or whose stock is entirely reserved by earlier orders, must not hide the ones
         // behind it — including the crafter, which always sorts last.
-        for (int supplyIdx = 0; supplyIdx < entries.size(); supplyIdx++) {
-            SupplyEntry supply = entries.get(supplyIdx);
+        for (SupplyEntry supply : orderedFor(order.requester(), entries)) {
             if (deferredProviders.contains(supply.pos)) continue;
 
-            DispatchCommand cmd = tryDispatchFrom(orderIt, order, entries, supplyIdx, supply);
+            DispatchCommand cmd = tryDispatchFrom(orderIt, order, entries, supply);
             if (cmd != null) return cmd;
             if (!orderQueue.containsKey(order.id())) return null; // cancelled for missing ingredients
         }
         return null;
+    }
+
+    /**
+     * Rank this order's providers: priority first, then {@link RoutingPreference} — fewer routed
+     * hops from the requester, then most positive position.
+     *
+     * <p>Distance cannot live in the stored table because it is measured from the requester, which
+     * differs per order, so the ranking is built per dispatch attempt. It costs a sort of a short
+     * list; {@code thenComparing} means {@link HopDistance#hops} is only consulted for entries that
+     * actually tie on priority, and the graph answers those from a cached per-source BFS table.
+     *
+     * <p>Returns a copy — the caller may remove from the live {@code entries} list while iterating.
+     */
+    private List<SupplyEntry> orderedFor(BlockPos requester, List<SupplyEntry> entries) {
+        if (entries.size() < 2) return List.copyOf(entries);
+        List<SupplyEntry> ordered = new ArrayList<>(entries);
+        ordered.sort(Comparator.comparingInt((SupplyEntry e) -> e.priority)
+                .thenComparing(e -> e.pos, RoutingPreference.among(requester, hopDistance)));
+        return ordered;
     }
 
     /**
@@ -277,7 +320,7 @@ public class NetworkController implements PlanningView {
     @Nullable
     private DispatchCommand tryDispatchFrom(
             Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<SupplyEntry> entries,
-            int supplyIdx, SupplyEntry supply) {
+            SupplyEntry supply) {
         if (supply.available == 0) {
             // On-demand supply (crafter): validate ingredient chain before dispatching
             List<IItemKey> missing = getMissingIngredients(order.item(), order.amount());
@@ -300,7 +343,7 @@ public class NetworkController implements PlanningView {
             reservationManager.reserve(order.id(), supply.pos, order.requester(),
                     order.item(), order.amount(), true);
             if (effective - order.amount() == 0) {
-                entries.remove(supplyIdx);
+                entries.remove(supply);
                 if (entries.isEmpty()) supplyTable.remove(order.item());
             }
             return new DispatchCommand(
@@ -329,7 +372,7 @@ public class NetworkController implements PlanningView {
         // Pre-check passed (or no crafter covers this item): dispatch partial stock now
         reservationManager.reserve(order.id(), supply.pos, order.requester(),
                 order.item(), effective, true);
-        entries.remove(supplyIdx);
+        entries.remove(supply);
         if (entries.isEmpty()) supplyTable.remove(order.item());
         return new DispatchCommand(
                 order.id(), supply.pos, order.requester(), order.item(), effective);
