@@ -2,8 +2,14 @@ package com.logistics.automation.transposer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsConfigHost;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -35,12 +41,26 @@ class TransposerConfigTest {
      */
     @Test
     @DisplayName("drain rate produces the wiki's ~2-second bucket fill/empty time")
-    void drainRateMatchesWikiBucketTiming() {
+    void drainRateMatchesWikiBucketTiming() throws IOException {
+        // Both halves of the claim are read from where the game reads them: the drain rate from
+        // config, the job cost from the shipped recipe. Retuning either one now fails this test.
         long energyPerTick = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.TRANSPOSER_ENERGY_PER_TICK);
-        assertThat(energyPerTick).isEqualTo(20L);
+        long bucketCost = bucketRecipeEnergy("data/logistics/recipe/transposer/fill_water_bucket.json");
 
-        long bucketCost = 800L;
         long ticksToComplete = bucketCost / energyPerTick;
         assertThat(ticksToComplete).isEqualTo(40L); // 40 ticks = 2 seconds, matching "about 2 seconds"
+
+        // Emptying is documented as costing the same, so it must take the same time.
+        long emptyCost = bucketRecipeEnergy("data/logistics/recipe/transposer/empty_water_bucket.json");
+        assertThat(emptyCost / energyPerTick).isEqualTo(40L);
+    }
+
+    private static long bucketRecipeEnergy(String path) throws IOException {
+        try (InputStream stream = TransposerConfigTest.class.getClassLoader().getResourceAsStream(path)) {
+            assertThat(stream).as("recipe resource on the test classpath: %s", path).isNotNull();
+            JsonObject recipe =
+                    JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+            return recipe.get("energy").getAsLong();
+        }
     }
 }

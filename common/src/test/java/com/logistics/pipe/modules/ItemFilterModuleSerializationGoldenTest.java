@@ -2,12 +2,18 @@ package com.logistics.pipe.modules;
 
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.test.FakePipeAccess;
+import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,28 +22,32 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
- * Golden-fixture regression tests for {@link ItemFilterModule} serialization.
+ * Save-format guards for {@link ItemFilterModule} that can run without a live level.
  *
- * <p>Each test injects a hardcoded NBT blob that represents the save format from a known
- * stable release, then reads it back through the current module code. If the module's
- * serialization format changes (key renames, structural changes, etc.) these tests will
- * fail immediately — before the change ships and corrupts player saves.
+ * <h2>What this class can and cannot cover</h2>
+ * Both {@link ItemFilterModule#getFilterStacks} and {@link ItemFilterModule#setFilterStacks} derive
+ * their {@link RegistryOps} from {@code ctx.world().registryAccess()} and short-circuit to
+ * "everything empty" when there is no level. A unit test cannot build a {@link
+ * net.minecraft.world.level.Level}, so <em>no stored payload can be decoded here</em> — a fixture
+ * injected into module state is inert whatever shape it has, and a test that reads one back is
+ * asserting the absence of a level rather than anything about the format.
  *
- * <p>This is the direct lesson from the 0.5.4 release: filter data was silently lost when
- * the save format changed without a migration path. Adding this test before that release
- * would have caught the regression.
+ * <p>So the value-level round-trip — write a filter, reload it, still get the same item with its
+ * components — is a GameTest, where a real {@code ServerLevel} exists: see
+ * {@code ModuleGameTestBody#testFilterModuleRoutesMatchingItems} and
+ * {@code #testFilterModuleMultipleSideFilters}, which write filters through
+ * {@code setFilterStacks} on a placed pipe and then route real items by them. That is the guard
+ * against the 0.5.4 filter-data-loss regression. What stays here is the part that needs no
+ * registry: the shape of the list {@code getFilterStacks} hands back, and the refusal to
+ * half-write without one.
  *
- * <h2>How to add a new golden fixture</h2>
- * Before each new release, capture a snapshot of the current format by running a test world,
- * setting filters on a diamond pipe, and recording what {@link FakePipeAccess#getRawState}
- * returns. Commit that snapshot as a new fixture method here. Future releases must be able
- * to load it.
+ * <p>Do not add a fixture-decoding test to this class. It will pass on an empty result no matter
+ * what the fixture says.
  */
-@DisplayName("ItemFilterModule — golden serialization fixtures")
-class ItemFilterModuleSerializationGoldenTest {
+@DisplayName("ItemFilterModule — save-format guards")
+class ItemFilterModuleSerializationGoldenTest extends MinecraftTestEnvironment {
 
     // The module state key used by ItemFilterModule (getStateKey() = simpleName().toLowerCase())
     // DO NOT change this string — if ItemFilterModule is renamed, it must keep returning "itemfiltermodule"
@@ -63,45 +73,54 @@ class ItemFilterModuleSerializationGoldenTest {
     }
 
     @Test
-    @DisplayName("getFilterStacks: missing direction returns all-empty list (no NPE)")
-    void getFilterStacks_missingDirectionIsAllEmpty() {
-        injectFilters(filtersWithNorth("minecraft:diamond"));
+    @DisplayName("getFilterStacks always returns one entry per slot, whatever is stored")
+    void getFilterStacksIsAlwaysOneEntryPerSlot() {
+        // Nothing stored at all.
+        assertThat(module.getFilterStacks(ctx, Direction.NORTH)).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
 
-        List<ItemStack> stacks = module.getFilterStacks(ctx, Direction.SOUTH);
+        // A stored side, but a list shorter than the slot count — the tail must still be padded,
+        // or a screen reading slot 7 off a three-entry save walks off the end.
+        injectNorthFilters(encodedList(Items.DIAMOND, Items.EMERALD, Items.GOLD_INGOT));
+        assertThat(module.getFilterStacks(ctx, Direction.NORTH)).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
 
-        assertThat(stacks).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
-        assertThat(stacks).allMatch(ItemStack::isEmpty);
+        // A side with no entry of its own still gets a full-width, all-empty list rather than a
+        // short one, so "no filter configured" and "filter of nothing" are the same shape.
+        List<ItemStack> south = module.getFilterStacks(ctx, Direction.SOUTH);
+        assertThat(south).hasSize(ItemFilterModule.FILTER_SLOTS_PER_SIDE);
+        assertThat(south).allMatch(ItemStack::isEmpty);
     }
 
     @Test
-    @DisplayName("setFilterStacks with null world falls back gracefully (no NPE)")
-    void setFilterStacks_nullWorldIsNoop() {
-        List<ItemStack> toSet = Collections.nCopies(ItemFilterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
-        assertDoesNotThrow(() -> module.setFilterStacks(ctx, Direction.NORTH, toSet));
+    @DisplayName("setFilterStacks writes nothing at all when there is nothing to write")
+    void setFilterStacksWritesNothingForAnEmptyConfiguration() {
+        List<ItemStack> allEmpty = Collections.nCopies(ItemFilterModule.FILTER_SLOTS_PER_SIDE, ItemStack.EMPTY);
+
+        module.setFilterStacks(ctx, Direction.NORTH, allEmpty);
+
+        // An empty configuration must not leave a "filters" husk behind: the module state is what
+        // decides whether a saved pipe carries filter data at all.
+        assertThat(access.getRawState(MODULE_STATE_KEY).getCompound(ItemFilterModule.FILTERS)).isEmpty();
     }
 
     // ---------------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------------
 
-    /** Inject a filters CompoundTag directly into the fake pipe's module state. */
-    private void injectFilters(CompoundTag filters) {
-        access.getRawState(MODULE_STATE_KEY).put("filters", filters);
-    }
-
-    /** Build a filters CompoundTag with only north configured. */
-    private CompoundTag filtersWithNorth(String... items) {
+    private void injectNorthFilters(ListTag list) {
         CompoundTag filters = new CompoundTag();
-        filters.put("north", itemList(items));
-        return filters;
+        filters.put(Direction.NORTH.getName(), list);
+        access.getRawState(MODULE_STATE_KEY).put(ItemFilterModule.FILTERS, filters);
     }
 
-    /** Build a padded ListTag from the given item IDs (padded to FILTER_SLOTS_PER_SIDE). */
-    private ListTag itemList(String... items) {
+    /** A list in the live on-disk shape: one ItemStack.CODEC compound per configured slot. */
+    private static ListTag encodedList(net.minecraft.world.item.Item... items) {
+        RegistryOps<Tag> ops = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)
+                .createSerializationContext(NbtOps.INSTANCE);
         ListTag list = new ListTag();
-        for (int i = 0; i < ItemFilterModule.FILTER_SLOTS_PER_SIDE; i++) {
-            String value = (i < items.length) ? items[i] : "";
-            list.add(StringTag.valueOf(value));
+        for (net.minecraft.world.item.Item item : items) {
+            list.add(ItemStack.CODEC.encodeStart(ops, new ItemStack(item))
+                    .result()
+                    .orElseThrow(() -> new AssertionError("Encode failed for " + item)));
         }
         return list;
     }

@@ -133,8 +133,19 @@ class ExtractorModulesTest {
         @Test
         @DisplayName("setFilterItem silently ignores out-of-bounds slot index")
         void setFilterItem_ignoresOutOfBoundsSlot() {
-            assertThatCode(() -> module.setFilterItem(ctx, -1, "minecraft:diamond")).doesNotThrowAnyException();
-            assertThatCode(() -> module.setFilterItem(ctx, AdvancedExtractorModule.MAX_FILTER_SLOTS, "minecraft:diamond")).doesNotThrowAnyException();
+            for (int slot = 0; slot < AdvancedExtractorModule.MAX_FILTER_SLOTS; slot++) {
+                module.setFilterItem(ctx, slot, "minecraft:filler_" + slot);
+            }
+
+            module.setFilterItem(ctx, -1, "minecraft:diamond");
+            module.setFilterItem(ctx, AdvancedExtractorModule.MAX_FILTER_SLOTS, "minecraft:diamond");
+
+            // "Ignored" has to mean the filter is untouched — a clamp into slot 0, or a write onto
+            // a neighbouring valid slot, would silently rewrite the player's filter.
+            var filters = module.getFilterItems(ctx);
+            for (int slot = 0; slot < AdvancedExtractorModule.MAX_FILTER_SLOTS; slot++) {
+                assertThat(filters.get(slot)).as("filter slot %d", slot).isEqualTo("minecraft:filler_" + slot);
+            }
         }
 
         // ==================== Filter inversion ====================

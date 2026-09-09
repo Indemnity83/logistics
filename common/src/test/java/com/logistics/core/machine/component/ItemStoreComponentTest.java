@@ -81,10 +81,27 @@ class ItemStoreComponentTest extends MinecraftTestEnvironment {
     @Test
     void produceCapsAtMaxStackSizeAndDropsTheOverflow() {
         ItemStoreComponent store = store();
+        store.container().setItem(0, new ItemStack(Items.RAW_IRON, 3)); // an unrelated input slot
         store.produceInto(0, new ItemStack(Items.IRON_INGOT, 60));
+
         store.produceInto(0, new ItemStack(Items.IRON_INGOT, 10)); // only 4 fit
 
+        // Capped...
         assertThat(store.container().getItem(1).getCount()).isEqualTo(64);
+        // ...and the 6 that did not fit are gone, not spilled into the next output slot or back
+        // into the input. produceInto is unconditional by contract — callers gate on canAcceptInto,
+        // so RecipeProcessorComponent never reaches this state in normal operation.
+        assertThat(store.container().getItem(2).isEmpty()).isTrue();
+        assertThat(store.container().getItem(0).getCount()).isEqualTo(3);
+        assertThat(totalItems(store)).isEqualTo(3 + 64);
+    }
+
+    private static int totalItems(ItemStoreComponent store) {
+        int total = 0;
+        for (int slot = 0; slot < store.container().getContainerSize(); slot++) {
+            total += store.container().getItem(slot).getCount();
+        }
+        return total;
     }
 
     @Test
