@@ -12,7 +12,6 @@ import com.logistics.automation.sawmill.SawmillScreenHandler;
 import com.logistics.automation.transposer.TransposerScreenHandler;
 import com.logistics.core.lib.block.MachineResultSlot;
 import com.logistics.test.MinecraftTestEnvironment;
-import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
@@ -180,7 +179,7 @@ class MachineMenuShiftClickTest extends MinecraftTestEnvironment {
 
     /** A headless player inventory — nothing on the shift-click path reads the owning player. */
     private static Inventory playerInventory() {
-        return new Inventory(null, new EntityEquipment());
+        return new Inventory(null);
     }
 
     /** Machine slots come first; the trailing 36 are views of the player inventory. */
