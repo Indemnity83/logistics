@@ -3,6 +3,9 @@ package com.logistics.core.lib.tank;
 import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.test.MinecraftTestEnvironment;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.DisplayName;
@@ -100,11 +103,46 @@ class TankCellLookupTest extends MinecraftTestEnvironment {
 
     @Test
     @DisplayName("isGas defaults to false before any predicate is registered")
-    void gasDefaultsFalse() {
-        // No predicate registered yet in this method; the default treats everything as a liquid.
-        // (Run-order independent: registerGasPredicate is last-wins and every gas test sets it explicitly.)
-        TankCellLookup.registerGasPredicate(key -> false);
-        assertThat(TankCellLookup.isGas(SimpleFluidKey.of(Fluids.WATER))).isFalse();
+    void gasDefaultsFalse() throws Exception {
+        // The predicate is process-wide static state with no reset hook, so the as-shipped default is
+        // only observable on a copy of the class nothing has registered into. Registering "everything
+        // is a liquid" here and asserting it would just be gasPredicateLastWins under another name.
+        assertThat(isGasOnAnUnconfiguredLookup(SimpleFluidKey.of(Fluids.WATER))).isFalse();
+        assertThat(isGasOnAnUnconfiguredLookup(SimpleFluidKey.of(Fluids.LAVA))).isFalse();
+    }
+
+    private static boolean isGasOnAnUnconfiguredLookup(IFluidKey fluid) throws Exception {
+        Class<?> fresh = new UnconfiguredLookupLoader().loadClass(TankCellLookup.class.getName());
+        assertThat(fresh).as("a separate class, with its own statics").isNotSameAs(TankCellLookup.class);
+        return (boolean) fresh.getMethod("isGas", IFluidKey.class).invoke(null, fluid);
+    }
+
+    /** Loads {@link TankCellLookup} itself and delegates everything else, so its statics start unset. */
+    private static final class UnconfiguredLookupLoader extends ClassLoader {
+        private UnconfiguredLookupLoader() {
+            super(TankCellLookup.class.getClassLoader());
+        }
+
+        @Override
+        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (!name.equals(TankCellLookup.class.getName())) {
+                return super.loadClass(name, resolve);
+            }
+            Class<?> loaded = findLoadedClass(name);
+            if (loaded == null) {
+                byte[] bytes;
+                try (InputStream in = getParent().getResourceAsStream(name.replace('.', '/') + ".class")) {
+                    bytes = Objects.requireNonNull(in, "TankCellLookup class bytes").readAllBytes();
+                } catch (IOException e) {
+                    throw new ClassNotFoundException(name, e);
+                }
+                loaded = defineClass(name, bytes, 0, bytes.length);
+            }
+            if (resolve) {
+                resolveClass(loaded);
+            }
+            return loaded;
+        }
     }
 
     @Test
