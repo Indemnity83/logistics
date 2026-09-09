@@ -8,6 +8,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * A datapack reload mid-run leaves an in-flight machine recipe intact: it finishes exactly once, for
  * exactly its normal cost, and the machine still resolves recipes afterwards.
@@ -115,7 +117,15 @@ public class ReloadLifecycleGameTestBody {
     }
 
     /**
-     * Reloads the datapacks currently selected, blocking until the swap has happened.
+     * Reloads the datapacks currently selected. The reload is finished by the time this returns.
+     *
+     * <p>{@code reloadResources} applies its final stage on the server executor, but when the caller
+     * is already the server thread — as a GameTest callback is — it pumps that executor itself
+     * ({@code if (isSameThread()) managedBlock(future::isDone)}) before returning. So the future is
+     * complete here and there is nothing left to wait for. Waiting anyway, by joining, would be a
+     * thread blocking on work scheduled to itself; that only survives on vanilla's self-drive, and
+     * the day it stopped holding the result would be a hung server rather than a failing test.
+     * Asserting completion keeps that failure loud and immediate instead.
      *
      * <p>Returns whether the reload actually replaced the server's recipe manager. Without this the
      * tests would pass just as happily against a reload that silently did nothing, which is the one
@@ -124,7 +134,15 @@ public class ReloadLifecycleGameTestBody {
     private static boolean reloadDatapacks(GameTestHelper context) {
         MinecraftServer server = context.getLevel().getServer();
         Object before = server.getRecipeManager();
-        server.reloadResources(server.getPackRepository().getSelectedIds()).join();
+        CompletableFuture<Void> reload = server.reloadResources(server.getPackRepository().getSelectedIds());
+        if (!reload.isDone()) {
+            context.fail("reloadResources returned with the reload still in flight; it no longer drives"
+                + " the server executor for a server-thread caller, so this reload must be spread"
+                + " across ticks rather than waited on here");
+            return false;
+        }
+        // Already complete, so this cannot block; it only rethrows a reload that failed.
+        reload.getNow(null);
         return server.getRecipeManager() != before;
     }
 
