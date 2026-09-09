@@ -59,4 +59,9 @@ public class AlloySmelterGameTest {
     public void testSmeltsIronOreViaRealEngineAndHoppers(GameTestHelper context) {
         AlloySmelterGameTestBody.testSmeltsIronOreViaRealEngineAndHoppers(context);
     }
+
+    @GameTest(maxTicks = 60)
+    public void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        AlloySmelterGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

@@ -26,7 +26,9 @@ public final class RefineryGameTestRegistration {
             RefineryGameTestBody::testInsertTargetsInputExtractTargetsOutput),
         new GameTestCase(
             "automation/refinery_distills_liquid_biomass_into_bio_fuel", 300, RefineryGameTestBody::testDistillsLiquidBiomassIntoBioFuel),
-        new GameTestCase("automation/refinery_distills_via_real_engine", 340, RefineryGameTestBody::testDistillsViaRealEngine));
+        new GameTestCase("automation/refinery_distills_via_real_engine", 340, RefineryGameTestBody::testDistillsViaRealEngine),
+        new GameTestCase(
+            "automation/refinery_hopper_cannot_insert_into_byproduct_slot", 60, RefineryGameTestBody::testHopperCannotInsertIntoByproductSlot));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
