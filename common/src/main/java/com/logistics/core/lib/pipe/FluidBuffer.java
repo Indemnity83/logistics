@@ -68,18 +68,6 @@ public final class FluidBuffer<F> {
     }
 
     /**
-     * Restores persisted state — the held fluid and stored amount. The world adapter calls this each tick to
-     * rebuild a transient pipe from its block entity before extracting; it bypasses the extraction rules, so
-     * callers must pass an already-valid amount.
-     */
-    public void restore(F fluid, long amountMb) {
-        long clamped = Math.max(0, Math.min(amountMb, capacityMb));
-        // Normalize to empty rather than persist the invalid "some amount, no fluid" state.
-        this.fluid = clamped > 0 ? fluid : null;
-        this.amountMb = this.fluid == null ? 0 : clamped;
-    }
-
-    /**
      * Extracts up to {@code millibuckets} of fluid from {@code source} into internal storage. Capped by the
      * remaining space and what the provider actually holds — fluid removed from the provider always equals
      * fluid inserted here. Nothing is transferred if the provider is empty or offers a fluid different from
@@ -102,66 +90,5 @@ public final class FluidBuffer<F> {
             amountMb += extracted;
         }
         return extracted;
-    }
-
-    /**
-     * Pushes up to {@code millibuckets} of fluid from this pipe into {@code target}, equalizing their levels:
-     * it moves at most half the difference, so a transfer never leaves the target fuller than this pipe
-     * (communicating-vessels behaviour). Nothing moves if this pipe is empty, the target is already at least
-     * as full, or the target holds a different fluid.
-     *
-     * @return the amount actually moved, in millibuckets
-     */
-    public long push(FluidBuffer<F> target, long millibuckets) {
-        if (!canTransferTo(target, millibuckets)) {
-            return 0;
-        }
-        // Round the half up so an odd 1 mB gap still moves — otherwise levels stall 1 apart and stair-step,
-        // and pipes never reach full (which the head lift requires). The target ends at most 1 mB fuller.
-        return transfer(target, Math.min(millibuckets, (amountMb - target.amountMb + 1) / 2));
-    }
-
-    /**
-     * Pours up to {@code millibuckets} of fluid from this pipe into {@code target} greedily — unlike
-     * {@link #push}, it is not capped at half the difference, so the target can end up fuller than this pipe.
-     * Used for the downward (gravity) direction. Still bounded by what this pipe holds and the target's space,
-     * and refuses to mix fluids.
-     */
-    public long pour(FluidBuffer<F> target, long millibuckets) {
-        if (!canTransferTo(target, millibuckets)) {
-            return 0;
-        }
-        return transfer(target, Math.min(Math.min(millibuckets, amountMb), target.space()));
-    }
-
-    /**
-     * Lifts up to {@code millibuckets} of fluid from this pipe into {@code target} above it, greedily (like
-     * {@link #pour}). Only happens when this pipe is <em>full</em> and {@code head} — the remaining lift
-     * capacity in blocks — is positive: fluid pools and fills a pipe first, then climbs under pressure.
-     */
-    public long lift(FluidBuffer<F> target, long millibuckets, int head) {
-        if (head <= 0 || amountMb < capacityMb) {
-            return 0;
-        }
-        return pour(target, millibuckets);
-    }
-
-    /** True if this pipe can send {@code millibuckets} into {@code target}: it has fluid and they match. */
-    private boolean canTransferTo(FluidBuffer<F> target, long millibuckets) {
-        return fluid != null && millibuckets > 0 && (target.fluid == null || target.fluid.equals(fluid));
-    }
-
-    /** Applies a transfer of {@code amount} mB into {@code target} (no-op if {@code amount <= 0}). */
-    private long transfer(FluidBuffer<F> target, long amount) {
-        if (amount <= 0) {
-            return 0;
-        }
-        target.fluid = fluid;
-        target.amountMb += amount;
-        amountMb -= amount;
-        if (amountMb == 0) {
-            fluid = null;
-        }
-        return amount;
     }
 }
