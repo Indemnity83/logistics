@@ -359,7 +359,8 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             CHASSIS_LOGISTICS_PIPE_MK5 = INSTANCE.registerBlockWithItem("chassis_logistics_pipe_mk5",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CHASSIS_LOGISTICS_PIPE_MK5));
             POWER_JUNCTION = INSTANCE.registerBlockWithItem("power_junction",
-                props -> new PowerJunctionBlock(props.strength(3.0f).sound(SoundType.METAL)));
+                props -> new PowerJunctionBlock(
+                    props.strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
 
             // Fluid transport
             COPPER_FLUID_PIPE = INSTANCE.registerBlockWithItem("copper_fluid_pipe",
