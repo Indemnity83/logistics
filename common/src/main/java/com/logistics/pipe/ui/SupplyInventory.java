@@ -15,8 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 /**
  * Inventory for the Supplier GUI.
  * Shows configured supply items and their target amounts.
@@ -120,17 +118,24 @@ public class SupplyInventory implements Container {
         if (targetModuleStateKey != null) {
             ctx = ctx.withModuleStateKey(module, targetModuleStateKey);
         }
-        List<SupplierModule.SupplyConfig> configs = module.getSupplyConfigs(ctx);
+        loadFromModule(module, ctx);
+    }
 
-        int slotIndex = 0;
-        for (SupplierModule.SupplyConfig config : configs) {
-            if (slotIndex >= SupplierModule.MAX_SUPPLY_SLOTS) {
-                break;
+    /**
+     * Populate the ghost slots from a module's configuration.
+     *
+     * <p>Keyed by the config's own slot the same way {@link #loadFromItem} reads a module item, so a
+     * click on a ghost slot edits the config it is displaying.
+     */
+    void loadFromModule(SupplierModule module, PipeContext ctx) {
+        for (int slotIndex = 0; slotIndex < SupplierModule.MAX_SUPPLY_SLOTS; slotIndex++) {
+            SupplierModule.SupplyConfig config = module.getSupplyConfig(ctx, slotIndex);
+            if (config == null) {
+                continue;
             }
 
             // Parse item from ID
-            com.logistics.core.lib.resource.ResourceId itemId =
-                    com.logistics.core.lib.resource.ResourceId.tryParse(config.itemId());
+            ResourceId itemId = ResourceId.tryParse(config.itemId());
             if (itemId == null) {
                 continue;
             }
@@ -144,7 +149,7 @@ public class SupplyInventory implements Container {
             ItemStack displayStack = new ItemStack(item);
             // Show target amount as stack count (capped at 64 for display)
             displayStack.setCount((int) Math.min(config.amount(), 64));
-            stacks.set(slotIndex++, displayStack);
+            stacks.set(slotIndex, displayStack);
         }
     }
 

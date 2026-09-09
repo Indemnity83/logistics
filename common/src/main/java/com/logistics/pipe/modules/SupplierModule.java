@@ -330,27 +330,44 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
 
     /**
      * Get all configured supplies from NBT.
+     *
+     * <p>Compacted: an unconfigured slot leaves no gap, so a config's position in this list is not
+     * its slot index. Use {@link #getSupplyConfig} wherever the slot the config belongs to matters.
      */
     public List<SupplyConfig> getSupplyConfigs(PipeContext ctx) {
         CompoundTag supplies = ctx.getCompoundTag(this, SUPPLIES);
         List<SupplyConfig> configs = new ArrayList<>();
 
         for (int i = 0; i < MAX_SUPPLY_SLOTS; i++) {
-            String key = String.valueOf(i);
-            if (!supplies.contains(key)) {
-                continue;
-            }
-
-            CompoundTag slotTag = NbtCompat.getCompoundOrEmpty(supplies, key);
-            String itemId = NbtCompat.getString(slotTag, "item", "");
-            int amount = NbtCompat.getInt(slotTag, "amount", 0);
-
-            if (!itemId.isEmpty() && amount > 0) {
-                configs.add(new SupplyConfig(itemId, amount));
+            SupplyConfig config = readSupplyConfig(supplies, i);
+            if (config != null) {
+                configs.add(config);
             }
         }
 
         return configs;
+    }
+
+    /**
+     * The supply configuration stored for one slot, or {@code null} when that slot is unconfigured.
+     */
+    @Nullable
+    public SupplyConfig getSupplyConfig(PipeContext ctx, int slotIndex) {
+        return readSupplyConfig(ctx.getCompoundTag(this, SUPPLIES), slotIndex);
+    }
+
+    @Nullable
+    private static SupplyConfig readSupplyConfig(CompoundTag supplies, int slotIndex) {
+        String key = String.valueOf(slotIndex);
+        if (!supplies.contains(key)) {
+            return null;
+        }
+
+        CompoundTag slotTag = NbtCompat.getCompoundOrEmpty(supplies, key);
+        String itemId = NbtCompat.getString(slotTag, "item", "");
+        int amount = NbtCompat.getInt(slotTag, "amount", 0);
+
+        return itemId.isEmpty() || amount <= 0 ? null : new SupplyConfig(itemId, amount);
     }
 
     /**
