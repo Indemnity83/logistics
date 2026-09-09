@@ -13,8 +13,10 @@ package com.logistics.pipe.modules;
  * registers generic sink interest, so it competes for every item in the network and
  * deliberately sits below {@link #ITEM_SINK} rather than shadowing configured filters.
  *
- * <p>{@link SinkModule} sits on two rungs: {@link #ITEM_SINK} as a chassis module item,
- * and {@link #BASIC_LOGISTICS_PIPE_SINK} as the Basic Logistics Pipe block.
+ * <p>One rung is still shared: {@link #MOD_SINK} and {@link #BASIC_LOGISTICS_PIPE_SINK}
+ * are both 5, so sinks on those two are separated only by the positional tiebreak.
+ * {@link SinkModule} also sits on two different rungs — {@link #ITEM_SINK} as a chassis
+ * module item, and {@link #BASIC_LOGISTICS_PIPE_SINK} as the Basic Logistics Pipe block.
  */
 public final class SinkPriority {
 
