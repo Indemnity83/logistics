@@ -82,7 +82,7 @@ public class QuickSortModule implements Module, TickingModule {
             int stackSize = (int) Math.min(view.amount(), template.getItem().getDefaultMaxStackSize());
             ItemStack queryStack = key.toStack(stackSize);
 
-            BlockPos destination = network.findFilteredSinkFor(queryStack);
+            BlockPos destination = network.findFilteredSinkFor(queryStack, ctx.pos());
             if (destination == null) {
                 NetDbg.out("[QuickSort @ {}] No network destination for {}", ctx.pos(), template.getItem());
                 continue;

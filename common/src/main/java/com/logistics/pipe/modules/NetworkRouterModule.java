@@ -77,7 +77,7 @@ public class NetworkRouterModule implements Module, RoutingModule {
 
         if (item.getDestination() == null) {
             if (!network.consumeEnergy(RF_PER_ROUTE)) return RoutePlan.drop();
-            BlockPos destination = network.findSinkFor(item.getStack());
+            BlockPos destination = network.findSinkFor(item.getStack(), ctx.pos());
             if (destination == null) {
                 NetDbg.out("[NetworkRouter @ {}] No sink found for {}, dropping", ctx.pos(), item.getStack().getItem());
                 return RoutePlan.drop();

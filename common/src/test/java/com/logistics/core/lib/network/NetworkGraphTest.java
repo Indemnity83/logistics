@@ -323,6 +323,56 @@ class NetworkGraphTest {
     }
 
     @Test
+    void testHopDistanceCountsEdgesAlongTheRoute() {
+        for (int x = 0; x <= 4; x++) graph.addNode(new BlockPos(x, 0, 0));
+
+        BlockPos start = new BlockPos(0, 0, 0);
+        assertEquals(0, graph.hopDistance(start, start), "A node is zero hops from itself");
+        assertEquals(1, graph.hopDistance(start, new BlockPos(1, 0, 0)));
+        assertEquals(4, graph.hopDistance(start, new BlockPos(4, 0, 0)));
+        assertEquals(4, graph.hopDistance(new BlockPos(4, 0, 0), start), "Distance is symmetric");
+    }
+
+    @Test
+    void testHopDistanceFollowsTheRouteNotTheStraightLine() {
+        // U-shaped run: the two ends are 2 blocks apart but 6 pipe hops apart.
+        for (int z = 0; z <= 2; z++) {
+            graph.addNode(new BlockPos(0, 0, z));
+            graph.addNode(new BlockPos(2, 0, z));
+        }
+        graph.addNode(new BlockPos(1, 0, 2));
+
+        assertEquals(6, graph.hopDistance(new BlockPos(0, 0, 0), new BlockPos(2, 0, 0)));
+    }
+
+    @Test
+    void testHopDistanceIsUnreachableForAbsentOrDisconnectedNodes() {
+        BlockPos a = new BlockPos(0, 0, 0);
+        BlockPos island = new BlockPos(50, 0, 0);
+        graph.addNode(a);
+        graph.addNode(island);
+
+        assertEquals(HopDistance.UNREACHABLE, graph.hopDistance(a, island), "No route between islands");
+        assertEquals(HopDistance.UNREACHABLE, graph.hopDistance(a, new BlockPos(1, 0, 0)), "Node not in graph");
+    }
+
+    @Test
+    void testHopDistanceRecomputesAfterTopologyChange() {
+        BlockPos a = new BlockPos(0, 0, 0);
+        BlockPos b = new BlockPos(1, 0, 0);
+        BlockPos c = new BlockPos(2, 0, 0);
+        graph.addNode(a);
+        graph.addNode(b);
+        graph.addNode(c);
+
+        assertEquals(2, graph.hopDistance(a, c)); // caches the table for source a
+
+        // Removing the middle node breaks the route; the cached table must be invalidated.
+        graph.removeNode(b);
+        assertEquals(HopDistance.UNREACHABLE, graph.hopDistance(a, c));
+    }
+
+    @Test
     void testGetNextHopRecomputesAfterTopologyChange() {
         BlockPos a = new BlockPos(0, 0, 0);
         BlockPos b = new BlockPos(1, 0, 0);
