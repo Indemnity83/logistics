@@ -3,9 +3,12 @@ import com.logistics.LogisticsMod;
 
 import com.logistics.core.lib.client.render.BoxGeometry.Element;
 import com.logistics.core.lib.client.render.BoxGeometry.Face;
+import com.logistics.core.lib.resource.ResourceId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -175,30 +178,48 @@ public final class MachineModels {
         return MODELS.get(key);
     }
 
-    private static final Map<String, List<BlockStateModelPart>> PARTS_CACHE = new HashMap<>();
+    /** Atlas identifier per model key, resolved once so the per-frame path allocates nothing. */
+    private static final Map<String, ResourceId> TEXTURE_IDS = MODELS.entrySet().stream()
+            .collect(Collectors.toUnmodifiableMap(
+                    Map.Entry::getKey, e -> LogisticsMod.modId("block/" + e.getValue().textureBase())));
+
+    /** Baked parts together with the sprite they were baked against. */
+    private record Baked(TextureAtlasSprite sprite, List<BlockStateModelPart> parts) {}
+
+    private static final Map<String, Baked> PARTS_CACHE = new HashMap<>();
 
     /**
      * Build (and cache) the code-generated parts for a machine model key, ready for
-     * {@code SubmitNodeCollector.submitBlockModel}. Geometry is static, so parts are cached by
-     * key (assumes no mid-session resource reload, matching the pipe/cable renderers). Returns
-     * an empty list for an unknown key.
+     * {@code SubmitNodeCollector.submitBlockModel}. Geometry is static but the atlas UVs baked
+     * into the quads are not: a resource reload re-stitches the block atlas and replaces every
+     * sprite, so a cached entry is kept only while its key still resolves to the same sprite.
+     * Returns an empty list for an unknown key.
      */
     public static List<BlockStateModelPart> parts(String key) {
-        List<BlockStateModelPart> cached = PARTS_CACHE.get(key);
-        if (cached != null) {
-            return cached;
-        }
+        return parts(key, MachineModels::atlasSprite);
+    }
+
+    /** Seam over the live block atlas so the cache contract is testable without a client. */
+    static List<BlockStateModelPart> parts(String key, Function<String, TextureAtlasSprite> spriteLookup) {
         Model model = MODELS.get(key);
         if (model == null) {
             return List.of();
         }
-        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
-                .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(LogisticsMod.modId("block/" + model.textureBase()).toIdentifier());
+        TextureAtlasSprite sprite = spriteLookup.apply(key);
+        Baked cached = PARTS_CACHE.get(key);
+        if (cached != null && cached.sprite() == sprite) {
+            return cached.parts();
+        }
         VanillaQuadBaker baker = new VanillaQuadBaker(sprite, -1, true, 0);
         BoxGeometry.emit(baker::quad, model.elements(), sprite);
         List<BlockStateModelPart> parts = baker.isEmpty() ? List.of() : List.of(baker.toPart());
-        PARTS_CACHE.put(key, parts);
+        PARTS_CACHE.put(key, new Baked(sprite, parts));
         return parts;
+    }
+
+    private static TextureAtlasSprite atlasSprite(String key) {
+        return Minecraft.getInstance().getAtlasManager()
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
+                .getSprite(TEXTURE_IDS.get(key).toIdentifier());
     }
 }
