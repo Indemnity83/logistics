@@ -3,6 +3,7 @@ package com.logistics.pipe.network;
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.core.lib.network.NetworkGraph;
 import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.pipe.modules.SinkPriority;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -82,6 +83,65 @@ class SinkResolverTest extends MinecraftTestEnvironment {
 
         assertNull(resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT)));
         assertNotNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
+    }
+
+    // -------------------------------------------------------------------------
+    // Tie resolution: equal priorities must resolve deterministically
+    // -------------------------------------------------------------------------
+
+    // Two sinks that tie at the Item Sink / Polymorphic Sink rung. Chosen because the
+    // pre-fix hash-iteration winner was TIED_HIGH, i.e. not the positionally-lowest one.
+    private static final BlockPos TIED_LOW = new BlockPos(6, 64, 7);
+    private static final BlockPos TIED_HIGH = new BlockPos(8, 64, 8);
+
+    /**
+     * Builds a network holding the tied sink pair plus {@code unrelatedSinks} unrelated
+     * lower-priority sinks, and returns the destination it picks for an iron ingot.
+     */
+    private BlockPos tiedPairDestination(int unrelatedSinks) {
+        NetworkGraph graph = new NetworkGraph();
+        SinkResolver resolver = new SinkResolver(graph, stubView);
+        for (BlockPos pos : List.of(TIED_LOW, TIED_HIGH)) {
+            graph.addNode(pos);
+            accepting.add(pos);
+            resolver.registerSink(pos, SinkPriority.ITEM_SINK);
+            resolver.registerSinkInterest(pos, Items.IRON_INGOT);
+        }
+        for (int i = 1; i <= unrelatedSinks; i++) {
+            BlockPos pos = new BlockPos(100 + i, 70, i);
+            graph.addNode(pos);
+            accepting.add(pos);
+            resolver.registerSink(pos, SinkPriority.ENCHANTMENT_SINK);
+            resolver.registerSinkInterest(pos, Items.IRON_INGOT);
+        }
+        return resolver.findSinkFor(new ItemStack(Items.IRON_INGOT));
+    }
+
+    @Test
+    void findSinkFor_tieIsBrokenByPositionNotIterationOrder() {
+        assertTrue(TIED_LOW.asLong() < TIED_HIGH.asLong());
+        assertEquals(TIED_LOW, tiedPairDestination(0));
+    }
+
+    @Test
+    void findSinkFor_tieWinnerSurvivesUnrelatedSinksJoiningTheNetwork() {
+        // A tied sink pair must keep its destination when the network grows: absorbing
+        // unrelated, lower-priority sinks reorders the candidate set but must not
+        // redirect items that were already going somewhere.
+        assertEquals(tiedPairDestination(0), tiedPairDestination(11));
+    }
+
+    @Test
+    void findSinkFor_tiedSinkThatRejectsTheItemDoesNotShadowOneThatAcceptsIt() {
+        graphA.addNode(TIED_LOW);
+        graphA.addNode(TIED_HIGH);
+        accepting.add(TIED_HIGH); // TIED_LOW is positionally preferred but refuses this item
+        resolverA.registerSink(TIED_LOW, SinkPriority.ITEM_SINK);
+        resolverA.registerSink(TIED_HIGH, SinkPriority.ITEM_SINK);
+        resolverA.registerSinkInterest(TIED_LOW, Items.IRON_INGOT);
+        resolverA.registerSinkInterest(TIED_HIGH, Items.IRON_INGOT);
+
+        assertEquals(TIED_HIGH, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
     }
 
     // -------------------------------------------------------------------------
