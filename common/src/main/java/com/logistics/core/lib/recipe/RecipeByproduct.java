@@ -2,6 +2,7 @@ package com.logistics.core.lib.recipe;
 
 import com.logistics.core.machine.component.ChanceOutput;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -26,9 +27,18 @@ public record RecipeByproduct(Item item, float chance) {
         }
     }
 
+    /**
+     * The constructor's contract as a decode-time check, so a malformed datapack chance is reported as an
+     * error for that one recipe instead of throwing out through the codec.
+     */
+    private static final Codec<Float> CHANCE = Codec.FLOAT.validate(chance ->
+        !Float.isFinite(chance) || chance < 0f
+            ? DataResult.error(() -> "chance must be finite and non-negative, got " + chance)
+            : DataResult.success(chance));
+
     public static final Codec<RecipeByproduct> CODEC = RecordCodecBuilder.create(i -> i.group(
         BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(RecipeByproduct::item),
-        Codec.FLOAT.fieldOf("chance").forGetter(RecipeByproduct::chance)
+        CHANCE.fieldOf("chance").forGetter(RecipeByproduct::chance)
     ).apply(i, RecipeByproduct::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RecipeByproduct> STREAM_CODEC = StreamCodec.composite(
