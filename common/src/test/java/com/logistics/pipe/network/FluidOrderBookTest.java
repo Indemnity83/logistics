@@ -1,6 +1,8 @@
 package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.FulfillmentMode;
+import com.logistics.core.lib.network.NetworkGraph;
+import com.logistics.core.lib.network.RoutingPreference;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluids;
@@ -56,6 +58,78 @@ class FluidOrderBookTest extends MinecraftTestEnvironment {
         book.removeSupply(PROVIDER1);
         assertEquals(0L, book.effectiveAvailable(PROVIDER1, Fluids.WATER));
         assertEquals(0L, book.getAvailableMbFor(Fluids.WATER));
+    }
+
+    // ===== Equal-priority provider ties: distance, then position =====
+
+    // A straight run of pipes from x=-6 to x=6 at y=z=0, with the requester in the middle.
+    private static final BlockPos ORDER_SOURCE = new BlockPos(0, 0, 0);
+    private static final BlockPos NEAR_PROVIDER = new BlockPos(-2, 0, 0); // 2 hops, less positive
+    private static final BlockPos FAR_PROVIDER = new BlockPos(6, 0, 0);   // 6 hops, more positive
+
+    private NetworkGraph pipeLine() {
+        NetworkGraph graph = new NetworkGraph();
+        for (int x = -6; x <= 6; x++) graph.addNode(new BlockPos(x, 0, 0));
+        return graph;
+    }
+
+    /** Registers both tied providers in the given order and returns the provider that wins. */
+    private BlockPos tiedProviderWinner(FluidOrderBook orderBook, boolean nearFirst) {
+        BlockPos first = nearFirst ? NEAR_PROVIDER : FAR_PROVIDER;
+        BlockPos second = nearFirst ? FAR_PROVIDER : NEAR_PROVIDER;
+        orderBook.registerSupply(first, Fluids.WATER, 5000L, 1);
+        orderBook.registerSupply(second, Fluids.WATER, 5000L, 1);
+        orderBook.placeOrder(Fluids.WATER, 1000L, ORDER_SOURCE);
+        return orderBook.nextDispatchable().provider();
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityProvidersGoToTheNearestOne() {
+        FluidOrderBook orderBook = new FluidOrderBook(pipeLine()::hopDistance);
+        // FAR_PROVIDER is the more positive position, so only distance can pick the near one.
+        assertTrue(RoutingPreference.mostPositiveFirst(FAR_PROVIDER, NEAR_PROVIDER) < 0);
+        assertEquals(NEAR_PROVIDER, tiedProviderWinner(orderBook, false));
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityWinnerIgnoresRegistrationOrder() {
+        NetworkGraph graph = pipeLine();
+        assertEquals(
+                tiedProviderWinner(new FluidOrderBook(graph::hopDistance), true),
+                tiedProviderWinner(new FluidOrderBook(graph::hopDistance), false),
+                "Equal-priority providers must resolve the same way whichever registered first");
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityWinnerIsTheSameAfterAMerge() {
+        NetworkGraph graph = pipeLine();
+        BlockPos builtWhole = tiedProviderWinner(new FluidOrderBook(graph::hopDistance), true);
+
+        FluidOrderBook left = new FluidOrderBook(graph::hopDistance);
+        left.registerSupply(FAR_PROVIDER, Fluids.WATER, 5000L, 1);
+        FluidOrderBook right = new FluidOrderBook(graph::hopDistance);
+        right.registerSupply(NEAR_PROVIDER, Fluids.WATER, 5000L, 1);
+        left.merge(right);
+        left.placeOrder(Fluids.WATER, 1000L, ORDER_SOURCE);
+
+        assertEquals(builtWhole, left.nextDispatchable().provider(),
+                "A merged network must draw from the same provider as one built in one go");
+    }
+
+    @Test
+    void nextDispatchable_equalPriorityWinnerIsStableWithoutAnyDistanceKnowledge() {
+        assertEquals(FAR_PROVIDER, tiedProviderWinner(new FluidOrderBook(), true));
+        assertEquals(FAR_PROVIDER, tiedProviderWinner(new FluidOrderBook(), false));
+    }
+
+    @Test
+    void nextDispatchable_priorityStillOutranksDistance() {
+        FluidOrderBook orderBook = new FluidOrderBook(pipeLine()::hopDistance);
+        orderBook.registerSupply(NEAR_PROVIDER, Fluids.WATER, 5000L, 2); // nearer, worse priority
+        orderBook.registerSupply(FAR_PROVIDER, Fluids.WATER, 5000L, 1);
+        orderBook.placeOrder(Fluids.WATER, 1000L, ORDER_SOURCE);
+
+        assertEquals(FAR_PROVIDER, orderBook.nextDispatchable().provider());
     }
 
     // ===== placeOrder validation =====

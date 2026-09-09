@@ -2,6 +2,8 @@ package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.INetworkGraph;
 import com.logistics.core.lib.network.IWorldView;
+import com.logistics.core.lib.network.RoutingPreference;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -103,24 +105,26 @@ class SinkResolver {
     /**
      * Find the highest-priority registered sink that accepts the given item.
      *
-     * @param stack item to route
+     * @param stack  item to route
+     * @param source position the item travels from; {@code null} skips the distance tiebreak
      * @return best sink position, or null if none accepts
      */
     @Nullable
-    BlockPos findSinkFor(ItemStack stack) {
-        return findSink(stack, false);
+    BlockPos findSinkFor(ItemStack stack, @Nullable BlockPos source) {
+        return findSink(stack, false, source);
     }
 
     /**
      * Find the highest-priority filtered (non-catch-all) sink that accepts the item.
      * Skips priority-0 default-route sinks.
      *
-     * @param stack item to route
+     * @param stack  item to route
+     * @param source position the item travels from; {@code null} skips the distance tiebreak
      * @return best filtered sink position, or null if none accepts
      */
     @Nullable
-    BlockPos findFilteredSinkFor(ItemStack stack) {
-        return findSink(stack, true);
+    BlockPos findFilteredSinkFor(ItemStack stack, @Nullable BlockPos source) {
+        return findSink(stack, true, source);
     }
 
     /**
@@ -131,20 +135,28 @@ class SinkResolver {
      * interest in this item type, avoiding expensive inventory scans for every network member.
      * Priority lookup reads the registry once per candidate; no sort is performed.
      *
-     * <p>Equal priorities are broken by the lowest {@link BlockPos#asLong()}, so the winner is a
-     * pure function of the accepting sinks' positions. Without that, the candidate set is an
-     * unordered {@link HashSet} and the winner would follow hash iteration order, which shifts
-     * whenever set membership changes — that is, whenever the network merges or splits.
+     * <p>Equal priorities are broken by {@link RoutingPreference}: the sink fewer routed hops from
+     * {@code source} wins, and equal distances fall through to the most positive position. The
+     * winner is therefore a pure function of the accepting sinks' positions and the network shape.
+     * Without a tiebreak the candidate set is an unordered {@link HashSet} and the winner would
+     * follow hash iteration order, which shifts whenever set membership changes — that is,
+     * whenever the network merges or splits.
+     *
+     * <p>The tiebreaker is only consulted on an actual priority tie, so the distance BFS behind
+     * {@link INetworkGraph#hopDistance} is never paid for on the common no-tie path.
      *
      * @param stack        item to route
      * @param filteredOnly if true, skip priority-0 (catch-all) sinks
+     * @param source       position the item travels from; {@code null} skips the distance tier
      */
     @Nullable
-    private BlockPos findSink(ItemStack stack, boolean filteredOnly) {
+    private BlockPos findSink(ItemStack stack, boolean filteredOnly, @Nullable BlockPos source) {
         // Candidate set = generic-interest pipes ∪ pipes interested in this specific item
         Set<BlockPos> candidates = new HashSet<>(genericInterests);
         Set<BlockPos> specific = specificInterests.get(stack.getItem());
         if (specific != null) candidates.addAll(specific);
+
+        Comparator<BlockPos> tieBreak = RoutingPreference.among(source, graph::hopDistance);
 
         BlockPos best = null;
         int bestPriority = Integer.MIN_VALUE;
@@ -153,7 +165,7 @@ class SinkResolver {
             if (priority == null || !graph.contains(pos)) continue;
             if (filteredOnly && priority <= 0) continue;
             if (priority < bestPriority) continue;
-            if (priority == bestPriority && best != null && pos.asLong() >= best.asLong()) continue;
+            if (priority == bestPriority && best != null && tieBreak.compare(pos, best) >= 0) continue;
             if (worldView.matchesSinkFilter(pos, stack)) {
                 best = pos;
                 bestPriority = priority;

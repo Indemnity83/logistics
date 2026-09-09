@@ -2,6 +2,7 @@ package com.logistics.pipe.network;
 
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.core.lib.network.NetworkGraph;
+import com.logistics.core.lib.network.RoutingPreference;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.pipe.modules.SinkPriority;
 import com.logistics.test.MinecraftTestEnvironment;
@@ -71,7 +72,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.registerSinkInterest(POS_A, Items.IRON_INGOT);
         resolverA.registerSinkInterest(POS_B, Items.IRON_INGOT);
 
-        assertEquals(POS_B, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertEquals(POS_B, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
     }
 
     @Test
@@ -81,8 +82,8 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.registerSink(POS_A, 0); // priority 0 = catch-all
         resolverA.registerGenericSinkInterest(POS_A);
 
-        assertNull(resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT)));
-        assertNotNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertNull(resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT), null));
+        assertNotNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
     }
 
     // -------------------------------------------------------------------------
@@ -90,10 +91,11 @@ class SinkResolverTest extends MinecraftTestEnvironment {
     // -------------------------------------------------------------------------
 
     // Two Item Sink modules in separate chassis — a genuine tie, since both draw the same
-    // rung. Chosen because the pre-fix hash-iteration winner was TIED_HIGH, i.e. not the
-    // positionally-lowest one.
-    private static final BlockPos TIED_LOW = new BlockPos(6, 64, 7);
-    private static final BlockPos TIED_HIGH = new BlockPos(8, 64, 8);
+    // rung. Equidistant from the source in these cases, so the "most positive direction" tier
+    // (greater Y, then greater X, then greater Z) is what separates them: same Y, so the
+    // greater X wins and MORE_POSITIVE is the expected destination.
+    private static final BlockPos LESS_POSITIVE = new BlockPos(6, 64, 7);
+    private static final BlockPos MORE_POSITIVE = new BlockPos(8, 64, 8);
 
     /**
      * Builds a network holding the tied sink pair plus {@code unrelatedSinks} unrelated
@@ -102,7 +104,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
     private BlockPos tiedPairDestination(int unrelatedSinks) {
         NetworkGraph graph = new NetworkGraph();
         SinkResolver resolver = new SinkResolver(graph, stubView);
-        for (BlockPos pos : List.of(TIED_LOW, TIED_HIGH)) {
+        for (BlockPos pos : List.of(LESS_POSITIVE, MORE_POSITIVE)) {
             graph.addNode(pos);
             accepting.add(pos);
             resolver.registerSink(pos, SinkPriority.ITEM_SINK);
@@ -115,13 +117,15 @@ class SinkResolverTest extends MinecraftTestEnvironment {
             resolver.registerSink(pos, SinkPriority.ENCHANTMENT_SINK);
             resolver.registerSinkInterest(pos, Items.IRON_INGOT);
         }
-        return resolver.findSinkFor(new ItemStack(Items.IRON_INGOT));
+        return resolver.findSinkFor(new ItemStack(Items.IRON_INGOT), null);
     }
 
     @Test
-    void findSinkFor_tieIsBrokenByPositionNotIterationOrder() {
-        assertTrue(TIED_LOW.asLong() < TIED_HIGH.asLong());
-        assertEquals(TIED_LOW, tiedPairDestination(0));
+    void findSinkFor_equidistantTieGoesToTheMostPositivePosition() {
+        // Not the encoded position: LESS_POSITIVE has the lower BlockPos.asLong(), which is what
+        // this used to resolve by, so it must NOT be the winner under the stated rule.
+        assertTrue(LESS_POSITIVE.asLong() < MORE_POSITIVE.asLong());
+        assertEquals(MORE_POSITIVE, tiedPairDestination(0));
     }
 
     @Test
@@ -134,15 +138,104 @@ class SinkResolverTest extends MinecraftTestEnvironment {
 
     @Test
     void findSinkFor_tiedSinkThatRejectsTheItemDoesNotShadowOneThatAcceptsIt() {
-        graphA.addNode(TIED_LOW);
-        graphA.addNode(TIED_HIGH);
-        accepting.add(TIED_HIGH); // TIED_LOW is positionally preferred but refuses this item
-        resolverA.registerSink(TIED_LOW, SinkPriority.ITEM_SINK);
-        resolverA.registerSink(TIED_HIGH, SinkPriority.ITEM_SINK);
-        resolverA.registerSinkInterest(TIED_LOW, Items.IRON_INGOT);
-        resolverA.registerSinkInterest(TIED_HIGH, Items.IRON_INGOT);
+        graphA.addNode(LESS_POSITIVE);
+        graphA.addNode(MORE_POSITIVE);
+        accepting.add(LESS_POSITIVE); // MORE_POSITIVE would win the tie but refuses this item
+        resolverA.registerSink(LESS_POSITIVE, SinkPriority.ITEM_SINK);
+        resolverA.registerSink(MORE_POSITIVE, SinkPriority.ITEM_SINK);
+        resolverA.registerSinkInterest(LESS_POSITIVE, Items.IRON_INGOT);
+        resolverA.registerSinkInterest(MORE_POSITIVE, Items.IRON_INGOT);
 
-        assertEquals(TIED_HIGH, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertEquals(LESS_POSITIVE, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
+    }
+
+    @Test
+    void findSinkFor_mostPositiveRuleWalksYBeforeX() {
+        // Y outranks X: the lower-X sink wins on the strength of its greater Y alone.
+        BlockPos higherY = new BlockPos(0, 70, 0);
+        BlockPos lowerY = new BlockPos(9, 64, 9);
+        for (BlockPos pos : List.of(higherY, lowerY)) {
+            graphA.addNode(pos);
+            accepting.add(pos);
+            resolverA.registerSink(pos, SinkPriority.ITEM_SINK);
+            resolverA.registerSinkInterest(pos, Items.IRON_INGOT);
+        }
+        assertEquals(higherY, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
+    }
+
+    // -------------------------------------------------------------------------
+    // Tie resolution: routed distance outranks position
+    // -------------------------------------------------------------------------
+
+    private static final BlockPos SOURCE = new BlockPos(0, 0, 0);
+    // 2 hops along the pipe line from SOURCE, and the less positive position of the pair
+    private static final BlockPos NEAR = new BlockPos(-2, 0, 0);
+    // 6 hops along the pipe line from SOURCE, and the more positive position of the pair
+    private static final BlockPos FAR = new BlockPos(6, 0, 0);
+
+    /** A straight run of pipes from x=-6 to x=6 at y=z=0, with SOURCE in the middle. */
+    private SinkResolver lineNetwork(NetworkGraph graph) {
+        for (int x = -6; x <= 6; x++) graph.addNode(new BlockPos(x, 0, 0));
+        SinkResolver resolver = new SinkResolver(graph, stubView);
+        for (BlockPos pos : List.of(NEAR, FAR)) {
+            accepting.add(pos);
+            resolver.registerSink(pos, SinkPriority.ITEM_SINK);
+            resolver.registerSinkInterest(pos, Items.IRON_INGOT);
+        }
+        return resolver;
+    }
+
+    @Test
+    void findSinkFor_tieGoesToTheNearerSinkEvenWhenPositionDisagrees() {
+        SinkResolver resolver = lineNetwork(new NetworkGraph());
+        // FAR is the more positive position, so only distance can hand the item to NEAR.
+        assertTrue(RoutingPreference.mostPositiveFirst(FAR, NEAR) < 0);
+        assertEquals(NEAR, resolver.findSinkFor(new ItemStack(Items.IRON_INGOT), SOURCE));
+    }
+
+    @Test
+    void findSinkFor_distanceIsMeasuredFromTheSourceNotTheNetwork() {
+        SinkResolver resolver = lineNetwork(new NetworkGraph());
+        // From the far end of the line the ranking flips: FAR is now 1 hop away, NEAR is 7.
+        assertEquals(FAR, resolver.findSinkFor(new ItemStack(Items.IRON_INGOT), new BlockPos(5, 0, 0)));
+    }
+
+    @Test
+    void findSinkFor_nearerSinkStillWinsAfterTheNetworkGrows() {
+        // Extending the line re-keys the candidate set and invalidates every cached distance
+        // table; the item must keep going to the same sink.
+        NetworkGraph graph = new NetworkGraph();
+        SinkResolver resolver = lineNetwork(graph);
+        BlockPos before = resolver.findSinkFor(new ItemStack(Items.IRON_INGOT), SOURCE);
+        for (int x = 7; x <= 20; x++) graph.addNode(new BlockPos(x, 0, 0));
+        assertEquals(NEAR, before);
+        assertEquals(before, resolver.findSinkFor(new ItemStack(Items.IRON_INGOT), SOURCE));
+    }
+
+    @Test
+    void findSinkFor_tieWinnerIsTheSameWhetherTheNetworkWasMergedOrBuiltWhole() {
+        NetworkGraph whole = new NetworkGraph();
+        BlockPos expected = lineNetwork(whole).findSinkFor(new ItemStack(Items.IRON_INGOT), SOURCE);
+
+        // Same pipes and sinks, but assembled from two halves that merge — the case where
+        // registration and hash-iteration order differ from the built-whole network.
+        NetworkGraph left = new NetworkGraph();
+        NetworkGraph right = new NetworkGraph();
+        SinkResolver leftHalf = new SinkResolver(left, stubView);
+        SinkResolver rightHalf = new SinkResolver(right, stubView);
+        for (int x = -6; x <= 0; x++) left.addNode(new BlockPos(x, 0, 0));
+        for (int x = 1; x <= 6; x++) right.addNode(new BlockPos(x, 0, 0));
+        accepting.add(NEAR);
+        accepting.add(FAR);
+        leftHalf.registerSink(NEAR, SinkPriority.ITEM_SINK);
+        leftHalf.registerSinkInterest(NEAR, Items.IRON_INGOT);
+        rightHalf.registerSink(FAR, SinkPriority.ITEM_SINK);
+        rightHalf.registerSinkInterest(FAR, Items.IRON_INGOT);
+
+        left.merge(right);
+        leftHalf.merge(rightHalf);
+
+        assertEquals(expected, leftHalf.findSinkFor(new ItemStack(Items.IRON_INGOT), SOURCE));
     }
 
     // -------------------------------------------------------------------------
@@ -151,12 +244,12 @@ class SinkResolverTest extends MinecraftTestEnvironment {
 
     @Test
     void findSinkFor_itemSinkOutranksPolymorphicSinkRegardlessOfPosition() {
-        // The Polymorphic sink is placed at the LOWER position, so the positional tiebreak
-        // would hand it the item if the two still shared a rung. Only the priority
+        // The Polymorphic sink is placed at the MORE POSITIVE position, so the positional
+        // tiebreak would hand it the item if the two still shared a rung. Only the priority
         // difference can send the item to the configured Item Sink.
-        BlockPos polymorphic = TIED_LOW;
-        BlockPos itemSink = TIED_HIGH;
-        assertTrue(polymorphic.asLong() < itemSink.asLong());
+        BlockPos polymorphic = MORE_POSITIVE;
+        BlockPos itemSink = LESS_POSITIVE;
+        assertTrue(RoutingPreference.mostPositiveFirst(polymorphic, itemSink) < 0);
 
         graphA.addNode(polymorphic);
         graphA.addNode(itemSink);
@@ -167,7 +260,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.registerSink(itemSink, SinkPriority.ITEM_SINK);
         resolverA.registerSinkInterest(itemSink, Items.IRON_INGOT);
 
-        assertEquals(itemSink, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertEquals(itemSink, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
     }
 
     // -------------------------------------------------------------------------
@@ -186,7 +279,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         graphA.addNode(POS_B);
         resolverA.merge(resolverB);
 
-        assertEquals(POS_B, resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertEquals(POS_B, resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT), null));
     }
 
     @Test
@@ -201,7 +294,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.merge(resolverB);
 
         // findSinkFor (unfiltered) must find POS_C via the merged generic interest
-        assertEquals(POS_C, resolverA.findSinkFor(new ItemStack(Items.GOLD_INGOT)));
+        assertEquals(POS_C, resolverA.findSinkFor(new ItemStack(Items.GOLD_INGOT), null));
     }
 
     // -------------------------------------------------------------------------
@@ -226,7 +319,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.merge(resolverB);
 
         // POS_B (priority 10) must win over POS_A (priority 3)
-        assertEquals(POS_B, resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertEquals(POS_B, resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT), null));
     }
 
     @Test
@@ -248,7 +341,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.registerSink(POS_B, 5);
         resolverA.registerSinkInterest(POS_B, Items.IRON_INGOT);
 
-        assertEquals(POS_A, resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertEquals(POS_A, resolverA.findFilteredSinkFor(new ItemStack(Items.IRON_INGOT), null));
     }
 
     // -------------------------------------------------------------------------
@@ -265,7 +358,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.unregisterSink(POS_A);
 
         // After unregister the sink must not be found
-        assertNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
+        assertNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
     }
 
     @Test
@@ -278,7 +371,7 @@ class SinkResolverTest extends MinecraftTestEnvironment {
 
         resolverA.remove(POS_A);
 
-        assertNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
-        assertNull(resolverA.findSinkFor(new ItemStack(Items.GOLD_INGOT)));
+        assertNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
+        assertNull(resolverA.findSinkFor(new ItemStack(Items.GOLD_INGOT), null));
     }
 }
