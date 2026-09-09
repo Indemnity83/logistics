@@ -137,8 +137,8 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
 
     /** Tank fill as a 0..1 fraction of the tank's capacity. */
     public float getTankFillFraction() {
-        int amount = data.get(TransposerBlockEntity.DATA_FLUID_AMOUNT);
-        int capacity = data.get(TransposerBlockEntity.DATA_FLUID_CAPACITY);
+        int amount = MachineData.wide(data, TransposerBlockEntity.DATA_FLUID_AMOUNT);
+        int capacity = MachineData.wide(data, TransposerBlockEntity.DATA_FLUID_CAPACITY);
         if (amount <= 0 || capacity <= 0) {
             return 0f;
         }
@@ -147,6 +147,6 @@ public class TransposerScreenHandler extends AbstractContainerMenu {
 
     /** Current tank amount in mB. */
     public int getTankAmountMb() {
-        return data.get(TransposerBlockEntity.DATA_FLUID_AMOUNT);
+        return MachineData.wide(data, TransposerBlockEntity.DATA_FLUID_AMOUNT);
     }
 }
