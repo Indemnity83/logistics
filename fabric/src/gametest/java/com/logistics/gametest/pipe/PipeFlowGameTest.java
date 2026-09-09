@@ -86,6 +86,17 @@ public class PipeFlowGameTest {
     }
 
     /**
+     * A vanilla hopper aimed at a transport pipe must neither get its item in nor lose it —
+     * the pipe's real doorway, driven by a real block instead of {@code forceAddItem}.
+     *
+     * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testhoppercannotinsertintotransportpipe
+     */
+    @GameTest(maxTicks = 60)
+    public void testHopperCannotInsertIntoTransportPipe(GameTestHelper context) {
+        PipeFlowGameTestBody.testHopperCannotInsertIntoTransportPipe(context);
+    }
+
+    /**
      * Verifies that {@link com.logistics.core.lib.pipe.TravelingItem#CODEC} can serialize and
      * deserialize an enchanted item stack without throwing
      * {@code IllegalStateException: Can't access registry}.

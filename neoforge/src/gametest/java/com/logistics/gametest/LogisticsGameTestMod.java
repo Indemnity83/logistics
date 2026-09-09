@@ -44,10 +44,10 @@ import net.neoforged.fml.common.Mod;
  * populate {@link GameTestFunctions#TEST_FUNCTION}'s pending entries — before the register call
  * below hands the DeferredRegister its event bus.
  *
- * <p>{@code power.CableGameTest} has no entry here: every one of its tests exercises Fabric's
- * Team Reborn transactional energy API directly (abort/commit semantics with no NeoForge
- * equivalent), so it stays Fabric-only. Everything else in {@code fabric/src/gametest} has a
- * counterpart below.
+ * <p>Only the two {@code power.CableGameTest} tests named {@code testAborted…Transaction…} are
+ * Fabric-only: they exercise Fabric's Team Reborn transactional energy API directly (abort/commit
+ * semantics with no NeoForge equivalent). Every other cable test is registered here through
+ * {@code CableGameTestRegistration}, as is everything else in {@code fabric/src/gametest}.
  */
 @Mod("logistics_gametest")
 public final class LogisticsGameTestMod {
