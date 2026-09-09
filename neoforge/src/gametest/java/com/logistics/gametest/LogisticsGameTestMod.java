@@ -21,6 +21,7 @@ import com.logistics.gametest.pipe.FluidProviderGameTestRegistration;
 import com.logistics.gametest.pipe.FluidPumpGameTestRegistration;
 import com.logistics.gametest.pipe.FluidSupplierGameTestRegistration;
 import com.logistics.gametest.pipe.GlassTankBucketGameTestRegistration;
+import com.logistics.gametest.pipe.TankComparatorGameTestRegistration;
 import com.logistics.gametest.pipe.ModuleGameTestRegistration;
 import com.logistics.gametest.pipe.PipeFlowGameTestRegistration;
 import com.logistics.gametest.pipe.PipeInfrastructureGameTestRegistration;
@@ -81,6 +82,7 @@ public final class LogisticsGameTestMod {
         FluidPumpGameTestRegistration.bootstrap();
         FluidSupplierGameTestRegistration.bootstrap();
         GlassTankBucketGameTestRegistration.bootstrap();
+        TankComparatorGameTestRegistration.bootstrap();
         ModuleGameTestRegistration.bootstrap();
         PipeFlowGameTestRegistration.bootstrap();
         PipeInfrastructureGameTestRegistration.bootstrap();

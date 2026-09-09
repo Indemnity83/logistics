@@ -202,23 +202,6 @@ public class PipeBlock extends BaseEntityBlock
         return super.useWithoutItem(state, world, pos, player, hit);
     }
 
-    @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
-        return pipe != null && pipe.hasComparatorOutput();
-    }
-
-    protected int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
-        if (pipe == null) {
-            return 0;
-        }
-
-        if (world.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity) {
-            return pipe.getComparatorOutput(new PipeContext(world, pos, state, blockEntity));
-        }
-
-        return 0;
-    }
-
     @Nullable @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new PipeBlockEntity(pos, state);
