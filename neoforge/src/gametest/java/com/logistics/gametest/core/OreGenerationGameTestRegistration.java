@@ -39,11 +39,18 @@ public final class OreGenerationGameTestRegistration {
         new GameTestCase(
             "core/apatite_ore_block_placeable", 100, OreGenerationGameTestBody::testApatiteOreBlockPlaceable),
         new GameTestCase(
-            "core/tin_ore_can_replace_stone", 100, OreGenerationGameTestBody::testTinOreCanReplaceStone),
+            "core/tin_ore_stone_feature_generates_tin_ore",
+            100,
+            OreGenerationGameTestBody::testTinOreStoneFeatureGeneratesTinOre),
         new GameTestCase(
-            "core/tin_ore_can_replace_deepslate", 100, OreGenerationGameTestBody::testTinOreCanReplaceDeepslate),
+            "core/tin_ore_deepslate_feature_generates_deepslate_tin_ore",
+            100,
+            OreGenerationGameTestBody::testTinOreDeepslateFeatureGeneratesDeepslateTinOre),
+        new GameTestCase("core/tin_ore_targets_stone", 100, OreGenerationGameTestBody::testTinOreTargetsStone),
         new GameTestCase(
-            "core/apatite_ore_can_replace_stone", 100, OreGenerationGameTestBody::testApatiteOreCanReplaceStone));
+            "core/tin_ore_targets_deepslate", 100, OreGenerationGameTestBody::testTinOreTargetsDeepslate),
+        new GameTestCase(
+            "core/apatite_ore_targets_stone", 100, OreGenerationGameTestBody::testApatiteOreTargetsStone));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
