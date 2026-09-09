@@ -78,6 +78,15 @@ public final class NetworkEnergySourceComponent implements MachineComponent {
         }
     }
 
+    /**
+     * Force the next server tick to rescan instead of waiting out {@link #SCAN_INTERVAL}. Call when
+     * the pipe topology around the host changes: a split hands the neighbouring pipes a brand-new
+     * network, so the networks in {@code registered} may already be dead.
+     */
+    public void requestRescan() {
+        scanTick = SCAN_INTERVAL;
+    }
+
     /** Unregister from every network this component registered with. Call when the host is removed. */
     public void unregisterAll(MachineContext ctx) {
         BlockPos pos = ctx.pos();

@@ -25,6 +25,10 @@ public final class PowerJunctionGameTestRegistration {
             60,
             PowerJunctionGameTestBody::testEmptyJunctionDoesNotPowerNetwork),
         new GameTestCase(
+            "pipe/junction_powers_new_network_after_split",
+            80,
+            PowerJunctionGameTestBody::testJunctionPowersNewNetworkAfterSplit),
+        new GameTestCase(
             "pipe/pipe_forms_power_connection_to_junction",
             60,
             PowerJunctionGameTestBody::testPipeFormsPowerConnectionToJunction),
