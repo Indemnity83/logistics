@@ -10,6 +10,7 @@
     "logistics:power/fuel_engine",
     "logistics:power/creative_sink",
     "logistics:power/battery",
+    "logistics:core/redstone_engine",
     "logistics:power/copper_cable",
     "logistics:power/gold_cable",
     "logistics:power/ender_cable",

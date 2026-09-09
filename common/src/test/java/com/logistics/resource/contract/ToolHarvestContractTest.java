@@ -51,6 +51,13 @@ class ToolHarvestContractTest extends MinecraftTestEnvironment {
         "logistics:power/creative_engine", "creative-only: no crafting recipe",
         "logistics:power/creative_sink", "creative-only: no crafting recipe");
 
+    /**
+     * Tool-gated blocks a pickaxe is deliberately allowed to destroy, each with its reason. Empty,
+     * and meant to stay that way — an entry here is a block that silently voids itself for anyone
+     * who reaches for the obvious tool, so adding one is a product decision, not a formality.
+     */
+    private static final Map<String, String> PICKAXE_MAY_DESTROY = Map.of();
+
     @BeforeAll
     static void registerDomains() {
         DomainRegistrations.ensureRegistered();
@@ -131,6 +138,35 @@ class ToolHarvestContractTest extends MinecraftTestEnvironment {
         assertThat(failures).as("blocks that cannot be harvested by any tool").isEmpty();
     }
 
+    /**
+     * The stricter half of the rule above. Being harvestable by <em>some</em> tool is not enough:
+     * everything tool-gated we ship is machinery, ore or metal, so the pickaxe is what a player
+     * actually swings at it. A tool-gated block outside {@code mineable/pickaxe} is destroyed for
+     * no drop by that reflex — the failure mode is silent, and costs the player the block.
+     */
+    @Test
+    @DisplayName("no tool-gated block is destroyed by a pickaxe")
+    void everyToolGatedBlockAcceptsAPickaxe() {
+        Set<String> pickaxeMineable = idsInTag("mineable/pickaxe");
+        List<String> failures = new ArrayList<>();
+
+        ourBlocks().forEach((id, block) -> {
+            if (!block.defaultBlockState().requiresCorrectToolForDrops()
+                || pickaxeMineable.contains(id)
+                || PICKAXE_MAY_DESTROY.containsKey(id)) {
+                return;
+            }
+            failures.add(id + " requires the correct tool but is not in mineable/pickaxe, so a "
+                + "pickaxe breaks it with no drop");
+        });
+
+        assertThat(failures)
+            .as("blocks a pickaxe destroys instead of harvesting; add each to mineable/pickaxe "
+                + "(keeping any other mineable tag it has), or to PICKAXE_MAY_DESTROY with the "
+                + "reason losing the block to a pickaxe is intended")
+            .isEmpty();
+    }
+
     /** Every block the domains register, keyed by its full id. */
     private static Map<String, Block> ourBlocks() {
         Map<String, Block> blocks = new TreeMap<>();
@@ -141,6 +177,15 @@ class ToolHarvestContractTest extends MinecraftTestEnvironment {
             }
         });
         return blocks;
+    }
+
+    /** Our block ids in one tag, named as {@code mineable/pickaxe} under {@code minecraft/tags/block}. */
+    private static Set<String> idsInTag(String tag) {
+        Path file = ResourceFiles.dataRoot().resolve("minecraft/tags/block").resolve(tag + ".json");
+        if (!Files.isRegularFile(file)) {
+            throw new IllegalStateException("expected a shipped block tag at " + file);
+        }
+        return ourValuesIn(List.of(file));
     }
 
     /** Our block ids across every tag under {@code minecraft/tags/block/<directory>}. */
