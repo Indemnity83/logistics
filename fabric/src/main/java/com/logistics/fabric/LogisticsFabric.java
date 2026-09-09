@@ -1,14 +1,15 @@
 package com.logistics.fabric;
 
-import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
 import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.core.lib.power.FurnaceFuels;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.fabric.capability.FabricCapabilityRegistration;
 import com.logistics.fabric.energy.EnergyStorageAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.FuelValueEvents;
 
@@ -33,12 +34,9 @@ public final class LogisticsFabric implements ModInitializer {
         FabricPacketRegistration.register();
         FabricBiomeModifications.register();
 
-        // Oil-chain and peat fuels; work in furnaces and the Stirling Engine. (Coal is 1600 for reference.)
-        FuelValueEvents.BUILD.register((builder, context) -> {
-            builder.add(LogisticsCore.ITEM.PEAT, 2000);
-            builder.add(LogisticsCore.ITEM.BITUMEN, 3200);
-            builder.add(LogisticsCore.ITEM.TAR, 800);
-        });
+        // Values live in FurnaceFuels so this and NeoForge's furnace_fuels data map cannot drift.
+        FuelValueEvents.BUILD.register((builder, context) -> FurnaceFuels.BURN_TIMES.forEach(
+                (path, burnTime) -> builder.add(BuiltInRegistries.ITEM.getValue(LogisticsMod.modId(path).toIdentifier()), burnTime)));
     }
 
     private void registerEnergyServices() {
