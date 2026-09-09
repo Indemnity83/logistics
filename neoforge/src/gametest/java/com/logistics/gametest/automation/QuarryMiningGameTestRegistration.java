@@ -178,4 +178,21 @@ public final class QuarryMiningGameTestRegistration {
     public static void testQuarryClearsBlockDroppedIntoFrameSlot(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryClearsBlockDroppedIntoFrameSlot(context);
     }
+
+    /**
+    * A waterlogged block is a block, and the quarry mines it.
+    *
+    * <p>{@code BlockState.getFluidState()} reports water for anything with {@code WATERLOGGED=true},
+    * so a "is this cell fluid?" check written that way skips every waterlogged stair, slab, fence
+    * and chest — a quarry over a shipwreck mines the plain blocks and leaves the submerged skeleton
+    * standing in the pit, chests and all. {@code GridScanner} therefore asks whether the cell also
+    * blocks motion; this is that rule in the world, mirroring the fluid pump's waterlog test.
+    *
+    * <p>The slab is the inner mining column's top cell, boxed in by stone on every side but the
+    * cleared air above it, so its water cannot spread and confuse the run.
+    */
+    @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 220)
+    public static void testQuarryMinesWaterloggedBlock(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryMinesWaterloggedBlock(context);
+    }
 }

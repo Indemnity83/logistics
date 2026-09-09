@@ -20,9 +20,10 @@ public class QuarryGameTest {
     }
 
     /**
-    * Test that laser quarry accepts energy from all sides.
-    */
-    @GameTest(template = "fabric-gametest-api-v1:empty")
+     * A player can wire the quarry from any face — proven with a real creative engine and copper
+     * cable on each of the six faces in turn, not by asking the block entity for an energy storage.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 150)
     public void testQuarryAcceptsEnergy(GameTestHelper context) {
         QuarryGameTestBody.testQuarryAcceptsEnergy(context);
     }
@@ -33,10 +34,10 @@ public class QuarryGameTest {
     }
 
     /**
-    * Test that laser quarry does NOT accept items from pipes.
-    * Quarry only outputs items, never accepts them.
-    */
-    @GameTest(template = "fabric-gametest-api-v1:empty")
+     * The quarry only pushes items out — real hoppers aimed at every reachable face must keep
+     * hold of their items, and nothing may end up on the ground.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
     public void testQuarryDoesNotAcceptItems(GameTestHelper context) {
         QuarryGameTestBody.testQuarryDoesNotAcceptItems(context);
     }
@@ -64,10 +65,10 @@ public class QuarryGameTest {
     }
 
     /**
-    * Test that laser quarry reports correct pipe connection type.
-    * Should only connect to pipes from above (Direction.UP).
-    */
-    @GameTest(template = "fabric-gametest-api-v1:empty")
+     * Only the quarry's top face takes a pipe — read from real pipes on all six faces, after the
+     * server has ticked their connection caches.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testQuarryPipeConnection(GameTestHelper context) {
         QuarryGameTestBody.testQuarryPipeConnection(context);
     }

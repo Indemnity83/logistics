@@ -30,7 +30,7 @@ public final class QuarryGameTestRegistration {
     /**
     * Test that laser quarry accepts energy from all sides.
     */
-    @GameTest(template = "empty", batch = "quarry")
+    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 200)
     public static void testQuarryAcceptsEnergy(GameTestHelper context) {
         QuarryGameTestBody.testQuarryAcceptsEnergy(context);
     }
@@ -44,7 +44,7 @@ public final class QuarryGameTestRegistration {
     * Test that laser quarry does NOT accept items from pipes.
     * Quarry only outputs items, never accepts them.
     */
-    @GameTest(template = "empty", batch = "quarry")
+    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 120)
     public static void testQuarryDoesNotAcceptItems(GameTestHelper context) {
         QuarryGameTestBody.testQuarryDoesNotAcceptItems(context);
     }
@@ -75,7 +75,7 @@ public final class QuarryGameTestRegistration {
     * Test that laser quarry reports correct pipe connection type.
     * Should only connect to pipes from above (Direction.UP).
     */
-    @GameTest(template = "empty", batch = "quarry")
+    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 60)
     public static void testQuarryPipeConnection(GameTestHelper context) {
         QuarryGameTestBody.testQuarryPipeConnection(context);
     }
