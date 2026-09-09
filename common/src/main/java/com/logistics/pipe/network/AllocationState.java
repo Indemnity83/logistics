@@ -9,7 +9,8 @@ package com.logistics.pipe.network;
  *                   └────────────────────────────┴──► INVALIDATED
  * </pre>
  *
- * {@link #INVALIDATED} reservations are candidates for replanning in a future phase.
+ * The two terminal states are bookkeeping outcomes, not stored ones: a reservation reaching
+ * either is dropped by {@link ReservationManager} rather than retained.
  */
 public enum AllocationState {
     /** Reservation planned but not yet committed to a specific provider. */

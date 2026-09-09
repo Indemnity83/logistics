@@ -170,6 +170,33 @@ class ReservationManagerTest extends MinecraftTestEnvironment {
         assertEquals(44, manager.effectiveAvailable(PROVIDER2, diamond(), 64));
     }
 
+    @Test
+    void testInvalidate_doesNotRetainTheReservation() {
+        UUID orderId = UUID.randomUUID();
+        ReservationId rid = manager.reserve(orderId, PROVIDER, REQUESTER, diamond(), 32, true);
+        manager.invalidate(rid);
+        assertTrue(manager.getReservations(PROVIDER).isEmpty(),
+                "an invalidated reservation must not be retained");
+    }
+
+    @Test
+    void testInvalidateByProvider_doesNotRetainTheReservations() {
+        manager.reserve(UUID.randomUUID(), PROVIDER, REQUESTER, diamond(), 10, true);
+        manager.reserve(UUID.randomUUID(), PROVIDER, REQUESTER2, diamond(), 20, true);
+        manager.invalidateByProvider(PROVIDER);
+        assertTrue(manager.getReservations(PROVIDER).isEmpty(),
+                "invalidated reservations must not be retained");
+    }
+
+    @Test
+    void testTransitionToTerminalState_doesNotRetainTheReservation() {
+        UUID orderId = UUID.randomUUID();
+        ReservationId rid = manager.reserve(orderId, PROVIDER, REQUESTER, diamond(), 10, true);
+        manager.transition(rid, AllocationState.DELIVERED);
+        assertTrue(manager.getReservations(PROVIDER).isEmpty(),
+                "a delivered reservation must not be retained");
+    }
+
     // ===== releaseInFlight =====
 
     @Test
