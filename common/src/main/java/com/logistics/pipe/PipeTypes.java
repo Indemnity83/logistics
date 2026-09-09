@@ -1,6 +1,5 @@
 package com.logistics.pipe;
 
-import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
 import com.logistics.pipe.modules.*;
@@ -12,15 +11,14 @@ public final class PipeTypes {
     // -----------------
 
     // Early transport pipe - slow item movement.
-    public static final ItemPipe STONE_TRANSPORT_PIPE =
-            new ItemPipe(new TransportModule(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED), LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_DRAG))) {};
+    public static final ItemPipe STONE_TRANSPORT_PIPE = new ItemPipe(new TransportModule()) {};
 
     // Base transport pipe - simple item movement.
     // NOTE: No special connection restrictions; this is the default backbone pipe.
     public static final ItemPipe COPPER_TRANSPORT_PIPE = new ItemPipe(new WeatheringModule(), new PipeMarkingModule()) {};
 
     // Accelerator transport - accelerates items when powered by redstone.
-    public static final ItemPipe GOLD_TRANSPORT = new ItemPipe(new BoostModule(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_ACCELERATION))) {};
+    public static final ItemPipe GOLD_TRANSPORT = new ItemPipe(new BoostModule()) {};
 
     // Item extractor - pulls items from an adjacent inventory (requires energy)
     public static final ItemPipe ITEM_EXTRACTOR =
@@ -50,7 +48,7 @@ public final class PipeTypes {
     // Basic Logistics Pipe - network sink with filtering and default route capability.
     public static final ItemPipe BASIC_LOGISTICS_PIPE = new ItemPipe(
             new NetworkRouterModule(),
-            new SinkModule(5)) {};
+            new SinkModule(SinkPriority.BASIC_LOGISTICS_PIPE_SINK)) {};
 
     // Provider Logistics Pipe - scans adjacent inventories and fulfills network requests.
     public static final ItemPipe PROVIDER_LOGISTICS_PIPE = new ItemPipe(

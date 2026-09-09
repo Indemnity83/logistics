@@ -33,15 +33,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Advanced extractor module — same extraction behavior as {@link BasicExtractorModule} but with
- * a configurable item filter (include/exclude) accessible via wrench GUI.
+ * Advanced extractor module — same extraction behavior as {@link BasicExtractorModule} (a pull
+ * fills its item budget across as many resources as the inventory offers, and takes whatever fits
+ * when the pipe is nearly full) but with a configurable item filter (include/exclude) accessible
+ * via wrench GUI.
  *
- * <p>Parameterised at construction so the same class serves all marks:
- * <ul>
- *   <li>MkI  — 1 item every 100 ticks</li>
- *   <li>MkII — 1 item every 20 ticks</li>
- *   <li>MkIII — 64 items every 6 ticks</li>
- * </ul>
+ * <p>Parameterised at construction, but only the top of the ladder in {@link ExtractorTier} uses
+ * it: {@link ExtractorTier#MKIII}. The two tiers below run on {@link BasicExtractorModule}.
  */
 public class AdvancedExtractorModule implements Module, TickingModule {
     private static final String EXTRACT_DIRECTION = "extract_direction";
@@ -52,6 +50,10 @@ public class AdvancedExtractorModule implements Module, TickingModule {
 
     private final int itemsPerPull;
     private final int ticksBetweenPulls;
+
+    public AdvancedExtractorModule(ExtractorTier tier) {
+        this(tier.itemsPerPull(), tier.ticksBetweenPulls());
+    }
 
     public AdvancedExtractorModule(int itemsPerPull, int ticksBetweenPulls) {
         this.itemsPerPull = itemsPerPull;
@@ -165,7 +167,8 @@ public class AdvancedExtractorModule implements Module, TickingModule {
         int occupied = ctx.pipeAccess().getTravelingItems().stream()
                 .mapToInt(i -> i.getStack().getCount())
                 .sum();
-        if (PipeBlockEntity.VIRTUAL_CAPACITY - occupied < itemsPerPull) return;
+        int remaining = PipeBlockEntity.VIRTUAL_CAPACITY - occupied;
+        if (remaining <= 0) return;
 
         BlockPos targetPos = ctx.pos().relative(dir);
         IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, dir.getOpposite());
@@ -173,7 +176,9 @@ public class AdvancedExtractorModule implements Module, TickingModule {
 
         FilterSlots filter = getFilterItems(ctx);
         boolean inverted = isFilterInverted(ctx);
+        int allowed = Math.min(itemsPerPull, remaining);
         for (IItemView view : storage.contents()) {
+            if (allowed <= 0) break;
             IItemKey key = view.resource();
             if (view.amount() <= 0) continue;
             ItemStack stack1 = key.toStack(1);
@@ -182,14 +187,14 @@ public class AdvancedExtractorModule implements Module, TickingModule {
                 continue;
             }
 
-            long extracted = storage.extract(key, itemsPerPull, false);
+            long extracted = storage.extract(key, allowed, false);
             if (extracted > 0) {
                 NetDbg.out("[AdvancedExtractor @ {}] Extracted {}x{} via {}", ctx.pos(), extracted, key.toStack(1).getItem(), dir);
                 ItemStack stack = key.toStack((int) extracted);
                 TravelingItem item = new TravelingItem(
                         stack, dir.getOpposite(), LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED));
                 ctx.pipeAccess().forceAddItem(item, dir);
-                return;
+                allowed -= (int) extracted;
             }
         }
     }

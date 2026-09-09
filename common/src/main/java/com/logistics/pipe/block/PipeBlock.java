@@ -367,13 +367,21 @@ public class PipeBlock extends BaseEntityBlock
     }
 
     public PipeConnection.Type getConnectionType(BlockGetter world, BlockPos pos, Direction direction) {
-        // On client side, use cached values from block entity for rendering performance
-        if (world instanceof Level actualWorld && actualWorld.isClientSide()) {
-            PipeBlockEntity pipeEntity =
-                    actualWorld.getBlockEntity(pos) instanceof PipeBlockEntity blockEntity ? blockEntity : null;
-            if (pipeEntity != null) {
-                return pipeEntity.getCachedConnectionType(direction);
-            }
+        // A settled cache answers on either side — a plain array read, maintained every tick and
+        // persisted, so it is as good on the server as on the client. The dynamic path below costs
+        // up to three capability lookups and a PipeContext per direction, and getShape asks for all
+        // six on every entity collision and pathfinding node near a pipe.
+        //
+        // Only when the cache is clean: a pipe placed this tick still holds the all-NONE array it
+        // was constructed with, and the network graph is built before its first tick, so trusting a
+        // dirty cache would leave every fresh pipe in a network of its own.
+        //
+        // It also answers where the dynamic path cannot: a BlockGetter that is not a Level — the
+        // PathNavigationRegion mob pathfinding runs on — makes getDynamicConnectionType return NONE
+        // for everything, which is why pathfinding used to see pipes as a bare core with no arms.
+        if (world.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity
+                && !pipeEntity.isConnectionCacheDirty()) {
+            return pipeEntity.getCachedConnectionType(direction);
         }
 
         return getDynamicConnectionType(world, pos, direction);

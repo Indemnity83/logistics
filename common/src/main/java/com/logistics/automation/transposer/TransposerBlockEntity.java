@@ -8,6 +8,7 @@ import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.RecipeInputFilter;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
@@ -96,7 +97,8 @@ public class TransposerBlockEntity extends MachineEntity {
 
         var items = machine.items("inventory")
                 .slots(SlotRole.INPUT, SlotRole.OUTPUT)
-                .furnaceAccess()
+                .furnaceAccess(
+                        RecipeInputFilter.of(this, TransposerRecipe.class, TransposerRecipe::acceptsAsInput))
                 .build();
 
         fluidStore = machine.fluids("tank")

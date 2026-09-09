@@ -6,11 +6,11 @@ import com.logistics.core.lib.network.INetworkGraph;
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.core.lib.network.NetworkGraph;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -467,6 +467,7 @@ public class NetworkRegistry {
             levelPositions.put(pos, firstId);
         }
         levelNetworks.put(firstId, firstNetwork);
+        requestReregistration(level, firstComponent);
 
         // Find remaining components
         Set<BlockPos> remaining = new HashSet<>(allMembers);
@@ -484,29 +485,48 @@ public class NetworkRegistry {
                 levelPositions.put(pos, id);
             }
             levelNetworks.put(id, network);
+            requestReregistration(level, component);
 
             remaining.removeAll(component);
+        }
+    }
+
+    /**
+     * Make every pipe in a freshly created component re-run {@code onConnectionsChanged} on its
+     * next tick, so its modules re-register with the network they now belong to.
+     *
+     * <p>A split replaces the old {@link PipeNetwork} with brand-new instances whose sink and
+     * interest registries start empty, but only the pipes next to the break see their own
+     * connections change — every other pipe would otherwise keep believing it is still registered.
+     * Clearing the cached connection mask is the same nudge the chassis inventory uses after a
+     * module is inserted.
+     */
+    private static void requestReregistration(Level level, Set<BlockPos> component) {
+        for (BlockPos pos : component) {
+            // Unloaded pipes need no nudge: the mask is not persisted, so they re-fire on load.
+            if (!level.hasChunkAt(pos)) continue;
+            if (level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
+                pipe.setLastConnectionsMask(-1);
+                pipe.invalidateConnectionCache();
+            }
         }
     }
 
     private static List<BlockPos> getNeighbors(Level level, BlockPos pos) {
         List<BlockPos> neighbors = new ArrayList<>();
 
+        // Ask *this* pipe whether it connects each way. Reading the block out of the neighbour's
+        // state would evaluate this pipe's coordinates against the neighbour's module policy.
+        if (!(level.getBlockState(pos).getBlock() instanceof PipeBlock pipeBlock)) {
+            return neighbors;
+        }
+
         // Only include neighbors where pipes are actually connected
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = pos.relative(direction);
-            BlockState state = level.getBlockState(neighborPos);
-
-            if (state.getBlock() instanceof PipeBlock pipeBlock) {
-                PipeConnection.Type connectionType =
-                    pipeBlock.getConnectionType(level, pos, direction);
-
-                if (connectionType != PipeConnection.Type.NONE) {
-                    // Check if neighbor is also a pipe
-                    if (isPipe(level, neighborPos)) {
-                        neighbors.add(neighborPos);
-                    }
-                }
+            if (pipeBlock.getConnectionType(level, pos, direction) != PipeConnection.Type.NONE
+                    && isPipe(level, neighborPos)) {
+                neighbors.add(neighborPos);
             }
         }
 

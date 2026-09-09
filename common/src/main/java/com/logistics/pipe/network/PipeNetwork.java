@@ -349,7 +349,9 @@ public class PipeNetwork implements ILogisticsNetwork {
                 } else if (result.isDeferred()) {
                     // Provider temporarily unavailable (e.g. crafter buffer full): skip this
                     // provider for the rest of this tick but leave supply in the table so the
-                    // item remains visible in the network UI.
+                    // item remains visible in the network UI. Nothing shipped, so the reservation
+                    // tryDispatch took has to go back before the order is retried.
+                    controller.releaseReservations(cmd.orderId());
                     controller.deferProvider(cmd.provider());
                 } else {
                     controller.markSupplyUnavailable(cmd.provider());

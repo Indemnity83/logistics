@@ -57,9 +57,6 @@ branches and worktree paths with `git`.
   from `minecraft_version`; see "Branch stage" below), so a push there running no checks is
   expected rather than a bypass. Only `--no-verify` when the commit contains no code at all,
   and say so.
-- **Commits touching `.github/workflows/**` cannot be pushed over HTTPS** — the token lacks
-  `workflow` scope. Push those over SSH; if port 22 times out, GitHub's port 443 endpoint works.
-  See the `env_push_workflow_files_needs_ssh` memory for the exact incantation.
 - **Identical messages, not empty commits.** The goal is the same commit *messages* on each
   branch. If a commit's content is already present (see "already-present detection"), **skip
   it** — do not record an empty placeholder commit (it would create duplicate changelog

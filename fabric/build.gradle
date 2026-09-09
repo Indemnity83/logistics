@@ -90,8 +90,8 @@ dependencies {
     implementation("maven.modrinth:configory:${rootProject.configory_version}")
 
     // JEI — compile against API only; players install separately at runtime
-    compileOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
-    runtimeOnly("mezz.jei:jei-${rootProject.minecraft_version}-fabric:${rootProject.jei_version}")
+    compileOnly("mezz.jei:jei-${rootProject.jei_mc_version}-fabric:${rootProject.jei_version}")
+    runtimeOnly("mezz.jei:jei-${rootProject.jei_mc_version}-fabric:${rootProject.jei_version}")
 
     // Jade HUD — compile against the API only; loaded in dev via runClient/runServer, never bundled.
     // Also on the main source set: fabric.mod.json entrypoints have no environment field, so Jade

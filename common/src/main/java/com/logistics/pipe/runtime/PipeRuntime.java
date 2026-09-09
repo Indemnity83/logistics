@@ -21,6 +21,7 @@ import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -224,12 +225,23 @@ public final class PipeRuntime {
             mask |= (1 << d.get3DDataValue());
         }
 
+        boolean changed = false;
         if (mask != ctx.blockEntity().getLastConnectionsMask()) {
             ctx.blockEntity().setLastConnectionsMask(mask);
             ctx.pipe().onConnectionsChanged(ctx.pipeContext(), connected);
-            return ctx.isServer();
+            changed = true;
         }
-        return false;
+
+        // Connectedness alone misses a side that stays connected but changes what it connects to —
+        // a POWER arm becoming an INVENTORY arm renders differently, so the client has to hear
+        // about it. Topology callbacks stay on the mask above; only the sync gate widens.
+        int signature = ctx.blockEntity().getConnectionSignature();
+        if (signature != ctx.blockEntity().getLastConnectionSignature()) {
+            ctx.blockEntity().setLastConnectionSignature(signature);
+            changed = true;
+        }
+
+        return changed && ctx.isServer();
     }
 
     private static void processItems(TickContext ctx, ItemTickState itemState) {
@@ -242,7 +254,8 @@ public final class PipeRuntime {
         float progressBefore = item.getProgress();
 
         // Advance item progress
-        if (item.tick(ctx.accelerationRate(), ctx.dragCoefficient(), ctx.maxSpeed())) {
+        if (item.tick(ctx.accelerationRate(), ctx.dragCoefficient(), ctx.maxSpeed(),
+                LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED))) {
             itemState.markForRouting(item);
         }
 
@@ -271,11 +284,32 @@ public final class PipeRuntime {
         // TTL expiry: if the item has been traveling too long, release its destination so it
         // falls back to default routing rather than being stuck forever.
         if (ctx.isServer() && item.isExpired() && item.getDestination() != null) {
-            item.setDestination(null);
-            item.setDeliveryId(null); // release ref; orderedForRequester accounting is best-effort
+            expireDelivery(NetworkRegistry.getNetwork(ctx.world(), ctx.pos()), item);
         }
         RoutePlan plan = resolveRoutePlan(ctx, item);
         executeRoutePlan(ctx, item, plan, itemState);
+    }
+
+    /**
+     * Abandon an expired item's delivery: hand its order back to the network, then clear the
+     * routing fields so the item falls back to default routing.
+     *
+     * <p>The order must go back before the fields are cleared. Every delivery notification keys off
+     * the delivery id, so an item that loses its id first can never release its in-transit order,
+     * its requester accounting or the provider's reservation — they would leak for the life of the
+     * world. Clearing afterwards is also what makes this safe to call again: a second expiry, or a
+     * later arrival at an inventory, finds no id and releases nothing twice.
+     */
+    static void expireDelivery(@Nullable ILogisticsNetwork network, TravelingItem item) {
+        UUID deliveryId = item.getDeliveryId();
+        BlockPos destination = item.getDestination();
+
+        item.setDestination(null);
+        item.setDeliveryId(null);
+
+        if (network == null || deliveryId == null || destination == null) return;
+        network.notifyDeliveryFailed(
+                deliveryId, destination, ItemStorageLookup.of(item.getStack()), item.getStack().getCount());
     }
 
     /**

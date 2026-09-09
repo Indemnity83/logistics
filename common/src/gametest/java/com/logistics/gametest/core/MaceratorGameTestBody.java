@@ -12,6 +12,7 @@ import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -198,5 +199,84 @@ public class MaceratorGameTestBody {
         inputHopper.setItem(0, new ItemStack(Items.IRON_ORE));
 
         context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.IRON_DUST));
+    }
+
+    /**
+     * A machine screen must close once the machine is gone. The open menu polls {@code stillValid}
+     * every tick; a stale block entity that keeps answering "yes" leaves the player editing
+     * whatever block took its place. Stands in for every machine — they all route the check
+     * through {@code MachineEntity}.
+     */
+    public static void testScreenClosesWhenMachineIsBroken(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        context.setBlock(pos, LogisticsAutomation.BLOCK.MACERATOR);
+
+        MaceratorBlockEntity macerator = context.getBlockEntity(pos, MaceratorBlockEntity.class);
+        if (macerator == null) {
+            context.fail("Macerator block entity should exist");
+            return;
+        }
+
+        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        BlockPos absolute = context.absolutePos(pos);
+        player.setPos(absolute.getX() + 0.5, absolute.getY() + 1, absolute.getZ() + 0.5);
+
+        if (!macerator.stillValid(player)) {
+            context.fail("A standing macerator should keep its screen open for a player beside it");
+            return;
+        }
+
+        // Well past the eight-block interaction reach.
+        player.setPos(absolute.getX() + 12.5, absolute.getY() + 1, absolute.getZ() + 0.5);
+        if (macerator.stillValid(player)) {
+            context.fail("A macerator out of reach should close its screen");
+            return;
+        }
+
+        player.setPos(absolute.getX() + 0.5, absolute.getY() + 1, absolute.getZ() + 0.5);
+        context.setBlock(pos, Blocks.AIR);
+
+        if (macerator.stillValid(player)) {
+            context.fail("A broken macerator should close its screen");
+            return;
+        }
+        context.succeed();
+    }
+
+    /**
+     * An item with no macerator recipe must never enter the input slot. Only the output slots are
+     * extractable, so anything a hopper or pipe pushes into the input is stuck there until a player
+     * clears it by hand — the automation failure a mixed-output chain produces routinely.
+     */
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        BlockPos maceratorPos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = maceratorPos.above();
+
+        context.setBlock(maceratorPos, LogisticsAutomation.BLOCK.MACERATOR);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        MaceratorBlockEntity macerator = context.getBlockEntity(maceratorPos, MaceratorBlockEntity.class);
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (macerator == null || hopper == null) {
+            context.fail("Expected macerator and hopper block entities");
+            return;
+        }
+
+        // Dirt has no macerator recipe — the sort of byproduct an upstream machine sends downstream.
+        hopper.setItem(0, new ItemStack(Items.DIRT));
+
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            if (!macerator.getItem(INPUT_SLOT).isEmpty()) {
+                context.fail("Macerator must refuse an item it has no recipe for, input holds: "
+                        + macerator.getItem(INPUT_SLOT));
+                return;
+            }
+            if (!hopper.getItem(0).is(Items.DIRT)) {
+                context.fail("Refused dirt should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
+        });
     }
 }

@@ -41,6 +41,21 @@ public interface PipeConnection {
          */
         POWER("power");
 
+        /**
+         * Packs the six per-direction connection types into one value, so a change of *type* on a
+         * side that stays connected is as visible as a side connecting or disconnecting.
+         *
+         * @param byDirection one type per {@link net.minecraft.core.Direction} ordinal
+         */
+        public static int signature(Type[] byDirection) {
+            int signature = 0;
+            for (int i = 0; i < byDirection.length; i++) {
+                Type type = byDirection[i] == null ? NONE : byDirection[i];
+                signature |= type.ordinal() << (i * 2);
+            }
+            return signature;
+        }
+
         private static final Map<String, Type> BY_NAME =
                 Stream.of(values()).collect(Collectors.toMap(Type::getSerializedName, type -> type));
 

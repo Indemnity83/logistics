@@ -1,5 +1,7 @@
 package com.logistics.pipe.modules;
 
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigRegistry;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -14,17 +16,19 @@ import static org.assertj.core.api.Assertions.*;
 @DisplayName("BoostModule")
 class BoostModuleTest {
 
-    private static final float ACCELERATION = 0.05f;
-
     private BoostModule module;
     private FakePipeAccess access;
     private PipeContext ctx;
 
     @BeforeEach
     void setUp() {
-        module = new BoostModule(ACCELERATION);
+        module = new BoostModule();
         access = new FakePipeAccess();
         ctx = new PipeContext(null, BlockPos.ZERO, null, access);
+    }
+
+    private static float configuredAcceleration() {
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_ACCELERATION);
     }
 
     // ==================== Acceleration ====================
@@ -37,10 +41,10 @@ class BoostModuleTest {
     }
 
     @Test
-    @DisplayName("getAcceleration returns accelerationRate when pipe is powered")
+    @DisplayName("getAcceleration returns pipe.acceleration from config when pipe is powered")
     void getAcceleration_powered_returnsRate() {
         access.setPowered(true);
-        assertThat(module.getAcceleration(ctx)).isEqualTo(ACCELERATION);
+        assertThat(module.getAcceleration(ctx)).isEqualTo(configuredAcceleration());
     }
 
     @Test
@@ -53,7 +57,23 @@ class BoostModuleTest {
         float powered = module.getAcceleration(ctx);
 
         assertThat(unpowered).isEqualTo(0f);
-        assertThat(powered).isEqualTo(ACCELERATION);
+        assertThat(powered).isEqualTo(configuredAcceleration());
+    }
+
+    @Test
+    @DisplayName("getAcceleration tracks pipe.acceleration changed after the module was constructed")
+    void getAcceleration_tracksConfigReload() {
+        access.setPowered(true);
+
+        Config pipes = ConfigRegistry.config(LogisticsPipe.CONFIG.PIPE_ACCELERATION.configId());
+        float original = configuredAcceleration();
+        try {
+            assertThat(pipes.trySet(LogisticsPipe.CONFIG.PIPE_ACCELERATION, 0.01f)).isTrue();
+
+            assertThat(module.getAcceleration(ctx)).isEqualTo(0.01f);
+        } finally {
+            pipes.set(LogisticsPipe.CONFIG.PIPE_ACCELERATION, original);
+        }
     }
 
     // ==================== Max speed ====================
@@ -78,9 +98,16 @@ class BoostModuleTest {
     }
 
     @Test
-    @DisplayName("getMaxSpeed is the same across different BoostModule instances with different accelerationRates")
-    void getMaxSpeed_sameForDifferentAccelerationRates() {
-        BoostModule other = new BoostModule(0.02f);
-        assertThat(module.getMaxSpeed(ctx)).isEqualTo(other.getMaxSpeed(ctx));
+    @DisplayName("getMaxSpeed tracks pipe.max_speed changed after the module was constructed")
+    void getMaxSpeed_tracksConfigReload() {
+        Config pipes = ConfigRegistry.config(LogisticsPipe.CONFIG.PIPE_MAX_SPEED.configId());
+        float original = LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MAX_SPEED);
+        try {
+            assertThat(pipes.trySet(LogisticsPipe.CONFIG.PIPE_MAX_SPEED, 0.32f)).isTrue();
+
+            assertThat(module.getMaxSpeed(ctx)).isEqualTo(0.32f * 4.0f);
+        } finally {
+            pipes.set(LogisticsPipe.CONFIG.PIPE_MAX_SPEED, original);
+        }
     }
 }

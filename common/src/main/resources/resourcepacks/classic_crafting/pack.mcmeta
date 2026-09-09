@@ -1,9 +1,0 @@
-{
-  "pack": {
-    "pack_format": 75,
-    "min_format": 75,
-    "max_format": 84,
-    "supported_formats": [75, 81],
-    "description": "Classic Logistics Pipes crafting recipes"
-  }
-}

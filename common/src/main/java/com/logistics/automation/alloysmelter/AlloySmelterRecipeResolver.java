@@ -37,7 +37,7 @@ public final class AlloySmelterRecipeResolver implements RecipeResolver {
                 .map(holder -> {
                     AlloySmelterRecipe recipe = holder.value();
                     List<ChanceOutput> byproducts = recipe.byproduct()
-                            .map(x -> List.of(new ChanceOutput(x.stack(1), x.chance())))
+                            .map(x -> List.of(x.toChanceOutput()))
                             .orElse(List.of());
                     return new RecipePlan(
                             recipe.energy(),

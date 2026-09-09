@@ -11,6 +11,7 @@ import com.logistics.gametest.automation.SequentialFabricatorGameTestRegistratio
 import com.logistics.gametest.automation.TransposerGameTestRegistration;
 import com.logistics.gametest.core.MaceratorGameTestRegistration;
 import com.logistics.gametest.core.OreGenerationGameTestRegistration;
+import com.logistics.gametest.core.SolidFuelGameTestRegistration;
 import com.logistics.gametest.network.NetworkIntegrationGameTestRegistration;
 import com.logistics.gametest.pipe.CauldronFluidGameTestRegistration;
 import com.logistics.gametest.pipe.FluidConnectionGameTestRegistration;
@@ -68,6 +69,7 @@ public final class LogisticsGameTestMod {
 
         MaceratorGameTestRegistration.bootstrap();
         OreGenerationGameTestRegistration.bootstrap();
+        SolidFuelGameTestRegistration.bootstrap();
 
         NetworkIntegrationGameTestRegistration.bootstrap();
 

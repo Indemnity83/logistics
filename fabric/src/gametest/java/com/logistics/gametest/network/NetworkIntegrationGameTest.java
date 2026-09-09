@@ -96,6 +96,45 @@ public class NetworkIntegrationGameTest {
         NetworkIntegrationGameTestBody.testProviderDeliversItemToRequester(context);
     }
 
+    /**
+     * A Provider set to "Leave First Slot" must not drain the slot it promises to leave.
+     *
+     * <p>Same layout as {@link #testProviderDeliversItemToRequester}, but the source chest holds
+     * diamonds in slots 0 and 1 and the Provider is in RESERVE mode, so only slot 1 is in scope.
+     *
+     * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testproviderreservemodeleavesfirstslot
+     */
+    @GameTest(maxTicks = 100)
+    public void testProviderReserveModeLeavesFirstSlot(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testProviderReserveModeLeavesFirstSlot(context);
+    }
+
+    /**
+     * An Enchantment Sink chassis must still receive items after the network splits.
+     *
+     * <p>Layout (y=1): [injector] [chassis + enchantment sink] [chest], with a two-pipe spur off
+     * the injector. Breaking the spur's first pipe splits the network; the enchanted sword injected
+     * afterwards must still be routed into the chest.
+     *
+     * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testenchantmentsinkstillreceivesafternetworksplit
+     */
+    @GameTest(maxTicks = 100)
+    public void testEnchantmentSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testEnchantmentSinkStillReceivesAfterNetworkSplit(context);
+    }
+
+    /**
+     * The plain Sink module must keep recovering from a split exactly as it does today.
+     *
+     * <p>Same layout as above with a default-route Basic Logistics Pipe instead of the chassis.
+     *
+     * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testbasicsinkstillreceivesafternetworksplit
+     */
+    @GameTest(maxTicks = 100)
+    public void testBasicSinkStillReceivesAfterNetworkSplit(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testBasicSinkStillReceivesAfterNetworkSplit(context);
+    }
+
     // testSinkPriorityRoutesItemToHigherPrioritySink:
     //   Two basic logistics pipes connected to separate chests, one with higher priority.
     //   Items injected into the network should be routed to the higher-priority sink first.

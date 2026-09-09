@@ -113,4 +113,9 @@ public class TransposerGameTest {
     public void fillsBucketViaRealEngineAndHoppers(GameTestHelper context) {
         TransposerGameTestBody.fillsBucketViaRealEngineAndHoppers(context);
     }
+
+    @GameTest(maxTicks = 60)
+    public void hopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        TransposerGameTestBody.hopperCannotJamInputWithUnusableItem(context);
+    }
 }

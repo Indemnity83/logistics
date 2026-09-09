@@ -113,7 +113,10 @@ public class RequestPlanner {
             long batches = batcher.safeBatchCount(remaining, snapshot.outputCount(), snapshot.buffer());
             if (batches <= 0) continue; // crafter buffer is full — try next
             out.add(new PlanNode.CraftNode(sp.provider(), item, batches, List.of()));
-            return batches * snapshot.outputCount();
+            // The batch rounds up — a 4-per-batch recipe asked for 3 still crafts 4 — but only what
+            // was asked for is planned. The surplus stays in the crafter's buffer, where the model
+            // already expects leftovers, instead of being ordered onto the network.
+            return Math.min(remaining, batches * snapshot.outputCount());
         }
         return 0;
     }

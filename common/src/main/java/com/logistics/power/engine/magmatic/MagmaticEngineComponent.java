@@ -143,7 +143,11 @@ public final class MagmaticEngineComponent
     /** Consume a whole 100 mB lava batch, gated by admission space; returns whether a batch was committed. */
     private boolean tryCommitLavaBatch() {
         long free = energy.getCapacity() - energy.getAmount();
-        if (free < profile.maximumBatchPotentialRf()) {
+        // The admission requirement can exceed the buffer entirely, and free never can, so it is
+        // capped at what the buffer holds: a backed-up buffer still blocks ignition, a drained one
+        // never does. RF generated beyond the buffer is discarded, as above.
+        long required = Math.min(profile.maximumBatchPotentialRf(), energy.getCapacity());
+        if (free < required) {
             return false; // never commit lava into a backed-up buffer
         }
         Fluid fluid = lavaStore.tank().getFluidKey().getFluid();

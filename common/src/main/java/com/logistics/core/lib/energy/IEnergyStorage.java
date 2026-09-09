@@ -46,4 +46,20 @@ public interface IEnergyStorage {
     default boolean canExtract() {
         return true;
     }
+
+    /**
+     * Whether this storage accepts energy on this face <em>at all</em>, ignoring how full it is.
+     *
+     * <p>Distinct from {@link #canInsert()}, which several callers use to decide whether to send
+     * energy right now. This one answers the placement question — "is there something here worth
+     * facing" — where momentary fullness is not an answer: an engine's facing is chosen once, so a
+     * neighbour that happens to be full at that instant would be skipped permanently.
+     *
+     * <p>NeoForge's {@code EnergyHandler} exposes no direction flag — its javadoc says the only way
+     * to know is to try inserting — so that adapter reports presence for third-party handlers rather
+     * than probing. Fullness is left to the transfer call, which is where it belongs.
+     */
+    default boolean acceptsEnergy() {
+        return canInsert();
+    }
 }

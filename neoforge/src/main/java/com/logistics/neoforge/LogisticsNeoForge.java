@@ -78,7 +78,7 @@ public final class LogisticsNeoForge {
         AbstractEngineBlock.setEnergyPresenceChecker((world, pos, direction) -> {
             var target = world.getCapability(Capabilities.Energy.BLOCK, pos.relative(direction), direction.getOpposite());
             return NeoForgeEnergyStorage.wrap(target) instanceof com.logistics.core.lib.energy.IEnergyStorage storage
-                    && storage.canInsert();
+                    && storage.acceptsEnergy();
         });
     }
 }

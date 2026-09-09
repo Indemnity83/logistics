@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -190,6 +192,32 @@ public class CableNetwork {
         return level.isLoaded(pos);
     }
 
+    /**
+     * Carries this tick's transfer accounting over from the networks this one replaces, so a
+     * rebuild cannot hand the same cables a second budget within a tick.
+     *
+     * <p>Only predecessors sharing a cable are folded in — a network that took over none of their
+     * cables starts on its own budget. Accounting stamped with an earlier tick is ignored, so a
+     * genuinely new tick still begins empty.
+     *
+     * <p>A split gives both halves the whole of their predecessor's usage, and a merge sums its
+     * predecessors': always at least what was already spent, never less.
+     */
+    void inheritAccounting(Level level, Collection<CableNetwork> predecessors) {
+        for (CableNetwork predecessor : predecessors) {
+            if (predecessor == this) continue;
+            if (predecessor.accountingGameTime != level.getGameTime()) continue;
+            if (Collections.disjoint(predecessor.cablePositions, cablePositions)) continue;
+
+            resetAccountingIfNeeded(level);
+            transferredThisTick =
+                    CableNetworkPlanner.saturatedAdd(transferredThisTick, predecessor.transferredThisTick);
+            predecessor.cableTransferredThisTick.forEach((cablePos, amount) ->
+                    cableTransferredThisTick.merge(cablePos, amount, CableNetworkPlanner::saturatedAdd));
+            predecessor.allocationDebt.forEach(allocationDebt::putIfAbsent);
+        }
+    }
+
     private void resetAccountingIfNeeded(Level level) {
         long gameTime = level.getGameTime();
         if (gameTime == accountingGameTime) return;
@@ -359,7 +387,7 @@ public class CableNetwork {
         long movedTotal = 0;
         for (DeviceConnection source : sources) {
             if (movedTotal >= maxAmount) break;
-            if (source.storage() == target.storage()) continue;
+            if (isSameDevice(source, target)) continue;
 
             CableNetworkPlanner.CableRoute route = findBestRoute(level, source.cablePos(), target.cablePos());
             if (route == null || route.remainingTransfer() <= 0) continue;
@@ -502,9 +530,21 @@ public class CableNetwork {
         return blockEntity instanceof EngineEntity;
     }
 
+    /**
+     * True when both ends are the same device, so it would be transferring into itself.
+     *
+     * <p>Compares the device, not the wrapper. A block touching the network on two faces produces one
+     * {@code DeviceConnection} per face, and every energy-capability lookup allocates a fresh storage
+     * wrapper on both loaders, so the reference check alone only ever catches a single-face device —
+     * where the same record instance lands in both lists. The position is the stable identity.
+     */
+    static boolean isSameDevice(DeviceConnection source, DeviceConnection target) {
+        return source.storage() == target.storage() || source.pos().equals(target.pos());
+    }
+
     private record DeviceConnections(List<DeviceConnection> sources, List<DeviceConnection> targets) {}
 
-    private record DeviceConnection(
+    record DeviceConnection(
             BlockPos cablePos, BlockPos pos, Direction side, IEnergyStorage storage, @Nullable BlockEntity blockEntity) {
         private static final Comparator<DeviceConnection> ORDER = Comparator
                 .comparingInt((DeviceConnection connection) -> connection.pos().getX())

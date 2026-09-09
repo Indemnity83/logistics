@@ -3,6 +3,7 @@ package com.logistics.automation.refinery.jei;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsMod;
 import com.logistics.automation.refinery.RefineryRecipe;
+import com.logistics.core.lib.jei.ByproductSlot;
 import com.logistics.core.lib.resource.ResourceId;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -91,13 +92,7 @@ public class RefineryRecipeCategory implements IRecipeCategory<RefineryRecipe> {
             .setFluidRenderer(outputAmount, false, 16, 16)
             .addFluidStack(recipe.result().fluid(), outputAmount, DataComponentPatch.EMPTY);
 
-        recipe.byproduct().ifPresent(bp -> {
-            float pct = bp.chance() * 100f;
-            String pctStr = pct == Math.rint(pct) ? String.valueOf((int) pct) : String.format("%.1f", pct);
-            builder.addSlot(RecipeIngredientRole.OUTPUT, BYPRODUCT_X, BYPRODUCT_Y)
-                .add(bp.stack(1))
-                .addRichTooltipCallback((view, tooltip) ->
-                    tooltip.add(Component.translatable("jei.logistics.refinery.byproduct_chance", pctStr)));
-        });
+        recipe.byproduct().ifPresent(bp -> ByproductSlot.add(
+            builder, BYPRODUCT_X, BYPRODUCT_Y, bp.toChanceOutput(), "jei.logistics.refinery.byproduct_chance"));
     }
 }

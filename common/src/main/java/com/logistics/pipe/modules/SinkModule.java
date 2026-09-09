@@ -66,7 +66,7 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
         ILogisticsNetwork network = ctx.network();
         if (network != null) {
             // Default-route sinks use priority 0 so filtered sinks (ModSink, etc.) can outbid them.
-            int effectivePriority = isDefaultRoute(ctx) ? 0 : priority;
+            int effectivePriority = isDefaultRoute(ctx) ? SinkPriority.DEFAULT_ROUTE : priority;
             network.registerSink(ctx.pos(), effectivePriority);
             // Rebuild specific-item interests from current filter slots
             network.unregisterSinkInterests(ctx.pos());
@@ -271,7 +271,7 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
             ILogisticsNetwork network = ctx.network();
             if (network != null) {
                 if (enabled) {
-                    network.registerSink(ctx.pos(), 0);
+                    network.registerSink(ctx.pos(), SinkPriority.DEFAULT_ROUTE);
                     network.registerGenericSinkInterest(ctx.pos());
                     NetDbg.out("[Sink @ {}] Default route enabled and registered with network", ctx.pos());
                 } else {

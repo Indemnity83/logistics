@@ -3,6 +3,8 @@ package com.logistics.power.cable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.core.lib.energy.IEnergyStorage;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -84,6 +86,45 @@ class CableNetworkEnergyTransferTest {
     }
 
     /** Plain buffer: honest simulate, no per-operation rate limit. */
+    // ===== self-transfer guard =====
+
+    private static CableNetwork.DeviceConnection connection(BlockPos devicePos, Direction side) {
+        // A fresh storage wrapper per face, which is what both loaders hand back per lookup.
+        return new CableNetwork.DeviceConnection(
+                devicePos.relative(side), devicePos, side, FakeStorage.full(1_000), null);
+    }
+
+    @Test
+    @DisplayName("a device touching the network on two faces is not a source for itself")
+    void isSameDevice_twoFacesOfOneBlock() {
+        BlockPos battery = new BlockPos(4, 5, 6);
+
+        assertThat(CableNetwork.isSameDevice(
+                        connection(battery, Direction.NORTH), connection(battery, Direction.SOUTH)))
+                .as("the same block reached from two faces holds two separately allocated wrappers")
+                .isTrue();
+    }
+
+    @Test
+    @DisplayName("two different devices still transfer between each other")
+    void isSameDevice_distinctDevices() {
+        assertThat(CableNetwork.isSameDevice(
+                        connection(new BlockPos(4, 5, 6), Direction.NORTH),
+                        connection(new BlockPos(9, 5, 6), Direction.NORTH)))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("the reference check still catches a single-face device")
+    void isSameDevice_sameWrapper() {
+        BlockPos pos = new BlockPos(1, 2, 3);
+        IEnergyStorage shared = FakeStorage.full(1_000);
+        CableNetwork.DeviceConnection one =
+                new CableNetwork.DeviceConnection(pos.above(), pos, Direction.UP, shared, null);
+
+        assertThat(CableNetwork.isSameDevice(one, one)).isTrue();
+    }
+
     private static final class FakeStorage implements IEnergyStorage {
         private final long capacity;
         private long amount;

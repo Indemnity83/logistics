@@ -64,6 +64,41 @@ class ChanceOutputTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void displayCountShowsTheGuaranteedYieldFlooredAtOne() {
+        // What a recipe listing renders in the byproduct slot: the guaranteed count, never zero.
+        assertThat(of(0.25f).displayCount()).isEqualTo(1);
+        assertThat(of(1.0f).displayCount()).isEqualTo(1);
+        assertThat(of(1.25f).displayCount()).isEqualTo(1);
+        assertThat(of(2.0f).displayCount()).isEqualTo(2);
+        assertThat(of(4.0f).displayCount()).isEqualTo(4);
+        assertThat(of(0.25f).displayStack().getCount()).isEqualTo(1);
+        assertThat(of(2.0f).displayStack().getCount()).isEqualTo(2);
+    }
+
+    @Test
+    void fractionalBonusIsTheRemainderNotTheWholeChance() {
+        // The advertised chance is the remainder beyond the guaranteed count: 1.25 is 25%, not 125%.
+        assertThat(of(0.25f).fractionalBonus()).isEqualTo(0.25f);
+        assertThat(of(1.0f).fractionalBonus()).isZero();
+        assertThat(of(1.25f).fractionalBonus()).isEqualTo(0.25f);
+        assertThat(of(2.0f).fractionalBonus()).isZero();
+    }
+
+    @Test
+    void aWholeChanceAdvertisesNoBonusAndDisplaysExactlyWhatItPaysOut() {
+        // With nothing left over to advertise, the displayed count is the whole story — so it has to
+        // equal every roll, not sit at one with the surplus hidden in a percentage.
+        RandomSource random = RandomSource.create(3L);
+        for (float chance : new float[] {1.0f, 2.0f, 4.0f}) {
+            ChanceOutput output = of(chance);
+            assertThat(output.fractionalBonus()).isZero();
+            for (int i = 0; i < 100; i++) {
+                assertThat(output.roll(random)).isEqualTo(output.displayCount());
+            }
+        }
+    }
+
+    @Test
     void stackCopiesTemplateWithCount() {
         assertThat(of(1.25f).stack(3).getCount()).isEqualTo(3);
         assertThat(of(1.25f).guaranteedStack().getCount()).isEqualTo(1);

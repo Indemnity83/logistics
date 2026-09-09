@@ -330,6 +330,60 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void testTick_replanKeepsTheStillSourceableRemainder() {
+        // 64 across two chests; one is broken mid-order, so 24 is lost and 40 is still there.
+        controller.registerSupply(PROVIDER, Map.of(diamond(), 40L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 24L), 1);
+        NetworkJob job = coordinator.submit(partialRequest(diamond(), 64, DESTINATION));
+        assertEquals(64, job.outstanding());
+
+        controller.removeSupply(PROVIDER2);
+        for (int i = 0; i < 100; i++) {
+            coordinator.tick(controller);
+        }
+
+        assertEquals(40, controller.getOrderedAmountFor(DESTINATION, diamond()),
+                "The replacement order must cover what can still be sourced, not only what was lost");
+        assertEquals(40, job.outstanding(),
+                "The job's planned amount must follow the replan, or it can never finish");
+    }
+
+    @Test
+    void testTick_replannedJobCanStillReachATerminalState() {
+        controller.registerSupply(PROVIDER, Map.of(diamond(), 40L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 24L), 1);
+        NetworkJob job = coordinator.submit(partialRequest(diamond(), 64, DESTINATION));
+
+        controller.removeSupply(PROVIDER2);
+        for (int i = 0; i < 100; i++) {
+            coordinator.tick(controller);
+        }
+
+        coordinator.onDelivery(DESTINATION, diamond(), 40);
+
+        assertEquals(JobState.COMPLETE, job.state(),
+                "Delivering everything still sourceable must finish the job");
+    }
+
+    @Test
+    void testPurgeTerminal_cancelsTheOrderItLeavesBehind() {
+        controller.registerSupply(PROVIDER, Map.of(diamond(), 16L), 1);
+        coordinator.submit(partialRequest(diamond(), 16, DESTINATION));
+        assertEquals(16, controller.getOrderedAmountFor(DESTINATION, diamond()));
+
+        // Supply disappears with the order still queued: the job settles terminal while the
+        // controller is still holding its order.
+        controller.removeSupply(PROVIDER);
+        for (int i = 0; i < 200; i++) {
+            coordinator.tick(controller);
+        }
+
+        assertEquals(0, controller.getOrderedAmountFor(DESTINATION, diamond()),
+                "A purged job must not leave a standing order behind — requesters read that figure "
+                        + "to decide not to re-order");
+    }
+
+    @Test
     void testTick_skipsJobWithDispatchedOrder() {
         controller.registerSupply(PROVIDER, Map.of(diamond(), 64L), 1);
         NetworkJob job = coordinator.submit(partialRequest(diamond(), 16, DESTINATION));

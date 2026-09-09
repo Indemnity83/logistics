@@ -157,7 +157,8 @@ public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeBlockEnt
                         state.models.add(buildModelInfo(armModel, armColor, direction));
 
                         for (var decoration : pipe.getPipeDecorations(context, direction)) {
-                            state.models.add(buildModelInfo(decoration, 0xFFFFFF));
+                            // Decorations are scoped to the arm they belong to, so they rotate with it.
+                            state.models.add(buildModelInfo(decoration, 0xFFFFFF, direction));
                         }
                     }
                 }

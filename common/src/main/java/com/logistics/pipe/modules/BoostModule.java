@@ -11,15 +11,10 @@ import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
 
 public class BoostModule implements Module {
-    private final float accelerationRate;
-
-    public BoostModule(float accelerationRate) {
-        this.accelerationRate = accelerationRate;
-    }
 
     @Override
     public float getAcceleration(PipeContext ctx) {
-        return ctx.isPowered() ? this.accelerationRate : 0f;
+        return ctx.isPowered() ? LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_ACCELERATION) : 0f;
     }
 
     @Override

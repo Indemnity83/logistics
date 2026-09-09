@@ -137,7 +137,7 @@ public class ProviderScreenHandler extends CustomSlotScreenHandler {
         if (itemConfigPlayer != null) {
             return isPinnedItemStillHeld();
         }
-        return true;
+        return PipeMenuValidity.stillValid(context, player);
     }
 
     @Override

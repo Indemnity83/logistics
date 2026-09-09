@@ -211,7 +211,7 @@ public class RequesterScreenHandler extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return PipeMenuValidity.stillValid(pipeEntity, player);
     }
 
     @Override

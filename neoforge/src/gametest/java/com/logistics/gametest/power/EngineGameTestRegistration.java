@@ -19,6 +19,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 public final class EngineGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
+        new GameTestCase(
+            "power/hopper_fills_empty_engine_fuel_slot", 300,
+            EngineGameTestBody::testHopperFillsEmptyEngineFuelSlot),
         new GameTestCase("power/redstone_engine_placement", 100, EngineGameTestBody::testRedstoneEnginePlacement),
         new GameTestCase("power/stirling_engine_placement", 100, EngineGameTestBody::testStirlingEnginePlacement),
         new GameTestCase("power/creative_engine_placement", 100, EngineGameTestBody::testCreativeEnginePlacement),

@@ -51,6 +51,7 @@ jobs:
       base_version: ${{ steps.version.outputs.base_version }}
       rc_version: ${{ steps.version.outputs.rc_version }}
       minecraft_version: ${{ steps.version.outputs.minecraft_version }}
+      game_version_filter: ${{ steps.version.outputs.game_version_filter }}
       component: ${{ steps.version.outputs.component }}
       tag: ${{ steps.version.outputs.tag }}
     steps:
@@ -179,6 +180,15 @@ jobs:
 
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
 
+          # A pre-release branch (26.3-snapshot-7) builds against a game version that isn't in
+          # Modrinth/CurseForge's `releases` set, so filtering against it would drop the
+          # inferred game version entirely. Same detection build-release.yml uses.
+          if [[ "$MC_VERSION" =~ (snapshot|alpha|beta) ]]; then
+            GAME_VERSION_FILTER="none"
+          else
+            GAME_VERSION_FILTER="releases"
+          fi
+
           # Tag matches the repo's component-scoped scheme (e.g. mc26.2-v0.8.0-rc.1),
           # keeping RCs in the same tag namespace as stable releases.
           TAG="${COMPONENT}-v${RC_VERSION}"
@@ -197,6 +207,7 @@ jobs:
             echo "base_version=$BASE_VERSION"
             echo "rc_version=$RC_VERSION"
             echo "minecraft_version=$MC_VERSION"
+            echo "game_version_filter=$GAME_VERSION_FILTER"
             echo "component=$COMPONENT"
             echo "tag=$TAG"
           } >> "$GITHUB_OUTPUT"
@@ -434,8 +445,11 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          game-version-filter: releases
+          game-version-filter: ${{ needs.prepare.outputs.game_version_filter }}
           version-type: beta
+          # mc-publish features a version on Modrinth unless told otherwise; an RC must never
+          # displace the stable release as the featured download.
+          modrinth-featured: false
           version: ${{ env.FABRIC_FULL }}
           name: "Logistics v${{ needs.prepare.outputs.rc_version }} for fabric ${{ needs.prepare.outputs.minecraft_version }}"
           files: ${{ steps.validate.outputs.fabric_jar }}
@@ -450,8 +464,9 @@ jobs:
           curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          game-version-filter: releases
+          game-version-filter: ${{ needs.prepare.outputs.game_version_filter }}
           version-type: beta
+          modrinth-featured: false
           version: ${{ env.NEOFORGE_FULL }}
           name: "Logistics v${{ needs.prepare.outputs.rc_version }} for neoforge ${{ needs.prepare.outputs.minecraft_version }}"
           files: ${{ steps.validate.outputs.neoforge_jar }}

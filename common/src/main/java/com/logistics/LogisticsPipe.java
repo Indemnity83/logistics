@@ -162,7 +162,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         public static final ConfigKey<Integer> FLUID_PIPE_EXTRACTOR_CAPACITY = fluids.defineInt(
                         "pipe_extractor_capacity", 1000)
-                .min(1)
+                .min(1000)
                 .describe("Buffer capacity (mB) of the Fluid Extractor Pipe. Must hold one bucket to drain a "
                         + "cauldron, which only gives up whole levels.")
                 .register();
@@ -184,6 +184,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                         .register();
 
         public static final ConfigKey<Long> FLUID_PUMP_ENERGY_CAPACITY = fluids.defineLong("pump_energy_capacity", 1_000L)
+                .minValueOf(() -> CONFIG.FLUID_PUMP_ENERGY_PER_SOURCE)
                 .min(1L)
                 .describe("Fluid Pump energy buffer capacity (RF)")
                 .register();
@@ -195,6 +196,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
 
         public static final ConfigKey<Long> FLUID_PUMP_ENERGY_PER_SOURCE = fluids.defineLong("pump_energy_per_source", 100L)
                 .min(0L)
+                .maxValueOf(() -> CONFIG.FLUID_PUMP_ENERGY_CAPACITY)
                 .describe("RF consumed per source block pumped")
                 .register();
 
@@ -430,15 +432,15 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         static void register() {
             BLANK_MODULE = INSTANCE.registerItem("blank_module", Item::new);
             ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module",
-                    props -> new ModuleItem(props, () -> new SinkModule(7)));
+                    props -> new ModuleItem(props, () -> new SinkModule(SinkPriority.ITEM_SINK)));
             POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
-                    props -> new ModuleItem(props, () -> new PolymorphicSinkModule(7)));
+                    props -> new ModuleItem(props, () -> new PolymorphicSinkModule(SinkPriority.POLYMORPHIC_SINK)));
             ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module",
-                    props -> new ModuleItem(props, () -> new EnchantmentSinkModule(3)));
+                    props -> new ModuleItem(props, () -> new EnchantmentSinkModule(SinkPriority.ENCHANTMENT_SINK)));
             MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module",
-                    props -> new ModuleItem(props, () -> new ModSinkModule(5)));
+                    props -> new ModuleItem(props, () -> new ModSinkModule(SinkPriority.MOD_SINK)));
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module",
-                    props -> new ModuleItem(props, () -> new PassiveSupplierModule(8)));
+                    props -> new ModuleItem(props, () -> new PassiveSupplierModule(SinkPriority.PASSIVE_SUPPLIER)));
             ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module",
                     props -> new ModuleItem(props, SupplierModule::new));
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
@@ -450,11 +452,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             FLUID_SUPPLIER_MODULE = INSTANCE.registerItem("fluid_supplier_module",
                     props -> new ModuleItem(props, FluidSupplierModule::new));
             EXTRACTOR_MODULE = INSTANCE.registerItem("extractor_module",
-                    props -> new ModuleItem(props, () -> new BasicExtractorModule(8, 80)));
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(ExtractorTier.BASIC)));
             EXTRACTOR_MODULE_MKII = INSTANCE.registerItem("extractor_module_mkii",
-                    props -> new ModuleItem(props, () -> new BasicExtractorModule(8, 20)));
+                    props -> new ModuleItem(props, () -> new BasicExtractorModule(ExtractorTier.MKII)));
             EXTRACTOR_MODULE_MKIII = INSTANCE.registerItem("extractor_module_mkiii",
-                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(8, 20)));
+                    props -> new ModuleItem(props, () -> new AdvancedExtractorModule(ExtractorTier.MKIII)));
             CRAFTER_MODULE = INSTANCE.registerItem("crafter_module",
                     props -> new ModuleItem(props, () -> new CraftingModule(1, 1)));
             CRAFTER_MODULE_MKII = INSTANCE.registerItem("crafter_mkii_module",
@@ -464,7 +466,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
-                    props -> new ModuleItem(props, () -> new TerminusModule(4)));
+                    props -> new ModuleItem(props, () -> new TerminusModule(SinkPriority.TERMINUS)));
 
             FLUID_PACKET = INSTANCE.registerItem("fluid_packet", props -> new FluidPacketItem(props.stacksTo(1)));
 

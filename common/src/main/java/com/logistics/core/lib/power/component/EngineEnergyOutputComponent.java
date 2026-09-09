@@ -59,10 +59,13 @@ public final class EngineEnergyOutputComponent implements MachineComponent, Mach
         onChanged.run();
     }
 
-    /** Sets the stored amount directly (clamped to capacity) and marks dirty. */
+    /** Sets the stored amount directly (clamped to capacity), marking dirty only on a real change. */
     public void setAmount(long amount) {
+        long before = buffer.getAmount();
         buffer.setAmount(amount);
-        onChanged.run();
+        if (buffer.getAmount() != before) {
+            onChanged.run();
+        }
     }
 
     /**

@@ -181,14 +181,47 @@ public class FluidPipeBlockEntity extends BaseBlockEntity
     // sync steps instead of jittering with every packet. -1 = uninitialised. Render-only; never saved/server-used.
     private float displayFill = -1.0F;
 
-    /** Eases the client display fill toward {@code target} (0..1) and returns it; snaps on the first frame. */
-    public float advanceDisplayFill(float target) {
-        if (displayFill < 0.0F) {
+    // Tick clock (game time + partial tick) at the last ease, so the rate below is per tick rather
+    // than per frame. -1 = not yet eased.
+    private float lastDisplayFillTicks = -1.0F;
+
+    // The last non-blank fluid drawn here, kept so the fade-out has something to draw once the pipe
+    // is empty. Render-only, like displayFill; never saved, never read by the server.
+    private IFluidKey displayFluid = SimpleFluidKey.BLANK;
+
+    /** Fraction of the gap closed per tick. Convergence is ~10 ticks, whatever the frame rate. */
+    private static final float DISPLAY_FILL_RATE_PER_TICK = 0.2F;
+
+    /**
+     * Eases the client display fill toward {@code target} (0..1) and returns it; snaps on the first
+     * frame. {@code nowTicks} is the client tick clock — game time plus partial tick — so the easing
+     * takes the same wall-clock time at any frame rate, and a pipe that was off screen catches up in
+     * one step instead of resuming from a stale value.
+     */
+    public float advanceDisplayFill(float target, float nowTicks) {
+        if (displayFill < 0.0F || lastDisplayFillTicks < 0.0F) {
             displayFill = target;
-        } else {
-            displayFill += (target - displayFill) * 0.2F;
+            lastDisplayFillTicks = nowTicks;
+            return displayFill;
         }
+        float elapsed = Math.max(0.0F, nowTicks - lastDisplayFillTicks);
+        lastDisplayFillTicks = nowTicks;
+        float eased = 1.0F - (float) Math.pow(1.0F - DISPLAY_FILL_RATE_PER_TICK, elapsed);
+        displayFill += (target - displayFill) * eased;
         return displayFill;
+    }
+
+    /**
+     * The fluid the client should draw: whatever is contained, or the last non-blank one while the
+     * fill eases back down. Without the fallback the pipe reports blank the moment the final parcel
+     * leaves, and the fade-out never renders.
+     */
+    public IFluidKey advanceDisplayFluid() {
+        IFluidKey contained = containedFluid();
+        if (!contained.isBlank()) {
+            displayFluid = contained;
+        }
+        return displayFluid;
     }
 
     // ==================== Feature face (merger output / extractor pull) ====================

@@ -20,7 +20,6 @@ public class TravelingItem {
      */
     public static final float DEFAULT_MIN_SPEED = 0.02f;
 
-    private static final TravelingItemPhysics PHYSICS = new TravelingItemPhysics(DEFAULT_MIN_SPEED);
 
     /**
      * Default TTL for items with a destination (6000 ticks = 5 minutes at 20 TPS).
@@ -108,10 +107,12 @@ public class TravelingItem {
      * @param accelerationRate How quickly to adjust speed (positive or negative)
      * @param dragCoefficient Fraction of speed lost per tick when not accelerating
      * @param maxSpeed Maximum allowed speed
+     * @param minSpeed Speed floor; the pipe's configured minimum, not a constant
      * @return true if item reached the end of this pipe segment
      */
-    public boolean tick(float accelerationRate, float dragCoefficient, float maxSpeed) {
-        speed = PHYSICS.updateSpeed(speed, progress, accelerationRate, dragCoefficient, maxSpeed);
+    public boolean tick(float accelerationRate, float dragCoefficient, float maxSpeed, float minSpeed) {
+        speed = new TravelingItemPhysics(minSpeed)
+                .updateSpeed(speed, progress, accelerationRate, dragCoefficient, maxSpeed);
         progress += speed;
         if (destination != null && remainingTtl > 0) remainingTtl--;
         return progress >= SERVER_EXIT_THRESHOLD;

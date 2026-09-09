@@ -172,6 +172,23 @@ class RequestPlannerTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void testCrafter_planNeverExceedsWhatWasRequested() {
+        controller.registerSupply(CRAFTER, Map.of(diamond(), 0L), 5);
+        controller.registerProviderCheck(CRAFTER, (amount, checker) -> List.of());
+        CrafterBufferState buffer = new CrafterBufferState(8, 8);
+        // A 4-per-batch recipe asked for 3: one batch must be crafted, but only 3 were requested.
+        CrafterSnapshot snapshot = new CrafterSnapshot(CRAFTER, diamond(), 4L, List.of(), buffer);
+        controller.registerCrafterSnapshot(CRAFTER, snapshot);
+
+        FulfillmentPlan plan = planner.plan(diamond(), 3, FulfillmentMode.PARTIAL, controller);
+
+        assertEquals(3, plan.plannedAmount(),
+                "Rounding a batch up is fine; ordering the surplus onto the network is not");
+        PlanNode.CraftNode craftNode = (PlanNode.CraftNode) plan.roots().getFirst();
+        assertEquals(1, craftNode.batches(), "The batch itself still rounds up");
+    }
+
+    @Test
     void testCrafterWithFullBuffer_returnsNoCraftNode() {
         controller.registerSupply(CRAFTER, Map.of(diamond(), 0L), 5);
         controller.registerProviderCheck(CRAFTER, (amount, checker) -> List.of());

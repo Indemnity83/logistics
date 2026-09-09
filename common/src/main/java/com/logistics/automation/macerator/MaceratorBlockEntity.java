@@ -6,6 +6,7 @@ import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.RecipeInputFilter;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
@@ -50,7 +51,8 @@ public class MaceratorBlockEntity extends MachineEntity {
 
         var items = machine.items("inventory")
                 .slots(SlotRole.INPUT, SlotRole.OUTPUT, SlotRole.OUTPUT)
-                .bottomOutAccess()
+                .bottomOutAccess(RecipeInputFilter.of(
+                        this, MaceratorRecipeWrapper.class, MaceratorRecipeWrapper::matches))
                 .build();
 
         processor = machine.recipeProcessor("processor")

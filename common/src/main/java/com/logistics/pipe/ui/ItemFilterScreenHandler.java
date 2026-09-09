@@ -118,7 +118,7 @@ public class ItemFilterScreenHandler extends CustomSlotScreenHandler {
         if (itemConfigPlayer != null) {
             return player.getItemInHand(itemConfigHand) == originalStack;
         }
-        return true;
+        return PipeMenuValidity.stillValid(context, player);
     }
 
     @Override

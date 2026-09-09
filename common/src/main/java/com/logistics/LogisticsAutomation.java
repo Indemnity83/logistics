@@ -129,55 +129,55 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         // Macerator
         public static final ConfigKey<Long> MACERATOR_ENERGY_CAPACITY =
-                macerator.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+                macerator.defineLong("energy_capacity", 10_000L).min(1L).minValueOf(() -> CONFIG.MACERATOR_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> MACERATOR_MAX_ENERGY_INPUT =
-                macerator.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                macerator.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> MACERATOR_ENERGY_PER_TICK =
-                macerator.defineLong("energy_per_tick", 10L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                macerator.defineLong("energy_per_tick", 10L).min(1L).maxValueOf(() -> CONFIG.MACERATOR_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
 
         // Kiln
         public static final ConfigKey<Long> KILN_ENERGY_CAPACITY =
-                kiln.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+                kiln.defineLong("energy_capacity", 10_000L).min(1L).minValueOf(() -> CONFIG.KILN_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> KILN_MAX_ENERGY_INPUT =
-                kiln.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                kiln.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> KILN_ENERGY_PER_TICK =
-                kiln.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                kiln.defineLong("energy_per_tick", 20L).min(1L).maxValueOf(() -> CONFIG.KILN_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
         public static final ConfigKey<Long> KILN_RF_PER_COOK_TICK =
                 kiln.defineLong("rf_per_cook_tick", 10L).min(1L).describe("RF per vanilla smelting cook-tick (recipe energy = cook time x this)").register();
 
         // Sawmill
         public static final ConfigKey<Long> SAWMILL_ENERGY_CAPACITY =
-                sawmill.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+                sawmill.defineLong("energy_capacity", 10_000L).min(1L).minValueOf(() -> CONFIG.SAWMILL_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> SAWMILL_MAX_ENERGY_INPUT =
-                sawmill.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                sawmill.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> SAWMILL_ENERGY_PER_TICK =
-                sawmill.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                sawmill.defineLong("energy_per_tick", 20L).min(1L).maxValueOf(() -> CONFIG.SAWMILL_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
 
         // Crucible
         public static final ConfigKey<Long> CRUCIBLE_ENERGY_CAPACITY =
-                crucible.defineLong("energy_capacity", 40_000L).min(0L).describe("Internal RF buffer capacity").register();
+                crucible.defineLong("energy_capacity", 40_000L).min(1L).minValueOf(() -> CONFIG.CRUCIBLE_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> CRUCIBLE_MAX_ENERGY_INPUT =
-                crucible.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                crucible.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> CRUCIBLE_ENERGY_PER_TICK =
-                crucible.defineLong("energy_per_tick", 40L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                crucible.defineLong("energy_per_tick", 40L).min(1L).maxValueOf(() -> CONFIG.CRUCIBLE_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
         public static final ConfigKey<Long> CRUCIBLE_TANK_CAPACITY_MB =
                 crucible.defineLong("tank_capacity_mb", 10_000L).min(1L).describe("Molten-metal tank capacity (mB)").register();
 
         // Alloy Smelter
         public static final ConfigKey<Long> ALLOY_SMELTER_ENERGY_CAPACITY =
-                alloySmelter.defineLong("energy_capacity", 10_000L).min(0L).describe("Internal RF buffer capacity").register();
+                alloySmelter.defineLong("energy_capacity", 10_000L).min(1L).minValueOf(() -> CONFIG.ALLOY_SMELTER_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> ALLOY_SMELTER_MAX_ENERGY_INPUT =
-                alloySmelter.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                alloySmelter.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> ALLOY_SMELTER_ENERGY_PER_TICK =
-                alloySmelter.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                alloySmelter.defineLong("energy_per_tick", 20L).min(1L).maxValueOf(() -> CONFIG.ALLOY_SMELTER_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
 
         // Refinery
         public static final ConfigKey<Long> REFINERY_ENERGY_CAPACITY =
-                refinery.defineLong("energy_capacity", 20_000L).min(1L).describe("Internal RF buffer capacity").register();
+                refinery.defineLong("energy_capacity", 20_000L).min(1L).minValueOf(() -> CONFIG.REFINERY_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> REFINERY_MAX_ENERGY_INPUT =
-                refinery.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                refinery.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> REFINERY_ENERGY_PER_TICK =
-                refinery.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                refinery.defineLong("energy_per_tick", 20L).min(1L).maxValueOf(() -> CONFIG.REFINERY_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
         public static final ConfigKey<Long> REFINERY_INPUT_TANK_MB =
                 refinery.defineLong("input_tank_mb", 4_000L).min(1L).describe("Input fluid tank capacity (mB)").register();
         public static final ConfigKey<Long> REFINERY_OUTPUT_TANK_MB =
@@ -185,19 +185,19 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         // Sequential Fabricator
         public static final ConfigKey<Long> FABRICATOR_ENERGY_CAPACITY =
-                fabricator.defineLong("energy_capacity", 100_000L).min(1L).describe("Internal RF buffer capacity").register();
+                fabricator.defineLong("energy_capacity", 100_000L).min(1L).minValueOf(() -> CONFIG.FABRICATOR_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> FABRICATOR_MAX_ENERGY_INPUT =
-                fabricator.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                fabricator.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> FABRICATOR_ENERGY_PER_TICK =
-                fabricator.defineLong("energy_per_tick", 80L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                fabricator.defineLong("energy_per_tick", 80L).min(1L).maxValueOf(() -> CONFIG.FABRICATOR_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
 
         // Transposer
         public static final ConfigKey<Long> TRANSPOSER_ENERGY_CAPACITY =
-                transposer.defineLong("energy_capacity", 20_000L).min(1L).describe("Internal RF buffer capacity").register();
+                transposer.defineLong("energy_capacity", 20_000L).min(1L).minValueOf(() -> CONFIG.TRANSPOSER_ENERGY_PER_TICK).describe("Internal RF buffer capacity").register();
         public static final ConfigKey<Long> TRANSPOSER_MAX_ENERGY_INPUT =
-                transposer.defineLong("max_energy_input", 128L).min(0L).describe("Max RF/t accepted from the network").register();
+                transposer.defineLong("max_energy_input", 128L).min(1L).describe("Max RF/t accepted from the network").register();
         public static final ConfigKey<Long> TRANSPOSER_ENERGY_PER_TICK =
-                transposer.defineLong("energy_per_tick", 20L).min(1L).describe("RF/t spent processing (higher = faster)").register();
+                transposer.defineLong("energy_per_tick", 20L).min(1L).maxValueOf(() -> CONFIG.TRANSPOSER_ENERGY_CAPACITY).describe("RF/t spent processing (higher = faster)").register();
         public static final ConfigKey<Long> TRANSPOSER_TANK_CAPACITY_MB =
                 transposer.defineLong("tank_capacity_mb", 16_000L).min(1_000L).describe("Internal fluid tank capacity (mB)").register();
 

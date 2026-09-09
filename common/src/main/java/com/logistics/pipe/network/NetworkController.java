@@ -256,14 +256,28 @@ public class NetworkController implements PlanningView {
     @Nullable
     private DispatchCommand tryDispatch(
             Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<SupplyEntry> entries) {
-        // Skip deferred providers (buffer full this tick) to find the first dispatchable source
-        int supplyIdx = 0;
-        while (supplyIdx < entries.size() && deferredProviders.contains(entries.get(supplyIdx).pos)) {
-            supplyIdx++;
-        }
-        if (supplyIdx >= entries.size()) return null;
-        SupplyEntry supply = entries.get(supplyIdx);
+        // Walk every entry rather than committing to the first: a provider that is deferred this
+        // tick, or whose stock is entirely reserved by earlier orders, must not hide the ones
+        // behind it — including the crafter, which always sorts last.
+        for (int supplyIdx = 0; supplyIdx < entries.size(); supplyIdx++) {
+            SupplyEntry supply = entries.get(supplyIdx);
+            if (deferredProviders.contains(supply.pos)) continue;
 
+            DispatchCommand cmd = tryDispatchFrom(orderIt, order, entries, supplyIdx, supply);
+            if (cmd != null) return cmd;
+            if (!orderQueue.containsKey(order.id())) return null; // cancelled for missing ingredients
+        }
+        return null;
+    }
+
+    /**
+     * Attempt a dispatch from one supply entry. Returns {@code null} when this entry cannot serve
+     * the order, leaving the caller free to try the next one.
+     */
+    @Nullable
+    private DispatchCommand tryDispatchFrom(
+            Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<SupplyEntry> entries,
+            int supplyIdx, SupplyEntry supply) {
         if (supply.available == 0) {
             // On-demand supply (crafter): validate ingredient chain before dispatching
             List<IItemKey> missing = getMissingIngredients(order.item(), order.amount());
@@ -278,10 +292,8 @@ public class NetworkController implements PlanningView {
         // Real stock: compute effective availability (raw minus active reservations)
         long effective = reservationManager.effectiveAvailable(supply.pos, order.item(), supply.available);
 
-        if (effective == 0) {
-            // Fully reserved by other in-flight orders; skip this entry for now
-            return null;
-        }
+        // Fully reserved by other in-flight orders; the caller moves on to the next entry.
+        if (effective == 0) return null;
 
         if (effective >= order.amount()) {
             // Full fill from real stock: create a hard reservation
@@ -346,6 +358,14 @@ public class NetworkController implements PlanningView {
     }
 
     /**
+     * Release the reservations backing an order that was reserved but never shipped, so the
+     * provider's stock is free again when the order is retried.
+     */
+    public void releaseReservations(UUID orderId) {
+        reservationManager.releaseByOrder(orderId);
+    }
+
+    /**
      * Remove all supply entries for a provider that returned 0 items this tick.
      * Prevents repeated dispatch attempts to a provider that can't currently extract.
      * The provider will re-register supply on its next scan cycle.
@@ -366,7 +386,7 @@ public class NetworkController implements PlanningView {
         if (amount <= 0) return;
         NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack(1).getItem());
         decrementOrdered(requester, item, amount);
-        reservationManager.markDelivered(requester, item);
+        reservationManager.releaseInFlight(requester, item, amount);
     }
 
     /**
@@ -374,8 +394,12 @@ public class NetworkController implements PlanningView {
      */
     public void notifyDelivery(UUID orderId, BlockPos requester, IItemKey item, long amount) {
         if (amount <= 0) return;
+        NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack(1).getItem());
         releaseInTransit(orderId, amount);
-        notifyDelivery(requester, item, amount);
+        decrementOrdered(requester, item, amount);
+        // Released against the order, not the requester: two concurrent orders for the same item to
+        // the same requester would otherwise resolve whichever the map iterated over first.
+        reservationManager.releaseInFlight(orderId, item, amount);
     }
 
     /**
@@ -393,6 +417,8 @@ public class NetworkController implements PlanningView {
         NetDbg.out("Delivery failed: {} lost {}x {}",
                 tracked.requester(), tracked.amount(), tracked.item().toStack(1).getItem());
         decrementOrdered(tracked.requester(), tracked.item(), tracked.amount());
+        // The provider never lost these items, so its reservation has to go back with them.
+        reservationManager.releaseInFlight(orderId, tracked.item(), tracked.amount());
 
         return placeOrder(tracked.item(), tracked.amount(), tracked.requester(), tracked.fulfillmentMode());
     }
@@ -632,6 +658,7 @@ public class NetworkController implements PlanningView {
             Iterator<Map.Entry<UUID, Order>> orderIt, Order order, List<IItemKey> missing) {
         orderIt.remove();
         decrementOrdered(order.requester(), order.item(), order.amount());
+        reservationManager.releaseByOrder(order.id());
         NetDbg.out("Order failed (missing ingredients): {} | {}x {} → {} | missing: {}",
                 order.id().toString().substring(0, 8), order.amount(),
                 order.item().toStack(1).getItem(), order.requester(), missing);

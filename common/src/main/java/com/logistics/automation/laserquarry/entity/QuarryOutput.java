@@ -3,7 +3,8 @@ package com.logistics.automation.laserquarry.entity;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
 import com.logistics.automation.ContainerInsert;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -75,17 +76,31 @@ public final class QuarryOutput {
         }
     }
 
-    /** Sweep up items that a broken container block spawned near {@code target}. */
-    public void sweepNearby(ServerLevel world, BlockPos target) {
-        List<ItemEntity> itemEntities =
-                world.getEntitiesOfClass(ItemEntity.class, new AABB(target).inflate(2.0), item -> true);
+    /** Ids of the items already lying in the sweep area, taken before a block is broken. */
+    public Set<Integer> itemsNear(ServerLevel world, BlockPos target) {
+        return world.getEntitiesOfClass(ItemEntity.class, sweepArea(target)).stream()
+                .map(ItemEntity::getId)
+                .collect(Collectors.toUnmodifiableSet());
+    }
 
-        for (ItemEntity itemEntity : itemEntities) {
+    /**
+     * Sweep up the items a break spawned near {@code target} — those, and only those, are the
+     * quarry's. Anything in {@code alreadyThere} was on the ground before the break and stays.
+     */
+    public void sweepNearby(ServerLevel world, BlockPos target, Set<Integer> alreadyThere) {
+        for (ItemEntity itemEntity : world.getEntitiesOfClass(ItemEntity.class, sweepArea(target))) {
+            if (alreadyThere.contains(itemEntity.getId())) {
+                continue;
+            }
             ItemStack stack = itemEntity.getItem();
             if (!stack.isEmpty()) {
                 accept(world, stack.copy());
                 itemEntity.discard();
             }
         }
+    }
+
+    private static AABB sweepArea(BlockPos target) {
+        return new AABB(target).inflate(2.0);
     }
 }
