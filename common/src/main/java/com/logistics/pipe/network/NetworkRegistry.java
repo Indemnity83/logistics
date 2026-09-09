@@ -6,6 +6,7 @@ import com.logistics.core.lib.network.INetworkGraph;
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.core.lib.network.NetworkGraph;
 import com.logistics.pipe.block.PipeBlock;
+import com.logistics.pipe.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -466,6 +467,7 @@ public class NetworkRegistry {
             levelPositions.put(pos, firstId);
         }
         levelNetworks.put(firstId, firstNetwork);
+        requestReregistration(level, firstComponent);
 
         // Find remaining components
         Set<BlockPos> remaining = new HashSet<>(allMembers);
@@ -483,8 +485,30 @@ public class NetworkRegistry {
                 levelPositions.put(pos, id);
             }
             levelNetworks.put(id, network);
+            requestReregistration(level, component);
 
             remaining.removeAll(component);
+        }
+    }
+
+    /**
+     * Make every pipe in a freshly created component re-run {@code onConnectionsChanged} on its
+     * next tick, so its modules re-register with the network they now belong to.
+     *
+     * <p>A split replaces the old {@link PipeNetwork} with brand-new instances whose sink and
+     * interest registries start empty, but only the pipes next to the break see their own
+     * connections change — every other pipe would otherwise keep believing it is still registered.
+     * Clearing the cached connection mask is the same nudge the chassis inventory uses after a
+     * module is inserted.
+     */
+    private static void requestReregistration(Level level, Set<BlockPos> component) {
+        for (BlockPos pos : component) {
+            // Unloaded pipes need no nudge: the mask is not persisted, so they re-fire on load.
+            if (!level.hasChunkAt(pos)) continue;
+            if (level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
+                pipe.setLastConnectionsMask(-1);
+                pipe.invalidateConnectionCache();
+            }
         }
     }
 

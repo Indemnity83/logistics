@@ -35,7 +35,15 @@ public final class NetworkIntegrationGameTestRegistration {
         new GameTestCase(
             "network/provider_reserve_mode_leaves_first_slot",
             120,
-            NetworkIntegrationGameTestBody::testProviderReserveModeLeavesFirstSlot));
+            NetworkIntegrationGameTestBody::testProviderReserveModeLeavesFirstSlot),
+        new GameTestCase(
+            "network/enchantment_sink_still_receives_after_network_split",
+            120,
+            NetworkIntegrationGameTestBody::testEnchantmentSinkStillReceivesAfterNetworkSplit),
+        new GameTestCase(
+            "network/basic_sink_still_receives_after_network_split",
+            120,
+            NetworkIntegrationGameTestBody::testBasicSinkStillReceivesAfterNetworkSplit));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
