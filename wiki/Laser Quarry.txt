@@ -34,6 +34,12 @@ The Laser Quarry can be broken with any tool, though a pickaxe is fastest.
 
 When placed and powered, the Laser Quarry constructs a mining frame around the target area, then excavates layer by layer down to bedrock, running indefinitely until it bottoms out. Mined blocks output from the top of the quarry into a chest or pipe. Mining speed scales with power throughput, and the quarry stops if power is interrupted.
 
+Free-standing fluid is skipped rather than mined, but a solid block that happens to be waterlogged — a submerged chest, stair, slab or fence — is broken like any other, so a structure under water is cleared instead of being left standing in the pit. Blocks that carry fluid without blocking movement, such as {{Mcw|Bubble Column|bubble columns}}, {{Mcw|Kelp|kelp}} and {{Mcw|Seagrass|seagrass}}, are skipped too.
+
+=== Mining frame ===
+
+The quarry builds its own frame around the mining area before it starts, and tears that frame back down when the quarry block is removed, so breaking a quarry never strands its cage. A frame block left over from an earlier quarry can be broken by hand; it drops nothing.
+
 === Mining area ===
 
 '''Default (no markers):''' mines a 16×16 area centered on the quarry's placement.
@@ -60,7 +66,7 @@ The Laser Quarry consumes [[RF Energy|RF]] continuously while mining. A [[Stirli
 
 === Item collection ===
 
-Mined items output from the top of the quarry into any connected inventory or pipe (no extractor needed).
+Mined items output from the top of the quarry into any connected inventory or pipe (no extractor needed). The quarry collects only what its own mining produces — including the contents a broken container spills — and leaves loose items that were already lying on the ground alone.
 
 <pre>
 [Copper Transport Pipe] → [Filter Pipe] → [Storage]
@@ -74,9 +80,9 @@ Use [[Item Filter Pipe|Item Filter Pipes]] to sort valuable ores and an [[Item V
 
 By default the quarry only runs while its chunk stays loaded — typically while a player is nearby — and pauses when the area unloads. Turning on the chunk-loading setting makes a running quarry hold itself and its work area loaded, so it keeps mining unattended even when no players are around. The chunk tickets are released once the quarry finishes or is removed.
 
-The setting lives in <code>config/logistics.json</code> and can be changed in-game with the operator-only <code>/logistics config</code> command:
+The setting lives in <code>config/logistics/machines.quarry.json</code> and can be changed in-game with the operator-only <code>/logistics config machines.quarry &lt;key&gt; &lt;value&gt;</code> command:
 
-{{Config|head=1|foot=1|quarry_load_chunks|Keep the quarry and its work area chunk-loaded while running.|false|Boolean}}
+{{Config|head=1|foot=1|load_chunks|Keep the quarry and its work area chunk-loaded while running.|false|Boolean}}
 
 === Jade HUD ===
 
@@ -92,7 +98,8 @@ With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking
 
 {{History|head=1|v0.1.0|[[File:Grid Laser Quarry (v0.1.0).png|32px]] Added '''Laser Quarry'''.}}
 {{History|v0.7.4|Added an optional '''Keep chunks loaded''' setting so the quarry can mine unattended.}}
-{{History|foot=1|v0.8.0|[[File:Grid Laser Quarry.png|32px]] The texture of the Laser Quarry has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
+{{History|v0.8.0|[[File:Grid Laser Quarry.png|32px]] The texture of the Laser Quarry has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
+{{History|foot=1|v0.8.8|Waterlogged blocks are now mined instead of skipped. The quarry no longer picks up loose items that were already on the ground. A quarry now removes its own frame when it is broken, and a leftover frame block can be broken by hand. A new quarry no longer inherits the arm position of one that stood in the same spot before it.}}
 
 == See also ==
 * [[Marker]] - Define a custom mining area

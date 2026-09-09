@@ -35,7 +35,7 @@ Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception
 
 == Usage ==
 
-Toggle any number of [[Chipsets|chipsets]] to queue in the machine's GUI, then feed it the ingredients. The Sequential Fabricator builds one at a time, cycling round-robin through the queued chipsets whose ingredients are currently available — completing and ejecting each before advancing to the next — so a queue stocked with enough material for several chipsets keeps running unattended without re-selecting. A queued chipset the machine can't currently craft is skipped until its materials return. Every recipe appears in the Just Enough Items (JEI) viewer.
+Toggle any number of [[Chipsets|chipsets]] to queue in the machine's GUI, then feed it the ingredients. The Sequential Fabricator builds one at a time, cycling round-robin through the queued chipsets whose ingredients are currently available — completing and ejecting each before advancing to the next — so a queue stocked with enough material for several chipsets keeps running unattended without re-selecting. A queued chipset the machine can't currently craft is skipped until its materials return; it stays listed in the GUI while it waits, so it can be clicked to cancel the order rather than having to restock it first. Every recipe appears in the Just Enough Items (JEI) viewer.
 
 === Power ===
 
@@ -61,7 +61,8 @@ Chipsets are built from redstone and one tier material; the RF cost climbs with 
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.3|[[File:Grid Sequential Fabricator.png|32px]] Added '''Sequential Fabricator'''.}}
+{{History|head=1|v0.8.3|[[File:Grid Sequential Fabricator.png|32px]] Added '''Sequential Fabricator'''.}}
+{{History|foot=1|v0.8.8|A queued chipset now stays listed while its materials are missing, so a stalled order can be cancelled. A craft that fails no longer consumes its ingredients.}}
 
 == See also ==
 

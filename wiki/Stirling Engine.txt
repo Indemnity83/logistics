@@ -57,7 +57,8 @@ Use a [[Wrench]] to rotate the output face (cycle through directions) and to res
 == History ==
 
 {{History|head=1|v0.1.0|[[File:Grid Stirling Engine.png|32px]] Added '''Stirling Engine'''.}}
-{{History|foot=1|v0.8.5|Now requires a stone pickaxe to drop; hardness lowered from 5.0 to 1.5.}}
+{{History|v0.8.5|Now requires a stone pickaxe to drop; hardness lowered from 5.0 to 1.5.}}
+{{History|foot=1|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
 
 == See also ==
 * [[RF Energy]] - Understanding the power system

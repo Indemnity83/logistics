@@ -114,7 +114,8 @@ The full recycling list — every anvil tier, minecart, pressure plate, and iron
 == History ==
 
 {{History|head=1|v0.8.2|[[File:Grid Alloy Smelter.png|32px]] Added '''Alloy Smelter'''.}}
-{{History|foot=1|v0.8.7|The [[Quicksilver]] amalgamation recipes now accept raw ore as well as the ore block.}}
+{{History|v0.8.7|The [[Quicksilver]] amalgamation recipes now accept raw ore as well as the ore block.}}
+{{History|foot=1|v0.8.8|Filling the machine from a recipe in the recipe browser no longer duplicates the ingredients it moves.}}
 
 == See also ==
 

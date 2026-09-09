@@ -26,7 +26,7 @@ All modules are crafted from a [[Blank Module]] base component.
 
 Pull items from adjacent inventories into the logistics network.
 
-* [[File:Grid Extractor Module.png|24px|link=Extractor Module]] '''[[Extractor Module]]''' (MkI–MkIII) - Extract items from an adjacent inventory; higher marks extract faster or in greater quantities. The single Extractor Module page covers all three marks — there is no separate "advanced" extractor item.
+* [[File:Grid Extractor Module.png|24px|link=Extractor Module]] '''[[Extractor Module]]''' (MkI–MkIII) - Extract items from an adjacent inventory; 0.1, 0.4 and 3.2 items per tick by mark, and the MkIII adds an item filter. The single Extractor Module page covers all three marks — there is no separate "advanced" extractor item.
 
 ==Provider & Supplier Modules==
 
@@ -59,6 +59,30 @@ Accept and store specific items or categories.
 * [[File:Grid Polymorphic ItemSink Module.png|24px|link=Polymorphic ItemSink Module]] '''[[Polymorphic ItemSink Module]]''' - Accept any item that matches an already-stored item type in the adjacent inventory (fills existing stacks)
 * [[File:Grid Enchantment Sink Module.png|24px|link=Enchantment Sink Module]] '''[[Enchantment Sink Module]]''' - Accept any enchanted item and deposit into a book or chest
 * [[File:Grid Mod-Based ItemSink Module.png|24px|link=Mod-Based ItemSink Module]] '''[[Mod-Based ItemSink Module]]''' - Accept any item from a specified mod namespace
+
+===Sink priority===
+
+When several sinks accept the same item, the network delivers to the highest-priority one. The ladder rewards specificity — a sink that names item types outbids one that accepts a broader set:
+
+{| class="wikitable"
+! Priority !! Sink
+|-
+| 8 || [[Passive Supplier Module]]
+|-
+| 7 || [[ItemSink Module]]
+|-
+| 6 || [[Polymorphic ItemSink Module]]
+|-
+| 5 || [[Mod-Based ItemSink Module]], [[Basic Logistics Pipe]]
+|-
+| 4 || [[Terminus Module]]
+|-
+| 3 || [[Enchantment Sink Module]]
+|-
+| 0 || Any sink set as the default route
+|}
+
+Ties go to the nearest sink, and a tie on distance too resolves to a fixed destination rather than an arbitrary one, so a network that merges or splits keeps sending the same item to the same place.
 
 ==See Also==
 * [[Chassis Logistics Pipe]] - The pipe that holds modules

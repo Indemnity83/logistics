@@ -53,7 +53,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Provider Logistics Pipe.png|32px]] Added '''Provider Logistics Pipe'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|foot=1|v0.8.8|A run of delivery fixes: a request now falls through to the next provider when one is fully reserved, a failed delivery no longer shrinks the advertised stock, a provider no longer drains the slot it reserved, and an unpowered network no longer destroys the items a provider sent.}}
 
 == See also ==
 

@@ -28,6 +28,7 @@ When installed in a [[Chassis Logistics Pipe]], this module registers itself as 
 * Deposits received items into an adjacent inventory.
 * Multiple Item Sink Modules can be installed in a single chassis (using multiple module slots) to accept multiple item types.
 * Does not accept unconfigured or non-matching items.
+* Outranks every other sink but a [[Passive Supplier Module]] in the [[Modules#Sink priority|sink priority]] ladder, so a named item goes here rather than to a broader sink such as a [[Polymorphic ItemSink Module]].
 
 === Configuration ===
 
@@ -46,7 +47,8 @@ Install several Item Sink Modules in one chassis to make a multi-item sorting st
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid ItemSink Module (v0.2.0).png|32px]] Added '''ItemSink Module'''.}}
-{{History|foot=1|v0.8.3|[[File:Grid ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|v0.8.3|[[File:Grid ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|foot=1|v0.8.8|Now outranks the [[Polymorphic ItemSink Module]], which previously tied with it for the same items.}}
 
 == See also ==
 * [[Polymorphic ItemSink Module]] - Accepts any item type that already exists in the adjacent inventory

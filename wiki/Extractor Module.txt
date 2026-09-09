@@ -6,7 +6,7 @@
 |added     = v0.2.0
 }}
 
-The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. A base module can be upgraded to MkII and MkIII variants — each a separate upgrade craft with a higher-tier [[Gears|gear]] — extracting at greater speed or quantity.
+The '''Extractor Module''' is a [[Chassis Logistics Pipe]] module that actively pulls items from an adjacent inventory and injects them into the [[Pipe Networks|logistics network]]. A base module can be upgraded to MkII and MkIII variants — each a separate upgrade craft with a higher-tier [[Gears|gear]] — pulling more items, more often.
 
 == Obtaining ==
 
@@ -26,11 +26,23 @@ The base module, plus a higher-tier [[Gears|gear]] to upgrade it:
 When installed in a [[Chassis Logistics Pipe]], this module pulls items from an adjacent inventory and routes them into the logistics network. It functions similarly to the standalone [[Item Extractor Pipe]] but is network-aware and can be combined with other modules in the same chassis.
 
 * Extracts items from an adjacent inventory into the logistics network.
-* Configurable item filter — extract only specific item types.
-* Higher mark variants extract faster or in larger quantities per tick.
+* Each mark pulls on its own timer; a single pull spreads its item budget across as many item types as the inventory offers, and takes whatever fits when the pipe is nearly full.
+* The MkIII adds a configurable include/exclude item filter — the base module and the MkII have no GUI and pull everything they can reach.
 * Can be configured to route extracted items to a specific network destination.
 
-Pair it with a [[Provider Module]] in the same chassis to both extract from and advertise one inventory, and set the item filter so only the right items leave a mixed-content chest. The higher marks suit high-output machines (blast furnaces, high-tier kilns) that produce items faster than an MK1 can keep up with.
+=== Throughput ===
+
+{| class="wikitable"
+! Mark !! Items per pull !! Ticks between pulls !! Sustained rate
+|-
+| Extractor Module || 8 || 80 || 0.1 items/t
+|-
+| Extractor MkII Module || 8 || 20 || 0.4 items/t
+|-
+| Extractor MkIII Module || 32 || 10 || 3.2 items/t
+|}
+
+Pair it with a [[Provider Module]] in the same chassis to both extract from and advertise one inventory, and reach for the MkIII's filter so only the right items leave a mixed-content chest. The higher marks suit high-output machines (blast furnaces, high-tier kilns) that produce items faster than the base module can keep up with.
 
 == Data values ==
 
@@ -41,11 +53,11 @@ Pair it with a [[Provider Module]] in the same chassis to both extract from and 
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Extractor Module (v0.2.0).png|32px]] Added '''Extractor Module'''.}}
-{{History|foot=1|v0.8.3|[[File:Grid Extractor Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
+{{History|v0.8.3|[[File:Grid Extractor Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
+{{History|foot=1|v0.8.8|The MkIII now pulls 32 items every 10 ticks; previously it matched the MkII's rate and could pull less than it. A pull now spreads across several item types instead of stopping at the first one, and a partly-full pipe takes what fits instead of skipping the pull.}}
 
 == See also ==
 * [[Item Extractor Pipe]] - Standalone extractor (simpler, cheaper)
-* [[Advanced Extractor Module]] - Extractor with more filter/scheduling options
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base

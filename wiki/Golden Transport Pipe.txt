@@ -39,7 +39,8 @@ Chain several powered golden pipes for a cumulative boost. Unpowered, it behaves
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Golden Transport Pipe.png|32px]] Added '''Golden Transport Pipe'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Golden Transport Pipe.png|32px]] Added '''Golden Transport Pipe'''.}}
+{{History|foot=1|v0.8.8|The pipe now reads its acceleration setting live, so a config reload takes effect without restarting the game.}}
 
 == See also ==
 

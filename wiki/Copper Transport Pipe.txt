@@ -41,7 +41,8 @@ They also accept [[Marking Fluid]], which color-codes pipes so that same-color p
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Copper Transport Pipe.png|32px]] Added '''Copper Transport Pipe'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Copper Transport Pipe.png|32px]] Added '''Copper Transport Pipe'''.}}
+{{History|foot=1|v0.8.8|Items now travel at the configured minimum pipe speed, and a handoff that only partly fits no longer loses the rest of the stack.}}
 
 == See also ==
 

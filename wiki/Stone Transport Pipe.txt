@@ -39,7 +39,8 @@ Like every transport pipe it connects to other pipes and to adjacent inventories
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Stone Transport Pipe.png|32px]] Added '''Stone Transport Pipe'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Stone Transport Pipe.png|32px]] Added '''Stone Transport Pipe'''.}}
+{{History|foot=1|v0.8.8|The pipe now reads its speed and drag settings live, so a config reload takes effect without restarting the game.}}
 
 == See also ==
 

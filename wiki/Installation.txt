@@ -89,15 +89,11 @@ Or just try crafting a [[Copper Transport Pipe]]!
 * Check for mod compatibility issues
 * Try with only Logistics and Fabric API installed first
 
-==Classic crafting recipes==
-
-Logistics ships a built-in resource pack, '''Classic Logistics Pipes crafting recipes''', that swaps
-16 pipe and [[Modules|module]] recipes for ones closer to the original ''LogisticsPipes'' mod — gears
-and dyes in place of the current [[Chipsets|chipset]] and dye recipes. Enable it from
-''Options → Resource Packs'' and restart the world for the recipes to reload.
-
-The pack is currently registered on '''Fabric only'''; on NeoForge it does not appear in the
-resource pack list.
+'''A machine stopped working after a config edit:'''
+* Settings live in <code>config/logistics/&lt;domain&gt;.json</code> — one file per domain, such as <code>machines.quarry.json</code> or <code>power.battery.json</code>
+* A value outside a setting's valid range is rejected rather than applied, so a machine can no longer be bricked by a bad number
+* A config file that can't be parsed is renamed to <code>&lt;name&gt;.json.invalid</code> and replaced with defaults, so the game still starts and your edits are kept for reference
+* Read or change a setting in-game with the operator-only <code>/logistics config &lt;domain&gt; &lt;key&gt; &lt;value&gt;</code>, then <code>/logistics reload-configs</code> to re-read the files from disk
 
 ==Next Steps==
 

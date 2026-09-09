@@ -36,7 +36,7 @@ The Transposer is mined with a stone pickaxe or better; without one it drops not
 
 Drop an item into the input slot and, given enough RF and tank room, the Transposer converts it. Every recipe trades the item against the tank: some draw fluid out of it, some put fluid into it, and a few do nothing but press an item for its liquid.
 
-The conversion is atomic: if the output slot can't hold the result or there isn't enough RF banked, nothing is consumed and the tank is untouched. The tank holds '''16,000 mB (16 buckets)''' by default. Pipe fluid in and out with a [[Fluid Pipes|fluid pipe]], and automate the item side with [[Item Pipes|item pipes]] or a hopper. Breaking the Transposer drops its slot contents but voids whatever fluid remains in the tank.
+The conversion is atomic: if the output slot can't hold the result or there isn't enough RF banked, nothing is consumed and the tank is untouched. The tank holds '''16,000 mB (16 buckets)''' by default. Pipe fluid in and out with a [[Fluid Pipes|fluid pipe]], and automate the item side with [[Item Pipes|item pipes]] or a hopper; the input slot only accepts an item a loaded recipe converts, so a wrongly-routed item is refused rather than left stuck in the machine. Breaking the Transposer drops its slot contents but voids whatever fluid remains in the tank.
 
 === Power ===
 
@@ -118,7 +118,8 @@ Soaking sand or gravel in [[Crude Oil]] recreates the oil-bearing blocks, closin
 == History ==
 
 {{History|head=1|v0.8.6|[[File:Grid Transposer.png|32px]] Added '''Transposer'''.}}
-{{History|foot=1|v0.8.7|Added an RF cost (previously free); recipes moved to a data-driven system with several new conversions, including [[Seed Oil]] and the oil-bearing blocks; crafting recipe swapped side buckets for glass.}}
+{{History|v0.8.7|Added an RF cost (previously free); recipes moved to a data-driven system with several new conversions, including [[Seed Oil]] and the oil-bearing blocks; crafting recipe swapped side buckets for glass.}}
+{{History|foot=1|v0.8.8|The input slot now refuses items no loaded recipe can convert, so a wrongly-routed item can no longer jam the machine.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system

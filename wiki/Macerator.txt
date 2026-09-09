@@ -35,7 +35,7 @@ The Macerator is mined with a stone pickaxe or better; without one it drops noth
 
 Place an item in the input slot; the output slot receives the ground result when complete, and a secondary slot catches any chance byproduct. It processes 150+ recipes covering ores (with chance byproducts), block recycling, plants, and dyes, and grants XP when processing ore-based recipes. Each recipe has its own RF cost — most ores take 2,000 RF (10 seconds), recycling recipes more. The recipe book in the GUI lists every valid recipe, and Macerator recipes also appear in the Just Enough Items (JEI) recipe viewer.
 
-Input is accepted from the top and sides; output is drawn from the bottom.
+Input is accepted from the top and sides; output is drawn from the bottom. Hoppers and pipes can only fill the input slot with something a loaded recipe grinds — anything else is refused rather than left stuck in the machine.
 
 === Power ===
 
@@ -186,7 +186,8 @@ Flour stands in for {{Mcw|Wheat|wheat}} in the {{Mcw|Bread|bread}}, {{Mcw|Cake|c
 {{History|head=1|v0.5.0|[[File:Grid Macerator (v0.5.0).png|32px]] Added '''Macerator'''.}}
 {{History|v0.8.0|[[File:Grid Macerator.png|32px]] The texture of the Macerator has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]]; added chance byproducts and block recycling; renamed Wood Pulp to [[Sawdust]].}}
 {{History|v0.8.2|Added grinding for the oil blocks into [[Bitumen]] and [[Tar]].}}
-{{History|foot=1|v0.8.7|Loose raw iron, raw copper, raw gold, and [[Raw Tin|raw tin]] can now be ground into dust.}}
+{{History|v0.8.7|Loose raw iron, raw copper, raw gold, and [[Raw Tin|raw tin]] can now be ground into dust.}}
+{{History|foot=1|v0.8.8|The input slot now refuses items no loaded recipe can grind, so a wrongly-routed item can no longer jam the machine.}}
 
 == See also ==
 * [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components

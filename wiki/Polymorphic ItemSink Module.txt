@@ -28,6 +28,7 @@ When installed in a [[Chassis Logistics Pipe]], this module scans the adjacent i
 * Dynamically updates as the adjacent inventory contents change.
 * Will not accept items for which the adjacent inventory has no existing stack.
 * Ideal for refilling partially depleted storage without configuring each item type manually.
+* Sits below the [[ItemSink Module]] in the [[Modules#Sink priority|sink priority]] ladder — because it registers interest in every item in the network, a configured Item Sink always wins the items it names.
 
 Seed the adjacent inventory with one of each item type you want it to accept and the module handles the rest, keeping regularly-replenished buffer chests topped off. Combine it with an [[ItemSink Module]] in the same chassis for a two-tier strategy: polymorphic for the bulk, specific sinks for overflow.
 
@@ -40,7 +41,8 @@ Seed the adjacent inventory with one of each item type you want it to accept and
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Polymorphic ItemSink Module (v0.2.0).png|32px]] Added '''Polymorphic ItemSink Module'''.}}
-{{History|foot=1|v0.8.3|[[File:Grid Polymorphic ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|v0.8.3|[[File:Grid Polymorphic ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
+{{History|foot=1|v0.8.8|Now ranks below the [[ItemSink Module]] instead of tying with it, so a configured Item Sink is no longer shadowed by a Polymorphic sink.}}
 
 == See also ==
 * [[ItemSink Module]] - Accept a specifically configured item type

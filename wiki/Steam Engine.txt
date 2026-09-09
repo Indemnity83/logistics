@@ -53,7 +53,8 @@ Use a [[Wrench]] to rotate the output face.
 == History ==
 
 {{History|head=1|v0.8.4|[[File:Grid Steam Engine.png|32px]] Added '''Steam Engine'''.}}
-{{History|foot=1|v0.8.5|Now requires an iron pickaxe to drop; hardness lowered from 5.0 to 3.0.}}
+{{History|v0.8.5|Now requires an iron pickaxe to drop; hardness lowered from 5.0 to 3.0.}}
+{{History|foot=1|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it. A steam configuration that made RF free is now rejected.}}
 
 == See also ==
 

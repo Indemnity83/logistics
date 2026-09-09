@@ -40,6 +40,8 @@ The Pump drains fluid source blocks from the world below it into an internal buf
 * Drains one source block (1,000 mB) every 16 ticks — a sustained average of '''62.5 mB/t''' into an adjacent tank or fluid pipe
 * Consumes '''100 RF''' per source block drained — no power, no pumping
 
+The Pump lowers an intake tube from its underside to reach the fluid below. The tube descends until it meets a block that blocks movement, so a solid block laid under the pump stops it — including a waterlogged one, which seals a pocket off just as a dry block would. Fluid itself never stops the tube.
+
 === Power ===
 
 The Pump runs on [[RF Energy|RF]] and keeps its own internal buffer. Supply it with RF from your power system — an [[Engines|engine]], a [[Battery]], or [[Cables]] — to keep it draining; with no power it stops.
@@ -56,7 +58,8 @@ Place a [[Glass Tank]] or [[Copper Fluid Pipe]] against the output to carry away
 
 {{History|head=1|v0.7.3|[[File:Grid Pump (v0.7.3).png|32px]] Added '''Pump'''.}}
 {{History|v0.8.0|[[File:Grid Fluid Pump.png|32px]] The texture of the Pump has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
-{{History|foot=1|v0.8.1|Fixed a bug that prevented the Pump from receiving energy from anything except a directly-adjacent engine; it now accepts power from [[Cables]] and a [[Battery]] too.}}
+{{History|v0.8.1|Fixed a bug that prevented the Pump from receiving energy from anything except a directly-adjacent engine; it now accepts power from [[Cables]] and a [[Battery]] too.}}
+{{History|foot=1|v0.8.8|The intake tube now stops at a waterlogged block instead of descending through it.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system

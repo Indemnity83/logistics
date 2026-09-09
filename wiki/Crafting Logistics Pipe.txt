@@ -39,7 +39,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Crafting Logistics Pipe.png|32px]] Added '''Crafting Logistics Pipe'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|foot=1|v0.8.8|A crafting batch now orders only what was actually requested, and a replanned request keeps the part it could already source.}}
 
 == See also ==
 

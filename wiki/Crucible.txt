@@ -35,7 +35,7 @@ Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception
 
 == Usage ==
 
-Place a block or item in the single input slot; the Crucible melts it over time and deposits the resulting fluid into its 10,000 mB output-only tank. Drain the tank with a [[Fluid Extractor Pipe]] or [[Fluid Pump|Pump]], or connect [[Fluid Pipes]] directly. The front face shows a gauge of the stored fluid.
+Place a block or item in the single input slot; the Crucible melts it over time and deposits the resulting fluid into its 10,000 mB output-only tank. Hoppers and pipes can only fill the input slot with something a loaded recipe melts — anything else is refused rather than left stuck in the machine. Drain the tank with a [[Fluid Extractor Pipe]] or [[Fluid Pump|Pump]], or connect [[Fluid Pipes]] directly. The front face shows a gauge of the stored fluid.
 
 === Power ===
 
@@ -77,7 +77,8 @@ Recipes appear in the Just Enough Items (JEI) viewer. Amounts are the millibucke
 == History ==
 
 {{History|head=1|v0.8.2|[[File:Grid Crucible.png|32px]] Added '''Crucible'''.}}
-{{History|foot=1|v0.8.7|The progress gauge is now drawn as a falling droplet.}}
+{{History|v0.8.7|The progress gauge is now drawn as a falling droplet.}}
+{{History|foot=1|v0.8.8|The input slot now refuses items no loaded recipe can melt, so a wrongly-routed item can no longer jam the machine.}}
 
 == See also ==
 

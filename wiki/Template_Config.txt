@@ -9,20 +9,23 @@
 {{!}} <code>{{{3}}}</code>
 {{!}} {{{4}}}
 {{#if:{{{foot|}}}|{{)!}}}}</includeonly><noinclude>
-Renders one row of a '''config''' table for an option in <code>config/logistics.json</code>. Columns
-are '''Config''' (the key, shown in a code block), '''Description''', '''Default''', and '''Type'''.
-Stack one {{Config}} call per row: '''head=1''' on the first (opens the table + header), '''foot=1'''
-on the last (closes it). A single-row table sets both.
+Renders one row of a '''config''' table for an option in one of the mod's per-domain config files,
+<code>config/logistics/&lt;domain&gt;.json</code> (for example <code>machines.quarry.json</code> or
+<code>power.battery.json</code>). Columns are '''Config''' (the key, shown in a code block),
+'''Description''', '''Default''', and '''Type'''. Stack one {{Config}} call per row: '''head=1''' on
+the first (opens the table + header), '''foot=1''' on the last (closes it). A single-row table sets
+both.
 
-Every option is changed the same way, so the command form is written in page prose rather than
-repeated per row: <code>/logistics config set &lt;config&gt; &lt;value&gt;</code> (operator only;
-<code>get</code>, <code>list</code>, and <code>reload</code> are the other subcommands).
+Keys within a domain are unique, so the domain is written once in page prose rather than repeated
+per row: <code>/logistics config &lt;domain&gt; &lt;key&gt; &lt;value&gt;</code> sets a value
+(operator only), the same command without a value shows it, and without a key lists the domain.
+<code>/logistics reload-configs</code> re-reads the files from disk.
 
 Usage:
- {{Config|head=1|foot=1|quarry_load_chunks|Keep the quarry and its work area chunk-loaded while running.|false|Boolean}}
+ {{Config|head=1|foot=1|load_chunks|Keep the quarry and its work area chunk-loaded while running.|false|Boolean}}
 
- {{Config|head=1|quarry_area|Quarry mining area side length (N×N blocks).|16|Integer}}
- {{Config|foot=1|quarry_energy_per_block|RF cost per block mined.|60|Integer}}
+ {{Config|head=1|area|Quarry mining area side length (N×N blocks).|16|Integer}}
+ {{Config|foot=1|energy_per_block|RF cost per block mined.|60|Integer}}
 
 Parameters:
  1   — the config key (as registered for the <code>/logistics config</code> command)

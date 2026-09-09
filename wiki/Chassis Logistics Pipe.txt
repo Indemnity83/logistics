@@ -50,7 +50,8 @@ Like every [[Logistics Pipes|logistics pipe]], the chassis draws [[RF Energy|RF]
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Chassis Logistics Pipe MkI.png|32px]] Added the '''Chassis Logistics Pipe''' (MK1–MK5).}}
-{{History|foot=1|v0.8.3|Recipe reworked — each mark is now a plain material ring (or a [[Chipsets|chipset]] recipe) instead of valves.}}
+{{History|v0.8.3|Recipe reworked — each mark is now a plain material ring (or a [[Chipsets|chipset]] recipe) instead of valves.}}
+{{History|foot=1|v0.8.8|Sink modules keep working after the network they are on splits, shift-clicking a module out of the chassis now detaches it, and a module's menu closes when the pipe holding it is broken or the player walks out of reach.}}
 
 == See also ==
 
