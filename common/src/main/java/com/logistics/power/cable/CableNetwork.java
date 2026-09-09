@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -188,6 +190,32 @@ public class CableNetwork {
 
     private static boolean isPositionLoaded(Level level, BlockPos pos) {
         return level.isLoaded(pos);
+    }
+
+    /**
+     * Carries this tick's transfer accounting over from the networks this one replaces, so a
+     * rebuild cannot hand the same cables a second budget within a tick.
+     *
+     * <p>Only predecessors sharing a cable are folded in — a network that took over none of their
+     * cables starts on its own budget. Accounting stamped with an earlier tick is ignored, so a
+     * genuinely new tick still begins empty.
+     *
+     * <p>A split gives both halves the whole of their predecessor's usage, and a merge sums its
+     * predecessors': always at least what was already spent, never less.
+     */
+    void inheritAccounting(Level level, Collection<CableNetwork> predecessors) {
+        for (CableNetwork predecessor : predecessors) {
+            if (predecessor == this) continue;
+            if (predecessor.accountingGameTime != level.getGameTime()) continue;
+            if (Collections.disjoint(predecessor.cablePositions, cablePositions)) continue;
+
+            resetAccountingIfNeeded(level);
+            transferredThisTick =
+                    CableNetworkPlanner.saturatedAdd(transferredThisTick, predecessor.transferredThisTick);
+            predecessor.cableTransferredThisTick.forEach((cablePos, amount) ->
+                    cableTransferredThisTick.merge(cablePos, amount, CableNetworkPlanner::saturatedAdd));
+            predecessor.allocationDebt.forEach(allocationDebt::putIfAbsent);
+        }
     }
 
     private void resetAccountingIfNeeded(Level level) {
