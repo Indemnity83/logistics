@@ -67,17 +67,18 @@ public class ModuleGameTest {
     }
 
     /**
-    * Test that filter module routes items based on configured filters.
-    */
-    @GameTest(template = "fabric-gametest-api-v1:empty")
+     * A diamond travelling into a filter pipe filtered to diamonds on NORTH lands in the NORTH
+     * chest, not the unfiltered EAST one.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testFilterModuleRoutesMatchingItems(GameTestHelper context) {
         ModuleGameTestBody.testFilterModuleRoutesMatchingItems(context);
     }
 
     /**
-    * Test that filter module passes through non-matching items.
-    */
-    @GameTest(template = "fabric-gametest-api-v1:empty")
+     * An item matching no side filter falls back to the unfiltered side and is delivered there.
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testFilterModulePassesThroughNonMatching(GameTestHelper context) {
         ModuleGameTestBody.testFilterModulePassesThroughNonMatching(context);
     }

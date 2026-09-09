@@ -101,4 +101,13 @@ public final class PipeFlowGameTestRegistration {
     public static void testTravelingItemSurvivesPipeReconstruction(GameTestHelper context) {
         PipeFlowGameTestBody.testTravelingItemSurvivesPipeReconstruction(context);
     }
+
+    /**
+     * A vanilla hopper aimed at a transport pipe must neither get its item in nor lose it — the
+     * pipe's real doorway, driven by a real block rather than {@code forceAddItem}.
+     */
+    @GameTest(template = "empty", batch = "pipeflow", timeoutTicks = 80)
+    public static void testHopperCannotInsertIntoTransportPipe(GameTestHelper context) {
+        PipeFlowGameTestBody.testHopperCannotInsertIntoTransportPipe(context);
+    }
 }

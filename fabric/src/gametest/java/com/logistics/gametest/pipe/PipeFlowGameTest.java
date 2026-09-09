@@ -86,16 +86,28 @@ public class PipeFlowGameTest {
     }
 
     /**
-    * Verifies that {@link TravelingItem#CODEC} can serialize and deserialize an enchanted
-    * {@link ItemStack} without throwing {@code IllegalStateException: Can't access registry}.
-    *
-    * <p>Regression test for: the crash described above, caused by using {@code NbtOps.INSTANCE}
-    * instead of {@code RegistryOps} when encoding registry-backed components (e.g. enchantments).
-    * The fix ensures every {@code ItemStack.CODEC} call site in the pipe layer uses a
-    * registry-aware {@code RegistryOps} context.
-    *
-    * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testenchantedtravelingitemserialization
-    */
+     * A vanilla hopper aimed at a transport pipe must neither get its item in nor lose it —
+     * the pipe's real doorway, driven by a real block instead of {@code forceAddItem}.
+     *
+     * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testhoppercannotinsertintotransportpipe
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testHopperCannotInsertIntoTransportPipe(GameTestHelper context) {
+        PipeFlowGameTestBody.testHopperCannotInsertIntoTransportPipe(context);
+    }
+
+    /**
+     * Verifies that {@link com.logistics.core.lib.pipe.TravelingItem#CODEC} can serialize and
+     * deserialize an enchanted item stack without throwing
+     * {@code IllegalStateException: Can't access registry}.
+     *
+     * <p>Regression test for: the crash described above, caused by using {@code NbtOps.INSTANCE}
+     * instead of {@code RegistryOps} when encoding registry-backed components (e.g. enchantments).
+     * The fix ensures every {@code ItemStack.CODEC} call site in the pipe layer uses a
+     * registry-aware {@code RegistryOps} context.
+     *
+     * <p>Run in-game: /test run logistics-gametest.pipeflowgametest.testenchantedtravelingitemserialization
+     */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1)
     public void testEnchantedTravelingItemSerialization(GameTestHelper context) {
         PipeFlowGameTestBody.testEnchantedTravelingItemSerialization(context);
