@@ -98,11 +98,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static final ConfigKey<Long> FLUID_PACKET_MAX_MB =
                 fluidLogistics.defineLong("fluid_packet_max_mb", 5000L)
                         .min(1L)
-                        // Bounds FluidProviderModule's MAX_PACKETS_PER_DISPATCH (64) * maxMb so that
-                        // dispatch-cap multiplication can never overflow — an overflow there previously
-                        // threw out of onFluidDispatch, which tickFluidDispatch treats as a failed
-                        // dispatch and de-registers the provider entirely.
-                        .max(Long.MAX_VALUE / 64)
+                        // Bounds MAX_PACKETS_PER_DISPATCH * maxMb so the dispatch cap can never
+                        // overflow — an overflow throws out of onFluidDispatch, and tickFluidDispatch
+                        // treats that as a failed dispatch and drops the provider's supply until its
+                        // next scan re-registers it.
+                        .max(Long.MAX_VALUE / FluidProviderModule.MAX_PACKETS_PER_DISPATCH)
                         .describe("Max mB carried by a single fluid packet (no minimum — a packet may be smaller)")
                         .register();
 

@@ -47,7 +47,8 @@ public class FluidProviderModule implements Module, TickingModule, FluidDispatch
 
     private static final int SCAN_INTERVAL = 6;   // Refresh supply every 6 ticks (~3x/second)
     private static final int SUPPLY_PRIORITY = 1;  // Real stock; lower = preferred (mirrors ProviderModule)
-    private static final int MAX_PACKETS_PER_DISPATCH = 64;
+    /** Caps one dispatch at this many packets; bounds {@code FLUID_PACKET_MAX_MB} so the product can't overflow. */
+    public static final int MAX_PACKETS_PER_DISPATCH = 64;
 
     // ==================== Module Interface ====================
 
