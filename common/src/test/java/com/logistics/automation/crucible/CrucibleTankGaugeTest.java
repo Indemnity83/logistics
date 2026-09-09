@@ -7,7 +7,6 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.SimpleContainerData;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +35,7 @@ class CrucibleTankGaugeTest extends MinecraftTestEnvironment {
         data.set(CrucibleBlockEntity.DATA_FLUID_ID, 0);
         data.set(CrucibleBlockEntity.DATA_FLUID_AMOUNT, amountMb);
         data.set(CrucibleBlockEntity.DATA_FLUID_CAPACITY, capacityMb);
-        return new CrucibleScreenHandler(0, new Inventory(null, new EntityEquipment()), new SimpleContainer(1), data);
+        return new CrucibleScreenHandler(0, new Inventory(null), new SimpleContainer(1), data);
     }
 
     @Test

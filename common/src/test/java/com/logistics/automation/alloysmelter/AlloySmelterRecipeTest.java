@@ -137,7 +137,7 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
                     Optional.of(new RecipeByproduct(Items.GOLD_NUGGET, 0.1f)));
             CompoundTag encoded = (CompoundTag)
                     AlloySmelterRecipeSerializer.CODEC.codec().encodeStart(ops, original).getOrThrow();
-            encoded.getCompound("byproduct").orElseThrow().putFloat("chance", -0.1f);
+            encoded.getCompound("byproduct").putFloat("chance", -0.1f);
 
             DataResult<AlloySmelterRecipe> result = AlloySmelterRecipeSerializer.CODEC.codec().parse(ops, encoded);
 

@@ -4,13 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.LogisticsPower;
 import com.logistics.test.MinecraftTestEnvironment;
-import java.util.Set;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,17 +30,23 @@ class CableRenderConnectionMaskTest extends MinecraftTestEnvironment {
 
     @BeforeAll
     static void createTestCable() {
-        cableBlock = new CableBlock(BlockBehaviour.Properties.of()
-                .setId(ResourceKey.create(Registries.BLOCK, Identifier.parse("logistics:test_cable"))));
+        // 1.21.1's BlockBehaviour.Properties has no setId; blocks carry no id until registration.
+        cableBlock = new CableBlock(BlockBehaviour.Properties.of());
         // The loader service that normally builds block-entity types has no implementation on the
         // common test classpath, so stand the vanilla type up directly; the block entity only needs
         // it to accept its own block state.
-        LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY =
-                new BlockEntityType<>(CableBlockEntity::new, Set.of(cableBlock));
+        LogisticsPower.ENTITY.CABLE_BLOCK_ENTITY = borrowedType();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static BlockEntityType<CableBlockEntity> borrowedType() {
+        return (BlockEntityType<CableBlockEntity>) (BlockEntityType<?>) BlockEntityType.FURNACE;
     }
 
     private static CableBlockEntity cable() {
-        return new CableBlockEntity(BlockPos.ZERO, cableBlock.defaultBlockState());
+        // The borrowed vanilla type only validates its own block; the resolver is injected, so
+        // the state is inert here.
+        return new CableBlockEntity(BlockPos.ZERO, Blocks.FURNACE.defaultBlockState());
     }
 
     @Test
