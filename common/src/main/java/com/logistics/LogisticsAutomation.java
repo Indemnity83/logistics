@@ -279,7 +279,8 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
 
         static void register() {
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
-                props -> new LaserQuarryBlock(props.strength(5.0f).sound(SoundType.STONE)));
+                props -> new LaserQuarryBlock(
+                    props.strength(5.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             LASER_QUARRY_FRAME = INSTANCE.registerBlock("laser_quarry_frame",
                 props -> new LaserQuarryFrameBlock(props.strength(2.0f).noOcclusion().noLootTable()));
             KILN = INSTANCE.registerBlockWithItem("kiln",
