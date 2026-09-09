@@ -51,13 +51,39 @@ public class ChassisInventory implements Container {
     }
 
     /** Call the module's onDetach lifecycle hook so it can clean up network registrations. */
-    private void detachModule(ItemStack stack) {
+    void detachModule(ItemStack stack) {
         if (pipeEntity == null) return;
         Level level = pipeEntity.getLevel();
         if (level == null || level.isClientSide()) return;
         if (!(stack.getItem() instanceof ModuleItem moduleItem)) return;
         var module = moduleItem.createModule();
         module.onDetach(pipeEntity.createContext().withModuleStateKey(module, ChassisPipe.moduleStateKey(stack, module)));
+    }
+
+    /**
+     * Writes the live module config onto the stack in {@code slot} and returns a copy of it, for a
+     * caller that empties the slot itself and so must drive {@link #releaseModule} by hand.
+     */
+    ItemStack prepareRemoval(int slot) {
+        if (slot < 0 || slot >= items.size()) return ItemStack.EMPTY;
+        ItemStack stack = items.get(slot);
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+        if (pipeEntity != null) {
+            syncStateToItem(stack);
+        }
+        return stack.copy();
+    }
+
+    /**
+     * A module has left the chassis: run its detach hook, then drop the pipe's copy of its state.
+     * Detach runs first because a module's teardown may read that state — the crafting module
+     * cancels its outstanding ingredient orders from the saved queue.
+     */
+    void releaseModule(ItemStack outgoing) {
+        detachModule(outgoing);
+        if (pipeEntity != null && outgoing.getItem() instanceof ModuleItem moduleItem) {
+            pipeEntity.clearModuleState(ChassisPipe.moduleStateKey(outgoing, moduleItem.createModule()));
+        }
     }
 
     /** Before returning a module item, copy the block entity module state → item's CustomData. */
@@ -142,12 +168,8 @@ public class ChassisInventory implements Container {
             syncStateToItem(result);
         }
         existing.shrink(removed);
-        if (existing.isEmpty()) items.set(slot, ItemStack.EMPTY);
         if (existing.isEmpty()) {
-            detachModule(result);
-            if (pipeEntity != null && result.getItem() instanceof ModuleItem moduleItem) {
-                pipeEntity.clearModuleState(ChassisPipe.moduleStateKey(result, moduleItem.createModule()));
-            }
+            releaseModule(result);
             items.set(slot, ItemStack.EMPTY);
         }
         saveToEntity();
@@ -170,11 +192,8 @@ public class ChassisInventory implements Container {
         if (!previous.isEmpty() && (stack.isEmpty() || !ItemStack.isSameItemSameComponents(previous, stack))) {
             if (pipeEntity != null) {
                 syncStateToItem(previous);
-                if (previous.getItem() instanceof ModuleItem moduleItem) {
-                    pipeEntity.clearModuleState(ChassisPipe.moduleStateKey(previous, moduleItem.createModule()));
-                }
             }
-            detachModule(previous);
+            releaseModule(previous);
         }
         items.set(slot, stack);
         if (!stack.isEmpty() && pipeEntity != null) {
