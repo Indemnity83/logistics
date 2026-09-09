@@ -38,12 +38,22 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
     /** Server-side constructor — called via SimpleMenuProvider. */
     public ChassisScreenHandler(
             int syncId, Container playerInventory, int slotCount, PipeBlockEntity pipeEntity) {
+        this(syncId, playerInventory, slotCount, pipeEntity, new ChassisInventory(pipeEntity));
+    }
+
+    /** Test seam: the module inventory is normally derived from {@code pipeEntity}. */
+    ChassisScreenHandler(
+            int syncId,
+            Container playerInventory,
+            int slotCount,
+            @Nullable PipeBlockEntity pipeEntity,
+            ChassisInventory chassisInventory) {
         super(menuTypeFor(slotCount), syncId);
         if (slotCount != 1 && slotCount != 2 && slotCount != 3 && slotCount != 4 && slotCount != 8)
             throw new IllegalArgumentException("Invalid chassis slot count: " + slotCount);
         this.slotCount = slotCount;
         this.pipeEntity = pipeEntity;
-        this.chassisInventory = new ChassisInventory(pipeEntity);
+        this.chassisInventory = chassisInventory;
 
         addChassisSlots();
         addPlayerInventorySlots(playerInventory);
@@ -96,17 +106,33 @@ public class ChassisScreenHandler extends AbstractContainerMenu {
         Slot slot = slots.get(index);
         if (slot == null || !slot.hasItem()) return ItemStack.EMPTY;
         ItemStack stack = slot.getItem();
+        if (index < slotCount) return quickMoveModuleOut(player, slot, index, stack);
+
+        // Player inventory → chassis slot (only ModuleItems)
         ItemStack original = stack.copy();
-        if (index < slotCount) {
-            // Chassis slot → player inventory
-            if (!moveItemStackTo(stack, slotCount, slotCount + 36, true)) return ItemStack.EMPTY;
-        } else {
-            // Player inventory → chassis slot (only ModuleItems)
-            if (!(stack.getItem() instanceof ModuleItem)) return ItemStack.EMPTY;
-            if (!moveItemStackTo(stack, 0, slotCount, false)) return ItemStack.EMPTY;
-        }
+        if (!(stack.getItem() instanceof ModuleItem)) return ItemStack.EMPTY;
+        if (!moveItemStackTo(stack, 0, slotCount, false)) return ItemStack.EMPTY;
         if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
         else slot.setChanged();
+        if (stack.getCount() == original.getCount()) return ItemStack.EMPTY;
+        slot.onTake(player, stack);
+        return original;
+    }
+
+    /**
+     * Chassis slot → player inventory. The move empties the slot's own stack in place, which leaves
+     * {@link ChassisInventory#setItem} nothing to recognize as a removal, so the module's config
+     * sync and detach are driven from here instead.
+     */
+    private ItemStack quickMoveModuleOut(Player player, Slot slot, int index, ItemStack stack) {
+        ItemStack original = chassisInventory.prepareRemoval(index);
+        if (!moveItemStackTo(stack, slotCount, slotCount + 36, true)) return ItemStack.EMPTY;
+        if (stack.isEmpty()) {
+            chassisInventory.releaseModule(original);
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
         if (stack.getCount() == original.getCount()) return ItemStack.EMPTY;
         slot.onTake(player, stack);
         return original;
