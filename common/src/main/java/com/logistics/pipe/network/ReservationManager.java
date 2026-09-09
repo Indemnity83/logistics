@@ -19,6 +19,10 @@ import java.util.function.Predicate;
  * <p>Effective availability for a provider/item pair is:
  * <pre>  raw - sum(amount of active reservations for (provider, item))</pre>
  *
+ * <p>Invariant: only <em>active</em> reservations are stored. A reservation that reaches a
+ * terminal state is dropped, so the map does not accumulate dead entries that every
+ * availability scan would then have to walk.
+ *
  * <p>Zero Minecraft API coupling — 100% testable with pure Java.
  */
 public class ReservationManager {
@@ -49,9 +53,14 @@ public class ReservationManager {
 
     /**
      * Transition a reservation to a new state by its ID.
-     * No-op if the reservation does not exist.
+     * No-op if the reservation does not exist. A transition into a terminal state
+     * ({@code DELIVERED}/{@code INVALIDATED}) drops the reservation instead of storing it.
      */
     public void transition(ReservationId id, AllocationState newState) {
+        if (!newState.isActive()) {
+            byId.remove(id);
+            return;
+        }
         ItemReservation res = byId.get(id);
         if (res != null) res.state = newState;
     }
@@ -61,11 +70,15 @@ public class ReservationManager {
      * Affects the first active reservation found for the given order.
      */
     public void transitionByOrder(UUID orderId, AllocationState newState) {
-        for (ItemReservation res : byId.values()) {
-            if (res.orderId.equals(orderId) && res.state.isActive()) {
+        for (var it = byId.values().iterator(); it.hasNext(); ) {
+            ItemReservation res = it.next();
+            if (!res.orderId.equals(orderId) || !res.state.isActive()) continue;
+            if (newState.isActive()) {
                 res.state = newState;
-                return;
+            } else {
+                it.remove();
             }
+            return;
         }
     }
 
@@ -85,13 +98,13 @@ public class ReservationManager {
     }
 
     /**
-     * Mark a reservation as {@link AllocationState#INVALIDATED}.
-     * Invalidated reservations no longer count against effective availability but remain
-     * visible for replanning (future phase).
+     * Invalidate a reservation that can no longer be fulfilled.
+     * {@link AllocationState#INVALIDATED} is terminal, so the reservation is dropped rather
+     * than kept as a dead entry: it stops counting against effective availability and stops
+     * being walked by every subsequent availability scan.
      */
     public void invalidate(ReservationId id) {
-        ItemReservation res = byId.get(id);
-        if (res != null) res.state = AllocationState.INVALIDATED;
+        byId.remove(id);
     }
 
     /**
@@ -99,11 +112,7 @@ public class ReservationManager {
      * Called when a provider returned 0 items during dispatch.
      */
     public void invalidateByProvider(BlockPos provider) {
-        for (ItemReservation res : byId.values()) {
-            if (res.provider.equals(provider) && res.state.isActive()) {
-                res.state = AllocationState.INVALIDATED;
-            }
-        }
+        byId.values().removeIf(r -> r.provider.equals(provider) && r.state.isActive());
     }
 
     /**
@@ -178,6 +187,7 @@ public class ReservationManager {
 
     /**
      * Absorb all reservations from another manager (used when two networks join).
+     * Both sides hold only active reservations, so no dead entries cross over.
      */
     public void merge(ReservationManager other) {
         byId.putAll(other.byId);
