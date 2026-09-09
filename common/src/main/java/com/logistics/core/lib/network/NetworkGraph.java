@@ -35,6 +35,19 @@ public class NetworkGraph implements INetworkGraph {
             }
         };
 
+    // Per-source hop-distance tables. Selection compares several candidates against ONE source, so
+    // the table is keyed by source: one BFS answers "how far is each candidate from here" for the
+    // whole tie, instead of one BFS per candidate. Same LRU bound and same wholesale invalidation
+    // as the next-hop tables above.
+    private static final int DISTANCE_CACHE_MAX = 64;
+    private final Map<BlockPos, Map<BlockPos, Integer>> distanceCache =
+        new LinkedHashMap<>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<BlockPos, Map<BlockPos, Integer>> eldest) {
+                return size() > DISTANCE_CACHE_MAX;
+            }
+        };
+
     private static final int PATH_CACHE_MAX_AGE = 200;
 
     private record PathKey(BlockPos start, BlockPos end) {}
@@ -103,6 +116,46 @@ public class NetworkGraph implements INetworkGraph {
         return table.get(current);
     }
 
+    @Override
+    public int hopDistance(BlockPos from, BlockPos to) {
+        if (!nodes.contains(from) || !nodes.contains(to)) {
+            return HopDistance.UNREACHABLE;
+        }
+
+        Map<BlockPos, Integer> table = distanceCache.get(from);
+        if (table == null) {
+            table = computeDistanceTable(from);
+            distanceCache.put(from, table);
+        }
+        Integer hops = table.get(to);
+        return hops == null ? HopDistance.UNREACHABLE : hops;
+    }
+
+    /**
+     * Breadth-first search outward from {@code source} over the unweighted graph, recording the
+     * hop depth of every reachable node. One pass answers the distance to every candidate.
+     */
+    private Map<BlockPos, Integer> computeDistanceTable(BlockPos source) {
+        Map<BlockPos, Integer> distance = new HashMap<>();
+        Queue<BlockPos> queue = new ArrayDeque<>();
+        distance.put(source, 0);
+        queue.add(source);
+
+        while (!queue.isEmpty()) {
+            BlockPos current = queue.poll();
+            int next = distance.get(current) + 1;
+            for (Direction dir : Direction.values()) {
+                BlockPos neighbor = current.relative(dir);
+                if (!nodes.contains(neighbor) || distance.containsKey(neighbor)) {
+                    continue;
+                }
+                distance.put(neighbor, next);
+                queue.add(neighbor);
+            }
+        }
+        return distance;
+    }
+
     /**
      * Breadth-first search outward from {@code goal} over the unweighted graph, recording for each
      * reachable node the direction of its first step along a shortest path back to {@code goal}.
@@ -143,11 +196,12 @@ public class NetworkGraph implements INetworkGraph {
     }
 
     /**
-     * Invalidate all cached routing data (paths and next-hop tables).
+     * Invalidate all cached routing data (paths, next-hop tables and distance tables).
      * Called when graph topology changes (add/remove nodes).
      */
     private void invalidatePathCache() {
         pathCache.clear();
         nextHopCache.clear();
+        distanceCache.clear();
     }
 }

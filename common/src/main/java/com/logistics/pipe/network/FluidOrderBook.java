@@ -3,6 +3,8 @@ package com.logistics.pipe.network;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.network.FluidResourceKey;
 import com.logistics.core.lib.network.FulfillmentMode;
+import com.logistics.core.lib.network.HopDistance;
+import com.logistics.core.lib.network.RoutingPreference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluid;
 
@@ -55,8 +57,20 @@ public class FluidOrderBook {
     /** Command returned by {@link #nextDispatchable()} describing what the network wants dispatched. */
     public record FluidDispatchCommand(UUID orderId, BlockPos provider, BlockPos requester, Fluid fluid, long amountMb) {}
 
-    // Per-fluid supply entries, sorted by priority ascending (mirrors NetworkController.supplyTable)
+    // Per-fluid supply entries, held in the priority-then-position base order below
+    // (mirrors NetworkController.supplyTable)
     private final Map<FluidResourceKey, List<FluidSupplyEntry>> supplyTable = new HashMap<>();
+
+    /**
+     * Base order for the supply table: priority ascending, then the most positive position, so the
+     * table never reflects the order providers happened to register in.
+     */
+    private static final Comparator<FluidSupplyEntry> BASE_ORDER =
+            Comparator.comparingInt(FluidSupplyEntry::priority)
+                    .thenComparing(FluidSupplyEntry::pos, RoutingPreference::mostPositiveFirst);
+
+    // Routed distance oracle used to break priority ties in favour of the nearer provider.
+    private final HopDistance hopDistance;
 
     // Capacity committed to a dispatch attempt but not yet confirmed by a fresh supply scan. Only the
     // UNSHIPPED portion of a reservation is ever released early (see recordDispatched) — the SHIPPED
@@ -74,6 +88,18 @@ public class FluidOrderBook {
     // Per-requester outstanding mB = queued + in-transit. Decremented ONLY by a validated
     // delivery/failure acknowledgement. This is what getOrderedAmountFor returns.
     private final Map<BlockPos, Map<FluidResourceKey, Long>> orderedForRequester = new HashMap<>();
+
+    /** Creates a book with no distance knowledge; priority ties fall through to position. */
+    public FluidOrderBook() {
+        this(HopDistance.UNKNOWN);
+    }
+
+    /**
+     * @param hopDistance routed-distance oracle, normally the owning network's graph
+     */
+    public FluidOrderBook(HopDistance hopDistance) {
+        this.hopDistance = hopDistance;
+    }
 
     // ===== Supply Registration =====
 
@@ -99,7 +125,7 @@ public class FluidOrderBook {
         FluidResourceKey key = new FluidResourceKey(fluid);
         List<FluidSupplyEntry> list = supplyTable.computeIfAbsent(key, k -> new ArrayList<>());
         list.add(new FluidSupplyEntry(pos, availableMb, priority));
-        list.sort(Comparator.comparingInt(FluidSupplyEntry::priority));
+        list.sort(BASE_ORDER);
     }
 
     /** Remove all supply for a provider position (no tank found, tank emptied, or pipe removed). */
@@ -196,11 +222,12 @@ public class FluidOrderBook {
     }
 
     /**
-     * Attempt to create a dispatch command for one order against its supply entries, tried in priority
-     * order. A provider with no {@link #effectiveAvailable} right now is skipped in favor of the next.
+     * Attempt to create a dispatch command for one order against its supply entries, tried in
+     * {@link #orderedFor} order. A provider with no {@link #effectiveAvailable} right now is
+     * skipped in favor of the next.
      */
     private FluidDispatchCommand tryDispatch(FluidOrder order, List<FluidSupplyEntry> entries) {
-        for (FluidSupplyEntry supply : entries) {
+        for (FluidSupplyEntry supply : orderedFor(order.requester(), entries)) {
             long effective = effectiveAvailable(supply.pos(), order.fluid().fluid());
             if (effective <= 0) continue;
 
@@ -220,6 +247,20 @@ public class FluidOrderBook {
             return new FluidDispatchCommand(order.id(), supply.pos(), order.requester(), order.fluid().fluid(), effective);
         }
         return null;
+    }
+
+    /**
+     * Rank this order's providers: priority first, then {@link RoutingPreference} — fewer routed
+     * hops from the requester, then most positive position. Built per dispatch attempt because
+     * distance is measured from the requester, which differs per order; {@code thenComparing}
+     * keeps {@link HopDistance#hops} out of it unless two providers actually tie on priority.
+     */
+    private List<FluidSupplyEntry> orderedFor(BlockPos requester, List<FluidSupplyEntry> entries) {
+        if (entries.size() < 2) return List.copyOf(entries);
+        List<FluidSupplyEntry> ordered = new ArrayList<>(entries);
+        ordered.sort(Comparator.comparingInt(FluidSupplyEntry::priority)
+                .thenComparing(FluidSupplyEntry::pos, RoutingPreference.among(requester, hopDistance)));
+        return ordered;
     }
 
     private void reserve(BlockPos provider, long amountMb) {
@@ -424,7 +465,7 @@ public class FluidOrderBook {
                 myList.removeIf(e -> e.pos().equals(incoming.pos()));
                 myList.add(incoming);
             }
-            myList.sort(Comparator.comparingInt(FluidSupplyEntry::priority));
+            myList.sort(BASE_ORDER);
         }
 
         for (Map.Entry<BlockPos, Long> entry : other.committedMbByProvider.entrySet()) {
