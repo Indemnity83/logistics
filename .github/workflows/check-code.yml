@@ -69,10 +69,18 @@ jobs:
           # actually see changed: client code, rendering, or shipped assets.
           client_changed=false
           while IFS= read -r file; do
+            # Fail closed: everything counts as code unless it is listed here as inert.
+            # An allow-list of code paths defaults an unrecognised path to "skip", and a
+            # skipped Gradle job still reports success, so a path nobody thought about
+            # merges untested. This list is deliberately short -- only directories whose
+            # contents no Gradle task reads. Note what is NOT here: root-level *.md,
+            # *.yml, *.json and *.properties, plus **/*.gradle anywhere, are all targets
+            # of spotlessMisc and so are genuinely checked by `:common:lint`.
             case "$file" in
-              common/*|fabric/*|neoforge/*|buildSrc/*|gradle/*|\
-              build.gradle|settings.gradle|gradle.properties|gradlew|gradlew.bat|\
-              .github/workflows/check-code.yml)
+              .github/ISSUE_TEMPLATE/*|.github/PULL_REQUEST_TEMPLATE.md|\
+              .claude/*|.idea/*|.vscode/*|design/*|LICENSE)
+                ;;
+              *)
                 code_changed=true
                 ;;
             esac
@@ -155,7 +163,10 @@ jobs:
         module: [common, fabric, neoforge]
 
     steps:
-      - name: Skip lint for non-code changes
+      # The step name is a contract, not a label: automerge-dependabot.yml looks for
+      # this exact string to tell a job that verified something from one that only
+      # echoed. Both files must change together.
+      - name: SKIPPED (no code-affecting files changed)
         if: needs.changes.outputs.code_changed != 'true'
         run: echo "No code-affecting files changed; skipping Gradle lint."
 
@@ -194,7 +205,9 @@ jobs:
         module: [common, fabric, neoforge]
 
     steps:
-      - name: Skip tests for non-code changes
+      # See the note on the same step in the lint job: the name is the marker
+      # automerge-dependabot.yml asserts on.
+      - name: SKIPPED (no code-affecting files changed)
         if: needs.changes.outputs.code_changed != 'true'
         run: echo "No code-affecting files changed; skipping Gradle tests."
 
@@ -265,7 +278,9 @@ jobs:
             report: neoforge/build/test-results/gameTestServer/report.xml
 
     steps:
-      - name: Skip game tests for non-code changes
+      # See the note on the same step in the lint job: the name is the marker
+      # automerge-dependabot.yml asserts on.
+      - name: SKIPPED (no code-affecting files changed)
         if: needs.changes.outputs.code_changed != 'true'
         run: echo "No code-affecting files changed; skipping ${{ matrix.loader }} game tests."
 
@@ -315,6 +330,9 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      # Deliberately NOT the marker name used by the code-gated jobs above:
+      # client-test is not a required context and nothing merges on it, so its
+      # opt-in path filter must not veto Dependabot automerge.
       - name: Skip client feature tests for non-client changes
         if: needs.changes.outputs.client_changed != 'true'
         run: echo "No client, rendering, or asset files changed; skipping client feature tests."
