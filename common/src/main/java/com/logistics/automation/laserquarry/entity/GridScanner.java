@@ -1,8 +1,8 @@
 package com.logistics.automation.laserquarry.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
@@ -83,7 +83,7 @@ public final class GridScanner {
      * Skips air, fluids, and unbreakable blocks (bedrock, barriers, etc.) — treats lava as just
      * another skippable cell. Callers use {@link #isHazardousFluid} separately to recognize it.
      */
-    public static boolean shouldSkip(Level world, BlockPos pos, BlockState state) {
+    public static boolean shouldSkip(BlockGetter world, BlockPos pos, BlockState state) {
         if (state.isAir()) {
             return true;
         }
