@@ -1,11 +1,13 @@
 package com.logistics;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigKey;
 import com.indemnity83.configory.ConfigRegistry;
 import com.indemnity83.configory.storage.JsonFileConfigStorage;
+import com.logistics.pipe.modules.FluidProviderModule;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -86,6 +88,27 @@ class LogisticsConfigHostTest {
         // Restore defaults so the shared registry config doesn't leak into other tests.
         stirling.set(LogisticsPower.CONFIG.STIRLING_MIN_OUTPUT, 3.0);
         stirling.set(LogisticsPower.CONFIG.STIRLING_MAX_OUTPUT, 10.0);
+    }
+
+    @Test
+    @DisplayName("fluid packet size is capped so a dispatch's packet cap cannot overflow")
+    void fluidPacketMaxCannotOverflowDispatchCap() {
+        Config fluidLogistics = ConfigRegistry.config(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB.configId());
+        long packets = FluidProviderModule.MAX_PACKETS_PER_DISPATCH;
+        long ceiling = Long.MAX_VALUE / packets;
+
+        try {
+            // The largest accepted packet size still multiplies out without overflowing...
+            assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB, ceiling)).isTrue();
+            assertThatCode(() -> Math.multiplyExact(
+                    packets, LogisticsConfigHost.get(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB)))
+                .doesNotThrowAnyException();
+
+            // ...and anything larger is rejected before it can reach onFluidDispatch.
+            assertThat(fluidLogistics.trySet(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB, ceiling + 1)).isFalse();
+        } finally {
+            fluidLogistics.set(LogisticsPipe.CONFIG.FLUID_PACKET_MAX_MB, 5000L);
+        }
     }
 
     @Test
