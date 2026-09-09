@@ -42,5 +42,10 @@ public interface EnergyPushService {
         private static EnergyPushService instance;
 
         private Holder() {}
+
+        /** Restore the unset state — test isolation only; {@link #set} rejects null. */
+        static void clearForTest() {
+            instance = null;
+        }
     }
 }
