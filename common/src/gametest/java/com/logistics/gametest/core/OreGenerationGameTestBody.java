@@ -3,10 +3,15 @@ package com.logistics.gametest.core;
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsMod;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -22,6 +27,19 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
  * <p>Verifies that tin and apatite ore generation is properly configured.
  */
 public class OreGenerationGameTestBody {
+
+    /** Fixed seed so a vein's shape — and therefore this test's outcome — is reproducible. */
+    private static final long PLACEMENT_SEED = 0xC0FFEEL;
+
+    // The solid volume an ore feature is asked to replace, and the origin it is placed from.
+    // Deliberately small: GameTest cells are spawned six blocks apart, and OreFeature writes
+    // straight into chunk sections rather than through the level, so a vein reaching past this
+    // test's own cell would silently rewrite a concurrently running neighbour's blocks. With
+    // PLACEMENT_SEED the tin veins occupy x 1-2, y 1-2, z 0-3 — comfortably inside. Re-measure
+    // if either feature's size grows.
+    private static final BlockPos HOST_VOLUME_MIN = new BlockPos(0, 1, 0);
+    private static final BlockPos HOST_VOLUME_MAX = new BlockPos(4, 5, 4);
+    private static final BlockPos PLACEMENT_ORIGIN = new BlockPos(2, 3, 2);
 
     /**
      * Test that tin ore (stone variant) placed feature is registered.
@@ -188,51 +206,97 @@ public class OreGenerationGameTestBody {
     }
 
     /**
-     * Test that tin ore (stone variant) target predicate accepts stone blocks.
-     * Verifies the ore generation target configuration is correct.
+     * Runs the real tin ore feature against a solid stone volume and asserts tin ore appears.
+     *
+     * <p>The {@code ...Targets...} tests below only read the feature's declared replace rules
+     * back out of the registry; this one is the end-to-end claim — that the configured feature
+     * actually converts stone into tin ore when generation runs.
      */
-    public static void testTinOreCanReplaceStone(GameTestHelper context) {
-        // Get the configured feature from registry
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("tin_ore_stone").toIdentifier()
+    public static void testTinOreStoneFeatureGeneratesTinOre(GameTestHelper context) {
+        generateOreIntoHostVolume(context, "tin_ore_stone", Blocks.STONE, LogisticsCore.BLOCK.TIN_ORE);
+    }
+
+    /**
+     * Runs the real deepslate tin ore feature against a solid deepslate volume and asserts
+     * deepslate tin ore appears.
+     */
+    public static void testTinOreDeepslateFeatureGeneratesDeepslateTinOre(GameTestHelper context) {
+        generateOreIntoHostVolume(
+            context, "tin_ore_deepslate", Blocks.DEEPSLATE, LogisticsCore.BLOCK.DEEPSLATE_TIN_ORE);
+    }
+
+    /**
+     * Test that tin ore (stone variant) targets stone blocks. Reads the configured feature's
+     * replace rules back out of the registry — placement itself is covered by
+     * {@link #testTinOreStoneFeatureGeneratesTinOre}.
+     */
+    public static void testTinOreTargetsStone(GameTestHelper context) {
+        assertOreTargets(context, "tin_ore_stone", Blocks.STONE, LogisticsCore.BLOCK.TIN_ORE);
+    }
+
+    /**
+     * Test that deepslate tin ore targets deepslate blocks. Reads the configured feature's
+     * replace rules back out of the registry — placement itself is covered by
+     * {@link #testTinOreDeepslateFeatureGeneratesDeepslateTinOre}.
+     */
+    public static void testTinOreTargetsDeepslate(GameTestHelper context) {
+        assertOreTargets(context, "tin_ore_deepslate", Blocks.DEEPSLATE, LogisticsCore.BLOCK.DEEPSLATE_TIN_ORE);
+    }
+
+    /**
+     * Test that apatite ore targets stone blocks.
+     *
+     * <p>Apatite has no placement counterpart on purpose: its {@code size: 48} vein spreads
+     * roughly ten blocks from the origin, which is wider than a GameTest cell, so running it
+     * here would rewrite whatever a neighbouring test had placed.
+     */
+    public static void testApatiteOreTargetsStone(GameTestHelper context) {
+        assertOreTargets(context, "apatite_ore_stone", Blocks.STONE, LogisticsCore.BLOCK.APATITE_ORE);
+    }
+
+    /**
+     * Fills {@link #HOST_VOLUME_MIN}..{@link #HOST_VOLUME_MAX} with {@code host}, runs the named
+     * configured feature from the level's own registry, and asserts the volume now holds the
+     * expected ore and nothing else.
+     */
+    private static void generateOreIntoHostVolume(
+            GameTestHelper context, String featureName, Block host, Block expectedOre) {
+        ConfiguredFeature<?, ?> feature = configuredFeature(context, featureName);
+        if (feature == null) {
+            return;
+        }
+
+        for (BlockPos pos : BlockPos.betweenClosed(HOST_VOLUME_MIN, HOST_VOLUME_MAX)) {
+            context.setBlock(pos, host);
+        }
+
+        ServerLevel level = context.getLevel();
+        boolean placed = feature.place(
+            level,
+            level.getChunkSource().getGenerator(),
+            RandomSource.create(PLACEMENT_SEED),
+            context.absolutePos(PLACEMENT_ORIGIN)
         );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
+        if (!placed) {
+            context.fail(featureName + " generated nothing inside a solid " + blockName(host) + " volume");
             return;
         }
 
-        var featureHolder = registry.get().get(featureKey);
-        if (featureHolder.isEmpty()) {
-            context.fail("Tin ore stone configured feature not found");
-            return;
-        }
-
-        // Extract OreConfiguration
-        ConfiguredFeature<?, ?> feature = featureHolder.get().value();
-        if (!(feature.config() instanceof OreConfiguration oreConfig)) {
-            context.fail("Tin ore stone feature is not an OreConfiguration");
-            return;
-        }
-
-        // Test that the target predicate accepts stone blocks
-        boolean foundStoneTarget = false;
-        for (OreConfiguration.TargetBlockState target : oreConfig.targetStates) {
-            if (target.target.test(Blocks.STONE.defaultBlockState(), context.getLevel().getRandom())) {
-                foundStoneTarget = true;
-                // Verify it places tin ore
-                if (!target.state.is(LogisticsCore.BLOCK.TIN_ORE)) {
-                    context.fail("Stone target does not place tin ore, places: " + target.state.getBlock());
-                    return;
-                }
-                break;
+        int oreBlocks = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(HOST_VOLUME_MIN, HOST_VOLUME_MAX)) {
+            BlockState state = context.getBlockState(pos);
+            if (state.is(expectedOre)) {
+                oreBlocks++;
+            } else if (!state.is(host)) {
+                context.fail(featureName + " replaced " + blockName(host) + " at " + pos + " with "
+                    + blockName(state.getBlock()) + " instead of " + blockName(expectedOre));
+                return;
             }
         }
 
-        if (!foundStoneTarget) {
-            context.fail("Tin ore configuration does not target stone blocks");
+        if (oreBlocks == 0) {
+            context.fail(featureName + " left no " + blockName(expectedOre) + " in the " + blockName(host)
+                + " volume it generated into");
             return;
         }
 
@@ -240,106 +304,60 @@ public class OreGenerationGameTestBody {
     }
 
     /**
-     * Test that deepslate tin ore target predicate accepts deepslate blocks.
-     * Verifies the deepslate variant ore generation target configuration is correct.
+     * Asserts the named ore configuration declares a target that accepts {@code host} and places
+     * {@code expectedOre}.
      */
-    public static void testTinOreCanReplaceDeepslate(GameTestHelper context) {
-        // Get the configured feature from registry
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("tin_ore_deepslate").toIdentifier()
-        );
-
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
-        if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
+    private static void assertOreTargets(
+            GameTestHelper context, String featureName, Block host, Block expectedOre) {
+        ConfiguredFeature<?, ?> feature = configuredFeature(context, featureName);
+        if (feature == null) {
             return;
         }
 
-        var featureHolder = registry.get().get(featureKey);
-        if (featureHolder.isEmpty()) {
-            context.fail("Tin ore deepslate configured feature not found");
-            return;
-        }
-
-        // Extract OreConfiguration
-        ConfiguredFeature<?, ?> feature = featureHolder.get().value();
         if (!(feature.config() instanceof OreConfiguration oreConfig)) {
-            context.fail("Tin ore deepslate feature is not an OreConfiguration");
+            context.fail(featureName + " is not an OreConfiguration");
             return;
         }
 
-        // Test that the target predicate accepts deepslate blocks
-        boolean foundDeepslateTarget = false;
         for (OreConfiguration.TargetBlockState target : oreConfig.targetStates) {
-            if (target.target.test(Blocks.DEEPSLATE.defaultBlockState(), context.getLevel().getRandom())) {
-                foundDeepslateTarget = true;
-                // Verify it places deepslate tin ore
-                if (!target.state.is(LogisticsCore.BLOCK.DEEPSLATE_TIN_ORE)) {
-                    context.fail("Deepslate target does not place deepslate tin ore, places: " + target.state.getBlock());
-                    return;
-                }
-                break;
+            if (!target.target.test(host.defaultBlockState(), context.getLevel().getRandom())) {
+                continue;
             }
-        }
-
-        if (!foundDeepslateTarget) {
-            context.fail("Deepslate tin ore configuration does not target deepslate blocks");
+            if (!target.state.is(expectedOre)) {
+                context.fail(featureName + " replaces " + blockName(host) + " with "
+                    + blockName(target.state.getBlock()) + " instead of " + blockName(expectedOre));
+                return;
+            }
+            context.succeed();
             return;
         }
 
-        context.succeed();
+        context.fail(featureName + " does not target " + blockName(host));
     }
 
-    /**
-     * Test that apatite ore target predicate accepts stone blocks.
-     * Verifies the ore generation target configuration is correct.
-     */
-    public static void testApatiteOreCanReplaceStone(GameTestHelper context) {
-        // Get the configured feature from registry
+    /** Looks a mod configured feature up in the level's registry, failing the test if absent. */
+    private static ConfiguredFeature<?, ?> configuredFeature(GameTestHelper context, String featureName) {
         ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
             Registries.CONFIGURED_FEATURE,
-            LogisticsMod.modId("apatite_ore_stone").toIdentifier()
+            LogisticsMod.modId(featureName).toIdentifier()
         );
 
         var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
         if (registry.isEmpty()) {
             context.fail("Configured feature registry not available");
-            return;
+            return null;
         }
 
         var featureHolder = registry.get().get(featureKey);
         if (featureHolder.isEmpty()) {
-            context.fail("Apatite ore stone configured feature not found");
-            return;
+            context.fail(featureName + " configured feature not found");
+            return null;
         }
 
-        // Extract OreConfiguration
-        ConfiguredFeature<?, ?> feature = featureHolder.get().value();
-        if (!(feature.config() instanceof OreConfiguration oreConfig)) {
-            context.fail("Apatite ore stone feature is not an OreConfiguration");
-            return;
-        }
+        return featureHolder.get().value();
+    }
 
-        // Test that the target predicate accepts stone blocks
-        boolean foundStoneTarget = false;
-        for (OreConfiguration.TargetBlockState target : oreConfig.targetStates) {
-            if (target.target.test(Blocks.STONE.defaultBlockState(), context.getLevel().getRandom())) {
-                foundStoneTarget = true;
-                // Verify it places apatite ore
-                if (!target.state.is(LogisticsCore.BLOCK.APATITE_ORE)) {
-                    context.fail("Stone target does not place apatite ore, places: " + target.state.getBlock());
-                    return;
-                }
-                break;
-            }
-        }
-
-        if (!foundStoneTarget) {
-            context.fail("Apatite ore configuration does not target stone blocks");
-            return;
-        }
-
-        context.succeed();
+    private static String blockName(Block block) {
+        return String.valueOf(BuiltInRegistries.BLOCK.getKey(block));
     }
 }
