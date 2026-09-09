@@ -59,12 +59,27 @@ public class CableNetwork {
     private long accountingGameTime = Long.MIN_VALUE;
     private long transferredThisTick = 0;
 
+    private long deviceScanGameTime = Long.MIN_VALUE;
+    @Nullable
+    private DeviceConnections deviceScan;
+
+    private long transferLimitGameTime = Long.MIN_VALUE;
+    private long networkTransferLimit = 0;
+
     public Set<BlockPos> getCablePositions() {
-        return Set.copyOf(cablePositions);
+        return Collections.unmodifiableSet(cablePositions);
     }
 
     public boolean contains(BlockPos pos) {
         return cablePositions.contains(pos);
+    }
+
+    /** True while every cable in this network sits in a loaded chunk. */
+    boolean allPositionsLoaded(Level level) {
+        for (BlockPos pos : cablePositions) {
+            if (!isPositionLoaded(level, pos)) return false;
+        }
+        return true;
     }
 
     public boolean isEmpty() {
@@ -110,7 +125,7 @@ public class CableNetwork {
         resetAccountingIfNeeded(level);
         LogisticsProfiler.push("cable_scan");
         try {
-            DeviceConnections connections = collectDeviceConnections(level, null);
+            DeviceConnections connections = deviceConnections(level);
             LogisticsProfiler.popPush("cable_transfer");
             transferBetween(level, connections.sources(), connections.targets(), remainingNetworkTransfer(level));
         } finally {
@@ -126,18 +141,71 @@ public class CableNetwork {
         }
 
         resetAccountingIfNeeded(level);
-        CableNetworkPlanner.ConnectionKey excludedConnection = sourceSide == null
-                ? null
-                : new CableNetworkPlanner.ConnectionKey(entryCablePos.relative(sourceSide), sourceSide.getOpposite());
-        DeviceConnections connections = collectDeviceConnections(level, excludedConnection);
         long transferLimit = Math.min(
             maxAmount,
             Math.min(remainingCableTransfer(level, entryCablePos), remainingNetworkTransfer(level)));
-        return insertIntoTargets(level, connections.targets(), transferLimit, simulate, entryCablePos);
+        // Nothing to route once the budget is spent, and finding the devices is the expensive part.
+        if (transferLimit <= 0) {
+            return 0;
+        }
+
+        CableNetworkPlanner.ConnectionKey excludedConnection = sourceSide == null
+                ? null
+                : new CableNetworkPlanner.ConnectionKey(entryCablePos.relative(sourceSide), sourceSide.getOpposite());
+        List<DeviceConnection> targets = excluding(deviceConnections(level).targets(), excludedConnection);
+        return insertIntoTargets(level, targets, transferLimit, simulate, entryCablePos);
     }
 
-    private DeviceConnections collectDeviceConnections(
-            Level level, @Nullable CableNetworkPlanner.ConnectionKey excludedConnection) {
+    /**
+     * This tick's device scan, shared by every insert and by the network tick.
+     *
+     * <p>A push source calls {@code insert} once or twice per tick — and an engine per cable
+     * endpoint means many calls per tick on one network — so scanning per call made the walk over
+     * every cable's six faces, each a capability lookup, the network's dominant cost.
+     *
+     * <p>The cache cannot outlive the shape it describes: any cable or neighbouring block change
+     * marks the manager dirty, and the rebuild that follows replaces this network instance
+     * outright. Only a device that disappears without a block update — a chunk unloading out from
+     * under it — can leave an entry behind, so those are checked for before the scan is reused.
+     */
+    private DeviceConnections deviceConnections(Level level) {
+        long gameTime = level.getGameTime();
+        DeviceConnections cached = deviceScan;
+        if (cached != null && deviceScanGameTime == gameTime && isStillPresent(level, cached)) {
+            return cached;
+        }
+
+        DeviceConnections scanned = collectDeviceConnections(level);
+        deviceScan = scanned;
+        deviceScanGameTime = gameTime;
+        return scanned;
+    }
+
+    private static boolean isStillPresent(Level level, DeviceConnections connections) {
+        return isStillPresent(level, connections.sources()) && isStillPresent(level, connections.targets());
+    }
+
+    private static boolean isStillPresent(Level level, List<DeviceConnection> connections) {
+        for (DeviceConnection connection : connections) {
+            if (!isPositionLoaded(level, connection.pos())) return false;
+            if (connection.blockEntity() != null && connection.blockEntity().isRemoved()) return false;
+        }
+        return true;
+    }
+
+    /** Drops the connection a push source arrived through, so energy is never sent back into it. */
+    private static List<DeviceConnection> excluding(
+            List<DeviceConnection> connections, @Nullable CableNetworkPlanner.ConnectionKey excludedConnection) {
+        if (excludedConnection == null) return connections;
+
+        List<DeviceConnection> kept = new ArrayList<>(connections.size());
+        for (DeviceConnection connection : connections) {
+            if (!connection.key().equals(excludedConnection)) kept.add(connection);
+        }
+        return kept;
+    }
+
+    private DeviceConnections collectDeviceConnections(Level level) {
         List<DeviceConnection> sources = new ArrayList<>();
         List<DeviceConnection> targets = new ArrayList<>();
         Set<CableNetworkPlanner.ConnectionKey> seenConnections = new HashSet<>();
@@ -152,7 +220,6 @@ public class CableNetwork {
 
                 Direction side = dir.getOpposite();
                 CableNetworkPlanner.ConnectionKey key = new CableNetworkPlanner.ConnectionKey(neighborPos, side);
-                if (key.equals(excludedConnection)) continue;
 
                 IEnergyStorage storage = EnergyCapabilityLookup.INSTANCE.find(level, neighborPos, side);
                 if (storage != null) {
@@ -172,14 +239,27 @@ public class CableNetwork {
 
         sources.sort(DeviceConnection.ORDER);
         targets.sort(DeviceConnection.ORDER);
-        return new DeviceConnections(sources, targets);
+        return new DeviceConnections(List.copyOf(sources), List.copyOf(targets));
     }
 
+    /**
+     * The network's combined throughput rating, recomputed once per tick.
+     *
+     * <p>Invariant while the network's cables are: a tier change means a block change, which
+     * rebuilds the network into a new instance.
+     */
     private long getNetworkTransferLimit(Level level) {
+        long gameTime = level.getGameTime();
+        if (transferLimitGameTime == gameTime) {
+            return networkTransferLimit;
+        }
+
         long limit = 0;
         for (BlockPos cablePos : cablePositions) {
             limit = CableNetworkPlanner.saturatedAdd(limit, cableTransferRate(level, cablePos));
         }
+        networkTransferLimit = limit;
+        transferLimitGameTime = gameTime;
         return limit;
     }
 

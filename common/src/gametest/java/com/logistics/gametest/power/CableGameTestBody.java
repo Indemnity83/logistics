@@ -629,6 +629,91 @@ public class CableGameTestBody {
         });
     }
 
+    /**
+     * A consumer placed between two pushes in the same tick still receives the second one.
+     *
+     * <p>The tick's device scan is shared by every push in it, so the network has to notice the
+     * neighbourhood changing underneath that scan rather than serving the rest of the tick from a
+     * picture taken before the consumer existed.
+     */
+    public static void testDeviceAddedMidTickReceivesEnergy(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        if (cable == null) {
+            context.fail("Expected a cable block entity");
+            return;
+        }
+
+        IEnergyStorage endpoint = cable.energyStorage(Direction.WEST);
+        long rate = cable.getTransferRate();
+
+        long withNothingAttached = endpoint.insert(rate, false);
+        if (withNothingAttached != 0L) {
+            context.fail("A cable with no consumer should accept nothing, got: " + withNothingAttached);
+            return;
+        }
+
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+        CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
+        if (sink == null) {
+            context.fail("Expected a creative sink block entity");
+            return;
+        }
+        sink.setUnlimitedDrainRate();
+
+        long afterPlacing = endpoint.insert(rate, false);
+        if (afterPlacing != rate) {
+            context.fail("A consumer placed mid-tick should still receive this tick's push, got: " + afterPlacing);
+            return;
+        }
+        context.succeed();
+    }
+
+    /**
+     * A consumer broken between two pushes in the same tick receives nothing further.
+     *
+     * <p>The first push is simulated so it finds the sink without spending the tick's throughput
+     * budget — after a committed push the second would return zero whether or not the sink was
+     * still there, which would prove nothing.
+     */
+    public static void testDeviceRemovedMidTickReceivesNothing(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+
+        CableBlockEntity cable = context.getBlockEntity(cablePos, CableBlockEntity.class);
+        CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
+        if (cable == null || sink == null) {
+            context.fail("Expected cable and creative sink block entities");
+            return;
+        }
+        sink.setUnlimitedDrainRate();
+
+        IEnergyStorage endpoint = cable.energyStorage(Direction.WEST);
+        long rate = cable.getTransferRate();
+
+        long simulated = endpoint.insert(rate, true);
+        if (simulated != rate) {
+            context.fail("The sink should be found before it is removed, got: " + simulated);
+            return;
+        }
+
+        context.setBlock(sinkPos, Blocks.AIR);
+
+        long afterRemoval = endpoint.insert(rate, false);
+        if (afterRemoval != 0L) {
+            context.fail("Energy must not be sent to a consumer removed mid-tick, got: " + afterRemoval);
+            return;
+        }
+        context.succeed();
+    }
+
     private static void giveMaceratorWork(MaceratorBlockEntity machine) {
         machine.setItem(0, new ItemStack(Items.IRON_INGOT));
     }
