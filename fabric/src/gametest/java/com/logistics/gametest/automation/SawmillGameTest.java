@@ -79,4 +79,9 @@ public class SawmillGameTest {
     public void testSawsViaRealEngineAndHoppers(GameTestHelper context) {
         SawmillGameTestBody.testSawsViaRealEngineAndHoppers(context);
     }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        SawmillGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

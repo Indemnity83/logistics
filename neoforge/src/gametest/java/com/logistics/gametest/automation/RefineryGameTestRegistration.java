@@ -57,4 +57,15 @@ public final class RefineryGameTestRegistration {
     public static void testDistillsViaRealEngine(GameTestHelper context) {
         RefineryGameTestBody.testDistillsViaRealEngine(context);
     }
+
+    /**
+    * The refinery's only item slot is the byproduct output, and it is exposed for extraction from
+    * the bottom alone — no face admits an item. A hopper aimed at it must therefore keep its
+    * stack: nothing can be pushed into the machine, so nothing can jam it or be destroyed on the
+    * way in. Tar is the item most likely to be routed back at a refinery, being its own product.
+    */
+    @GameTest(template = "empty", batch = "refinery", timeoutTicks = 60)
+    public static void testHopperCannotInsertIntoByproductSlot(GameTestHelper context) {
+        RefineryGameTestBody.testHopperCannotInsertIntoByproductSlot(context);
+    }
 }

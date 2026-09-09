@@ -195,4 +195,40 @@ public class AlloySmelterGameTestBody {
 
         context.succeedWhen(() -> context.assertContainerContains(outputHopperPos, Items.IRON_INGOT));
     }
+
+    /**
+     * An item no alloy smelter recipe could use must never enter either input slot. Only the two
+     * output slots are extractable (from the bottom), so anything a hopper or pipe pushes into an
+     * input is stuck there until a player clears it by hand.
+     */
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        BlockPos smelterPos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = smelterPos.above();
+
+        AlloySmelterBlockEntity smelter = place(context, smelterPos);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        HopperBlockEntity hopper = (HopperBlockEntity) context.getBlockEntity(hopperPos);
+        if (smelter == null || hopper == null) {
+            context.fail("Expected alloy smelter and hopper block entities");
+            return;
+        }
+
+        // Dirt is an input to no alloy smelter recipe, and is in none of the tags they draw on.
+        hopper.setItem(0, new ItemStack(Items.DIRT));
+
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            if (!smelter.getItem(INPUT_A).isEmpty() || !smelter.getItem(INPUT_B).isEmpty()) {
+                context.fail("Alloy Smelter must refuse an item no recipe can use, inputs hold: "
+                        + smelter.getItem(INPUT_A) + " / " + smelter.getItem(INPUT_B));
+                return;
+            }
+            if (!hopper.getItem(0).is(Items.DIRT)) {
+                context.fail("Refused dirt should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
+        });
+    }
 }

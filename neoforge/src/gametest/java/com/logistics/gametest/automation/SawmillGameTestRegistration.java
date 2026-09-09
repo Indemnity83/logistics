@@ -87,4 +87,14 @@ public final class SawmillGameTestRegistration {
     public static void testSawsViaRealEngineAndHoppers(GameTestHelper context) {
         SawmillGameTestBody.testSawsViaRealEngineAndHoppers(context);
     }
+
+    /**
+    * An item no sawmill recipe could use must never enter the input slot. Only the two output
+    * slots are extractable (from the bottom), so anything a hopper or pipe pushes into the input
+    * is stuck there until a player clears it by hand.
+    */
+    @GameTest(template = "empty", batch = "sawmill", timeoutTicks = 60)
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        SawmillGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

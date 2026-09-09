@@ -128,4 +128,14 @@ public final class KilnGameTestRegistration {
     public static void testKilnFacing(GameTestHelper context) {
         KilnGameTestBody.testKilnFacing(context);
     }
+
+    /**
+    * An item with no vanilla smelting recipe must never enter the input slot. The kiln exposes
+    * only its output slot on the bottom face, so anything a hopper or pipe pushes into the input
+    * is stuck there until a player clears it by hand — a permanent jam of the whole machine.
+    */
+    @GameTest(template = "empty", batch = "kiln", timeoutTicks = 60)
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        KilnGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

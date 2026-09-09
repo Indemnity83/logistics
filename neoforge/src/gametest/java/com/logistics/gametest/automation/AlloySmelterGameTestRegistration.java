@@ -67,4 +67,14 @@ public final class AlloySmelterGameTestRegistration {
     public static void testSmeltsIronOreViaRealEngineAndHoppers(GameTestHelper context) {
         AlloySmelterGameTestBody.testSmeltsIronOreViaRealEngineAndHoppers(context);
     }
+
+    /**
+    * An item no alloy smelter recipe could use must never enter either input slot. Only the two
+    * output slots are extractable (from the bottom), so anything a hopper or pipe pushes into an
+    * input is stuck there until a player clears it by hand.
+    */
+    @GameTest(template = "empty", batch = "alloysmelter", timeoutTicks = 60)
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        AlloySmelterGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }

@@ -119,4 +119,9 @@ public class KilnGameTest {
     public void testKilnFacing(GameTestHelper context) {
         KilnGameTestBody.testKilnFacing(context);
     }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        KilnGameTestBody.testHopperCannotJamInputWithUnusableItem(context);
+    }
 }
