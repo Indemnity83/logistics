@@ -219,7 +219,8 @@ public final class MachineBuilder {
                         case BOTTOM_OUT -> SidedLayout.bottomOut(
                                 indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
                         case TOP_IN -> SidedLayout.topIn(indicesOf(SlotRole.INPUT), insertFilter);
-                        case NONE -> null;
+                        case NONE -> throw new IllegalStateException("items(" + id
+                                + ") requires an access mode: furnaceAccess(), bottomOutAccess() or topInAccess()");
                     };
             return components.add(new ItemStoreComponent(id, roles, layout, onChanged));
         }
