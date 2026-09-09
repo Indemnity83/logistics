@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -221,7 +222,8 @@ public final class QuarryPhaseRunner {
      * in-flight break progress are left untouched, so mining resumes exactly where it stopped.
      */
     private void tickRepairingFrame(QuarryContext q) {
-        int gap = nextGapIndex(index -> framePositionAt(q, index), pos -> q.level().getBlockState(pos), frameRepairIndex);
+        int gap = nextGapIndex(
+                index -> framePositionAt(q, index), pos -> q.level().getBlockState(pos), frameRepairIndex, q.level());
         if (gap >= 0) {
             frameRepairIndex = gap;
         }
@@ -380,7 +382,10 @@ public final class QuarryPhaseRunner {
      * quarry into {@link QuarryPhase#REPAIRING_FRAME}. The cursor rolls across ticks so the whole
      * frame is covered without ever scanning it all at once.
      */
-    boolean frameHasGap(IntFunction<@Nullable BlockPos> positionAt, Function<BlockPos, BlockState> stateAt) {
+    boolean frameHasGap(
+            IntFunction<@Nullable BlockPos> positionAt,
+            Function<BlockPos, BlockState> stateAt,
+            LevelHeightAccessor level) {
         for (int checked = 0; checked < FRAME_SCAN_PER_TICK; checked++) {
             BlockPos framePos = positionAt.apply(frameScanIndex);
             if (framePos == null) {
@@ -391,7 +396,7 @@ public final class QuarryPhaseRunner {
                 continue;
             }
             frameScanIndex++;
-            if (isGap(stateAt.apply(framePos))) {
+            if (isGap(level, framePos, stateAt.apply(framePos))) {
                 return true;
             }
         }
@@ -400,13 +405,16 @@ public final class QuarryPhaseRunner {
 
     /** Index of the first gap at or after {@code from}, or -1 when the frame is whole. */
     static int nextGapIndex(
-            IntFunction<@Nullable BlockPos> positionAt, Function<BlockPos, BlockState> stateAt, int from) {
+            IntFunction<@Nullable BlockPos> positionAt,
+            Function<BlockPos, BlockState> stateAt,
+            int from,
+            LevelHeightAccessor level) {
         for (int index = from; ; index++) {
             BlockPos framePos = positionAt.apply(index);
             if (framePos == null) {
                 return -1;
             }
-            if (isGap(stateAt.apply(framePos))) {
+            if (isGap(level, framePos, stateAt.apply(framePos))) {
                 return index;
             }
         }
@@ -437,7 +445,13 @@ public final class QuarryPhaseRunner {
      * True when the position is a hole the quarry should fill. A player-placed solid block is not a
      * hole — it can't be replaced, so treating it as one would wedge the repair phase forever.
      */
-    static boolean isGap(BlockState state) {
+    static boolean isGap(LevelHeightAccessor level, BlockPos pos, BlockState state) {
+        // A slot outside the world's build height can never hold a block: setBlock refuses it while
+        // getBlockState still reads VOID_AIR. Treating that as a gap makes repair charge for a
+        // placement that never lands and re-detect the same slot forever.
+        if (level.isOutsideBuildHeight(pos)) {
+            return false;
+        }
         if (state.getBlock() instanceof LaserQuarryFrameBlock) {
             return false;
         }
@@ -450,14 +464,13 @@ public final class QuarryPhaseRunner {
      * retry the same index next tick.
      */
     private boolean placeFrameBlock(QuarryContext q, BlockPos framePos) {
-        if (!isGap(q.level().getBlockState(framePos))) {
+        if (!isGap(q.level(), framePos, q.level().getBlockState(framePos))) {
             return true;
         }
         if (!q.hasEnergy(q.frameBuildCost())) {
             return false;
         }
-        q.consumeEnergy(q.frameBuildCost());
-        q.level()
+        boolean placed = q.level()
                 .setBlockAndUpdate(
                         framePos,
                         FrameLayout.frameBlockState(
@@ -466,6 +479,11 @@ public final class QuarryPhaseRunner {
                                 framePos,
                                 q.bounds(),
                                 LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA)));
+        // Charge only for a placement that landed. Advance either way, so a slot the world refuses
+        // can never wedge the repair phase on one index.
+        if (placed) {
+            q.consumeEnergy(q.frameBuildCost());
+        }
         return true;
     }
 
@@ -486,7 +504,9 @@ public final class QuarryPhaseRunner {
             return;
         }
 
-        if (!finished && frameHasGap(index -> framePositionAt(q, index), pos -> q.level().getBlockState(pos))) {
+        if (!finished
+                && frameHasGap(
+                        index -> framePositionAt(q, index), pos -> q.level().getBlockState(pos), q.level())) {
             enterFrameRepair(q);
             return;
         }

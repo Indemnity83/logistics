@@ -12,6 +12,7 @@ import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +28,10 @@ import java.util.Set;
  */
 @DisplayName("Quarry frame repair")
 class QuarryFrameRepairTest extends MinecraftTestEnvironment {
+
+    /** Overworld-shaped bounds, so build height plays no part in the cases that aren't about it. */
+    private static final LevelHeightAccessor OVERWORLD_HEIGHT = LevelHeightAccessor.create(-64, 384);
+
 
     @BeforeAll
     static void registerDomains() {
@@ -59,21 +64,20 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("a standing frame block is not a gap")
     void standingFrameIsNotAGap() {
-        assertThat(QuarryPhaseRunner.isGap(
-                        LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState()))
+        assertThat(QuarryPhaseRunner.isGap(OVERWORLD_HEIGHT, BlockPos.ZERO, LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState()))
                 .isFalse();
     }
 
     @Test
     @DisplayName("air where a frame block belongs is a gap")
     void airIsAGap() {
-        assertThat(QuarryPhaseRunner.isGap(Blocks.AIR.defaultBlockState())).isTrue();
+        assertThat(QuarryPhaseRunner.isGap(OVERWORLD_HEIGHT, BlockPos.ZERO, Blocks.AIR.defaultBlockState())).isTrue();
     }
 
     @Test
     @DisplayName("a replaceable block is a gap")
     void replaceableIsAGap() {
-        assertThat(QuarryPhaseRunner.isGap(Blocks.SHORT_GRASS.defaultBlockState()))
+        assertThat(QuarryPhaseRunner.isGap(OVERWORLD_HEIGHT, BlockPos.ZERO, Blocks.SHORT_GRASS.defaultBlockState()))
                 .as("grass can be replaced, so the quarry should rebuild through it")
                 .isTrue();
     }
@@ -81,7 +85,7 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("a player-placed solid block is not a gap, so repair can never wedge on it")
     void solidBlockIsNotAGap() {
-        assertThat(QuarryPhaseRunner.isGap(Blocks.STONE.defaultBlockState()))
+        assertThat(QuarryPhaseRunner.isGap(OVERWORLD_HEIGHT, BlockPos.ZERO, Blocks.STONE.defaultBlockState()))
                 .as("stone cannot be replaced; calling it a gap would loop the repair phase forever")
                 .isFalse();
     }
@@ -92,7 +96,7 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
     @DisplayName("an intact frame reports no gap")
     void intactFrameHasNoGap() {
         buildWholeFrame();
-        assertThat(QuarryPhaseRunner.nextGapIndex(positions, states, 0)).isEqualTo(-1);
+        assertThat(QuarryPhaseRunner.nextGapIndex(positions, states, 0, OVERWORLD_HEIGHT)).isEqualTo(-1);
     }
 
     @Test
@@ -100,7 +104,7 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
     void brokenBlockIsFound() {
         buildWholeFrame();
         world.put(posAt(13), Blocks.AIR.defaultBlockState());
-        assertThat(QuarryPhaseRunner.nextGapIndex(positions, states, 0)).isEqualTo(13);
+        assertThat(QuarryPhaseRunner.nextGapIndex(positions, states, 0, OVERWORLD_HEIGHT)).isEqualTo(13);
     }
 
     @Test
@@ -110,15 +114,15 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
         world.put(posAt(4), Blocks.AIR.defaultBlockState());
         world.put(posAt(11), Blocks.AIR.defaultBlockState());
 
-        int first = QuarryPhaseRunner.nextGapIndex(positions, states, 0);
+        int first = QuarryPhaseRunner.nextGapIndex(positions, states, 0, OVERWORLD_HEIGHT);
         assertThat(first).isEqualTo(4);
         world.put(posAt(first), LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState());
 
-        int second = QuarryPhaseRunner.nextGapIndex(positions, states, first + 1);
+        int second = QuarryPhaseRunner.nextGapIndex(positions, states, first + 1, OVERWORLD_HEIGHT);
         assertThat(second).isEqualTo(11);
         world.put(posAt(second), LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME.defaultBlockState());
 
-        assertThat(QuarryPhaseRunner.nextGapIndex(positions, states, 0))
+        assertThat(QuarryPhaseRunner.nextGapIndex(positions, states, 0, OVERWORLD_HEIGHT))
                 .as("frame is whole again")
                 .isEqualTo(-1);
     }
@@ -135,7 +139,7 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
         boolean found = false;
         // The sweep checks a slice per tick; the last position must still be reached.
         for (int tick = 0; tick < FRAME_SIZE && !found; tick++) {
-            found = runner.frameHasGap(positions, states);
+            found = runner.frameHasGap(positions, states, OVERWORLD_HEIGHT);
         }
         assertThat(found)
                 .as("a gap at the far end of the frame must still be noticed by the rolling sweep")
@@ -148,7 +152,7 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
         buildWholeFrame();
         QuarryPhaseRunner runner = new QuarryPhaseRunner();
         for (int tick = 0; tick < FRAME_SIZE * 3; tick++) {
-            assertThat(runner.frameHasGap(positions, states)).isFalse();
+            assertThat(runner.frameHasGap(positions, states, OVERWORLD_HEIGHT)).isFalse();
         }
     }
 
@@ -156,7 +160,7 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
     @DisplayName("a frame that resolves no positions is not policed")
     void unresolvableFrameIsNotPoliced() {
         QuarryPhaseRunner runner = new QuarryPhaseRunner();
-        assertThat(runner.frameHasGap(index -> null, states))
+        assertThat(runner.frameHasGap(index -> null, states, OVERWORLD_HEIGHT))
                 .as("no frame to check means no repair, not an infinite sweep")
                 .isFalse();
     }
@@ -295,5 +299,35 @@ class QuarryFrameRepairTest extends MinecraftTestEnvironment {
         runner.save(written);
         assertThat(written.getInt("FrameRepairIndex")).hasValue(0);
         assertThat(written.getInt("FrameScanIndex")).hasValue(0);
+    }
+
+    @Test
+    @DisplayName("a frame slot above the world's build height is not a gap")
+    void slotAboveBuildHeightIsNotAGap() {
+        LevelHeightAccessor world = LevelHeightAccessor.create(-64, 384); // Overworld: placeable to y=319
+        BlockPos aboveWorld = new BlockPos(0, 320, 0);
+
+        // getBlockState reads VOID_AIR up there, which looks exactly like a gap the quarry should fill.
+        assertThat(QuarryPhaseRunner.isGap(world, aboveWorld, Blocks.VOID_AIR.defaultBlockState()))
+                .as("repair would charge for a placement the world refuses, then find the slot again forever")
+                .isFalse();
+        assertThat(QuarryPhaseRunner.isGap(world, new BlockPos(0, 319, 0), Blocks.AIR.defaultBlockState()))
+                .as("the topmost placeable layer is still repairable")
+                .isTrue();
+    }
+
+    @Test
+    @DisplayName("an out-of-world frame slot is skipped by both sweeps")
+    void outOfWorldSlotIsSkippedByBothSweeps() {
+        LevelHeightAccessor world = LevelHeightAccessor.create(-64, 384);
+        IntFunction<BlockPos> positions = index -> index >= 4 ? null : new BlockPos(index, 320, 0);
+        Function<BlockPos, BlockState> states = pos -> Blocks.VOID_AIR.defaultBlockState();
+
+        assertThat(QuarryPhaseRunner.nextGapIndex(positions, states, 0, world))
+                .as("nothing above the build limit is repairable, so the frame reads as whole")
+                .isEqualTo(-1);
+        assertThat(new QuarryPhaseRunner().frameHasGap(positions, states, world))
+                .as("the background sweep must not keep re-entering REPAIRING_FRAME for these")
+                .isFalse();
     }
 }
