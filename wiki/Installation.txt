@@ -91,7 +91,7 @@ Or just try crafting a [[Copper Transport Pipe]]!
 
 '''A machine stopped working after a config edit:'''
 * Settings live in <code>config/logistics/&lt;domain&gt;.json</code> — one file per domain, such as <code>machines.quarry.json</code> or <code>power.battery.json</code>
-* A value outside a setting's valid range is rejected rather than applied, so a machine can no longer be bricked by a bad number
+* A value outside a setting's valid range is rejected, so a bad number cannot brick a machine
 * A config file that can't be parsed is renamed to <code>&lt;name&gt;.json.invalid</code> and replaced with defaults, so the game still starts and your edits are kept for reference
 * Read or change a setting in-game with the operator-only <code>/logistics config &lt;domain&gt; &lt;key&gt; &lt;value&gt;</code>, then <code>/logistics reload-configs</code> to re-read the files from disk
 

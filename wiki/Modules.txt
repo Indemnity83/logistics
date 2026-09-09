@@ -82,7 +82,7 @@ When several sinks accept the same item, the network delivers to the highest-pri
 | 0 || Any sink set as the default route
 |}
 
-Ties go to the nearest sink, and a tie on distance too resolves to a fixed destination rather than an arbitrary one, so a network that merges or splits keeps sending the same item to the same place.
+Ties go to the nearest sink; a tie on distance too is settled by block position, so a network that merges or splits keeps sending the same item to the same place.
 
 ==See Also==
 * [[Chassis Logistics Pipe]] - The pipe that holds modules

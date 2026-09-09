@@ -35,7 +35,7 @@ The Macerator is mined with a stone pickaxe or better; without one it drops noth
 
 Place an item in the input slot; the output slot receives the ground result when complete, and a secondary slot catches any chance byproduct. It processes 150+ recipes covering ores (with chance byproducts), block recycling, plants, and dyes, and grants XP when processing ore-based recipes. Each recipe has its own RF cost — most ores take 2,000 RF (10 seconds), recycling recipes more. The recipe book in the GUI lists every valid recipe, and Macerator recipes also appear in the Just Enough Items (JEI) recipe viewer.
 
-Input is accepted from the top and sides; output is drawn from the bottom. Hoppers and pipes can only fill the input slot with something a loaded recipe grinds — anything else is refused rather than left stuck in the machine.
+Input is accepted from the top and sides; output is drawn from the bottom. Hoppers and pipes can only fill the input slot with something a loaded recipe grinds; anything else is refused at the face.
 
 === Power ===
 

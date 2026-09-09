@@ -34,11 +34,11 @@ The Laser Quarry can be broken with any tool, though a pickaxe is fastest.
 
 When placed and powered, the Laser Quarry constructs a mining frame around the target area, then excavates layer by layer down to bedrock, running indefinitely until it bottoms out. Mined blocks output from the top of the quarry into a chest or pipe. Mining speed scales with power throughput, and the quarry stops if power is interrupted.
 
-Free-standing fluid is skipped rather than mined, but a solid block that happens to be waterlogged — a submerged chest, stair, slab or fence — is broken like any other, so a structure under water is cleared instead of being left standing in the pit. Blocks that carry fluid without blocking movement, such as {{Mcw|Bubble Column|bubble columns}}, {{Mcw|Kelp|kelp}} and {{Mcw|Seagrass|seagrass}}, are skipped too.
+Free-standing fluid is skipped rather than mined, but a solid block that happens to be waterlogged — a submerged chest, stair, slab or fence — is broken like any other, so a structure under water is cleared along with the rest of the layer. Blocks that carry fluid without blocking movement, such as {{Mcw|Bubble Column|bubble columns}}, {{Mcw|Kelp|kelp}} and {{Mcw|Seagrass|seagrass}}, are skipped too.
 
 === Mining frame ===
 
-The quarry builds its own frame around the mining area before it starts, and tears that frame back down when the quarry block is removed, so breaking a quarry never strands its cage. A frame block left over from an earlier quarry can be broken by hand; it drops nothing.
+The quarry builds its own frame around the mining area before it starts, and tears that frame back down when the quarry block is removed. A frame block left over from an earlier quarry can be broken by hand; it drops nothing.
 
 === Mining area ===
 
