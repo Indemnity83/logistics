@@ -163,11 +163,15 @@ public final class QuarryPhaseRunner {
             return;
         }
 
-        if (!target.equals(currentTarget) || currentBreakTime < 0) {
+        if (!target.equals(currentTarget)) {
             currentTarget = target;
-            float hardness = targetState.getDestroySpeed(q.level(), target);
-            currentBreakTime = q.breakCost(hardness);
             breakProgress = 0;
+            currentBreakTime = -1f;
+        }
+        if (currentBreakTime < 0) {
+            // No cost in hand: a new target, or one resumed from a save. The cost is never carried
+            // through the save, so it is priced off the block that is actually there now.
+            currentBreakTime = q.breakCost(targetState.getDestroySpeed(q.level(), target));
         }
 
         long energyNeeded = (long) Math.ceil(currentBreakTime - breakProgress);
@@ -581,11 +585,16 @@ public final class QuarryPhaseRunner {
         } else if (arm.getState() == QuarryArmState.BREAKING) {
             BlockState targetState = q.level().getBlockState(target);
 
-            if (!target.equals(currentTarget) || currentBreakTime < 0) {
+            if (!target.equals(currentTarget)) {
                 currentTarget = target;
+                breakProgress = 0;
+                currentBreakTime = -1f;
+            }
+            if (currentBreakTime < 0) {
+                // No cost in hand: a new target, or one resumed from a save. The cost is never
+                // carried through the save, so it is priced off the block actually there now.
                 float hardness = targetState.getDestroySpeed(q.level(), target);
                 currentBreakTime = (float) (QuarryEnergy.energyPerBlockMultiplier() * (hardness + 1));
-                breakProgress = 0;
             }
 
             long energyNeeded = (long) Math.ceil(currentBreakTime - breakProgress);
@@ -790,6 +799,11 @@ public final class QuarryPhaseRunner {
         tag.putInt("FrameRepairIndex", frameRepairIndex);
         tag.putInt("FrameScanIndex", frameScanIndex);
         tag.putInt("ClearanceIndex", clearanceIndex);
+        // Break progress is only carried over for the block it was earned on, so the target has to
+        // travel with it; without this the first tick after a load restarts the block from zero.
+        if (currentTarget != null) {
+            tag.putIntArray("CurrentTarget", new int[] {currentTarget.getX(), currentTarget.getY(), currentTarget.getZ()});
+        }
     }
 
     public void load(CompoundTag tag) {
@@ -802,6 +816,13 @@ public final class QuarryPhaseRunner {
         frameRepairIndex = Math.max(0, NbtCompat.getInt(tag, "FrameRepairIndex", 0));
         frameScanIndex = Math.max(0, NbtCompat.getInt(tag, "FrameScanIndex", 0));
         clearanceIndex = Math.max(0, NbtCompat.getInt(tag, "ClearanceIndex", 0));
+
+        // Missing key (an older save, or nothing in flight) leaves no target, which is what the
+        // break loop already treats as "start this block over".
+        int[] savedTarget = NbtCompat.getIntArray(tag, "CurrentTarget", new int[0]);
+        currentTarget = savedTarget.length == 3 ? new BlockPos(savedTarget[0], savedTarget[1], savedTarget[2]) : null;
+        // The cost stays unsaved: it is recomputed from the block that is actually at the target.
+        currentBreakTime = -1f;
 
         String phaseName = NbtCompat.getString(tag, "CurrentPhase", "CLEARING");
         try {
