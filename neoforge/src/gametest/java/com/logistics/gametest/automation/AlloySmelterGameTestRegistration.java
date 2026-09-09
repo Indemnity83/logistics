@@ -29,7 +29,9 @@ public final class AlloySmelterGameTestRegistration {
         new GameTestCase(
             "automation/alloy_smelter_smelts_iron_ore_via_real_engine_and_hoppers",
             280,
-            AlloySmelterGameTestBody::testSmeltsIronOreViaRealEngineAndHoppers));
+            AlloySmelterGameTestBody::testSmeltsIronOreViaRealEngineAndHoppers),
+        new GameTestCase(
+            "automation/alloy_smelter_hopper_cannot_jam_input", 60, AlloySmelterGameTestBody::testHopperCannotJamInputWithUnusableItem));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
