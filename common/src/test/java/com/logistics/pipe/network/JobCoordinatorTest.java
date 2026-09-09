@@ -322,11 +322,13 @@ class JobCoordinatorTest extends MinecraftTestEnvironment {
             coordinator.tick(controller);
         }
 
-        // After reconciliation detects total loss with no alternative supply,
-        // job.recordInvalidation() is called, eventually marking job FAILED if nothing delivered
-        // At minimum, outstanding should be reduced by the loss amount
-        assertTrue(job.invalidatedAmount() > 0 || job.state() == JobState.FAILED,
-                "Job should have recorded invalidation after supply disappeared, state=" + job.state());
+        // Reconciliation finds the whole 16 gone and nothing to replan onto, so it invalidates the
+        // full amount; with nothing delivered that settles the job as FAILED. Asserting both halves
+        // separately is the point — "invalidated OR failed" would also accept a job that failed for
+        // some unrelated reason without the loss ever being reconciled.
+        assertEquals(16, job.invalidatedAmount(), "the whole missing amount should be invalidated");
+        assertEquals(0, job.outstanding(), "nothing is left to source");
+        assertEquals(JobState.FAILED, job.state());
     }
 
     @Test

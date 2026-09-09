@@ -3,6 +3,8 @@ package com.logistics.power.engine.steam;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPower;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.EngineComponent;
@@ -344,9 +346,42 @@ class SteamEngineComponentTest extends MinecraftTestEnvironment {
 
     @Test
     void efficiencyChainIsEightRfPerBurnTick() {
-        double rfPerBurnTick =
-                PROFILE.heatPerBurnTick() / (PROFILE.latentHeat() * PROFILE.pressurePerRf());
+        // Half 1 — heat -> pressure, measured off a real boiling tick.
+        SteamEngineComponent boiler = engine(NO_CONSUMER, water(10_000), new FakeFuel(0, 0), () -> true);
+        seed(boiler, 0, 1700, 0, 0, 0); // full steam quality, empty vessel, nothing drawing
+        double heatBefore = boiler.boilerHeat();
+        tick(boiler);
+        double heatSpentBoiling = heatBefore - boiler.boilerHeat() - PROFILE.passiveHeatLoss();
+        double pressureMade = boiler.pressure();
+        assertThat(heatSpentBoiling).isGreaterThan(0);
+        assertThat(pressureMade).isGreaterThan(0);
+
+        // Half 2 — pressure -> RF, measured off a real turbine tick. Cold and dry, so no steam forms
+        // and the only pressure movement is the draw (plus the known cold-boiler condensation).
+        SteamEngineComponent turbine = engine(FULL_CONSUMER, water(0), new FakeFuel(0, 0), () -> true);
+        seed(turbine, 700, 0, 0, 0, 0);
+        double pressureBefore = turbine.pressure();
+        tick(turbine);
+        long rfGenerated = turbine.lastGenerationRate();
+        double pressureSpent = pressureBefore - turbine.pressure() - PROFILE.condensationRate();
+        assertThat(rfGenerated).isPositive();
+
+        // Chained end to end: one furnace burn tick of heat buys eight RF.
+        double rfPerBurnTick = PROFILE.heatPerBurnTick() * (pressureMade / heatSpentBoiling) * (rfGenerated / pressureSpent);
         assertThat(rfPerBurnTick).isEqualTo(8.0, within(1e-9));
+    }
+
+    /**
+     * The efficiency figure above is only a balance claim if the profile it is measured on carries the
+     * shipped numbers. These three are the whole chain — retuning any of them moves RF per burn tick.
+     */
+    @Test
+    void efficiencyProfileMatchesTheShippedConfigDefaults() {
+        assertThat(PROFILE.heatPerBurnTick())
+                .isEqualTo(LogisticsConfigHost.get(LogisticsPower.CONFIG.STEAM_HEAT_PER_BURN_TICK));
+        assertThat(PROFILE.latentHeat()).isEqualTo(LogisticsConfigHost.get(LogisticsPower.CONFIG.STEAM_LATENT_HEAT));
+        assertThat(PROFILE.pressurePerRf())
+                .isEqualTo(LogisticsConfigHost.get(LogisticsPower.CONFIG.STEAM_PRESSURE_PER_RF));
     }
 
     // ==================== Condensation ====================

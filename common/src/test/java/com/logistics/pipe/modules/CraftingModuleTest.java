@@ -148,16 +148,45 @@ class CraftingModuleTest {
     @Test
     @DisplayName("setIngredient silently ignores slot index < 0")
     void setIngredient_ignoresNegativeSlot() {
-        // Should not throw, just no-ops
-        assertThatCode(() -> module.setIngredient(ctx, -1, "minecraft:diamond", 1))
-                .doesNotThrowAnyException();
+        fillEveryIngredientSlot();
+
+        module.setIngredient(ctx, -1, "minecraft:diamond", 1);
+
+        // "Ignored" has to mean the recipe is untouched — a clamp into slot 0, or a write that
+        // lands on any other slot, would silently rewrite a player's configured recipe.
+        assertEveryIngredientSlotStillHoldsItsFiller();
     }
 
     @Test
     @DisplayName("setIngredient silently ignores slot index > 8")
     void setIngredient_ignoresSlotBeyondMax() {
-        assertThatCode(() -> module.setIngredient(ctx, 9, "minecraft:diamond", 1))
-                .doesNotThrowAnyException();
+        fillEveryIngredientSlot();
+
+        module.setIngredient(ctx, 9, "minecraft:diamond", 1);
+
+        assertEveryIngredientSlotStillHoldsItsFiller();
+    }
+
+    /** Distinct marker per slot so a stray write is attributable, and none of them is the probe item. */
+    private static String filler(int slot) {
+        return "minecraft:filler_" + slot;
+    }
+
+    private void fillEveryIngredientSlot() {
+        for (int slot = 0; slot <= 8; slot++) {
+            module.setIngredient(ctx, slot, filler(slot), slot + 1);
+        }
+    }
+
+    private void assertEveryIngredientSlotStillHoldsItsFiller() {
+        for (int slot = 0; slot <= 8; slot++) {
+            assertThat(module.getIngredientItem(ctx, slot))
+                    .as("ingredient slot %d", slot)
+                    .isEqualTo(filler(slot));
+            assertThat(module.getIngredientCount(ctx, slot))
+                    .as("ingredient count in slot %d", slot)
+                    .isEqualTo(slot + 1);
+        }
     }
 
     @ParameterizedTest(name = "slot {0}")

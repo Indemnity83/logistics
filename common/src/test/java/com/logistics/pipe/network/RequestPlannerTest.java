@@ -274,19 +274,25 @@ class RequestPlannerTest extends MinecraftTestEnvironment {
     }
 
     // ===== Shared claimed scratch-pad =====
+    // ===== Per-call planning scratch-pad =====
 
     @Test
-    void testMultipleItems_claimedStockNotDoubleUsed() {
-        // Two separate plans within same planning context (via PlanningContext inside planner)
-        // Each plan call creates a fresh context, so this tests the per-call isolation
+    void plan_isPerCallAndDoesNotCarryClaimsBetweenCalls() {
+        // The planner's claimed-stock scratch-pad lives in a PlanningContext created per plan() call,
+        // so planning is a pure "what could be sourced right now" question and never reserves stock.
+        // Reserving against real supply is the NetworkController's job, and it is covered by
+        // NetworkControllerTest#testSupplyReservation_secondCallCannotMatchSameProvider.
         controller.registerSupply(PROVIDER1, Map.of(diamond(), 5L), 1);
 
         FulfillmentPlan plan1 = planner.plan(diamond(), 5, FulfillmentMode.PARTIAL, controller);
         FulfillmentPlan plan2 = planner.plan(diamond(), 5, FulfillmentMode.PARTIAL, controller);
 
-        // Each call sees full supply (PlanningContext is per-call)
+        // Both calls see the same untouched 5, and both source it from the same provider — a claim
+        // leaking out of the first context would leave the second planning 0.
         assertEquals(5, plan1.plannedAmount());
         assertEquals(5, plan2.plannedAmount());
+        assertEquals(PROVIDER1, ((PlanNode.ExtractNode) plan1.roots().getFirst()).provider());
+        assertEquals(PROVIDER1, ((PlanNode.ExtractNode) plan2.roots().getFirst()).provider());
     }
 
     // ===== FulfillmentPlan structure =====
