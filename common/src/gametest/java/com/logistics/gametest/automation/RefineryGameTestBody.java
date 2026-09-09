@@ -15,7 +15,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.material.Fluid;
 
 /**
@@ -188,6 +190,44 @@ public class RefineryGameTestBody {
                     || refinery.tank().getFluidKey().getFluid() != bioFuel()) {
                 throw context.assertionException("Engine-powered refinery should distill 100 mB of bio fuel");
             }
+        });
+    }
+
+    /**
+     * The refinery's only item slot is the byproduct output, and it is exposed for extraction from
+     * the bottom alone — no face admits an item. A hopper aimed at it must therefore keep its
+     * stack: nothing can be pushed into the machine, so nothing can jam it or be destroyed on the
+     * way in. Tar is the item most likely to be routed back at a refinery, being its own product.
+     */
+    public static void testHopperCannotInsertIntoByproductSlot(GameTestHelper context) {
+        BlockPos refineryPos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = refineryPos.above();
+
+        RefineryBlockEntity refinery = place(context, refineryPos);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (refinery == null || hopper == null) {
+            context.fail("Expected refinery and hopper block entities");
+            return;
+        }
+
+        hopper.setItem(0, new ItemStack(LogisticsCore.ITEM.TAR));
+
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            for (int slot = 0; slot < refinery.getContainerSize(); slot++) {
+                if (!refinery.getItem(slot).isEmpty()) {
+                    context.fail("Refinery must refuse every hopper insertion, slot " + slot
+                            + " holds: " + refinery.getItem(slot));
+                    return;
+                }
+            }
+            if (!hopper.getItem(0).is(LogisticsCore.ITEM.TAR)) {
+                context.fail("Refused tar should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
         });
     }
 }

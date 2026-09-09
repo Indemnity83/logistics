@@ -288,4 +288,41 @@ public class SawmillGameTestBody {
             context.assertContainerContains(outputHopperPos, LogisticsCore.ITEM.SAWDUST);
         });
     }
+
+    /**
+     * An item no sawmill recipe could use must never enter the input slot. Only the two output
+     * slots are extractable (from the bottom), so anything a hopper or pipe pushes into the input
+     * is stuck there until a player clears it by hand.
+     */
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        BlockPos sawmillPos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = sawmillPos.above();
+
+        context.setBlock(sawmillPos, LogisticsAutomation.BLOCK.SAWMILL);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        SawmillBlockEntity sawmill = context.getBlockEntity(sawmillPos, SawmillBlockEntity.class);
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (sawmill == null || hopper == null) {
+            context.fail("Expected sawmill and hopper block entities");
+            return;
+        }
+
+        // Dirt is an input to no sawmill recipe, and is in none of the tags they draw on.
+        hopper.setItem(0, new ItemStack(Items.DIRT));
+
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            if (!sawmill.getItem(INPUT).isEmpty()) {
+                context.fail("Sawmill must refuse an item no recipe can use, input holds: "
+                        + sawmill.getItem(INPUT));
+                return;
+            }
+            if (!hopper.getItem(0).is(Items.DIRT)) {
+                context.fail("Refused dirt should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
+        });
+    }
 }
