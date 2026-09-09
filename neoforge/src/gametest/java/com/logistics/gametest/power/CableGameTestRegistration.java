@@ -163,4 +163,10 @@ public final class CableGameTestRegistration {
     public static void testCableNetworkSurvivesCableReconstruction(GameTestHelper context) {
         CableGameTestBody.testCableNetworkSurvivesCableReconstruction(context);
     }
+
+    /** A mid-tick topology rebuild must not hand the cable a fresh throughput budget. */
+    @GameTest(template = "empty", batch = "cable")
+    public static void testMidTickRebuildKeepsTheThroughputCap(GameTestHelper context) {
+        CableGameTestBody.testMidTickRebuildKeepsTheThroughputCap(context);
+    }
 }

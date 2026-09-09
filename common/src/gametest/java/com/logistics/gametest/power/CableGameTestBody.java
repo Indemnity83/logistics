@@ -377,6 +377,60 @@ public class CableGameTestBody {
         context.succeed();
     }
 
+    /**
+     * A block update landing between two pushes in the same tick rebuilds the cable network. The
+     * cap is a property of the cable, not of the network object, so the second push must still be
+     * refused — and the tick after must start with a full budget again.
+     *
+     * <p>A Laser Quarry placing or breaking blocks beside a cable does exactly this from inside the
+     * block-entity tick loop.
+     */
+    public static void testMidTickRebuildKeepsTheThroughputCap(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(2, 1, 1);
+        BlockPos neighborPos = new BlockPos(1, 2, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+
+        CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
+        CreativeSinkBlockEntity sink = (CreativeSinkBlockEntity) context.getBlockEntity(sinkPos);
+        if (cable == null || sink == null) {
+            context.fail("Expected cable and creative sink block entities");
+            return;
+        }
+        sink.setUnlimitedDrainRate();
+
+        long rate = cable.getTransferRate();
+        IEnergyStorage endpoint = cable.energyStorage(Direction.WEST);
+
+        long first = endpoint.insert(rate * 2, false);
+        if (first != rate) {
+            context.fail("Cable should carry its full rating on the first push, got: " + first);
+            return;
+        }
+
+        // Topology change sourced mid-tick: the neighbour update marks the network manager dirty,
+        // so the next push rebuilds the network before it moves any energy.
+        context.setBlock(neighborPos, Blocks.STONE);
+
+        long afterRebuild = endpoint.insert(rate * 2, false);
+        if (afterRebuild != 0L) {
+            context.fail("A mid-tick network rebuild must not refill the cable's budget, got extra: "
+                    + afterRebuild);
+            return;
+        }
+
+        context.runAfterDelay(1, () -> {
+            long nextTick = endpoint.insert(rate * 2, false);
+            if (nextTick != rate) {
+                context.fail("The next tick should start with a full budget, got: " + nextTick);
+                return;
+            }
+            context.succeed();
+        });
+    }
+
     public static void testCableNetworkStopsAtRemovedCable(GameTestHelper context) {
         BlockPos sourceCablePos = new BlockPos(1, 1, 1);
         BlockPos removedCablePos = new BlockPos(2, 1, 1);

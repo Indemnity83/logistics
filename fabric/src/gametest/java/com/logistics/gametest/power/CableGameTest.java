@@ -135,6 +135,11 @@ public class CableGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testMidTickRebuildKeepsTheThroughputCap(GameTestHelper context) {
+        CableGameTestBody.testMidTickRebuildKeepsTheThroughputCap(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testCableNetworkStopsAtRemovedCable(GameTestHelper context) {
         CableGameTestBody.testCableNetworkStopsAtRemovedCable(context);
     }
