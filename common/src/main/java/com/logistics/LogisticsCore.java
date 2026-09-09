@@ -120,7 +120,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         FluidDef.tinted("fuel_oil", 0xFE8C01),
         FluidDef.tinted("seed_oil", 0xD9C74A));
 
-    private static Map<Fluid, Integer> fluidLuminance;
+    /** Built on first {@link #fluidLuminance} call — after fluid registration, and thread-safely. */
+    private static final class LuminanceHolder {
+        static final Map<Fluid, Integer> MAP = buildFluidLuminance();
+
+        private LuminanceHolder() {}
+    }
 
     /**
      * Block light level (0-15) a pipe or tank should emit while holding {@code fluid}. Vanilla lava
@@ -130,10 +135,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         if (fluid == Fluids.LAVA || fluid == Fluids.FLOWING_LAVA) {
             return 15;
         }
-        if (fluidLuminance == null) {
-            fluidLuminance = buildFluidLuminance();
-        }
-        return fluidLuminance.getOrDefault(fluid, 0);
+        return LuminanceHolder.MAP.getOrDefault(fluid, 0);
     }
 
     /** Map each glowing custom fluid (source + flowing) to its luminance, resolved after registration. */
@@ -273,6 +275,25 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         /** Fluid name → filled bucket item, for the tank-only fluids. */
         public static java.util.Map<String, Item> all() {
             return java.util.Collections.unmodifiableMap(BY_FLUID);
+        }
+
+        /**
+         * Filled buckets for the placeable fluids, resolved from the item registry at call time.
+         * A bucket the loader never registered resolves to {@link Items#AIR} (the item registry is
+         * defaulted, so it is never null) and is left out.
+         */
+        public static java.util.List<Item> placeableBuckets() {
+            java.util.List<Item> buckets = new java.util.ArrayList<>();
+            for (FluidDef def : CUSTOM_FLUIDS) {
+                if (!def.placeable()) {
+                    continue;
+                }
+                Item bucket = forFluid(def.name());
+                if (bucket != Items.AIR) {
+                    buckets.add(bucket);
+                }
+            }
+            return buckets;
         }
     }
 
@@ -674,16 +695,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Fluid buckets
             BUCKET.all().values().forEach(TAB::add);
             // Placeable fluids' buckets register per loader; add them lazily so they resolve at populate time.
-            TAB.add(out -> {
-                for (FluidDef def : CUSTOM_FLUIDS) {
-                    if (def.placeable()) {
-                        Item bucket = BUCKET.forFluid(def.name());
-                        if (bucket != null) {
-                            out.accept(bucket);
-                        }
-                    }
-                }
-            });
+            TAB.add(out -> BUCKET.placeableBuckets().forEach(out::accept));
 
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
@@ -696,7 +708,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Wood Pulp renamed to Sawdust; old recipes/worlds resolve to the new item.
             INSTANCE.registerItemAlias("core/wood_pulp", ITEM.SAWDUST);
 
-            // Marker moved from the automation domain to core; bridge the previous-major (0.6.x) IDs.
+            // Marker moved from the automation domain to core in 0.8.0; the automation IDs were live
+            // through 0.7.4. Prune when the 0.9 major opens.
             INSTANCE.registerBlockAlias("automation/marker", BLOCK.MARKER);
             INSTANCE.registerBlockEntityAlias("automation/marker", ENTITY.MARKER_BLOCK_ENTITY);
             INSTANCE.registerItemAlias("automation/marker", BLOCK.MARKER.asItem());
