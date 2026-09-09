@@ -12,6 +12,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,11 +114,11 @@ class ItemFilterModuleSerializationGoldenTest extends MinecraftTestEnvironment {
     }
 
     /** A list in the live on-disk shape: one ItemStack.CODEC compound per configured slot. */
-    private static ListTag encodedList(net.minecraft.world.item.Item... items) {
+    private static ListTag encodedList(Item... items) {
         RegistryOps<Tag> ops = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)
                 .createSerializationContext(NbtOps.INSTANCE);
         ListTag list = new ListTag();
-        for (net.minecraft.world.item.Item item : items) {
+        for (Item item : items) {
             list.add(ItemStack.CODEC.encodeStart(ops, new ItemStack(item))
                     .result()
                     .orElseThrow(() -> new AssertionError("Encode failed for " + item)));
