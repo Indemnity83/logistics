@@ -130,11 +130,11 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     }
 
     public int getInputAmountMb() {
-        return data.get(RefineryBlockEntity.DATA_IN_FLUID_AMOUNT);
+        return MachineData.wide(data, RefineryBlockEntity.DATA_IN_FLUID_AMOUNT);
     }
 
     public int getInputCapacityMb() {
-        return data.get(RefineryBlockEntity.DATA_IN_CAPACITY);
+        return MachineData.wide(data, RefineryBlockEntity.DATA_IN_CAPACITY);
     }
 
     public float getInputFillFraction() {
@@ -146,11 +146,11 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     }
 
     public int getOutputAmountMb() {
-        return data.get(RefineryBlockEntity.DATA_OUT_FLUID_AMOUNT);
+        return MachineData.wide(data, RefineryBlockEntity.DATA_OUT_FLUID_AMOUNT);
     }
 
     public int getOutputCapacityMb() {
-        return data.get(RefineryBlockEntity.DATA_OUT_CAPACITY);
+        return MachineData.wide(data, RefineryBlockEntity.DATA_OUT_CAPACITY);
     }
 
     public float getOutputFillFraction() {

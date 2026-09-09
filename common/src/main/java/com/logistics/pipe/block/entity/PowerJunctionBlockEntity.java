@@ -2,6 +2,7 @@ package com.logistics.pipe.block.entity;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.network.NetworkTopologyListener;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>The buffer is built with a non-zero {@code maxOutput} so the network can {@code extract()} from
  * it — unlike normal machines, which keep their energy internal.
  */
-public class PowerJunctionBlockEntity extends MachineEntity implements PipeConnection {
+public class PowerJunctionBlockEntity extends MachineEntity implements PipeConnection, NetworkTopologyListener {
 
     public static final long CAPACITY = 1_000_000L;
     public static final long MAX_INPUT = 128L; // ~32 EU/t at 1 EU = 4 RF
@@ -82,6 +83,13 @@ public class PowerJunctionBlockEntity extends MachineEntity implements PipeConne
         if (level != null && !level.isClientSide()) {
             networkSource.unregisterAll(this);
         }
+    }
+
+    // ==================== NetworkTopologyListener ====================
+
+    @Override
+    public void onNetworkTopologyChanged() {
+        networkSource.requestRescan();
     }
 
     // ==================== PipeConnection ====================
