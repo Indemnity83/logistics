@@ -26,6 +26,9 @@ import net.minecraft.world.level.material.Fluids;
  * registration mechanism: Fabric's {@code @GameTest}-annotated {@code TransposerGameTest}
  * delegates to these methods, and NeoForge's {@code TransposerGameTestRegistration} references
  * them directly as {@code Consumer<GameTestHelper>} method references.
+ *
+ * <p>Inside a {@code succeedWhen} block {@code context.fail} means "not yet": it throws, the
+ * framework retries the block next tick, and the last message stands if the test times out.
  */
 public class TransposerGameTestBody {
 
@@ -34,7 +37,11 @@ public class TransposerGameTestBody {
 
     // The transposer is precharged to capacity before each positive-path test.
     private static final long FULL_ENERGY = 1_000_000L;
-    private static final int COMPLETE_DELAY = 60;
+    // How long the "nothing should happen" tests wait before checking that nothing did. Every bucket
+    // recipe costs 800 RF at 20 RF/t, so a run takes 40 ticks — long enough that one would have
+    // finished by now. Tests that expect a run to finish poll instead of waiting a fixed span; at
+    // only five ticks of slack, a fixed deadline fails whenever the machine loses a few ticks.
+    private static final int NO_OP_DELAY = 45;
 
     private static TransposerBlockEntity place(GameTestHelper context, BlockPos pos) {
         context.setBlock(pos, LogisticsAutomation.BLOCK.TRANSPOSER);
@@ -84,7 +91,7 @@ public class TransposerGameTestBody {
         chargeFully(be);
         long filledEnergy = be.energyStorage(null).getAmount();
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.succeedWhen(() -> {
             if (!be.getItem(OUTPUT_SLOT).is(Items.LAVA_BUCKET)) {
                 context.fail("Expected a lava bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
                 return;
@@ -100,9 +107,7 @@ public class TransposerGameTestBody {
             long spent = filledEnergy - be.energyStorage(null).getAmount();
             if (spent != 800) {
                 context.fail("Filling a bucket should cost exactly 800 RF, spent: " + spent);
-                return;
             }
-            context.succeed();
         });
     }
 
@@ -117,7 +122,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(Items.BUCKET));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.succeedWhen(() -> {
             if (!be.getItem(OUTPUT_SLOT).is(bucket)) {
                 context.fail("Expected a liquid redstone bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
                 return;
@@ -128,9 +133,7 @@ public class TransposerGameTestBody {
             }
             if (be.tank().getAmount() != 0) {
                 context.fail("Tank should be empty after filling one bucket, got: " + be.tank().getAmount());
-                return;
             }
-            context.succeed();
         });
     }
 
@@ -149,7 +152,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(bucket));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.succeedWhen(() -> {
             if (!be.getItem(OUTPUT_SLOT).is(Items.BUCKET)) {
                 context.fail("Expected an empty bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
                 return;
@@ -160,9 +163,7 @@ public class TransposerGameTestBody {
             }
             if (be.tank().getAmount() != FluidUnits.mb(1_000) || be.tank().getFluidKey().getFluid() != fluid) {
                 context.fail("Tank should hold 1000 mB of liquid redstone, got: " + be.tank().getAmount());
-                return;
             }
-            context.succeed();
         });
     }
 
@@ -177,7 +178,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(Items.BUCKET));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.succeedWhen(() -> {
             if (!be.getItem(OUTPUT_SLOT).is(bucket)) {
                 context.fail("Expected a seed oil bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
                 return;
@@ -188,9 +189,7 @@ public class TransposerGameTestBody {
             }
             if (be.tank().getAmount() != 0) {
                 context.fail("Tank should be empty after filling one bucket, got: " + be.tank().getAmount());
-                return;
             }
-            context.succeed();
         });
     }
 
@@ -204,7 +203,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(bucket));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.succeedWhen(() -> {
             if (!be.getItem(OUTPUT_SLOT).is(Items.BUCKET)) {
                 context.fail("Expected an empty bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
                 return;
@@ -215,9 +214,7 @@ public class TransposerGameTestBody {
             }
             if (be.tank().getAmount() != FluidUnits.mb(1_000) || be.tank().getFluidKey().getFluid() != fluid) {
                 context.fail("Tank should hold 1000 mB of seed oil, got: " + be.tank().getAmount());
-                return;
             }
-            context.succeed();
         });
     }
 
@@ -236,7 +233,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(Items.BUCKET));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.runAfterDelay(NO_OP_DELAY, () -> {
             if (!be.getItem(INPUT_SLOT).is(Items.BUCKET)) {
                 context.fail("Empty bucket should be untouched when the tank has too little fluid");
                 return;
@@ -261,7 +258,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(Items.LAVA_BUCKET));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.succeedWhen(() -> {
             if (!be.getItem(OUTPUT_SLOT).is(Items.BUCKET)) {
                 context.fail("Expected an empty bucket in the output, got: " + be.getItem(OUTPUT_SLOT));
                 return;
@@ -272,9 +269,7 @@ public class TransposerGameTestBody {
             }
             if (be.tank().getAmount() != FluidUnits.mb(1_000) || be.tank().getFluidKey().getFluid() != Fluids.LAVA) {
                 context.fail("Tank should hold 1000 mB of lava, got: " + be.tank().getAmount());
-                return;
             }
-            context.succeed();
         });
     }
 
@@ -287,7 +282,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(Items.LAVA_BUCKET));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.runAfterDelay(NO_OP_DELAY, () -> {
             if (!be.getItem(INPUT_SLOT).is(Items.LAVA_BUCKET)) {
                 context.fail("Lava bucket should be untouched on a fluid mismatch");
                 return;
@@ -321,7 +316,7 @@ public class TransposerGameTestBody {
         be.setItem(OUTPUT_SLOT, new ItemStack(Items.STONE));
         chargeFully(be);
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.runAfterDelay(NO_OP_DELAY, () -> {
             if (!be.getItem(INPUT_SLOT).is(Items.BUCKET)) {
                 context.fail("Input empty bucket must be untouched when the output is blocked");
                 return;
@@ -352,7 +347,7 @@ public class TransposerGameTestBody {
         be.setItem(INPUT_SLOT, new ItemStack(Items.BUCKET));
         // No chargeFully(be) — the buffer starts empty.
 
-        context.runAfterDelay(COMPLETE_DELAY, () -> {
+        context.runAfterDelay(NO_OP_DELAY, () -> {
             if (!be.getItem(INPUT_SLOT).is(Items.BUCKET)) {
                 context.fail("Input empty bucket must be untouched with no energy to spend");
                 return;
