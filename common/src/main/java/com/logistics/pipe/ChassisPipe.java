@@ -497,28 +497,6 @@ public class ChassisPipe extends ItemPipe {
         return InteractionResult.PASS;
     }
 
-    /**
-     * Answered from a {@code BlockState} alone, with no level or position, so the installed
-     * dynamic modules are not reachable here. A chassis always advertises the capability;
-     * {@link #getComparatorOutput} returns 0 when nothing installed provides a reading.
-     */
-    @Override
-    public boolean hasComparatorOutput() {
-        return true;
-    }
-
-    @Override
-    public int getComparatorOutput(PipeContext ctx) {
-        int output = 0;
-        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
-            output = Math.max(output, entry.module().comparatorOutput(entry.scopedContext(ctx)));
-        }
-        for (Module module : getStaticModules()) {
-            output = Math.max(output, module.comparatorOutput(ctx));
-        }
-        return output;
-    }
-
     @Override
     public void randomDisplayTick(PipeContext ctx, RandomSource random) {
         for (DynamicModule entry : getDynamicModuleEntries(ctx)) {

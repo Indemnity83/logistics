@@ -275,13 +275,24 @@ public class GlassTankBlock extends BaseEntityBlock {
         return true;
     }
 
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof GlassTankBlockEntity tank && tank.capacity() > 0) {
-            if (tank.amount() <= 0) {
-                return 0;
-            }
-            return Math.max(1, (int) (15L * tank.amount() / tank.capacity()));
+    /**
+     * Reads the fill level of the whole vertical column, not this one cell. A column is what pipes
+     * and buckets fill, and fluid settles bottom-up through it, so a per-cell reading would jump to
+     * full as soon as any fluid entered the bottom cell and then sit there. Any cell in a column
+     * answers the same, the way either half of a double chest does.
+     */
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (!(level.getBlockEntity(pos) instanceof GlassTankBlockEntity tank)) {
+            return 0;
         }
-        return 0;
+
+        TankColumn column = tank.column();
+        long capacity = column.capacity();
+        long total = column.total();
+        if (capacity <= 0 || total <= 0) {
+            return 0;
+        }
+        return Math.max(1, (int) (15L * total / capacity));
     }
 }
