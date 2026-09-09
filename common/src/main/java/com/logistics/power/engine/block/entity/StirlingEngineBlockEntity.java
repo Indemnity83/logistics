@@ -19,6 +19,7 @@ import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.machine.MachineContext;
+import com.logistics.core.machine.MachineData;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.core.BlockPos;
@@ -78,7 +79,7 @@ public class StirlingEngineBlockEntity extends EngineEntity
                 case PROPERTY_BURN_TIME -> burn.burnTime();
                 case PROPERTY_FUEL_TIME -> burn.fuelTime();
                 case PROPERTY_HEAT -> (int) getTemperature();
-                case PROPERTY_ENERGY -> (int) (getEnergy() / 100);
+                case PROPERTY_ENERGY -> energyFraction(getEnergy(), getMaxEnergy());
                 case PROPERTY_GENERATION -> (int) (generationPlanner.currentGeneration() * 100);
                 default -> 0;
             };
@@ -94,6 +95,14 @@ public class StirlingEngineBlockEntity extends EngineEntity
             return PROPERTY_COUNT;
         }
     };
+
+    /**
+     * Energy fill as synced to the GUI: a 0..{@link MachineData#SCALE} fraction of the live buffer
+     * capacity, so the gauge is correct at any configured capacity and can't overflow the 16-bit slot.
+     */
+    public static int energyFraction(long stored, long capacity) {
+        return MachineData.fraction(stored, capacity);
+    }
 
     public StirlingEngineBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsPower.ENTITY.STIRLING_ENGINE_BLOCK_ENTITY, pos, state);
