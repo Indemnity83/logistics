@@ -5,9 +5,15 @@ on:
     branches: ['mc/**']
     types: [opened, edited, synchronize, reopened, ready_for_review]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# No concurrency group, deliberately. `lint (pr)` is a required check, and `cancelled` is not one
+# of the conclusions branch protection accepts (only success, skipped and neutral are), so a
+# cancelled run blocks the merge with no failure to diagnose. release-please regenerates a release
+# PR by pushing a commit and rewriting the title/body in the same instant, so `synchronize` and
+# `edited` both fire for the *same* head SHA -- unlike check-code.yml, where a cancelled run is
+# always a superseded commit. Grouping cannot be made safe here: GitHub cancels a previously
+# pending run in a group regardless of `cancel-in-progress`, so back-to-back events still strand a
+# cancelled check. The job is one JS action with no checkout and no Gradle, so running it a few
+# extra times is far cheaper than the manual re-runs the cancellations cost.
 
 permissions:
   contents: read
