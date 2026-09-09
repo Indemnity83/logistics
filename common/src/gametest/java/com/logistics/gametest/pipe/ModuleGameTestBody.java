@@ -187,9 +187,9 @@ public class ModuleGameTestBody {
      * <p>Two things here are deliberate. The module is fetched from the placed block instead of
      * being constructed, so a pipe that stops composing an {@link ItemFilterModule} fails outright.
      * And the filters are written with {@link ItemFilterModule#setFilterStacks}, the same call the
-     * filter screen makes — hand-writing {@code StringTag} ids into the {@code filters} list (what
-     * these tests used to do) produces a shape {@code getFilterStacks} cannot parse, so no filter
-     * was ever configured and every side became an unfiltered fallback.
+     * filter screen makes: hand-written {@code StringTag} ids in the {@code filters} list produce a
+     * shape {@code getFilterStacks} cannot parse, leaving no filter configured and every side an
+     * unfiltered fallback.
      *
      * @return the entry transport pipe to inject into, or null once the test has been failed
      */
@@ -245,9 +245,8 @@ public class ModuleGameTestBody {
      *
      * <p>The item is injected one segment upstream and reaches the filter through a real pipe-to-pipe
      * hop, so the pipe's own module list, the router's direction choice and the delivery into the
-     * chest all have to work. Asserting on a {@code RoutePlan} returned by a standalone
-     * {@code new ItemFilterModule()} — what this test used to do — proves none of that, and in this
-     * case proved nothing at all: see {@link #buildFilterJunction}.
+     * chest all have to work. A {@code RoutePlan} from a standalone {@code new ItemFilterModule()}
+     * exercises none of that.
      */
     public static void testFilterModuleRoutesMatchingItems(GameTestHelper context) {
         PipeBlockEntity entry = buildFilterJunction(context);
@@ -333,8 +332,8 @@ public class ModuleGameTestBody {
      * With two different sides filtered, each item goes to its own side and nothing else moves.
      *
      * <p>Gold is filtered to EAST while diamonds are filtered to NORTH, so a gold ingot must reach
-     * the EAST chest specifically — not merely be among the router's options, which is all the
-     * previous {@code contains(EAST)} assertion on a standalone module could show.
+     * the EAST chest specifically, not merely be among the router's options — {@code contains(EAST)}
+     * on a standalone module would hold even if the item never arrived.
      */
     public static void testFilterModuleMultipleSideFilters(GameTestHelper context) {
         PipeBlockEntity entry = buildFilterJunction(context);

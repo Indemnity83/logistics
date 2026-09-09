@@ -88,8 +88,8 @@ public class PipeInfrastructureGameTestBody {
      *
      * <p>Reads the cached connection types the renderer and the router both consume, after letting
      * the server tick the pipe — placing the neighbours is not enough on its own, the recalculation
-     * has to run. Asserting only that the centre has a block entity (all this test used to do)
-     * passes even when connection tracking is completely broken.
+     * has to run. Asserting only that the centre has a block entity would pass even with connection
+     * tracking completely broken.
      */
     public static void testPipeConnections(GameTestHelper context) {
         BlockPos center = new BlockPos(1, 1, 1);
