@@ -40,16 +40,17 @@ public class TransposerBlockEntity extends MachineEntity {
     static final int INPUT_SLOT = 0;
     static final int OUTPUT_SLOT = 1;
 
-    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the tank adds three
-    // (id, amount, and capacity), plus one for the active recipe's fluid direction. Capacity is synced
-    // from the server so the GUI gauge doesn't read the client's own config, which can diverge from the
-    // server's in multiplayer.
+    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the tank adds its
+    // fluid id, amount, and capacity, plus one slot for the active recipe's fluid direction. Amount and
+    // capacity are raw millibuckets, so each spans MachineData.WIDE_SLOTS slots — one slot is a signed
+    // short and wraps above 32,767 mB. Capacity is synced from the server so the GUI gauge doesn't read
+    // the client's own config, which can diverge from the server's in multiplayer.
     static final int DATA_FLUID_ID = MachineData.COUNT;
-    static final int DATA_FLUID_AMOUNT = MachineData.COUNT + 1;
-    static final int DATA_FLUID_CAPACITY = MachineData.COUNT + 2;
+    static final int DATA_FLUID_AMOUNT = DATA_FLUID_ID + 1;
+    static final int DATA_FLUID_CAPACITY = DATA_FLUID_AMOUNT + MachineData.WIDE_SLOTS;
     // 1 while the active recipe drains the tank (Fill mode) so the GUI mirrors its gauge; 0 otherwise.
-    static final int DATA_FILL_MODE = MachineData.COUNT + 3;
-    static final int DATA_COUNT = MachineData.COUNT + 4;
+    static final int DATA_FILL_MODE = DATA_FLUID_CAPACITY + MachineData.WIDE_SLOTS;
+    static final int DATA_COUNT = DATA_FILL_MODE + 1;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -64,10 +65,10 @@ public class TransposerBlockEntity extends MachineEntity {
                 case DATA_FLUID_ID -> fluidStore.tank().isEmpty()
                         ? -1
                         : BuiltInRegistries.FLUID.getId(fluidStore.tank().getFluidKey().getFluid());
-                case DATA_FLUID_AMOUNT -> (int) Math.min(
-                        FluidUnits.toMillibuckets(fluidStore.tank().getAmount()), Integer.MAX_VALUE);
-                case DATA_FLUID_CAPACITY -> (int) Math.min(
-                        FluidUnits.toMillibuckets(fluidStore.tank().getCapacity()), Integer.MAX_VALUE);
+                case DATA_FLUID_AMOUNT, DATA_FLUID_AMOUNT + 1 -> MachineData.wideSlot(
+                        FluidUnits.toMillibuckets(fluidStore.tank().getAmount()), index - DATA_FLUID_AMOUNT);
+                case DATA_FLUID_CAPACITY, DATA_FLUID_CAPACITY + 1 -> MachineData.wideSlot(
+                        FluidUnits.toMillibuckets(fluidStore.tank().getCapacity()), index - DATA_FLUID_CAPACITY);
                 case DATA_FILL_MODE -> processor.activeRecipeHasFluidInput() ? 1 : 0;
                 default -> 0;
             };

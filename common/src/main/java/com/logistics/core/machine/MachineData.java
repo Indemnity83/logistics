@@ -10,6 +10,10 @@ import net.minecraft.world.inventory.ContainerData;
  * <p>{@code ContainerData} syncs each value to the client as a signed 16-bit short (−32,768..32,767).
  * Syncing raw RF overflows once a buffer or recipe exceeds 32,767, so progress and energy fill are
  * synced as a {@code 0..}{@link #SCALE} fraction instead — correct at any energy magnitude.
+ *
+ * <p>A quantity the GUI must show as an exact number rather than a fraction — tank millibuckets, say —
+ * cannot use that trick, so it is split across {@link #WIDE_SLOTS} slots by {@link #wideSlot} and
+ * reassembled by {@link #wide}.
  */
 public final class MachineData {
     /** Fixed-point denominator for synced fractions. */
@@ -21,6 +25,8 @@ public final class MachineData {
     public static final int ENERGY = 1;
     /** Slot count for a machine syncing only progress + energy. */
     public static final int COUNT = 2;
+    /** Consecutive slots one raw value occupies when synced via {@link #wideSlot} and {@link #wide}. */
+    public static final int WIDE_SLOTS = 2;
 
     private MachineData() {}
 
@@ -69,6 +75,24 @@ public final class MachineData {
                 return COUNT;
             }
         };
+    }
+
+    /**
+     * Half number {@code half} of {@code value} for a wide slot pair — {@code 0} carries the low 16 bits,
+     * {@code 1} the high 16 bits. {@code value} is clamped to {@code 0..}{@link Integer#MAX_VALUE}.
+     *
+     * <p>Used for quantities that must reach the client as an exact number rather than a fraction (tank
+     * millibuckets, say). One slot is a signed short, so a raw value wraps above 32,767; split across two
+     * it survives at any magnitude, reassembled by {@link #wide}.
+     */
+    public static int wideSlot(long value, int half) {
+        long clamped = Math.max(0, Math.min(value, Integer.MAX_VALUE));
+        return (int) ((half == 0 ? clamped : clamped >> 16) & 0xFFFF);
+    }
+
+    /** The value of the wide slot pair at {@code index} (low half) and {@code index + 1} (high half). */
+    public static int wide(ContainerData data, int index) {
+        return ((data.get(index + 1) & 0xFFFF) << 16) | (data.get(index) & 0xFFFF);
     }
 
     /** Bar fill in pixels (0..{@code spritePx}, clamped) from the 0..{@link #SCALE} fraction at {@code index}. */

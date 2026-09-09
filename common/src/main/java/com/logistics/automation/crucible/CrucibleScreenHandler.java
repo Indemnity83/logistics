@@ -124,7 +124,7 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
 
     /** Tank fill as a 0..1 fraction of the tank's capacity. */
     public float getTankFillFraction() {
-        int amount = data.get(CrucibleBlockEntity.DATA_FLUID_AMOUNT);
+        int amount = MachineData.wide(data, CrucibleBlockEntity.DATA_FLUID_AMOUNT);
         long capacity = LogisticsConfigHost.get(LogisticsAutomation.CONFIG.CRUCIBLE_TANK_CAPACITY_MB);
         if (amount <= 0 || capacity <= 0) {
             return 0f;
@@ -134,7 +134,7 @@ public class CrucibleScreenHandler extends AbstractContainerMenu {
 
     /** Current tank amount in mB. */
     public int getTankAmountMb() {
-        return data.get(CrucibleBlockEntity.DATA_FLUID_AMOUNT);
+        return MachineData.wide(data, CrucibleBlockEntity.DATA_FLUID_AMOUNT);
     }
 
     /** Tank capacity in mB. */
