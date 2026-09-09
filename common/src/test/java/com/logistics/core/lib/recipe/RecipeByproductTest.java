@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.test.MinecraftTestEnvironment;
+import com.mojang.serialization.DataResult;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -36,11 +37,20 @@ class RecipeByproductTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("rejects a non-finite or negative byproduct chance on decode")
+    @DisplayName("reports a non-finite or negative byproduct chance as a decode error, not a throw")
     void rejectsInvalidByproductChance() {
-        assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(-0.1f)))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(Float.NaN)))
+        for (float chance : new float[] {-0.1f, Float.NaN, Float.POSITIVE_INFINITY}) {
+            DataResult<RecipeByproduct> result = RecipeByproduct.CODEC.parse(ops, byproductTag(chance));
+
+            assertThat(result.isError()).isTrue();
+            assertThat(result.error().orElseThrow().message()).contains("chance");
+        }
+    }
+
+    @Test
+    @DisplayName("rejects a non-finite or negative chance passed to the constructor")
+    void constructorRejectsInvalidChance() {
+        assertThatThrownBy(() -> new RecipeByproduct(Items.GOLD_NUGGET, -0.1f))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
