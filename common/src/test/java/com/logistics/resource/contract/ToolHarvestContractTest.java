@@ -171,7 +171,7 @@ class ToolHarvestContractTest extends MinecraftTestEnvironment {
     private static Map<String, Block> ourBlocks() {
         Map<String, Block> blocks = new TreeMap<>();
         BuiltInRegistries.BLOCK.entrySet().forEach(entry -> {
-            ResourceId id = ResourceId.wrap(entry.getKey().identifier());
+            ResourceId id = ResourceId.wrap(entry.getKey().location());
             if (ResourceFiles.NAMESPACE.equals(id.getNamespace())) {
                 blocks.put(ResourceFiles.NAMESPACE + ":" + id.getPath(), entry.getValue());
             }
