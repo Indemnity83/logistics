@@ -1,12 +1,21 @@
 pluginManagement {
     repositories {
+        // Scope each mod maven to the groups it serves. Gradle advances to the next repository only
+        // on a 404 -- a transport error (timeout, refused connection) fails plugin resolution
+        // outright -- so an unscoped mod maven listed ahead of the portal takes down resolution of
+        // *every* plugin, including spotless and sentry, which only the portal serves.
+        // Plain `content` here rather than the `exclusiveContent` the module builds use: it keeps
+        // the mod mavens from being asked for foreign groups without removing the portal as a
+        // fallback for released loom/moddev versions.
         maven {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
+            content { includeGroupByRegex 'net\\.fabricmc.*' }
         }
         maven {
             name = 'NeoForge'
             url = 'https://maven.neoforged.net/releases/'
+            content { includeGroupByRegex 'net\\.neoforged.*' }
         }
         gradlePluginPortal()
     }
