@@ -444,4 +444,42 @@ public class KilnGameTestBody {
 
         context.succeed();
     }
+
+    /**
+     * An item with no vanilla smelting recipe must never enter the input slot. The kiln exposes
+     * only its output slot on the bottom face, so anything a hopper or pipe pushes into the input
+     * is stuck there until a player clears it by hand — a permanent jam of the whole machine.
+     */
+    public static void testHopperCannotJamInputWithUnusableItem(GameTestHelper context) {
+        BlockPos kilnPos = new BlockPos(1, 1, 1);
+        BlockPos hopperPos = kilnPos.above();
+
+        context.setBlock(kilnPos, LogisticsAutomation.BLOCK.KILN);
+        context.setBlock(hopperPos, Blocks.HOPPER);
+
+        KilnBlockEntity kiln = context.getBlockEntity(kilnPos, KilnBlockEntity.class);
+        HopperBlockEntity hopper = context.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        if (kiln == null || hopper == null) {
+            context.fail("Expected kiln and hopper block entities");
+            return;
+        }
+
+        // Dirt has no smelting recipe — the sort of byproduct an upstream machine sends downstream.
+        hopper.setItem(0, new ItemStack(Items.DIRT));
+
+        final int inputSlot = 0;
+        // A hopper retries every 8 ticks; 30 leaves room for several attempts.
+        context.runAfterDelay(30, () -> {
+            if (!kiln.getItem(inputSlot).isEmpty()) {
+                context.fail("Kiln must refuse an item it has no recipe for, input holds: "
+                        + kiln.getItem(inputSlot));
+                return;
+            }
+            if (!hopper.getItem(0).is(Items.DIRT)) {
+                context.fail("Refused dirt should still be in the hopper, got: " + hopper.getItem(0));
+                return;
+            }
+            context.succeed();
+        });
+    }
 }

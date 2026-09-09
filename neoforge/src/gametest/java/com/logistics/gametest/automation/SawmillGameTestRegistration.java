@@ -32,7 +32,9 @@ public final class SawmillGameTestRegistration {
         new GameTestCase("automation/sawmill_pulps_kelp_into_biomass", 170, SawmillGameTestBody::testPulpsKelpIntoBiomass),
         new GameTestCase("automation/sawmill_pulps_seeds_into_biomass", 170, SawmillGameTestBody::testPulpsSeedsIntoBiomass),
         new GameTestCase(
-            "automation/sawmill_saws_via_real_engine_and_hoppers", 260, SawmillGameTestBody::testSawsViaRealEngineAndHoppers));
+            "automation/sawmill_saws_via_real_engine_and_hoppers", 260, SawmillGameTestBody::testSawsViaRealEngineAndHoppers),
+        new GameTestCase(
+            "automation/sawmill_hopper_cannot_jam_input", 60, SawmillGameTestBody::testHopperCannotJamInputWithUnusableItem));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
