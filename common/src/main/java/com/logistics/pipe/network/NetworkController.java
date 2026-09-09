@@ -390,37 +390,74 @@ public class NetworkController implements PlanningView {
     }
 
     /**
-     * Record physical delivery for a tracked dispatch.
+     * Record physical delivery for a tracked dispatch. Validated against the in-transit record
+     * before any total moves — see {@link #resolveInTransit}.
      */
     public void notifyDelivery(UUID orderId, BlockPos requester, IItemKey item, long amount) {
-        if (amount <= 0) return;
-        NetDbg.out("Delivery notified: {} received {}x {}", requester, amount, item.toStack(1).getItem());
-        releaseInTransit(orderId, amount);
-        decrementOrdered(requester, item, amount);
-        // Released against the order, not the requester: two concurrent orders for the same item to
-        // the same requester would otherwise resolve whichever the map iterated over first.
-        reservationManager.releaseInFlight(orderId, item, amount);
+        Order resolved = resolveInTransit(orderId, requester, item, amount, true);
+        if (resolved == null) return;
+        NetDbg.out("Delivery notified: {} received {}x {}",
+                requester, resolved.amount(), item.toStack(1).getItem());
     }
 
     /**
-     * Record failed delivery for a tracked dispatch and requeue the missing amount.
+     * Record failed delivery for a tracked dispatch and requeue the missing amount. Same validation
+     * as {@link #notifyDelivery(UUID, BlockPos, IItemKey, long)}.
      *
-     * @return replacement order id, or {@code null} when the amount is not positive
+     * @return replacement order id, or {@code null} when the acknowledgement was rejected
      */
     @Nullable
     public UUID notifyDeliveryFailed(UUID orderId, BlockPos requester, IItemKey item, long amount) {
-        if (amount <= 0) return null;
-
-        Order tracked = releaseInTransit(orderId, amount);
-        if (tracked == null) return null;
+        Order resolved = resolveInTransit(orderId, requester, item, amount, false);
+        if (resolved == null) return null;
 
         NetDbg.out("Delivery failed: {} lost {}x {}",
-                tracked.requester(), tracked.amount(), tracked.item().toStack(1).getItem());
-        decrementOrdered(tracked.requester(), tracked.item(), tracked.amount());
-        // The provider never lost these items, so its reservation has to go back with them.
-        reservationManager.releaseInFlight(orderId, tracked.item(), tracked.amount());
+                resolved.requester(), resolved.amount(), resolved.item().toStack(1).getItem());
+        return placeOrder(resolved.item(), resolved.amount(), resolved.requester(), resolved.fulfillmentMode());
+    }
 
-        return placeOrder(tracked.item(), tracked.amount(), tracked.requester(), tracked.fulfillmentMode());
+    /**
+     * Shared validated release-then-decrement behind both delivery and failure acknowledgement.
+     * Rejects — logs, mutates nothing — when the delivery id is unknown or already fully resolved
+     * (a duplicate acknowledgement), when the requester or item doesn't match the tracked order, or
+     * when the amount is not positive. An amount larger than what is actually in flight is clamped
+     * rather than rejected, so an over-report settles its own order without reaching into a
+     * concurrent order to the same requester for the same item.
+     *
+     * @return the portion resolved (already released from in-transit), or {@code null} if rejected
+     */
+    @Nullable
+    private Order resolveInTransit(
+            UUID orderId, BlockPos requester, IItemKey item, long amount, boolean delivered) {
+        Order tracked = inTransitOrders.get(orderId);
+        if (tracked == null) {
+            LogisticsMod.LOGGER.warn(
+                    "Rejected item {} acknowledgement for unknown/already-resolved delivery {} -- ignoring",
+                    delivered ? "delivery" : "failure", orderId);
+            return null;
+        }
+
+        if (amount <= 0 || !tracked.requester().equals(requester) || !tracked.item().equals(item)) {
+            LogisticsMod.LOGGER.warn(
+                    "Rejected invalid item {} acknowledgement for delivery {} (requester={}, item={}, amount={}) "
+                            + "against tracked {}", delivered ? "delivery" : "failure", orderId, requester,
+                    item.toStack(1).getItem(), amount, tracked);
+            return null;
+        }
+
+        long resolved = Math.min(amount, tracked.amount());
+        if (resolved < amount) {
+            LogisticsMod.LOGGER.warn(
+                    "Item {} acknowledgement for delivery {} reported {} but only {} was in flight -- clamping",
+                    delivered ? "delivery" : "failure", orderId, amount, tracked.amount());
+        }
+
+        Order released = releaseInTransit(orderId, resolved);
+        decrementOrdered(tracked.requester(), tracked.item(), resolved);
+        // Released against the order, not the requester: two concurrent orders for the same item to
+        // the same requester would otherwise resolve whichever the map iterated over first.
+        reservationManager.releaseInFlight(orderId, tracked.item(), resolved);
+        return released;
     }
 
     /**

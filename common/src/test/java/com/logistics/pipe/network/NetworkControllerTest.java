@@ -314,6 +314,86 @@ class NetworkControllerTest extends MinecraftTestEnvironment {
                 "Retry delivery should clear the remaining requester accounting exactly once");
     }
 
+    // ===== validated acknowledgement =====
+
+    /** Ships {@code amount} of diamonds to {@code REQUESTER} and returns the tracked delivery id. */
+    private UUID shipOrder(long amount) {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), amount), 1);
+        UUID orderId = controller.placeOrder(diamond(), amount, REQUESTER);
+        NetworkController.DispatchCommand cmd = controller.nextDispatchable();
+        assertNotNull(cmd);
+        controller.recordDispatched(cmd.orderId(), amount);
+        return orderId;
+    }
+
+    @Test
+    void testNotifyDelivery_ignoresUnknownDeliveryId() {
+        shipOrder(32L);
+
+        controller.notifyDelivery(UUID.randomUUID(), REQUESTER, diamond(), 32L);
+
+        assertEquals(32L, controller.getOrderedAmountFor(REQUESTER, diamond()),
+                "An acknowledgement for a delivery the network never tracked must not settle real demand");
+    }
+
+    @Test
+    void testNotifyDelivery_ignoresDuplicateAcknowledgement() {
+        UUID orderId = shipOrder(32L);
+        controller.notifyDelivery(orderId, REQUESTER, diamond(), 32L);
+
+        controller.placeOrder(diamond(), 16L, REQUESTER);
+        controller.notifyDelivery(orderId, REQUESTER, diamond(), 16L);
+
+        assertEquals(16L, controller.getOrderedAmountFor(REQUESTER, diamond()),
+                "A repeated acknowledgement must not settle a later order the delivery never carried");
+    }
+
+    @Test
+    void testNotifyDelivery_ignoresMismatchedRequester() {
+        UUID orderId = shipOrder(32L);
+        controller.placeOrder(diamond(), 16L, REQUESTER2);
+
+        controller.notifyDelivery(orderId, REQUESTER2, diamond(), 16L);
+
+        assertEquals(16L, controller.getOrderedAmountFor(REQUESTER2, diamond()),
+                "A delivery must only settle the requester its order was placed for");
+        assertEquals(32L, controller.getOrderedAmountFor(REQUESTER, diamond()));
+    }
+
+    @Test
+    void testNotifyDelivery_ignoresMismatchedItem() {
+        UUID orderId = shipOrder(32L);
+        controller.placeOrder(emerald(), 16L, REQUESTER);
+
+        controller.notifyDelivery(orderId, REQUESTER, emerald(), 16L);
+
+        assertEquals(16L, controller.getOrderedAmountFor(REQUESTER, emerald()),
+                "A delivery must only settle the item its order was placed for");
+        assertEquals(32L, controller.getOrderedAmountFor(REQUESTER, diamond()));
+    }
+
+    @Test
+    void testNotifyDelivery_clampsOverAcknowledgementToWhatIsInFlight() {
+        UUID orderId = shipOrder(32L);
+        controller.placeOrder(diamond(), 16L, REQUESTER);
+
+        controller.notifyDelivery(orderId, REQUESTER, diamond(), 40L);
+
+        assertEquals(16L, controller.getOrderedAmountFor(REQUESTER, diamond()),
+                "An oversized acknowledgement must settle its own order only, not a concurrent one");
+    }
+
+    @Test
+    void testNotifyDeliveryFailed_ignoresMismatchedRequester() {
+        UUID orderId = shipOrder(32L);
+
+        UUID replacementOrderId = controller.notifyDeliveryFailed(orderId, REQUESTER2, diamond(), 32L);
+
+        assertNull(replacementOrderId,
+                "A failure naming a requester the order was never placed for must not resolve it");
+        assertEquals(32L, controller.getOrderedAmountFor(REQUESTER, diamond()));
+    }
+
     // ===== reservation accounting =====
 
     @Test
