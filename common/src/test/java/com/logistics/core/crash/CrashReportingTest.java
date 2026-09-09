@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigKey;
 import com.indemnity83.configory.ConfigRegistry;
 import com.logistics.LogisticsCore;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -22,13 +24,26 @@ class CrashReportingTest {
         return ConfigRegistry.config(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED.configId());
     }
 
+    /** Crash keys this class mutates on the shared registry config. */
+    private static final ConfigKey<?>[] TOUCHED = {
+        LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED,
+        LogisticsCore.CONFIG.CRASH_REPORTING_SHOW_NOTIFICATION,
+        LogisticsCore.CONFIG.CRASH_REPORTING_DSN_OVERRIDE,
+    };
+
+    // Both sides: the reporting singleton and the registry are shared with the rest of the fork,
+    // so this class must neither inherit nor leave an active client.
+    @BeforeEach
     @AfterEach
-    void cleanup() {
+    void reset() {
         CrashReporting.disable();
-        Config reporting = reporting();
-        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED, false);
-        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_SHOW_NOTIFICATION, true);
-        reporting.set(LogisticsCore.CONFIG.CRASH_REPORTING_DSN_OVERRIDE, "");
+        for (ConfigKey<?> key : TOUCHED) {
+            resetKey(key);
+        }
+    }
+
+    private static <T> void resetKey(ConfigKey<T> key) {
+        reporting().set(key, key.definition().defaultValue());
     }
 
     @Test
