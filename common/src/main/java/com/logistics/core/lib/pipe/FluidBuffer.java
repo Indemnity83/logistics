@@ -107,8 +107,9 @@ public final class FluidBuffer<F> {
     /**
      * Pushes up to {@code millibuckets} of fluid from this pipe into {@code target}, equalizing their levels:
      * it moves at most half the difference, so a transfer never leaves the target fuller than this pipe
-     * (communicating-vessels behaviour). Nothing moves if this pipe is empty, the target is already at least
-     * as full, or the target holds a different fluid.
+     * (communicating-vessels behaviour). Also bounded by the target's remaining space, which matters when the
+     * two differ in capacity. Nothing moves if this pipe is empty, the target is already at least as full, or
+     * the target holds a different fluid.
      *
      * @return the amount actually moved, in millibuckets
      */
@@ -151,17 +152,21 @@ public final class FluidBuffer<F> {
         return fluid != null && millibuckets > 0 && (target.fluid == null || target.fluid.equals(fluid));
     }
 
-    /** Applies a transfer of {@code amount} mB into {@code target} (no-op if {@code amount <= 0}). */
+    /**
+     * Applies a transfer of up to {@code amount} mB into {@code target}, bounded by the target's remaining
+     * space so no movement rule can overfill it. No-op when nothing can move.
+     */
     private long transfer(FluidBuffer<F> target, long amount) {
-        if (amount <= 0) {
+        long moved = Math.min(amount, target.space());
+        if (moved <= 0) {
             return 0;
         }
         target.fluid = fluid;
-        target.amountMb += amount;
-        amountMb -= amount;
+        target.amountMb += moved;
+        amountMb -= moved;
         if (amountMb == 0) {
             fluid = null;
         }
-        return amount;
+        return moved;
     }
 }
