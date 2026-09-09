@@ -29,7 +29,7 @@ The main use of metal dusts is doubling ore output. Grinding one ore block produ
 * '''Direct:''' Tin Ore → furnace → 1× [[Tin Ingot]]
 * '''Doubled:''' Tin Ore → [[Macerator]] → 2× [[Tin Dust]] → furnace or [[Kiln]] → 2× [[Tin Ingot]]
 
-Grinding the source ore in the [[Macerator]] grants the same experience the furnace would, so ore doubling costs no experience. (Smelting the dust itself grants none.)
+Grinding the source ore in the [[Macerator]] grants the same experience the furnace would, so no experience is lost in the process. (Smelting the dust itself grants none.)
 
 == See also ==
 
