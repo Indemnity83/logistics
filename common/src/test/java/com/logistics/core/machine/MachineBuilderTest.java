@@ -15,6 +15,15 @@ class MachineBuilderTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void itemsRejectsMissingAccessMode() {
+        MachineBuilder machine = builder();
+
+        assertThatThrownBy(() ->
+                        machine.items("items").slots(SlotRole.INPUT, SlotRole.OUTPUT).build())
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     void recipeProcessorRejectsNonPositiveRfPerTick() {
         MachineBuilder machine = builder();
         ItemStoreComponent items =

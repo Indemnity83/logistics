@@ -44,7 +44,10 @@ class MachineMenuValidityTest extends MinecraftTestEnvironment {
 
         @Override
         protected void configure(MachineBuilder machine) {
-            machine.items("inventory").slots(SlotRole.INPUT, SlotRole.OUTPUT).build();
+            machine.items("inventory")
+                    .slots(SlotRole.INPUT, SlotRole.OUTPUT)
+                    .furnaceAccess()
+                    .build();
         }
 
         @Override

@@ -37,7 +37,6 @@ import com.logistics.power.engine.block.FuelEngineBlock;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import com.logistics.power.engine.ui.FuelEngineScreenHandler;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
@@ -414,26 +413,11 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static MenuType<FuelEngineScreenHandler> FUEL_ENGINE;
 
         static void register() {
-            STIRLING_ENGINE = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPower.resource("stirling_engine").toIdentifier(),
-                    new MenuType<>(StirlingEngineScreenHandler::new, FeatureFlagSet.of()));
-            REACTION_ENGINE = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPower.resource("reaction_engine").toIdentifier(),
-                    new MenuType<>(ReactionEngineScreenHandler::new, FeatureFlagSet.of()));
-            MAGMATIC_ENGINE = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPower.resource("magmatic_engine").toIdentifier(),
-                    new MenuType<>(MagmaticEngineScreenHandler::new, FeatureFlagSet.of()));
-            STEAM_ENGINE = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPower.resource("steam_engine").toIdentifier(),
-                    new MenuType<>(SteamEngineScreenHandler::new, FeatureFlagSet.of()));
-            FUEL_ENGINE = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPower.resource("fuel_engine").toIdentifier(),
-                    new MenuType<>(FuelEngineScreenHandler::new, FeatureFlagSet.of()));
+            STIRLING_ENGINE = INSTANCE.registerMenuType("stirling_engine", StirlingEngineScreenHandler::new);
+            REACTION_ENGINE = INSTANCE.registerMenuType("reaction_engine", ReactionEngineScreenHandler::new);
+            MAGMATIC_ENGINE = INSTANCE.registerMenuType("magmatic_engine", MagmaticEngineScreenHandler::new);
+            STEAM_ENGINE = INSTANCE.registerMenuType("steam_engine", SteamEngineScreenHandler::new);
+            FUEL_ENGINE = INSTANCE.registerMenuType("fuel_engine", FuelEngineScreenHandler::new);
         }
     }
 

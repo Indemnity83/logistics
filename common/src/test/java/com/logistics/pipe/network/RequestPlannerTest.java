@@ -226,6 +226,54 @@ class RequestPlannerTest extends MinecraftTestEnvironment {
         assertTrue(plan.isEmpty());
     }
 
+    // ===== Multi-provider stock =====
+
+    @Test
+    void testPlanFromStock_neverClaimsMoreThanAProviderHolds() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 8L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 56L), 1);
+
+        FulfillmentPlan plan = planner.plan(diamond(), 64, FulfillmentMode.FULL, controller);
+
+        assertEquals(64, plan.plannedAmount());
+        Map<BlockPos, Long> onHand = Map.of(PROVIDER1, 8L, PROVIDER2, 56L);
+        for (PlanNode node : plan.roots()) {
+            PlanNode.ExtractNode extract = assertInstanceOf(PlanNode.ExtractNode.class, node);
+            Long stock = onHand.get(extract.provider());
+            assertNotNull(stock, "plan named an unknown provider: " + extract.provider());
+            assertTrue(extract.amount() <= stock,
+                    "plan claims " + extract.amount() + " from " + extract.provider()
+                            + " which only holds " + stock);
+        }
+    }
+
+    @Test
+    void testPlanFromStock_extractNodesAccountForThePlannedAmount() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 8L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 56L), 1);
+
+        FulfillmentPlan plan = planner.plan(diamond(), 64, FulfillmentMode.FULL, controller);
+
+        long summed = plan.roots().stream()
+                .filter(PlanNode.ExtractNode.class::isInstance)
+                .mapToLong(n -> ((PlanNode.ExtractNode) n).amount())
+                .sum();
+        assertEquals(plan.plannedAmount(), summed);
+    }
+
+    @Test
+    void testPlanFromStock_partialDrawStopsOnceTheNeedIsMet() {
+        controller.registerSupply(PROVIDER1, Map.of(diamond(), 8L), 1);
+        controller.registerSupply(PROVIDER2, Map.of(diamond(), 56L), 1);
+
+        FulfillmentPlan plan = planner.plan(diamond(), 4, FulfillmentMode.FULL, controller);
+
+        assertEquals(4, plan.plannedAmount());
+        assertEquals(1, plan.roots().size(), "one provider covers the whole draw");
+        assertEquals(4, ((PlanNode.ExtractNode) plan.roots().getFirst()).amount());
+    }
+
+    // ===== Shared claimed scratch-pad =====
     // ===== Per-call planning scratch-pad =====
 
     @Test

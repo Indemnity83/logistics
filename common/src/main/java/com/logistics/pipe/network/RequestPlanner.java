@@ -83,15 +83,20 @@ public class RequestPlanner {
         long effective = ctx.effectiveRealStock(item, supply);
         if (effective <= 0) return 0;
 
-        long fromStock = Math.min(effective, needed);
-        ctx.claimed.merge(item, fromStock, Long::sum);
+        // Spread the draw across providers in supply order; no node may claim more than the
+        // provider it names actually holds.
+        long remaining = Math.min(effective, needed);
+        long planned = 0;
         for (PlanningView.SupplyPoint sp : supply) {
-            if (sp.available() > 0) {
-                out.add(new PlanNode.ExtractNode(sp.provider(), item, fromStock));
-                break;
-            }
+            if (remaining <= 0) break;
+            if (sp.available() <= 0) continue; // crafter entry, not real stock
+            long take = Math.min(sp.available(), remaining);
+            out.add(new PlanNode.ExtractNode(sp.provider(), item, take));
+            remaining -= take;
+            planned += take;
         }
-        return fromStock;
+        ctx.claimed.merge(item, planned, Long::sum);
+        return planned;
     }
 
     /** Sources {@code remaining} units from the first valid crafter, capped by its buffer. */
