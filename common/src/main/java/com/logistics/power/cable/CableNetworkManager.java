@@ -28,6 +28,9 @@ public class CableNetworkManager {
     private final List<CableNetwork> networks = new ArrayList<>();
     private boolean dirty = true;
 
+    private long loadedCheckGameTime = Long.MIN_VALUE;
+    private boolean networksFullyLoaded = false;
+
     public static CableNetworkManager get(Level level) {
         return INSTANCES.computeIfAbsent(level, k -> new CableNetworkManager());
     }
@@ -100,15 +103,31 @@ public class CableNetworkManager {
         }
     }
 
+    /**
+     * Whether any network still holds a cable whose chunk has gone away, checked once per tick.
+     *
+     * <p>A cable in an unloading chunk is never handed back — the block entity is discarded
+     * without the block being removed — so the networks are swept for orphans instead. Sweeping
+     * every cable on every insert made the check scale with pushes rather than with cables, and
+     * a chunk cannot unload between two pushes: unloads are processed before a level ticks its
+     * block entities.
+     */
     private boolean hasUnloadedNetworkPositions(Level level) {
+        long gameTime = level.getGameTime();
+        if (loadedCheckGameTime != gameTime) {
+            loadedCheckGameTime = gameTime;
+            networksFullyLoaded = allNetworksLoaded(level);
+        }
+        return !networksFullyLoaded;
+    }
+
+    private boolean allNetworksLoaded(Level level) {
         for (CableNetwork network : networks) {
-            for (BlockPos pos : network.getCablePositions()) {
-                if (!isPositionLoaded(level, pos)) {
-                    return true;
-                }
+            if (!network.allPositionsLoaded(level)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private void rebuildNetworks(Level level) {
@@ -137,6 +156,11 @@ public class CableNetworkManager {
             allCables.addAll(network.getCablePositions());
             unvisited.removeAll(network.getCablePositions());
         }
+
+        // Flood-fill only ever adds loaded positions, so the rebuild is itself a fresh answer to
+        // the orphan check — without this the same tick's later inserts would rebuild again.
+        loadedCheckGameTime = level.getGameTime();
+        networksFullyLoaded = true;
     }
 
     private static boolean isPositionLoaded(Level level, BlockPos pos) {
