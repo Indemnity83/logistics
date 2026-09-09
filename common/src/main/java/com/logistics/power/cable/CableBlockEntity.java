@@ -6,6 +6,7 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -83,10 +84,25 @@ public class CableBlockEntity extends BaseBlockEntity
         if (level == null) return;
         if (!(getBlockState().getBlock() instanceof CableBlock cableBlock)) return;
 
+        rebuildConnectionCache(
+                dir -> cableBlock.getDynamicConnectionType(level, worldPosition, dir),
+                !level.isClientSide());
+    }
+
+    /**
+     * Refreshes the connection cache from {@code resolver}, which reports the connection the
+     * caller's own view of the world implies for each direction. Only an authoritative
+     * (server-side) rebuild publishes the result as the render mask; the client keeps the mask the
+     * server sent, so a shape query cannot swap it for a locally derived one.
+     */
+    void rebuildConnectionCache(
+            Function<Direction, CableBlock.ConnectionType> resolver, boolean authoritative) {
         for (Direction dir : Direction.values()) {
-            connectionCache[dir.get3DDataValue()] = cableBlock.getDynamicConnectionType(level, worldPosition, dir);
+            connectionCache[dir.get3DDataValue()] = resolver.apply(dir);
         }
-        renderConnectionMask = computeConnectionMask();
+        if (authoritative) {
+            renderConnectionMask = computeConnectionMask();
+        }
         connectionCacheDirty = false;
     }
 
