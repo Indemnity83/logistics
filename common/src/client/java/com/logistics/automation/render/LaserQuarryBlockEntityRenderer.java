@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,6 +68,11 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
             state.shouldRenderPreviewOutline = false;
             return;
         }
+
+        // Sample the live tick rate every extraction — it is per-client and changes at runtime
+        TickRateManager tickRateManager = level.tickRateManager();
+        state.tickRate = tickRateManager != null ? tickRateManager.tickrate() : LaserQuarryRenderState.DEFAULT_TICK_RATE;
+        state.tickingFrozen = tickRateManager != null && tickRateManager.isFrozen();
 
         // Get facing direction for arm rendering
         state.facing = LaserQuarryBlock.getMiningDirection(blockState);

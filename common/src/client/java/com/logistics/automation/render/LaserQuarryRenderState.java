@@ -14,6 +14,9 @@ import net.minecraft.world.level.Level;
  * Render state for the laser quarry arm visualization.
  */
 public class LaserQuarryRenderState extends BlockEntityRenderState {
+    /** Rate used when no tick manager is reachable. */
+    public static final float DEFAULT_TICK_RATE = 20f;
+
     public boolean shouldRenderArm = false;
     public boolean shouldRenderPreviewOutline = false;
     public BlockPos quarryPos = BlockPos.ZERO;
@@ -46,6 +49,13 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
     // Synced arm speed from server (blocks per tick, scales with energy)
     public float syncedArmSpeed = 0.0f;
 
+    // Tick rate the level is running at, sampled every extraction (/tick rate, /tick sprint).
+    // Defaults to the vanilla rate for the case where no tick manager is reachable.
+    public float tickRate = DEFAULT_TICK_RATE;
+
+    // Whether ticking is frozen (/tick freeze), sampled every extraction
+    public boolean tickingFrozen = false;
+
     // Persistent interpolation state stored per quarry position (survives render state recreation)
     private static final Map<BlockPos, InterpolationState> INTERPOLATION_CACHE = new ConcurrentHashMap<>();
 
@@ -64,9 +74,12 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
      * State is persisted in a static cache to survive render state recreation.
      */
     public void updateClientInterpolation() {
-        InterpolationState interp = INTERPOLATION_CACHE.computeIfAbsent(quarryPos, k -> new InterpolationState());
+        updateClientInterpolation(System.nanoTime());
+    }
 
-        long currentTime = System.nanoTime();
+    // Time-injectable form so the speed conversion can be driven deterministically in tests.
+    void updateClientInterpolation(long currentTime) {
+        InterpolationState interp = INTERPOLATION_CACHE.computeIfAbsent(quarryPos, k -> new InterpolationState());
 
         if (!interp.initialized || interp.lastUpdateTimeNanos == 0) {
             // First time - snap to server position
@@ -89,9 +102,13 @@ public class LaserQuarryRenderState extends BlockEntityRenderState {
         // Clamp delta to avoid huge jumps after pauses
         deltaSeconds = Math.min(deltaSeconds, 0.1f);
 
-        // Get current tick rate (MC 1.21.11 always runs at 20 TPS)
-        // TODO: Use getTickManager() when MC 26.1+ support is added
-        float tickRate = 20f;
+        if (tickingFrozen) {
+            // Wall-clock interpolation would glide on to the target while the server holds the arm still.
+            renderArmX = interp.renderArmX;
+            renderArmY = interp.renderArmY;
+            renderArmZ = interp.renderArmZ;
+            return;
+        }
 
         // Speed in blocks per second = synced speed per tick * ticks per second
         float speedPerSecond = syncedArmSpeed * tickRate;
