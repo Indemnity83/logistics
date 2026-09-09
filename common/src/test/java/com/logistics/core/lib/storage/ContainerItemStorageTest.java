@@ -1,13 +1,17 @@
 package com.logistics.core.lib.storage;
 
 import com.logistics.test.MinecraftTestEnvironment;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -97,6 +101,52 @@ class ContainerItemStorageTest extends MinecraftTestEnvironment {
                 .as("the second insert stacks onto the matching slot")
                 .isEqualTo(8);
         assertThat(container.getItem(1).isEmpty()).isTrue();
+    }
+
+    // ==================== Vanilla's two-check placement contract ====================
+    // HopperBlockEntity.canPlaceItemInContainer requires Container.canPlaceItem AND, for a
+    // WorldlyContainer, canPlaceItemThroughFace. A container that validates in only one of the
+    // two must still be respected.
+
+    @Test
+    @DisplayName("a sided insert respects canPlaceItem even when the face check passes")
+    void sidedInsert_respectsCanPlaceItem() {
+        OpenFaceContainer container = new OpenFaceContainer(2);
+        ContainerItemStorage storage = new ContainerItemStorage(container, Direction.UP);
+        IItemKey diamond = ItemStorageLookup.of(new ItemStack(Items.DIAMOND));
+
+        assertThat(storage.insert(diamond, 8, false))
+                .as("the container refuses this item in canPlaceItem, so nothing may go in")
+                .isZero();
+        assertThat(container.getItem(0).isEmpty()).isTrue();
+        assertThat(container.getItem(1).isEmpty()).isTrue();
+    }
+
+    /** Exposes every slot to every face and waves the face check through, refusing only in canPlaceItem. */
+    private static final class OpenFaceContainer extends SimpleContainer implements WorldlyContainer {
+        private OpenFaceContainer(int size) {
+            super(size);
+        }
+
+        @Override
+        public boolean canPlaceItem(int slot, ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public int[] getSlotsForFace(Direction side) {
+            return IntStream.range(0, getContainerSize()).toArray();
+        }
+
+        @Override
+        public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction side) {
+            return true;
+        }
+
+        @Override
+        public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
+            return true;
+        }
     }
 
     private static ItemStack named(ItemStack stack, String name) {
