@@ -131,6 +131,11 @@ class SinkResolver {
      * interest in this item type, avoiding expensive inventory scans for every network member.
      * Priority lookup reads the registry once per candidate; no sort is performed.
      *
+     * <p>Equal priorities are broken by the lowest {@link BlockPos#asLong()}, so the winner is a
+     * pure function of the accepting sinks' positions. Without that, the candidate set is an
+     * unordered {@link HashSet} and the winner would follow hash iteration order, which shifts
+     * whenever set membership changes — that is, whenever the network merges or splits.
+     *
      * @param stack        item to route
      * @param filteredOnly if true, skip priority-0 (catch-all) sinks
      */
@@ -147,7 +152,8 @@ class SinkResolver {
             Integer priority = sinkRegistry.get(pos);
             if (priority == null || !graph.contains(pos)) continue;
             if (filteredOnly && priority <= 0) continue;
-            if (priority <= bestPriority) continue;
+            if (priority < bestPriority) continue;
+            if (priority == bestPriority && best != null && pos.asLong() >= best.asLong()) continue;
             if (worldView.matchesSinkFilter(pos, stack)) {
                 best = pos;
                 bestPriority = priority;
