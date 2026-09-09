@@ -37,11 +37,13 @@ public class CrucibleBlockEntity extends MachineEntity {
     static final int INPUT_SLOT = 0;
 
     // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the tank adds its fluid
-    // id and amount. The amount is raw millibuckets, so it spans MachineData.WIDE_SLOTS slots — one slot
-    // is a signed short and wraps above 32,767 mB.
+    // id, amount and capacity. Amount and capacity are raw millibuckets, so each spans
+    // MachineData.WIDE_SLOTS slots — one slot is a signed short and wraps above 32,767 mB. Capacity is
+    // synced rather than read from the client's config, which can diverge from the server's.
     static final int DATA_FLUID_ID = MachineData.COUNT;
     static final int DATA_FLUID_AMOUNT = DATA_FLUID_ID + 1;
-    static final int DATA_COUNT = DATA_FLUID_AMOUNT + MachineData.WIDE_SLOTS;
+    static final int DATA_FLUID_CAPACITY = DATA_FLUID_AMOUNT + MachineData.WIDE_SLOTS;
+    static final int DATA_COUNT = DATA_FLUID_CAPACITY + MachineData.WIDE_SLOTS;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -59,6 +61,8 @@ public class CrucibleBlockEntity extends MachineEntity {
                         : BuiltInRegistries.FLUID.getId(fluidStore.tank().getFluidKey().getFluid());
                 case DATA_FLUID_AMOUNT, DATA_FLUID_AMOUNT + 1 -> MachineData.wideSlot(
                         FluidUnits.toMillibuckets(fluidStore.tank().getAmount()), index - DATA_FLUID_AMOUNT);
+                case DATA_FLUID_CAPACITY, DATA_FLUID_CAPACITY + 1 -> MachineData.wideSlot(
+                        FluidUnits.toMillibuckets(fluidStore.tank().getCapacity()), index - DATA_FLUID_CAPACITY);
                 default -> 0;
             };
         }
