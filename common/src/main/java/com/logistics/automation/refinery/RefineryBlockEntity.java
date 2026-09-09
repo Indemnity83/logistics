@@ -44,16 +44,18 @@ public class RefineryBlockEntity extends MachineEntity {
 
     static final int OUTPUT_SLOT = 0;
 
-    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the two tanks add six
-    // (id, amount, and capacity each). Capacities are synced from the server so the GUI gauges don't read
-    // the client's own config, which can diverge from the server's in multiplayer.
+    // Progress + energy sync as 0..MachineData.SCALE fractions (see MachineData); the two tanks add an id,
+    // an amount, and a capacity each. Amounts and capacities are raw millibuckets, so each spans
+    // MachineData.WIDE_SLOTS slots — one slot is a signed short and wraps above 32,767 mB. Capacities are
+    // synced from the server so the GUI gauges don't read the client's own config, which can diverge from
+    // the server's in multiplayer.
     static final int DATA_IN_FLUID_ID = MachineData.COUNT;
-    static final int DATA_IN_FLUID_AMOUNT = MachineData.COUNT + 1;
-    static final int DATA_OUT_FLUID_ID = MachineData.COUNT + 2;
-    static final int DATA_OUT_FLUID_AMOUNT = MachineData.COUNT + 3;
-    static final int DATA_IN_CAPACITY = MachineData.COUNT + 4;
-    static final int DATA_OUT_CAPACITY = MachineData.COUNT + 5;
-    static final int DATA_COUNT = MachineData.COUNT + 6;
+    static final int DATA_IN_FLUID_AMOUNT = DATA_IN_FLUID_ID + 1;
+    static final int DATA_OUT_FLUID_ID = DATA_IN_FLUID_AMOUNT + MachineData.WIDE_SLOTS;
+    static final int DATA_OUT_FLUID_AMOUNT = DATA_OUT_FLUID_ID + 1;
+    static final int DATA_IN_CAPACITY = DATA_OUT_FLUID_AMOUNT + MachineData.WIDE_SLOTS;
+    static final int DATA_OUT_CAPACITY = DATA_IN_CAPACITY + MachineData.WIDE_SLOTS;
+    static final int DATA_COUNT = DATA_OUT_CAPACITY + MachineData.WIDE_SLOTS;
 
     private EnergyStorageComponent energy;
     private RecipeProcessorComponent processor;
@@ -68,11 +70,15 @@ public class RefineryBlockEntity extends MachineEntity {
                 case MachineData.PROGRESS -> MachineData.progressFraction(processor);
                 case MachineData.ENERGY -> MachineData.energyFraction(energy, energy.capacity());
                 case DATA_IN_FLUID_ID -> fluidId(inputTank);
-                case DATA_IN_FLUID_AMOUNT -> amountMb(inputTank);
+                case DATA_IN_FLUID_AMOUNT, DATA_IN_FLUID_AMOUNT + 1 -> MachineData.wideSlot(
+                        amountMb(inputTank), index - DATA_IN_FLUID_AMOUNT);
                 case DATA_OUT_FLUID_ID -> fluidId(outputTank);
-                case DATA_OUT_FLUID_AMOUNT -> amountMb(outputTank);
-                case DATA_IN_CAPACITY -> capacityMb(inputTank);
-                case DATA_OUT_CAPACITY -> capacityMb(outputTank);
+                case DATA_OUT_FLUID_AMOUNT, DATA_OUT_FLUID_AMOUNT + 1 -> MachineData.wideSlot(
+                        amountMb(outputTank), index - DATA_OUT_FLUID_AMOUNT);
+                case DATA_IN_CAPACITY, DATA_IN_CAPACITY + 1 -> MachineData.wideSlot(
+                        capacityMb(inputTank), index - DATA_IN_CAPACITY);
+                case DATA_OUT_CAPACITY, DATA_OUT_CAPACITY + 1 -> MachineData.wideSlot(
+                        capacityMb(outputTank), index - DATA_OUT_CAPACITY);
                 default -> 0;
             };
         }
@@ -98,12 +104,12 @@ public class RefineryBlockEntity extends MachineEntity {
                 : BuiltInRegistries.FLUID.getId(store.tank().getFluidKey().getFluid());
     }
 
-    private static int amountMb(FluidStoreComponent store) {
-        return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getAmount()), Integer.MAX_VALUE);
+    private static long amountMb(FluidStoreComponent store) {
+        return FluidUnits.toMillibuckets(store.tank().getAmount());
     }
 
-    private static int capacityMb(FluidStoreComponent store) {
-        return (int) Math.min(FluidUnits.toMillibuckets(store.tank().getCapacity()), Integer.MAX_VALUE);
+    private static long capacityMb(FluidStoreComponent store) {
+        return FluidUnits.toMillibuckets(store.tank().getCapacity());
     }
 
     @Override
