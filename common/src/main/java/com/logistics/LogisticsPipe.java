@@ -33,7 +33,6 @@ import com.logistics.pipe.ui.ItemFilterScreenHandler;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -99,11 +98,11 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static final ConfigKey<Long> FLUID_PACKET_MAX_MB =
                 fluidLogistics.defineLong("fluid_packet_max_mb", 5000L)
                         .min(1L)
-                        // Bounds FluidProviderModule's MAX_PACKETS_PER_DISPATCH (64) * maxMb so that
-                        // dispatch-cap multiplication can never overflow — an overflow there previously
-                        // threw out of onFluidDispatch, which tickFluidDispatch treats as a failed
-                        // dispatch and de-registers the provider entirely.
-                        .max(Long.MAX_VALUE / 64)
+                        // Bounds MAX_PACKETS_PER_DISPATCH * maxMb so the dispatch cap can never
+                        // overflow — an overflow throws out of onFluidDispatch, and tickFluidDispatch
+                        // treats that as a failed dispatch and drops the provider's supply until its
+                        // next scan re-registers it.
+                        .max(Long.MAX_VALUE / FluidProviderModule.MAX_PACKETS_PER_DISPATCH)
                         .describe("Max mB carried by a single fluid packet (no minimum — a packet may be smaller)")
                         .register();
 
@@ -595,70 +594,29 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         }
 
         static void register() {
-            ITEM_FILTER = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("item_filter").toIdentifier(),
-                    new MenuType<>(ItemFilterScreenHandler::new, FeatureFlagSet.of()));
-            REQUESTER = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("requester").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.RequesterScreenHandler::new, FeatureFlagSet.of()));
-            SUPPLIER = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("supplier").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.SupplierScreenHandler::new, FeatureFlagSet.of()));
-            FLUID_SUPPLIER = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("fluid_supplier").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.FluidSupplierScreenHandler::new, FeatureFlagSet.of()));
-            PROVIDER = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("provider").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.ProviderScreenHandler::new, FeatureFlagSet.of()));
-            SINK = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("sink").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.SinkScreenHandler::new, FeatureFlagSet.of()));
-            CRAFTING = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("crafting").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.CraftingScreenHandler::new, FeatureFlagSet.of()));
-            PROCESS = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("process").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.ProcessScreenHandler::new, FeatureFlagSet.of()));
-            SATELLITE = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("satellite").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.SatelliteScreenHandler::new, FeatureFlagSet.of()));
-            CHASSIS_MK1 = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("chassis_mk1").toIdentifier(),
-                    new MenuType<>((syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 1), FeatureFlagSet.of()));
-            CHASSIS_MK2 = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("chassis_mk2").toIdentifier(),
-                    new MenuType<>((syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 2), FeatureFlagSet.of()));
-            CHASSIS_MK3 = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("chassis_mk3").toIdentifier(),
-                    new MenuType<>((syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 3), FeatureFlagSet.of()));
-            CHASSIS_MK4 = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("chassis_mk4").toIdentifier(),
-                    new MenuType<>((syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 4), FeatureFlagSet.of()));
-            CHASSIS_MK5 = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("chassis_mk5").toIdentifier(),
-                    new MenuType<>((syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 8), FeatureFlagSet.of()));
-            ADVANCED_EXTRACTOR = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("advanced_extractor").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.AdvancedExtractorScreenHandler::new, FeatureFlagSet.of()));
-            MOD_SINK = Registry.register(
-                    BuiltInRegistries.MENU,
-                    LogisticsPipe.resource("mod_sink").toIdentifier(),
-                    new MenuType<>(com.logistics.pipe.ui.ModSinkScreenHandler::new, FeatureFlagSet.of()));
+            ITEM_FILTER = INSTANCE.registerMenuType("item_filter", ItemFilterScreenHandler::new);
+            REQUESTER = INSTANCE.registerMenuType("requester", com.logistics.pipe.ui.RequesterScreenHandler::new);
+            SUPPLIER = INSTANCE.registerMenuType("supplier", com.logistics.pipe.ui.SupplierScreenHandler::new);
+            FLUID_SUPPLIER =
+                INSTANCE.registerMenuType("fluid_supplier", com.logistics.pipe.ui.FluidSupplierScreenHandler::new);
+            PROVIDER = INSTANCE.registerMenuType("provider", com.logistics.pipe.ui.ProviderScreenHandler::new);
+            SINK = INSTANCE.registerMenuType("sink", com.logistics.pipe.ui.SinkScreenHandler::new);
+            CRAFTING = INSTANCE.registerMenuType("crafting", com.logistics.pipe.ui.CraftingScreenHandler::new);
+            PROCESS = INSTANCE.registerMenuType("process", com.logistics.pipe.ui.ProcessScreenHandler::new);
+            SATELLITE = INSTANCE.registerMenuType("satellite", com.logistics.pipe.ui.SatelliteScreenHandler::new);
+            CHASSIS_MK1 = INSTANCE.registerMenuType("chassis_mk1",
+                (syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 1));
+            CHASSIS_MK2 = INSTANCE.registerMenuType("chassis_mk2",
+                (syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 2));
+            CHASSIS_MK3 = INSTANCE.registerMenuType("chassis_mk3",
+                (syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 3));
+            CHASSIS_MK4 = INSTANCE.registerMenuType("chassis_mk4",
+                (syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 4));
+            CHASSIS_MK5 = INSTANCE.registerMenuType("chassis_mk5",
+                (syncId, inv) -> new com.logistics.pipe.ui.ChassisScreenHandler(syncId, inv, 8));
+            ADVANCED_EXTRACTOR =
+                INSTANCE.registerMenuType("advanced_extractor", com.logistics.pipe.ui.AdvancedExtractorScreenHandler::new);
+            MOD_SINK = INSTANCE.registerMenuType("mod_sink", com.logistics.pipe.ui.ModSinkScreenHandler::new);
         }
     }
 
