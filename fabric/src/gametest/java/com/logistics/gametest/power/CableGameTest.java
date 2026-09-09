@@ -206,6 +206,18 @@ public class CableGameTest {
         CableGameTestBody.testCableNetworkSurvivesCableReconstruction(context);
     }
 
+    /** A consumer placed between two pushes in the same tick still receives the second. */
+    @GameTest
+    public void testDeviceAddedMidTickReceivesEnergy(GameTestHelper context) {
+        CableGameTestBody.testDeviceAddedMidTickReceivesEnergy(context);
+    }
+
+    /** A consumer broken between two pushes in the same tick receives nothing further. */
+    @GameTest
+    public void testDeviceRemovedMidTickReceivesNothing(GameTestHelper context) {
+        CableGameTestBody.testDeviceRemovedMidTickReceivesNothing(context);
+    }
+
     private static void setSinkDrainRate(
             CreativeSinkBlockEntity sink, long drainRate, GameTestHelper context) {
         for (int attempts = 0; attempts < 20 && sink.getDrainRate() != drainRate; attempts++) {

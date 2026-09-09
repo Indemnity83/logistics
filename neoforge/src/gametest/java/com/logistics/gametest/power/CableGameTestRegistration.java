@@ -77,7 +77,15 @@ public final class CableGameTestRegistration {
         new GameTestCase(
             "power/cable_network_survives_cable_reconstruction",
             80,
-            CableGameTestBody::testCableNetworkSurvivesCableReconstruction));
+            CableGameTestBody::testCableNetworkSurvivesCableReconstruction),
+        new GameTestCase(
+            "power/cable_device_added_mid_tick_receives_energy",
+            60,
+            CableGameTestBody::testDeviceAddedMidTickReceivesEnergy),
+        new GameTestCase(
+            "power/cable_device_removed_mid_tick_receives_nothing",
+            60,
+            CableGameTestBody::testDeviceRemovedMidTickReceivesNothing));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
