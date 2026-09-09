@@ -49,6 +49,15 @@ public interface INetworkGraph {
     Direction getNextHop(BlockPos current, BlockPos destination);
 
     /**
+     * Shortest routed distance between two nodes, counted in pipe hops (edges, not nodes):
+     * {@code 0} for the same node, {@code 1} for adjacent nodes.
+     *
+     * @return hop count, or {@link HopDistance#UNREACHABLE} when either node is absent from
+     *         the graph or no route connects them
+     */
+    int hopDistance(BlockPos from, BlockPos to);
+
+    /**
      * Merge another graph into this one.
      */
     void merge(INetworkGraph other);

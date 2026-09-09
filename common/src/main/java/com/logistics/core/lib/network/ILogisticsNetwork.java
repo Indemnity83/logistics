@@ -352,8 +352,12 @@ public interface ILogisticsNetwork {
     void unregisterGenericSinkInterest(BlockPos pos);
 
     /**
-     * Find a sink for an item stack.
+     * Find a sink for an item stack, without a source position.
      * Checks filtered sinks first, then falls back to default routes.
+     *
+     * <p>Equal-priority sinks can only be separated by position here. Prefer
+     * {@link #findSinkFor(ItemStack, BlockPos)} whenever the caller knows where the item is
+     * travelling from, so the nearer sink wins.
      *
      * @param stack Item to find sink for
      * @return Position of sink, or null if none found
@@ -362,8 +366,21 @@ public interface ILogisticsNetwork {
     BlockPos findSinkFor(ItemStack stack);
 
     /**
-     * Find a filtered sink for an item stack (no default-route fallback).
-     * Only returns pipes that have an explicit item filter matching the stack.
+     * Find a sink for an item stack travelling from {@code source}.
+     *
+     * <p>Ties between equal-priority sinks resolve by {@link RoutingPreference}: fewer routed
+     * hops from {@code source} first, then the most positive position.
+     *
+     * @param stack  Item to find sink for
+     * @param source Position the item is travelling from
+     * @return Position of sink, or null if none found
+     */
+    @Nullable
+    BlockPos findSinkFor(ItemStack stack, BlockPos source);
+
+    /**
+     * Find a filtered sink for an item stack (no default-route fallback), without a source
+     * position. Only returns pipes that have an explicit item filter matching the stack.
      * Used by QuickSort to avoid dumping items into catch-all default routes.
      *
      * @param stack Item to find sink for
@@ -371,6 +388,19 @@ public interface ILogisticsNetwork {
      */
     @Nullable
     BlockPos findFilteredSinkFor(ItemStack stack);
+
+    /**
+     * Find a filtered sink for an item stack travelling from {@code source}.
+     *
+     * <p>Ties between equal-priority sinks resolve by {@link RoutingPreference}: fewer routed
+     * hops from {@code source} first, then the most positive position.
+     *
+     * @param stack  Item to find sink for
+     * @param source Position the item is travelling from
+     * @return Position of a filtered sink, or null if none found
+     */
+    @Nullable
+    BlockPos findFilteredSinkFor(ItemStack stack, BlockPos source);
 
     // ===== Satellite Registry =====
 
