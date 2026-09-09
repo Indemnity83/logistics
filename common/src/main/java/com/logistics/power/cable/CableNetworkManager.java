@@ -74,6 +74,7 @@ public class CableNetworkManager {
         }
 
         CableNetwork network = CableNetwork.buildFrom(level, cablePos);
+        network.inheritAccounting(level, networks);
         networks.add(network);
         allCables.addAll(network.getCablePositions());
         return network.insert(level, cablePos, sourceSide, maxAmount, simulate);
@@ -111,6 +112,10 @@ public class CableNetworkManager {
     }
 
     private void rebuildNetworks(Level level) {
+        // Rebuilding replaces every network instance, and the per-tick throughput accounting lives
+        // on those instances. A rebuild triggered mid-tick must not reset it, or the cables would
+        // be handed a second budget within the tick.
+        List<CableNetwork> previous = List.copyOf(networks);
         networks.clear();
 
         Set<BlockPos> unvisited = new HashSet<>(allCables);
@@ -127,6 +132,7 @@ public class CableNetworkManager {
                 unvisited.remove(start);
                 continue;
             }
+            network.inheritAccounting(level, previous);
             networks.add(network);
             allCables.addAll(network.getCablePositions());
             unvisited.removeAll(network.getCablePositions());

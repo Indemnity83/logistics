@@ -60,6 +60,10 @@ public final class CableGameTestRegistration {
             100,
             CableGameTestBody::testMixedTierRouteIsCappedByWeakestCable),
         new GameTestCase(
+            "power/cable_mid_tick_rebuild_keeps_throughput_cap",
+            60,
+            CableGameTestBody::testMidTickRebuildKeepsTheThroughputCap),
+        new GameTestCase(
             "power/cable_network_stops_at_removed_cable",
             60,
             CableGameTestBody::testCableNetworkStopsAtRemovedCable),

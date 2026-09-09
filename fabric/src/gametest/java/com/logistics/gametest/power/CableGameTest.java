@@ -135,6 +135,11 @@ public class CableGameTest {
     }
 
     @GameTest
+    public void testMidTickRebuildKeepsTheThroughputCap(GameTestHelper context) {
+        CableGameTestBody.testMidTickRebuildKeepsTheThroughputCap(context);
+    }
+
+    @GameTest
     public void testCableNetworkStopsAtRemovedCable(GameTestHelper context) {
         CableGameTestBody.testCableNetworkStopsAtRemovedCable(context);
     }
