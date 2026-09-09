@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.core.lib.recipe.RecipeByproduct;
 import com.logistics.test.MinecraftTestEnvironment;
+import com.mojang.serialization.DataResult;
 import java.util.Optional;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -123,20 +124,24 @@ class AlloySmelterRecipeTest extends MinecraftTestEnvironment {
             assertThat(decoded.byproduct().get().chance()).isEqualTo(0.1f);
         }
 
+        /**
+         * A malformed byproduct chance must surface as a decode error for that one recipe, so the loader
+         * reports it and keeps loading the rest, rather than throwing out through the codec.
+         */
         @Test
-        @DisplayName("rejects a non-finite or negative byproduct chance on decode")
+        @DisplayName("reports a malformed byproduct chance as a recipe decode error")
         void rejectsInvalidByproductChance() {
-            assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(-0.1f)))
-                    .isInstanceOf(IllegalArgumentException.class);
-            assertThatThrownBy(() -> RecipeByproduct.CODEC.parse(ops, byproductTag(Float.NaN)))
-                    .isInstanceOf(IllegalArgumentException.class);
-        }
+            AlloySmelterRecipe original = new AlloySmelterRecipe(
+                    Ingredient.of(Items.COPPER_INGOT), 3, Ingredient.of(Items.GOLD_INGOT), 1,
+                    ItemResult.of(Items.IRON_INGOT, 4), 4000, 0f,
+                    Optional.of(new RecipeByproduct(Items.GOLD_NUGGET, 0.1f)));
+            CompoundTag encoded = (CompoundTag)
+                    AlloySmelterRecipeSerializer.CODEC.codec().encodeStart(ops, original).getOrThrow();
+            encoded.getCompound("byproduct").orElseThrow().putFloat("chance", -0.1f);
 
-        private Tag byproductTag(float chance) {
-            CompoundTag tag = new CompoundTag();
-            tag.putString("id", "minecraft:gold_nugget");
-            tag.putFloat("chance", chance);
-            return tag;
+            DataResult<AlloySmelterRecipe> result = AlloySmelterRecipeSerializer.CODEC.codec().parse(ops, encoded);
+
+            assertThat(result.isError()).isTrue();
         }
 
         private AlloySmelterRecipe roundTrip(AlloySmelterRecipe original) {
