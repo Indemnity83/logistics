@@ -19,8 +19,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -167,107 +165,116 @@ public class ModuleGameTestBody {
 
     // ==================== Module Functionality Tests ====================
 
+    // A filter junction shared by the three filter tests below. Coordinates are named rather than
+    // inlined because each test asserts on the chest the item must reach *and* the ones it must not.
+    private static final BlockPos FILTER_PIPE = new BlockPos(1, 1, 1);
+    private static final BlockPos FILTER_ENTRY = new BlockPos(1, 1, 2); // SOUTH — items enter here
+    private static final BlockPos FILTER_DIAMOND_CHEST = new BlockPos(1, 1, 0); // NORTH
+    private static final BlockPos FILTER_GOLD_CHEST = new BlockPos(2, 1, 1); // EAST
+    private static final BlockPos FILTER_FALLBACK_CHEST = new BlockPos(0, 1, 1); // WEST — unfiltered
+
     /**
-     * Test that filter module routes items based on configured filters.
+     * Builds the filter junction the three filter tests share.
+     *
+     * <pre>
+     *                     [diamond chest] (1,1,0)
+     *                            |
+     *   [fallback chest] (0,1,1)-[filter pipe] (1,1,1)-[gold chest] (2,1,1)
+     *                            |
+     *                     [transport pipe] (1,1,2)
+     * </pre>
+     *
+     * <p>Two things here are deliberate. The module is fetched from the placed block instead of
+     * being constructed, so a pipe that stops composing an {@link ItemFilterModule} fails outright.
+     * And the filters are written with {@link ItemFilterModule#setFilterStacks}, the same call the
+     * filter screen makes: hand-written {@code StringTag} ids in the {@code filters} list produce a
+     * shape {@code getFilterStacks} cannot parse, leaving no filter configured and every side an
+     * unfiltered fallback.
+     *
+     * @return the entry transport pipe to inject into, or null once the test has been failed
      */
-    public static void testFilterModuleRoutesMatchingItems(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
+    private static PipeBlockEntity buildFilterJunction(GameTestHelper context) {
+        context.setBlock(FILTER_DIAMOND_CHEST, Blocks.CHEST);
+        context.setBlock(FILTER_GOLD_CHEST, Blocks.CHEST);
+        context.setBlock(FILTER_FALLBACK_CHEST, Blocks.CHEST);
+        context.setBlock(FILTER_PIPE, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
+        context.setBlock(FILTER_ENTRY, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
 
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
-        if (pipeEntity == null) {
+        PipeBlockEntity filterEntity = context.getBlockEntity(FILTER_PIPE, PipeBlockEntity.class);
+        if (filterEntity == null) {
             context.fail("Filter pipe should have block entity");
+            return null;
         }
 
-        // Create PipeContext
+        if (!(context.getBlockState(FILTER_PIPE).getBlock() instanceof PipeBlock filterBlock)) {
+            context.fail("Filter pipe should be a PipeBlock");
+            return null;
+        }
+        ItemFilterModule filterModule = filterBlock.getPipe().getModule(ItemFilterModule.class, filterEntity);
+        if (filterModule == null) {
+            context.fail("Item filter pipe no longer composes an ItemFilterModule");
+            return null;
+        }
+
+        // NORTH takes diamonds, EAST takes gold ingots, WEST stays unfiltered.
         PipeContext ctx = new PipeContext(
-            context.getLevel(),
-            pos,
-            context.getBlockState(pos),
-            pipeEntity
-        );
+            context.getLevel(), context.absolutePos(FILTER_PIPE), context.getBlockState(FILTER_PIPE), filterEntity);
+        filterModule.setFilterStacks(ctx, Direction.NORTH, List.of(new ItemStack(Items.DIAMOND)));
+        filterModule.setFilterStacks(ctx, Direction.EAST, List.of(new ItemStack(Items.GOLD_INGOT)));
 
-        // Configure filter for NORTH to accept diamonds
-        ItemFilterModule filterModule = new ItemFilterModule();
-        String diamondId = BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString();
-
-        CompoundTag filters = ctx.getCompoundTag(filterModule, "filters");
-        ListTag northFilters = new ListTag();
-        northFilters.add(StringTag.valueOf(diamondId));
-        filters.put("north", northFilters);
-        ctx.putCompoundTag(filterModule, "filters", filters);
-
-        // Create traveling item with diamond
-        TravelingItem diamondItem = new TravelingItem(
-            new ItemStack(Items.DIAMOND),
-            Direction.SOUTH,
-            0.05f
-        );
-
-        // Test routing decision with NORTH as an option
-        List<Direction> options = List.of(Direction.NORTH, Direction.EAST);
-        RoutePlan plan = filterModule.route(ctx, diamondItem, options);
-
-        // Diamond should be routed to NORTH (matches filter)
-        if (plan.getType() != RoutePlan.Type.REROUTE) {
-            context.fail("Diamond should be rerouted, got: " + plan.getType());
+        PipeBlockEntity entry = context.getBlockEntity(FILTER_ENTRY, PipeBlockEntity.class);
+        if (entry == null) {
+            context.fail("Entry transport pipe should have block entity");
+            return null;
         }
-        if (!plan.getDirections().contains(Direction.NORTH)) {
-            context.fail("Diamond should route to NORTH, got: " + plan.getDirections());
-        }
+        return entry;
+    }
 
-        context.succeed();
+    /** Injects {@code item} into the junction's entry pipe so it travels north into the filter. */
+    private static boolean injectIntoFilterJunction(GameTestHelper context, PipeBlockEntity entry, ItemStack item) {
+        TravelingItem traveling = new TravelingItem(item, Direction.SOUTH, 0.2f);
+        if (!entry.forceAddItem(traveling, Direction.SOUTH)) {
+            context.fail("Entry pipe should accept the force-injected " + item.getItem());
+            return false;
+        }
+        return true;
     }
 
     /**
-     * Test that filter module passes through non-matching items.
+     * A diamond travelling into the junction ends up in the chest on the side filtered for diamonds.
+     *
+     * <p>The item is injected one segment upstream and reaches the filter through a real pipe-to-pipe
+     * hop, so the pipe's own module list, the router's direction choice and the delivery into the
+     * chest all have to work. A {@code RoutePlan} from a standalone {@code new ItemFilterModule()}
+     * exercises none of that.
+     */
+    public static void testFilterModuleRoutesMatchingItems(GameTestHelper context) {
+        PipeBlockEntity entry = buildFilterJunction(context);
+        if (entry == null || !injectIntoFilterJunction(context, entry, new ItemStack(Items.DIAMOND))) {
+            return;
+        }
+
+        context.succeedWhen(() -> {
+            context.assertContainerContains(FILTER_DIAMOND_CHEST, Items.DIAMOND);
+            context.assertContainerEmpty(FILTER_GOLD_CHEST);
+            context.assertContainerEmpty(FILTER_FALLBACK_CHEST);
+        });
+    }
+
+    /**
+     * An item matching no side filter falls back to the unfiltered side and is delivered there.
      */
     public static void testFilterModulePassesThroughNonMatching(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
-
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
-        if (pipeEntity == null) {
-            context.fail("Filter pipe should have block entity");
+        PipeBlockEntity entry = buildFilterJunction(context);
+        if (entry == null || !injectIntoFilterJunction(context, entry, new ItemStack(Items.DIRT))) {
+            return;
         }
 
-        PipeContext ctx = new PipeContext(
-            context.getLevel(),
-            pos,
-            context.getBlockState(pos),
-            pipeEntity
-        );
-
-        // Configure filter for NORTH to accept diamonds only
-        ItemFilterModule filterModule = new ItemFilterModule();
-        String diamondId = BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString();
-
-        CompoundTag filters = ctx.getCompoundTag(filterModule, "filters");
-        ListTag northFilters = new ListTag();
-        northFilters.add(StringTag.valueOf(diamondId));
-        filters.put("north", northFilters);
-        ctx.putCompoundTag(filterModule, "filters", filters);
-
-        // Create traveling item with dirt (not in filter)
-        TravelingItem dirtItem = new TravelingItem(
-            new ItemStack(Items.DIRT),
-            Direction.SOUTH,
-            0.05f
-        );
-
-        // Test routing with NORTH (filtered) and EAST (no filter)
-        List<Direction> options = List.of(Direction.NORTH, Direction.EAST);
-        RoutePlan plan = filterModule.route(ctx, dirtItem, options);
-
-        // Dirt should be rerouted to EAST (fallback to unfiltered side)
-        if (plan.getType() != RoutePlan.Type.REROUTE) {
-            context.fail("Dirt should be rerouted to fallback, got: " + plan.getType());
-        }
-        if (!plan.getDirections().contains(Direction.EAST)) {
-            context.fail("Dirt should route to EAST (unfiltered), got: " + plan.getDirections());
-        }
-
-        context.succeed();
+        context.succeedWhen(() -> {
+            context.assertContainerContains(FILTER_FALLBACK_CHEST, Items.DIRT);
+            context.assertContainerEmpty(FILTER_DIAMOND_CHEST);
+            context.assertContainerEmpty(FILTER_GOLD_CHEST);
+        });
     }
 
     /**
@@ -322,68 +329,23 @@ public class ModuleGameTestBody {
     }
 
     /**
-     * Test that filter module handles multiple filters on different sides.
+     * With two different sides filtered, each item goes to its own side and nothing else moves.
+     *
+     * <p>Gold is filtered to EAST while diamonds are filtered to NORTH, so a gold ingot must reach
+     * the EAST chest specifically, not merely be among the router's options — {@code contains(EAST)}
+     * on a standalone module would hold even if the item never arrived.
      */
     public static void testFilterModuleMultipleSideFilters(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_FILTER_PIPE);
-
-        PipeBlockEntity pipeEntity = context.getBlockEntity(pos, PipeBlockEntity.class);
-        if (pipeEntity == null) {
-            context.fail("Filter pipe should have block entity");
+        PipeBlockEntity entry = buildFilterJunction(context);
+        if (entry == null || !injectIntoFilterJunction(context, entry, new ItemStack(Items.GOLD_INGOT))) {
+            return;
         }
 
-        PipeContext ctx = new PipeContext(
-            context.getLevel(),
-            pos,
-            context.getBlockState(pos),
-            pipeEntity
-        );
-
-        // Configure filters: NORTH for diamonds, EAST for gold
-        ItemFilterModule filterModule = new ItemFilterModule();
-        String diamondId = BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString();
-        String goldId = BuiltInRegistries.ITEM.getKey(Items.GOLD_INGOT).toString();
-
-        CompoundTag filters = ctx.getCompoundTag(filterModule, "filters");
-
-        ListTag northFilters = new ListTag();
-        northFilters.add(StringTag.valueOf(diamondId));
-        filters.put("north", northFilters);
-
-        ListTag eastFilters = new ListTag();
-        eastFilters.add(StringTag.valueOf(goldId));
-        filters.put("east", eastFilters);
-
-        ctx.putCompoundTag(filterModule, "filters", filters);
-
-        // Create test items
-        TravelingItem diamondItem = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.SOUTH, 0.05f);
-        TravelingItem goldItem = new TravelingItem(new ItemStack(Items.GOLD_INGOT), Direction.SOUTH, 0.05f);
-        TravelingItem ironItem = new TravelingItem(new ItemStack(Items.IRON_INGOT), Direction.SOUTH, 0.05f);
-
-        // Test routing with all sides available
-        List<Direction> options = List.of(Direction.NORTH, Direction.EAST, Direction.WEST);
-        RoutePlan diamondPlan = filterModule.route(ctx, diamondItem, options);
-        RoutePlan goldPlan = filterModule.route(ctx, goldItem, options);
-        RoutePlan ironPlan = filterModule.route(ctx, ironItem, options);
-
-        // Diamond should route to NORTH
-        if (!diamondPlan.getDirections().contains(Direction.NORTH)) {
-            context.fail("Diamond should route to NORTH, got: " + diamondPlan.getDirections());
-        }
-
-        // Gold should route to EAST
-        if (!goldPlan.getDirections().contains(Direction.EAST)) {
-            context.fail("Gold should route to EAST, got: " + goldPlan.getDirections());
-        }
-
-        // Iron should route to WEST (unfiltered fallback)
-        if (!ironPlan.getDirections().contains(Direction.WEST)) {
-            context.fail("Iron should route to WEST (unfiltered), got: " + ironPlan.getDirections());
-        }
-
-        context.succeed();
+        context.succeedWhen(() -> {
+            context.assertContainerContains(FILTER_GOLD_CHEST, Items.GOLD_INGOT);
+            context.assertContainerEmpty(FILTER_DIAMOND_CHEST);
+            context.assertContainerEmpty(FILTER_FALLBACK_CHEST);
+        });
     }
 
     // ==================== InsertionModule ====================

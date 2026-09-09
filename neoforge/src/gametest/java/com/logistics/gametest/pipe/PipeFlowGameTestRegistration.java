@@ -27,6 +27,10 @@ public final class PipeFlowGameTestRegistration {
         new GameTestCase("pipe/void_pipe_deletes_incoming_items", 50, PipeFlowGameTestBody::testVoidPipeDeletesIncomingItems),
         new GameTestCase("pipe/extractor_pulls_item_from_chest", 120, PipeFlowGameTestBody::testExtractorPullsItemFromChest),
         new GameTestCase(
+            "pipe/hopper_cannot_insert_into_transport_pipe",
+            80,
+            PipeFlowGameTestBody::testHopperCannotInsertIntoTransportPipe),
+        new GameTestCase(
             "pipe/enchanted_traveling_item_serialization", 20, PipeFlowGameTestBody::testEnchantedTravelingItemSerialization),
         new GameTestCase(
             "pipe/traveling_item_survives_pipe_reconstruction",
