@@ -40,6 +40,13 @@ public final class FabricatorProcessorComponent
     public static final int STATE_QUEUED = 1;
     public static final int STATE_ACTIVE = 2;
 
+    /**
+     * Cells in the GUI's output grid, which has no scrolling or pagination. An output past this many
+     * gets no button: it cannot be queued, and a queued one cannot be cancelled. Guarded against the
+     * shipped fabricator recipe count by {@code FabricatorOutputGridContractTest}.
+     */
+    public static final int OUTPUT_GRID_CAPACITY = 8;
+
     /** One craftable output shown in the GUI. */
     public record Output(ResourceId id, ItemStack result, int state) {}
 

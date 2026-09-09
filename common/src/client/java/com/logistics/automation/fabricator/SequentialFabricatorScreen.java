@@ -28,9 +28,10 @@ public class SequentialFabricatorScreen extends AbstractContainerScreen<Sequenti
     // Shared static energy-gauge sprite (drawn dark for empty + bright for fill), same as the other machines.
     private static final ResourceLocation CHARGE = LogisticsMod.modId("automation/charge").toIdentifier();
 
-    // Output selection grid: 2 columns × 4 rows over the texture's baked slot cells.
+    // Output selection grid: 2 columns over the texture's baked slot cells, rows derived so the grid
+    // holds exactly OUTPUT_GRID_CAPACITY buttons — the count guarded against the shipped recipes.
     private static final int OUTPUT_COLS = 2;
-    private static final int OUTPUT_ROWS = 4;
+    private static final int OUTPUT_ROWS = FabricatorProcessorComponent.OUTPUT_GRID_CAPACITY / OUTPUT_COLS;
     private static final int OUTPUT_ORIGIN_X = 127;
     private static final int OUTPUT_ORIGIN_Y = 16;
 
