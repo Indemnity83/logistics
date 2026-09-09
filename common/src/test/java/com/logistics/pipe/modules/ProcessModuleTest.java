@@ -133,8 +133,33 @@ class ProcessModuleTest {
     @Test
     @DisplayName("setInput silently ignores out-of-bounds slot")
     void setInput_ignoresOutOfBoundsSlot() {
-        assertThatCode(() -> module.setInput(ctx, -1, "minecraft:iron_ore", 1, "")).doesNotThrowAnyException();
-        assertThatCode(() -> module.setInput(ctx, 9, "minecraft:iron_ore", 1, "")).doesNotThrowAnyException();
+        fillEveryInputSlot();
+
+        module.setInput(ctx, -1, "minecraft:iron_ore", 1, "stray");
+        module.setInput(ctx, ProcessModule.MAX_INPUTS, "minecraft:iron_ore", 1, "stray");
+
+        // "Ignored" has to mean the configuration is untouched — clamping into slot 0, or writing
+        // to a neighbouring valid slot, would silently rewrite what the player set up.
+        assertEveryInputSlotStillHoldsItsFiller();
+    }
+
+    /** Distinct marker per slot so a stray write is attributable, and none of them is the probe item. */
+    private static String filler(int slot) {
+        return "minecraft:filler_" + slot;
+    }
+
+    private void fillEveryInputSlot() {
+        for (int slot = 0; slot < ProcessModule.MAX_INPUTS; slot++) {
+            module.setInput(ctx, slot, filler(slot), slot + 1, "dest_" + slot);
+        }
+    }
+
+    private void assertEveryInputSlotStillHoldsItsFiller() {
+        for (int slot = 0; slot < ProcessModule.MAX_INPUTS; slot++) {
+            assertThat(module.getInputItem(ctx, slot)).as("input slot %d", slot).isEqualTo(filler(slot));
+            assertThat(module.getInputCount(ctx, slot)).as("input count %d", slot).isEqualTo(slot + 1);
+            assertThat(module.getInputDest(ctx, slot)).as("input dest %d", slot).isEqualTo("dest_" + slot);
+        }
     }
 
     // ==================== Output config — defaults ====================
@@ -181,8 +206,15 @@ class ProcessModuleTest {
     @Test
     @DisplayName("setOutput silently ignores out-of-bounds slot")
     void setOutput_ignoresOutOfBoundsSlot() {
-        assertThatCode(() -> module.setOutput(ctx, -1, "minecraft:iron_ingot", 1)).doesNotThrowAnyException();
-        assertThatCode(() -> module.setOutput(ctx, 1, "minecraft:iron_ingot", 1)).doesNotThrowAnyException();
+        module.setOutput(ctx, 0, "minecraft:gold_ingot", 7);
+
+        module.setOutput(ctx, -1, "minecraft:iron_ingot", 1);
+        module.setOutput(ctx, ProcessModule.MAX_OUTPUTS, "minecraft:iron_ingot", 1);
+
+        // The only valid output slot must still hold what the player configured; a clamp would
+        // have overwritten it with the probe item.
+        assertThat(module.getOutputItem(ctx, 0)).isEqualTo("minecraft:gold_ingot");
+        assertThat(module.getOutputCount(ctx, 0)).isEqualTo(7);
     }
 
     // ==================== Input satellite ID ====================
