@@ -1,24 +1,19 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.Module;
 import com.logistics.core.lib.pipe.PipeContext;
 
 public class TransportModule implements Module {
-    private final float maxSpeed;
-    private final float dragCoefficient;
-
-    public TransportModule(float maxSpeed, float dragCoefficient) {
-        this.maxSpeed = maxSpeed;
-        this.dragCoefficient = dragCoefficient;
-    }
 
     @Override
     public float getMaxSpeed(PipeContext ctx) {
-        return maxSpeed;
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED);
     }
 
     @Override
     public float getDrag(PipeContext ctx) {
-        return dragCoefficient;
+        return LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_DRAG);
     }
 }

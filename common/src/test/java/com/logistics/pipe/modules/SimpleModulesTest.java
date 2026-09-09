@@ -1,5 +1,7 @@
 package com.logistics.pipe.modules;
 
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigRegistry;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -83,27 +85,38 @@ class SimpleModulesTest extends MinecraftTestEnvironment {
     // ==================== TransportModule ====================
 
     @Test
-    @DisplayName("TransportModule.getMaxSpeed returns the value set at construction")
-    void transportModule_getMaxSpeed_returnsConstructorValue() {
-        TransportModule module = new TransportModule(0.5f, 0.01f);
-        assertThat(module.getMaxSpeed(ctx)).isEqualTo(0.5f);
+    @DisplayName("TransportModule.getMaxSpeed returns pipe.min_speed from config")
+    void transportModule_getMaxSpeed_returnsConfiguredMinSpeed() {
+        TransportModule module = new TransportModule();
+        assertThat(module.getMaxSpeed(ctx)).isEqualTo(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED));
     }
 
     @Test
-    @DisplayName("TransportModule.getDrag returns the value set at construction")
-    void transportModule_getDrag_returnsConstructorValue() {
-        TransportModule module = new TransportModule(0.5f, 0.01f);
-        assertThat(module.getDrag(ctx)).isEqualTo(0.01f);
+    @DisplayName("TransportModule.getDrag returns pipe.drag from config")
+    void transportModule_getDrag_returnsConfiguredDrag() {
+        TransportModule module = new TransportModule();
+        assertThat(module.getDrag(ctx)).isEqualTo(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_DRAG));
     }
 
     @Test
-    @DisplayName("Two TransportModule instances with different params return different speeds")
-    void transportModule_differentInstances_differentValues() {
-        TransportModule slow = new TransportModule(0.1f, 0.02f);
-        TransportModule fast = new TransportModule(0.8f, 0.005f);
+    @DisplayName("TransportModule tracks pipe.min_speed and pipe.drag changed after it was constructed")
+    void transportModule_tracksConfigReload() {
+        // Built once at registration, exactly as PipeTypes builds the stone transport pipe's module.
+        TransportModule module = new TransportModule();
 
-        assertThat(slow.getMaxSpeed(ctx)).isLessThan(fast.getMaxSpeed(ctx));
-        assertThat(slow.getDrag(ctx)).isGreaterThan(fast.getDrag(ctx));
+        Config pipes = ConfigRegistry.config(LogisticsPipe.CONFIG.PIPE_MIN_SPEED.configId());
+        float originalMinSpeed = LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MIN_SPEED);
+        float originalDrag = LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_DRAG);
+        try {
+            assertThat(pipes.trySet(LogisticsPipe.CONFIG.PIPE_MIN_SPEED, 0.05f)).isTrue();
+            assertThat(pipes.trySet(LogisticsPipe.CONFIG.PIPE_DRAG, 0.02f)).isTrue();
+
+            assertThat(module.getMaxSpeed(ctx)).isEqualTo(0.05f);
+            assertThat(module.getDrag(ctx)).isEqualTo(0.02f);
+        } finally {
+            pipes.set(LogisticsPipe.CONFIG.PIPE_MIN_SPEED, originalMinSpeed);
+            pipes.set(LogisticsPipe.CONFIG.PIPE_DRAG, originalDrag);
+        }
     }
 
     // ==================== NetworkRouterModule ====================
