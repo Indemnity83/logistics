@@ -319,23 +319,6 @@ public abstract class Pipe implements ModularPipe {
         return InteractionResult.PASS;
     }
 
-    public boolean hasComparatorOutput() {
-        for (Module module : modules) {
-            if (module.hasComparatorOutput()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public int getComparatorOutput(PipeContext ctx) {
-        int output = 0;
-        for (Module module : getModules(ctx)) {
-            output = Math.max(output, module.comparatorOutput(ctx));
-        }
-        return output;
-    }
-
     public void randomDisplayTick(PipeContext ctx, RandomSource random) {
         for (Module module : getModules(ctx)) {
             module.randomDisplayTick(ctx, random);

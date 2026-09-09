@@ -106,14 +106,6 @@ public interface Module {
         return InteractionResult.PASS;
     }
 
-    default int comparatorOutput(PipeContext ctx) {
-        return 0;
-    }
-
-    default boolean hasComparatorOutput() {
-        return false;
-    }
-
     /**
      * Return false to prevent this pipe from connecting in the given direction.
      */
