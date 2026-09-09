@@ -8,11 +8,13 @@ package com.logistics.pipe.modules;
  * can be read in one place rather than from literals scattered across registration
  * files.
  *
- * <p>Two entries deliberately share a rung today: {@link #ITEM_SINK} and
- * {@link #POLYMORPHIC_SINK} are both 7, so an Item Sink and a Polymorphic Sink that
- * both accept an item are separated only by the positional tiebreak. The same module
- * also sits on two rungs — {@link #ITEM_SINK} as a chassis module item, and
- * {@link #BASIC_LOGISTICS_PIPE_SINK} as the Basic Logistics Pipe block.
+ * <p>The ladder rewards specificity: a sink whose filter names item types outbids one
+ * that accepts a broader, less explicit set. {@link #POLYMORPHIC_SINK} in particular
+ * registers generic sink interest, so it competes for every item in the network and
+ * deliberately sits below {@link #ITEM_SINK} rather than shadowing configured filters.
+ *
+ * <p>{@link SinkModule} sits on two rungs: {@link #ITEM_SINK} as a chassis module item,
+ * and {@link #BASIC_LOGISTICS_PIPE_SINK} as the Basic Logistics Pipe block.
  */
 public final class SinkPriority {
 
@@ -31,11 +33,11 @@ public final class SinkPriority {
     /** Basic Logistics Pipe block — a {@link SinkModule} carried by the pipe itself. */
     public static final int BASIC_LOGISTICS_PIPE_SINK = 5;
 
+    /** Polymorphic Sink module — accepts item types already present in the adjacent inventory. */
+    public static final int POLYMORPHIC_SINK = 6;
+
     /** Item Sink module — accepts the item types in its filter slots. */
     public static final int ITEM_SINK = 7;
-
-    /** Polymorphic Sink module — accepts item types already present in the adjacent inventory. */
-    public static final int POLYMORPHIC_SINK = 7;
 
     /** Passive Supplier module — tops up a stocked inventory from network traffic. */
     public static final int PASSIVE_SUPPLIER = 8;

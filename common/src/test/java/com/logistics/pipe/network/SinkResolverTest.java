@@ -89,8 +89,9 @@ class SinkResolverTest extends MinecraftTestEnvironment {
     // Tie resolution: equal priorities must resolve deterministically
     // -------------------------------------------------------------------------
 
-    // Two sinks that tie at the Item Sink / Polymorphic Sink rung. Chosen because the
-    // pre-fix hash-iteration winner was TIED_HIGH, i.e. not the positionally-lowest one.
+    // Two Item Sink modules in separate chassis — a genuine tie, since both draw the same
+    // rung. Chosen because the pre-fix hash-iteration winner was TIED_HIGH, i.e. not the
+    // positionally-lowest one.
     private static final BlockPos TIED_LOW = new BlockPos(6, 64, 7);
     private static final BlockPos TIED_HIGH = new BlockPos(8, 64, 8);
 
@@ -142,6 +143,31 @@ class SinkResolverTest extends MinecraftTestEnvironment {
         resolverA.registerSinkInterest(TIED_HIGH, Items.IRON_INGOT);
 
         assertEquals(TIED_HIGH, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
+    }
+
+    // -------------------------------------------------------------------------
+    // Ladder: a specific Item Sink outranks a Polymorphic Sink
+    // -------------------------------------------------------------------------
+
+    @Test
+    void findSinkFor_itemSinkOutranksPolymorphicSinkRegardlessOfPosition() {
+        // The Polymorphic sink is placed at the LOWER position, so the positional tiebreak
+        // would hand it the item if the two still shared a rung. Only the priority
+        // difference can send the item to the configured Item Sink.
+        BlockPos polymorphic = TIED_LOW;
+        BlockPos itemSink = TIED_HIGH;
+        assertTrue(polymorphic.asLong() < itemSink.asLong());
+
+        graphA.addNode(polymorphic);
+        graphA.addNode(itemSink);
+        accepting.add(polymorphic);
+        accepting.add(itemSink);
+        resolverA.registerSink(polymorphic, SinkPriority.POLYMORPHIC_SINK);
+        resolverA.registerGenericSinkInterest(polymorphic); // polymorphic checks live inventory
+        resolverA.registerSink(itemSink, SinkPriority.ITEM_SINK);
+        resolverA.registerSinkInterest(itemSink, Items.IRON_INGOT);
+
+        assertEquals(itemSink, resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT)));
     }
 
     // -------------------------------------------------------------------------
