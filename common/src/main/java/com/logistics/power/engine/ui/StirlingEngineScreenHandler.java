@@ -2,6 +2,7 @@ package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.FuelHelper;
+import com.logistics.core.machine.MachineData;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -148,12 +149,17 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
 
     // Getters for GUI rendering
 
-    /**
-     * Energy buffer fill height in pixels. PROPERTY_ENERGY is the stored energy scaled by 1/100, so it
-     * spans 0..100 at the default 10,000 buffer capacity.
-     */
+    /** Energy buffer fill height in pixels. */
     public int getEnergyBarHeight(int maxPixels) {
-        return Math.min(100, Math.max(0, getEnergy())) * maxPixels / 100;
+        return energyBarHeight(propertyDelegate, maxPixels);
+    }
+
+    /**
+     * Energy buffer fill height in pixels from the 0..{@link MachineData#SCALE} fraction synced at
+     * {@code PROPERTY_ENERGY}.
+     */
+    static int energyBarHeight(ContainerData data, int maxPixels) {
+        return MachineData.barPixels(data, StirlingEngineBlockEntity.PROPERTY_ENERGY, maxPixels);
     }
 
     public int getBurnTime() {
@@ -166,10 +172,6 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
 
     public int getHeat() {
         return propertyDelegate.get(StirlingEngineBlockEntity.PROPERTY_HEAT);
-    }
-
-    public int getEnergy() {
-        return propertyDelegate.get(StirlingEngineBlockEntity.PROPERTY_ENERGY);
     }
 
     /**
