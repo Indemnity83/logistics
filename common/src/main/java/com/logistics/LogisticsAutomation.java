@@ -282,37 +282,48 @@ public final class LogisticsAutomation extends LogisticsMod implements DomainBoo
         public static Block TRANSPOSER;
 
         static void register() {
+            // Machines share the grey metal shell, so they share MapColor.METAL — bright enough on a map
+            // to read as something a player built rather than as the stone around it.
             LASER_QUARRY = INSTANCE.registerBlockWithItem("laser_quarry",
-                props -> new LaserQuarryBlock(
-                    props.strength(5.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+                props -> new LaserQuarryBlock(props.mapColor(MapColor.METAL)
+                    .strength(5.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+            // Map color left at NONE — the frame is a lattice of 6px beams, like vanilla's iron bars
             LASER_QUARRY_FRAME = INSTANCE.registerBlock("laser_quarry_frame",
                 props -> new LaserQuarryFrameBlock(props.strength(2.0f).noOcclusion().noLootTable()));
             KILN = INSTANCE.registerBlockWithItem("kiln",
-                props -> new KilnBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                props -> new KilnBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(KilnBlock.LIT) ? 13 : 0)));
             MACERATOR = INSTANCE.registerBlockWithItem("macerator",
-                props -> new MaceratorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                props -> new MaceratorBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(MaceratorBlock.LIT) ? 13 : 0)));
             SAWMILL = INSTANCE.registerBlockWithItem("sawmill",
-                props -> new SawmillBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                props -> new SawmillBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(SawmillBlock.LIT) ? 13 : 0)));
             ALLOY_SMELTER = INSTANCE.registerBlockWithItem("alloy_smelter",
-                props -> new AlloySmelterBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                props -> new AlloySmelterBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(AlloySmelterBlock.LIT) ? 13 : 0)));
             CRUCIBLE = INSTANCE.registerBlockWithItem("crucible",
-                props -> new CrucibleBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                props -> new CrucibleBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(CrucibleBlock.LIT) ? 13 : 0)));
             REFINERY = INSTANCE.registerBlockWithItem("refinery",
-                props -> new RefineryBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                props -> new RefineryBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(RefineryBlock.LIT) ? 13 : 0)));
             SEQUENTIAL_FABRICATOR = INSTANCE.registerBlockWithItem("sequential_fabricator",
-                props -> new SequentialFabricatorBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                props -> new SequentialFabricatorBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(SequentialFabricatorBlock.LIT) ? 13 : 0)));
             FLUID_PUMP = INSTANCE.registerBlockWithItem("fluid_pump",
                 props -> new FluidPumpBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
             TRANSPOSER = INSTANCE.registerBlockWithItem("transposer",
-                props -> new TransposerBlock(props.strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+                props -> new TransposerBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
         }
     }
 
