@@ -330,6 +330,10 @@ public final class QuarryPhaseRunner {
      * alone so an unbreakable intruder can never wedge the phase.
      */
     static boolean isClearanceIntrusion(BlockGetter level, BlockPos pos, @Nullable BlockState state) {
+        // Deliberately unlike resolveTarget, this makes no column-level hazard check: clearing an
+        // intruder here can let a fluid above it spill into the band. Accepted — the band is small,
+        // policed every tick, and a spill in it is visible and self-correcting, unlike undermining
+        // lava deep in the pit, which is what resolveTarget's guard exists to prevent.
         if (state == null || state.getBlock() instanceof LaserQuarryFrameBlock) {
             return false;
         }
