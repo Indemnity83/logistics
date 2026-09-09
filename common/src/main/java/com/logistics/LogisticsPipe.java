@@ -432,15 +432,15 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         static void register() {
             BLANK_MODULE = INSTANCE.registerItem("blank_module", Item::new);
             ITEM_SINK_MODULE = INSTANCE.registerItem("item_sink_module",
-                    props -> new ModuleItem(props, () -> new SinkModule(7)));
+                    props -> new ModuleItem(props, () -> new SinkModule(SinkPriority.ITEM_SINK)));
             POLYMORPHIC_SINK_MODULE = INSTANCE.registerItem("polymorphic_sink_module",
-                    props -> new ModuleItem(props, () -> new PolymorphicSinkModule(7)));
+                    props -> new ModuleItem(props, () -> new PolymorphicSinkModule(SinkPriority.POLYMORPHIC_SINK)));
             ENCHANTMENT_SINK_MODULE = INSTANCE.registerItem("enchantment_sink_module",
-                    props -> new ModuleItem(props, () -> new EnchantmentSinkModule(3)));
+                    props -> new ModuleItem(props, () -> new EnchantmentSinkModule(SinkPriority.ENCHANTMENT_SINK)));
             MOD_ITEM_SINK_MODULE = INSTANCE.registerItem("mod_item_sink_module",
-                    props -> new ModuleItem(props, () -> new ModSinkModule(5)));
+                    props -> new ModuleItem(props, () -> new ModSinkModule(SinkPriority.MOD_SINK)));
             PASSIVE_SUPPLIER_MODULE = INSTANCE.registerItem("passive_supplier_module",
-                    props -> new ModuleItem(props, () -> new PassiveSupplierModule(8)));
+                    props -> new ModuleItem(props, () -> new PassiveSupplierModule(SinkPriority.PASSIVE_SUPPLIER)));
             ACTIVE_SUPPLIER_MODULE = INSTANCE.registerItem("active_supplier_module",
                     props -> new ModuleItem(props, SupplierModule::new));
             PROVIDER_MODULE = INSTANCE.registerItem("provider_module",
@@ -466,7 +466,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
             QUICKSORT_MODULE = INSTANCE.registerItem("quicksort_module",
                     props -> new ModuleItem(props, QuickSortModule::new));
             TERMINUS_MODULE = INSTANCE.registerItem("terminus_module",
-                    props -> new ModuleItem(props, () -> new TerminusModule(4)));
+                    props -> new ModuleItem(props, () -> new TerminusModule(SinkPriority.TERMINUS)));
 
             FLUID_PACKET = INSTANCE.registerItem("fluid_packet", props -> new FluidPacketItem(props.stacksTo(1)));
 
