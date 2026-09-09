@@ -1,6 +1,8 @@
 package com.logistics.core.lib.storage;
 
 import com.logistics.test.MinecraftTestEnvironment;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -53,5 +55,53 @@ class ContainerItemStorageTest extends MinecraftTestEnvironment {
         assertThat(container.getItem(1).getCount()).isEqualTo(10);
         assertThat(storage.extract(1, iron, 5, false)).isEqualTo(5);
         assertThat(container.getItem(1).getCount()).isEqualTo(5);
+    }
+
+    // ==================== Components ====================
+    // insert() gates on ItemStack.isSameItemSameComponents while extract() gates on
+    // IItemKey.matches. The two only agree if the key is component-aware, as both loader keys
+    // (ItemVariant / ItemResource) are.
+
+    @Test
+    @DisplayName("a key for a plain stack must not take a renamed one out of the container")
+    void extract_doesNotMatchAcrossComponents() {
+        SimpleContainer container = new SimpleContainer(2);
+        container.setItem(0, named(new ItemStack(Items.DIAMOND, 8), "Trophy"));
+        container.setItem(1, new ItemStack(Items.DIAMOND, 8));
+        ContainerItemStorage storage = new ContainerItemStorage(container);
+        IItemKey plain = ItemStorageLookup.of(new ItemStack(Items.DIAMOND));
+
+        assertThat(storage.extract(plain, 16, false))
+                .as("only the plain diamonds answer to a plain-diamond key")
+                .isEqualTo(8);
+        assertThat(container.getItem(0).getCount())
+                .as("the renamed diamonds must be left alone")
+                .isEqualTo(8);
+        assertThat(container.getItem(1).isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("insert re-creates the components the key was made from, and stacks onto them")
+    void insert_preservesComponentsAndStacks() {
+        SimpleContainer container = new SimpleContainer(2);
+        ContainerItemStorage storage = new ContainerItemStorage(container);
+        IItemKey trophy = ItemStorageLookup.of(named(new ItemStack(Items.DIAMOND), "Trophy"));
+
+        assertThat(storage.insert(trophy, 4, false)).isEqualTo(4);
+        assertThat(container.getItem(0).get(DataComponents.CUSTOM_NAME))
+                .as("a round trip through the key must not strip the name")
+                .isEqualTo(Component.literal("Trophy"));
+
+        assertThat(storage.insert(trophy, 4, false)).isEqualTo(4);
+        assertThat(container.getItem(0).getCount())
+                .as("the second insert stacks onto the matching slot")
+                .isEqualTo(8);
+        assertThat(container.getItem(1).isEmpty()).isTrue();
+    }
+
+    private static ItemStack named(ItemStack stack, String name) {
+        ItemStack copy = stack.copy();
+        copy.set(DataComponents.CUSTOM_NAME, Component.literal(name));
+        return copy;
     }
 }
