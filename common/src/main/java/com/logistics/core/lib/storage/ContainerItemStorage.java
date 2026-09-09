@@ -43,6 +43,8 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
         if (side != null && container instanceof WorldlyContainer wc) {
             for (int slot : wc.getSlotsForFace(side)) {
                 if (remaining <= 0) break;
+                // Vanilla requires both checks: canPlaceItem gates the slot, the face check gates the side.
+                if (!container.canPlaceItem(slot, template)) continue;
                 if (!wc.canPlaceItemThroughFace(slot, template, side)) continue;
                 remaining -= insertIntoSlot(item, template, slot, remaining, simulate);
             }
@@ -95,6 +97,9 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
         return 0;
     }
 
+    // Extraction applies only the face check. Vanilla's other half, Container#canTakeItem, is asked
+    // whether an item may move into a specific destination Container, and an IItemStorage caller has
+    // no destination Container to name.
     @Override
     public long extract(IItemKey item, long maxAmount, boolean simulate) {
         long remaining = maxAmount;

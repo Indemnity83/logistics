@@ -126,6 +126,21 @@ class FluidBufferTest {
     }
 
     @Test
+    @DisplayName("push never leaves the target holding more than its capacity")
+    void pushCannotOverfillANarrowerTarget() {
+        FluidBuffer<String> source = FluidBuffer.extractor(); // 250 mB
+        source.restore(WATER, 250);
+        FluidBuffer<String> destination = FluidBuffer.extractor(10); // a much narrower neighbour
+
+        long moved = source.push(destination, 250);
+
+        assertThat(moved).isEqualTo(10); // only what the target can hold
+        assertThat(destination.amount()).isEqualTo(10);
+        assertThat(destination.space()).isZero(); // never negative
+        assertThat(source.amount()).isEqualTo(240); // the rest stays put — nothing is conjured or lost
+    }
+
+    @Test
     @DisplayName("push won't move into a target that is already as full or fuller")
     void pushWontMoveIntoFullerTarget() {
         FluidBuffer<String> source = FluidBuffer.extractor();
