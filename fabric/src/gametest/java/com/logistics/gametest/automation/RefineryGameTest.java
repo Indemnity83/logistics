@@ -49,4 +49,9 @@ public class RefineryGameTest {
     public void testDistillsViaRealEngine(GameTestHelper context) {
         RefineryGameTestBody.testDistillsViaRealEngine(context);
     }
+
+    @GameTest(maxTicks = 60)
+    public void testHopperCannotInsertIntoByproductSlot(GameTestHelper context) {
+        RefineryGameTestBody.testHopperCannotInsertIntoByproductSlot(context);
+    }
 }

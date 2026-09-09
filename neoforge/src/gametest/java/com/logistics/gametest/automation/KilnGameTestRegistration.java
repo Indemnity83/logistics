@@ -29,7 +29,9 @@ public final class KilnGameTestRegistration {
         new GameTestCase("automation/kiln_smelts_continuously", 250, KilnGameTestBody::testKilnSmeltsContinuously),
         new GameTestCase(
             "automation/kiln_smelts_via_real_engine_and_hoppers", 240, KilnGameTestBody::testKilnSmeltsViaRealEngineAndHoppers),
-        new GameTestCase("automation/kiln_facing", 100, KilnGameTestBody::testKilnFacing));
+        new GameTestCase("automation/kiln_facing", 100, KilnGameTestBody::testKilnFacing),
+        new GameTestCase(
+            "automation/kiln_hopper_cannot_jam_input", 60, KilnGameTestBody::testHopperCannotJamInputWithUnusableItem));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
