@@ -166,4 +166,16 @@ public final class QuarryMiningGameTestRegistration {
     public static void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryLeavesLooseItemsLyingBesideABrokenContainer(context);
     }
+
+    /** A frame slot a player broke must be rebuilt, and mining must resume where it left off. */
+    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 220)
+    public static void testQuarryRepairsFrameBrokenByPlayer(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryRepairsFrameBrokenByPlayer(context);
+    }
+
+    /** A block dropped into an empty frame slot is cleared, then the frame block goes back. */
+    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 220)
+    public static void testQuarryClearsBlockDroppedIntoFrameSlot(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryClearsBlockDroppedIntoFrameSlot(context);
+    }
 }

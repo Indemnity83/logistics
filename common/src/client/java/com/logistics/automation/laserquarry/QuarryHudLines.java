@@ -49,6 +49,8 @@ public final class QuarryHudLines {
         return switch (phase) {
             case "CLEARING" -> "jade.logistics.quarry.phase.clearing";
             case "BUILDING_FRAME" -> "jade.logistics.quarry.phase.building_frame";
+            case "MAINTAINING_CLEARANCE" -> "jade.logistics.quarry.phase.maintaining_clearance";
+            case "REPAIRING_FRAME" -> "jade.logistics.quarry.phase.repairing_frame";
             default -> "jade.logistics.quarry.phase.mining";
         };
     }
