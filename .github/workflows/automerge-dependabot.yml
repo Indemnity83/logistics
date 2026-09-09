@@ -6,6 +6,9 @@ on:
     types: [completed]
 
 permissions:
+  # actions: read is what lets the job read the triggering run's per-job step
+  # conclusions, which is how it tells a real check from a skipped one.
+  actions: read
   checks: read
   contents: write
   pull-requests: write
@@ -21,6 +24,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          # Must match the step name of the same marker steps in check-code.yml.
+          # A job that ran this step compiled and tested nothing.
+          SKIP_MARKER: SKIPPED (no code-affecting files changed)
         shell: bash
         run: |
           set -euo pipefail
@@ -38,6 +45,24 @@ jobs:
           PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")
           PR_TITLE=$(jq -r '.title' <<< "$PR_JSON")
           echo "Checking Dependabot PR #$PR_NUMBER: $PR_TITLE"
+
+          # A Check Code job whose path filter turned it off still reports success --
+          # branch protection cannot tell "compiled and tested" from "echoed a line".
+          # Automerge can: ask the run which of its jobs announced the skip.
+          JOBS_JSON=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100")
+
+          UNVERIFIED=$(jq -r --arg marker "$SKIP_MARKER" '
+            [.jobs[]
+             | select(any(.steps[]?; .name == $marker and .conclusion == "success"))
+             | .name] | unique | join(", ")' <<< "$JOBS_JSON")
+
+          if [[ -n "$UNVERIFIED" ]]; then
+            echo "::warning::Check Code passed without verifying anything in: $UNVERIFIED"
+            echo "Refusing to auto-merge a change no Gradle job actually checked."
+            exit 0
+          fi
 
           lint_pr_success=false
           for _ in {1..30}; do
@@ -65,4 +90,8 @@ jobs:
             exit 0
           fi
 
-          gh pr merge "$PR_NUMBER" --repo "$REPO" --squash
+          # --match-head-commit pins the merge to the commit the checks above were
+          # read for. The lint (pr) poll can take up to 300 s, and without this a
+          # force-push landing in that window would merge an unverified head.
+          gh pr merge "$PR_NUMBER" --repo "$REPO" --squash \
+            --match-head-commit "$HEAD_SHA"
