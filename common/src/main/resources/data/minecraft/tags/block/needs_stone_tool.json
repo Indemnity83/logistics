@@ -17,6 +17,8 @@
     "logistics:automation/crucible",
     "logistics:automation/refinery",
     "logistics:automation/sequential_fabricator",
-    "logistics:automation/transposer"
+    "logistics:automation/transposer",
+    "logistics:automation/laser_quarry",
+    "logistics:pipe/power_junction"
   ]
 }
