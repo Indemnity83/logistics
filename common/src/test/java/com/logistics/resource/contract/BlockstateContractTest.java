@@ -35,7 +35,7 @@ class BlockstateContractTest {
                     if (target != null && !Files.isRegularFile(target)) {
                         failures.add(ResourceFiles.describe(file) + " -> missing model '" + reference + "'");
                     }
-                } catch (ResourceFiles.UnexpectedNamespaceException e) {
+                } catch (ResourceFiles.BadReferenceException e) {
                     failures.add(ResourceFiles.describe(file) + " -> " + e.getMessage());
                 }
             }
