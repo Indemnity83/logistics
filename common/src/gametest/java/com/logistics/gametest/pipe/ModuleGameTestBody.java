@@ -11,7 +11,6 @@ import com.logistics.pipe.modules.ItemFilterModule;
 import com.logistics.pipe.modules.MergerModule;
 import com.logistics.pipe.modules.SinkModule;
 import com.logistics.pipe.ui.ChassisInventory;
-import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -277,55 +276,95 @@ public class ModuleGameTestBody {
         });
     }
 
-    /**
-     * Test that merger module routes items to configured output direction.
-     */
-    public static void testMergerModuleRoutesToOutput(GameTestHelper context) {
-        BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPipe.BLOCK.ITEM_MERGER_PIPE);
+    // A merger junction: two transport pipes feed opposite sides, and a chest sits on each of the
+    // two remaining horizontal sides. Only one of those chests is the configured output.
+    private static final BlockPos MERGER_PIPE = new BlockPos(1, 1, 1);
+    private static final BlockPos MERGER_WEST_ENTRY = new BlockPos(0, 1, 1);
+    private static final BlockPos MERGER_EAST_ENTRY = new BlockPos(2, 1, 1);
+    private static final BlockPos MERGER_OUTPUT_CHEST = new BlockPos(1, 1, 2); // SOUTH — configured output
+    private static final BlockPos MERGER_OTHER_CHEST = new BlockPos(1, 1, 0); // NORTH — must stay empty
 
-        PipeBlockEntity pipeEntity = (PipeBlockEntity) context.getBlockEntity(pos);
-        if (pipeEntity == null) {
-            context.fail("Merger pipe should have block entity");
+    /**
+     * Two streams entering a merger pipe from opposite sides both leave through the one configured
+     * output side and land in the chest there.
+     *
+     * <pre>
+     *                        [other chest] (1,1,0)  NORTH
+     *                               |
+     *   [west entry] (0,1,1)-[merger pipe] (1,1,1)-[east entry] (2,1,1)
+     *                               |
+     *                       [output chest] (1,1,2)  SOUTH
+     * </pre>
+     *
+     * <p>The module is fetched from the placed block rather than constructed, so a merger pipe that
+     * stopped composing a {@link MergerModule} — or composed a {@code NetworkRouterModule} ahead of
+     * it, which would claim the route first and drop the item — fails outright. Both items are
+     * injected one segment upstream and reach the merger through a real pipe-to-pipe hop, so the
+     * merger's routing decision, the delivery into the chest, and the fact that nothing leaks to the
+     * other connected inventory are all under test.
+     *
+     * <p>SOUTH is chosen as the output precisely because it is <em>not</em> the side
+     * {@link MergerModule#onConnectionsChanged} would auto-select (NORTH precedes SOUTH in
+     * {@code Direction.values()}), so the test proves the pipe honors its configuration rather than
+     * its default.
+     */
+    public static void testMergerModuleMergesStreamsIntoConfiguredOutput(GameTestHelper context) {
+        context.setBlock(MERGER_OUTPUT_CHEST, Blocks.CHEST);
+        context.setBlock(MERGER_OTHER_CHEST, Blocks.CHEST);
+        context.setBlock(MERGER_PIPE, LogisticsPipe.BLOCK.ITEM_MERGER_PIPE);
+        context.setBlock(MERGER_WEST_ENTRY, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(MERGER_EAST_ENTRY, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+
+        PipeBlockEntity mergerEntity = (PipeBlockEntity) context.getBlockEntity(MERGER_PIPE);
+        if (mergerEntity == null) {
+            context.fail("Merger pipe should have a block entity");
+            return;
+        }
+
+        if (!(context.getBlockState(MERGER_PIPE).getBlock() instanceof PipeBlock mergerBlock)) {
+            context.fail("Merger pipe should be a PipeBlock");
+            return;
+        }
+        MergerModule mergerModule = mergerBlock.getPipe().getModule(MergerModule.class, mergerEntity);
+        if (mergerModule == null) {
+            context.fail("Item merger pipe no longer composes a MergerModule");
+            return;
         }
 
         PipeContext ctx = new PipeContext(
-            context.getLevel(),
-            pos,
-            context.getBlockState(pos),
-            pipeEntity
-        );
+            context.getLevel(), context.absolutePos(MERGER_PIPE), context.getBlockState(MERGER_PIPE), mergerEntity);
+        ctx.saveString(mergerModule, MergerModule.OUTPUT_DIRECTION, String.valueOf(Direction.SOUTH.get3DDataValue()));
 
-        // Configure merger to output to NORTH (via NBT state)
-        MergerModule mergerModule = new MergerModule();
-        ctx.saveString(mergerModule, "output_direction", String.valueOf(Direction.NORTH.get3DDataValue()));
-
-        // Create traveling items from different directions
-        TravelingItem fromSouth = new TravelingItem(
-            new ItemStack(Items.DIAMOND),
-            Direction.SOUTH,
-            0.05f
-        );
-        TravelingItem fromEast = new TravelingItem(
-            new ItemStack(Items.DIRT),
-            Direction.EAST,
-            0.05f
-        );
-
-        // Test routing decisions
-        List<Direction> options = List.of(Direction.NORTH, Direction.EAST, Direction.WEST);
-        RoutePlan southPlan = mergerModule.route(ctx, fromSouth, options);
-        RoutePlan eastPlan = mergerModule.route(ctx, fromEast, options);
-
-        // Both should be routed to NORTH (the configured output)
-        if (!southPlan.getDirections().contains(Direction.NORTH)) {
-            context.fail("Item from SOUTH should route to NORTH, got: " + southPlan.getDirections());
-        }
-        if (!eastPlan.getDirections().contains(Direction.NORTH)) {
-            context.fail("Item from EAST should route to NORTH, got: " + eastPlan.getDirections());
+        if (!injectIntoMergerJunction(context, MERGER_WEST_ENTRY, Direction.WEST, new ItemStack(Items.DIAMOND))
+                || !injectIntoMergerJunction(context, MERGER_EAST_ENTRY, Direction.EAST, new ItemStack(Items.GOLD_INGOT))) {
+            return;
         }
 
-        context.succeed();
+        context.succeedWhen(() -> {
+            context.assertContainerContains(MERGER_OUTPUT_CHEST, Items.DIAMOND);
+            context.assertContainerContains(MERGER_OUTPUT_CHEST, Items.GOLD_INGOT);
+            context.assertContainerEmpty(MERGER_OTHER_CHEST);
+        });
+    }
+
+    /**
+     * Injects {@code item} into the entry pipe at {@code entryPos} so it travels toward the merger.
+     * {@code entrySide} is the merger-relative side the entry pipe sits on; the item enters that pipe
+     * through its far face and therefore leaves heading for the merger.
+     */
+    private static boolean injectIntoMergerJunction(
+            GameTestHelper context, BlockPos entryPos, Direction entrySide, ItemStack item) {
+        PipeBlockEntity entry = (PipeBlockEntity) context.getBlockEntity(entryPos);
+        if (entry == null) {
+            context.fail("Entry transport pipe at " + entryPos + " should have a block entity");
+            return false;
+        }
+        TravelingItem traveling = new TravelingItem(item, entrySide, 0.2f);
+        if (!entry.forceAddItem(traveling, entrySide)) {
+            context.fail("Entry pipe should accept the force-injected " + item.getItem());
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -92,11 +92,12 @@ public final class ModuleGameTestRegistration {
     }
 
     /**
-    * Test that merger module routes items to configured output direction.
+    * Two streams entering a merger pipe from opposite sides both leave through the one configured
+    * output side and land in the chest there — nothing leaks into the chest on the other side.
     */
-    @GameTest(template = "empty", batch = "module")
-    public static void testMergerModuleRoutesToOutput(GameTestHelper context) {
-        ModuleGameTestBody.testMergerModuleRoutesToOutput(context);
+    @GameTest(template = "empty", batch = "module", timeoutTicks = 60)
+    public static void testMergerModuleMergesStreamsIntoConfiguredOutput(GameTestHelper context) {
+        ModuleGameTestBody.testMergerModuleMergesStreamsIntoConfiguredOutput(context);
     }
 
     /**
