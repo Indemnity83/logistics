@@ -27,6 +27,7 @@ classes/
 # Fabric
 net/
 run/
+.fabric/
 logs/
 patches/
 patches.lzma
