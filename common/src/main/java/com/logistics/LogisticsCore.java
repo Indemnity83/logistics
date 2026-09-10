@@ -385,14 +385,17 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             BOG_EARTH = INSTANCE.registerBlockWithItem("bog_earth",
                 props -> new Block(props.mapColor(MapColor.TERRACOTTA_BROWN).strength(0.5f).sound(SoundType.MUD)));
 
-            // Oil-bearing deposits — macerate into bitumen. Map colors are the dulled counterparts of the
-            // sand they speckle into, so a surface deposit reads apart from plain sand when prospecting.
+            // Oil-bearing deposits — macerate into bitumen. Each takes the *same* map color as the vanilla
+            // block it speckles into, so a deposit is indistinguishable from ordinary terrain on a map:
+            // sand -> SAND, red sand -> COLOR_ORANGE, gravel -> STONE. Deliberate — oil is meant to be
+            // found by prospecting on the ground, not by reading a map. Do not "improve" these to
+            // contrasting colors.
             OIL_SAND = INSTANCE.registerBlockWithItem("oil_sand",
-                props -> new Block(props.mapColor(MapColor.TERRACOTTA_WHITE).strength(0.5f).sound(SoundType.SAND)));
+                props -> new Block(props.mapColor(MapColor.SAND).strength(0.5f).sound(SoundType.SAND)));
             OIL_RED_SAND = INSTANCE.registerBlockWithItem("oil_red_sand",
-                props -> new Block(props.mapColor(MapColor.TERRACOTTA_ORANGE).strength(0.5f).sound(SoundType.SAND)));
+                props -> new Block(props.mapColor(MapColor.COLOR_ORANGE).strength(0.5f).sound(SoundType.SAND)));
             OIL_SHALE = INSTANCE.registerBlockWithItem("oil_shale",
-                props -> new Block(props.mapColor(MapColor.DEEPSLATE).strength(0.6f).sound(SoundType.GRAVEL)));
+                props -> new Block(props.mapColor(MapColor.STONE).strength(0.6f).sound(SoundType.GRAVEL)));
             REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
                 props -> new RedstoneEngineBlock(props.mapColor(MapColor.WOOD)
                     .strength(2.0f).sound(SoundType.WOOD).noOcclusion().requiresCorrectToolForDrops()));
