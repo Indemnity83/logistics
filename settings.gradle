@@ -12,7 +12,10 @@ pluginManagement {
     }
     plugins {
         // Declare version centrally so subproject plugins {} blocks omit the version.
-        // Version comes from gradle.properties.
+        // Most versions come from gradle.properties. Spotless is deliberately a literal:
+        // Dependabot's Gradle parser resolves ${...} only against quoted assignments in
+        // build.gradle, never against gradle.properties, so a property-backed version is
+        // one it silently stops bumping.
         id 'net.fabricmc.fabric-loom' version "${loom_version}"
         id 'net.neoforged.moddev' version "${moddev_version}"
         id 'com.diffplug.spotless' version '8.9.0'
