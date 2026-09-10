@@ -129,7 +129,19 @@ final class ResourceFiles {
      * this mod has", not proof of registration: a definition can exist for an unregistered item.
      */
     static Set<String> itemDefinitionIds() {
-        Path root = assetRoot().resolve("items");
+        return idsUnder("items");
+    }
+
+    /**
+     * Ids of every block we ship a blockstate for, as {@code logistics:path}. The block-side twin of
+     * {@link #itemDefinitionIds()}, and the same kind of proxy.
+     */
+    static Set<String> blockstateIds() {
+        return idsUnder("blockstates");
+    }
+
+    private static Set<String> idsUnder(String kind) {
+        Path root = assetRoot().resolve(kind);
         return jsonFilesUnder(root).stream()
             .map(file -> {
                 String relative = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');
