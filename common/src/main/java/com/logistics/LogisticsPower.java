@@ -332,33 +332,39 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block ENDER_CABLE;
 
         static void register() {
+            // Each engine's map color is its housing material — stone, netherite, nether brick, copper,
+            // iron — except the creative pair, which stays off-color the way its texture does.
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
-                props -> new StirlingEngineBlock(
-                    props.strength(1.5f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
+                props -> new StirlingEngineBlock(props.mapColor(MapColor.STONE)
+                    .strength(1.5f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
             REACTION_ENGINE = INSTANCE.registerBlockWithItem("reaction_engine",
-                props -> new ReactionEngineBlock(
-                    props.strength(50.0f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
+                props -> new ReactionEngineBlock(props.mapColor(MapColor.COLOR_BLACK)
+                    .strength(50.0f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
             MAGMATIC_ENGINE = INSTANCE.registerBlockWithItem("magmatic_engine",
-                props -> new MagmaticEngineBlock(
-                    props.strength(2.0f).sound(SoundType.NETHER_BRICKS).noOcclusion().requiresCorrectToolForDrops()));
+                props -> new MagmaticEngineBlock(props.mapColor(MapColor.NETHER)
+                    .strength(2.0f).sound(SoundType.NETHER_BRICKS).noOcclusion().requiresCorrectToolForDrops()));
             STEAM_ENGINE = INSTANCE.registerBlockWithItem("steam_engine",
-                props -> new SteamEngineBlock(
-                    props.strength(3.0f).sound(SoundType.COPPER).noOcclusion().requiresCorrectToolForDrops()));
+                props -> new SteamEngineBlock(props.mapColor(MapColor.COLOR_ORANGE)
+                    .strength(3.0f).sound(SoundType.COPPER).noOcclusion().requiresCorrectToolForDrops()));
             FUEL_ENGINE = INSTANCE.registerBlockWithItem("fuel_engine",
-                props -> new FuelEngineBlock(
-                    props.strength(5.0f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
+                props -> new FuelEngineBlock(props.mapColor(MapColor.METAL)
+                    .strength(5.0f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
-                props -> new CreativeEngineBlock(props.strength(5.0f).sound(SoundType.STONE).noOcclusion()));
+                props -> new CreativeEngineBlock(props.mapColor(MapColor.COLOR_MAGENTA)
+                    .strength(5.0f).sound(SoundType.STONE).noOcclusion()));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
-                props -> new CreativeSinkBlock(props.strength(5.0f).sound(SoundType.STONE)));
+                props -> new CreativeSinkBlock(props.mapColor(MapColor.COLOR_PURPLE)
+                    .strength(5.0f).sound(SoundType.STONE)));
             BATTERY = INSTANCE.registerBlockWithItem("battery",
-                props -> new BatteryBlock(props.strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()),
+                props -> new BatteryBlock(props.mapColor(MapColor.TERRACOTTA_BLUE)
+                    .strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()),
                 BatteryBlockItem::new);
             COPPER_CABLE = registerCable("copper_cable", CableTier.COPPER, SoundType.COPPER);
             GOLD_CABLE = registerCable("gold_cable", CableTier.GOLD, SoundType.METAL);
             ENDER_CABLE = registerCable("ender_cable", CableTier.ENDER, SoundType.AMETHYST);
         }
 
+        /** Map color stays NONE — a cable is a thin strand, and drawing it would hide the ground. */
         private static Block registerCable(String name, CableTier tier, SoundType soundType) {
             return INSTANCE.registerBlockWithItem(name,
                     props -> new CableBlock(
