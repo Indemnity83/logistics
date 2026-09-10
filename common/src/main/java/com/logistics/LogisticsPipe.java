@@ -291,6 +291,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
         public static Block BYPASS_FLUID_PIPE;
         public static Block GLASS_TANK;
 
+        /** Map color stays NONE — a pipe is a thin tube, and drawing it would hide the ground. */
         private static Block.Properties pipeProps(Block.Properties props) {
             return props.mapColor(MapColor.NONE)
                     .strength(0.3f)
@@ -298,6 +299,7 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                     .noOcclusion();
         }
 
+        /** Map color stays NONE, and the rest mirrors vanilla glass — see-through blocks are not drawn. */
         private static Block.Properties tankProps(Block.Properties props) {
             return props.mapColor(MapColor.NONE)
                     .strength(0.5f)
@@ -357,9 +359,10 @@ public final class LogisticsPipe extends LogisticsMod implements DomainBootstrap
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CHASSIS_LOGISTICS_PIPE_MK4));
             CHASSIS_LOGISTICS_PIPE_MK5 = INSTANCE.registerBlockWithItem("chassis_logistics_pipe_mk5",
                 props -> new PipeBlock(pipeProps(props), PipeTypes.CHASSIS_LOGISTICS_PIPE_MK5));
+            // The one solid cube in this domain, so the only one with a map color
             POWER_JUNCTION = INSTANCE.registerBlockWithItem("power_junction",
-                props -> new PowerJunctionBlock(
-                    props.strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+                props -> new PowerJunctionBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
 
             // Fluid transport
             COPPER_FLUID_PIPE = INSTANCE.registerBlockWithItem("copper_fluid_pipe",

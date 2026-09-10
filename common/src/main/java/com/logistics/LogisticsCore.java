@@ -44,6 +44,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
 public final class LogisticsCore extends LogisticsMod implements DomainBootstrap {
@@ -304,6 +305,8 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public static LiquidBlock registerFluidBlock(String name, FlowingFluid source) {
         ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, resource(name).toIdentifier());
         LiquidBlock block = new LogisticsLiquidBlock(source, BlockBehaviour.Properties.of()
+                // Crude oil is the only placeable fluid; vanilla water is WATER and lava is FIRE
+                .mapColor(MapColor.COLOR_BLACK)
                 .replaceable()
                 .noCollission()
                 .strength(100.0f)
@@ -344,43 +347,56 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             // Tin Ore and Storage Blocks
             TIN_ORE = INSTANCE.registerBlockWithItem("tin_ore",
-                props -> new Block(props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+                props -> new Block(props.mapColor(MapColor.STONE)
+                    .strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             DEEPSLATE_TIN_ORE = INSTANCE.registerBlockWithItem("deepslate_tin_ore",
-                props -> new Block(props.strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
+                props -> new Block(props.mapColor(MapColor.DEEPSLATE)
+                    .strength(4.5f, 3.0f).sound(SoundType.DEEPSLATE).requiresCorrectToolForDrops()));
             TIN_BLOCK = INSTANCE.registerBlockWithItem("tin_block",
-                props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+                props -> new Block(props.mapColor(MapColor.METAL)
+                    .strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
             RAW_TIN_BLOCK = INSTANCE.registerBlockWithItem("raw_tin_block",
-                props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+                props -> new Block(props.mapColor(MapColor.COLOR_LIGHT_GRAY)
+                    .strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
 
             // Bronze Storage Block
             BRONZE_BLOCK = INSTANCE.registerBlockWithItem("bronze_block",
-                props -> new Block(props.strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+                props -> new Block(props.mapColor(MapColor.COLOR_ORANGE)
+                    .strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
 
             // Apatite Ore and Storage Block
             APATITE_ORE = INSTANCE.registerBlockWithItem("apatite_ore",
-                props -> new DropExperienceBlock(UniformInt.of(0, 2), props.strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+                props -> new DropExperienceBlock(UniformInt.of(0, 2), props.mapColor(MapColor.STONE)
+                    .strength(3.0f, 3.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
             APATITE_BLOCK = INSTANCE.registerBlockWithItem("apatite_block",
-                props -> new Block(props.strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+                props -> new Block(props.mapColor(MapColor.WARPED_NYLIUM)
+                    .strength(5.0f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops()));
+            // Map color left at NONE — a glass block, like vanilla's, keeps the terrain under it visible
             QUARTZ_CRYSTAL = INSTANCE.registerBlockWithItem("quartz_crystal",
                 props -> new Block(props.strength(0.8f).sound(SoundType.GLASS).noOcclusion()));
 
+            // Map color left at NONE — a 4x10x4 post, drawn no more than a vanilla torch is
             MARKER = INSTANCE.registerBlockWithItem("marker",
                 props -> new MarkerBlock(props.strength(0.0f).sound(SoundType.WOOD).noCollission()));
 
             // Bog Earth — dirt-like soil that generates at swamp water edges; smelts into peat
             BOG_EARTH = INSTANCE.registerBlockWithItem("bog_earth",
-                props -> new Block(props.strength(0.5f).sound(SoundType.MUD)));
+                props -> new Block(props.mapColor(MapColor.TERRACOTTA_BROWN).strength(0.5f).sound(SoundType.MUD)));
 
-            // Oil-bearing deposits — macerate into bitumen
+            // Oil-bearing deposits — macerate into bitumen. Each takes the *same* map color as the vanilla
+            // block it speckles into, so a deposit is indistinguishable from ordinary terrain on a map:
+            // sand -> SAND, red sand -> COLOR_ORANGE, gravel -> STONE. Deliberate — oil is meant to be
+            // found by prospecting on the ground, not by reading a map. Do not "improve" these to
+            // contrasting colors.
             OIL_SAND = INSTANCE.registerBlockWithItem("oil_sand",
-                props -> new Block(props.strength(0.5f).sound(SoundType.SAND)));
+                props -> new Block(props.mapColor(MapColor.SAND).strength(0.5f).sound(SoundType.SAND)));
             OIL_RED_SAND = INSTANCE.registerBlockWithItem("oil_red_sand",
-                props -> new Block(props.strength(0.5f).sound(SoundType.SAND)));
+                props -> new Block(props.mapColor(MapColor.COLOR_ORANGE).strength(0.5f).sound(SoundType.SAND)));
             OIL_SHALE = INSTANCE.registerBlockWithItem("oil_shale",
-                props -> new Block(props.strength(0.6f).sound(SoundType.GRAVEL)));
+                props -> new Block(props.mapColor(MapColor.STONE).strength(0.6f).sound(SoundType.GRAVEL)));
             REDSTONE_ENGINE = INSTANCE.registerBlockWithItem("redstone_engine",
-                props -> new RedstoneEngineBlock(
-                    props.strength(2.0f).sound(SoundType.WOOD).noOcclusion().requiresCorrectToolForDrops()));
+                props -> new RedstoneEngineBlock(props.mapColor(MapColor.WOOD)
+                    .strength(2.0f).sound(SoundType.WOOD).noOcclusion().requiresCorrectToolForDrops()));
         }
     }
 
