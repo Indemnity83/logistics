@@ -134,10 +134,27 @@ final class ResourceFiles {
      * {@code models/item/<path>.json}, so that directory is the equivalent inventory here.
      */
     static Set<String> itemDefinitionIds() {
-        Path root = assetRoot().resolve("models").resolve("item");
-        return jsonFilesUnder(root).stream()
+        // 1.21.1 keeps item definitions under models/item; 26.x moved them to a top-level items/.
+        return idsUnder("models", "item");
+    }
+
+    /**
+     * Ids of every block we ship a blockstate for, as {@code logistics:path}. The block-side twin of
+     * {@link #itemDefinitionIds()}, and the same kind of proxy.
+     */
+    static Set<String> blockstateIds() {
+        return idsUnder("blockstates");
+    }
+
+    private static Set<String> idsUnder(String... kind) {
+        Path root = assetRoot();
+        for (String segment : kind) {
+            root = root.resolve(segment);
+        }
+        final Path base = root;
+        return jsonFilesUnder(base).stream()
             .map(file -> {
-                String relative = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');
+                String relative = base.relativize(file).toString().replace(java.io.File.separatorChar, '/');
                 return NAMESPACE + ":" + relative.substring(0, relative.length() - ".json".length());
             })
             .collect(java.util.stream.Collectors.toUnmodifiableSet());
