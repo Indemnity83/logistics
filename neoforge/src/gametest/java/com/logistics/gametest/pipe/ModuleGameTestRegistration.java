@@ -34,7 +34,9 @@ public final class ModuleGameTestRegistration {
             100,
             ModuleGameTestBody::testFilterModulePassesThroughNonMatching),
         new GameTestCase(
-            "pipe/merger_module_routes_to_output", 100, ModuleGameTestBody::testMergerModuleRoutesToOutput),
+            "pipe/merger_module_merges_streams_into_configured_output",
+            100,
+            ModuleGameTestBody::testMergerModuleMergesStreamsIntoConfiguredOutput),
         new GameTestCase(
             "pipe/filter_module_multiple_side_filters",
             100,
