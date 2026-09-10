@@ -671,7 +671,12 @@ The changelog follows [Keep a Changelog](https://keepachangelog.com). Each type 
 | `deprecate` | Deprecated | content/behavior marked for future removal |
 | `remove` | Removed | removed content or behavior |
 | `fix` | Fixed | corrected broken or unintended behavior |
+| `revert` | Fixed | undo a shipped change that turned out to be wrong |
 | `security` | Security | security-sensitive fix |
+
+`revert` is changelog-visible on purpose: a revert is how a shipped regression gets withdrawn, and
+release-please skips the release entirely when nothing in the range renders a changelog line — so a
+hidden `revert` would strand the withdrawal unreleased until an unrelated `fix:` happened to land.
 
 Prefer `balance` over `change` when the change is gameplay tuning (recipes, costs, rates,
 progression); `balance` is honest about both buffs and nerfs without implying an improvement.
@@ -688,7 +693,6 @@ These types are allowed but hidden from the changelog (developer-facing):
 | `ci` | GitHub Actions or automation changes |
 | `chore` | maintenance work |
 | `docs` | documentation-only changes |
-| `revert` | revert a previous commit/PR |
 
 ### Multi-change squash commits
 
