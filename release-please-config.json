@@ -18,6 +18,7 @@
     { "type": "deprecate", "section": "Deprecated" },
     { "type": "remove", "section": "Removed" },
     { "type": "fix", "section": "Fixed" },
+    { "type": "revert", "section": "Fixed" },
     { "type": "security", "section": "Security" },
     { "type": "perf", "section": "Changed" },
     { "type": "refactor", "section": "Changed", "hidden": true },
