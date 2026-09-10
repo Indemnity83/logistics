@@ -264,17 +264,25 @@ mod resources on disk.
 
 It stops at "did it load," not "is the content right": it does not resolve ingredient item ids through
 Minecraft's registry, because vanilla silently defaults an unknown id to `minecraft:air` instead of
-failing, so that check wouldn't reliably catch an item-id typo anyway. Verifying registry-backed ids
-belongs in a live server-data contract; verifying a specific recipe's content belongs in a
-`*RecipeTest`/`*RecipeSpotCheckTest` unit test.
+failing, so that check wouldn't reliably catch an item-id typo anyway. Verifying a specific recipe's
+content belongs in a `*RecipeTest`/`*RecipeSpotCheckTest` unit test.
+
+That same `minecraft:air` fallback is why the ids themselves are checked *statically* instead, by
+`RecipeContractTest` — a misspelled id produces a recipe that loads, appears in JEI, and quietly wants
+or produces nothing, so the live test above passes on it. The static pass compares every
+`logistics:` id against the shipped item definitions, blockstates and fluid declarations, which is the
+same split loot tables already use.
 
 ### Resource contract testing
 
 `common/src/test/java/com/logistics/resource/contract/` proves the shipped asset graph holds
 together — model parents resolve, no parent chain loops, every texture a model names ships, every item
-definition and blockstate points at a model that exists, loot tables are structurally sound, and tags
-contain no tag-of-tag cycles. It also checks the graph against the registries, so a registered block or
-item cannot ship with no resource at all. It is plain JUnit that reads JSON off the classpath and boots
+definition and blockstate points at a model that exists, loot tables and recipes name only things we
+ship, and tags contain no tag-of-tag cycles. It also checks the graph against the registries, so a
+registered block or item cannot ship with no resource at all, nor with no English name
+(`TranslationContractTest` — a missing lang key is not an error at any layer; the game just renders
+the raw key, so the block reads as `block.logistics.core.foo` in the creative menu, in JEI and on the
+HUD). It is plain JUnit that reads JSON off the classpath and boots
 only Minecraft's registries, never a server, so it runs on every `./gradlew :common:test` at negligible
 cost.
 
@@ -346,9 +354,24 @@ particle check flags exactly the 17 models Minecraft warned about and no others.
 alarm for walking an empty or wrong directory — they are not a coverage measure, and shouldn't be
 described as one. Parent chains stop at the first model we do not ship, so a variable that only a
 vanilla ancestor supplies is out of reach, for the same reason the namespace policy trusts
-`minecraft:` references without resolving them. Registry-backed id checks (unknown items in loot tables or tags) belong in a live
-feature test, not here — vanilla's registry silently resolves an unknown id to `minecraft:air` rather
-than failing, so a static check can't catch that class of typo.
+`minecraft:` references without resolving them.
+
+Ids in loot tables and recipes are checked here against the **shipped file set**, not against the
+registry — that is what makes a static pass possible at all, since vanilla's registry silently
+resolves an unknown id to `minecraft:air` rather than failing. What still belongs in a live feature
+test is the consequence a static pass cannot see: an unresolvable tag entry makes Minecraft discard
+the *whole tag*, which `ServerDataLoadingGameTestBody` covers.
+
+Three gaps are left open on purpose, each because the guard would cost more than the drift it catches:
+
+- **Convention tag references in recipes** (`#c:ores/copper`, `#c:sands`, …). We ship some of these
+  tags and not others, so the check needs an allowlist of the ones a loader provides — eleven entries
+  today, growing with every recipe that reaches for a standard tag. That is enumeration of current
+  data, not a contract.
+- **`assets/logistics/atlases`.** One file naming one sprite directory. A test could only restate it.
+- **The Fabric client services files.** The right check is a real `ServiceLoader` smoke test like the
+  six in `fabric/src/test`, but Loom's split client source set is not on the test classpath, so it
+  needs build wiring rather than a test. Worth doing when that wiring is worth doing.
 
 ### Server-data loading contract
 

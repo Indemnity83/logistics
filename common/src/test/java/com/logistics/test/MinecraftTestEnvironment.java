@@ -38,16 +38,18 @@ public abstract class MinecraftTestEnvironment {
                 // Register the test-environment key factory so ItemStorageLookup.of() works
                 // without a loader-specific implementation (Fabric/NeoForge).
                 ItemStorageLookup.registerKeyFactory(TestItemKey::of);
-
-                bootstrapped = true;
             } catch (Exception e) {
                 throw new RuntimeException("Failed to bootstrap Minecraft test environment", e);
             }
 
-            // Verify registries are initialized (outside try block so IllegalStateException isn't wrapped)
+            // Verify registries are initialized (outside try block so IllegalStateException isn't wrapped).
+            // Must run before `bootstrapped` is set: every later test class returns at the top, so
+            // marking success first would leave them all reading an empty registry and passing vacuously.
             if (BuiltInRegistries.ITEM.size() == 0) {
                 throw new IllegalStateException("Item registry not initialized");
             }
+
+            bootstrapped = true;
         }
     }
 
