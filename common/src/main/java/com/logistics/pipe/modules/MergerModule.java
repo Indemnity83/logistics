@@ -18,7 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class MergerModule implements Module, RoutingModule {
-    private static final String OUTPUT_DIRECTION = "output_direction";
+    /** Module-state key holding the output side, as {@link Direction#get3DDataValue()} in a string. */
+    public static final String OUTPUT_DIRECTION = "output_direction";
 
     @Override
     public void onConnectionsChanged(PipeContext ctx, List<Direction> options) {
