@@ -29,7 +29,7 @@ class ServiceLoaderSmokeTest {
     @Test
     @DisplayName("FuelHelper implementation is registered")
     void fuelHelper_isRegistered() {
-        FuelHelper impl = ServiceLoader.load(FuelHelper.class).findFirst().orElseThrow(
+        FuelHelper impl = ServiceLoader.load(FuelHelper.class, FuelHelper.class.getClassLoader()).findFirst().orElseThrow(
                 () -> new AssertionError("No FuelHelper found in META-INF/services/"));
         assertThat(impl).isInstanceOf(FabricFuelHelper.class);
     }
@@ -37,7 +37,7 @@ class ServiceLoaderSmokeTest {
     @Test
     @DisplayName("PlatformService implementation is registered")
     void platformService_isRegistered() {
-        PlatformService impl = ServiceLoader.load(PlatformService.class).findFirst().orElseThrow(
+        PlatformService impl = ServiceLoader.load(PlatformService.class, PlatformService.class.getClassLoader()).findFirst().orElseThrow(
                 () -> new AssertionError("No PlatformService found in META-INF/services/"));
         assertThat(impl).isInstanceOf(FabricPlatformService.class);
     }
@@ -45,7 +45,7 @@ class ServiceLoaderSmokeTest {
     @Test
     @DisplayName("BlockEntityTypeFactory implementation is registered")
     void blockEntityTypeFactory_isRegistered() {
-        BlockEntityTypeFactory impl = ServiceLoader.load(BlockEntityTypeFactory.class).findFirst().orElseThrow(
+        BlockEntityTypeFactory impl = ServiceLoader.load(BlockEntityTypeFactory.class, BlockEntityTypeFactory.class.getClassLoader()).findFirst().orElseThrow(
                 () -> new AssertionError("No BlockEntityTypeFactory found in META-INF/services/"));
         assertThat(impl).isInstanceOf(FabricBlockEntityBuilder.class);
     }
@@ -53,7 +53,7 @@ class ServiceLoaderSmokeTest {
     @Test
     @DisplayName("EnergyCapabilityLookup implementation is registered")
     void energyCapabilityLookup_isRegistered() {
-        EnergyCapabilityLookup impl = ServiceLoader.load(EnergyCapabilityLookup.class).findFirst().orElseThrow(
+        EnergyCapabilityLookup impl = ServiceLoader.load(EnergyCapabilityLookup.class, EnergyCapabilityLookup.class.getClassLoader()).findFirst().orElseThrow(
                 () -> new AssertionError("No EnergyCapabilityLookup found in META-INF/services/"));
         assertThat(impl).isInstanceOf(FabricEnergyCapabilityLookup.class);
     }
@@ -61,7 +61,7 @@ class ServiceLoaderSmokeTest {
     @Test
     @DisplayName("CreativeTabRegistrar implementation is registered")
     void creativeTabRegistrar_isRegistered() {
-        CreativeTabRegistrar impl = ServiceLoader.load(CreativeTabRegistrar.class).findFirst().orElseThrow(
+        CreativeTabRegistrar impl = ServiceLoader.load(CreativeTabRegistrar.class, CreativeTabRegistrar.class.getClassLoader()).findFirst().orElseThrow(
                 () -> new AssertionError("No CreativeTabRegistrar found in META-INF/services/"));
         assertThat(impl).isInstanceOf(FabricCreativeTabRegistrar.class);
     }
@@ -69,7 +69,7 @@ class ServiceLoaderSmokeTest {
     @Test
     @DisplayName("ResourceReloadRegistrar implementation is registered")
     void resourceReloadRegistrar_isRegistered() {
-        ResourceReloadRegistrar impl = ServiceLoader.load(ResourceReloadRegistrar.class).findFirst().orElseThrow(
+        ResourceReloadRegistrar impl = ServiceLoader.load(ResourceReloadRegistrar.class, ResourceReloadRegistrar.class.getClassLoader()).findFirst().orElseThrow(
                 () -> new AssertionError("No ResourceReloadRegistrar found in META-INF/services/"));
         assertThat(impl).isInstanceOf(FabricResourceReloadRegistrar.class);
     }
