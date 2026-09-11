@@ -47,6 +47,10 @@ public final class QuarryMiningGameTestRegistration {
         new GameTestCase(
             "automation/quarry_mines_waterlogged_block", 220, QuarryMiningGameTestBody::testQuarryMinesWaterloggedBlock),
         new GameTestCase(
+            "automation/quarry_does_not_duplicate_shulker_box_contents",
+            60,
+            QuarryMiningGameTestBody::testQuarryDoesNotDuplicateShulkerBoxContents),
+        new GameTestCase(
             "automation/quarry_treats_lava_as_unminable_and_skips_that_column",
             220,
             QuarryMiningGameTestBody::testQuarryTreatsLavaAsUnminableAndSkipsThatColumn),

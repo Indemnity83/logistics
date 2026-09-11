@@ -180,4 +180,9 @@ public class QuarryMiningGameTest {
     public void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryLeavesLooseItemsLyingBesideABrokenContainer(context);
     }
+
+    @GameTest(maxTicks = 60)
+    public void testQuarryDoesNotDuplicateShulkerBoxContents(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryDoesNotDuplicateShulkerBoxContents(context);
+    }
 }
