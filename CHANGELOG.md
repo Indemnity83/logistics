@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.8.9](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.8.8...mc26.1-v0.8.9) (2026-09-11)
+
+
+### Added
+
+* **automation:** let sawdust burn as furnace fuel ([d1cfaa5](https://github.com/Indemnity83/logistics/commit/d1cfaa508fe78bc3358721c0eac447030373eebf))
+* **common:** show ores, machines and oil lakes on maps ([5305fc8](https://github.com/Indemnity83/logistics/commit/5305fc8ec895b7f4e5e10d90194463f8449710ee))
+* **fluids:** comparators read a tank column's fill level ([9f4ce73](https://github.com/Indemnity83/logistics/commit/9f4ce738fedf9a6f52bfd117451f3f599fb70909))
+* **quarry:** keep the cleared area clear while mining ([6f21c77](https://github.com/Indemnity83/logistics/commit/6f21c77099e60d33f504ee39a9dc1a778d3879ec))
+* **quarry:** rebuild frame blocks broken during mining ([6f21c77](https://github.com/Indemnity83/logistics/commit/6f21c77099e60d33f504ee39a9dc1a778d3879ec))
+
+
+### Changed
+
+* **automation:** require a stone pickaxe for the Quarry and Power Junction ([0ec0dbb](https://github.com/Indemnity83/logistics/commit/0ec0dbba4688d24057a75d8832140623fec86dbb))
+* **energy:** scan cable devices once per tick ([1d8b14e](https://github.com/Indemnity83/logistics/commit/1d8b14e2b99bc6e44dc941cac0e617cc06f8f7b6))
+* **routing:** stop availability scans slowing as reservations pile up ([cf79ac4](https://github.com/Indemnity83/logistics/commit/cf79ac4f0ff2817dac397915331b95ccd24a4e6b))
+
+
+### Fixed
+
+* **automation:** scale the Crucible gauge by the server's tank size ([b9fcd18](https://github.com/Indemnity83/logistics/commit/b9fcd184d2d36d14b32c3af6f42e65423fd684e1))
+* **common:** stop pickaxes destroying blocks they should harvest ([0ec0dbb](https://github.com/Indemnity83/logistics/commit/0ec0dbba4688d24057a75d8832140623fec86dbb))
+* **core:** stop stale machine textures after a resource reload ([15a4186](https://github.com/Indemnity83/logistics/commit/15a4186cbcbc7f71ec10c84fef37e5a2e21029ad))
+* **crafting:** report a malformed byproduct chance as a recipe error ([b2b69d2](https://github.com/Indemnity83/logistics/commit/b2b69d2961197658a5859aa3785a6cb962aad6fe))
+* **energy:** power the new network right after a pipe split ([8cbdf15](https://github.com/Indemnity83/logistics/commit/8cbdf15e02d55ea18d14759d33fccef5637734a9))
+* **energy:** scale the Stirling charge gauge to the buffer size ([eeca741](https://github.com/Indemnity83/logistics/commit/eeca741c819a47da8201596c1f2e87c511450e0a))
+* **energy:** stop cables drawing a wrong connection arm ([b023d98](https://github.com/Indemnity83/logistics/commit/b023d985414fcbcf2d76026774999d31a16009ed))
+* **fluids:** show correct tank amounts above 32,767 mB ([f553821](https://github.com/Indemnity83/logistics/commit/f553821fc28bb73de3eebf376d7fa7a4ebf64988))
+* **quarry:** animate the arm at the real tick rate ([3fffb2d](https://github.com/Indemnity83/logistics/commit/3fffb2d9547b5306eee5d0e5321327b8c9d4f341))
+* **quarry:** resume block break progress after a reload ([9b2ff42](https://github.com/Indemnity83/logistics/commit/9b2ff42a6e2ca24007a4b8ea2931cce380d991c5))
+* **routing:** send items and fluids to the nearest matching destination ([d46cb88](https://github.com/Indemnity83/logistics/commit/d46cb88e5ff337cf4ae411afee566037ef10cf3b))
+
 ## [0.8.8](https://github.com/Indemnity83/logistics/compare/mc26.1-v0.8.7...mc26.1-v0.8.8) (2026-09-09)
 
 
