@@ -27,6 +27,19 @@ public interface IItemView {
      * reads as "nothing fits here ever" rather than "this is full right now".
      *
      * <p>Defaults to {@link #amount()} for storages that track no distinct capacity.
+     *
+     * <p><b>That default contradicts the paragraph above, and does so knowingly.</b> A view that
+     * does not override this reports {@code capacity == amount}, i.e. "full", for any partially
+     * filled slot. The consequence is real rather than theoretical: a non-slotted storage reaches
+     * other mods through {@code NeoForgeItemStorage.getCapacityAsLong}, and
+     * {@code ResourceHandlerUtil.isFull} reads {@code amount >= capacity} as full — so a hopper
+     * will not top up a partially filled engine fuel slot on NeoForge. That is the same failure
+     * mode #985 fixed for the *empty* case; the partially-filled case is knowingly left as-is.
+     *
+     * <p>Kept rather than fixed by decision (see #1165). Anyone tempted to "fix" the default should
+     * know it is load-bearing for nothing and wrong for everything — the correct repair is for each
+     * view to report its real capacity, which is a behavioural change that was considered and
+     * declined, not an oversight waiting to be tidied.
      */
     default long capacity() {
         return amount();
