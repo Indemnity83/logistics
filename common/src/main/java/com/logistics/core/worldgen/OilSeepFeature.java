@@ -47,22 +47,18 @@ public class OilSeepFeature extends LakeFeature {
     }
 
     /**
-     * Break up the solid ore barrier: the lake carves a 16x16x8 volume anchored at {@code origin} - (8,4,8)
-     * with the barrier a block beyond, so scan that neighbourhood and re-roll each of our ore blocks through
-     * the mix, giving a speckled bank rather than a full casing.
+     * Break up the solid ore barrier: the barrier is the shell of the lake's own grid, so scan exactly
+     * {@link LakeVolume} — the only blocks the lake can have written — and re-roll each ore block there
+     * through the mix, giving a speckled bank rather than a full casing.
      */
     private static void speckle(WorldGenLevel level, RandomSource random, BlockPos origin, OilOreMix mix) {
         Block ore = mix.ore().get();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        for (int dx = -9; dx <= 8; dx++) {
-            for (int dy = -5; dy <= 4; dy++) {
-                for (int dz = -9; dz <= 8; dz++) {
-                    pos.set(origin.getX() + dx, origin.getY() + dy, origin.getZ() + dz);
-                    if (level.getBlockState(pos).is(ore)) {
-                        level.setBlock(pos, mix.roll(random, ORE_WEIGHT, NATURAL_WEIGHT), 2);
-                    }
-                }
+        LakeVolume.forEach((dx, dy, dz, index) -> {
+            pos.set(origin.getX() + dx, origin.getY() + dy, origin.getZ() + dz);
+            if (level.getBlockState(pos).is(ore)) {
+                level.setBlock(pos, mix.roll(random, ORE_WEIGHT, NATURAL_WEIGHT), 2);
             }
-        }
+        });
     }
 }
