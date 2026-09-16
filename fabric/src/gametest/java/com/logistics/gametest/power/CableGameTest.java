@@ -212,13 +212,13 @@ public class CableGameTest {
     }
 
     /** A consumer placed between two pushes in the same tick still receives the second. */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testDeviceAddedMidTickReceivesEnergy(GameTestHelper context) {
         CableGameTestBody.testDeviceAddedMidTickReceivesEnergy(context);
     }
 
     /** A consumer broken between two pushes in the same tick receives nothing further. */
-    @GameTest
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
     public void testDeviceRemovedMidTickReceivesNothing(GameTestHelper context) {
         CableGameTestBody.testDeviceRemovedMidTickReceivesNothing(context);
     }
