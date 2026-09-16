@@ -5,8 +5,6 @@ import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ISlottedItemStorage;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -44,8 +42,9 @@ final class NeoForgeStorageTestSupport {
     private NeoForgeStorageTestSupport() {}
 
     private static ItemResource bound(Item item) {
-        item.builtInRegistryHolder()
-                .bindComponents(DataComponentMap.builder().set(DataComponents.MAX_STACK_SIZE, 64).build());
+        // MC 26.2 binds item default components during a datapack reload and throws
+        // "Components not bound yet" without this; 1.21.11 resolves them eagerly, so no binding
+        // step is needed (and Holder.Reference.bindComponents does not exist here).
         return ItemResource.of(item);
     }
 
