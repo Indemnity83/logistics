@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Core network dispatch logic. Replaces RequestMatcher.
@@ -100,6 +101,10 @@ public class NetworkController implements PlanningView {
     // Providers skipped this tick because they returned a deferred result (e.g. buffer full).
     // Cleared at the start of each network tick via clearDeferredProviders().
     private final Set<BlockPos> deferredProviders = new HashSet<>();
+
+    // True between beginDispatchDrain() and endDispatchDrain(), i.e. while dispatch commands handed
+    // out by nextDispatchable() are still being executed. See claimStray.
+    private boolean draining;
 
     @Nullable
     private OrderFailureListener failureListener;
@@ -247,6 +252,19 @@ public class NetworkController implements PlanningView {
     }
 
     /**
+     * Open the dispatch drain: commands handed out by {@link #nextDispatchable()} are about to be
+     * executed. Must be paired with {@link #endDispatchDrain()} in a {@code finally}.
+     */
+    public void beginDispatchDrain() {
+        draining = true;
+    }
+
+    /** Close the dispatch drain opened by {@link #beginDispatchDrain()}. */
+    public void endDispatchDrain() {
+        draining = false;
+    }
+
+    /**
      * Find the next dispatchable order. Performs a pre-validation ingredient-chain check before
      * dispatching to any dynamic provider (crafter) or when real stock is only a partial fill
      * and a crafter would be needed for the remainder.
@@ -391,13 +409,71 @@ public class NetworkController implements PlanningView {
         if (order == null) return;
         NetDbg.out("Recorded dispatch: {} | {} items shipped", orderId.toString().substring(0, 8), shipped);
         reservationManager.transitionByOrder(orderId, AllocationState.IN_TRANSIT);
-        trackInTransit(order, shipped);
-        if (shipped >= order.amount()) {
-            orderQueue.remove(orderId);
+        settleFromQueue(order, shipped);
+    }
+
+    /**
+     * Move {@code amount} of a queued order into the in-transit books: the queued entry shrinks (or
+     * goes away when nothing is left to fill) and the same amount starts being tracked against the
+     * order id, which is what a later delivery or failure acknowledgement resolves against.
+     *
+     * <p>Deliberately the single path for this, shared by {@link #recordDispatched} and
+     * {@link #claimStray}: a queued amount can only ever leave the queue through here, so exactly one
+     * of the two settles any given unit. {@code orderedForRequester} is untouched — the requester is
+     * still owed the items either way, they are merely in flight now rather than pending.
+     */
+    private void settleFromQueue(Order order, long amount) {
+        trackInTransit(order, amount);
+        if (amount >= order.amount()) {
+            orderQueue.remove(order.id());
         } else {
-            orderQueue.put(orderId, new Order(orderId, order.item(), order.amount() - shipped,
+            orderQueue.put(order.id(), new Order(order.id(), order.item(), order.amount() - amount,
                     order.requester(), order.fulfillmentMode()));
         }
+    }
+
+    /**
+     * Re-home a stray stack onto the best live standing order for it, so a packet that would
+     * otherwise be dropped is delivered instead.
+     *
+     * <p>Candidates are the <em>queued</em> orders for this exact item whose requester passes
+     * {@code routable}. Ranking is the network's usual {@link RoutingPreference}: fewest routed hops
+     * from {@code strandedAt}, then the most positive position, and an exact tie keeps the earlier
+     * order — so the fallback is the queue's FIFO order and the winner is a pure function of
+     * positions, not of map iteration.
+     *
+     * <p>{@link FulfillmentMode#FULL} is not consulted. That mode exists to stop provider stock being
+     * committed to a partial fill; these items are already extracted and in flight, so the choice is
+     * between delivering part of an order and destroying the stack.
+     *
+     * <p>Never races the dispatch drain. The claim only takes from {@code orderQueue}, through the
+     * same {@link #settleFromQueue} both paths share, and is refused outright while a drain is open
+     * ({@link #beginDispatchDrain()}) — the one window in which {@link #nextDispatchable()} has
+     * already committed an order to a provider but {@link #recordDispatched} has not yet reduced it.
+     *
+     * @param item       item the stray stack holds
+     * @param amount     how many of it are stranded
+     * @param strandedAt where the stack is stuck; distances are measured from here
+     * @param routable   accepts requesters the stack can actually reach from {@code strandedAt}
+     * @return the claimed order's requester and id, or {@code null} if no order wants this item
+     */
+    @Nullable
+    public StrayClaim claimStray(IItemKey item, long amount, BlockPos strandedAt, Predicate<BlockPos> routable) {
+        if (amount <= 0 || draining) return null;
+
+        Comparator<BlockPos> preference = RoutingPreference.among(strandedAt, hopDistance);
+        Order best = null;
+        for (Order order : orderQueue.values()) {
+            if (!order.item().equals(item) || !routable.test(order.requester())) continue;
+            if (best == null || preference.compare(order.requester(), best.requester()) < 0) best = order;
+        }
+        if (best == null) return null;
+
+        long claimed = Math.min(amount, best.amount());
+        NetDbg.out("Stray {}x {} at {} claimed by order {} → {}", claimed, item.toStack(1).getItem(),
+                strandedAt, best.id().toString().substring(0, 8), best.requester());
+        settleFromQueue(best, claimed);
+        return new StrayClaim(best.requester(), best.id());
     }
 
     /**

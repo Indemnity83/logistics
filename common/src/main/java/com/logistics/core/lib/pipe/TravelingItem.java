@@ -208,6 +208,16 @@ public class TravelingItem {
     }
 
     /**
+     * Restart the delivery window. Called when the item is given a genuinely new delivery to make
+     * after the old one was handed back: the TTL only counts down while a destination is set and
+     * stops at zero, so an item that expired once would otherwise expire again at the very next pipe
+     * center and hand the fresh order straight back.
+     */
+    public void resetTtl() {
+        this.remainingTtl = ITEM_TTL;
+    }
+
+    /**
      * Delivery tracking ID. When non-null, PipeRuntime calls network.notifyDelivery() when
      * this item is physically inserted into an inventory.
      * Not serialized — lost on chunk reload; orderedForRequester will drift but remains bounded.

@@ -402,6 +402,34 @@ public interface ILogisticsNetwork {
     @Nullable
     BlockPos findFilteredSinkFor(ItemStack stack, BlockPos source);
 
+    // ===== Stray Recovery =====
+
+    /**
+     * Re-home a packet that has nowhere left to go onto a live standing order, so it is delivered
+     * instead of dropped (or, for a fluid packet, voided).
+     *
+     * <p>This is the one path that reads the order books rather than the sink registry. Suppliers
+     * and requesters place orders but never register as sinks, so {@link #findSinkFor} cannot see
+     * them; a stranded packet whose only possible home is an order is otherwise lost.
+     *
+     * <p>Claiming moves the amount from queued to in-transit in the order book, exactly as a
+     * provider dispatch does. The caller must therefore put the returned destination <em>and</em>
+     * delivery id on the packet — an unacknowledged claim leaves the requester's outstanding total
+     * high until the order is cancelled.
+     *
+     * <p>Only requesters that are actually routable from {@code strandedAt} are considered, so a
+     * claim never re-addresses a packet to somewhere it cannot reach.
+     *
+     * @param stack      the stranded stack (a fluid packet is matched against the fluid order book)
+     * @param strandedAt pipe the packet is stuck at; ties break toward the nearest requester
+     * @param exclude    requester to skip, normally the destination that just became unroutable
+     * @return the claimed order's requester and delivery id, or {@code null} if nothing wants it
+     */
+    @Nullable
+    default StrayClaim claimStrayDelivery(ItemStack stack, BlockPos strandedAt, @Nullable BlockPos exclude) {
+        return null;
+    }
+
     // ===== Satellite Registry =====
 
     /**
