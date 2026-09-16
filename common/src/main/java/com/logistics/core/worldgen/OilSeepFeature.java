@@ -39,22 +39,43 @@ public class OilSeepFeature extends LakeFeature {
         FeaturePlaceContext<LakeFeature.Configuration> withBarrier = new FeaturePlaceContext<>(
                 context.topFeature(), context.level(), context.chunkGenerator(),
                 context.random(), context.origin(), withOreBarrier);
+        boolean[] alreadyOre = findOre(context.level(), context.origin(), mix.ore().get());
         boolean placed = super.place(withBarrier);
         if (placed) {
-            speckle(context.level(), context.random(), context.origin(), mix);
+            speckle(context.level(), context.random(), context.origin(), mix, alreadyOre);
         }
         return placed;
     }
 
     /**
+     * Marks every position in {@link LakeVolume} that already holds {@code ore}. Nothing distinguishes the
+     * barrier the lake is about to lay from an identical block a neighbouring deposit put there first, so
+     * the distinction has to be captured before the lake runs.
+     */
+    private static boolean[] findOre(WorldGenLevel level, BlockPos origin, Block ore) {
+        boolean[] found = new boolean[LakeVolume.SIZE];
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        LakeVolume.forEach((dx, dy, dz, index) -> {
+            pos.set(origin.getX() + dx, origin.getY() + dy, origin.getZ() + dz);
+            found[index] = level.getBlockState(pos).is(ore);
+        });
+        return found;
+    }
+
+    /**
      * Break up the solid ore barrier: the barrier is the shell of the lake's own grid, so scan exactly
      * {@link LakeVolume} — the only blocks the lake can have written — and re-roll each ore block there
-     * through the mix, giving a speckled bank rather than a full casing.
+     * through the mix, giving a speckled bank rather than a full casing. Positions flagged in
+     * {@code alreadyOre} belong to someone else's deposit and are left alone.
      */
-    private static void speckle(WorldGenLevel level, RandomSource random, BlockPos origin, OilOreMix mix) {
+    private static void speckle(WorldGenLevel level, RandomSource random, BlockPos origin, OilOreMix mix,
+            boolean[] alreadyOre) {
         Block ore = mix.ore().get();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         LakeVolume.forEach((dx, dy, dz, index) -> {
+            if (alreadyOre[index]) {
+                return;
+            }
             pos.set(origin.getX() + dx, origin.getY() + dy, origin.getZ() + dz);
             if (level.getBlockState(pos).is(ore)) {
                 level.setBlock(pos, mix.roll(random, ORE_WEIGHT, NATURAL_WEIGHT), 2);
