@@ -14,6 +14,7 @@ import com.logistics.pipe.network.NetDbg;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.filter.FilterSlots;
+import com.logistics.core.lib.storage.CroppedItemStorage;
 import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.core.lib.storage.IItemView;
@@ -66,11 +67,24 @@ import java.util.UUID;
  * <p>Provider modes control which items are available:
  * <ul>
  *   <li>SUPPLY - Provide all items</li>
- *   <li>RESERVE - Skip first inventory slot</li>
- *   <li>GUARDED - Skip first and last inventory slots</li>
+ *   <li>RESERVE - Skip the first slot</li>
+ *   <li>GUARDED - Skip the first and last slots</li>
  *   <li>SEEDED - Leave 1 item in each slot</li>
  *   <li>SAMPLE - Leave 1 item of each type</li>
  * </ul>
+ *
+ * <p>RESERVE and GUARDED crop by <em>slot index</em>, not by occupancy: the protected slot is a
+ * fixed place in the container whether or not anything is in it, so a player can point at it. An
+ * empty slot 0 therefore protects nothing, and a container with no more slots than the crop
+ * advertises nothing at all. Both are deliberate; see {@link CroppedItemStorage}.
+ *
+ * <p>"Slot 0" means the first slot the accessed <em>face</em> exposes, because the storage lookup
+ * already maps through {@code getSlotsForFace}. A furnace read from the side starts at its fuel
+ * slot, not its input slot.
+ *
+ * <p>Storages that are not slot-addressable cannot honour slot-index semantics at all, so the crop
+ * is disabled for them and RESERVE/GUARDED behave as SUPPLY rather than silently meaning something
+ * else. SEEDED and SAMPLE are per-view and keep working everywhere.
  */
 public class ProviderModule implements Module, TickingModule, DispatchableModule {
     private static final String TICKS_SINCE_SCAN = "ticks_since_scan";
@@ -96,6 +110,9 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
     /**
      * Provider modes control which items are available for extraction.
+     *
+     * <p>{@code cropStart}/{@code cropEnd} are slot counts hidden from each end of the storage.
+     * Ordinals are persisted to NBT — append new modes, never reorder or insert.
      */
     public enum ProviderMode {
         SUPPLY("Normal", false, false, 0, 0),
@@ -576,18 +593,17 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         BlockPos targetPos = ctx.pos().relative(direction);
         IItemStorage storage = ItemStorageLookup.find(ctx.world(), targetPos, direction.getOpposite());
         if (storage == null) return;
+        scanStorage(ctx, storage, mode, keyToStack, keyAmounts);
+    }
 
-        List<IItemView> views = new ArrayList<>();
-        for (IItemView view : storage.contents()) {
-            views.add(view);
-        }
+    /** Advertise what {@code storage} offers under {@code mode}, merged into the running totals. */
+    void scanStorage(
+            PipeContext ctx, IItemStorage storage, ProviderMode mode,
+            Map<IItemKey, ItemStack> keyToStack, Map<IItemKey, Long> keyAmounts) {
 
-        int startIndex = mode.getCropStart();
-        int endIndex = Math.max(0, views.size() - mode.getCropEnd());
         Map<IItemKey, Boolean> firstSlotSeen = new HashMap<>();
 
-        for (int i = startIndex; i < endIndex; i++) {
-            IItemView view = views.get(i);
+        for (IItemView view : croppedView(storage, mode).contents()) {
             IItemKey key = view.resource();
             long rawAmount = view.amount();
             if (rawAmount <= 0) continue;
@@ -609,52 +625,62 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     // ==================== Item Extraction ====================
 
     long extractItems(IItemStorage storage, IItemKey key, long requested, ProviderMode mode, boolean simulate) {
-        // A resource-scoped extract always drains from slot 0, so the crop has to be applied by
-        // addressing slots directly — otherwise it only limits the total, not which slots pay it.
-        ISlottedItemStorage slotted = storage instanceof ISlottedItemStorage s ? s : null;
-
-        List<IItemView> views = new ArrayList<>();
-        List<Integer> slots = new ArrayList<>();
-        if (slotted != null) {
-            // Same compaction contents() performs, but keeping each view's slot index.
-            for (int slot = 0; slot < slotted.slotCount(); slot++) {
-                IItemView view = slotted.slotView(slot);
-                if (view != null && view.amount() > 0) {
-                    views.add(view);
-                    slots.add(slot);
-                }
-            }
-        } else {
-            for (IItemView view : storage.contents()) {
-                if (view.amount() > 0) views.add(view);
-            }
-        }
-
-        int startIndex = mode.getCropStart();
-        int endIndex = Math.max(0, views.size() - mode.getCropEnd());
+        IItemStorage cropped = croppedView(storage, mode);
+        // A resource-scoped extract always drains from the storage's own first slot, so extraction
+        // addresses slots directly wherever it can — otherwise SEEDED/SAMPLE would only limit the
+        // total, not which slot pays it.
+        ISlottedItemStorage slotted = cropped instanceof ISlottedItemStorage s ? s : null;
 
         long totalExtracted = 0;
         long remaining = requested;
         boolean isFirstSlotOfType = true;
 
-        for (int i = startIndex; i < endIndex && remaining > 0; i++) {
-            IItemView view = views.get(i);
+        if (slotted != null) {
+            for (int slot = 0; slot < slotted.slotCount() && remaining > 0; slot++) {
+                IItemView view = slotted.slotView(slot);
+                if (view == null || view.amount() <= 0) continue;
+                if (!view.resource().equals(key)) continue;
+
+                long adjustedAmount = calculateAvailableAmount(mode, view.amount(), isFirstSlotOfType);
+                isFirstSlotOfType = false;
+                if (adjustedAmount <= 0) continue;
+
+                long extracted = slotted.extract(slot, key, Math.min(adjustedAmount, remaining), simulate);
+                totalExtracted += extracted;
+                remaining -= extracted;
+            }
+            return totalExtracted;
+        }
+
+        List<IItemView> views = new ArrayList<>();
+        for (IItemView view : cropped.contents()) {
+            if (view.amount() > 0) views.add(view);
+        }
+        for (IItemView view : views) {
+            if (remaining <= 0) break;
             if (!view.resource().equals(key)) continue;
 
-            long available = view.amount();
-            long adjustedAmount = calculateAvailableAmount(mode, available, isFirstSlotOfType);
+            long adjustedAmount = calculateAvailableAmount(mode, view.amount(), isFirstSlotOfType);
             isFirstSlotOfType = false;
             if (adjustedAmount <= 0) continue;
 
-            long canExtract = Math.min(adjustedAmount, remaining);
-            long extracted = slotted != null
-                    ? slotted.extract(slots.get(i), key, canExtract, simulate)
-                    : storage.extract(key, canExtract, simulate);
+            long extracted = cropped.extract(key, Math.min(adjustedAmount, remaining), simulate);
             totalExtracted += extracted;
             remaining -= extracted;
         }
 
         return totalExtracted;
+    }
+
+    /**
+     * The storage view both the supply scan and extraction address.
+     *
+     * <p>The crop lives here and nowhere else: advertising and extraction cannot disagree about
+     * which slots are in scope because they are reading the same narrowed storage. Duplicating the
+     * crop at the two call sites is what let them drift apart in #934.
+     */
+    static IItemStorage croppedView(IItemStorage storage, ProviderMode mode) {
+        return CroppedItemStorage.of(storage, mode.getCropStart(), mode.getCropEnd());
     }
 
     // ==================== Helpers ====================
