@@ -6,6 +6,20 @@ plugins {
 version = System.getenv("MOD_VERSION") ?: "dev"
 group = project.maven_group
 
+// Versions Dependabot is expected to keep current, declared here rather than in
+// gradle.properties. Dependabot's Gradle parser resolves ${...} only against *quoted*
+// assignments in build.gradle/build.gradle.kts, and looks up a `rootProject.`-prefixed
+// reference in this file only -- a value in gradle.properties is one it can never read, so it
+// silently stops bumping it. Subprojects still read these as ${rootProject.<name>}.
+// Minecraft-coupled pins stay in gradle.properties on purpose; see the note there.
+ext {
+    junit_version = '5.11.0'
+    assertj_version = '3.26.0'
+    // Sentry runtime SDK, bundled per loader. The io.sentry.jvm.gradle source-context upload
+    // plugin is versioned separately, in settings.gradle.
+    sentry_version = '8.43.0'
+}
+
 repositories {
     mavenCentral()
 }
