@@ -21,14 +21,16 @@ pluginManagement {
     }
     plugins {
         // Declare version centrally so subproject plugins {} blocks omit the version.
-        // Most versions come from gradle.properties. Spotless is deliberately a literal:
-        // Dependabot's Gradle parser resolves ${...} only against quoted assignments in
-        // build.gradle, never against gradle.properties, so a property-backed version is
-        // one it silently stops bumping.
+        // Versions here are literals so Dependabot can bump them: its Gradle parser resolves
+        // ${...} only against quoted assignments in build.gradle, never against
+        // gradle.properties, so a property-backed version is one it silently stops bumping.
+        // A version catalog is not an option in this block either -- catalogs are evaluated
+        // after settings plugins, so `libs` accessors do not exist here (gradle/gradle#36437).
+        // loom is the exception: it is a per-branch Minecraft pin, not "latest wins".
         id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
-        id 'net.neoforged.moddev' version "${moddev_version}"
+        id 'net.neoforged.moddev' version '2.0.141'
         id 'com.diffplug.spotless' version '8.10.2'
-        id 'io.sentry.jvm.gradle' version "${sentry_gradle_version}"
+        id 'io.sentry.jvm.gradle' version '5.8.0'
     }
 }
 

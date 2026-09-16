@@ -263,6 +263,23 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 
 **Requirements:** See `gradle.properties` for current versions (`java_version`, `minecraft_version`, `loader_version`, `fabric_version`).
 
+### Where a dependency version goes
+
+Dependabot's Gradle parser resolves `${…}` **only** against quoted assignments in
+`build.gradle`/`build.gradle.kts`. It never reads `gradle.properties` — that file is fetched into
+the update snapshot but never consulted for values, and its entries are unquoted besides. So the
+file a version lives in decides whether it is ever bumped again.
+
+| Kind of version | Where it goes | Why |
+|---|---|---|
+| Floating library (`junit`, `assertj`, `sentry`) | `ext { }` in the root `build.gradle` | Quoted assignment in the top-level buildfile, so `${rootProject.x}` resolves for both Gradle *and* Dependabot; still one central declaration |
+| Floating plugin (`spotless`, `moddev`, `io.sentry.jvm.gradle`) | literal in `settings.gradle` | Settings is evaluated before the root project, so `ext` is not visible there. A version catalog is no help either: catalogs are evaluated after settings plugins, so `libs` accessors do not exist in `pluginManagement { plugins { … } }` ([gradle/gradle#36437](https://github.com/gradle/gradle/issues/36437)) |
+| Minecraft-coupled pin (`minecraft_version`, `fabric_version`, `loom_version`, `neoforge_version`, `jei_*`, `jade_*`, `spark_*`) | `gradle.properties` | Per-branch policy, not "latest wins". Being invisible to Dependabot is the desired behavior — an automated bump would break the branch. `gradle.properties` is also the variance sink that keeps `settings.gradle` and the module build files branch-identical and cheap to cherry-pick |
+
+**Never move a floating version into `gradle.properties`.** It silently stops being updated, with
+no signal — the dashboard still looks healthy because the literal-versioned deps keep flowing.
+See #1161, and #1018 where exactly that was proposed for Spotless and declined.
+
 ### Third-party mod dependencies on a pre-release branch
 
 JEI, Jade and spark are all compile-only or dev-only, and none of them publish for a Minecraft
