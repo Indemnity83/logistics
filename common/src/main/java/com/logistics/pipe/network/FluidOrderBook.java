@@ -5,8 +5,10 @@ import com.logistics.core.lib.network.FluidResourceKey;
 import com.logistics.core.lib.network.FulfillmentMode;
 import com.logistics.core.lib.network.HopDistance;
 import com.logistics.core.lib.network.RoutingPreference;
+import com.logistics.core.lib.network.StrayClaim;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluid;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * Fluid-native supply/order bookkeeping, parallel to (never touching) {@link NetworkController}'s
@@ -88,6 +91,10 @@ public class FluidOrderBook {
     // Per-requester outstanding mB = queued + in-transit. Decremented ONLY by a validated
     // delivery/failure acknowledgement. This is what getOrderedAmountFor returns.
     private final Map<BlockPos, Map<FluidResourceKey, Long>> orderedForRequester = new HashMap<>();
+
+    // True between beginDispatchDrain() and endDispatchDrain(), i.e. while dispatch commands handed
+    // out by nextDispatchable() are still being executed. See claimStray.
+    private boolean draining;
 
     /** Creates a book with no distance knowledge; priority ties fall through to position. */
     public FluidOrderBook() {
@@ -205,6 +212,19 @@ public class FluidOrderBook {
     }
 
     // ===== Dispatch =====
+
+    /**
+     * Open the dispatch drain: commands handed out by {@link #nextDispatchable()} are about to be
+     * executed. Must be paired with {@link #endDispatchDrain()} in a {@code finally}.
+     */
+    public void beginDispatchDrain() {
+        draining = true;
+    }
+
+    /** Close the dispatch drain opened by {@link #beginDispatchDrain()}. */
+    public void endDispatchDrain() {
+        draining = false;
+    }
 
     /**
      * Find the next dispatchable order and reserve its capacity against the chosen provider.
@@ -332,14 +352,71 @@ public class FluidOrderBook {
 
         NetDbg.out("Fluid dispatch recorded: {} | {} mB shipped", command.orderId().toString().substring(0, 8), shipped);
 
-        if (shipped >= order.amountMb()) {
-            orderQueue.remove(command.orderId());
-        } else {
-            orderQueue.put(command.orderId(), new FluidOrder(
-                    command.orderId(), order.fluid(), order.amountMb() - shipped, order.requester(), order.fulfillmentMode()));
-        }
+        settleFromQueue(order, shipped);
+    }
 
-        trackInTransit(command.orderId(), order, shipped);
+    /**
+     * Move {@code amountMb} of a queued order into the in-transit books: the queued entry shrinks (or
+     * goes away when nothing is left to fill) and the same mB starts being tracked against the order
+     * id, which is what a later delivery or failure acknowledgement resolves against.
+     *
+     * <p>Deliberately the single path for this, shared by {@link #recordDispatched} and
+     * {@link #claimStray}, so a queued mB can only be settled once. {@code orderedForRequester} is
+     * untouched — the requester is still owed the fluid either way.
+     */
+    private void settleFromQueue(FluidOrder order, long amountMb) {
+        if (amountMb >= order.amountMb()) {
+            orderQueue.remove(order.id());
+        } else {
+            orderQueue.put(order.id(), new FluidOrder(
+                    order.id(), order.fluid(), order.amountMb() - amountMb, order.requester(), order.fulfillmentMode()));
+        }
+        trackInTransit(order.id(), order, amountMb);
+    }
+
+    /**
+     * Re-home a stray fluid packet onto the best live standing order for its fluid, so a packet that
+     * would otherwise be voided outright is delivered instead.
+     *
+     * <p>Ranking mirrors {@link NetworkController#claimStray}: fewest routed hops from
+     * {@code strandedAt}, then the most positive position, with an exact tie keeping the earlier
+     * (FIFO) order. {@link FulfillmentMode} is not consulted — the fluid is already extracted and in
+     * flight, so the choice is between filling part of an order and destroying real mB.
+     *
+     * <p>Unlike the item side, an order is only a candidate when it can absorb the <em>whole</em>
+     * packet. A packet is indivisible on arrival: {@code FluidSupplierModule} acknowledges the full
+     * {@code amountMb} it carries, and {@link #resolveInTransit} rejects an acknowledgement larger
+     * than what is tracked (where the item side clamps). Claiming less than the packet carries would
+     * therefore produce an acknowledgement that is thrown away, stranding the order's accounting.
+     *
+     * <p>Never races the dispatch drain: the claim only takes from {@code orderQueue}, through the
+     * same {@link #settleFromQueue} {@link #recordDispatched} uses, and is refused while a drain is
+     * open — the one window where a dispatch has been committed but not yet recorded.
+     *
+     * @param fluid      fluid the packet carries
+     * @param packetMb   mB the packet carries, all of it
+     * @param strandedAt pipe the packet is stuck at; distances are measured from here
+     * @param routable   accepts requesters the packet can actually reach from {@code strandedAt}
+     * @return the claimed order's requester and id, or {@code null} if no order can take the packet
+     */
+    @Nullable
+    public StrayClaim claimStray(Fluid fluid, long packetMb, BlockPos strandedAt, Predicate<BlockPos> routable) {
+        if (packetMb <= 0 || draining) return null;
+
+        FluidResourceKey key = new FluidResourceKey(fluid);
+        Comparator<BlockPos> preference = RoutingPreference.among(strandedAt, hopDistance);
+        FluidOrder best = null;
+        for (FluidOrder order : orderQueue.values()) {
+            if (!order.fluid().equals(key) || order.amountMb() < packetMb) continue;
+            if (!routable.test(order.requester())) continue;
+            if (best == null || preference.compare(order.requester(), best.requester()) < 0) best = order;
+        }
+        if (best == null) return null;
+
+        NetDbg.out("Stray {} mB of {} at {} claimed by fluid order {} -> {}", packetMb, fluid,
+                strandedAt, best.id().toString().substring(0, 8), best.requester());
+        settleFromQueue(best, packetMb);
+        return new StrayClaim(best.requester(), best.id());
     }
 
     private void trackInTransit(UUID orderId, FluidOrder order, long shippedMb) {
