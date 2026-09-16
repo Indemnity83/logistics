@@ -87,6 +87,12 @@ neoForge {
             sourceSet sourceSets.gametest
         }
     }
+    // Plain JUnit tests still need FML bootstrapped: touching Items resolves FeatureFlags, which
+    // asks FMLLoader for modded flags and throws "There is no current FML Loader" without it.
+    unitTest {
+        enable()
+        testedMod = mods.logistics
+    }
 }
 
 tasks.named('compileJava', JavaCompile) {
