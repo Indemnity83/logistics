@@ -24,6 +24,23 @@ class TravelingItemTest extends MinecraftTestEnvironment {
         return new TravelingItem(stack, Direction.NORTH, speed);
     }
 
+    // ==================== TTL Tests ====================
+
+    @Test
+    @DisplayName("resetting the TTL gives an expired item a fresh delivery window")
+    void resetTtlReopensTheDeliveryWindow() {
+        TravelingItem item = createItem(0.05f);
+        item.setRemainingTtl(0);
+        assertThat(item.isExpired()).isTrue();
+
+        // An item re-homed onto a new order must not expire again at the very next pipe centre —
+        // that would hand the order it just claimed straight back.
+        item.resetTtl();
+
+        assertThat(item.isExpired()).isFalse();
+        assertThat(item.getRemainingTtl()).isGreaterThan(0);
+    }
+
     // ==================== Speed Control Tests ====================
 
     @Test

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -220,8 +221,41 @@ public class PipeNetwork implements ILogisticsNetwork {
      */
     @Nullable
     private static FluidPacket asFluidPacket(IItemKey item) {
-        ItemStack sample = item.toStack(1);
-        return sample.is(LogisticsPipe.ITEM.FLUID_PACKET) ? sample.get(LogisticsPipe.DATA.FLUID_PACKET) : null;
+        return asFluidPacket(item.toStack(1));
+    }
+
+    /** As {@link #asFluidPacket(IItemKey)}, for a physical stack. */
+    @Nullable
+    private static FluidPacket asFluidPacket(ItemStack stack) {
+        return stack.is(LogisticsPipe.ITEM.FLUID_PACKET) ? stack.get(LogisticsPipe.DATA.FLUID_PACKET) : null;
+    }
+
+    /**
+     * Re-home a stranded packet onto a live standing order — the one destination lookup that reads
+     * the order books instead of the sink registry. Fluid packets go to {@link FluidOrderBook}, every
+     * other stack to {@link NetworkController}; never both, exactly as the delivery notifications
+     * above split.
+     *
+     * <p>Only requesters still in this graph and actually routable from {@code strandedAt} are
+     * considered, so a claim can never re-address a packet to a pipe on the far side of a split or
+     * back to the destination that just became unreachable.
+     */
+    @Override
+    @Nullable
+    public StrayClaim claimStrayDelivery(ItemStack stack, BlockPos strandedAt, @Nullable BlockPos exclude) {
+        if (stack.isEmpty()) return null;
+        Predicate<BlockPos> routable = requester ->
+                !requester.equals(exclude)
+                        && graph.contains(requester)
+                        && (requester.equals(strandedAt) || graph.getNextHop(strandedAt, requester) != null);
+
+        FluidPacket data = asFluidPacket(stack);
+        if (data != null) {
+            long packetMb = (long) stack.getCount() * data.amountMb();
+            return fluidOrderBook.claimStray(data.fluid(), packetMb, strandedAt, routable);
+        }
+        return controller.claimStray(
+                ItemStorageLookup.of(stack), stack.getCount(), strandedAt, routable);
     }
 
     @Override
@@ -334,6 +368,19 @@ public class PipeNetwork implements ILogisticsNetwork {
 
     private void tickDispatch() {
         controller.clearDeferredProviders();
+        // Held for the whole drain: between a command being handed out and its result being recorded
+        // the order is still queued at full size, so a stray-packet claim landing in that window
+        // could settle the same queued amount a second time. claimStray refuses while it is open.
+        controller.beginDispatchDrain();
+        try {
+            drainDispatch();
+        } finally {
+            controller.endDispatchDrain();
+        }
+        jobCoordinator.tick(controller);
+    }
+
+    private void drainDispatch() {
         NetworkCommandExecutor executor = new NetworkCommandExecutor(worldView);
         NetworkController.DispatchCommand cmd;
         while ((cmd = controller.nextDispatchable()) != null) {
@@ -364,7 +411,6 @@ public class PipeNetwork implements ILogisticsNetwork {
                 controller.markSupplyUnavailable(cmd.provider());
             }
         }
-        jobCoordinator.tick(controller);
     }
 
     /**
@@ -374,6 +420,16 @@ public class PipeNetwork implements ILogisticsNetwork {
      * {@link FluidOrderBook#recordDispatched}.
      */
     private void tickFluidDispatch() {
+        fluidOrderBook.beginDispatchDrain();
+        try {
+            drainFluidDispatch();
+        } finally {
+            fluidOrderBook.endDispatchDrain();
+        }
+    }
+
+    /** See {@link #tickDispatch()} for why the drain is bracketed. */
+    private void drainFluidDispatch() {
         FluidOrderBook.FluidDispatchCommand cmd;
         while ((cmd = fluidOrderBook.nextDispatchable()) != null) {
             NetDbg.out("[Network {}] Fluid dispatch: {} | provider={} -> requester={} | {} mB {}",

@@ -3,6 +3,7 @@ package com.logistics.pipe.runtime;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPipe;
 
+import com.logistics.core.lib.pipe.Deliveries;
 import com.logistics.core.lib.pipe.RoutePlan;
 import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.network.NetDbg;
@@ -21,7 +22,6 @@ import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -291,25 +291,15 @@ public final class PipeRuntime {
     }
 
     /**
-     * Abandon an expired item's delivery: hand its order back to the network, then clear the
-     * routing fields so the item falls back to default routing.
+     * Abandon an expired item's delivery: hand its order back to the network, then clear the routing
+     * fields so the item falls back to default routing. The item is re-resolved immediately after
+     * this, by {@code NetworkRouterModule}, which can re-home it onto a live order.
      *
-     * <p>The order must go back before the fields are cleared. Every delivery notification keys off
-     * the delivery id, so an item that loses its id first can never release its in-transit order,
-     * its requester accounting or the provider's reservation — they would leak for the life of the
-     * world. Clearing afterwards is also what makes this safe to call again: a second expiry, or a
-     * later arrival at an inventory, finds no id and releases nothing twice.
+     * <p>Shared with that re-homing path — see {@link Deliveries#abandon} for why the order has to go
+     * back before the fields are cleared.
      */
     static void expireDelivery(@Nullable ILogisticsNetwork network, TravelingItem item) {
-        UUID deliveryId = item.getDeliveryId();
-        BlockPos destination = item.getDestination();
-
-        item.setDestination(null);
-        item.setDeliveryId(null);
-
-        if (network == null || deliveryId == null || destination == null) return;
-        network.notifyDeliveryFailed(
-                deliveryId, destination, ItemStorageLookup.of(item.getStack()), item.getStack().getCount());
+        Deliveries.abandon(network, item);
     }
 
     /**
