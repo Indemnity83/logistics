@@ -35,6 +35,7 @@
 			"com.logistics.gametest.pipe.FluidPacketDropGameTest",
 			"com.logistics.gametest.pipe.GlassTankBucketGameTest",
 			"com.logistics.gametest.pipe.PowerJunctionGameTest",
+			"com.logistics.gametest.pipe.StrayPacketRerouteGameTest",
 			"com.logistics.gametest.power.BatteryGameTest",
 			"com.logistics.gametest.power.CableGameTest",
 			"com.logistics.gametest.power.EngineGameTest",
