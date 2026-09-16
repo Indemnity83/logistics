@@ -176,7 +176,7 @@ jobs:
           persist-credentials: false
           token: ${{ github.token }}
 
-      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
         if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
@@ -217,7 +217,7 @@ jobs:
           persist-credentials: false
           token: ${{ github.token }}
 
-      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
         if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
@@ -290,7 +290,7 @@ jobs:
           persist-credentials: false
           token: ${{ github.token }}
 
-      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
         if: needs.changes.outputs.code_changed == 'true'
         with:
           distribution: temurin
@@ -343,7 +343,7 @@ jobs:
           persist-credentials: false
           token: ${{ github.token }}
 
-      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6
         if: needs.changes.outputs.client_changed == 'true'
         with:
           distribution: temurin
