@@ -6,6 +6,8 @@ import com.logistics.core.lib.client.render.BoxGeometry.Face;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -235,32 +237,48 @@ public final class MachineModels {
         return MODELS.get(key);
     }
 
-    private static final Map<String, List<BakedQuad>> QUAD_CACHE = new HashMap<>();
+    /** Atlas identifier per model key, resolved once so the per-frame path allocates nothing. */
+    private static final Map<String, ResourceId> TEXTURE_IDS = MODELS.entrySet().stream()
+            .collect(Collectors.toUnmodifiableMap(
+                    Map.Entry::getKey, e -> ResourceId.in("logistics", "block/" + e.getValue().textureBase())));
+
+    /** Baked quads together with the sprite they were baked against. */
+    private record Baked(TextureAtlasSprite sprite, List<BakedQuad> quads) {}
+
+    private static final Map<String, Baked> QUAD_CACHE = new HashMap<>();
 
     /**
      * Build (and cache) the code-generated quads for a machine model key, ready for the renderer's
-     * {@code VertexConsumer.putBulkData} loop. Geometry is static, so quads are cached by key
-     * (assumes no mid-session resource reload, matching the pipe/cable renderers). Returns an empty
+     * {@code VertexConsumer.putBulkData} loop. Geometry is static but the atlas UVs baked into the
+     * quads are not: a resource reload re-stitches the block atlas and replaces every sprite, so a
+     * cached entry is kept only while its key still resolves to the same sprite. Returns an empty
      * list for an unknown key.
      */
     public static List<BakedQuad> quads(String key) {
-        List<BakedQuad> cached = QUAD_CACHE.get(key);
-        if (cached != null) {
-            return cached;
-        }
+        return quads(key, MachineModels::atlasSprite);
+    }
+
+    /** Seam over the live block atlas so the cache contract is testable without a client. */
+    static List<BakedQuad> quads(String key, Function<String, TextureAtlasSprite> spriteLookup) {
         Model model = MODELS.get(key);
-        List<BakedQuad> result;
         if (model == null) {
-            result = List.of();
-        } else {
-            TextureAtlasSprite sprite = Minecraft.getInstance()
-                    .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-                    .apply(ResourceId.in("logistics", "block/" + model.textureBase()).toIdentifier());
-            VanillaQuadBaker baker = new VanillaQuadBaker(sprite, -1, true, 0);
-            BoxGeometry.emit(baker::quad, model.elements(), sprite);
-            result = List.copyOf(baker.toQuads());
+            return List.of();
         }
-        QUAD_CACHE.put(key, result);
-        return result;
+        TextureAtlasSprite sprite = spriteLookup.apply(key);
+        Baked cached = QUAD_CACHE.get(key);
+        if (cached != null && cached.sprite() == sprite) {
+            return cached.quads();
+        }
+        VanillaQuadBaker baker = new VanillaQuadBaker(sprite, -1, true, 0);
+        BoxGeometry.emit(baker::quad, model.elements(), sprite);
+        List<BakedQuad> quads = List.copyOf(baker.toQuads());
+        QUAD_CACHE.put(key, new Baked(sprite, quads));
+        return quads;
+    }
+
+    private static TextureAtlasSprite atlasSprite(String key) {
+        return Minecraft.getInstance()
+                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+                .apply(TEXTURE_IDS.get(key).toIdentifier());
     }
 }
