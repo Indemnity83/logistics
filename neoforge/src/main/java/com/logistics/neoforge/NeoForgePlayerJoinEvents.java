@@ -1,5 +1,6 @@
 package com.logistics.neoforge;
 
+import com.logistics.core.config.ConfigSyncPacket;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
 import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.core.crash.CrashReportNotifier;
@@ -37,6 +38,9 @@ public final class NeoForgePlayerJoinEvents {
             }
             if (ServerNetworking.canSend(player, ReactionRecipeSyncPacket.TYPE)) {
                 ServerNetworking.send(player, ReactionRecipeSyncPacket.from(player.level().getServer()));
+            }
+            if (ServerNetworking.canSend(player, ConfigSyncPacket.TYPE)) {
+                ServerNetworking.send(player, ConfigSyncPacket.current());
             }
         }
     }
