@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import com.mojang.serialization.Lifecycle;
+import java.util.stream.Stream;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -131,11 +136,23 @@ class FabricatorProcessorOutputsTest extends MinecraftTestEnvironment {
     @SafeVarargs
     private static RecipeManager fakeRecipeManager(RecipeHolder<FabricatorRecipe>... holders) {
         List<RecipeHolder<?>> all = new ArrayList<>(Arrays.asList(holders));
-        return new RecipeManager(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)) {
+        return new RecipeManager(lookupWithRecipeRegistry()) {
             @Override
             public Collection<RecipeHolder<?>> getRecipes() {
                 return all;
             }
         };
+    }
+
+    /**
+     * The built-in registries alone are not enough: RecipeManager resolves the recipe registry in its
+     * constructor, and {@code minecraft:recipe} is dynamic rather than built in. An empty one is all
+     * this fake needs, since every lookup goes through the overridden {@code getRecipes()}.
+     */
+    private static HolderLookup.Provider lookupWithRecipeRegistry() {
+        Registry<Recipe<?>> recipes = new MappedRegistry<Recipe<?>>(Registries.RECIPE, Lifecycle.stable()).freeze();
+        return HolderLookup.Provider.create(Stream.concat(
+                RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY).listRegistries(),
+                Stream.of(recipes)));
     }
 }
