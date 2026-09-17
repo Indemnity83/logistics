@@ -1,11 +1,10 @@
 package com.logistics.core.lib.client.render;
 
+import com.mojang.blaze3d.platform.Transparency;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.model.geom.builders.UVPair;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -34,9 +33,20 @@ public final class VanillaQuadBaker {
     private final List<BakedQuad> quads = new ArrayList<>();
 
     public VanillaQuadBaker(TextureAtlasSprite sprite, int tintIndex, boolean shade, int lightEmission) {
-        this.materialInfo = new BakedQuad.MaterialInfo(
-                sprite, ChunkSectionLayer.CUTOUT, Sheets.cutoutBlockItemSheet(), tintIndex, shade, lightEmission);
         this.particleMaterial = new Material.Baked(sprite, false);
+        // MaterialInfo.of derives the layer and all three item render types from the transparency:
+        // TRANSPARENT carries no translucency, so it resolves to exactly the CUTOUT layer and
+        // cutout block-item sheet this used to name explicitly.
+        //
+        // The old boolean shade became a nullable shade-direction override. Null keeps vanilla's
+        // per-face shading; UP pins every face to the brightest direction, which is what "unshaded"
+        // meant. Every caller currently passes shade = true, so only the null branch is exercised.
+        this.materialInfo = BakedQuad.MaterialInfo.of(
+                this.particleMaterial,
+                Transparency.TRANSPARENT,
+                tintIndex,
+                shade ? null : Direction.UP,
+                lightEmission);
     }
 
     /** {@code QuadSink}-shaped entry point; {@code cullFace} is intentionally ignored (see class doc). */
