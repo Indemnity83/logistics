@@ -101,10 +101,6 @@ dependencies {
     modRuntimeOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
     modClientCompileOnly("maven.modrinth:jade:${rootProject.jade_fabric_version}")
 
-    // Test infrastructure
-    testImplementation "org.junit.jupiter:junit-jupiter:${rootProject.junit_version}"
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation "org.assertj:assertj-core:${rootProject.assertj_version}"
 }
 
 // Sentry source-context upload (so stack traces show inline source in Sentry). Gated on the
