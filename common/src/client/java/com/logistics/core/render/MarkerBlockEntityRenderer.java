@@ -175,7 +175,7 @@ public class MarkerBlockEntityRenderer implements BlockEntityRenderer<MarkerBloc
         for (int i = 0; i < length; i++) {
             matrices.pushPose();
             matrices.translate(0.5, -0.0625, 0.5);
-            matrices.mulPose(Axis.YP.rotationDegrees(yRotation));
+            matrices.rotate(Axis.YP.rotationDegrees(yRotation));
             matrices.translate(0, 0, i);
             matrices.translate(-0.5, 0.0, 0.0);
             queue.submitBlockModel(

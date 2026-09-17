@@ -9,8 +9,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 public final class FabricChestLootModifier {
     private FabricChestLootModifier() {}
@@ -40,54 +39,54 @@ public final class FabricChestLootModifier {
             // Abandoned mineshaft - raw tin and apatite (ore discovery)
             if (ABANDONED_MINESHAFT.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.RAW_TIN)
                         .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 8))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(2, 8))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
                         .setWeight(15)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(4, 12))))
                     .build());
             }
 
             // Simple dungeon - raw tin, tin materials, and apatite
             if (SIMPLE_DUNGEON.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.RAW_TIN)
                         .setWeight(8)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 8))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(2, 8))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_NUGGET)
                         .setWeight(12)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(5, 15))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(5, 15))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
                         .setWeight(5)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
                         .setWeight(15)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 10))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(3, 10))))
                     .build());
             }
 
             // Village toolsmith - tin and bronze materials, apatite, and gears
             if (VILLAGE_TOOLSMITH.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_NUGGET)
                         .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(5, 15))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(5, 15))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
                         .setWeight(4)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
                         .setWeight(8)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(4, 12))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
                         .setWeight(3)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
                         .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 10))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(3, 10))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(3))
                     .build());
             }
@@ -95,13 +94,13 @@ public final class FabricChestLootModifier {
             // Village armorer - bronze materials
             if (VILLAGE_ARMORER.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
                         .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(4, 12))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
                         .setWeight(4)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(4))
                     .build());
             }
@@ -109,13 +108,13 @@ public final class FabricChestLootModifier {
             // Stronghold corridor - bronze materials
             if (STRONGHOLD_CORRIDOR.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
                         .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(4, 12))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(4, 12))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
                         .setWeight(4)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(4))
                     .build());
             }
@@ -123,38 +122,38 @@ public final class FabricChestLootModifier {
             // Buried treasure - mix of nuggets/ingots, gears, and apatite
             if (BURIED_TREASURE.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_NUGGET)
                         .setWeight(8)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(8, 20))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(8, 20))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
                         .setWeight(5)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 5))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(2, 5))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
                         .setWeight(9)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 18))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(6, 18))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
                         .setWeight(6)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 4))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
                         .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 16))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(6, 16))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR)
                         .setWeight(5)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3))))
                     .build());
             }
 
             // Shipwreck treasure - bronze nuggets/ingots (nautical theme, favor nuggets)
             if (SHIPWRECK_TREASURE.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_NUGGET)
                         .setWeight(12)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(6, 18))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(6, 18))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
                         .setWeight(6)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_GEAR).setWeight(6))
                     .build());
             }
@@ -162,29 +161,29 @@ public final class FabricChestLootModifier {
             // Shipwreck supply - raw materials, tin, and apatite
             if (SHIPWRECK_SUPPLY.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.RAW_TIN)
                         .setWeight(8)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 6))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(2, 6))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
                         .setWeight(6)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 4))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.APATITE)
                         .setWeight(10)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 8))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(3, 8))))
                     .build());
             }
 
             // Ruined portals - mixed materials
             if (RUINED_PORTAL.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.TIN_INGOT)
                         .setWeight(5)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 3))))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.BRONZE_INGOT)
                         .setWeight(4)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(1, 2))))
                     .build());
             }
         });

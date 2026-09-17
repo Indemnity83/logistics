@@ -1,41 +1,47 @@
 package com.logistics.core.lib.power;
 
+import java.util.Optional;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CookingFuel;
 import net.minecraft.world.level.Level;
-
-import java.util.ServiceLoader;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ResolvableInt;
 
 /**
- * Loader-provided helper: check whether an item is a valid fuel and get its burn duration.
+ * Whether an item burns as furnace fuel, and for how long.
  *
- * <p>Common code calls the static convenience methods (e.g. {@code FuelHelper.isFuel(level, stack)})
- * without depending on loader-specific APIs. Each loader provides an implementation via
- * {@code META-INF/services/}:
- * <ul>
- *   <li>Fabric/NeoForge (1.21.11+): delegates to {@code level.fuelValues()}
- *   <li>Fabric (1.21.1): delegates to {@code FuelRegistry} (Fabric API)
- *   <li>NeoForge (1.21.1): delegates to {@code AbstractFurnaceBlockEntity} static methods
- * </ul>
+ * <p>Fuel is a plain item component ({@code minecraft:cooking_fuel}), so this is ordinary vanilla
+ * API with no loader-specific behaviour behind it. The mod's own fuels declare the component at
+ * item registration; see {@link FurnaceFuels}.
  */
-public interface FuelHelper {
+public final class FuelHelper {
 
-    boolean checkIsFuel(Level level, ItemStack stack);
-
-    int checkBurnDuration(Level level, ItemStack stack);
-
-    FuelHelper INSTANCE = ServiceLoader.load(FuelHelper.class)
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("No FuelHelper found"));
+    private FuelHelper() {}
 
     /** Returns {@code true} if {@code stack} can be burned as fuel. */
-    static boolean isFuel(Level level, ItemStack stack) {
-        return INSTANCE.checkIsFuel(level, stack);
+    public static boolean isFuel(Level level, ItemStack stack) {
+        return stack.has(DataComponents.COOKING_FUEL);
     }
 
     /**
      * Returns the number of ticks {@code stack} burns for, or {@code 0} if it is not a fuel.
+     *
+     * <p>A burn time is a resolvable value rather than a plain number, and resolving one needs a
+     * loot context, which only exists server-side. Every caller that asks for a duration — the
+     * engines' burn loops — runs on the server; the client only ever asks {@link #isFuel}, which
+     * needs no context.
      */
-    static int getBurnDuration(Level level, ItemStack stack) {
-        return INSTANCE.checkBurnDuration(level, stack);
+    public static int getBurnDuration(Level level, ItemStack stack) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return 0;
+        }
+        LootParams params = new LootParams.Builder(serverLevel).create(LootContextParamSets.EMPTY);
+        LootContext context = new LootContext.Builder(params).create(Optional.empty());
+        return ResolvableInt.getFromItem(
+                stack, DataComponents.COOKING_FUEL, CookingFuel::burnTime, context, 0);
     }
 }

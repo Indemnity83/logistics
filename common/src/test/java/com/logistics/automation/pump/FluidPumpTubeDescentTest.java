@@ -34,6 +34,21 @@ class FluidPumpTubeDescentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("a walk-through block does not stop the tube, even though it is solid")
+    void walkThroughBlocksDoNotStopTheTube() {
+        // Cobweb and bamboo sapling are the two blocks vanilla reports as solid but lets entities
+        // walk through. 26.3 removed BlockState#blocksMotion, which drew that distinction, so a
+        // plain isSolid() check would newly stop the tube at a cobweb -- common in flooded
+        // mineshafts, and a silent change to where a pump can reach.
+        assertThat(FluidPumpComponent.blocksTube(Blocks.COBWEB.defaultBlockState()))
+                .as("a cobweb has never stopped the tube")
+                .isFalse();
+        assertThat(FluidPumpComponent.blocksTube(Blocks.BAMBOO_SAPLING.defaultBlockState()))
+                .as("a bamboo sapling has never stopped the tube")
+                .isFalse();
+    }
+
+    @Test
     @DisplayName("air does not stop the tube and stone does")
     void airPassesAndStoneBlocks() {
         assertThat(FluidPumpComponent.blocksTube(Blocks.AIR.defaultBlockState())).isFalse();

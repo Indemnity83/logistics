@@ -25,6 +25,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 public final class NeoForgeCapabilityRegistration {
     private NeoForgeCapabilityRegistration() {}
@@ -44,10 +46,18 @@ public final class NeoForgeCapabilityRegistration {
         TankCellLookup.register((world, pos) -> world.getBlockEntity(pos) instanceof TankCell cell ? cell : null);
         TankCellLookup.registerGasPredicate(key -> PlatformService.INSTANCE.isLighterThanAir(key.getFluid()));
 
-        FluidContainerInteraction.register((world, pos, player, hand, side) ->
-                net.neoforged.neoforge.fluids.FluidUtil.interactWithFluidHandler(player, hand, world, pos, side)
-                        ? net.minecraft.world.InteractionResult.SUCCESS
-                        : net.minecraft.world.InteractionResult.PASS);
+        // 26.3 moved FluidUtil under transfer.fluid and made the interaction transactional. The
+        // transaction has to be committed for the fill/drain to stick; closing without committing
+        // rolls it back, which would look like the bucket silently doing nothing.
+        FluidContainerInteraction.register((world, pos, player, hand, side) -> {
+            try (Transaction transaction = Transaction.openRoot()) {
+                if (!FluidUtil.interactWithFluidHandler(player, hand, world, pos, side, transaction)) {
+                    return net.minecraft.world.InteractionResult.PASS;
+                }
+                transaction.commit();
+                return net.minecraft.world.InteractionResult.SUCCESS;
+            }
+        });
 
         PipeConnectionLookup.register((level, pos, direction) -> {
             BlockEntity blockEntity = level.getBlockEntity(pos);

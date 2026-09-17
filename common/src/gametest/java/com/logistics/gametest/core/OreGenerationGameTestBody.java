@@ -12,8 +12,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.AbstractOreFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 /**
@@ -118,20 +118,20 @@ public class OreGenerationGameTestBody {
      * Test that tin ore configured feature is registered.
      */
     public static void testTinOreConfiguredFeatureRegistered(GameTestHelper context) {
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
+        ResourceKey<Feature> featureKey = ResourceKey.create(
+            Registries.FEATURE,
             LogisticsMod.modId("tin_ore_stone").toIdentifier()
         );
 
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
+        var registry = context.getLevel().registryAccess().lookup(Registries.FEATURE);
         if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
+            context.fail("Feature registry not available");
             return;
         }
 
         var feature = registry.get().get(featureKey);
         if (feature.isEmpty()) {
-            context.fail("Tin ore configured feature not registered");
+            context.fail("Tin ore feature not registered");
             return;
         }
 
@@ -142,20 +142,20 @@ public class OreGenerationGameTestBody {
      * Test that apatite ore configured feature is registered.
      */
     public static void testApatiteOreConfiguredFeatureRegistered(GameTestHelper context) {
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
+        ResourceKey<Feature> featureKey = ResourceKey.create(
+            Registries.FEATURE,
             LogisticsMod.modId("apatite_ore_stone").toIdentifier()
         );
 
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
+        var registry = context.getLevel().registryAccess().lookup(Registries.FEATURE);
         if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
+            context.fail("Feature registry not available");
             return;
         }
 
         var feature = registry.get().get(featureKey);
         if (feature.isEmpty()) {
-            context.fail("Apatite ore configured feature not registered");
+            context.fail("Apatite ore feature not registered");
             return;
         }
 
@@ -256,12 +256,12 @@ public class OreGenerationGameTestBody {
 
     /**
      * Fills {@link #HOST_VOLUME_MIN}..{@link #HOST_VOLUME_MAX} with {@code host}, runs the named
-     * configured feature from the level's own registry, and asserts the volume now holds the
+     * feature from the level's own registry, and asserts the volume now holds the
      * expected ore and nothing else.
      */
     private static void generateOreIntoHostVolume(
             GameTestHelper context, String featureName, Block host, Block expectedOre) {
-        ConfiguredFeature<?, ?> feature = configuredFeature(context, featureName);
+        Feature feature = configuredFeature(context, featureName);
         if (feature == null) {
             return;
         }
@@ -309,23 +309,23 @@ public class OreGenerationGameTestBody {
      */
     private static void assertOreTargets(
             GameTestHelper context, String featureName, Block host, Block expectedOre) {
-        ConfiguredFeature<?, ?> feature = configuredFeature(context, featureName);
+        Feature feature = configuredFeature(context, featureName);
         if (feature == null) {
             return;
         }
 
-        if (!(feature.config() instanceof OreConfiguration oreConfig)) {
-            context.fail(featureName + " is not an OreConfiguration");
+        if (!(feature instanceof AbstractOreFeature oreFeature)) {
+            context.fail(featureName + " is not an ore feature");
             return;
         }
 
-        for (OreConfiguration.TargetBlockState target : oreConfig.targetStates) {
-            if (!target.target.test(host.defaultBlockState(), context.getLevel().getRandom())) {
+        for (var target : oreFeature.targetStates()) {
+            if (!target.target().test(host.defaultBlockState(), BlockPos.ZERO, context.getLevel().getRandom())) {
                 continue;
             }
-            if (!target.state.is(expectedOre)) {
+            if (!target.state().is(expectedOre)) {
                 context.fail(featureName + " replaces " + blockName(host) + " with "
-                    + blockName(target.state.getBlock()) + " instead of " + blockName(expectedOre));
+                    + blockName(target.state().getBlock()) + " instead of " + blockName(expectedOre));
                 return;
             }
             context.succeed();
@@ -335,16 +335,16 @@ public class OreGenerationGameTestBody {
         context.fail(featureName + " does not target " + blockName(host));
     }
 
-    /** Looks a mod configured feature up in the level's registry, failing the test if absent. */
-    private static ConfiguredFeature<?, ?> configuredFeature(GameTestHelper context, String featureName) {
-        ResourceKey<ConfiguredFeature<?, ?>> featureKey = ResourceKey.create(
-            Registries.CONFIGURED_FEATURE,
+    /** Looks a mod feature up in the level's registry, failing the test if absent. */
+    private static Feature configuredFeature(GameTestHelper context, String featureName) {
+        ResourceKey<Feature> featureKey = ResourceKey.create(
+            Registries.FEATURE,
             LogisticsMod.modId(featureName).toIdentifier()
         );
 
-        var registry = context.getLevel().registryAccess().lookup(Registries.CONFIGURED_FEATURE);
+        var registry = context.getLevel().registryAccess().lookup(Registries.FEATURE);
         if (registry.isEmpty()) {
-            context.fail("Configured feature registry not available");
+            context.fail("Feature registry not available");
             return null;
         }
 

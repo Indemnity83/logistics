@@ -14,12 +14,9 @@ import com.logistics.core.engine.block.RedstoneEngineBlock;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
-import com.logistics.core.worldgen.BogPatchConfiguration;
 import com.logistics.core.worldgen.BogPatchFeature;
 import com.logistics.core.worldgen.OilSeepFeature;
-import com.logistics.core.worldgen.OilSandsConfiguration;
 import com.logistics.core.worldgen.OilSandsFeature;
-import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +33,11 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import com.logistics.core.lib.fluids.LogisticsLiquidBlock;
+import com.logistics.core.lib.power.FurnaceFuels;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -228,25 +225,26 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     }
 
     public static final class WORLDGEN {
-        public static Feature<BogPatchConfiguration> BOG_PATCH;
-        public static Feature<LakeFeature.Configuration> OIL_SEEP;
-        public static Feature<OilSandsConfiguration> OIL_SANDS;
 
         private WORLDGEN() {}
 
+        /**
+         * Features are data-driven objects now: the code registry holds their codecs, and each instance
+         * lives in {@code data/logistics/worldgen/feature/} with its configuration inline.
+         */
         static void register() {
-            BOG_PATCH = Registry.register(
-                BuiltInRegistries.FEATURE,
+            Registry.register(
+                BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("bog_patch").toIdentifier(),
-                new BogPatchFeature(BogPatchConfiguration.CODEC));
-            OIL_SEEP = Registry.register(
-                BuiltInRegistries.FEATURE,
+                BogPatchFeature.CODEC);
+            Registry.register(
+                BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("oil_seep").toIdentifier(),
-                new OilSeepFeature());
-            OIL_SANDS = Registry.register(
-                BuiltInRegistries.FEATURE,
+                OilSeepFeature.CODEC);
+            Registry.register(
+                BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("oil_sands").toIdentifier(),
-                new OilSandsFeature(OilSandsConfiguration.CODEC));
+                OilSandsFeature.CODEC);
         }
     }
 
@@ -311,7 +309,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 .replaceable()
                 .noCollision()
                 .strength(100.0f)
-                .pushReaction(PushReaction.DESTROY)
+                .pushReaction(PushReaction.POPPED)
                 .noLootTable()
                 .liquid()
                 .sound(SoundType.EMPTY));
@@ -544,13 +542,17 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
-            SAWDUST = INSTANCE.registerItem("sawdust", Item::new);
-            PEAT = INSTANCE.registerItem("peat", Item::new);
+            SAWDUST = INSTANCE.registerItem(
+                "sawdust", props -> new Item(FurnaceFuels.applyTo(props, "core/sawdust")));
+            PEAT = INSTANCE.registerItem(
+                "peat", props -> new Item(FurnaceFuels.applyTo(props, "core/peat")));
             PULPED_BIOMASS = INSTANCE.registerItem("pulped_biomass", Item::new);
             SLAG = INSTANCE.registerItem("slag", Item::new);
             RICH_SLAG = INSTANCE.registerItem("rich_slag", Item::new);
-            BITUMEN = INSTANCE.registerItem("bitumen", Item::new);
-            TAR = INSTANCE.registerItem("tar", Item::new);
+            BITUMEN = INSTANCE.registerItem(
+                "bitumen", props -> new Item(FurnaceFuels.applyTo(props, "core/bitumen")));
+            TAR = INSTANCE.registerItem(
+                "tar", props -> new Item(FurnaceFuels.applyTo(props, "core/tar")));
 
             // Chips
             REDSTONE_CHIPSET = INSTANCE.registerItem("redstone_chipset", Item::new);

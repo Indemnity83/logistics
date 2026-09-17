@@ -2,12 +2,10 @@ package com.logistics.automation.transposer;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineBlock;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -23,18 +21,12 @@ import org.jetbrains.annotations.Nullable;
  * Block for the Transposer: a fluid ⇄ item station with RF-gated processing.
  */
 public class TransposerBlock extends MachineBlock {
-    public static final MapCodec<TransposerBlock> CODEC = simpleCodec(TransposerBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     public TransposerBlock(Properties settings) {
         super(settings);
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LIT, false));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override

@@ -24,6 +24,7 @@ import java.util.stream.Stream;
  */
 public abstract class MinecraftTestEnvironment {
     private static volatile boolean bootstrapped = false;
+    private static volatile Runnable componentBinder;
 
     @BeforeAll
     public static void bootstrapMinecraft() {
@@ -89,9 +90,10 @@ public abstract class MinecraftTestEnvironment {
                     }
                 };
 
-                BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
+                componentBinder = () -> BuiltInRegistries.DATA_COMPONENT_INITIALIZERS
                         .build(tagSafeRegistries)
                         .forEach(DataComponentInitializers.PendingComponents::apply);
+                componentBinder.run();
 
                 // Register the test-environment key factory so ItemStorageLookup.of() works
                 // without a loader-specific implementation (Fabric/NeoForge).
@@ -155,5 +157,15 @@ public abstract class MinecraftTestEnvironment {
         if (registry.size() == 0) {
             throw new AssertionError(name + " registry is empty - bootstrap may have failed");
         }
+    }
+
+    /**
+     * Re-binds default data components. Bootstrap binds only what is registered at the time, so
+     * anything registered later — the mod's own items — needs another pass before its components
+     * can be read.
+     */
+    public static void bindDataComponents() {
+        bootstrapMinecraft();
+        componentBinder.run();
     }
 }

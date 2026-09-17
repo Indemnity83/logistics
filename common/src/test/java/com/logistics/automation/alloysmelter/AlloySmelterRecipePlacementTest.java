@@ -16,6 +16,7 @@ import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -160,7 +161,7 @@ class AlloySmelterRecipePlacementTest extends MinecraftTestEnvironment {
         }
 
         @Override
-        public void placeItemBackInInventory(ItemStack stack, boolean sendPacket) {
+        public void placeItemBackInInventory(ItemStack stack, boolean sendPacket, Prediction prediction) {
             while (!stack.isEmpty()) {
                 int index = getSlotWithRemainingSpace(stack);
                 if (index == -1) {

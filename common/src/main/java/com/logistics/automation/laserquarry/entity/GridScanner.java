@@ -95,15 +95,15 @@ public final class GridScanner {
 
     /**
      * True when the cell is fluid rather than a solid block to break. A waterlogged stair, slab,
-     * fence or chest reports a full fluid state but still blocks motion, so testing the fluid state
-     * alone would leave every submerged structure standing in the pit.
+     * fence or chest reports a full fluid state but still counts as solid, so testing the fluid
+     * state alone would leave every submerged structure standing in the pit.
      *
-     * <p>Blocks that report a fluid state without blocking motion — bubble columns, kelp, seagrass —
+     * <p>Blocks that report a fluid state without being solid — bubble columns, kelp, seagrass —
      * stay skipped. A bubble column in particular regenerates from the magma block below it, and the
      * mining cursor only advances on the sequential cell, so mining one is an endless detour.
      */
     private static boolean isFluid(BlockState state) {
-        return !state.getFluidState().isEmpty() && !state.blocksMotion();
+        return !state.getFluidState().isEmpty() && !state.isSolid();
     }
 
     /**

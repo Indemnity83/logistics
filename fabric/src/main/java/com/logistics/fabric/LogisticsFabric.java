@@ -5,13 +5,10 @@ import com.logistics.core.bootstrap.LogisticsCommonBootstrap;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.EnergyPushService;
 import com.logistics.core.lib.energy.IEnergyStorage;
-import com.logistics.core.lib.power.FurnaceFuels;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.fabric.capability.FabricCapabilityRegistration;
 import com.logistics.fabric.energy.EnergyStorageAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.registry.FuelValueEvents;
 
 public final class LogisticsFabric implements ModInitializer {
     private static final LogisticsCommonBootstrap COMMON_BOOTSTRAP = new LogisticsCommonBootstrap();
@@ -33,10 +30,6 @@ public final class LogisticsFabric implements ModInitializer {
         FabricPlayerJoinEvents.register();
         FabricPacketRegistration.register();
         FabricBiomeModifications.register();
-
-        // Values live in FurnaceFuels so this and NeoForge's furnace_fuels data map cannot drift.
-        FuelValueEvents.BUILD.register((builder, context) -> FurnaceFuels.BURN_TIMES.forEach(
-                (path, burnTime) -> builder.add(BuiltInRegistries.ITEM.getValue(LogisticsMod.modId(path).toIdentifier()), burnTime)));
     }
 
     private void registerEnergyServices() {

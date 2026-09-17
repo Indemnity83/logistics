@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Unit tests for {@link BatteryBlock}'s state definition and render shape. */
@@ -29,10 +28,5 @@ class BatteryBlockTest extends MinecraftTestEnvironment {
         assertTrue(block.defaultBlockState().hasProperty(AbstractBatteryBlockEntity.CHARGE),
                 "battery block must expose the charge property the multipart blockstate reads");
         assertEquals(0, block.defaultBlockState().getValue(AbstractBatteryBlockEntity.CHARGE));
-    }
-
-    @Test
-    void exposesMapCodec() {
-        assertNotNull(BatteryBlock.CODEC);
     }
 }
