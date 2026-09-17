@@ -396,12 +396,16 @@ public final class FluidPumpComponent implements MachineComponent {
     }
 
     /**
-     * True when a block physically stops the intake tube. A standalone liquid has no collision
-     * shape and so never blocks motion on its own; testing the fluid state as well would let the
-     * tube pass through any waterlogged solid a player laid down to seal a pocket off.
+     * True when a block physically stops the intake tube. A standalone liquid is not solid and so
+     * never stops the tube on its own; testing the fluid state as well would let the tube pass
+     * through any waterlogged solid a player laid down to seal a pocket off.
+     *
+     * <p>Cobweb and bamboo sapling are solid yet walk-through, and the tube has always descended
+     * past them. Vanilla drew that distinction in {@code BlockState#blocksMotion}, which 26.3
+     * removed, so the two exceptions are spelled out here instead.
      */
     static boolean blocksTube(BlockState state) {
-        return state.blocksMotion();
+        return state.isSolid() && !state.is(Blocks.COBWEB) && !state.is(Blocks.BAMBOO_SAPLING);
     }
 
     @Override
