@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -40,7 +41,10 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
     // Green LED fade duration in ticks
     private static final int LED_FADE_TICKS = 12;
 
-    private static final class InterpolationState {
+    /** Ticks per second to assume when no tick-rate manager is reachable. */
+    static final float DEFAULT_TICK_RATE = 20f;
+
+    static final class InterpolationState {
         float renderArmX;
         float renderArmY;
         float renderArmZ;
@@ -170,7 +174,19 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         float renderArmZ = entity.getArmZ();
 
         InterpolationState interp = INTERPOLATION_CACHE.computeIfAbsent(quarryPos, k -> new InterpolationState());
-        updateClientInterpolation(interp, renderArmX, renderArmY, renderArmZ, entity.getSyncedArmSpeed());
+        // Sample the live tick rate every frame -- it is per-client and changes at runtime via /tick.
+        TickRateManager tickRateManager = entity.getLevel() != null ? entity.getLevel().tickRateManager() : null;
+        float tickRate = tickRateManager != null ? tickRateManager.tickrate() : DEFAULT_TICK_RATE;
+        boolean tickingFrozen = tickRateManager != null && tickRateManager.isFrozen();
+        updateClientInterpolation(
+                interp,
+                renderArmX,
+                renderArmY,
+                renderArmZ,
+                entity.getSyncedArmSpeed(),
+                tickRate,
+                tickingFrozen,
+                System.nanoTime());
 
         renderArmX = interp.renderArmX;
         renderArmY = interp.renderArmY;
@@ -246,10 +262,19 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
 
     /**
      * Update client-side interpolated position to smoothly move towards server position.
+     *
+     * <p>{@code currentTime} is a parameter so tests can drive the wall clock deterministically rather
+     * than sleeping.
      */
-    private void updateClientInterpolation(
-            InterpolationState interp, float serverArmX, float serverArmY, float serverArmZ, float syncedArmSpeed) {
-        long currentTime = System.nanoTime();
+    static void updateClientInterpolation(
+            InterpolationState interp,
+            float serverArmX,
+            float serverArmY,
+            float serverArmZ,
+            float syncedArmSpeed,
+            float tickRate,
+            boolean tickingFrozen,
+            long currentTime) {
 
         if (!interp.initialized || interp.lastUpdateTimeNanos == 0) {
             // First time - snap to server position
@@ -268,8 +293,12 @@ public class LaserQuarryBlockEntityRenderer implements BlockEntityRenderer<Laser
         // Clamp delta to avoid huge jumps after pauses
         deltaSeconds = Math.min(deltaSeconds, 0.1f);
 
-        // Get current tick rate (MC 1.21.1 always runs at 20 TPS)
-        float tickRate = 20f;
+        if (tickingFrozen) {
+            // The loop is driven by wall clock, not ticks, so an arm caught mid-traverse would glide on
+            // to a target the server is no longer moving toward. Checked after the bookkeeping above so
+            // lastUpdateTimeNanos keeps advancing and the arm resumes smoothly instead of jumping.
+            return;
+        }
 
         // Speed in blocks per second = synced speed per tick * ticks per second
         float speedPerSecond = syncedArmSpeed * tickRate;
