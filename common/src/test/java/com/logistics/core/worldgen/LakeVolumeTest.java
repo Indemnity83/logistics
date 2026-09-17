@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * solid casing. Neither shows up as a crash — only as wrong-looking terrain in a rarely generated feature.
  *
  * <p>The grid is the one vanilla {@code LakeFeature} fills: a {@code boolean[2048]} addressed as
- * 16x16x8, written through {@code origin.offset(-8, -4, -8).offset(x, y, z)}.
+ * 16x16x8, written through {@code origin.below(4).offset(x, y, z)} on this Minecraft line.
  */
 @DisplayName("Lake volume")
 class LakeVolumeTest {
@@ -38,9 +38,9 @@ class LakeVolumeTest {
         List<Offset> offsets = visited();
 
         assertThat(offsets).hasSize(VANILLA_GRID_CELLS);
-        assertThat(offsets).extracting(Offset::dx).containsOnly(range(-8, VANILLA_GRID_X));
+        assertThat(offsets).extracting(Offset::dx).containsOnly(range(0, VANILLA_GRID_X));
         assertThat(offsets).extracting(Offset::dy).containsOnly(range(-4, VANILLA_GRID_Y));
-        assertThat(offsets).extracting(Offset::dz).containsOnly(range(-8, VANILLA_GRID_Z));
+        assertThat(offsets).extracting(Offset::dz).containsOnly(range(0, VANILLA_GRID_Z));
     }
 
     @Test
