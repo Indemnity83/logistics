@@ -103,9 +103,11 @@ public final class NeoForgeItemStorage implements ISlottedItemStorage {
             }
             final NeoForgeItemKey key = NeoForgeItemKey.of(stack);
             final long amount = stack.getCount();
+            final int index = slot;
             views.add(new IItemView() {
                 @Override public IItemKey resource() { return key; }
                 @Override public long amount() { return amount; }
+                @Override public long capacity() { return capacityOf(index, amount); }
             });
         }
         return views;
@@ -114,6 +116,25 @@ public final class NeoForgeItemStorage implements ISlottedItemStorage {
     @Override
     public int slotCount() {
         return handler.getSlots();
+    }
+
+    @Override
+    public long slotCapacity(int slot) {
+        return capacityOf(slot, handler.getStackInSlot(slot).getCount());
+    }
+
+    /**
+     * The handler's own limit for a slot. {@code IItemHandler.getSlotLimit} answers independently of what
+     * is in the slot, so it covers an empty one too — which {@link #slotView} cannot, producing no view
+     * for one.
+     *
+     * <p>Floored at the amount present, because {@link IItemView#capacity()} is contractually
+     * {@code >= amount()} and the handlers reaching here belong to other mods, which are not obliged to
+     * agree. Without the floor a handler under-reporting its limit would give our routing negative free
+     * space.
+     */
+    private long capacityOf(int slot, long amount) {
+        return Math.max(amount, handler.getSlotLimit(slot));
     }
 
     @Override
@@ -128,6 +149,7 @@ public final class NeoForgeItemStorage implements ISlottedItemStorage {
         return new IItemView() {
             @Override public IItemKey resource() { return key; }
             @Override public long amount() { return amount; }
+            @Override public long capacity() { return capacityOf(slot, amount); }
         };
     }
 
