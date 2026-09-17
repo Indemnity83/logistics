@@ -78,9 +78,11 @@ public final class NeoForgeItemStorage implements ISlottedItemStorage {
                 continue;
             }
             IItemKey key = new NeoForgeItemKey(resource);
+            int index = i;
             views.add(new IItemView() {
                 @Override public IItemKey resource() { return key; }
                 @Override public long amount() { return amount; }
+                @Override public long capacity() { return capacityOf(index, resource, amount); }
             });
         }
         return views;
@@ -89,6 +91,25 @@ public final class NeoForgeItemStorage implements ISlottedItemStorage {
     @Override
     public int slotCount() {
         return handler.size();
+    }
+
+    @Override
+    public long slotCapacity(int slot) {
+        return capacityOf(slot, handler.getResource(slot), handler.getAmountAsLong(slot));
+    }
+
+    /**
+     * The handler's own capacity for a slot. NeoForge specifies {@code getCapacityAsLong} as the capacity
+     * "irrespective of the current amount or resource currently at that index", so it answers for an empty
+     * slot too — which {@link #slotView} cannot, producing no view for one.
+     *
+     * <p>Floored at the amount present, because {@link IItemView#capacity()} is contractually
+     * {@code >= amount()} and the handlers reaching here belong to other mods, which are not obliged to
+     * agree. Without the floor a handler under-reporting capacity would give our routing negative free
+     * space.
+     */
+    private long capacityOf(int slot, ItemResource resource, long amount) {
+        return Math.max(amount, handler.getCapacityAsLong(slot, resource));
     }
 
     @Override
@@ -103,6 +124,7 @@ public final class NeoForgeItemStorage implements ISlottedItemStorage {
         return new IItemView() {
             @Override public IItemKey resource() { return key; }
             @Override public long amount() { return amount; }
+            @Override public long capacity() { return capacityOf(slot, resource, amount); }
         };
     }
 
