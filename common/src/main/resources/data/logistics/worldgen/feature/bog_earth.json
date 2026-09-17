@@ -1,0 +1,13 @@
+{
+  "type": "logistics:bog_patch",
+  "spread_chance": 0.8,
+  "max_count": 40,
+  "target": {
+    "type": "minecraft:matching_blocks",
+    "blocks": [
+      "minecraft:mud",
+      "minecraft:grass_block",
+      "minecraft:dirt"
+    ]
+  }
+}
