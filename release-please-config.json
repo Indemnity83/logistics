@@ -1,15 +1,15 @@
 {
+  "bootstrap-sha": "ee86f5d26860da77d6334ca3902653b2467691f9",
   "packages": {
     ".": {
-      "package-name": "logistics-mc26.2",
-      "component": "mc26.2",
+      "package-name": "logistics-mc26.3",
+      "component": "mc26.3",
       "release-type": "simple",
       "include-component-in-tag": true,
       "pull-request-title-pattern": "chore(release): release ${version} for ${component}",
       "initial-version": "0.3.0",
       "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true,
-      "bootstrap-sha": "db118cb0421da3f150365ce433640d2f13f0b0d7"
+      "bump-patch-for-minor-pre-major": true
     }
   },
   "changelog-sections": [
