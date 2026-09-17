@@ -192,9 +192,16 @@ to run from scripts/agents. Prefer these over plain `git` for the standard featu
 | `git checkout -b <branch>` (off current branch, stacked) | `git town append <branch>` |
 | `git pull` / manually merging main into a feature branch | `git town sync` |
 | Opening a PR by hand | `git town propose` |
-| Squash-merging a PR | `git town ship` |
+| Squash-merging a PR | `git town ship -m "<extra changelog lines, or empty>"` |
 | Deleting a merged/obsolete feature branch | `git town delete` |
 | `git checkout <branch>` when you don't remember the name | `git town switch` |
+
+**`git town ship` drops a PR's body — pass changelog lines with `-m`.** Squash merges here keep
+only the PR title (`squash_merge_commit_message: BLANK`), so commits stay short and link to the PR
+for detail. The cost: `type(scope): description` lines written into a PR body never reach the
+commit, and Release Please only ever reads the commit. A bare `git town ship` supplies an empty
+body and loses them silently. `-m` sets the body *only* — restating the subject duplicates that
+entry. See [Multi-change squash commits](#multi-change-squash-commits).
 
 **Local git metadata overrides the file.** `git config git-town.main-branch …` in a clone silently
 wins over `.git-town.toml`, and list settings like `perennials` *merge* rather than replace, so a
@@ -723,6 +730,21 @@ feat(automation): add the sawmill
 change(automation): rename Wood Pulp to Sawdust
 balance(automation): move wood processing from the macerator to the sawmill
 remove(automation): drop the macerator's wood-pulp recipes
+```
+
+Those extra lines are supplied at merge time, since the PR body is discarded:
+
+```bash
+git town ship -m ""                                     # single change
+git town ship -m "change(automation): rename Wood Pulp to Sawdust
+balance(automation): move wood processing from the macerator to the sawmill"
+```
+
+Then confirm it landed before porting — a wrong squash message means a wrong changelog, and it is
+far easier to fix before the port fans it out:
+
+```bash
+git log -1 --format='%s%n---%n%b'
 ```
 
 ### Allowed scopes
