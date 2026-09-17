@@ -8,9 +8,7 @@
         "predicate_type": "minecraft:tag_match",
         "tag": "minecraft:deepslate_ore_replaceables"
       },
-      "state": {
-        "Name": "logistics:core/deepslate_tin_ore"
-      }
+      "state": "logistics:core/deepslate_tin_ore"
     }
   ]
 }

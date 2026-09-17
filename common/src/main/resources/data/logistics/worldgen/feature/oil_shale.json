@@ -8,9 +8,7 @@
         "predicate_type": "minecraft:block_match",
         "block": "minecraft:gravel"
       },
-      "state": {
-        "Name": "logistics:core/oil_shale"
-      }
+      "state": "logistics:core/oil_shale"
     }
   ]
 }
