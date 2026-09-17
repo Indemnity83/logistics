@@ -1,5 +1,23 @@
 version: 2
 updates:
+  # --- mc/26.3 ---
+  - package-ecosystem: "gradle"
+    directory: "/"
+    target-branch: "mc/26.3"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(build)"
+      prefix-development: "chore(build)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "mc/26.3"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
+
   # --- mc/26.2 ---
   - package-ecosystem: "gradle"
     directory: "/"
