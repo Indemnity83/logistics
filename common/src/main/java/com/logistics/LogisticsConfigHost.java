@@ -3,6 +3,7 @@ package com.logistics;
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigKey;
 import com.indemnity83.configory.ConfigRegistry;
+import com.logistics.core.config.RemoteConfig;
 import com.logistics.core.lib.platform.PlatformService;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,9 +32,17 @@ public final class LogisticsConfigHost {
 
     private LogisticsConfigHost() {}
 
-    /** Typed read of a config value (resolved against the config that owns the key). */
+    /**
+     * Typed read of a config value (resolved against the config that owns the key).
+     *
+     * <p>On a client connected to a remote server this returns the <em>server's</em> value: config is
+     * server-authoritative, so a client-side renderer or JEI category reading its own file would show a
+     * different number than the one driving gameplay. {@link RemoteConfig} is empty on dedicated servers
+     * and in single-player, where the local read is already authoritative.
+     */
     public static <T> T get(ConfigKey<T> key) {
-        return ConfigRegistry.config(key.configId()).get(key);
+        T synced = RemoteConfig.resolve(key);
+        return synced != null ? synced : ConfigRegistry.config(key.configId()).get(key);
     }
 
     /**
