@@ -357,11 +357,26 @@ jobs:
 
       - name: Install a virtual display
         if: needs.changes.outputs.client_changed == 'true'
-        run: sudo apt-get update && sudo apt-get install -y xvfb
+        # Mesa and a Vulkan loader, not just the X server. 26.3 renders through SDL rather than
+        # GLFW, and SDL asks X for a real GLX visual before falling back to Vulkan. A bare Xvfb
+        # offers neither, both backends fail to create a device, and the client then sits there
+        # rendering nothing instead of exiting -- so the job dies on its timeout rather than
+        # reporting a failure.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri mesa-vulkan-drivers libvulkan1
 
       - name: Run Fabric client feature tests
         if: needs.changes.outputs.client_changed == 'true'
-        run: xvfb-run -a ./gradlew :fabric:runClientGameTest --console=plain
+        env:
+          # No GPU on a runner, so force llvmpipe rather than let the driver hunt for one.
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        # Spelling the screen out rather than relying on xvfb-run's default: GLX has to be on and
+        # the depth has to be 24 for a visual to match. Screenshots are unaffected -- the client
+        # picks its own window size, and they are review artifacts, not compared to baselines.
+        run: >
+          xvfb-run -a -s "-screen 0 1280x1024x24 +extension GLX +extension RANDR +render -nolisten tcp"
+          ./gradlew :fabric:runClientGameTest --console=plain
 
       - name: Upload client feature test screenshots
         # Uploaded on success too: these are review artifacts, not just failure diagnostics.
