@@ -2,18 +2,19 @@ package com.logistics.core.worldgen;
 
 /**
  * The block volume vanilla's lake feature writes, as offsets from the feature origin. The lake re-anchors
- * to {@code origin - (8,4,8)} and fills a 16x16x8 grid from there, so its carve, barrier and ice passes all
+ * to {@code origin.below(4)} and fills a 16x16x8 grid from there, so its carve, barrier and ice passes all
  * land inside this box — a block outside it was never touched by the lake.
  *
- * <p>The anchor is Minecraft-version specific: mc/1.21.x re-anchors to {@code origin - (0,4,0)} and so
- * spans {@code 0..15} on x/z. Re-derive {@link #MIN_X}/{@link #MIN_Z} against the target's
- * {@code LakeFeature} when porting.
+ * <p>The anchor is Minecraft-version specific: mc/26.x re-anchors to {@code origin - (8,4,8)} and so spans
+ * {@code -8..7} on x/z. Re-derive {@link #MIN_X}/{@link #MIN_Z} against the target's {@code LakeFeature}
+ * when porting — {@code LakeVolumeTest} pins them, so a missed adaptation fails rather than silently
+ * scanning the wrong box.
  */
 final class LakeVolume {
 
-    static final int MIN_X = -8;
+    static final int MIN_X = 0;
     static final int MIN_Y = -4;
-    static final int MIN_Z = -8;
+    static final int MIN_Z = 0;
     static final int SIZE_X = 16;
     static final int SIZE_Y = 8;
     static final int SIZE_Z = 16;
