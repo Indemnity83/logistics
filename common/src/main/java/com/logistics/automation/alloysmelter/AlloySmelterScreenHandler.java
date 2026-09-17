@@ -8,6 +8,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedItemContents;
@@ -147,7 +148,7 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
             // ground when there is no room — but leaves `copy` at full count on that drop path. Clear
             // the slot up front: writing `copy` back would leave the dropped items in the slot too.
             slot.set(ItemStack.EMPTY);
-            inventory.placeItemBackInInventory(copy, false);
+            inventory.placeItemBackInInventory(copy, false, Prediction.SERVER_ONLY);
         }
     }
 
@@ -179,7 +180,7 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
                 current.grow(taken.getCount());
             } else {
                 // A leftover item of a different type is occupying the slot; don't merge — put it back.
-                inventory.placeItemBackInInventory(taken, false);
+                inventory.placeItemBackInInventory(taken, false, Prediction.SERVER_ONLY);
                 break;
             }
             slot.setChanged();

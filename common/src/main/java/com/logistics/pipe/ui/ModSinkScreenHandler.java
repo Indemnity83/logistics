@@ -4,6 +4,7 @@ import com.logistics.LogisticsPipe;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.item.ModuleItem;
 import com.logistics.pipe.modules.ModSinkModule;
+import net.minecraft.util.Prediction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -123,7 +124,7 @@ public class ModSinkScreenHandler extends CustomSlotScreenHandler {
             ItemStack preview = previewContainer.getItem(0);
             if (!preview.isEmpty()) {
                 if (!player.getInventory().add(preview)) {
-                    player.drop(preview, false);
+                    player.drop(preview, false, Prediction.SERVER_ONLY);
                 }
                 previewContainer.setItem(0, ItemStack.EMPTY);
             }

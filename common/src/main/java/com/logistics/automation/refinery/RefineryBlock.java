@@ -2,12 +2,10 @@ package com.logistics.automation.refinery;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineBlock;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -23,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
  * Block for the Refinery: distills a fluid input into a fluid output (plus a chance byproduct) using RF.
  */
 public class RefineryBlock extends MachineBlock {
-    public static final MapCodec<RefineryBlock> CODEC = simpleCodec(RefineryBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
@@ -32,11 +29,6 @@ public class RefineryBlock extends MachineBlock {
         registerDefaultState(defaultBlockState()
             .setValue(FACING, Direction.NORTH)
             .setValue(LIT, false));
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override
