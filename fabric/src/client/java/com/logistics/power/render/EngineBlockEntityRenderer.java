@@ -217,11 +217,11 @@ public class EngineBlockEntityRenderer implements BlockEntityRenderer<EngineEnti
     private void applyFacingRotation(PoseStack matrices, Direction facing) {
         matrices.translate(0.5, 0.5, 0.5);
         switch (facing) {
-            case DOWN -> matrices.mulPose(Axis.XP.rotationDegrees(180));
-            case NORTH -> matrices.mulPose(Axis.XP.rotationDegrees(-90));
-            case SOUTH -> matrices.mulPose(Axis.XP.rotationDegrees(90));
-            case EAST -> matrices.mulPose(Axis.ZP.rotationDegrees(-90));
-            case WEST -> matrices.mulPose(Axis.ZP.rotationDegrees(90));
+            case DOWN -> matrices.rotate(Axis.XP.rotationDegrees(180));
+            case NORTH -> matrices.rotate(Axis.XP.rotationDegrees(-90));
+            case SOUTH -> matrices.rotate(Axis.XP.rotationDegrees(90));
+            case EAST -> matrices.rotate(Axis.ZP.rotationDegrees(-90));
+            case WEST -> matrices.rotate(Axis.ZP.rotationDegrees(90));
             default -> {} // UP - default orientation, no rotation needed
         }
         matrices.translate(-0.5, -0.5, -0.5);
