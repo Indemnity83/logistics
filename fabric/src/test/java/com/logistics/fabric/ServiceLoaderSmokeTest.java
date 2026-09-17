@@ -5,7 +5,6 @@ import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.PlatformService;
 import com.logistics.core.lib.platform.ResourceReloadRegistrar;
-import com.logistics.core.lib.power.FuelHelper;
 import com.logistics.fabric.energy.FabricEnergyCapabilityLookup;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,14 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @DisplayName("ServiceLoader smoke tests (Fabric)")
 class ServiceLoaderSmokeTest {
-
-    @Test
-    @DisplayName("FuelHelper implementation is registered")
-    void fuelHelper_isRegistered() {
-        FuelHelper impl = ServiceLoader.load(FuelHelper.class, FuelHelper.class.getClassLoader()).findFirst().orElseThrow(
-                () -> new AssertionError("No FuelHelper found in META-INF/services/"));
-        assertThat(impl).isInstanceOf(FabricFuelHelper.class);
-    }
 
     @Test
     @DisplayName("PlatformService implementation is registered")

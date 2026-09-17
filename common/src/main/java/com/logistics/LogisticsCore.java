@@ -33,6 +33,7 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import com.logistics.core.lib.fluids.LogisticsLiquidBlock;
+import com.logistics.core.lib.power.FurnaceFuels;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -541,13 +542,17 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
-            SAWDUST = INSTANCE.registerItem("sawdust", Item::new);
-            PEAT = INSTANCE.registerItem("peat", Item::new);
+            SAWDUST = INSTANCE.registerItem(
+                "sawdust", props -> new Item(FurnaceFuels.applyTo(props, "core/sawdust")));
+            PEAT = INSTANCE.registerItem(
+                "peat", props -> new Item(FurnaceFuels.applyTo(props, "core/peat")));
             PULPED_BIOMASS = INSTANCE.registerItem("pulped_biomass", Item::new);
             SLAG = INSTANCE.registerItem("slag", Item::new);
             RICH_SLAG = INSTANCE.registerItem("rich_slag", Item::new);
-            BITUMEN = INSTANCE.registerItem("bitumen", Item::new);
-            TAR = INSTANCE.registerItem("tar", Item::new);
+            BITUMEN = INSTANCE.registerItem(
+                "bitumen", props -> new Item(FurnaceFuels.applyTo(props, "core/bitumen")));
+            TAR = INSTANCE.registerItem(
+                "tar", props -> new Item(FurnaceFuels.applyTo(props, "core/tar")));
 
             // Chips
             REDSTONE_CHIPSET = INSTANCE.registerItem("redstone_chipset", Item::new);
