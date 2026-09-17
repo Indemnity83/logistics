@@ -1,5 +1,6 @@
 package com.logistics.fabric;
 
+import com.logistics.core.config.ConfigSyncPacket;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
 import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.core.crash.CrashReportNotifier;
@@ -26,6 +27,9 @@ public final class FabricPlayerJoinEvents {
             }
             if (ServerNetworking.canSend(handler.player, ReactionRecipeSyncPacket.TYPE)) {
                 ServerNetworking.send(handler.player, ReactionRecipeSyncPacket.from(server));
+            }
+            if (ServerNetworking.canSend(handler.player, ConfigSyncPacket.TYPE)) {
+                ServerNetworking.send(handler.player, ConfigSyncPacket.current());
             }
         });
         ServerPlayConnectionEvents.DISCONNECT.register(

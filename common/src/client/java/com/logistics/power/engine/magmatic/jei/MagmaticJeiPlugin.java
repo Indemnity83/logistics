@@ -1,17 +1,13 @@
 package com.logistics.power.engine.magmatic.jei;
 
-import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.resource.ResourceId;
-import com.logistics.power.engine.magmatic.MagmaticEngineProfile;
-import java.util.List;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.world.level.material.Fluids;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +33,7 @@ public class MagmaticJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(MagmaticRecipeCategory.RECIPE_TYPE, List.of(display()));
+        registration.addRecipes(MagmaticRecipeCategory.RECIPE_TYPE, MagmaticJeiSyncAdapter.INSTANCE.initial());
     }
 
     @Override
@@ -46,19 +42,4 @@ public class MagmaticJeiPlugin implements IModPlugin {
             MagmaticRecipeCategory.RECIPE_TYPE, LogisticsPower.BLOCK.MAGMATIC_ENGINE);
     }
 
-    /** Builds the single lava row from the same profile the engine runs on. */
-    private static MagmaticFuelDisplay display() {
-        MagmaticEngineProfile profile = MagmaticEngineProfile.of(
-            LogisticsConfigHost.get(LogisticsPower.CONFIG.MAGMATIC_OUTPUT),
-            LogisticsConfigHost.get(LogisticsPower.CONFIG.MAGMATIC_BUFFER_CAPACITY),
-            Math.toIntExact(LogisticsConfigHost.get(LogisticsPower.CONFIG.MAGMATIC_TANK_CAPACITY)),
-            Math.toIntExact(LogisticsConfigHost.get(LogisticsPower.CONFIG.MAGMATIC_BUCKET_BURN_TICKS)));
-        return new MagmaticFuelDisplay(
-            Fluids.LAVA,
-            profile.batchMb(),
-            profile.batchBurnTicks(),
-            profile.coldOutputPerTick(),
-            profile.warmOutputPerTick(),
-            profile.hotOutputPerTick());
-    }
 }

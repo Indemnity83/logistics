@@ -6,6 +6,8 @@ import com.logistics.automation.crucible.CrucibleScreen;
 import com.logistics.automation.fabricator.SequentialFabricatorScreen;
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.core.config.ClientConfigSync;
+import com.logistics.core.config.ConfigSyncPacket;
 import com.logistics.automation.render.AutomationClientHooks;
 import com.logistics.power.render.PowerClientHooks;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
@@ -66,6 +68,8 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
                 context.client().execute(() -> ClientMachineRecipes.set(packet)));
         ClientPlayNetworking.registerGlobalReceiver(ReactionRecipeSyncPacket.TYPE, (packet, context) ->
                 context.client().execute(() -> ReactionJeiSyncAdapter.INSTANCE.set(packet)));
+        ClientPlayNetworking.registerGlobalReceiver(ConfigSyncPacket.TYPE, (packet, context) ->
+                context.client().execute(() -> ClientConfigSync.accept(packet)));
 
         // What gets evicted lives in AutomationClientHooks/PowerClientHooks; only the events are ours.
         AutomationClientHooks.install();
@@ -74,6 +78,7 @@ public final class LogisticsAutomationClient implements ClientDomainBootstrap {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             AutomationClientHooks.clearAll();
             PowerClientHooks.clearAll();
+            ClientConfigSync.clear();
         });
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
             AutomationClientHooks.clearAll();

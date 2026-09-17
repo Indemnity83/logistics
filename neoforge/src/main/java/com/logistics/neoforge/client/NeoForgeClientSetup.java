@@ -17,6 +17,8 @@ import com.logistics.power.render.PowerClientHooks;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.minecraft.client.Minecraft;
 import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.core.config.ClientConfigSync;
+import com.logistics.core.config.ConfigSyncPacket;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
 import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
@@ -114,6 +116,7 @@ public final class NeoForgeClientSetup {
     private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         AutomationClientHooks.clearAll();
         PowerClientHooks.clearAll();
+        ClientConfigSync.clear();
     }
 
     /** Supplies each custom fluid's still/flow textures + flat tint to NeoForge's fluid renderer. */
@@ -301,5 +304,6 @@ public final class NeoForgeClientSetup {
         });
         event.register(SyncMachineRecipesPacket.TYPE, (packet, context) -> ClientMachineRecipes.set(packet));
         event.register(ReactionRecipeSyncPacket.TYPE, (packet, context) -> ReactionJeiSyncAdapter.INSTANCE.set(packet));
+        event.register(ConfigSyncPacket.TYPE, (packet, context) -> ClientConfigSync.accept(packet));
     }
 }
