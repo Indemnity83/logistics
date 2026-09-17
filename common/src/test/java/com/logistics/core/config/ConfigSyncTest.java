@@ -98,7 +98,7 @@ class ConfigSyncTest {
     @Test
     @DisplayName("the snapshot carries every key the client-side renderers and JEI read")
     void snapshotCoversTheClientReadKeys() {
-        // The three areas #887 named: quarry frame geometry, pipe item motion, magmatic JEI figures.
+        // Quarry frame geometry, pipe item motion, magmatic JEI figures -- the three areas read client-side.
         // Resolved before the snapshot, because a domain's config only joins the registry once its
         // CONFIG class initializes -- which in production every domain does during bootstrap.
         List<String> clientRead = List.of(

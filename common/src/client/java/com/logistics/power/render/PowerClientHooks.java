@@ -1,6 +1,8 @@
 package com.logistics.power.render;
 
+import com.logistics.core.config.ClientConfigSync;
 import com.logistics.core.lib.power.EngineEntity;
+import com.logistics.power.engine.magmatic.jei.MagmaticJeiSyncAdapter;
 import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
@@ -31,6 +33,8 @@ public final class PowerClientHooks {
     public static void install(Consumer<BlockPos> clearEngineAt, Runnable clearAllEngines) {
         EngineEntity.setOnRemovedCallback(clearEngineAt);
         clearAllEngineCaches = clearAllEngines == null ? () -> {} : clearAllEngines;
+        // The Magmatic JEI row is built from config, so it has to be rebuilt when the values change.
+        ClientConfigSync.onValuesChanged(MagmaticJeiSyncAdapter.INSTANCE::rebuild);
     }
 
     /** Drop everything. Call on disconnect and on client shutdown. */

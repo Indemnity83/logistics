@@ -38,9 +38,15 @@ public final class MagmaticJeiSyncAdapter implements JeiRecipeSyncAdapter {
         MachineRecipeJeiSync.pushToJei(this);
     }
 
+    /**
+     * {@code hideRecipes} matches by equality and {@code addRecipes} does not un-hide, so a row whose rebuilt
+     * value equals one hidden earlier -- a server whose config matches the client's, or a disconnect returning
+     * to the values a join replaced -- would stay hidden without the explicit un-hide.
+     */
     @Override
     public void pushToJei(IRecipeManager recipeManager) {
         recipeManager.addRecipes(MagmaticRecipeCategory.RECIPE_TYPE, displays);
+        recipeManager.unhideRecipes(MagmaticRecipeCategory.RECIPE_TYPE, displays);
     }
 
     @Override

@@ -1,17 +1,31 @@
 package com.logistics.core.config;
 
-import com.logistics.power.engine.magmatic.jei.MagmaticJeiSyncAdapter;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.client.Minecraft;
 
 /**
  * Client side of the server config sync: adopts the server's values on join and drops them on disconnect.
  *
- * <p>Both loaders route their join packet and their disconnect event here so the single-player gate and the
- * JEI refresh live in one place rather than being duplicated per loader.
+ * <p>Both loaders route their join packet and their disconnect event here so the single-player gate lives in
+ * one place rather than being duplicated per loader.
+ *
+ * <p>Anything that caches a derived config value registers through {@link #onValuesChanged} instead of being
+ * called from here, so this class does not have to know which domains those are.
  */
 public final class ClientConfigSync {
 
+    private static final List<Runnable> listeners = new CopyOnWriteArrayList<>();
+
     private ClientConfigSync() {}
+
+    /**
+     * Register a callback fired whenever the values {@link com.logistics.LogisticsConfigHost} resolves to
+     * change -- a server's arriving, or its being dropped on disconnect. Call once during client setup.
+     */
+    public static void onValuesChanged(Runnable listener) {
+        listeners.add(listener);
+    }
 
     /**
      * Adopt the server's config, unless this client <em>is</em> the server.
@@ -26,15 +40,21 @@ public final class ClientConfigSync {
             return;
         }
         RemoteConfig.install(packet);
-        MagmaticJeiSyncAdapter.INSTANCE.rebuild();
+        notifyListeners();
     }
 
-    /** Fall back to the local config, and rebuild the JEI figures that were showing the server's numbers. */
+    /** Fall back to the local config, and let cached values rebuild from it. */
     public static void clear() {
         boolean wasActive = RemoteConfig.isActive();
         RemoteConfig.clear();
         if (wasActive) {
-            MagmaticJeiSyncAdapter.INSTANCE.rebuild();
+            notifyListeners();
+        }
+    }
+
+    private static void notifyListeners() {
+        for (Runnable listener : listeners) {
+            listener.run();
         }
     }
 }
