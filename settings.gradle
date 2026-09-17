@@ -30,7 +30,7 @@ pluginManagement {
         id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
         id 'net.neoforged.moddev' version '2.0.141'
         id 'com.diffplug.spotless' version '8.10.2'
-        id 'io.sentry.jvm.gradle' version '5.8.0'
+        id 'io.sentry.jvm.gradle' version '6.22.0'
     }
 }
 
