@@ -4,6 +4,8 @@ import com.logistics.core.lib.client.render.BoxGeometry.Element;
 import com.logistics.core.lib.client.render.BoxGeometry.Face;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
@@ -12,6 +14,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
@@ -237,16 +240,22 @@ public final class MachineModels {
     private static final Map<String, BlockStateModel> MODEL_CACHE = new HashMap<>();
     private static final Map<String, BlockStateModel> TINTED_MODEL_CACHE = new HashMap<>();
 
+    /** Atlas identifier per model key, resolved once so the per-frame path allocates nothing. */
+    private static final Map<String, ResourceId> TEXTURE_IDS = MODELS.entrySet().stream()
+            .collect(Collectors.toUnmodifiableMap(
+                    Map.Entry::getKey, e -> LogisticsMod.modId("block/" + e.getValue().textureBase())));
+
     /**
      * Build (and cache) the code-generated model for a machine model key, ready for
      * {@code SubmitNodeCollector.submitBlockModel}. On 1.21.11 {@code submitBlockModel} takes a
      * model (not a part list), so the procedurally baked parts are wrapped in a
-     * {@link BlockStateModel}. Geometry is static, so models are cached by key (assumes no
-     * mid-session resource reload, matching the pipe/cable renderers). Returns an empty model
-     * for an unknown key.
+     * {@link BlockStateModel}. Geometry is static but the atlas UVs baked into the quads are not:
+     * a resource reload re-stitches the block atlas and replaces every sprite, so a cached entry is
+     * kept only while its key still resolves to the same sprite. Returns an empty model for an
+     * unknown key.
      */
     public static BlockStateModel model(String key) {
-        return MODEL_CACHE.computeIfAbsent(key, k -> build(k, -1));
+        return cached(MODEL_CACHE, key, -1, MachineModels::atlasSprite);
     }
 
     /**
@@ -255,17 +264,38 @@ public final class MachineModels {
      * tints quads that carry a tint index). Used for the engine heat core.
      */
     public static BlockStateModel tintedModel(String key) {
-        return TINTED_MODEL_CACHE.computeIfAbsent(key, k -> build(k, 0));
+        return cached(TINTED_MODEL_CACHE, key, 0, MachineModels::atlasSprite);
     }
 
-    private static BlockStateModel build(String key, int tintIndex) {
+    /**
+     * Seam over the live block atlas so the cache contract is testable without a client. Both caches go
+     * through here, so neither can keep an entry baked against a replaced sprite.
+     */
+    static BlockStateModel cached(
+            Map<String, BlockStateModel> cache,
+            String key,
+            int tintIndex,
+            Function<String, TextureAtlasSprite> spriteLookup) {
         Model model = MODELS.get(key);
         if (model == null) {
             return new ProceduralModel(List.of(), null);
         }
-        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
+        TextureAtlasSprite sprite = spriteLookup.apply(key);
+        if (cache.get(key) instanceof ProceduralModel baked && baked.sprite() == sprite) {
+            return baked;
+        }
+        BlockStateModel rebuilt = build(model, sprite, tintIndex);
+        cache.put(key, rebuilt);
+        return rebuilt;
+    }
+
+    private static TextureAtlasSprite atlasSprite(String key) {
+        return Minecraft.getInstance().getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
-                .getSprite(LogisticsMod.modId("block/" + model.textureBase()).toIdentifier());
+                .getSprite(TEXTURE_IDS.get(key).toIdentifier());
+    }
+
+    private static BlockStateModel build(Model model, TextureAtlasSprite sprite, int tintIndex) {
         VanillaQuadBaker baker = new VanillaQuadBaker(sprite, tintIndex, true, 0);
         BoxGeometry.emit(baker::quad, model.elements(), sprite);
         List<BlockModelPart> parts = baker.isEmpty() ? List.of() : List.of(baker.toPart());
