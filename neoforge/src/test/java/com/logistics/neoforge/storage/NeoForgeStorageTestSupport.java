@@ -10,7 +10,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -47,6 +49,67 @@ final class NeoForgeStorageTestSupport {
         item.builtInRegistryHolder()
                 .bindComponents(DataComponentMap.builder().set(DataComponents.MAX_STACK_SIZE, 64).build());
         return ItemResource.of(item);
+    }
+
+    /**
+     * Stateful {@link ResourceHandler} fake — the direction other mods' inventories arrive from.
+     *
+     * <p>Capacity is deliberately independent of contents and of the queried resource, which is what
+     * NeoForge's contract promises, so a test can tell a real capacity apart from the amount present.
+     */
+    static final class FakeResourceHandler implements ResourceHandler<ItemResource> {
+
+        private final List<ItemResource> resources = new ArrayList<>();
+        private final List<Long> amounts = new ArrayList<>();
+        private final List<Long> capacities = new ArrayList<>();
+
+        /** Adds a slot holding {@code amount} of {@code resource} out of {@code capacity}. */
+        FakeResourceHandler slot(ItemResource resource, long amount, long capacity) {
+            resources.add(resource);
+            amounts.add(amount);
+            capacities.add(capacity);
+            return this;
+        }
+
+        /** Adds an empty slot that could still hold {@code capacity}. */
+        FakeResourceHandler emptySlot(long capacity) {
+            return slot(ItemResource.EMPTY, 0, capacity);
+        }
+
+        @Override
+        public int size() {
+            return resources.size();
+        }
+
+        @Override
+        public ItemResource getResource(int index) {
+            return resources.get(index);
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            return amounts.get(index);
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, ItemResource resource) {
+            return capacities.get(index);
+        }
+
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            return !resource.isEmpty();
+        }
+
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
+
+        @Override
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
     }
 
     /**
