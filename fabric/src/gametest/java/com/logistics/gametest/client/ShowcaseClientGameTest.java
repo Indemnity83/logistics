@@ -24,6 +24,12 @@ public class ShowcaseClientGameTest implements FabricClientGameTest {
     public void runTest(ClientGameTestContext context) {
         context.restoreDefaultGameOptions();
 
+        // The harness advances the integrated server in lock-step with the client through a
+        // Phaser, so the server cannot tick faster than frames are drawn. Minecraft blurs the
+        // world behind an open screen -- a full-screen post-process that costs nothing on a GPU
+        // and, on a software rasteriser, takes long enough that world loading times out.
+        context.runOnClient(client -> client.options.menuBackgroundBlurriness().set(0));
+
         try (TestSingleplayerContext singleplayer =
                 context.worldBuilder().setUseConsistentSettings(true).create()) {
             TestServerContext server = singleplayer.getServer();
