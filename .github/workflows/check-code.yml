@@ -357,15 +357,16 @@ jobs:
 
       - name: Install a virtual display
         if: needs.changes.outputs.client_changed == 'true'
-        # A software Vulkan driver as well as the X server. From 26.3 the client renders through
-        # SDL instead of GLFW, and under Xvfb its OpenGL backend cannot find a matching GLX
-        # visual, so it falls back to Vulkan -- which needs an ICD installed. With neither backend
-        # available no graphics device is created and the client hangs rather than exiting, so the
-        # job dies on its 30-minute timeout instead of reporting a failure. Inert on branches still
-        # using GLFW.
+        # Software drivers for both rendering paths, as well as the X server. Through 26.2 the
+        # client renders with GLFW and only ever asks for OpenGL, so it needs Mesa's software GL.
+        # From 26.3 it renders with SDL, whose OpenGL backend cannot find a matching GLX visual
+        # under Xvfb and falls back to Vulkan, which needs an ICD. Missing the driver for the path
+        # a branch takes, the client either creates no graphics device at all and hangs until the
+        # job times out, or limps along on a fallback slow enough to starve the integrated server
+        # and time out world loading.
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb mesa-vulkan-drivers
+          sudo apt-get install -y xvfb mesa-vulkan-drivers libgl1-mesa-dri
 
       - name: Run Fabric client feature tests
         if: needs.changes.outputs.client_changed == 'true'
