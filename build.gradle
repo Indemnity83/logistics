@@ -14,7 +14,7 @@ group = project.maven_group
 // Minecraft-coupled pins stay in gradle.properties on purpose; see the note there.
 ext {
     junit_version = '5.11.0'
-    assertj_version = '3.26.0'
+    assertj_version = '3.27.7'
     // Sentry runtime SDK, bundled per loader. The io.sentry.jvm.gradle source-context upload
     // plugin is versioned separately, in settings.gradle.
     sentry_version = '8.43.0'
