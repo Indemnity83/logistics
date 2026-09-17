@@ -50,7 +50,15 @@ class MagmaticEngineComponentTest extends MinecraftTestEnvironment {
     }
 
     private MagmaticEngineComponent engine(EngineEnergyOutputComponent e, FluidStoreComponent lava, BooleanSupplier powered) {
-        return new MagmaticEngineComponent("magma", e, lava, isLava, powered, PROFILE, () -> {});
+        return engine(e, lava, powered, PROFILE);
+    }
+
+    private MagmaticEngineComponent engine(
+            EngineEnergyOutputComponent e,
+            FluidStoreComponent lava,
+            BooleanSupplier powered,
+            MagmaticEngineProfile profile) {
+        return new MagmaticEngineComponent("magma", e, lava, isLava, powered, profile, () -> {});
     }
 
     private void seed(MagmaticEngineComponent m, int burnTicks, double temperature) {
@@ -302,6 +310,37 @@ class MagmaticEngineComponentTest extends MinecraftTestEnvironment {
         seed(m, 0, 0.9); // hot but unlit
         tick(m);
         assertThat(m.lit()).isFalse(); // temperature doesn't reduce the requirement
+        assertThat(lava.tank().getAmount()).isEqualTo(mb(4000));
+    }
+
+    @Test
+    void aDrainedBufferIgnitesEvenWhenABatchCouldOutproduceIt() {
+        // base 10 RF/t over a 2,000-tick batch needs 30,000 RF of space, which this buffer cannot hold.
+        // The admission requirement is capped at what the buffer holds, so an empty one still admits;
+        // uncapped, free could never reach the requirement and the engine would never ignite again.
+        MagmaticEngineProfile undersized = MagmaticEngineProfile.of(10, 20_000, 4_000, 20_000);
+        assertThat(undersized.maximumBatchPotentialRf()).isGreaterThan(20_000L);
+
+        FluidStoreComponent lava = tank(Fluids.LAVA, 4000);
+        MagmaticEngineComponent m = engine(energy(20_000, 0), lava, () -> true, undersized);
+        seed(m, 0, 0.0);
+        tick(m);
+
+        assertThat(m.lit()).isTrue();
+        assertThat(lava.tank().getAmount()).isEqualTo(mb(3_900));
+    }
+
+    @Test
+    void anUndersizedBufferStillBlocksIgnitionWhenBackedUp() {
+        // The cap must not turn the gate off: a full buffer blocks even when the requirement exceeds it.
+        MagmaticEngineProfile undersized = MagmaticEngineProfile.of(10, 20_000, 4_000, 20_000);
+
+        FluidStoreComponent lava = tank(Fluids.LAVA, 4000);
+        MagmaticEngineComponent m = engine(energy(20_000, 20_000), lava, () -> true, undersized);
+        seed(m, 0, 0.0);
+        tick(m);
+
+        assertThat(m.lit()).isFalse();
         assertThat(lava.tank().getAmount()).isEqualTo(mb(4000));
     }
 
