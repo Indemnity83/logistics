@@ -10,8 +10,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProviders;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 public final class FabricMobLootModifier {
     private FabricMobLootModifier() {}
@@ -25,10 +25,12 @@ public final class FabricMobLootModifier {
             // at the same rate a creeper drops gunpowder: 0-2 + a Looting bonus.
             if (BREEZE.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1))
+                    .setRolls(ContextIntProviders.exactly(1))
                     .add(LootItem.lootTableItem(LogisticsCore.ITEM.NITER)
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(0, 2)))
-                        .apply(EnchantedCountIncreaseFunction.lootingMultiplier(registries, UniformGenerator.between(0, 1))))
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
+                        .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
+                            registries.lookupOrThrow(Registries.ENCHANTMENT),
+                            ContextFloatProviders.between(0.0f, 1.0f))))
                     .build());
             }
         });

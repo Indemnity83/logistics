@@ -5,8 +5,7 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 
@@ -100,12 +99,12 @@ public final class NeoForgeChestLootModifier {
     }
 
     private static LootPool.Builder pool(String name) {
-        return LootPool.lootPool().name(name).setRolls(ConstantValue.exactly(1));
+        return LootPool.lootPool().name(name).setRolls(ContextIntProviders.exactly(1));
     }
 
     private static LootItem.Builder<?> counted(net.minecraft.world.level.ItemLike item, int weight, int min, int max) {
         return LootItem.lootTableItem(item)
                 .setWeight(weight)
-                .apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max)));
+                .apply(SetItemCountFunction.setCount(ContextIntProviders.between(min, max)));
     }
 }
