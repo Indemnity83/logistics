@@ -2,6 +2,7 @@ package com.logistics.neoforge;
 
 import com.logistics.automation.fabricator.SyncFabricatorOutputsPacket;
 import com.logistics.automation.fabricator.ToggleFabricatorSelectionPacket;
+import com.logistics.core.config.ConfigSyncPacket;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
 import com.logistics.power.engine.reaction.ReactionRecipeSyncPacket;
 import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
@@ -24,6 +25,7 @@ public final class NeoForgePacketRegistration {
     private static volatile Consumer<SyncRequesterInventoryPacket> syncRequesterInventoryHandler = packet -> {};
     private static volatile Consumer<SyncFabricatorOutputsPacket> syncFabricatorOutputsHandler = packet -> {};
     private static volatile Consumer<SyncMachineRecipesPacket> syncMachineRecipesHandler = packet -> {};
+    private static volatile Consumer<ConfigSyncPacket> configSyncHandler = packet -> {};
 
     private NeoForgePacketRegistration() {}
 
@@ -40,6 +42,10 @@ public final class NeoForgePacketRegistration {
 
     public static void registerSyncFabricatorOutputsHandler(Consumer<SyncFabricatorOutputsPacket> handler) {
         syncFabricatorOutputsHandler = handler;
+    }
+
+    public static void registerConfigSyncHandler(Consumer<ConfigSyncPacket> handler) {
+        configSyncHandler = handler;
     }
 
     public static void registerSyncMachineRecipesHandler(Consumer<SyncMachineRecipesPacket> handler) {
@@ -70,5 +76,7 @@ public final class NeoForgePacketRegistration {
                 (packet, context) -> context.enqueueWork(() -> syncMachineRecipesHandler.accept(packet)));
         registrar.playToClient(ReactionRecipeSyncPacket.TYPE, ReactionRecipeSyncPacket.CODEC,
                 (packet, context) -> context.enqueueWork(() -> ReactionJeiSyncAdapter.INSTANCE.set(packet)));
+        registrar.playToClient(ConfigSyncPacket.TYPE, ConfigSyncPacket.CODEC,
+                (packet, context) -> context.enqueueWork(() -> configSyncHandler.accept(packet)));
     }
 }

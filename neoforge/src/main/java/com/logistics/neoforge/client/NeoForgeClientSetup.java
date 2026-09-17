@@ -17,6 +17,7 @@ import com.logistics.power.render.PowerClientHooks;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.minecraft.client.Minecraft;
 import com.logistics.automation.jei.ClientMachineRecipes;
+import com.logistics.core.config.ClientConfigSync;
 import com.logistics.core.lib.jei.SyncMachineRecipesPacket;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
@@ -91,6 +92,7 @@ public final class NeoForgeClientSetup {
         NeoForgePacketRegistration.registerSyncRequesterInventoryHandler(NeoForgeClientSetup::handleSyncRequesterInventory);
         NeoForgePacketRegistration.registerSyncFabricatorOutputsHandler(NeoForgeClientSetup::handleSyncFabricatorOutputs);
         NeoForgePacketRegistration.registerSyncMachineRecipesHandler(NeoForgeClientSetup::handleSyncMachineRecipes);
+        NeoForgePacketRegistration.registerConfigSyncHandler(ClientConfigSync::accept);
         modBus.addListener(NeoForgeClientSetup::onClientSetup);
         modBus.addListener(NeoForgeClientSetup::registerScreens);
         modBus.addListener(NeoForgeClientSetup::registerRenderers);
@@ -116,6 +118,7 @@ public final class NeoForgeClientSetup {
     private static void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         AutomationClientHooks.clearAll();
         PowerClientHooks.clearAll();
+        ClientConfigSync.clear();
     }
 
     /**
