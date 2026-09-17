@@ -16,7 +16,12 @@ permissions:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
+    # Not gated on the run conclusion: one failing job fails the whole run, and
+    # client-test is deliberately not a required context. The per-job check below
+    # decides what actually blocks.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' ||
+      github.event.workflow_run.conclusion == 'failure'
 
     steps:
       - name: Merge Dependabot PR
@@ -28,6 +33,11 @@ jobs:
           # Must match the step name of the same marker steps in check-code.yml.
           # A job that ran this step compiled and tested nothing.
           SKIP_MARKER: SKIPPED (no code-affecting files changed)
+          # Jobs branch protection does not gate on, one per line. A failure here
+          # still fails the run, so without this list a flaky non-required job
+          # vetoes automerge -- which is what check-code.yml says must not happen.
+          NON_REQUIRED_JOBS: |
+            client-test (fabric)
         shell: bash
         run: |
           set -euo pipefail
@@ -52,6 +62,20 @@ jobs:
           JOBS_JSON=$(gh api \
             -H "Accept: application/vnd.github+json" \
             "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100")
+
+          # A required job that failed, timed out, or was cancelled blocks the merge.
+          # Anything named in NON_REQUIRED_JOBS does not -- branch protection is still
+          # the enforcement, so a mistake here costs a rejected merge, not a bad one.
+          BLOCKING=$(jq -r --argjson allow "$(jq -Rn '[inputs | select(length > 0)]' <<< "$NON_REQUIRED_JOBS")" '
+            [.jobs[]
+             | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out")
+             | select(.name as $n | ($allow | index($n)) | not)
+             | .name] | unique | join(", ")' <<< "$JOBS_JSON")
+
+          if [[ -n "$BLOCKING" ]]; then
+            echo "Required checks did not pass: $BLOCKING"
+            exit 0
+          fi
 
           UNVERIFIED=$(jq -r --arg marker "$SKIP_MARKER" '
             [.jobs[]
