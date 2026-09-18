@@ -176,23 +176,32 @@ public class StrayPacketRerouteGameTestBody {
         placeItemLayout(context);
         // Deliberately not configured: the supplier orders nothing, so no order can claim the stack.
 
-        context.runAfterDelay(45, () ->
-                injectFromWest(context, ITEM_INJECT, new ItemStack(Items.IRON_INGOT, STRAY_INGOTS)));
+        boolean[] injected = {false};
+        context.runAfterDelay(45, () -> {
+            injectFromWest(context, ITEM_INJECT, new ItemStack(Items.IRON_INGOT, STRAY_INGOTS));
+            injected[0] = true;
+        });
 
-        context.runAfterDelay(100, () -> {
+        // Watch for the drop instead of sampling a fixed tick later. The stack is dropped at the
+        // pipe's centre two ticks after it arrives, but the loose ItemEntity then drifts: one was
+        // measured five blocks out and three down some fifty ticks on -- outside any box tight
+        // enough to exclude the neighbouring structures, whose own drops sit six blocks away.
+        context.succeedWhen(() -> {
+            if (!injected[0]) {
+                throw new GameTestAssertException("Waiting for the stray stack to be injected");
+            }
             if (chestCount(context) > 0) {
                 context.fail("Nothing ordered iron, so nothing should have been delivered to the chest");
                 return;
             }
-            AABB area = new AABB(context.absolutePos(ITEM_INJECT)).inflate(4.0);
+            AABB atPipe = new AABB(context.absolutePos(ITEM_INJECT)).inflate(1.5);
             boolean dropped = !context.getLevel()
-                    .getEntitiesOfClass(ItemEntity.class, area, e -> e.getItem().is(Items.IRON_INGOT))
+                    .getEntitiesOfClass(ItemEntity.class, atPipe, e -> e.getItem().is(Items.IRON_INGOT))
                     .isEmpty();
             if (!dropped) {
-                context.fail("An unclaimable stray stack should still be dropped as a ground item");
-                return;
+                throw new GameTestAssertException(
+                        "An unclaimable stray stack should still be dropped as a ground item");
             }
-            context.succeed();
         });
     }
 
