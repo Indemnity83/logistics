@@ -26,9 +26,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.TagValueInput;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.Nullable;
@@ -1051,12 +1051,8 @@ public class QuarryMiningGameTestBody {
     }
 
     /**
-     * Breaking a container spills its contents as loose items before the quarry ever sees them, so
-     * the quarry sweeps the area around what it just mined. That sweep must still work.
-     *
-     * <p>Drives {@link QuarryBlockBreaker#mineBlock} directly rather than running the phase machine:
-     * the contract under test is what one break does to the items around it, and the state machine
-     * is already covered above.
+     * A broken chest spills its contents onto the floor instead of returning them from its drops.
+     * The quarry picks them up off the pit floor like anything else lying there.
      */
     public static void testQuarryCollectsBrokenContainerContents(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
@@ -1073,152 +1069,79 @@ public class QuarryMiningGameTestBody {
         }
         container.setItem(0, new ItemStack(Items.DIAMOND));
 
-        mine(context, quarryPos, containerPos);
+        QuarryOutput output = mine(context, quarryPos, containerPos);
+        output.collectLooseItems(context.getLevel(), pitAround(context, containerPos));
 
         context.assertContainerContains(outputPos, Items.DIAMOND);
         context.succeed();
     }
 
     /**
-     * Breaking anything that is not a container must leave the ground alone. A quarry frame block is
-     * used as the no-drop block because it has no loot table at all, so the case is deterministic;
-     * in real play the common triggers are leaves failing their sapling roll, grass and fire.
+     * Items turn up in a quarry's pit long after, and some distance from, the break that produced
+     * them: an item frame only notices its wall is gone up to a hundred ticks later, dripstone takes
+     * a moment to fall. The quarry does not try to predict any of that -- it collects what is lying
+     * in its pit, including anything a player left there.
      */
-    public static void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
+    public static void testQuarryCollectsLooseItemsInItsPit(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
         BlockPos outputPos = quarryPos.above();
-        BlockPos targetPos = new BlockPos(3, 1, 1);
-        BlockPos droppedPos = new BlockPos(3, 1, 2);
+        BlockPos droppedPos = new BlockPos(3, 1, 1);
 
         context.setBlock(outputPos, Blocks.CHEST);
-        context.setBlock(targetPos, LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME);
+        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
+
+        // Nothing to do with any break of the quarry's, and it arrives well after one.
         context.spawnItem(Items.DIAMOND, droppedPos);
-
-        mine(context, quarryPos, targetPos);
-
-        context.assertItemEntityPresent(Items.DIAMOND, droppedPos, 1.0);
-        context.assertContainerEmpty(outputPos);
-        context.succeed();
-    }
-
-    /**
-     * A container's spilled contents are the quarry's; anything that was already lying beside it is
-     * not. The same distinction covers the block entities that spill nothing at all — a bed, sign or
-     * spawner mined next to a dropped stack adds no items, so there is nothing for the quarry to take.
-     */
-    public static void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
-        BlockPos quarryPos = new BlockPos(1, 1, 1);
-        BlockPos outputPos = quarryPos.above();
-        BlockPos containerPos = new BlockPos(3, 1, 1);
-        BlockPos droppedPos = new BlockPos(3, 1, 2);
-
-        context.setBlock(outputPos, Blocks.CHEST);
-        context.setBlock(containerPos, Blocks.CHEST);
-
-        ChestBlockEntity container = context.getBlockEntity(containerPos, ChestBlockEntity.class);
-        if (container == null) {
-            context.fail("Expected a chest block entity at " + containerPos);
-            return;
-        }
-        container.setItem(0, new ItemStack(Items.DIAMOND));
-        context.spawnItem(Items.EMERALD, droppedPos);
-
-        mine(context, quarryPos, containerPos);
+        output.collectLooseItems(context.getLevel(), pitAround(context, droppedPos));
 
         context.assertContainerContains(outputPos, Items.DIAMOND);
-        context.assertItemEntityPresent(Items.EMERALD, droppedPos, 1.0);
-        context.succeed();
-    }
-
-    /**
-     * Mines {@code targetPos} exactly as the quarry would, routing output through {@code quarryPos}.
-     *
-     * @return the sink that did the routing, so a caller can go on ticking its open claims
-     */
-    private static QuarryOutput mine(GameTestHelper context, BlockPos quarryPos, BlockPos targetPos) {
-        ServerLevel level = context.getLevel();
-        BlockPos absTarget = context.absolutePos(targetPos);
-        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
-        QuarryBlockBreaker.mineBlock(level, absTarget, level.getBlockState(absTarget), output);
-        return output;
-    }
-
-    /**
-     * A break's items can land in a chunk section the server has not finished making visible, where
-     * no entity query can see them, so the sweep that runs with the break comes back empty. The
-     * quarry keeps sweeping the spot and collects them once they show up.
-     */
-    public static void testQuarryCollectsBreakItemsThatAppearLate(GameTestHelper context) {
-        BlockPos quarryPos = new BlockPos(1, 1, 1);
-        BlockPos outputPos = quarryPos.above();
-        BlockPos targetPos = new BlockPos(3, 1, 1);
-
-        context.setBlock(outputPos, Blocks.CHEST);
-        ServerLevel level = context.getLevel();
-        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
-
-        // The break already happened and handed over nothing -- what a sweep over a section the
-        // server has not made visible yet returns.
-        output.sweepAgainFor(context.absolutePos(targetPos), Set.of());
-        output.tickPendingSweeps(level);
-
-        if (countInOutput(context, outputPos, Items.DIAMOND) != 0) {
-            context.fail("Nothing was on the ground yet; the quarry should have collected nothing");
-            return;
-        }
-
-        // The section becomes visible and the spilled stack is suddenly there.
-        context.spawnItem(Items.DIAMOND, targetPos);
-        output.tickPendingSweeps(level);
-
-        if (countInOutput(context, outputPos, Items.DIAMOND) != 1) {
-            context.fail("The quarry never collected the contents once they became visible");
-            return;
-        }
         context.assertItemEntityNotPresent(Items.DIAMOND);
         context.succeed();
     }
 
-    /**
-     * The repeated sweep inherits the break's record of what was already lying around, so a stack a
-     * player left beside the quarry's work stays theirs for the whole window -- not just the tick
-     * the block came apart.
-     */
-    public static void testQuarryRepeatedSweepLeavesPreexistingItemsAlone(GameTestHelper context) {
+    /** The pit is the boundary: a stack lying outside the quarry's frame is not the quarry's. */
+    public static void testQuarryLeavesItemsOutsideItsFrameAlone(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
         BlockPos outputPos = quarryPos.above();
-        BlockPos containerPos = new BlockPos(3, 1, 1);
-        BlockPos droppedPos = new BlockPos(3, 1, 2);
+        BlockPos insidePos = new BlockPos(3, 1, 1);
+        BlockPos outsidePos = new BlockPos(5, 1, 1);
 
         context.setBlock(outputPos, Blocks.CHEST);
-        context.setBlock(containerPos, Blocks.CHEST);
+        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
 
-        ChestBlockEntity container = context.getBlockEntity(containerPos, ChestBlockEntity.class);
-        if (container == null) {
-            context.fail("Expected a chest block entity at " + containerPos);
-            return;
-        }
-        container.setItem(0, new ItemStack(Items.DIAMOND));
-        context.spawnItem(Items.EMERALD, droppedPos);
-
-        QuarryOutput output = mine(context, quarryPos, containerPos);
-        for (int tick = 0; tick < 25; tick++) {
-            output.tickPendingSweeps(context.getLevel());
-        }
+        context.spawnItem(Items.EMERALD, outsidePos);
+        output.collectLooseItems(context.getLevel(), pitAround(context, insidePos));
 
         if (countInOutput(context, outputPos, Items.EMERALD) != 0) {
-            context.fail("The quarry took an emerald that was lying there before the break");
+            context.fail("The quarry reached outside its frame for an emerald");
             return;
         }
-        context.assertContainerContains(outputPos, Items.DIAMOND);
-        context.assertItemEntityPresent(Items.EMERALD, droppedPos, 1.0);
+        context.assertItemEntityPresent(Items.EMERALD, outsidePos, 1.0);
         context.succeed();
     }
 
     /**
-     * A shulker box carries its contents in the item it drops rather than spilling them, so the
-     * quarry must route the box alone. Emptying it would hand the player both the filled box and a
-     * second loose copy of everything inside it.
+     * With nowhere to put it, a loose item is left where it lies. Routing it out regardless would
+     * drop it back on the floor for the next pass to find, shuffling it around the pit forever.
+     */
+    public static void testQuarryLeavesItemsItCannotRoute(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 1, 1);
+        BlockPos droppedPos = new BlockPos(3, 1, 1);
+
+        // No pipe and no inventory above the quarry -- nothing will accept the stack.
+        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
+
+        context.spawnItem(Items.DIAMOND, droppedPos);
+        output.collectLooseItems(context.getLevel(), pitAround(context, droppedPos));
+
+        context.assertItemEntityPresent(Items.DIAMOND, droppedPos, 1.0);
+        context.succeed();
+    }
+
+    /**
+     * A shulker box carries its contents in the item it drops rather than spilling them, so there is
+     * nothing loose to collect. Emptying it would hand the player both the filled box and a second
+     * copy of everything inside it.
      */
     public static void testQuarryDoesNotEmptyABrokenShulkerBox(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
@@ -1236,9 +1159,7 @@ public class QuarryMiningGameTestBody {
         shulker.setItem(0, new ItemStack(Items.DIAMOND, 3));
 
         QuarryOutput output = mine(context, quarryPos, shulkerPos);
-        for (int tick = 0; tick < 25; tick++) {
-            output.tickPendingSweeps(context.getLevel());
-        }
+        output.collectLooseItems(context.getLevel(), pitAround(context, shulkerPos));
 
         if (countInOutput(context, outputPos, Items.DIAMOND) != 0) {
             context.fail("The shulker box's contents were duplicated as loose diamonds");
@@ -1252,7 +1173,69 @@ public class QuarryMiningGameTestBody {
         context.succeed();
     }
 
-    /** Total count of {@code item} sitting in the quarry's output container. */
+    /**
+     * The real thing, ticking: a stack lying in a running quarry's pit is collected without the
+     * quarry having broken anything to produce it. This is what proves the pit sweep is actually
+     * wired into the quarry's tick rather than merely implemented.
+     */
+    public static void testRunningQuarryCollectsLooseItemsFromItsPit(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 2, 1);
+        BlockPos chestPos = new BlockPos(1, 3, 1);
+        BlockPos litterPos = new BlockPos(1, 1, 3); // inside the 1x1 inner mining area
+
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+
+        LaserQuarryBlockEntity quarry = context.getBlockEntity(quarryPos, LaserQuarryBlockEntity.class);
+        if (quarry == null) {
+            context.fail("Expected LaserQuarryBlockEntity at " + quarryPos);
+            return;
+        }
+
+        BlockPos absPos = context.absolutePos(quarryPos);
+        quarry.setCustomBounds(
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
+
+        IEnergyStorage es = quarry.energyStorage(Direction.DOWN);
+        long remaining = QuarryEnergy.energyCapacity();
+        while (remaining > 0) {
+            long inserted = es.insert(remaining, false);
+            if (inserted == 0) {
+                context.fail("Failed to fill quarry energy: insert returned 0 with " + remaining + " RF remaining");
+                return;
+            }
+            remaining -= inserted;
+        }
+
+        // Nothing the quarry broke -- just a stack lying in its pit.
+        context.spawnItem(Items.DIAMOND, litterPos);
+
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND));
+    }
+
+    /** Mines {@code targetPos} exactly as the quarry would, routing output through {@code quarryPos}. */
+    private static QuarryOutput mine(GameTestHelper context, BlockPos quarryPos, BlockPos targetPos) {
+        ServerLevel level = context.getLevel();
+        BlockPos absTarget = context.absolutePos(targetPos);
+        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
+        QuarryBlockBreaker.mineBlock(level, absTarget, level.getBlockState(absTarget), output);
+        return output;
+    }
+
+    /** A stand-in for the frame the running quarry sweeps, covering just {@code around}. */
+    private static AABB pitAround(GameTestHelper context, BlockPos around) {
+        return new AABB(context.absolutePos(around)).inflate(0.5);
+    }
+
     private static int countInOutput(GameTestHelper context, BlockPos outputPos, Item item) {
         ChestBlockEntity output = context.getBlockEntity(outputPos, ChestBlockEntity.class);
         if (output == null) {

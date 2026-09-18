@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +35,9 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     private final int breakingEntityId;
     private final QuarryEnergyPolicy energyPolicy;
     private final QuarryOutput output;
+
+    /** How often the quarry looks for loose items in its pit. */
+    private static final int LOOSE_ITEM_SWEEP_TICKS = 10;
 
     private final QuarryBounds bounds = new QuarryBounds();
     private final ArmController armController = new ArmController();
@@ -76,9 +80,7 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
 
             phaseRunner.tick(this);
 
-            // A break's items can land in a chunk section the server has not made visible yet,
-            // where no entity query can see them; keep sweeping recent spots for a short while.
-            output.tickPendingSweeps((ServerLevel) context.level());
+            collectLooseItems(context);
 
             // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer.
             if (context.level().getGameTime() % 4 == 0 && energyPolicy.stored() > 0) {
@@ -97,6 +99,38 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
         } finally {
             this.ctx = null;
         }
+    }
+
+    /**
+     * Picks up loose items lying in the quarry's frame, a few times a second.
+     *
+     * <p>A break does not always hand its items over on the spot: a container spills them as
+     * entities, an item frame notices its wall is gone up to a hundred ticks later and pops off
+     * where the quarry has long since stopped looking, dripstone takes a moment to fall. Sweeping
+     * the pit on a timer collects all of it without the quarry having to predict any of it.
+     */
+    private void collectLooseItems(MachineContext context) {
+        if (context.level().getGameTime() % LOOSE_ITEM_SWEEP_TICKS != 0) {
+            return;
+        }
+        QuarryFrameRect frame = QuarryFrameRect.resolve(
+                LaserQuarryBlock.getMiningDirection(context.blockState()),
+                context.pos(),
+                bounds,
+                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA));
+        if (frame == null) {
+            return;
+        }
+        ServerLevel level = (ServerLevel) context.level();
+        // Down to the bottom of the world: the pit floor moves as the quarry digs, and items fall.
+        AABB pit = new AABB(
+                frame.startX(),
+                level.getMinY(),
+                frame.startZ(),
+                frame.endX() + 1.0,
+                frame.topY() + 1.0,
+                frame.endZ() + 1.0);
+        output.collectLooseItems(level, pit);
     }
 
     /**

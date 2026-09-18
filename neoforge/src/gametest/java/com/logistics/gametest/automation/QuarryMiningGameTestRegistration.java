@@ -24,21 +24,21 @@ public final class QuarryMiningGameTestRegistration {
             30,
             QuarryMiningGameTestBody::testQuarryCollectsBrokenContainerContents),
         new GameTestCase(
-            "automation/quarry_leaves_loose_items_when_breaking_a_non_container",
+            "automation/quarry_collects_loose_items_in_its_pit",
             30,
-            QuarryMiningGameTestBody::testQuarryLeavesLooseItemsWhenBreakingANonContainer),
+            QuarryMiningGameTestBody::testQuarryCollectsLooseItemsInItsPit),
         new GameTestCase(
-            "automation/quarry_leaves_loose_items_lying_beside_a_broken_container",
-            30,
-            QuarryMiningGameTestBody::testQuarryLeavesLooseItemsLyingBesideABrokenContainer),
+            "automation/running_quarry_collects_loose_items_from_its_pit",
+            220,
+            QuarryMiningGameTestBody::testRunningQuarryCollectsLooseItemsFromItsPit),
         new GameTestCase(
-            "automation/quarry_collects_break_items_that_appear_late",
+            "automation/quarry_leaves_items_outside_its_frame_alone",
             30,
-            QuarryMiningGameTestBody::testQuarryCollectsBreakItemsThatAppearLate),
+            QuarryMiningGameTestBody::testQuarryLeavesItemsOutsideItsFrameAlone),
         new GameTestCase(
-            "automation/quarry_repeated_sweep_leaves_preexisting_items_alone",
+            "automation/quarry_leaves_items_it_cannot_route",
             30,
-            QuarryMiningGameTestBody::testQuarryRepeatedSweepLeavesPreexistingItemsAlone),
+            QuarryMiningGameTestBody::testQuarryLeavesItemsItCannotRoute),
         new GameTestCase(
             "automation/quarry_does_not_empty_a_broken_shulker_box",
             30,
