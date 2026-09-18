@@ -102,6 +102,16 @@ test {
     }
     failFast = false
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+
+    // fabric-loader-junit boots the real loader in every test worker, and the loader creates its
+    // mods directory with Files.createDirectory -- the singular form, which throws
+    // FileAlreadyExistsException rather than tolerating a directory another worker just made.
+    // Workers fork in parallel, so on a checkout where the directory does not exist yet they race
+    // and a loser dies with "Could not create directory". Creating it once, before any worker
+    // forks, leaves every worker on the Files.exists() path.
+    doFirst {
+        file('mods').mkdirs()
+    }
 }
 
 java {
