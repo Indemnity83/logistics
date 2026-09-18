@@ -178,7 +178,22 @@ public class StrayPacketRerouteGameTestBody {
         context.runAfterDelay(45, () ->
                 injectFromWest(context, ITEM_INJECT, new ItemStack(Items.IRON_INGOT, STRAY_INGOTS)));
 
+        long startTime = context.getLevel().getGameTime();
+        final int[] firstSeen = {-1};
+        for (int t = 46; t <= 100; t++) {
+            final int tick = t;
+            context.runAfterDelay(tick, () -> {
+                if (firstSeen[0] >= 0) return;
+                AABB near = new AABB(context.absolutePos(ITEM_INJECT)).inflate(1.5);
+                if (!context.getLevel()
+                        .getEntitiesOfClass(ItemEntity.class, near, e -> e.getItem().is(Items.IRON_INGOT))
+                        .isEmpty()) {
+                    firstSeen[0] = tick;
+                }
+            });
+        }
         context.runAfterDelay(100, () -> {
+            probeDump(context, startTime, firstSeen[0]);
             if (chestCount(context) > 0) {
                 context.fail("Nothing ordered iron, so nothing should have been delivered to the chest");
                 return;
@@ -193,6 +208,55 @@ public class StrayPacketRerouteGameTestBody {
             }
             context.succeed();
         });
+    }
+
+    /** PROBE ONLY: dump the state that decides this test at tick 100. */
+    private static void probeDump(GameTestHelper context, long startTime, int firstSeen) {
+        StringBuilder sb = new StringBuilder("PROBE ");
+        sb.append("origin=").append(context.absolutePos(ITEM_INJECT));
+        sb.append(" startGameTime=").append(startTime);
+        sb.append(" now=").append(context.getLevel().getGameTime());
+        sb.append(" dropTick=").append(firstSeen);
+        sb.append(" chest=").append(chestCount(context));
+        for (BlockPos p : new BlockPos[] {ITEM_INJECT, ITEM_SUPPLIER}) {
+            PipeBlockEntity pipe = context.getBlockEntity(p, PipeBlockEntity.class);
+            sb.append(" transit@").append(p).append('=')
+              .append(pipe == null ? "?" : pipe.getTravelingItems().size());
+        }
+        BlockPos origin = context.absolutePos(ITEM_INJECT);
+        sb.append(" ground=").append(context.getLevel()
+                .getEntitiesOfClass(ItemEntity.class, new AABB(origin).inflate(4.0),
+                        e -> e.getItem().is(Items.IRON_INGOT)).size());
+        var wide = context.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(origin).inflate(24.0),
+                e -> e.getItem().is(Items.IRON_INGOT));
+        sb.append(" wide=").append(wide.size());
+        for (ItemEntity e : wide) {
+            sb.append(" [@").append(e.blockPosition().subtract(origin))
+              .append(" n=").append(e.getItem().getCount())
+              .append(" rm=").append(e.isRemoved())
+              .append(" age=").append(e.getAge()).append(']');
+        }
+        for (ItemEntity e : context.getLevel().getEntitiesOfClass(ItemEntity.class,
+                new AABB(origin).inflate(2.0), e -> e.getItem().is(Items.IRON_INGOT))) {
+            sb.append(" MINE{y=").append(String.format("%.3f", e.getY()))
+              .append(" dy=").append(String.format("%.4f", e.getDeltaMovement().y))
+              .append(" ground=").append(e.onGround())
+              .append(" at=").append(context.getLevel().getBlockState(e.blockPosition())
+                      .getBlock().getClass().getSimpleName())
+              .append(" under=").append(context.getLevel().getBlockState(e.blockPosition().below())
+                      .getBlock().getClass().getSimpleName())
+              .append('}');
+        }
+        sb.append(" levelPlayers=").append(context.getLevel().players().size());
+        for (var pl : context.getLevel().players()) {
+            sb.append(" P").append(pl.blockPosition().subtract(origin));
+        }
+        sb.append(" players=").append(context.getLevel()
+                .getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class,
+                        new AABB(origin).inflate(24.0)).size());
+        sb.append(" belowInject=").append(context.getLevel()
+                .getBlockState(origin.below()).getBlock().getClass().getSimpleName());
+        System.out.println(sb);
     }
 
     /**
