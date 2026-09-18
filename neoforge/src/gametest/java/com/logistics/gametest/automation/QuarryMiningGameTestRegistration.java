@@ -31,6 +31,14 @@ public final class QuarryMiningGameTestRegistration {
             "automation/quarry_leaves_loose_items_lying_beside_a_broken_container",
             30,
             QuarryMiningGameTestBody::testQuarryLeavesLooseItemsLyingBesideABrokenContainer),
+        new GameTestCase(
+            "automation/quarry_does_not_duplicate_shulker_box_contents",
+            30,
+            QuarryMiningGameTestBody::testQuarryDoesNotDuplicateShulkerBoxContents),
+        new GameTestCase(
+            "automation/quarry_collects_a_lectern_book_exactly_once",
+            30,
+            QuarryMiningGameTestBody::testQuarryCollectsALecternBookExactlyOnce),
         new GameTestCase("automation/quarry_stalls_without_energy", 50, QuarryMiningGameTestBody::testQuarryStallsWithoutEnergy),
         new GameTestCase(
             "automation/quarry_transitions_through_phases", 220, QuarryMiningGameTestBody::testQuarryTransitionsThroughPhases),

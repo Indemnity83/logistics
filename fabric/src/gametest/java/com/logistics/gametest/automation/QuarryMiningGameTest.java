@@ -180,4 +180,16 @@ public class QuarryMiningGameTest {
     public void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryLeavesLooseItemsLyingBesideABrokenContainer(context);
     }
+
+    /** A shulker box keeps its contents in the item it drops; the quarry must not also empty it. */
+    @GameTest(maxTicks = 30)
+    public void testQuarryDoesNotDuplicateShulkerBoxContents(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryDoesNotDuplicateShulkerBoxContents(context);
+    }
+
+    /** A broken lectern hands over its book, and hands it over exactly once. */
+    @GameTest(maxTicks = 30)
+    public void testQuarryCollectsALecternBookExactlyOnce(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryCollectsALecternBookExactlyOnce(context);
+    }
 }
