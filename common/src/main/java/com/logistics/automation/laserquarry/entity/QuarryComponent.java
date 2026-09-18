@@ -17,6 +17,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,8 +37,8 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     private final QuarryEnergyPolicy energyPolicy;
     private final QuarryOutput output;
 
-    /** How often the quarry looks for loose items in its pit. */
-    private static final int LOOSE_ITEM_SWEEP_TICKS = 10;
+    /** How big a box the laser head picks loose items up from. */
+    private static final double LOOSE_ITEM_SWEEP_SIZE = 5.0;
 
     private final QuarryBounds bounds = new QuarryBounds();
     private final ArmController armController = new ArmController();
@@ -102,35 +103,25 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     }
 
     /**
-     * Picks up loose items lying in the quarry's frame, a few times a second.
+     * Picks up loose items around the laser head, every tick it runs.
      *
      * <p>A break does not always hand its items over on the spot: a container spills them as
-     * entities, an item frame notices its wall is gone up to a hundred ticks later and pops off
-     * where the quarry has long since stopped looking, dripstone takes a moment to fall. Sweeping
-     * the pit on a timer collects all of it without the quarry having to predict any of it.
+     * entities that an entity query cannot see until the server finishes making their chunk section
+     * visible, an item frame notices its wall is gone up to a hundred ticks later and pops off on
+     * the face of a block, dripstone takes a moment to fall. Sweeping where the laser is working
+     * collects all of it without the quarry having to predict any of it.
+     *
+     * <p>Every tick, not on a timer: the arm covers more ground between ticks than the box is wide,
+     * so anything less and it digs straight past what it was meant to pick up.
      */
     private void collectLooseItems(MachineContext context) {
-        if (context.level().getGameTime() % LOOSE_ITEM_SWEEP_TICKS != 0) {
+        if (!armController.isInitialized()) {
             return;
         }
-        QuarryFrameRect frame = QuarryFrameRect.resolve(
-                LaserQuarryBlock.getMiningDirection(context.blockState()),
-                context.pos(),
-                bounds,
-                LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_AREA));
-        if (frame == null) {
-            return;
-        }
-        ServerLevel level = (ServerLevel) context.level();
-        // Down to the bottom of the world: the pit floor moves as the quarry digs, and items fall.
-        AABB pit = new AABB(
-                frame.startX(),
-                level.getMinY(),
-                frame.startZ(),
-                frame.endX() + 1.0,
-                frame.topY() + 1.0,
-                frame.endZ() + 1.0);
-        output.collectLooseItems(level, pit);
+        Vec3 head = new Vec3(armController.getX(), armController.getY(), armController.getZ());
+        output.collectLooseItems(
+                (ServerLevel) context.level(),
+                AABB.ofSize(head, LOOSE_ITEM_SWEEP_SIZE, LOOSE_ITEM_SWEEP_SIZE, LOOSE_ITEM_SWEEP_SIZE));
     }
 
     /**

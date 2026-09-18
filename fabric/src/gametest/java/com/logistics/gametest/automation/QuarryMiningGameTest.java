@@ -24,27 +24,22 @@ public class QuarryMiningGameTest {
         QuarryMiningGameTestBody.testQuarryDoesNotEmptyABrokenShulkerBox(context);
     }
 
-    /** Loose items lying in the quarry's pit are collected, whatever produced them. */
+    /** Loose items lying around the laser head are collected, whatever produced them. */
     @GameTest(maxTicks = 30)
-    public void testQuarryCollectsLooseItemsInItsPit(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryCollectsLooseItemsInItsPit(context);
+    public void testQuarryCollectsLooseItemsAroundTheArm(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryCollectsLooseItemsAroundTheArm(context);
     }
 
-    /** The pit is the boundary; items outside the frame are left alone. */
+    /** Items well away from the laser head are left alone. */
     @GameTest(maxTicks = 30)
-    public void testQuarryLeavesItemsOutsideItsFrameAlone(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryLeavesItemsOutsideItsFrameAlone(context);
+    public void testQuarryLeavesItemsAwayFromTheArmAlone(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryLeavesItemsAwayFromTheArmAlone(context);
     }
 
-    /** With nowhere to put it, a loose item is left where it lies. */
-    @GameTest(maxTicks = 30)
-    public void testQuarryLeavesItemsItCannotRoute(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryLeavesItemsItCannotRoute(context);
-    }
 
-    /** A running quarry collects a stack lying in its pit that it never broke. */
+    /** A running quarry collects a stack lying by its arm that it never broke. */
     @GameTest(maxTicks = 220)
-    public void testRunningQuarryCollectsLooseItemsFromItsPit(GameTestHelper context) {
-        QuarryMiningGameTestBody.testRunningQuarryCollectsLooseItemsFromItsPit(context);
+    public void testRunningQuarryCollectsLooseItemsAroundItsArm(GameTestHelper context) {
+        QuarryMiningGameTestBody.testRunningQuarryCollectsLooseItemsAroundItsArm(context);
     }
 }

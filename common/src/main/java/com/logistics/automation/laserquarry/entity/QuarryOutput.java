@@ -15,8 +15,8 @@ import net.minecraft.world.phys.AABB;
 
 /**
  * The laser quarry's item sink: routes mined drops to a pipe above the quarry, then to a sided or
- * regular inventory above, finally dropping an item entity. Also collects loose items lying in the
- * quarry's own area. The per-slot merge is delegated to {@link ContainerInsert}.
+ * regular inventory above, finally dropping an item entity. Also picks up loose items lying around
+ * the laser head. The per-slot merge is delegated to {@link ContainerInsert}.
  */
 public final class QuarryOutput {
 
@@ -28,50 +28,8 @@ public final class QuarryOutput {
 
     /** Route a single stack out: pipe above -> inventory above -> dropped above the quarry. */
     public void accept(ServerLevel world, ItemStack stack) {
-        ItemStack leftover = route(world, stack);
-        if (!leftover.isEmpty()) {
-            double x = quarryPos.getX() + 0.5;
-            double y = quarryPos.getY() + 1.5;
-            double z = quarryPos.getZ() + 0.5;
-
-            ItemEntity itemEntity = new ItemEntity(world, x, y, z, leftover);
-            itemEntity.setDeltaMovement(0, 0.2, 0);
-            world.addFreshEntity(itemEntity);
-        }
-    }
-
-    /**
-     * Take every loose item lying in {@code area} and route it out.
-     *
-     * <p>A quarry's pit fills with items it has no other way to reach: a chest's contents, spilled
-     * as entities the tick it was broken; an item frame that only notices its wall is gone up to a
-     * hundred ticks later, and pops off somewhere the quarry has long since left; dripstone that
-     * takes a moment to fall. Rather than predict which break produces what and when, the quarry
-     * simply picks up what it finds inside its own frame — so items a player leaves in the pit are
-     * collected too.
-     *
-     * <p>An item is only taken when there is somewhere to put it. A full output would otherwise
-     * have the quarry drop it straight back on the floor and pick it up again on the next pass.
-     */
-    public void collectLooseItems(ServerLevel world, AABB area) {
-        for (ItemEntity itemEntity : world.getEntitiesOfClass(ItemEntity.class, area)) {
-            ItemStack stack = itemEntity.getItem();
-            if (stack.isEmpty()) {
-                continue;
-            }
-            ItemStack leftover = route(world, stack.copy());
-            if (leftover.isEmpty()) {
-                itemEntity.discard();
-            } else {
-                itemEntity.setItem(leftover);
-            }
-        }
-    }
-
-    /** Push a stack at the pipe or inventory above the quarry; returns what would not fit. */
-    private ItemStack route(ServerLevel world, ItemStack stack) {
         if (stack.isEmpty()) {
-            return ItemStack.EMPTY;
+            return;
         }
 
         BlockPos abovePos = quarryPos.above();
@@ -81,7 +39,7 @@ public final class QuarryOutput {
         TransportApi transportApi = LogisticsApi.Registry.transport();
         if (transportApi.isTransportBlock(aboveState)) {
             if (transportApi.forceInsert(world, abovePos, stack.copy(), Direction.UP)) {
-                return ItemStack.EMPTY;
+                return;
             }
         }
 
@@ -104,6 +62,33 @@ public final class QuarryOutput {
             }
         }
 
-        return stack;
+        // Anything left over drops above the quarry.
+        if (!stack.isEmpty()) {
+            double x = quarryPos.getX() + 0.5;
+            double y = quarryPos.getY() + 1.5;
+            double z = quarryPos.getZ() + 0.5;
+
+            ItemEntity itemEntity = new ItemEntity(world, x, y, z, stack);
+            itemEntity.setDeltaMovement(0, 0.2, 0);
+            world.addFreshEntity(itemEntity);
+        }
+    }
+
+    /**
+     * Pick up the loose items lying in {@code area} and route them out.
+     *
+     * <p>Items reach a quarry's floor on their own schedule: a container spills its contents as
+     * entities, an item frame only notices its wall is gone up to a hundred ticks later and pops off
+     * on the face of a block, dripstone takes a moment to fall. The quarry tracks none of that -- it
+     * picks up what is lying around the laser head, whatever put it there.
+     */
+    public void collectLooseItems(ServerLevel world, AABB area) {
+        for (ItemEntity itemEntity : world.getEntitiesOfClass(ItemEntity.class, area)) {
+            ItemStack stack = itemEntity.getItem();
+            if (!stack.isEmpty()) {
+                accept(world, stack.copy());
+                itemEntity.discard();
+            }
+        }
     }
 }

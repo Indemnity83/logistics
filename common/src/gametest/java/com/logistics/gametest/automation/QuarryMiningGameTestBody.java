@@ -1070,7 +1070,7 @@ public class QuarryMiningGameTestBody {
         container.setItem(0, new ItemStack(Items.DIAMOND));
 
         QuarryOutput output = mine(context, quarryPos, containerPos);
-        output.collectLooseItems(context.getLevel(), pitAround(context, containerPos));
+        output.collectLooseItems(context.getLevel(), nearArm(context, containerPos));
 
         context.assertContainerContains(outputPos, Items.DIAMOND);
         context.succeed();
@@ -1079,10 +1079,10 @@ public class QuarryMiningGameTestBody {
     /**
      * Items turn up in a quarry's pit long after, and some distance from, the break that produced
      * them: an item frame only notices its wall is gone up to a hundred ticks later, dripstone takes
-     * a moment to fall. The quarry does not try to predict any of that -- it collects what is lying
-     * in its pit, including anything a player left there.
+     * a moment to fall. The quarry does not try to predict any of that -- it picks up what is lying
+     * around the laser head, including anything a player left there.
      */
-    public static void testQuarryCollectsLooseItemsInItsPit(GameTestHelper context) {
+    public static void testQuarryCollectsLooseItemsAroundTheArm(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
         BlockPos outputPos = quarryPos.above();
         BlockPos droppedPos = new BlockPos(3, 1, 1);
@@ -1092,15 +1092,15 @@ public class QuarryMiningGameTestBody {
 
         // Nothing to do with any break of the quarry's, and it arrives well after one.
         context.spawnItem(Items.DIAMOND, droppedPos);
-        output.collectLooseItems(context.getLevel(), pitAround(context, droppedPos));
+        output.collectLooseItems(context.getLevel(), nearArm(context, droppedPos));
 
         context.assertContainerContains(outputPos, Items.DIAMOND);
         context.assertItemEntityNotPresent(Items.DIAMOND);
         context.succeed();
     }
 
-    /** The pit is the boundary: a stack lying outside the quarry's frame is not the quarry's. */
-    public static void testQuarryLeavesItemsOutsideItsFrameAlone(GameTestHelper context) {
+    /** The arm only reaches so far: a stack lying well away from the laser head is left alone. */
+    public static void testQuarryLeavesItemsAwayFromTheArmAlone(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
         BlockPos outputPos = quarryPos.above();
         BlockPos insidePos = new BlockPos(3, 1, 1);
@@ -1110,31 +1110,13 @@ public class QuarryMiningGameTestBody {
         QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
 
         context.spawnItem(Items.EMERALD, outsidePos);
-        output.collectLooseItems(context.getLevel(), pitAround(context, insidePos));
+        output.collectLooseItems(context.getLevel(), nearArm(context, insidePos));
 
         if (countInOutput(context, outputPos, Items.EMERALD) != 0) {
-            context.fail("The quarry reached outside its frame for an emerald");
+            context.fail("The quarry reached well past the laser head for an emerald");
             return;
         }
         context.assertItemEntityPresent(Items.EMERALD, outsidePos, 1.0);
-        context.succeed();
-    }
-
-    /**
-     * With nowhere to put it, a loose item is left where it lies. Routing it out regardless would
-     * drop it back on the floor for the next pass to find, shuffling it around the pit forever.
-     */
-    public static void testQuarryLeavesItemsItCannotRoute(GameTestHelper context) {
-        BlockPos quarryPos = new BlockPos(1, 1, 1);
-        BlockPos droppedPos = new BlockPos(3, 1, 1);
-
-        // No pipe and no inventory above the quarry -- nothing will accept the stack.
-        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
-
-        context.spawnItem(Items.DIAMOND, droppedPos);
-        output.collectLooseItems(context.getLevel(), pitAround(context, droppedPos));
-
-        context.assertItemEntityPresent(Items.DIAMOND, droppedPos, 1.0);
         context.succeed();
     }
 
@@ -1159,7 +1141,7 @@ public class QuarryMiningGameTestBody {
         shulker.setItem(0, new ItemStack(Items.DIAMOND, 3));
 
         QuarryOutput output = mine(context, quarryPos, shulkerPos);
-        output.collectLooseItems(context.getLevel(), pitAround(context, shulkerPos));
+        output.collectLooseItems(context.getLevel(), nearArm(context, shulkerPos));
 
         if (countInOutput(context, outputPos, Items.DIAMOND) != 0) {
             context.fail("The shulker box's contents were duplicated as loose diamonds");
@@ -1174,11 +1156,11 @@ public class QuarryMiningGameTestBody {
     }
 
     /**
-     * The real thing, ticking: a stack lying in a running quarry's pit is collected without the
-     * quarry having broken anything to produce it. This is what proves the pit sweep is actually
-     * wired into the quarry's tick rather than merely implemented.
+     * The real thing, ticking: a stack lying where a running quarry's arm is working is collected
+     * without the quarry having broken anything to produce it. This is what proves the sweep is
+     * actually wired into the quarry's tick rather than merely implemented.
      */
-    public static void testRunningQuarryCollectsLooseItemsFromItsPit(GameTestHelper context) {
+    public static void testRunningQuarryCollectsLooseItemsAroundItsArm(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 2, 1);
         BlockPos chestPos = new BlockPos(1, 3, 1);
         BlockPos litterPos = new BlockPos(1, 1, 3); // inside the 1x1 inner mining area
@@ -1191,6 +1173,8 @@ public class QuarryMiningGameTestBody {
             }
         }
 
+        // Something to mine in that column, so the arm actually travels there.
+        context.setBlock(litterPos, Blocks.DIRT);
         context.setBlock(chestPos, Blocks.CHEST);
         context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
 
@@ -1216,7 +1200,7 @@ public class QuarryMiningGameTestBody {
             remaining -= inserted;
         }
 
-        // Nothing the quarry broke -- just a stack lying in its pit.
+        // Nothing the quarry broke -- just a stack lying where the arm will be working.
         context.spawnItem(Items.DIAMOND, litterPos);
 
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND));
@@ -1231,8 +1215,8 @@ public class QuarryMiningGameTestBody {
         return output;
     }
 
-    /** A stand-in for the frame the running quarry sweeps, covering just {@code around}. */
-    private static AABB pitAround(GameTestHelper context, BlockPos around) {
+    /** A stand-in for the box the laser head sweeps, covering just {@code around}. */
+    private static AABB nearArm(GameTestHelper context, BlockPos around) {
         return new AABB(context.absolutePos(around)).inflate(0.5);
     }
 
