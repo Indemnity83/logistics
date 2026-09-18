@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.TagValueInput;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.Nullable;
@@ -1144,11 +1144,11 @@ public class QuarryMiningGameTestBody {
     }
 
     /**
-     * A container's contents can be spilled into a chunk section the server has not finished making
-     * visible, where no entity query can see them, so the sweep that runs with the break comes back
-     * empty. The quarry keeps the claim open and collects them once they show up.
+     * A break's items can land in a chunk section the server has not finished making visible, where
+     * no entity query can see them, so the sweep that runs with the break comes back empty. The
+     * quarry keeps sweeping the spot and collects them once they show up.
      */
-    public static void testQuarryCollectsContainerContentsThatAppearLate(GameTestHelper context) {
+    public static void testQuarryCollectsBreakItemsThatAppearLate(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
         BlockPos outputPos = quarryPos.above();
         BlockPos targetPos = new BlockPos(3, 1, 1);
@@ -1157,10 +1157,10 @@ public class QuarryMiningGameTestBody {
         ServerLevel level = context.getLevel();
         QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
 
-        // The break already happened and handed over nothing -- exactly what a sweep over an
-        // unfinished chunk section returns.
-        output.claimLater(context.absolutePos(targetPos), List.of(new ItemStack(Items.DIAMOND)));
-        output.tickClaims(level);
+        // The break already happened and handed over nothing -- what a sweep over a section the
+        // server has not made visible yet returns.
+        output.sweepAgainFor(context.absolutePos(targetPos), Set.of());
+        output.tickPendingSweeps(level);
 
         if (countInOutput(context, outputPos, Items.DIAMOND) != 0) {
             context.fail("Nothing was on the ground yet; the quarry should have collected nothing");
@@ -1169,7 +1169,7 @@ public class QuarryMiningGameTestBody {
 
         // The section becomes visible and the spilled stack is suddenly there.
         context.spawnItem(Items.DIAMOND, targetPos);
-        output.tickClaims(level);
+        output.tickPendingSweeps(level);
 
         if (countInOutput(context, outputPos, Items.DIAMOND) != 1) {
             context.fail("The quarry never collected the contents once they became visible");
@@ -1180,44 +1180,50 @@ public class QuarryMiningGameTestBody {
     }
 
     /**
-     * An open claim is for what the container spilled, not for whatever happens to be lying around.
-     * A player's stack of the same item left beside the quarry's work stays the player's.
+     * The repeated sweep inherits the break's record of what was already lying around, so a stack a
+     * player left beside the quarry's work stays theirs for the whole window -- not just the tick
+     * the block came apart.
      */
-    public static void testQuarryClaimLeavesUnrelatedItemsAlone(GameTestHelper context) {
+    public static void testQuarryRepeatedSweepLeavesPreexistingItemsAlone(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
         BlockPos outputPos = quarryPos.above();
-        BlockPos targetPos = new BlockPos(3, 1, 1);
+        BlockPos containerPos = new BlockPos(3, 1, 1);
         BlockPos droppedPos = new BlockPos(3, 1, 2);
 
         context.setBlock(outputPos, Blocks.CHEST);
-        ServerLevel level = context.getLevel();
-        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
+        context.setBlock(containerPos, Blocks.CHEST);
 
+        ChestBlockEntity container = context.getBlockEntity(containerPos, ChestBlockEntity.class);
+        if (container == null) {
+            context.fail("Expected a chest block entity at " + containerPos);
+            return;
+        }
+        container.setItem(0, new ItemStack(Items.DIAMOND));
         context.spawnItem(Items.EMERALD, droppedPos);
-        output.claimLater(context.absolutePos(targetPos), List.of(new ItemStack(Items.DIAMOND)));
 
-        for (int tick = 0; tick < 45; tick++) {
-            output.tickClaims(level);
+        QuarryOutput output = mine(context, quarryPos, containerPos);
+        for (int tick = 0; tick < 25; tick++) {
+            output.tickPendingSweeps(context.getLevel());
         }
 
         if (countInOutput(context, outputPos, Items.EMERALD) != 0) {
-            context.fail("The quarry took an emerald it was never owed");
+            context.fail("The quarry took an emerald that was lying there before the break");
             return;
         }
+        context.assertContainerContains(outputPos, Items.DIAMOND);
         context.assertItemEntityPresent(Items.EMERALD, droppedPos, 1.0);
         context.succeed();
     }
 
     /**
-     * A shulker box keeps its contents in the item it drops rather than spilling them, so the break
-     * leaves the quarry owed nothing. It must not open a claim and then help itself to a player's
-     * matching items lying nearby.
+     * A shulker box carries its contents in the item it drops rather than spilling them, so the
+     * quarry must route the box alone. Emptying it would hand the player both the filled box and a
+     * second loose copy of everything inside it.
      */
-    public static void testQuarryDoesNotClaimAgainstAnUnspilledShulkerBox(GameTestHelper context) {
+    public static void testQuarryDoesNotEmptyABrokenShulkerBox(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 1, 1);
         BlockPos outputPos = quarryPos.above();
         BlockPos shulkerPos = new BlockPos(3, 1, 1);
-        BlockPos droppedPos = new BlockPos(3, 1, 2);
 
         context.setBlock(outputPos, Blocks.CHEST);
         context.setBlock(shulkerPos, Blocks.SHULKER_BOX);
@@ -1228,20 +1234,21 @@ public class QuarryMiningGameTestBody {
             return;
         }
         shulker.setItem(0, new ItemStack(Items.DIAMOND, 3));
-        context.spawnItem(Items.DIAMOND, droppedPos);
 
         QuarryOutput output = mine(context, quarryPos, shulkerPos);
-
-        // The quarry keeps looking for a while; the loose diamond must survive all of it.
-        for (int tick = 0; tick < 45; tick++) {
-            output.tickClaims(context.getLevel());
+        for (int tick = 0; tick < 25; tick++) {
+            output.tickPendingSweeps(context.getLevel());
         }
 
         if (countInOutput(context, outputPos, Items.DIAMOND) != 0) {
-            context.fail("The quarry took diamonds the shulker box never spilled");
+            context.fail("The shulker box's contents were duplicated as loose diamonds");
             return;
         }
-        context.assertItemEntityPresent(Items.DIAMOND, droppedPos, 1.0);
+        if (countInOutput(context, outputPos, Items.SHULKER_BOX) != 1) {
+            context.fail("Expected exactly one shulker box in the output");
+            return;
+        }
+        context.assertItemEntityNotPresent(Items.DIAMOND);
         context.succeed();
     }
 

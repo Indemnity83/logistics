@@ -181,21 +181,21 @@ public class QuarryMiningGameTest {
         QuarryMiningGameTestBody.testQuarryLeavesLooseItemsLyingBesideABrokenContainer(context);
     }
 
-    /** Contents that only become visible after the break are still collected. */
+    /** Items that only become visible after the break are still collected. */
     @GameTest(maxTicks = 30)
-    public void testQuarryCollectsContainerContentsThatAppearLate(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryCollectsContainerContentsThatAppearLate(context);
+    public void testQuarryCollectsBreakItemsThatAppearLate(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryCollectsBreakItemsThatAppearLate(context);
     }
 
-    /** An open claim never reaches for items the broken container did not spill. */
+    /** Items lying around before the break stay put for the whole sweep window. */
     @GameTest(maxTicks = 30)
-    public void testQuarryClaimLeavesUnrelatedItemsAlone(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryClaimLeavesUnrelatedItemsAlone(context);
+    public void testQuarryRepeatedSweepLeavesPreexistingItemsAlone(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryRepeatedSweepLeavesPreexistingItemsAlone(context);
     }
 
-    /** A shulker box spills nothing, so the quarry claims nothing against it. */
+    /** A shulker box keeps its contents in the item it drops; the quarry must not empty it. */
     @GameTest(maxTicks = 30)
-    public void testQuarryDoesNotClaimAgainstAnUnspilledShulkerBox(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryDoesNotClaimAgainstAnUnspilledShulkerBox(context);
+    public void testQuarryDoesNotEmptyABrokenShulkerBox(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryDoesNotEmptyABrokenShulkerBox(context);
     }
 }
