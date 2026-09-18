@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.9](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.8...mc26.3-v0.8.9) (2026-09-18)
+
+
+### Added
+
+* **common:** run on Minecraft 26.3 ([#1230](https://github.com/Indemnity83/logistics/issues/1230)) ([f50d550](https://github.com/Indemnity83/logistics/commit/f50d550b7c3eb232aa0a420f5166979e19db7e2f))
+
+
+### Fixed
+
+* **ci:** create the mods directory before test workers fork ([#1237](https://github.com/Indemnity83/logistics/issues/1237)) ([e8b3fde](https://github.com/Indemnity83/logistics/commit/e8b3fde68225043f74d47211b849bbfc755f47c6))
+* **ci:** stop the menu blur stalling the client feature tests ([#1236](https://github.com/Indemnity83/logistics/issues/1236)) ([4f100a9](https://github.com/Indemnity83/logistics/commit/4f100a9e7485eee7c5b5eca92ed3ce2df143ea57))
+
 ## [0.8.8](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.7...mc26.2-v0.8.8) (2026-09-09)
 
 
