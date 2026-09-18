@@ -3,6 +3,9 @@ package com.logistics.automation.laserquarry.entity;
 import com.logistics.api.LogisticsApi;
 import com.logistics.api.TransportApi;
 import com.logistics.automation.ContainerInsert;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
@@ -22,7 +25,13 @@ import net.minecraft.world.phys.AABB;
  */
 public final class QuarryOutput {
 
+    /** How long the quarry keeps looking for contents a broken container has not handed over yet. */
+    private static final int CLAIM_TICKS = 40;
+
     private final BlockPos quarryPos;
+
+    /** Contents a broken container owes the quarry but that were not on the ground yet. */
+    private final List<Claim> claims = new ArrayList<>();
 
     public QuarryOutput(BlockPos quarryPos) {
         this.quarryPos = quarryPos;
@@ -86,21 +95,107 @@ public final class QuarryOutput {
     /**
      * Sweep up the items a break spawned near {@code target} — those, and only those, are the
      * quarry's. Anything in {@code alreadyThere} was on the ground before the break and stays.
+     *
+     * @return copies of what was taken, so a caller can tell what a container still owes it
      */
-    public void sweepNearby(ServerLevel world, BlockPos target, Set<Integer> alreadyThere) {
+    public List<ItemStack> sweepNearby(ServerLevel world, BlockPos target, Set<Integer> alreadyThere) {
+        List<ItemStack> taken = new ArrayList<>();
         for (ItemEntity itemEntity : world.getEntitiesOfClass(ItemEntity.class, sweepArea(target))) {
             if (alreadyThere.contains(itemEntity.getId())) {
                 continue;
             }
             ItemStack stack = itemEntity.getItem();
             if (!stack.isEmpty()) {
+                taken.add(stack.copy());
                 accept(world, stack.copy());
                 itemEntity.discard();
+            }
+        }
+        return taken;
+    }
+
+    /**
+     * Keep looking, for a short while, for contents a broken container has not handed over.
+     *
+     * <p>A container spills its contents as item entities, and an entity query cannot see into a
+     * chunk section the server has not finished making visible — the section is skipped outright,
+     * so a freshly spilled stack reads as absent even though it is lying right there. That window
+     * closes within a tick or two, but the quarry breaks a block and moves on, so without a second
+     * look the contents stay on the floor until they despawn.
+     *
+     * <p>{@code outstanding} is what the container demonstrably spilled — the drop in its own
+     * contents across the break — less what the sweep already collected. Nothing is ever taken out
+     * of the container, and no assumption is made about which blocks spill: one that keeps its
+     * contents, like a shulker box, spills nothing by that measure and so claims nothing. Claims
+     * are matched by item and components, which is what keeps a waiting retry off a player's
+     * belongings (#973).
+     */
+    public void claimLater(BlockPos target, List<ItemStack> outstanding) {
+        // Copied because a claim is drawn down as it is filled, and the caller's list is its own.
+        List<ItemStack> owed = new ArrayList<>();
+        for (ItemStack stack : outstanding) {
+            if (!stack.isEmpty()) {
+                owed.add(stack.copy());
+            }
+        }
+        if (!owed.isEmpty()) {
+            claims.add(new Claim(target, owed));
+        }
+    }
+
+    /** Collect anything owed that has since become visible. Bounded by {@link #CLAIM_TICKS}. */
+    public void tickClaims(ServerLevel world) {
+        Iterator<Claim> iterator = claims.iterator();
+        while (iterator.hasNext()) {
+            Claim claim = iterator.next();
+            collect(world, claim);
+            if (claim.outstanding.isEmpty() || ++claim.age >= CLAIM_TICKS) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void collect(ServerLevel world, Claim claim) {
+        for (ItemEntity itemEntity : world.getEntitiesOfClass(ItemEntity.class, sweepArea(claim.target))) {
+            if (claim.outstanding.isEmpty()) {
+                return;
+            }
+            ItemStack onGround = itemEntity.getItem();
+            if (onGround.isEmpty()) {
+                continue;
+            }
+            for (Iterator<ItemStack> owed = claim.outstanding.iterator(); owed.hasNext(); ) {
+                ItemStack want = owed.next();
+                if (!ItemStack.isSameItemSameComponents(want, onGround)) {
+                    continue;
+                }
+                int moved = Math.min(want.getCount(), onGround.getCount());
+                accept(world, onGround.split(moved));
+                want.shrink(moved);
+                if (want.isEmpty()) {
+                    owed.remove();
+                }
+                if (onGround.isEmpty()) {
+                    itemEntity.discard();
+                    break;
+                }
             }
         }
     }
 
     private static AABB sweepArea(BlockPos target) {
         return new AABB(target).inflate(2.0);
+    }
+
+    /** Contents owed by a container broken at {@code target}, and how long we have been waiting. */
+    private static final class Claim {
+        private final BlockPos target;
+        private final List<ItemStack> outstanding;
+        private int age;
+
+        private Claim(BlockPos target, List<ItemStack> outstanding) {
+            this.target = target;
+            this.outstanding = outstanding;
+        }
     }
 }

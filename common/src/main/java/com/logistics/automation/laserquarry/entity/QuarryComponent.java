@@ -76,6 +76,10 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
 
             phaseRunner.tick(this);
 
+            // A container's contents can be spilled into a chunk section the server has not made
+            // visible yet, where no entity query can see them; look again for a short while.
+            output.tickClaims((ServerLevel) context.level());
+
             // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer.
             if (context.level().getGameTime() % 4 == 0 && energyPolicy.stored() > 0) {
                 energyPolicy.drainIdle(1);
