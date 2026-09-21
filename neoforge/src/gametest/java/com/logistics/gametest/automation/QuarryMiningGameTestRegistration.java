@@ -24,13 +24,21 @@ public final class QuarryMiningGameTestRegistration {
             30,
             QuarryMiningGameTestBody::testQuarryCollectsBrokenContainerContents),
         new GameTestCase(
-            "automation/quarry_leaves_loose_items_when_breaking_a_non_container",
+            "automation/quarry_collects_loose_items_around_the_arm",
             30,
-            QuarryMiningGameTestBody::testQuarryLeavesLooseItemsWhenBreakingANonContainer),
+            QuarryMiningGameTestBody::testQuarryCollectsLooseItemsAroundTheArm),
         new GameTestCase(
-            "automation/quarry_leaves_loose_items_lying_beside_a_broken_container",
+            "automation/running_quarry_collects_loose_items_around_its_arm",
+            220,
+            QuarryMiningGameTestBody::testRunningQuarryCollectsLooseItemsAroundItsArm),
+        new GameTestCase(
+            "automation/quarry_leaves_items_away_from_the_arm_alone",
             30,
-            QuarryMiningGameTestBody::testQuarryLeavesLooseItemsLyingBesideABrokenContainer),
+            QuarryMiningGameTestBody::testQuarryLeavesItemsAwayFromTheArmAlone),
+        new GameTestCase(
+            "automation/quarry_does_not_empty_a_broken_shulker_box",
+            30,
+            QuarryMiningGameTestBody::testQuarryDoesNotEmptyABrokenShulkerBox),
         new GameTestCase("automation/quarry_stalls_without_energy", 50, QuarryMiningGameTestBody::testQuarryStallsWithoutEnergy),
         new GameTestCase(
             "automation/quarry_transitions_through_phases", 220, QuarryMiningGameTestBody::testQuarryTransitionsThroughPhases),
