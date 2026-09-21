@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.8.9](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.8...mc26.2-v0.8.9) (2026-09-21)
+
+
+### Added
+
+* **automation:** let sawdust burn as furnace fuel ([ffe9610](https://github.com/Indemnity83/logistics/commit/ffe9610341ed7b2e7c8f23fae9f30cffd871f5b4))
+* **common:** show ores, machines and oil lakes on maps ([fa238be](https://github.com/Indemnity83/logistics/commit/fa238be1d44e43031b81d790d92e58de8004c022))
+* **fluids:** comparators read a tank column's fill level ([8555c14](https://github.com/Indemnity83/logistics/commit/8555c146ecaa02c18c66a4858f08672a89175bb3))
+* **quarry:** keep the cleared area clear while mining ([c171eda](https://github.com/Indemnity83/logistics/commit/c171edaec7375d16f3a6f3391c6813719c629ba1))
+* **quarry:** rebuild frame blocks broken during mining ([c171eda](https://github.com/Indemnity83/logistics/commit/c171edaec7375d16f3a6f3391c6813719c629ba1))
+* **routing:** recover stranded packets onto live orders ([526ea67](https://github.com/Indemnity83/logistics/commit/526ea6758cb5a810db6bbbc9985a1704f5cc1c89))
+
+
+### Changed
+
+* **automation:** require a stone pickaxe for the Quarry and Power Junction ([438e9f4](https://github.com/Indemnity83/logistics/commit/438e9f474fe19b03cd6b8d90ebdfb43ae7dc8bab))
+* **energy:** scan cable devices once per tick ([026c428](https://github.com/Indemnity83/logistics/commit/026c42832bff03589d99ce036924a40cc1355950))
+* **routing:** protect the Provider's named slot by index ([c33de60](https://github.com/Indemnity83/logistics/commit/c33de60251420ede8c308d47eb99fb37f0297cca))
+* **routing:** stop availability scans slowing as reservations pile up ([334f95f](https://github.com/Indemnity83/logistics/commit/334f95f411b1251a4751d45cbdc6fee0735ab619))
+
+
+### Fixed
+
+* **automation:** scale the Crucible gauge by the server's tank size ([93d8762](https://github.com/Indemnity83/logistics/commit/93d87620b0a22f7a2e8d4bc88532d650e24e4914))
+* **common:** stop pickaxes destroying blocks they should harvest ([438e9f4](https://github.com/Indemnity83/logistics/commit/438e9f474fe19b03cd6b8d90ebdfb43ae7dc8bab))
+* **core:** stop stale machine textures after a resource reload ([507b8fe](https://github.com/Indemnity83/logistics/commit/507b8fe366843d9dd19513aa3f09da897875f429))
+* **crafting:** report a malformed byproduct chance as a recipe error ([a9e4724](https://github.com/Indemnity83/logistics/commit/a9e4724506a7b169f64fbaaa201c0701b5608588))
+* **energy:** power the new network right after a pipe split ([7caa48b](https://github.com/Indemnity83/logistics/commit/7caa48be3c0707e7f75c113a37d1a27ec06f718b))
+* **energy:** scale the Stirling charge gauge to the buffer size ([161714a](https://github.com/Indemnity83/logistics/commit/161714a53273a6dc4e40a6b360102204456b23a8))
+* **energy:** stop batteries draining each other ([#1242](https://github.com/Indemnity83/logistics/issues/1242)) ([4b23f3a](https://github.com/Indemnity83/logistics/commit/4b23f3aeb45f4acfad0fb8c93f2fe0a3be20c969))
+* **energy:** stop cables drawing a wrong connection arm ([bdbfc39](https://github.com/Indemnity83/logistics/commit/bdbfc3929d20903ec8fe2d2aac216383ddee5a86))
+* **fluids:** show correct tank amounts above 32,767 mB ([f78b905](https://github.com/Indemnity83/logistics/commit/f78b905ddb7437a73345de91ea1c75ef94da2a85))
+* **neoforge:** report a wrapped mod inventory's real slot capacity ([f7def7a](https://github.com/Indemnity83/logistics/commit/f7def7ad0948d032c3863a3e1de18385991e229c))
+* **quarry:** animate the arm at the real tick rate ([c533674](https://github.com/Indemnity83/logistics/commit/c5336748b1897f97fa20d4a0cd93d44b51aed9e4))
+* **quarry:** pick up loose items around the laser head ([#1241](https://github.com/Indemnity83/logistics/issues/1241)) ([519f6ad](https://github.com/Indemnity83/logistics/commit/519f6ad6ad073a7456f1d03f4f3776264112d01a))
+* **quarry:** resume block break progress after a reload ([2f4cc5e](https://github.com/Indemnity83/logistics/commit/2f4cc5eb03fd8a327fc525a49434d8ba03b38e0f))
+* **routing:** send items and fluids to the nearest matching destination ([43e7bee](https://github.com/Indemnity83/logistics/commit/43e7beec95856c5ea3bade5c8b3a830faa6a925d))
+* **ui:** show the server's config values on multiplayer clients ([197f7ca](https://github.com/Indemnity83/logistics/commit/197f7ca20b92548575c4548e4d46f10f139ad343))
+* **worldgen:** stop oil seeps erasing nearby oil deposits ([#1180](https://github.com/Indemnity83/logistics/issues/1180)) ([af6b5ce](https://github.com/Indemnity83/logistics/commit/af6b5ceded7bff6e56208c122a02ed0e6b4c0f43))
+
 ## [0.8.8](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.7...mc26.2-v0.8.8) (2026-09-09)
 
 
