@@ -15,6 +15,12 @@ Once you've built your first network, these pages explain how everything works:
 * '''[[Connectivity]]''' - Connection rules between pipes and inventories.
 * '''[[Routing]]''' - How items choose their paths at junctions.
 
+==On the map==
+
+Logistics blocks are drawn on {{Mcw|Map|maps}} in their own colours, so a base, an ore patch or a stretch of oil-bearing ground can be picked out from a map rather than only on the ground. Ores, machines, engines, storage blocks and the oil sands and shale all show up.
+
+Pipes and [[Cables|cables]] deliberately do not. They are thin, see-through blocks, and drawing them would hide the ground underneath. The [[Power Junction]] is the one exception in that family, because it is a solid cube. [[Marker|Markers]], [[Quartz Crystal]] and [[Laser Quarry|quarry]] frame blocks are left off for the same reason.
+
 ==Next Steps==
 
 * '''[[Pipes]]''' - Browse every available pipe type.

@@ -44,6 +44,12 @@ Tanks placed in a vertical column form one logical reservoir whose capacity is t
 
 Buffer the output of a [[Fluid Pump|Pump]] or [[Fluid Extractor Pipe]] before feeding it onward, and because each tank holds one fluid type, keep separate columns for different fluids. Use an [[Insertion Fluid Pipe]] or [[Merger Fluid Pipe]] to control how fluid enters the tank.
 
+=== Comparator output ===
+
+A {{Mcw|Redstone Comparator|comparator}} placed against a tank reads how full it is, from 0 to 15; a full tank reads 15.
+
+The reading covers the '''whole column''', not just the block the comparator touches. That matters because a column fills bottom-up: one tank's worth of fluid in a four-tall column fills the bottom tank completely, and a per-block reading would report a full 15 for a reservoir that is only a quarter full. Reading the column means the signal tracks what the reservoir actually holds, wherever you attach the comparator.
+
 == Data values ==
 
 === ID ===
@@ -53,7 +59,8 @@ Buffer the output of a [[Fluid Pump|Pump]] or [[Fluid Extractor Pipe]] before fe
 == History ==
 
 {{History|head=1|v0.7.3|[[File:Grid Glass Tank.png|32px]] Added '''Glass Tank'''.}}
-{{History|foot=1|v0.8.8|The fill level now animates smoothly at any frame rate instead of stepping with the server tick.}}
+{{History|v0.8.8|The fill level now animates smoothly at any frame rate instead of stepping with the server tick.}}
+{{History|foot=1|v0.8.9|A comparator now reads a tank column's fill level. Tank amounts above 32,767 mB display correctly.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system

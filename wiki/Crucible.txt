@@ -78,7 +78,8 @@ Recipes appear in the Just Enough Items (JEI) viewer. Amounts are the millibucke
 
 {{History|head=1|v0.8.2|[[File:Grid Crucible.png|32px]] Added '''Crucible'''.}}
 {{History|v0.8.7|The progress gauge is now drawn as a falling droplet.}}
-{{History|foot=1|v0.8.8|The input slot now refuses items no loaded recipe can melt, so a wrongly-routed item can no longer jam the machine.}}
+{{History|v0.8.8|The input slot now refuses items no loaded recipe can melt, so a wrongly-routed item can no longer jam the machine.}}
+{{History|foot=1|v0.8.9|The fill gauge now scales to the tank size the server is configured for, instead of assuming the default.}}
 
 == See also ==
 

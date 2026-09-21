@@ -13,6 +13,15 @@ The '''Power Junction''' is the single point where electrical power enters a [[L
 
 == Obtaining ==
 
+=== Breaking ===
+
+The Power Junction is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Power Junction |icon1=Grid Power Junction.png |hardness1=3
+}}
+
 === Crafting ===
 
 {{Crafting|head=1|foot=1|showname=0
@@ -40,7 +49,8 @@ The front face shows a charge indicator that fills as the buffer charges. Run yo
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.0|[[File:Grid Power Junction.png|32px]] Added '''Power Junction'''.}}
+{{History|head=1|v0.8.0|[[File:Grid Power Junction.png|32px]] Added '''Power Junction'''.}}
+{{History|foot=1|v0.8.9|The Power Junction can now be mined. It previously dropped nothing whatever it was broken with; it now drops with a stone pickaxe or better. It is also the one block in the pipe family drawn on a map.}}
 
 == See also ==
 

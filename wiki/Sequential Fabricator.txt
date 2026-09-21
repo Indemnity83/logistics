@@ -62,7 +62,8 @@ Chipsets are built from redstone and one tier material; the RF cost climbs with 
 == History ==
 
 {{History|head=1|v0.8.3|[[File:Grid Sequential Fabricator.png|32px]] Added '''Sequential Fabricator'''.}}
-{{History|foot=1|v0.8.8|A queued chipset now stays listed while its materials are missing, so a stalled order can be cancelled. A craft that fails no longer consumes its ingredients.}}
+{{History|v0.8.8|A queued chipset now stays listed while its materials are missing, so a stalled order can be cancelled. A craft that fails no longer consumes its ingredients.}}
+{{History|foot=1|v0.8.9|A recipe with a malformed byproduct chance is now reported as a recipe error instead of failing silently.}}
 
 == See also ==
 

@@ -13,7 +13,7 @@ content anymore; ignore any lingering references to Zensical, `zensical.toml`, o
 
 ## Relationship to the mod
 - **This worktree**: branch `docs` — wiki source only (`wiki/`, `tools/`, `redirect/`, `.github/`). No mod code.
-- **Mod worktrees**: `../logistics-mc-26.2/` (primary/newest), plus `../logistics-mc-26.1`, `../logistics-mc-1.21.11`, `../logistics-mc-1.21.1`. These are the **source of truth** for recipes, IDs, lang strings, worldgen, and mechanics — read them (data JSON + `assets/logistics/lang/en_us.json` + Java) rather than guessing. New content lands on `mc/26.2` first; when documenting it, read and render against `../logistics-mc-26.2`.
+- **Mod worktrees**: `../logistics-mc-26.3/` (primary/newest), plus `../logistics-mc-26.2`, `../logistics-mc-26.1`, `../logistics-mc-1.21.11`, `../logistics-mc-1.21.1`. These are the **source of truth** for recipes, IDs, lang strings, worldgen, and mechanics — read them (data JSON + `assets/logistics/lang/en_us.json` + Java) rather than guessing. New content lands on `mc/26.3` first; when documenting it, read and render against `../logistics-mc-26.3` — and read it **at the release tag**, not at branch HEAD, or you will document changes that have not shipped.
 
 ## Repository layout (docs branch)
 ```
@@ -50,14 +50,14 @@ All are plain Python 3 (stdlib; the icon tools also use Pillow). See `tools/READ
 - **`render_blocks.py`** — 3D isometric **block** icons from the mod's block/item models. Single
   model: `--model block/automation/crucible --out "wiki/media/Grid Crucible.png"`; `--batch` renders
   all; `--rot rx,ry,rz` overrides the default GUI rotation. Point `--assets` at a mod worktree's
-  `assets/logistics` (default is 26.1 — pass `../logistics-mc-26.2/.../assets/logistics` for new content).
+  `assets/logistics` (default is 26.1 — pass `../logistics-mc-26.3/.../assets/logistics` for new content).
 - **`upscale_icons.py`** — flat **item** sprite icons (nearest-neighbor upscale; PIL fallback for
   palette/grayscale PNGs). `NAME_OVERRIDES` renames, `SKIP_ITEMS` excludes (e.g. fluid buckets).
 - **`vanilla_icons.py`** — vanilla Minecraft ingredient icons, only the referenced-but-missing ones,
   from a Minecraft client jar's `assets/minecraft` (`--assets`).
 - **`fluid_icons.py`** — per custom fluid, emits three assets: `Grid <Fluid>.png` (static swatch,
   recipe-list icon), `Fluid <Fluid>.gif` (animated hero for the infobox), `Bucket of <Fluid>.png`
-  (the filled-bucket item). Renders against 26.2 fluid textures.
+  (the filled-bucket item). Renders against 26.3 fluid textures.
 - **`gen_item_links.py`** — regenerates `wiki/Module_ItemLink.txt` from the mod's `en_us.json` (the
   set of mod item/block/fluid display names). **Rerun when items are added.**
 
@@ -67,7 +67,7 @@ All are plain Python 3 (stdlib; the icon tools also use Pillow). See `tools/READ
   recipe grids show real sprites.
 - Fluids: animated `Fluid <Fluid>.gif` in the infobox `image`; bucket `Bucket of <Fluid>.png` in
   `image2`; the Crucible recipe **output** slot shows the animated gif (never the bucket).
-- Regenerate against the worktree that has the content (26.2 for the newest), write into
+- Regenerate against the worktree that has the content (26.3 for the newest), write into
   `wiki/media/`, then `--media --used-only`.
 - Fandom serves uploads as WebP — a CDN fetch returning `image/webp` is normal, not corruption. If a
   just-uploaded icon renders as a missing-file redlink that a purge/null-edit won't clear, force a
@@ -108,7 +108,7 @@ A typical item/block page: infobox → intro sentence (with links) → `== Obtai
   `Module:ItemLink` exists).
 
 ## Multi-version
-The mod ships for Minecraft 1.21.1, 1.21.11, 26.1, and 26.2 on Fabric & NeoForge. Document the
+The mod ships for Minecraft 1.21.1, 1.21.11, 26.1, 26.2, and 26.3 on Fabric & NeoForge. Document the
 **current behavior** and keep version numbers out of prose where possible — the Installation page is
 written version-agnostically and points at the download pages (Modrinth/CurseForge) as the source of
 truth for supported versions. Note version-specific differences only where they matter to a player.
@@ -116,7 +116,7 @@ truth for supported versions. Note version-specific differences only where they 
 ## Workflow
 1. `--pull --dry-run` to check for contributor drift; reconcile/commit any live edits first.
 2. Edit `wiki/*.txt`. Regenerate/refresh icons if new items were added
-   (`render_blocks`/`upscale_icons`/`vanilla_icons`/`fluid_icons` against `../logistics-mc-26.2`,
+   (`render_blocks`/`upscale_icons`/`vanilla_icons`/`fluid_icons` against `../logistics-mc-26.3`,
    plus `gen_item_links.py`).
 3. `--pull --dry-run` again (still clean), then `--pages` and `--media --used-only`.
 4. Optionally verify live via the API (`action=parse`) — check for Script errors, unexpanded
@@ -127,7 +127,7 @@ Pre-commit / pre-push hooks run `./gradlew` (Spotless) and **fail in this docs-o
 bypass with `git commit --no-verify` / `git push --no-verify`.
 
 ## Notes for Claude
-- Source material is the sibling mod worktrees (primarily `../logistics-mc-26.2`); read the data/lang, don't guess recipes or IDs.
+- Source material is the sibling mod worktrees (primarily `../logistics-mc-26.3`); read the data/lang, don't guess recipes or IDs.
 - Wiki-style, not guide-style: factual, concise, one page per thing, link everything.
 - When adding a machine with a new recipe shape, add a matching recipe-template family (wrapper +
   `Module` + `{{Grid <X> Table}}` widget + styles); keep new machine modules self-contained rather

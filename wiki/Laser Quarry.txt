@@ -14,10 +14,10 @@ The '''Laser Quarry''' is a powered mining machine that automatically excavates 
 
 === Breaking ===
 
-The Laser Quarry can be broken with any tool, though a pickaxe is fastest.
+The Laser Quarry is mined with a stone pickaxe or better; without one it drops nothing.
 
 {{Breaking
-|tier=none
+|tier=stone
 |name1=Laser Quarry |icon1=Grid Laser Quarry.png |hardness1=5
 }}
 
@@ -39,6 +39,8 @@ Free-standing fluid is skipped rather than mined, but a solid block that happens
 === Mining frame ===
 
 The quarry builds its own frame around the mining area before it starts, and tears that frame back down when the quarry block is removed. A frame block left over from an earlier quarry can be broken by hand; it drops nothing.
+
+The quarry also keeps the frame standing while it works. If part of the frame is destroyed, it pauses mining and rebuilds the gaps; if a block intrudes into the band the frame occupies, it pauses and clears that out instead. Both show in the quarry's readout as their own phases, so a quarry that looks stalled may simply be repairing itself.
 
 === Mining area ===
 
@@ -99,7 +101,8 @@ With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking
 {{History|head=1|v0.1.0|[[File:Grid Laser Quarry (v0.1.0).png|32px]] Added '''Laser Quarry'''.}}
 {{History|v0.7.4|Added an optional '''Keep chunks loaded''' setting so the quarry can mine unattended.}}
 {{History|v0.8.0|[[File:Grid Laser Quarry.png|32px]] The texture of the Laser Quarry has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
-{{History|foot=1|v0.8.8|Waterlogged blocks are now mined instead of skipped. The quarry no longer picks up loose items that were already on the ground. A quarry now removes its own frame when it is broken, and a leftover frame block can be broken by hand. A new quarry no longer inherits the arm position of one that stood in the same spot before it.}}
+{{History|v0.8.8|Waterlogged blocks are now mined instead of skipped. The quarry no longer picks up loose items that were already on the ground. A quarry now removes its own frame when it is broken, and a leftover frame block can be broken by hand. A new quarry no longer inherits the arm position of one that stood in the same spot before it.}}
+{{History|foot=1|v0.8.9|The quarry now repairs gaps punched in its standing frame and clears blocks that intrude into the frame band, pausing mining while it does either. Mining it now needs a stone pickaxe or better. The arm animates at the real tick rate, and break progress resumes after a world reload instead of restarting.}}
 
 == See also ==
 * [[Marker]] - Define a custom mining area

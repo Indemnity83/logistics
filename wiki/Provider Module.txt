@@ -35,7 +35,8 @@ Use this module when you want provider behavior combined with other module funct
 
 {{History|head=1|v0.2.0|[[File:Grid Provider Module (v0.2.0).png|32px]] Added '''Provider Module'''.}}
 {{History|v0.8.3|[[File:Grid Provider Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip; higher marks are separate upgrade crafts.}}
-{{History|foot=1|v0.8.8|A run of delivery fixes: a request now falls through to the next provider when one is fully reserved, a failed delivery no longer shrinks the advertised stock, a provider no longer drains the slot it reserved, an unpowered network no longer destroys the items it sent, and the MkII no longer ships the wrong item to a following order.}}
+{{History|v0.8.8|A run of delivery fixes: a request now falls through to the next provider when one is fully reserved, a failed delivery no longer shrinks the advertised stock, a provider no longer drains the slot it reserved, an unpowered network no longer destroys the items it sent, and the MkII no longer ships the wrong item to a following order.}}
+{{History|foot=1|v0.8.9|The slot a provider reserves is now protected by its index, so a shifting inventory cannot expose it.}}
 
 == See also ==
 * [[Provider Logistics Pipe]] - Standalone version of this behavior

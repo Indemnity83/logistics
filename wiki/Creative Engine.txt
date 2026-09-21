@@ -15,7 +15,7 @@ The '''Creative Engine''' is a power source that produces an unlimited supply of
 
 === Breaking ===
 
-The Creative Engine can be broken with any tool, though a pickaxe is fastest.
+The Creative Engine is mined with a pickaxe of any tier; without one it drops nothing.
 
 {{Breaking
 |tier=none

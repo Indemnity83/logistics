@@ -59,7 +59,8 @@ The [[Macerator]] extracts [[Bitumen]] from it, with a chance of flint:
 == History ==
 
 {{History|head=1|v0.8.2|[[File:Grid Oil Shale.png|32px]] Added '''Oil Shale'''.}}
-{{History|foot=1|v0.8.7|Can now be made in a [[Transposer]] by soaking gravel in [[Crude Oil]].}}
+{{History|v0.8.7|Can now be made in a [[Transposer]] by soaking gravel in [[Crude Oil]].}}
+{{History|foot=1|v0.8.9|An oil seep no longer erases oil deposits generated nearby.}}
 
 == See also ==
 

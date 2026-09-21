@@ -1,6 +1,6 @@
 {{Item
 |image     = Grid Sawdust.png
-|type      = Item (Material)
+|type      = Item (Fuel)
 |stackable = Yes (64)
 |added     = v0.8.0
 }}
@@ -28,7 +28,11 @@ Every [[Sawmill]] recipe also drops Sawdust as a byproduct — guaranteed from l
 
 == Usage ==
 
-Sawdust has no crafting, smelting, or machine recipes — nothing currently consumes it.
+=== Fuel ===
+
+Sawdust burns in a furnace. Each piece burns for 100 ticks — a sixteenth of coal — so it takes two to smelt a single item. That makes it a way to get some value back from the Sawdust the [[Sawmill]] produces as a byproduct, rather than a fuel worth making on purpose.
+
+Nothing else consumes Sawdust: it has no crafting or machine recipes.
 
 == Data values ==
 
@@ -38,7 +42,8 @@ Sawdust has no crafting, smelting, or machine recipes — nothing currently cons
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.0|Renamed from '''Wood Pulp''' to '''Sawdust'''.}}
+{{History|head=1|v0.8.0|Renamed from '''Wood Pulp''' to '''Sawdust'''.}}
+{{History|foot=1|v0.8.9|Sawdust now burns as a furnace fuel, for 100 ticks a piece.}}
 
 == See also ==
 
