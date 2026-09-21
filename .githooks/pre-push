@@ -40,6 +40,22 @@ report_failure() {
     echo "  (To bypass in an emergency: git push --no-verify)"
 }
 
+# Branches with no Gradle build are exempt from both checks below.
+#
+# The hooks install into the shared .git/hooks, so every worktree gets them --
+# including `docs`, which holds wiki source and no Java at all. Without this,
+# every push from there dies on a missing ./gradlew and has to be forced through
+# with --no-verify, which is the habit these hooks exist to avoid.
+#
+# Keyed on ./gradlew rather than on gradle.properties on purpose. A missing
+# property file is a config problem on a branch that *does* build, and the check
+# below deliberately falls through and runs anyway so that can never silently
+# disable anything. A missing wrapper means there is no build to run at all.
+if [ ! -x ./gradlew ]; then
+    echo "No ./gradlew in this worktree; skipping pre-push checks."
+    exit 0
+fi
+
 # Pre-release branches are exempt from both checks below.
 #
 # A branch is pre-release when its minecraft_version carries a qualifier, e.g.
