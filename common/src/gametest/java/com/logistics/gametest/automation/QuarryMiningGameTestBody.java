@@ -1200,9 +1200,7 @@ public class QuarryMiningGameTestBody {
             remaining -= inserted;
         }
 
-        // Dropped at the arm itself once mining is under way, rather than at a fixed spot the arm is
-        // expected to reach later. Waiting on the mining schedule to bring the arm within range made
-        // this flaky roughly one run in eight, and that schedule is not what this test is about.
+        // Drop the stack at the arm's current position so collection doesn't depend on mining order.
         context.runAfterDelay(60, () -> {
             if (quarry.getCurrentPhase() != QuarryPhase.MINING) {
                 context.fail("Expected MINING before dropping a stack by the arm, got: "
