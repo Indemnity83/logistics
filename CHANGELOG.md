@@ -24,7 +24,6 @@
 ### Fixed
 
 * **automation:** scale the Crucible gauge by the server's tank size ([d2803a8](https://github.com/Indemnity83/logistics/commit/d2803a8a3122ccbb08171f2dcd9f92101543501b))
-* **ci:** create the mods directory before test workers fork ([#1237](https://github.com/Indemnity83/logistics/issues/1237)) ([e159e12](https://github.com/Indemnity83/logistics/commit/e159e1241431ccc8dc9e299cb3c090eef582baa5))
 * **common:** stop pickaxes destroying blocks they should harvest ([f38123f](https://github.com/Indemnity83/logistics/commit/f38123fa9b1391e610b8a3d72138a20fbf39b76d))
 * **crafting:** report a malformed byproduct chance as a recipe error ([3bcedae](https://github.com/Indemnity83/logistics/commit/3bcedae1cd98565a5a9adda73af290d4b3b8db35))
 * **energy:** power the new network right after a pipe split ([3d60177](https://github.com/Indemnity83/logistics/commit/3d60177f234491f35ca1f5eea76afe6cc8f039ed))
