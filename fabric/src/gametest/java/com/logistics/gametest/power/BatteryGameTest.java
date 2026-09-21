@@ -50,4 +50,10 @@ public class BatteryGameTest {
     public void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
         BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
     }
+
+    /** A bank of batteries on one cable empties together rather than one at a time. */
+    @GameTest(maxTicks = 70)
+    public void testBatteriesOnOneCableDrainEvenly(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableDrainEvenly(context);
+    }
 }
