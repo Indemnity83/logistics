@@ -50,4 +50,10 @@ public class BatteryGameTest {
     public void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
         BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
     }
+
+    /** A bank of batteries on one cable charges together rather than one at a time. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testBatteriesOnOneCableFillEvenly(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableFillEvenly(context);
+    }
 }
