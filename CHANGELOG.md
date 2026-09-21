@@ -10,8 +10,6 @@
 
 ### Fixed
 
-* **ci:** create the mods directory before test workers fork ([#1237](https://github.com/Indemnity83/logistics/issues/1237)) ([e8b3fde](https://github.com/Indemnity83/logistics/commit/e8b3fde68225043f74d47211b849bbfc755f47c6))
-* **ci:** stop the menu blur stalling the client feature tests ([#1236](https://github.com/Indemnity83/logistics/issues/1236)) ([4f100a9](https://github.com/Indemnity83/logistics/commit/4f100a9e7485eee7c5b5eca92ed3ce2df143ea57))
 * **energy:** stop batteries draining each other ([#1242](https://github.com/Indemnity83/logistics/issues/1242)) ([a4a77db](https://github.com/Indemnity83/logistics/commit/a4a77db10ef4473fc9c211899d058349f5fecaf4))
 * **quarry:** pick up loose items around the laser head ([#1241](https://github.com/Indemnity83/logistics/issues/1241)) ([a560ca8](https://github.com/Indemnity83/logistics/commit/a560ca8825935adee32cf8f3c0460b93740f197a))
 
