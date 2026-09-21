@@ -1163,7 +1163,7 @@ public class QuarryMiningGameTestBody {
     public static void testRunningQuarryCollectsLooseItemsAroundItsArm(GameTestHelper context) {
         BlockPos quarryPos = new BlockPos(1, 2, 1);
         BlockPos chestPos = new BlockPos(1, 3, 1);
-        BlockPos litterPos = new BlockPos(1, 1, 3); // inside the 1x1 inner mining area
+        BlockPos minedPos = new BlockPos(1, 1, 3); // inside the 1x1 inner mining area
 
         for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
             for (int dx = -1; dx <= 1; dx++) {
@@ -1173,8 +1173,8 @@ public class QuarryMiningGameTestBody {
             }
         }
 
-        // Something to mine in that column, so the arm actually travels there.
-        context.setBlock(litterPos, Blocks.DIRT);
+        // Something to mine, so the quarry is genuinely working while the stack is dropped.
+        context.setBlock(minedPos, Blocks.DIRT);
         context.setBlock(chestPos, Blocks.CHEST);
         context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
 
@@ -1200,8 +1200,17 @@ public class QuarryMiningGameTestBody {
             remaining -= inserted;
         }
 
-        // Nothing the quarry broke -- just a stack lying where the arm will be working.
-        context.spawnItem(Items.DIAMOND, litterPos);
+        // Drop the stack at the arm's current position so collection doesn't depend on mining order.
+        context.runAfterDelay(60, () -> {
+            if (quarry.getCurrentPhase() != QuarryPhase.MINING) {
+                context.fail("Expected MINING before dropping a stack by the arm, got: "
+                        + quarry.getCurrentPhase());
+                return;
+            }
+            BlockPos atArm = new BlockPos((int) quarry.getArmX(), (int) quarry.getArmY(), (int) quarry.getArmZ())
+                    .subtract(context.absolutePos(BlockPos.ZERO));
+            context.spawnItem(Items.DIAMOND, atArm);
+        });
 
         context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND));
     }
