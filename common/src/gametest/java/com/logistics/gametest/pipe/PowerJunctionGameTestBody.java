@@ -1,13 +1,17 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPower;
+import com.logistics.automation.kiln.KilnBlockEntity;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
+import com.logistics.power.block.entity.BatteryBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -246,5 +250,87 @@ public class PowerJunctionGameTestBody {
             }
             context.succeed();
         });
+    }
+
+    /**
+     * A cable may fill a junction but never empty one. The junction's buffer carries a non-zero
+     * {@code maxOutput} so the logistics network can pace how fast it drains -- but that extraction
+     * is reached through {@code NetworkEnergySupplier}, not through the energy capability the world
+     * sees, so the cable network cannot list the junction as a source. Once RF is in a junction it is
+     * the pipe network's to spend.
+     *
+     * <p>Measured on a machine rather than on the junction's own balance. A leak into a battery is
+     * pushed straight back within the same tick, so both endpoints read unchanged between ticks while
+     * the charge churns; a machine simply keeps what it is given, so it records the leak honestly.
+     *
+     * <p>Runs in two phases so the second is a control for the first. Same cable, same machine --
+     * only the power source changes: a full junction must not run the machine, and a charged battery
+     * must. Without the control the test would pass just as well if the cable never connected them.
+     */
+    public static void testCableCannotDrainTheJunction(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 0);
+        BlockPos junctionPos = new BlockPos(0, 1, 0);
+        BlockPos machinePos = new BlockPos(2, 1, 0);
+        BlockPos batteryPos = new BlockPos(1, 2, 0);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(machinePos, LogisticsAutomation.BLOCK.KILN);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+
+        PowerJunctionBlockEntity junction = (PowerJunctionBlockEntity) context.getBlockEntity(junctionPos);
+        KilnBlockEntity machine = (KilnBlockEntity) context.getBlockEntity(machinePos);
+        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(batteryPos);
+        if (junction == null || machine == null || battery == null) {
+            context.fail("Expected a junction, a machine and a battery");
+            return;
+        }
+
+        // Phase 1: the junction is the only thing on the cable holding any charge.
+        if (!setJunctionStored(context, junction, PowerJunctionBlockEntity.CAPACITY)) return;
+        setBatteryStored(battery, 0);
+
+        context.runAfterDelay(21, () -> {
+            long powered = machine.energyStorage(null).getAmount();
+            if (powered != 0) {
+                context.fail("A full junction powered a machine across the cable with " + powered
+                        + " RF; energy in a junction belongs to the pipe network");
+                return;
+            }
+            // Phase 2 control: swap the source. The same cable and machine must still work.
+            setBatteryStored(battery, BatteryBlockEntity.capacity());
+        });
+
+        context.runAfterDelay(60, () -> {
+            if (machine.energyStorage(null).getAmount() <= 0) {
+                context.fail("A charged battery should still power the machine across the cable, so this "
+                        + "test proves nothing about the junction being refused as a source");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * Drives the junction's buffer to {@code amount} through its own rate-capped insert/extract, since
+     * neither view it exposes is the raw {@link EnergyComponent}.
+     */
+    private static boolean setJunctionStored(GameTestHelper context, PowerJunctionBlockEntity junction, long amount) {
+        IEnergyStorage in = junction.energyStorage(null);
+        IEnergyStorage out = junction.networkEnergyStorage();
+        for (int step = 0; step < 100_000; step++) {
+            long current = in.getAmount();
+            if (current == amount) return true;
+            long moved = current < amount
+                    ? in.insert(amount - current, false)
+                    : out.extract(current - amount, false);
+            if (moved <= 0) break;
+        }
+        context.fail("Could not drive the junction buffer to " + amount + " RF, stuck at " + in.getAmount());
+        return false;
+    }
+
+    private static void setBatteryStored(BatteryBlockEntity battery, long amount) {
+        ((EnergyComponent) battery.energyStorage(null)).setAmount(amount);
     }
 }

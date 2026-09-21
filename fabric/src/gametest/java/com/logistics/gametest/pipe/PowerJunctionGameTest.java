@@ -46,4 +46,10 @@ public class PowerJunctionGameTest {
     public void testQuarryArmIsNotTreatedAsPower(GameTestHelper context) {
         PowerJunctionGameTestBody.testQuarryArmIsNotTreatedAsPower(context);
     }
+
+    /** A cable may fill a junction but never empty one. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 110)
+    public void testCableCannotDrainTheJunction(GameTestHelper context) {
+        PowerJunctionGameTestBody.testCableCannotDrainTheJunction(context);
+    }
 }

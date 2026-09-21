@@ -49,6 +49,12 @@ public final class PowerJunctionGameTestRegistration {
         PowerJunctionGameTestBody.testQuarryArmIsNotTreatedAsPower(context);
     }
 
+    /** A cable may fill a junction but never empty one. */
+    @GameTest(template = "empty", batch = "powerjunction", timeoutTicks = 110)
+    public static void testCableCannotDrainTheJunction(GameTestHelper context) {
+        PowerJunctionGameTestBody.testCableCannotDrainTheJunction(context);
+    }
+
     /** A junction must power the network it now belongs to as soon as a split creates it. */
     @GameTest(template = "empty", batch = "powerjunction", timeoutTicks = 80)
     public static void testJunctionPowersNewNetworkAfterSplit(GameTestHelper context) {
