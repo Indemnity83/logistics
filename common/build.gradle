@@ -40,6 +40,14 @@ loom {
     accessWidenerPath = file("src/main/resources/logistics.accesswidener")
 }
 
+// Loom registers runClient/runServer in every project it is applied to, but there is no mod here
+// to launch: the client dies in mixin transformation, and an unqualified `./gradlew runClient` at
+// the root fans out and takes the whole invocation down with it. Disable rather than fix — a run
+// from :common has no meaning even when it starts.
+tasks.matching { it.name in ['runClient', 'runServer'] }.configureEach {
+    enabled = false
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
     mappings loom.officialMojangMappings()

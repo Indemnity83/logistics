@@ -437,6 +437,22 @@ tasks.register('featureTest') {
     dependsOn 'featureTestFabric', 'featureTestNeoForge'
 }
 
+// Loom and ModDev each register runClient/runServer, so an unqualified `./gradlew runClient` runs
+// the task in *every* subproject that has one. That launches one Minecraft per loader at once --
+// and for runServer, two dev servers racing for port 25565. Neither is ever what was meant, and a
+// window you did not ask for is a window you can verify the wrong thing in. Refuse, and name the
+// loader. Disabled tasks (:common disables both) are in the graph but never run, so they do not count.
+gradle.taskGraph.whenReady { graph ->
+    ['runClient', 'runServer'].each { taskName ->
+        def scheduled = graph.allTasks.findAll { it.name == taskName && it.enabled }
+        if (scheduled.size() > 1) {
+            throw new GradleException(
+                    "`${taskName}` matches ${scheduled.collect { it.path }.join(' and ')}, which would " +
+                    "start one Minecraft per loader. Name the one you want, e.g. `./gradlew :fabric:${taskName}`.")
+        }
+    }
+}
+
 tasks.register('testCoverage', JacocoReport) {
     description = 'Generate an aggregate unit test coverage report'
     group = 'verification'
