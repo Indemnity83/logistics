@@ -169,15 +169,27 @@ public class QuarryMiningGameTest {
         QuarryMiningGameTestBody.testQuarryCollectsBrokenContainerContents(context);
     }
 
-    /** Breaking a non-container leaves items already lying on the ground where they are. */
+    /** Loose items lying around the laser head are collected, whatever produced them. */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 30)
-    public void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryLeavesLooseItemsWhenBreakingANonContainer(context);
+    public void testQuarryCollectsLooseItemsAroundTheArm(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryCollectsLooseItemsAroundTheArm(context);
     }
 
-    /** A container's spill is collected; a stack already lying beside it is not. */
+    /** Items well away from the laser head are left alone. */
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 30)
-    public void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryLeavesLooseItemsLyingBesideABrokenContainer(context);
+    public void testQuarryLeavesItemsAwayFromTheArmAlone(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryLeavesItemsAwayFromTheArmAlone(context);
+    }
+
+    /** A shulker box keeps its contents in the item it drops; the quarry must not empty it. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 30)
+    public void testQuarryDoesNotEmptyABrokenShulkerBox(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryDoesNotEmptyABrokenShulkerBox(context);
+    }
+
+    /** A running quarry collects a stack lying by its arm that it never broke. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 220)
+    public void testRunningQuarryCollectsLooseItemsAroundItsArm(GameTestHelper context) {
+        QuarryMiningGameTestBody.testRunningQuarryCollectsLooseItemsAroundItsArm(context);
     }
 }

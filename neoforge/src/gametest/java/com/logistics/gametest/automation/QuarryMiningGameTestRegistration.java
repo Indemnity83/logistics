@@ -155,17 +155,7 @@ public final class QuarryMiningGameTestRegistration {
         QuarryMiningGameTestBody.testQuarryCollectsBrokenContainerContents(context);
     }
 
-    /** Breaking a non-container leaves items already lying on the ground where they are. */
-    @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 30)
-    public static void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryLeavesLooseItemsWhenBreakingANonContainer(context);
-    }
 
-    /** A container's spill is collected; a stack already lying beside it is not. */
-    @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 30)
-    public static void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
-        QuarryMiningGameTestBody.testQuarryLeavesLooseItemsLyingBesideABrokenContainer(context);
-    }
 
     /** A frame slot a player broke must be rebuilt, and mining must resume where it left off. */
     @GameTest(template = "empty", batch = "quarry", timeoutTicks = 220)
@@ -194,5 +184,29 @@ public final class QuarryMiningGameTestRegistration {
     @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 220)
     public static void testQuarryMinesWaterloggedBlock(GameTestHelper context) {
         QuarryMiningGameTestBody.testQuarryMinesWaterloggedBlock(context);
+    }
+
+    /** Loose items lying around the laser head are collected, whatever produced them. */
+    @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 30)
+    public static void testQuarryCollectsLooseItemsAroundTheArm(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryCollectsLooseItemsAroundTheArm(context);
+    }
+
+    /** Items well away from the laser head are left alone. */
+    @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 30)
+    public static void testQuarryLeavesItemsAwayFromTheArmAlone(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryLeavesItemsAwayFromTheArmAlone(context);
+    }
+
+    /** A shulker box keeps its contents in the item it drops; the quarry must not empty it. */
+    @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 30)
+    public static void testQuarryDoesNotEmptyABrokenShulkerBox(GameTestHelper context) {
+        QuarryMiningGameTestBody.testQuarryDoesNotEmptyABrokenShulkerBox(context);
+    }
+
+    /** A running quarry collects a stack lying by its arm that it never broke. */
+    @GameTest(template = "empty", batch = "quarrymining", timeoutTicks = 220)
+    public static void testRunningQuarryCollectsLooseItemsAroundItsArm(GameTestHelper context) {
+        QuarryMiningGameTestBody.testRunningQuarryCollectsLooseItemsAroundItsArm(context);
     }
 }

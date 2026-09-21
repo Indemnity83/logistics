@@ -16,6 +16,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +36,9 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     private final int breakingEntityId;
     private final QuarryEnergyPolicy energyPolicy;
     private final QuarryOutput output;
+
+    /** How big a box the laser head picks loose items up from. */
+    private static final double LOOSE_ITEM_SWEEP_SIZE = 5.0;
 
     private final QuarryBounds bounds = new QuarryBounds();
     private final ArmController armController = new ArmController();
@@ -76,6 +81,8 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
 
             phaseRunner.tick(this);
 
+            collectLooseItems(context);
+
             // Idle power consumption: 1 RF every 4 ticks (5 RF/second) to slowly drain buffer.
             if (context.level().getGameTime() % 4 == 0 && energyPolicy.stored() > 0) {
                 energyPolicy.drainIdle(1);
@@ -93,6 +100,28 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
         } finally {
             this.ctx = null;
         }
+    }
+
+    /**
+     * Picks up loose items around the laser head, every tick it runs.
+     *
+     * <p>A break does not always hand its items over on the spot: a container spills them as
+     * entities that an entity query cannot see until the server finishes making their chunk section
+     * visible, an item frame notices its wall is gone up to a hundred ticks later and pops off on
+     * the face of a block, dripstone takes a moment to fall. Sweeping where the laser is working
+     * collects all of it without the quarry having to predict any of it.
+     *
+     * <p>Every tick, not on a timer: the arm covers more ground between ticks than the box is wide,
+     * so anything less and it digs straight past what it was meant to pick up.
+     */
+    private void collectLooseItems(MachineContext context) {
+        if (!armController.isInitialized()) {
+            return;
+        }
+        Vec3 head = new Vec3(armController.getX(), armController.getY(), armController.getZ());
+        output.collectLooseItems(
+                (ServerLevel) context.level(),
+                AABB.ofSize(head, LOOSE_ITEM_SWEEP_SIZE, LOOSE_ITEM_SWEEP_SIZE, LOOSE_ITEM_SWEEP_SIZE));
     }
 
     /**

@@ -18,10 +18,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1041,70 +1044,180 @@ public class QuarryMiningGameTestBody {
         }
         container.setItem(0, new ItemStack(Items.DIAMOND));
 
-        mine(context, quarryPos, containerPos);
+        QuarryOutput output = mine(context, quarryPos, containerPos);
+        output.collectLooseItems(context.getLevel(), nearArm(context, containerPos));
 
         context.assertContainerContains(outputPos, Items.DIAMOND);
         context.succeed();
     }
 
-    /**
-     * Breaking anything that is not a container must leave the ground alone. A quarry frame block is
-     * used as the no-drop block because it has no loot table at all, so the case is deterministic;
-     * in real play the common triggers are leaves failing their sapling roll, grass and fire.
-     */
-    public static void testQuarryLeavesLooseItemsWhenBreakingANonContainer(GameTestHelper context) {
-        BlockPos quarryPos = new BlockPos(1, 1, 1);
-        BlockPos outputPos = quarryPos.above();
-        BlockPos targetPos = new BlockPos(3, 1, 1);
-        BlockPos droppedPos = new BlockPos(3, 1, 2);
 
-        context.setBlock(outputPos, Blocks.CHEST);
-        context.setBlock(targetPos, LogisticsAutomation.BLOCK.LASER_QUARRY_FRAME);
-        context.spawnItem(Items.DIAMOND, droppedPos);
-
-        mine(context, quarryPos, targetPos);
-
-        context.assertItemEntityPresent(Items.DIAMOND, droppedPos, 1.0);
-        context.assertContainerEmpty(outputPos);
-        context.succeed();
-    }
-
-    /**
-     * A container's spilled contents are the quarry's; anything that was already lying beside it is
-     * not. The same distinction covers the block entities that spill nothing at all — a bed, sign or
-     * spawner mined next to a dropped stack adds no items, so there is nothing for the quarry to take.
-     */
-    public static void testQuarryLeavesLooseItemsLyingBesideABrokenContainer(GameTestHelper context) {
-        BlockPos quarryPos = new BlockPos(1, 1, 1);
-        BlockPos outputPos = quarryPos.above();
-        BlockPos containerPos = new BlockPos(3, 1, 1);
-        BlockPos droppedPos = new BlockPos(3, 1, 2);
-
-        context.setBlock(outputPos, Blocks.CHEST);
-        context.setBlock(containerPos, Blocks.CHEST);
-
-        ChestBlockEntity container = context.getBlockEntity(containerPos) instanceof ChestBlockEntity chest
-                ? chest
-                : null;
-        if (container == null) {
-            context.fail("Expected a chest block entity at " + containerPos);
-            return;
-        }
-        container.setItem(0, new ItemStack(Items.DIAMOND));
-        context.spawnItem(Items.EMERALD, droppedPos);
-
-        mine(context, quarryPos, containerPos);
-
-        context.assertContainerContains(outputPos, Items.DIAMOND);
-        context.assertItemEntityPresent(Items.EMERALD, droppedPos, 1.0);
-        context.succeed();
-    }
 
     /** Mines {@code targetPos} exactly as the quarry would, routing output through {@code quarryPos}. */
-    private static void mine(GameTestHelper context, BlockPos quarryPos, BlockPos targetPos) {
+    private static QuarryOutput mine(GameTestHelper context, BlockPos quarryPos, BlockPos targetPos) {
         ServerLevel level = context.getLevel();
         BlockPos absTarget = context.absolutePos(targetPos);
-        QuarryBlockBreaker.mineBlock(
-                level, absTarget, level.getBlockState(absTarget), new QuarryOutput(context.absolutePos(quarryPos)));
+        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
+        QuarryBlockBreaker.mineBlock(level, absTarget, level.getBlockState(absTarget), output);
+        return output;
     }
+    /**
+     * Items turn up in a quarry's pit long after, and some distance from, the break that produced
+     * them: an item frame only notices its wall is gone up to a hundred ticks later, dripstone takes
+     * a moment to fall. The quarry does not try to predict any of that -- it picks up what is lying
+     * around the laser head, including anything a player left there.
+     */
+    public static void testQuarryCollectsLooseItemsAroundTheArm(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 1, 1);
+        BlockPos outputPos = quarryPos.above();
+        BlockPos droppedPos = new BlockPos(3, 1, 1);
+
+        context.setBlock(outputPos, Blocks.CHEST);
+        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
+
+        // Nothing to do with any break of the quarry's, and it arrives well after one.
+        context.spawnItem(Items.DIAMOND, droppedPos);
+        output.collectLooseItems(context.getLevel(), nearArm(context, droppedPos));
+
+        context.assertContainerContains(outputPos, Items.DIAMOND);
+        context.assertItemEntityNotPresent(Items.DIAMOND);
+        context.succeed();
+    }
+
+    /** The arm only reaches so far: a stack lying well away from the laser head is left alone. */
+    public static void testQuarryLeavesItemsAwayFromTheArmAlone(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 1, 1);
+        BlockPos outputPos = quarryPos.above();
+        BlockPos insidePos = new BlockPos(3, 1, 1);
+        BlockPos outsidePos = new BlockPos(5, 1, 1);
+
+        context.setBlock(outputPos, Blocks.CHEST);
+        QuarryOutput output = new QuarryOutput(context.absolutePos(quarryPos));
+
+        context.spawnItem(Items.EMERALD, outsidePos);
+        output.collectLooseItems(context.getLevel(), nearArm(context, insidePos));
+
+        if (countInOutput(context, outputPos, Items.EMERALD) != 0) {
+            context.fail("The quarry reached well past the laser head for an emerald");
+            return;
+        }
+        context.assertItemEntityPresent(Items.EMERALD, outsidePos, 1.0);
+        context.succeed();
+    }
+
+    /**
+     * A shulker box carries its contents in the item it drops rather than spilling them, so there is
+     * nothing loose to collect. Emptying it would hand the player both the filled box and a second
+     * copy of everything inside it.
+     */
+    public static void testQuarryDoesNotEmptyABrokenShulkerBox(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 1, 1);
+        BlockPos outputPos = quarryPos.above();
+        BlockPos shulkerPos = new BlockPos(3, 1, 1);
+
+        context.setBlock(outputPos, Blocks.CHEST);
+        context.setBlock(shulkerPos, Blocks.SHULKER_BOX);
+
+        ShulkerBoxBlockEntity shulker = (ShulkerBoxBlockEntity) context.getBlockEntity(shulkerPos);
+        if (shulker == null) {
+            context.fail("Expected a shulker box block entity at " + shulkerPos);
+            return;
+        }
+        shulker.setItem(0, new ItemStack(Items.DIAMOND, 3));
+
+        QuarryOutput output = mine(context, quarryPos, shulkerPos);
+        output.collectLooseItems(context.getLevel(), nearArm(context, shulkerPos));
+
+        if (countInOutput(context, outputPos, Items.DIAMOND) != 0) {
+            context.fail("The shulker box's contents were duplicated as loose diamonds");
+            return;
+        }
+        if (countInOutput(context, outputPos, Items.SHULKER_BOX) != 1) {
+            context.fail("Expected exactly one shulker box in the output");
+            return;
+        }
+        context.assertItemEntityNotPresent(Items.DIAMOND);
+        context.succeed();
+    }
+
+    /**
+     * The real thing, ticking: a stack lying where a running quarry's arm is working is collected
+     * without the quarry having broken anything to produce it. This is what proves the sweep is
+     * actually wired into the quarry's tick rather than merely implemented.
+     */
+    public static void testRunningQuarryCollectsLooseItemsAroundItsArm(GameTestHelper context) {
+        BlockPos quarryPos = new BlockPos(1, 2, 1);
+        BlockPos chestPos = new BlockPos(1, 3, 1);
+        BlockPos minedPos = new BlockPos(1, 1, 3); // inside the 1x1 inner mining area
+
+        for (int dy = 0; dy <= LaserQuarryGeometry.Y_OFFSET_ABOVE; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = 1; dz <= 3; dz++) {
+                    context.setBlock(quarryPos.offset(dx, dy, dz), Blocks.AIR);
+                }
+            }
+        }
+
+        // Something to mine, so the quarry is genuinely working while the stack is dropped.
+        context.setBlock(minedPos, Blocks.DIRT);
+        context.setBlock(chestPos, Blocks.CHEST);
+        context.setBlock(quarryPos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+
+        LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(quarryPos);
+        if (quarry == null) {
+            context.fail("Expected LaserQuarryBlockEntity at " + quarryPos);
+            return;
+        }
+
+        BlockPos absPos = context.absolutePos(quarryPos);
+        quarry.setCustomBounds(
+                absPos.getX() - 1, absPos.getZ() + 1,
+                absPos.getX() + 1, absPos.getZ() + 3);
+
+        IEnergyStorage es = quarry.energyStorage(Direction.DOWN);
+        long remaining = QuarryEnergy.energyCapacity();
+        while (remaining > 0) {
+            long inserted = es.insert(remaining, false);
+            if (inserted == 0) {
+                context.fail("Failed to fill quarry energy: insert returned 0 with " + remaining + " RF remaining");
+                return;
+            }
+            remaining -= inserted;
+        }
+
+        // Drop the stack at the arm's current position so collection doesn't depend on mining order.
+        context.runAfterDelay(60, () -> {
+            if (quarry.getCurrentPhase() != QuarryPhase.MINING) {
+                context.fail("Expected MINING before dropping a stack by the arm, got: "
+                        + quarry.getCurrentPhase());
+                return;
+            }
+            BlockPos atArm = new BlockPos((int) quarry.getArmX(), (int) quarry.getArmY(), (int) quarry.getArmZ())
+                    .subtract(context.absolutePos(BlockPos.ZERO));
+            context.spawnItem(Items.DIAMOND, atArm);
+        });
+
+        context.succeedWhen(() -> context.assertContainerContains(chestPos, Items.DIAMOND));
+    }
+
+    /** A stand-in for the box the laser head sweeps, covering just {@code around}. */
+    private static AABB nearArm(GameTestHelper context, BlockPos around) {
+        return new AABB(context.absolutePos(around)).inflate(0.5);
+    }
+
+    private static int countInOutput(GameTestHelper context, BlockPos outputPos, Item item) {
+        ChestBlockEntity output = (ChestBlockEntity) context.getBlockEntity(outputPos);
+        if (output == null) {
+            return 0;
+        }
+        int count = 0;
+        for (int slot = 0; slot < output.getContainerSize(); slot++) {
+            ItemStack stack = output.getItem(slot);
+            if (stack.is(item)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
+    }
+
 }
