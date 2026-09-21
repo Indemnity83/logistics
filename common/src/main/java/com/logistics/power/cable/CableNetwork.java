@@ -4,6 +4,7 @@ import com.logistics.core.LogisticsProfiler;
 import com.logistics.core.lib.energy.EnergyCapabilityLookup;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import java.util.function.Predicate;
+import com.logistics.core.lib.power.EnergyBuffer;
 import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import net.minecraft.core.BlockPos;
@@ -153,6 +154,13 @@ public class CableNetwork {
                 ? null
                 : new CableNetworkPlanner.ConnectionKey(entryCablePos.relative(sourceSide), sourceSide.getOpposite());
         List<DeviceConnection> targets = excluding(deviceConnections(level).targets(), excludedConnection);
+        // A buffer pushing onto the network must not simply refill another buffer: that moves a
+        // player's charge between batteries for nothing, and which way it goes comes down to how
+        // the network sorts them. Its own connection is already excluded above.
+        if (level.getBlockEntity(entryCablePos.relative(sourceSide == null ? Direction.UP : sourceSide))
+                instanceof EnergyBuffer) {
+            targets = excludingBuffers(targets);
+        }
         return insertIntoTargets(level, targets, transferLimit, simulate, entryCablePos);
     }
 
@@ -194,6 +202,17 @@ public class CableNetwork {
     }
 
     /** Drops the connection a push source arrived through, so energy is never sent back into it. */
+    /** Drops buffer targets, so a buffer's push reaches generators' customers rather than storage. */
+    private static List<DeviceConnection> excludingBuffers(List<DeviceConnection> connections) {
+        List<DeviceConnection> kept = new ArrayList<>(connections.size());
+        for (DeviceConnection connection : connections) {
+            if (!(connection.blockEntity() instanceof EnergyBuffer)) {
+                kept.add(connection);
+            }
+        }
+        return kept;
+    }
+
     private static List<DeviceConnection> excluding(
             List<DeviceConnection> connections, @Nullable CableNetworkPlanner.ConnectionKey excludedConnection) {
         if (excludedConnection == null) return connections;
@@ -467,7 +486,7 @@ public class CableNetwork {
         long movedTotal = 0;
         for (DeviceConnection source : sources) {
             if (movedTotal >= maxAmount) break;
-            if (isSameDevice(source, target)) continue;
+            if (isSameDevice(source, target) || isBufferToBuffer(source, target)) continue;
 
             CableNetworkPlanner.CableRoute route = findBestRoute(level, source.cablePos(), target.cablePos());
             if (route == null || route.remainingTransfer() <= 0) continue;
@@ -618,6 +637,15 @@ public class CableNetwork {
      * wrapper on both loaders, so the reference check alone only ever catches a single-face device —
      * where the same record instance lands in both lists. The position is the stable identity.
      */
+    /**
+     * True when both ends are buffers, so the transfer would only move a player's charge from one
+     * battery to another. Every buffer can both extract and insert, so each is offered as a source
+     * as well as a target; without this the buffer the network sorts first drains into the rest.
+     */
+    static boolean isBufferToBuffer(DeviceConnection source, DeviceConnection target) {
+        return source.blockEntity() instanceof EnergyBuffer && target.blockEntity() instanceof EnergyBuffer;
+    }
+
     static boolean isSameDevice(DeviceConnection source, DeviceConnection target) {
         return source.storage() == target.storage() || source.pos().equals(target.pos());
     }

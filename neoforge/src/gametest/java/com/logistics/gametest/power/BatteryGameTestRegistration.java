@@ -42,4 +42,16 @@ public final class BatteryGameTestRegistration {
     public static void testChargedBatteryDoesNotPowerNetwork(GameTestHelper context) {
         BatteryGameTestBody.testChargedBatteryDoesNotPowerNetwork(context);
     }
+
+    /** Two batteries against each other leave each other's charge alone. */
+    @GameTest(template = "empty", batch = "battery", timeoutTicks = 60)
+    public static void testTouchingBatteriesDoNotDrainEachOther(GameTestHelper context) {
+        BatteryGameTestBody.testTouchingBatteriesDoNotDrainEachOther(context);
+    }
+
+    /** Batteries on one cable network leave each other's charge alone. */
+    @GameTest(template = "empty", batch = "battery", timeoutTicks = 80)
+    public static void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
+    }
 }

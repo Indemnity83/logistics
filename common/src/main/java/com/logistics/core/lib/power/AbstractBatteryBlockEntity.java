@@ -15,6 +15,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
  * Power Junction (which the network draws from); batteries supply that junction over cables.
  */
 public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
-        implements HasEnergyStorage, AcceptsLowTierEnergy {
+        implements HasEnergyStorage, AcceptsLowTierEnergy, EnergyBuffer {
 
     /** Max RF to push into a single adjacent machine per tick; subclasses may source it from config. */
     protected long maxOutputPerSide() {
@@ -83,7 +84,11 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
         if (pushService == null) return;
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
-            if (level.getBlockEntity(neighborPos) instanceof DirectEnergyReceiver) continue;
+            BlockEntity neighbor = level.getBlockEntity(neighborPos);
+            if (neighbor instanceof DirectEnergyReceiver) continue;
+            // Another buffer would only hand it back, and which way it settles comes down to which
+            // of the two ticks first -- that is, to placement order.
+            if (neighbor instanceof EnergyBuffer) continue;
             long maxSend = Math.min(maxOutputPerSide(), energy.getAmount());
             if (maxSend <= 0) break;
             long sent = pushService.push(level, neighborPos, dir.getOpposite(), energy, maxSend);

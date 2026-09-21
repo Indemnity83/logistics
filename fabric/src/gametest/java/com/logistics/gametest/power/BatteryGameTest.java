@@ -38,4 +38,16 @@ public class BatteryGameTest {
     public void testChargedBatteryDoesNotPowerNetwork(GameTestHelper context) {
         BatteryGameTestBody.testChargedBatteryDoesNotPowerNetwork(context);
     }
+
+    /** Two batteries against each other leave each other's charge alone. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testTouchingBatteriesDoNotDrainEachOther(GameTestHelper context) {
+        BatteryGameTestBody.testTouchingBatteriesDoNotDrainEachOther(context);
+    }
+
+    /** Batteries on one cable network leave each other's charge alone. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 80)
+    public void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
+    }
 }
