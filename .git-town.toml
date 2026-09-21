@@ -6,7 +6,7 @@
 # stays in local metadata.
 
 [branches]
-main = "mc/26.2"
+main = "mc/26.3"
 # Every mc/* version branch is protected; new work never starts on one.
 perennial-regex = "^mc/"
 perennials = ["docs"]
