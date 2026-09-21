@@ -28,6 +28,10 @@ public final class BatteryGameTestRegistration {
             "power/batteries_on_one_cable_do_not_drain_each_other",
             80,
             BatteryGameTestBody::testBatteriesOnOneCableDoNotDrainEachOther),
+        new GameTestCase(
+            "power/batteries_on_one_cable_fill_evenly",
+            80,
+            BatteryGameTestBody::testBatteriesOnOneCableFillEvenly),
         new GameTestCase("power/battery_charge_state_tracks_energy", 50, BatteryGameTestBody::testBatteryChargeStateTracksEnergy),
         new GameTestCase(
             "power/network_without_battery_is_unpowered", 60, BatteryGameTestBody::testNetworkWithoutBatteryIsUnpowered),
