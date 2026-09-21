@@ -262,11 +262,19 @@ Since commits will be cherry-picked across branches, write code that minimizes c
 ## Build Commands
 
 ```bash
-./gradlew build              # Build the mod JAR
-./gradlew remapJar           # Build with obfuscation remapping (use for mc/1.21.1 and mc/1.21.11; mc/26.1+ uses build)
-./gradlew runClient          # Launch Minecraft client for testing
-./gradlew runServer          # Launch Minecraft server
+./gradlew build                  # Build the mod JAR
+./gradlew remapJar               # Build with obfuscation remapping (use for mc/1.21.1 and mc/1.21.11; mc/26.1+ uses build)
+./gradlew :fabric:runClient      # Launch the Fabric client for testing
+./gradlew :neoforge:runClient    # Launch the NeoForge client for testing
+./gradlew :fabric:runServer      # Launch the Fabric server
+./gradlew :neoforge:runServer    # Launch the NeoForge server
 ```
+
+**Name the loader on the run tasks.** Loom and ModDev each register `runClient`/`runServer`, so a
+bare `./gradlew runClient` runs the task in every subproject that has one — two Minecraft windows,
+or for `runServer` two dev servers racing for port 25565. The root build refuses an unqualified
+invocation rather than letting it fan out. `:common` has no mod to launch, so its run tasks are
+disabled outright.
 
 **Requirements:** See `gradle.properties` for current versions (`java_version`, `minecraft_version`, `loader_version`, `fabric_version`).
 
