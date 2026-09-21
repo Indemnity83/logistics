@@ -1,8 +1,8 @@
 package com.logistics.pipe.network;
 
 import com.logistics.core.lib.block.capability.PipeConnection;
-import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.energy.IEnergyStorage;
+import com.logistics.core.lib.power.NetworkEnergySupplier;
 import com.logistics.core.lib.network.IWorldView;
 import com.logistics.pipe.ItemPipe;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -123,8 +123,11 @@ public class MinecraftWorldView implements IWorldView {
     @Override
     @Nullable
     public IEnergyStorage energyStorageAt(BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof HasEnergyStorage hasStorage) {
-            return hasStorage.energyStorage(null);
+        // Deliberately not the world-facing energy capability: that is insert-only, so RF inside a
+        // machine cannot be pulled back out over a cable. Only the logistics network may extract,
+        // and only from a block that opts in.
+        if (level.getBlockEntity(pos) instanceof NetworkEnergySupplier supplier) {
+            return supplier.networkEnergyStorage();
         }
         return null;
     }
