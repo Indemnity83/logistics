@@ -24,8 +24,6 @@
 ### Fixed
 
 * **automation:** scale the Crucible gauge by the server's tank size ([b9fcd18](https://github.com/Indemnity83/logistics/commit/b9fcd184d2d36d14b32c3af6f42e65423fd684e1))
-* **ci:** create the mods directory before test workers fork ([#1237](https://github.com/Indemnity83/logistics/issues/1237)) ([bbd956b](https://github.com/Indemnity83/logistics/commit/bbd956bcd2df5954944d007899b30256f7faa837))
-* **ci:** stop the menu blur stalling the client feature tests ([#1236](https://github.com/Indemnity83/logistics/issues/1236)) ([9756f79](https://github.com/Indemnity83/logistics/commit/9756f79ef930742438c8317ab116e4e3a3c07166))
 * **common:** stop pickaxes destroying blocks they should harvest ([0ec0dbb](https://github.com/Indemnity83/logistics/commit/0ec0dbba4688d24057a75d8832140623fec86dbb))
 * **core:** stop stale machine textures after a resource reload ([15a4186](https://github.com/Indemnity83/logistics/commit/15a4186cbcbc7f71ec10c84fef37e5a2e21029ad))
 * **crafting:** report a malformed byproduct chance as a recipe error ([b2b69d2](https://github.com/Indemnity83/logistics/commit/b2b69d2961197658a5859aa3785a6cb962aad6fe))
