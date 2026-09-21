@@ -14,6 +14,18 @@ if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ] || \
     exit 0
 fi
 
+# Skip where there is no Gradle build to run. The hooks install into the shared
+# .git/hooks, so every worktree gets them — including `docs`, which holds wiki
+# source and no Java at all. Without this, every commit there dies on a missing
+# ./gradlew and has to be forced through with --no-verify.
+#
+# Checked before the stash below: bailing after stashing would leave the tree
+# to be restored on a path that never needed touching.
+if [ ! -x ./gradlew ]; then
+    echo "Skipping Spotless (no ./gradlew in this worktree)"
+    exit 0
+fi
+
 echo "Formatting code with Spotless..."
 
 # Exit early if no staged files
