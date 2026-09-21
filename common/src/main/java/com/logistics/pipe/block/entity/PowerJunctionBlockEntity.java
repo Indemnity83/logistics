@@ -2,7 +2,9 @@ package com.logistics.pipe.block.entity;
 
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
+import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.network.NetworkTopologyListener;
+import com.logistics.core.lib.power.NetworkEnergySupplier;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
@@ -22,10 +24,13 @@ import org.jetbrains.annotations.Nullable;
  * logistics pipe network. Cables/engines fill its RF buffer ({@link #MAX_INPUT} RF/t); the logistics
  * network draws RF out of it ({@link NetworkEnergySourceComponent} registers it as an energy source).
  *
- * <p>The buffer is built with a non-zero {@code maxOutput} so the network can {@code extract()} from
- * it — unlike normal machines, which keep their energy internal.
+ * <p>The buffer is built with a non-zero {@code maxOutput} so the <em>logistics</em> network can pace
+ * how fast it drains the junction. That extraction is reached through {@link NetworkEnergySupplier}
+ * and nothing else: like any machine, the junction exposes an insert-only capability to the world, so
+ * RF that has entered it cannot be pulled back out over a cable.
  */
-public class PowerJunctionBlockEntity extends MachineEntity implements PipeConnection, NetworkTopologyListener {
+public class PowerJunctionBlockEntity extends MachineEntity
+        implements PipeConnection, NetworkTopologyListener, NetworkEnergySupplier {
 
     public static final long CAPACITY = 1_000_000L;
     public static final long MAX_INPUT = 128L; // ~32 EU/t at 1 EU = 4 RF
@@ -73,6 +78,11 @@ public class PowerJunctionBlockEntity extends MachineEntity implements PipeConne
             return 0;
         }
         return Math.max(1, Math.round((float) amount / CAPACITY * 10));
+    }
+
+    @Override
+    public IEnergyStorage networkEnergyStorage() {
+        return energy.networkEnergyStorage();
     }
 
     @Override
