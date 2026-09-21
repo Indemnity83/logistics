@@ -38,4 +38,16 @@ public class BatteryGameTest {
     public void testChargedBatteryDoesNotPowerNetwork(GameTestHelper context) {
         BatteryGameTestBody.testChargedBatteryDoesNotPowerNetwork(context);
     }
+
+    /** Two batteries against each other leave each other's charge alone. */
+    @GameTest(maxTicks = 40)
+    public void testTouchingBatteriesDoNotDrainEachOther(GameTestHelper context) {
+        BatteryGameTestBody.testTouchingBatteriesDoNotDrainEachOther(context);
+    }
+
+    /** Batteries on one cable network leave each other's charge alone. */
+    @GameTest(maxTicks = 60)
+    public void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
+    }
 }
