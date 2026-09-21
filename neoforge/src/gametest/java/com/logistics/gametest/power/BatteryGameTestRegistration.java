@@ -20,6 +20,14 @@ public final class BatteryGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("power/battery_placement", 100, BatteryGameTestBody::testBatteryPlacement),
+        new GameTestCase(
+            "power/touching_batteries_do_not_drain_each_other",
+            60,
+            BatteryGameTestBody::testTouchingBatteriesDoNotDrainEachOther),
+        new GameTestCase(
+            "power/batteries_on_one_cable_do_not_drain_each_other",
+            80,
+            BatteryGameTestBody::testBatteriesOnOneCableDoNotDrainEachOther),
         new GameTestCase("power/battery_charge_state_tracks_energy", 50, BatteryGameTestBody::testBatteryChargeStateTracksEnergy),
         new GameTestCase(
             "power/network_without_battery_is_unpowered", 60, BatteryGameTestBody::testNetworkWithoutBatteryIsUnpowered),
