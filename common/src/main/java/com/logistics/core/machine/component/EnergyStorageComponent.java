@@ -91,9 +91,55 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
         return receivedLastTick;
     }
 
+    /**
+     * Insert-only view of {@link #tracking}, and the only view the outside world gets.
+     *
+     * <p>Energy that reaches a machine is spent by the machine; it does not come back out over a
+     * cable. Extraction is offered to the logistics network alone, through
+     * {@link #networkEnergyStorage()} -- otherwise a host with a non-zero {@code maxOutput} (the
+     * Power Junction is the only one) would be listed as a source by the cable network and drained
+     * into a battery.
+     */
+    private final IEnergyStorage insertOnly = new IEnergyStorage() {
+        @Override
+        public long insert(long maxAmount, boolean simulate) {
+            return tracking.insert(maxAmount, simulate);
+        }
+
+        @Override
+        public long extract(long maxAmount, boolean simulate) {
+            return 0;
+        }
+
+        @Override
+        public long getAmount() {
+            return storage.getAmount();
+        }
+
+        @Override
+        public long getCapacity() {
+            return storage.getCapacity();
+        }
+
+        @Override
+        public boolean canInsert() {
+            return storage.canInsert();
+        }
+
+        @Override
+        public boolean canExtract() {
+            return false;
+        }
+    };
+
     @Override
     @Nullable
     public IEnergyStorage energy(@Nullable Direction side) {
+        return insertOnly;
+    }
+
+    /** The extractable view, for a host implementing {@code NetworkEnergySupplier}. */
+    public IEnergyStorage networkEnergyStorage() {
         return tracking;
     }
 

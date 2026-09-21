@@ -51,6 +51,28 @@ class EnergyStorageComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void worldFacingViewNeverExtracts() {
+        // A host with a non-zero maxOutput -- the Power Junction is the only one -- still exposes an
+        // insert-only capability, so a cable network cannot list it as a source and drain it.
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 1_000, 128, 1_000, () -> {});
+        energy.energy(null).insert(128, false);
+
+        assertThat(energy.energy(null).canExtract()).isFalse();
+        assertThat(energy.energy(null).extract(128, true)).isZero();
+        assertThat(energy.energy(null).extract(128, false)).isZero();
+        assertThat(energy.amount()).isEqualTo(128);
+    }
+
+    @Test
+    void networkViewExtractsUpToMaxOutput() {
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 1_000, 128, 100, () -> {});
+        energy.energy(null).insert(128, false);
+
+        assertThat(energy.networkEnergyStorage().extract(128, false)).isEqualTo(100);
+        assertThat(energy.amount()).isEqualTo(28);
+    }
+
+    @Test
     void consumeReducesStoredEnergy() {
         EnergyStorageComponent energy = buffer();
         energy.energy(null).insert(100, false);
