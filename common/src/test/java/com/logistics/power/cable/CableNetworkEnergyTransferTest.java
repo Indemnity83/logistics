@@ -125,6 +125,59 @@ class CableNetworkEnergyTransferTest {
         assertThat(CableNetwork.isSameDevice(one, one)).isTrue();
     }
 
+    // ===== buffer levelling =====
+
+    @Test
+    @DisplayName("levels two equal-capacity buffers at half the difference")
+    void levellingLimit_equalCapacities_isHalfTheDifference() {
+        assertThat(CableNetwork.levellingLimit(FakeStorage.full(1_000), FakeStorage.empty(1_000)))
+                .isEqualTo(500);
+    }
+
+    @Test
+    @DisplayName("moves nothing between buffers already at the same fill")
+    void levellingLimit_sameFill_isZero() {
+        assertThat(CableNetwork.levellingLimit(FakeStorage.full(1_000), FakeStorage.full(4_000)))
+                .isZero();
+        assertThat(CableNetwork.levellingLimit(FakeStorage.empty(1_000), FakeStorage.empty(1_000)))
+                .isZero();
+    }
+
+    @Test
+    @DisplayName("refuses to run uphill")
+    void levellingLimit_fullerTarget_isZero() {
+        assertThat(CableNetwork.levellingLimit(FakeStorage.empty(1_000), FakeStorage.full(1_000)))
+                .isZero();
+    }
+
+    @Test
+    @DisplayName("levels by fill fraction, not by stored amount, across unequal capacities")
+    void levellingLimit_unequalCapacities_equalisesTheFraction() {
+        // 1000 of 1000 against 0 of 3000: equal fill lands both at 25%, so 750 moves.
+        long limit = CableNetwork.levellingLimit(FakeStorage.full(1_000), FakeStorage.empty(3_000));
+
+        assertThat(limit).isEqualTo(750);
+        assertThat((1_000.0 - limit) / 1_000).isEqualTo((0.0 + limit) / 3_000);
+    }
+
+    @Test
+    @DisplayName("rounds a sub-unit difference down to nothing, so near-level buffers settle")
+    void levellingLimit_differenceTooSmallToSplit_isZero() {
+        // One RF apart across two 100,000-capacity buffers: half a unit, which must not be traded
+        // back and forth forever.
+        FakeStorage source = new FakeStorage(100_000, 1);
+        FakeStorage target = new FakeStorage(100_000, 0);
+
+        assertThat(CableNetwork.levellingLimit(source, target)).isZero();
+    }
+
+    @Test
+    @DisplayName("treats a zero-capacity storage as unlevellable")
+    void levellingLimit_zeroCapacity_isZero() {
+        assertThat(CableNetwork.levellingLimit(FakeStorage.empty(0), FakeStorage.empty(1_000))).isZero();
+        assertThat(CableNetwork.levellingLimit(FakeStorage.full(1_000), FakeStorage.empty(0))).isZero();
+    }
+
     private static final class FakeStorage implements IEnergyStorage {
         private final long capacity;
         private long amount;
