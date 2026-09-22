@@ -6,6 +6,7 @@ import com.logistics.core.lib.block.capability.HasEnergyStorage;
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AcceptsLowTierEnergy;
+import com.logistics.core.lib.power.EnergyNetworkNode;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * allowing the source to keep it instead of leaving power buffered in cables.
  */
 public class CableBlockEntity extends BaseBlockEntity
-        implements HasEnergyStorage, AcceptsLowTierEnergy {
+        implements HasEnergyStorage, AcceptsLowTierEnergy, EnergyNetworkNode {
 
     private static final String KEY_CONNECTIONS = "connections";
 
