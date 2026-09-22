@@ -45,10 +45,10 @@ public class BatteryGameTest {
         BatteryGameTestBody.testTouchingBatteriesDoNotDrainEachOther(context);
     }
 
-    /** Batteries on one cable network leave each other's charge alone. */
-    @GameTest(maxTicks = 60)
-    public void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
-        BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
+    /** Batteries on one cable network level out to the same charge. */
+    @GameTest(maxTicks = 110)
+    public void testBatteriesOnOneCableLevelOut(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableLevelOut(context);
     }
 
     /** A bank of batteries on one cable empties together rather than one at a time. */
