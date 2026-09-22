@@ -53,14 +53,21 @@ public class CableNetwork {
 
     private static boolean strandedEnergyReported = false;
 
-    /** Generators and consumers: served before any buffer. */
+    /** Generators and consumers: served, and drawn from, before any buffer. */
     private static final int PRIORITY_DEVICE = 0;
 
-    /** Buffers: they take what the machines leave. */
+    /** Buffers: they take what the machines leave, and give only once generators are spent. */
     private static final int PRIORITY_BUFFER = 1;
 
     private final Set<BlockPos> cablePositions = new HashSet<>();
     private final Map<CableNetworkPlanner.ConnectionKey, Double> allocationDebt = new HashMap<>();
+    /**
+     * Remainder carry for the supply split, kept apart from {@link #allocationDebt}.
+     *
+     * <p>A battery is offered as a source and as a target under the same {@code ConnectionKey}, so
+     * one shared map would let its demand-side rounding decide its supply-side rotation.
+     */
+    private final Map<CableNetworkPlanner.ConnectionKey, Double> supplyDebt = new HashMap<>();
     private final Map<BlockPos, Long> cableTransferredThisTick = new HashMap<>();
 
     private long accountingGameTime = Long.MIN_VALUE;
@@ -320,6 +327,7 @@ public class CableNetwork {
             predecessor.cableTransferredThisTick.forEach((cablePos, amount) ->
                     cableTransferredThisTick.merge(cablePos, amount, CableNetworkPlanner::saturatedAdd));
             predecessor.allocationDebt.forEach(allocationDebt::putIfAbsent);
+            predecessor.supplyDebt.forEach(supplyDebt::putIfAbsent);
         }
     }
 
@@ -487,17 +495,24 @@ public class CableNetwork {
         return total;
     }
 
+    /**
+     * Draws {@code maxAmount} for one target, split across the sources that can reach it.
+     *
+     * <p>Mirrors the demand side: generators are spent before buffers, and within a tier the draw is
+     * pro rata by what each source can contribute, so a bank of batteries empties together instead
+     * of the one that happens to sort first emptying on its own.
+     */
     private long moveFromSources(
             Level level, List<DeviceConnection> sources, DeviceConnection target, long maxAmount) {
         long movedTotal = 0;
-        for (DeviceConnection source : sources) {
+        for (CableNetworkPlanner.Allocation<DeviceConnection> draw : planDraw(sources, target, maxAmount)) {
             if (movedTotal >= maxAmount) break;
-            if (isSameDevice(source, target) || isBufferToBuffer(source, target)) continue;
 
+            DeviceConnection source = draw.target();
             CableNetworkPlanner.CableRoute route = findBestRoute(level, source.cablePos(), target.cablePos());
             if (route == null || route.remainingTransfer() <= 0) continue;
 
-            long toMove = Math.min(maxAmount - movedTotal, route.remainingTransfer());
+            long toMove = Math.min(Math.min(draw.amount(), maxAmount - movedTotal), route.remainingTransfer());
             long moved = moveEnergy(source.storage(), target.storage(), toMove);
             if (moved > 0) {
                 recordTransfer(moved, route);
@@ -505,6 +520,30 @@ public class CableNetwork {
             }
         }
         return movedTotal;
+    }
+
+    /**
+     * Shares one target's draw across the available sources, by the same tiered pro-rata rule the
+     * demand side uses -- a source's "demand" is simply what it can hand over.
+     *
+     * <p>No already-drawn accumulator is threaded through, unlike the target side: every draw here
+     * commits immediately, so re-simulating {@code extract} already reflects what earlier targets
+     * took this tick. Subtracting a running total as well would count it twice.
+     */
+    private List<CableNetworkPlanner.Allocation<DeviceConnection>> planDraw(
+            List<DeviceConnection> sources, DeviceConnection target, long maxAmount) {
+        List<CableNetworkPlanner.Target<DeviceConnection>> plannerSources = new ArrayList<>();
+        for (DeviceConnection source : sources) {
+            if (isSameDevice(source, target) || isBufferToBuffer(source, target)) continue;
+
+            long available = source.storage().extract(maxAmount, true);
+            if (available <= 0) continue;
+
+            plannerSources.add(new CableNetworkPlanner.Target<>(
+                    source.key(), source, available, devicePriority(source)));
+        }
+        return CableNetworkPlanner.allocateToDemand(
+                plannerSources, maxAmount, Set.of(), Map.of(), supplyDebt, DeviceConnection.ORDER);
     }
 
     /**
@@ -579,7 +618,7 @@ public class CableNetwork {
     /**
      * Which tier a device shares a budget with.
      *
-     * <p>A buffer is a destination of last resort. Without the split
+     * <p>A buffer is a destination of last resort and a supplier of last resort. Without the split
      * a battery bids its whole remaining capacity -- up to 100,000 RF -- against a machine asking
      * for the tens it can use this tick, and pro rata across that flat list leaves the machine with
      * almost nothing.
