@@ -8,6 +8,7 @@ import com.logistics.core.lib.power.AbstractBatteryBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.automation.kiln.KilnBlockEntity;
 import com.logistics.power.block.entity.BatteryBlockEntity;
+import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
@@ -221,6 +222,61 @@ public class BatteryGameTestBody {
             if (highest - lowest > tolerance) {
                 context.fail("Batteries on one cable should fill together within " + tolerance
                         + " RF of each other, got " + charges);
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * A bank of batteries on one cable empties together, not one at a time. Every battery on a
+     * network is offered to it as a source, and the draw for a consumer is shared across them pro
+     * rata, so the bank falls level instead of the front one carrying the whole load.
+     *
+     * <p>What used to decide this was the block-entity tick order. A battery pushed onto the cable
+     * itself, spending whatever of the per-tick budget was still going, so whichever battery ticked
+     * first supplied everything and the rest of the bank sat untouched -- an order the player never
+     * chose. A battery now leaves a cable neighbour to the network.
+     */
+    public static void testBatteriesOnOneCableDrainEvenly(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(1, 1, 2);
+        BlockPos firstPos = new BlockPos(1, 2, 1);
+        BlockPos secondPos = new BlockPos(1, 1, 0);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+        context.setBlock(firstPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(secondPos, LogisticsPower.BLOCK.BATTERY);
+
+        CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
+        BatteryBlockEntity first = context.getBlockEntity(firstPos, BatteryBlockEntity.class);
+        BatteryBlockEntity second = context.getBlockEntity(secondPos, BatteryBlockEntity.class);
+        if (sink == null || first == null || second == null) {
+            context.fail("Expected two batteries and a sink");
+            return;
+        }
+        sink.setUnlimitedDrainRate();
+
+        long charge = BatteryBlockEntity.capacity() / 2;
+        setStored(first, charge);
+        setStored(second, charge);
+
+        context.runAfterDelay(40, () -> {
+            long firstGave = charge - stored(first);
+            long secondGave = charge - stored(second);
+
+            if (firstGave <= 0 || secondGave <= 0) {
+                context.fail("Both batteries should supply the consumer, gave " + firstGave
+                        + " and " + secondGave + " RF");
+                return;
+            }
+            // Neither may carry more than about two thirds of the load; one battery draining while
+            // the other sits full is the behaviour this replaces.
+            long total = firstGave + secondGave;
+            if (Math.max(firstGave, secondGave) * 3 > total * 2) {
+                context.fail("A battery bank should empty together, but one carried the load: "
+                        + firstGave + " RF against " + secondGave + " RF");
                 return;
             }
             context.succeed();
