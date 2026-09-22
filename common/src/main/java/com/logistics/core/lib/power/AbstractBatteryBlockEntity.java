@@ -89,6 +89,10 @@ public abstract class AbstractBatteryBlockEntity extends BaseBlockEntity
             // Another buffer would only hand it back, and which way it settles comes down to which
             // of the two ticks first -- that is, to placement order.
             if (neighbor instanceof EnergyBuffer) continue;
+            // A cable network shares its per-tick budget across every buffer on it. Pushing would
+            // take that decision away from it: whichever battery ticks first would spend the budget
+            // and the rest of the bank would find nothing left.
+            if (neighbor instanceof EnergyNetworkNode) continue;
             long maxSend = Math.min(maxOutputPerSide(), energy.getAmount());
             if (maxSend <= 0) break;
             long sent = pushService.push(level, neighborPos, dir.getOpposite(), energy, maxSend);

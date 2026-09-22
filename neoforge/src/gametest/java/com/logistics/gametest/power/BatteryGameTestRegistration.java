@@ -60,4 +60,10 @@ public final class BatteryGameTestRegistration {
     public static void testBatteriesOnOneCableFillEvenly(GameTestHelper context) {
         BatteryGameTestBody.testBatteriesOnOneCableFillEvenly(context);
     }
+
+    /** A bank of batteries on one cable empties together rather than one at a time. */
+    @GameTest(template = "empty", batch = "battery", timeoutTicks = 90)
+    public static void testBatteriesOnOneCableDrainEvenly(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableDrainEvenly(context);
+    }
 }
