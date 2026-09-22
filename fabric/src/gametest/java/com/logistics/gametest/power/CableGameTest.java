@@ -233,4 +233,10 @@ public class CableGameTest {
                     + ", got: " + sink.getDrainRate());
         }
     }
+
+    /** A machine is served before a battery competing for the same cable budget. */
+    @GameTest(maxTicks = 70)
+    public void testMachineIsServedBeforeABattery(GameTestHelper context) {
+        CableGameTestBody.testMachineIsServedBeforeABattery(context);
+    }
 }

@@ -73,6 +73,97 @@ class CableNetworkPlannerTest {
     }
 
     @Test
+    void allocateToDemand_servesTheLowerPriorityTierOnlyWithWhatIsLeft() {
+        // A machine wanting 10 against a battery asking for its whole remaining capacity: pro rata
+        // across a flat list would leave the machine with almost nothing.
+        List<CableNetworkPlanner.Allocation<String>> allocations = CableNetworkPlanner.allocateToDemand(
+                List.of(
+                        target("a", 10, 0),
+                        target("b", 100_000, 1)),
+                30,
+                Set.of(),
+                Map.of(),
+                new HashMap<>(),
+                STRING_ORDER);
+
+        assertThat(amountsByTarget(allocations))
+                .containsEntry("a", 10L)
+                .containsEntry("b", 20L);
+    }
+
+    @Test
+    void allocateToDemand_leavesNothingForTheLowerTierWhenTheTopTierTakesItAll() {
+        List<CableNetworkPlanner.Allocation<String>> allocations = CableNetworkPlanner.allocateToDemand(
+                List.of(
+                        target("a", 40, 0),
+                        target("b", 100_000, 1)),
+                30,
+                Set.of(),
+                Map.of(),
+                new HashMap<>(),
+                STRING_ORDER);
+
+        assertThat(amountsByTarget(allocations))
+                .containsEntry("a", 30L)
+                .doesNotContainKey("b");
+    }
+
+    @Test
+    void allocateToDemand_infiniteDemandInTheTopTierStarvesTheLowerTier() {
+        // A creative sink on unlimited drain legitimately consumes everything.
+        List<CableNetworkPlanner.Allocation<String>> allocations = CableNetworkPlanner.allocateToDemand(
+                List.of(
+                        target("a", Long.MAX_VALUE, 0),
+                        target("b", 100_000, 1)),
+                30,
+                Set.of(),
+                Map.of(),
+                new HashMap<>(),
+                STRING_ORDER);
+
+        assertThat(amountsByTarget(allocations))
+                .containsEntry("a", 30L)
+                .doesNotContainKey("b");
+    }
+
+    @Test
+    void allocateToDemand_splitsWithinATierProRataAsBefore() {
+        // Two batteries sharing the leftover still split by room, so the emptier one fills faster.
+        List<CableNetworkPlanner.Allocation<String>> allocations = CableNetworkPlanner.allocateToDemand(
+                List.of(
+                        target("a", 10, 0),
+                        target("b", 50_000, 1),
+                        target("c", 100_000, 1)),
+                40,
+                Set.of(),
+                Map.of(),
+                new HashMap<>(),
+                STRING_ORDER);
+
+        assertThat(amountsByTarget(allocations))
+                .containsEntry("a", 10L)
+                .containsEntry("b", 10L)
+                .containsEntry("c", 20L);
+    }
+
+    @Test
+    void allocateToDemand_rotatesTheRemainderWithinATierNotAcrossTiers() {
+        Map<CableNetworkPlanner.ConnectionKey, Double> allocationDebt = new HashMap<>();
+        List<CableNetworkPlanner.Target<String>> targets = List.of(
+                target("a", Long.MAX_VALUE, 0),
+                target("b", Long.MAX_VALUE, 1));
+
+        // The top tier is unbounded, so the lower tier never gets a turn however the debt moves.
+        for (int call = 0; call < 3; call++) {
+            List<CableNetworkPlanner.Allocation<String>> allocations = CableNetworkPlanner.allocateToDemand(
+                    targets, 1, Set.of(), Map.of(), allocationDebt, STRING_ORDER);
+            assertThat(amountsByTarget(allocations))
+                    .containsEntry("a", 1L)
+                    .doesNotContainKey("b");
+        }
+    }
+
+    @Test
     void findBestRoute_prefersPathWithHigherRemainingTransfer() {
         BlockPos start = new BlockPos(0, 0, 0);
         BlockPos lowMiddle = new BlockPos(1, 0, 0);
@@ -137,7 +228,11 @@ class CableNetworkPlannerTest {
     }
 
     private static CableNetworkPlanner.Target<String> target(String id, long demand) {
-        return new CableNetworkPlanner.Target<>(key(id), id, demand);
+        return target(id, demand, 0);
+    }
+
+    private static CableNetworkPlanner.Target<String> target(String id, long demand, int priority) {
+        return new CableNetworkPlanner.Target<>(key(id), id, demand, priority);
     }
 
     private static CableNetworkPlanner.ConnectionKey key(String id) {
