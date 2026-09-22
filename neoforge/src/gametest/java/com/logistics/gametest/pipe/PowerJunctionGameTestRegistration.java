@@ -49,6 +49,12 @@ public final class PowerJunctionGameTestRegistration {
         PowerJunctionGameTestBody.testQuarryArmIsNotTreatedAsPower(context);
     }
 
+    /** The logistics network may draw its whole junction buffer in one tick. */
+    @GameTest(template = "empty", batch = "powerjunction", timeoutTicks = 80)
+    public static void testNetworkDrawsPastTheOldOutputCap(GameTestHelper context) {
+        PowerJunctionGameTestBody.testNetworkDrawsPastTheOldOutputCap(context);
+    }
+
     /** A cable may fill a junction but never empty one. */
     @GameTest(template = "empty", batch = "powerjunction", timeoutTicks = 110)
     public static void testCableCannotDrainTheJunction(GameTestHelper context) {

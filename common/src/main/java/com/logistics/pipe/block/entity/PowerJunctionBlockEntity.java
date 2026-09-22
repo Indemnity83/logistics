@@ -34,7 +34,19 @@ public class PowerJunctionBlockEntity extends MachineEntity
 
     public static final long CAPACITY = 1_000_000L;
     public static final long MAX_INPUT = 128L; // ~32 EU/t at 1 EU = 4 RF
-    static final long MAX_OUTPUT = 1_000L; // generous cap on how fast the network may pull
+
+    /**
+     * Uncapped on purpose: the meter belongs on the way in, not on the way out.
+     *
+     * <p>{@link #MAX_INPUT} is the progression lever -- how fast a junction fills is what a player
+     * builds around. Once the RF is inside, it already belongs to the logistics network, so there is
+     * no reason to ration how fast the network may spend its own buffer; a burst of routing or
+     * crafting should be able to draw on the whole of it in one tick.
+     *
+     * <p>Safe only because the extractable view is reached through {@link NetworkEnergySupplier}
+     * alone. The capability the world sees is insert-only, so no cable can pull at this rate.
+     */
+    private static final long MAX_OUTPUT = Long.MAX_VALUE;
 
     private EnergyStorageComponent energy;
     private NetworkEnergySourceComponent networkSource;

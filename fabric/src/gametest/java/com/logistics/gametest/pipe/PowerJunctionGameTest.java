@@ -52,4 +52,10 @@ public class PowerJunctionGameTest {
     public void testCableCannotDrainTheJunction(GameTestHelper context) {
         PowerJunctionGameTestBody.testCableCannotDrainTheJunction(context);
     }
+
+    /** The logistics network may draw its whole junction buffer in one tick. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testNetworkDrawsPastTheOldOutputCap(GameTestHelper context) {
+        PowerJunctionGameTestBody.testNetworkDrawsPastTheOldOutputCap(context);
+    }
 }
