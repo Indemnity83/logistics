@@ -167,13 +167,6 @@ public class CableNetwork {
                 ? null
                 : new CableNetworkPlanner.ConnectionKey(entryCablePos.relative(sourceSide), sourceSide.getOpposite());
         List<DeviceConnection> targets = excluding(deviceConnections(level).targets(), excludedConnection);
-        // A buffer pushing onto the network must not simply refill another buffer: that moves a
-        // player's charge between batteries for nothing, and which way it goes comes down to how
-        // the network sorts them. Its own connection is already excluded above.
-        if (level.getBlockEntity(entryCablePos.relative(sourceSide == null ? Direction.UP : sourceSide))
-                instanceof EnergyBuffer) {
-            targets = excludingBuffers(targets);
-        }
         return insertIntoTargets(level, targets, transferLimit, simulate, entryCablePos);
     }
 
@@ -215,17 +208,6 @@ public class CableNetwork {
     }
 
     /** Drops the connection a push source arrived through, so energy is never sent back into it. */
-    /** Drops buffer targets, so a buffer's push reaches generators' customers rather than storage. */
-    private static List<DeviceConnection> excludingBuffers(List<DeviceConnection> connections) {
-        List<DeviceConnection> kept = new ArrayList<>(connections.size());
-        for (DeviceConnection connection : connections) {
-            if (!(connection.blockEntity() instanceof EnergyBuffer)) {
-                kept.add(connection);
-            }
-        }
-        return kept;
-    }
-
     private static List<DeviceConnection> excluding(
             List<DeviceConnection> connections, @Nullable CableNetworkPlanner.ConnectionKey excludedConnection) {
         if (excludedConnection == null) return connections;
@@ -534,9 +516,12 @@ public class CableNetwork {
             List<DeviceConnection> sources, DeviceConnection target, long maxAmount) {
         List<CableNetworkPlanner.Target<DeviceConnection>> plannerSources = new ArrayList<>();
         for (DeviceConnection source : sources) {
-            if (isSameDevice(source, target) || isBufferToBuffer(source, target)) continue;
+            if (isSameDevice(source, target)) continue;
 
             long available = source.storage().extract(maxAmount, true);
+            if (isBufferToBuffer(source, target)) {
+                available = Math.min(available, levellingLimit(source.storage(), target.storage()));
+            }
             if (available <= 0) continue;
 
             plannerSources.add(new CableNetworkPlanner.Target<>(
@@ -688,6 +673,43 @@ public class CableNetwork {
     }
 
     /**
+     * True when both ends are buffers, so the transfer levels them rather than spending the energy.
+     *
+     * <p>Not a veto: a bank wired together is expected to even out. It selects the pairs whose
+     * transfer is bounded by {@link #levellingLimit}, so charge only ever runs downhill and stops on
+     * level rather than emptying the buffer the network happens to sort first into the rest.
+     */
+    static boolean isBufferToBuffer(DeviceConnection source, DeviceConnection target) {
+        return source.blockEntity() instanceof EnergyBuffer && target.blockEntity() instanceof EnergyBuffer;
+    }
+
+    /**
+     * The most that may pass between two buffers: the amount that leaves both at the same fill
+     * fraction. Zero once the target is as full as the source, so charge only runs downhill.
+     *
+     * <p>Solves {@code (sourceAmount - x) / sourceCapacity == (targetAmount + x) / targetCapacity}.
+     * Kept in floating point and floored: the exact form needs the product of two capacities, which
+     * overflows for a large third-party cell, and the flooring is useful in its own right. A
+     * difference too small to move a whole RF rounds to zero, which is the deadband that stops two
+     * near-level buffers trading the same unit back and forth forever.
+     */
+    static long levellingLimit(IEnergyStorage source, IEnergyStorage target) {
+        long sourceCapacity = source.getCapacity();
+        long targetCapacity = target.getCapacity();
+        if (sourceCapacity <= 0 || targetCapacity <= 0) return 0;
+
+        double sourceFill = (double) source.getAmount() / sourceCapacity;
+        double targetFill = (double) target.getAmount() / targetCapacity;
+        if (sourceFill <= targetFill) return 0;
+
+        // (sourceFill - targetFill) * (sourceCapacity * targetCapacity) / (sourceCapacity + targetCapacity),
+        // rearranged so the capacities are never multiplied together.
+        double levelling = (sourceFill - targetFill) / (1.0 / sourceCapacity + 1.0 / targetCapacity);
+        if (levelling >= Long.MAX_VALUE) return Long.MAX_VALUE;
+        return (long) Math.floor(levelling);
+    }
+
+    /**
      * True when both ends are the same device, so it would be transferring into itself.
      *
      * <p>Compares the device, not the wrapper. A block touching the network on two faces produces one
@@ -695,15 +717,6 @@ public class CableNetwork {
      * wrapper on both loaders, so the reference check alone only ever catches a single-face device —
      * where the same record instance lands in both lists. The position is the stable identity.
      */
-    /**
-     * True when both ends are buffers, so the transfer would only move a player's charge from one
-     * battery to another. Every buffer can both extract and insert, so each is offered as a source
-     * as well as a target; without this the buffer the network sorts first drains into the rest.
-     */
-    static boolean isBufferToBuffer(DeviceConnection source, DeviceConnection target) {
-        return source.blockEntity() instanceof EnergyBuffer && target.blockEntity() instanceof EnergyBuffer;
-    }
-
     static boolean isSameDevice(DeviceConnection source, DeviceConnection target) {
         return source.storage() == target.storage() || source.pos().equals(target.pos());
     }
