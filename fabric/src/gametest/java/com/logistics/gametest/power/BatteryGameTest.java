@@ -56,4 +56,10 @@ public class BatteryGameTest {
     public void testBatteriesOnOneCableDrainEvenly(GameTestHelper context) {
         BatteryGameTestBody.testBatteriesOnOneCableDrainEvenly(context);
     }
+
+    /** A bank of batteries on one cable charges together rather than one at a time. */
+    @GameTest(maxTicks = 60)
+    public void testBatteriesOnOneCableFillEvenly(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableFillEvenly(context);
+    }
 }
