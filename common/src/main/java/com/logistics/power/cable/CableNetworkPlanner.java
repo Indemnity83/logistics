@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.ToLongFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,6 +19,14 @@ import org.jetbrains.annotations.Nullable;
 final class CableNetworkPlanner {
     private CableNetworkPlanner() {}
 
+    /**
+     * Splits {@code input} across {@code targets}, lowest {@link Target#priority()} first.
+     *
+     * <p>A tier is served in full before the next sees anything, and only the budget left over
+     * flows down — so a machine is never outbid by a battery asking for its whole remaining
+     * capacity. Within a tier the split is unchanged: pro rata by demand, with
+     * {@code allocationDebt} carrying the sub-unit remainders across ticks.
+     */
     static <T> List<Allocation<T>> allocateToDemand(
             List<Target<T>> targets,
             long input,
@@ -26,12 +36,39 @@ final class CableNetworkPlanner {
             Comparator<T> targetOrder) {
         if (input <= 0) return List.of();
 
+        SortedMap<Integer, List<Target<T>>> tiers = new TreeMap<>();
+        for (Target<T> target : targets) {
+            if (blockedTargets.contains(target.key())) continue;
+            tiers.computeIfAbsent(target.priority(), priority -> new ArrayList<>()).add(target);
+        }
+
+        List<Allocation<T>> allocations = new ArrayList<>();
+        long remaining = input;
+        for (List<Target<T>> tier : tiers.values()) {
+            if (remaining <= 0) break;
+
+            List<Allocation<T>> tierAllocations =
+                    allocateTier(tier, remaining, deliveredThisCall, allocationDebt, targetOrder);
+            for (Allocation<T> allocation : tierAllocations) {
+                remaining -= allocation.amount();
+            }
+            remaining = Math.max(0, remaining);
+            allocations.addAll(tierAllocations);
+        }
+        return allocations;
+    }
+
+    /** One priority tier: finite demands weighted, then any infinite demands on the leftover. */
+    private static <T> List<Allocation<T>> allocateTier(
+            List<Target<T>> targets,
+            long input,
+            Map<ConnectionKey, Long> deliveredThisCall,
+            Map<ConnectionKey, Double> allocationDebt,
+            Comparator<T> targetOrder) {
         List<TargetDemand<T>> finiteDemands = new ArrayList<>();
         List<Target<T>> infiniteTargets = new ArrayList<>();
         long totalFiniteDemand = 0;
         for (Target<T> target : targets) {
-            if (blockedTargets.contains(target.key())) continue;
-
             long demand = remainingDemand(target, deliveredThisCall);
             if (demand <= 0) continue;
 
@@ -232,7 +269,12 @@ final class CableNetworkPlanner {
 
     record ConnectionKey(BlockPos pos, Direction side) {}
 
-    record Target<T>(ConnectionKey key, T value, long demand) {}
+    /**
+     * A candidate for a share of the budget.
+     *
+     * @param priority lower is served first; tiers do not share a budget
+     */
+    record Target<T>(ConnectionKey key, T value, long demand, int priority) {}
 
     record Allocation<T>(T target, long amount) {}
 

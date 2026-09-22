@@ -24,6 +24,10 @@ public final class CableGameTestRegistration {
             60,
             CableGameTestBody::testCreativeEnginePowersCableNetwork),
         new GameTestCase(
+            "power/machine_is_served_before_a_battery",
+            90,
+            CableGameTestBody::testMachineIsServedBeforeABattery),
+        new GameTestCase(
             "power/cable_connection_updates_when_neighbor_output_rotates",
             100,
             CableGameTestBody::testCableConnectionUpdatesWhenNeighborOutputRotates),

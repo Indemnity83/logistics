@@ -53,6 +53,12 @@ public class CableNetwork {
 
     private static boolean strandedEnergyReported = false;
 
+    /** Generators and consumers: served before any buffer. */
+    private static final int PRIORITY_DEVICE = 0;
+
+    /** Buffers: they take what the machines leave. */
+    private static final int PRIORITY_BUFFER = 1;
+
     private final Set<BlockPos> cablePositions = new HashSet<>();
     private final Map<CableNetworkPlanner.ConnectionKey, Double> allocationDebt = new HashMap<>();
     private final Map<BlockPos, Long> cableTransferredThisTick = new HashMap<>();
@@ -563,10 +569,23 @@ public class CableNetwork {
             Map<CableNetworkPlanner.ConnectionKey, Long> deliveredThisCall) {
         List<CableNetworkPlanner.Target<DeviceConnection>> plannerTargets = new ArrayList<>();
         for (DeviceConnection target : targets) {
-            plannerTargets.add(new CableNetworkPlanner.Target<>(target.key(), target, targetDemand(target)));
+            plannerTargets.add(new CableNetworkPlanner.Target<>(
+                    target.key(), target, targetDemand(target), devicePriority(target)));
         }
         return CableNetworkPlanner.allocateToDemand(
                 plannerTargets, input, blockedTargets, deliveredThisCall, allocationDebt, DeviceConnection.ORDER);
+    }
+
+    /**
+     * Which tier a device shares a budget with.
+     *
+     * <p>A buffer is a destination of last resort. Without the split
+     * a battery bids its whole remaining capacity -- up to 100,000 RF -- against a machine asking
+     * for the tens it can use this tick, and pro rata across that flat list leaves the machine with
+     * almost nothing.
+     */
+    private static int devicePriority(DeviceConnection device) {
+        return device.blockEntity() instanceof EnergyBuffer ? PRIORITY_BUFFER : PRIORITY_DEVICE;
     }
 
     private long targetDemand(DeviceConnection target) {
