@@ -29,6 +29,9 @@ import net.minecraft.world.level.block.Blocks;
  */
 public class PowerJunctionGameTestBody {
 
+    /** Comfortably past the 1,000 RF/t the junction's output used to be capped at. */
+    private static final long BURST_DRAW = 25_000L;
+
     /** Fill a junction's RF buffer to capacity via its rate-capped insert loop. */
     private static void fill(GameTestHelper context, PowerJunctionBlockEntity junction) {
         IEnergyStorage es = junction.energyStorage(null);
@@ -246,6 +249,49 @@ public class PowerJunctionGameTestBody {
             }
             if ((mask & bit(Direction.DOWN)) != 0) {
                 context.fail("Arm into the quarry should not be a power link (it's an item endpoint)");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * The network may spend its own buffer as fast as it likes. A junction meters RF on the way
+     * <em>in</em> ({@code MAX_INPUT}) -- that is the progression lever a player builds around -- but
+     * once the charge is inside it belongs to the logistics network, so a burst of routing or
+     * crafting can draw on the whole buffer in a single tick.
+     *
+     * <p>Draws well past the old 1,000 RF/t output cap in one call, which is what the cap used to
+     * silently truncate.
+     */
+    public static void testNetworkDrawsPastTheOldOutputCap(GameTestHelper context) {
+        BlockPos pipePos = new BlockPos(0, 1, 0);
+        BlockPos junctionPos = new BlockPos(1, 1, 0);
+        context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
+        if (junction == null) {
+            context.fail("Junction should have a block entity");
+            return;
+        }
+        fill(context, junction);
+
+        context.runAfterDelay(25, () -> {
+            PipeNetwork net = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(pipePos));
+            if (net == null) {
+                context.fail("Pipe should have formed a network");
+                return;
+            }
+
+            long before = junction.energyStorage(null).getAmount();
+            if (!net.consumeEnergy(BURST_DRAW)) {
+                context.fail("A filled junction should supply " + BURST_DRAW
+                        + " RF in one tick; the network was refused");
+                return;
+            }
+            long drawn = before - junction.energyStorage(null).getAmount();
+            if (drawn != BURST_DRAW) {
+                context.fail("Expected " + BURST_DRAW + " RF drawn from the junction in one tick, drew " + drawn);
                 return;
             }
             context.succeed();

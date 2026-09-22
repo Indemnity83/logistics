@@ -21,6 +21,10 @@ public final class PowerJunctionGameTestRegistration {
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("pipe/junction_powers_network", 60, PowerJunctionGameTestBody::testJunctionPowersNetwork),
         new GameTestCase(
+            "pipe/network_draws_past_the_old_output_cap",
+            80,
+            PowerJunctionGameTestBody::testNetworkDrawsPastTheOldOutputCap),
+        new GameTestCase(
             "pipe/cable_cannot_drain_the_junction",
             110,
             PowerJunctionGameTestBody::testCableCannotDrainTheJunction),
