@@ -40,15 +40,15 @@ public class BatteryGameTest {
     }
 
     /** Two batteries against each other leave each other's charge alone. */
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testTouchingBatteriesDoNotDrainEachOther(GameTestHelper context) {
         BatteryGameTestBody.testTouchingBatteriesDoNotDrainEachOther(context);
     }
 
-    /** Batteries on one cable network leave each other's charge alone. */
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 80)
-    public void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
-        BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
+    /** Batteries on one cable network level out to the same charge. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 110)
+    public void testBatteriesOnOneCableLevelOut(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableLevelOut(context);
     }
 
     /** A bank of batteries on one cable empties together rather than one at a time. */

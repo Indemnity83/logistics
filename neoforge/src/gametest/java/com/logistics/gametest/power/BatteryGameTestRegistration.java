@@ -49,10 +49,10 @@ public final class BatteryGameTestRegistration {
         BatteryGameTestBody.testTouchingBatteriesDoNotDrainEachOther(context);
     }
 
-    /** Batteries on one cable network leave each other's charge alone. */
-    @GameTest(template = "empty", batch = "battery", timeoutTicks = 80)
-    public static void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
-        BatteryGameTestBody.testBatteriesOnOneCableDoNotDrainEachOther(context);
+    /** Batteries on one cable network level out to the same charge. */
+    @GameTest(template = "empty", batch = "battery", timeoutTicks = 130)
+    public static void testBatteriesOnOneCableLevelOut(GameTestHelper context) {
+        BatteryGameTestBody.testBatteriesOnOneCableLevelOut(context);
     }
 
     /** A bank of batteries on one cable charges together rather than one at a time. */
