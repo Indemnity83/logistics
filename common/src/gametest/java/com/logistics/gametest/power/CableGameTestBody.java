@@ -9,7 +9,9 @@ import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
+import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -26,6 +28,19 @@ import net.minecraft.world.level.block.Blocks;
  * reacts to a neighbour rotating, and which engines the network may and may not draw from.
  */
 public class CableGameTestBody {
+
+    /** Ender Cable throughput: the per-tick budget the consumer-before-battery test needs. */
+    private static final long CABLE_BUDGET_FOR_TIER_TEST = 120L;
+
+    /**
+     * A consumer demand large enough that a battery outbidding it actually starves it.
+     *
+     * <p>At a small demand the bug hides: the battery banks the engine's output and then pushes the
+     * consumer's few RF back out itself on the next tick, so the consumer is served anyway -- just
+     * laundered through the battery and billed to the cable twice. Only once the consumer wants
+     * enough that the double billing exhausts the cable's budget does it visibly go without.
+     */
+    private static final long CONSUMER_DRAIN_RATE = 100L;
 
     public static void testCreativeEnginePowersCableNetwork(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 1, 1);
@@ -714,5 +729,77 @@ public class CableGameTestBody {
 
     private static void giveMaceratorWork(MaceratorBlockEntity machine) {
         machine.setItem(0, new ItemStack(Items.IRON_INGOT));
+    }
+
+    /**
+     * A consumer is served before a battery. A battery is not an {@code EnergyDemandProvider}, so its
+     * demand is its whole remaining capacity -- up to 100,000 RF -- while a consumer asks only for the
+     * few RF it can use this tick. Split pro rata across one flat list the consumer gets a rounding
+     * error and the battery soaks up the network.
+     *
+     * <p>An Ender Cable and a wound-up engine on purpose. At a copper cable's 30 RF/t every
+     * {@code floor(ideal)} lands on zero and {@code distributeRemainder} hands the budget out one RF
+     * at a time, evenly -- which masks the imbalance entirely. The weights only decide the split once
+     * there is enough per tick for the flooring to mean something.
+     *
+     * <p>The engine goes down last and explicitly {@code POWERED}, facing the cable: {@code setBlock}
+     * fires neighbour updates, and an engine recomputes {@code POWERED} from real redstone whenever
+     * one arrives.
+     */
+    public static void testMachineIsServedBeforeABattery(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(1, 1, 2);
+        BlockPos batteryPos = new BlockPos(1, 2, 1);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        CreativeSinkBlockEntity sink = (CreativeSinkBlockEntity) context.getBlockEntity(sinkPos);
+        BatteryBlockEntity battery = (BatteryBlockEntity) context.getBlockEntity(batteryPos);
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        if (sink == null || battery == null || engine == null) {
+            context.fail("Expected a sink, a battery and an engine");
+            return;
+        }
+        setSinkDrainRate(sink, CONSUMER_DRAIN_RATE, context);
+        while (engine.getOutputRate() < CABLE_BUDGET_FOR_TIER_TEST) {
+            engine.cycleOutputLevel();
+        }
+
+        // Totalled over a window rather than checked tick by tick. A single tick's delivery can be
+        // split either side of the sink's own block-entity tick -- the engine pushes, the sink rolls
+        // its counter, a battery pushes the rest -- so a per-tick reading understates a sink that was
+        // in fact fully served. The total over the window is not affected.
+        int firstSample = 20;
+        int lastSample = 40;
+        java.util.concurrent.atomic.AtomicLong received = new java.util.concurrent.atomic.AtomicLong();
+        for (int tick = firstSample; tick <= lastSample; tick++) {
+            context.runAfterDelay(tick, () -> received.addAndGet(sink.energyReceivedLastTick()));
+        }
+
+        long samples = lastSample - firstSample + 1;
+        long expected = CONSUMER_DRAIN_RATE * samples;
+        context.runAfterDelay(41, () -> {
+            long batteryEnergy = battery.energyStorage(null).getAmount();
+            if (received.get() * 10 < expected * 9) {
+                context.fail("A battery outbid the consumer for the cable's budget: the consumer took "
+                        + received.get() + " RF over " + samples + " ticks against a demand of " + expected
+                        + ", while the battery banked " + batteryEnergy);
+                return;
+            }
+            // Control: the battery must still charge on what is left over, or this would pass just
+            // as well if buffers had stopped receiving power at all.
+            if (batteryEnergy <= 0) {
+                context.fail("The battery received nothing; buffers should still take the leftover");
+                return;
+            }
+            context.succeed();
+        });
     }
 }

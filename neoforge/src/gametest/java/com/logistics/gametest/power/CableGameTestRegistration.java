@@ -30,6 +30,16 @@ public final class CableGameTestRegistration {
     }
 
     /**
+    * Verifies a machine is served before a battery competing for the same cable budget.
+    *
+    * <p>Run in-game: /test run logistics-gametest.cablegametest.testmachineisservedbeforeabattery
+    */
+    @GameTest(template = "empty", batch = "cable", timeoutTicks = 90)
+    public static void testMachineIsServedBeforeABattery(GameTestHelper context) {
+        CableGameTestBody.testMachineIsServedBeforeABattery(context);
+    }
+
+    /**
     * Verifies a cable's cached connection updates when a neighbouring engine's output rotates.
     *
     * <p>Run in-game: /test run logistics-gametest.cablegametest.testcableconnectionupdateswhenneighboroutputrotates
