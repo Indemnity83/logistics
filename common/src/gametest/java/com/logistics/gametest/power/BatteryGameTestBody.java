@@ -29,6 +29,10 @@ import net.minecraft.gametest.framework.GameTestHelper;
  */
 public class BatteryGameTestBody {
 
+    /** Second-phase levelling charges: partly charged either side, so both are free to push. */
+    private static final long HIGHER_SHARE = 30_000L;
+    private static final long LOWER_SHARE = 10_000L;
+
     private static void setStored(BatteryBlockEntity battery, long amount) {
         ((EnergyComponent) battery.energyStorage(null)).setAmount(amount);
     }
@@ -284,26 +288,27 @@ public class BatteryGameTestBody {
     }
 
     /**
-     * Batteries wired to the same cable must not drain one another either. Every battery on a
-     * network is offered as a source as well as a target, so the one the network happens to sort
-     * first empties into the rest -- which reads in game as a battery that sits there refusing to
-     * charge, and as a charging order that depends on where the blocks are rather than on anything
-     * the player did.
+     * Batteries wired together level out. A bank is one buffer as far as a player is concerned, so a
+     * charged battery and an empty one on the same cable should meet in the middle rather than
+     * staying as they were.
+     *
+     * <p>This inverts {@code batteries_on_one_cable_do_not_drain_each_other}, shipped in 0.8.9. That
+     * fix refused buffer-to-buffer transfer outright, which was the right same-day answer to one
+     * battery silently emptying into the rest -- but it also froze a bank into whatever state it
+     * happened to be in. The transfer is now bounded by the amount that leaves both at the same fill
+     * instead of being refused, so charge runs downhill and stops on level. Which battery was placed
+     * first no longer enters into it.
+     *
+     * <p>Direct face-to-face transfer is still refused: see
+     * {@link #testTouchingBatteriesDoNotDrainEachOther}. A cable is required.
      */
-    public static void testBatteriesOnOneCableDoNotDrainEachOther(GameTestHelper context) {
+    public static void testBatteriesOnOneCableLevelOut(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 0);
         BlockPos leftPos = new BlockPos(0, 1, 0);
         BlockPos rightPos = new BlockPos(2, 1, 0);
-        BlockPos machinePos = new BlockPos(1, 2, 0);
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        // The empty one is placed first so it ticks first. Otherwise the charged battery pushes and
-        // the empty one hands it straight back inside the same tick, and every between-tick sample
-        // reads zero while the churn is happening.
+        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
         context.setBlock(rightPos, LogisticsPower.BLOCK.BATTERY);
         context.setBlock(leftPos, LogisticsPower.BLOCK.BATTERY);
-        // Control: a real consumer on the same cable. Without it this test would pass just as well
-        // if cable delivery had stopped working altogether.
-        context.setBlock(machinePos, LogisticsAutomation.BLOCK.KILN);
 
         BatteryBlockEntity left = context.getBlockEntity(leftPos, BatteryBlockEntity.class);
         BatteryBlockEntity right = context.getBlockEntity(rightPos, BatteryBlockEntity.class);
@@ -316,25 +321,45 @@ public class BatteryGameTestBody {
         setStored(left, charge);
         setStored(right, 0);
 
-        java.util.concurrent.atomic.AtomicLong peakRight = new java.util.concurrent.atomic.AtomicLong();
-        for (int tick = 1; tick <= 40; tick++) {
-            context.runAfterDelay(tick, () -> peakRight.accumulateAndGet(stored(right), Math::max));
-        }
-
         context.runAfterDelay(41, () -> {
-            KilnBlockEntity cableMachine = context.getBlockEntity(machinePos, KilnBlockEntity.class);
-            if (cableMachine == null || cableMachine.energyStorage(null).getAmount() <= 0) {
-                context.fail("The charged battery delivered nothing to the machine on the cable, so this "
-                        + "test proves nothing about what it does to another battery");
+            long total = stored(left) + stored(right);
+            if (total != charge) {
+                context.fail("Levelling must conserve charge: " + stored(left) + " + " + stored(right)
+                        + " is not the " + charge + " RF the bank started with");
                 return;
             }
-            if (peakRight.get() != 0) {
-                context.fail("A battery pushed " + peakRight.get()
-                        + " RF through the cable into another battery");
+            if (stored(right) <= 0) {
+                context.fail("A charged battery should level into an empty one across a cable, "
+                        + "but the empty one is still at " + stored(right) + " RF");
                 return;
             }
-            if (stored(right) != 0) {
-                context.fail("A battery drained " + stored(right) + " RF through the cable into another battery");
+            // Downhill only: the charged one must never fall below the one it is filling, which is
+            // what an overshooting or oscillating transfer would look like.
+            if (stored(left) < stored(right)) {
+                context.fail("Levelling overshot: the source fell to " + stored(left)
+                        + " RF below the target's " + stored(right) + " RF");
+                return;
+            }
+            // Second phase: two partly charged batteries must close the gap between them. This is
+            // the case that tells a bounded transfer from an unbounded one. Unbounded, each is as
+            // free to push as the other, the two flows cancel, and the pair sits at its original
+            // split forever -- which reads exactly like the frozen bank the 0.8.9 guard produced.
+            setStored(left, HIGHER_SHARE);
+            setStored(right, LOWER_SHARE);
+        });
+
+        context.runAfterDelay(80, () -> {
+            long gap = stored(left) - stored(right);
+            long startingGap = HIGHER_SHARE - LOWER_SHARE;
+
+            if (gap < 0) {
+                context.fail("Levelling overshot in the second phase: " + stored(left)
+                        + " RF now below " + stored(right) + " RF");
+                return;
+            }
+            if (gap * 10 > startingGap * 9) {
+                context.fail("Two partly charged batteries should close the gap between them, but it "
+                        + "only moved from " + startingGap + " to " + gap + " RF");
                 return;
             }
             context.succeed();
