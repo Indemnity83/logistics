@@ -62,4 +62,10 @@ public class BatteryGameTest {
     public void testBatteriesOnOneCableFillEvenly(GameTestHelper context) {
         BatteryGameTestBody.testBatteriesOnOneCableFillEvenly(context);
     }
+
+    /** A five-battery bank levels out and conserves its total. */
+    @GameTest(maxTicks = 340)
+    public void testBatteryBankLevelsOut(GameTestHelper context) {
+        BatteryGameTestBody.testBatteryBankLevelsOut(context);
+    }
 }

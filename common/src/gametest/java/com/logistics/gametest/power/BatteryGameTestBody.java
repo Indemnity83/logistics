@@ -29,6 +29,13 @@ import net.minecraft.gametest.framework.GameTestHelper;
  */
 public class BatteryGameTestBody {
 
+    /**
+     * How close a settled bank must be. Measured at 0 -- the levelling bound floors, so the last
+     * sub-RF difference cannot move and the bank lands dead level -- but a few RF of slack keeps the
+     * assertion about "levelled" rather than about exact arrival tick.
+     */
+    private static final long BANK_SPREAD_TOLERANCE = 10L;
+
     /** Second-phase levelling charges: partly charged either side, so both are free to push. */
     private static final long HIGHER_SHARE = 30_000L;
     private static final long LOWER_SHARE = 10_000L;
@@ -281,6 +288,75 @@ public class BatteryGameTestBody {
             if (Math.max(firstGave, secondGave) * 3 > total * 2) {
                 context.fail("A battery bank should empty together, but one carried the load: "
                         + firstGave + " RF against " + secondGave + " RF");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * A whole bank levels out, not just a pair. Five batteries hang off the six faces of one cable,
+     * so every one of them is on the same network and none touches another -- each pair differs on
+     * two axes. Direct adjacency is refused anyway (see
+     * {@link #testTouchingBatteriesDoNotDrainEachOther}), so the cable is the only path available,
+     * but keeping them apart means the test cannot be read any other way.
+     *
+     * <p>Two properties, and the second is the one that matters most: the spread collapses, and the
+     * bank's total is exactly what it started with. Levelling moves a player's charge around, so it
+     * must never create or destroy a single RF doing it.
+     */
+    public static void testBatteryBankLevelsOut(GameTestHelper context) {
+        BlockPos cablePos = new BlockPos(2, 2, 2);
+        // The five faces a battery can hang off without touching another battery.
+        BlockPos[] batteryPositions = {
+            new BlockPos(1, 2, 2),
+            new BlockPos(3, 2, 2),
+            new BlockPos(2, 2, 1),
+            new BlockPos(2, 2, 3),
+            new BlockPos(2, 3, 2),
+        };
+        long[] startingCharges = {5_000L, 3_500L, 2_000L, 500L, 0L};
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        BatteryBlockEntity[] bank = new BatteryBlockEntity[batteryPositions.length];
+        for (int i = 0; i < batteryPositions.length; i++) {
+            context.setBlock(batteryPositions[i], LogisticsPower.BLOCK.BATTERY);
+            bank[i] = context.getBlockEntity(batteryPositions[i], BatteryBlockEntity.class);
+            if (bank[i] == null) {
+                context.fail("Battery " + i + " should have a block entity");
+                return;
+            }
+            setStored(bank[i], startingCharges[i]);
+        }
+
+        long startingTotal = 0;
+        for (long charge : startingCharges) {
+            startingTotal += charge;
+        }
+        long total = startingTotal;
+
+        context.runAfterDelay(300, () -> {
+            long lowest = Long.MAX_VALUE;
+            long highest = Long.MIN_VALUE;
+            long settledTotal = 0;
+            StringBuilder charges = new StringBuilder();
+            for (BatteryBlockEntity battery : bank) {
+                long held = stored(battery);
+                lowest = Math.min(lowest, held);
+                highest = Math.max(highest, held);
+                settledTotal += held;
+                charges.append(charges.length() == 0 ? "" : "/").append(held);
+            }
+
+            // Conservation first: a levelling bug that also leaked would otherwise read as success.
+            if (settledTotal != total) {
+                context.fail("Levelling a bank must conserve charge: started with " + total
+                        + " RF, ended with " + settledTotal + " RF (" + charges + ")");
+                return;
+            }
+            if (highest - lowest > BANK_SPREAD_TOLERANCE) {
+                context.fail("A battery bank should level out within " + BANK_SPREAD_TOLERANCE
+                        + " RF, but the spread is still " + (highest - lowest) + " RF (" + charges + ")");
                 return;
             }
             context.succeed();
