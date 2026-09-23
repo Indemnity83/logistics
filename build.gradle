@@ -17,7 +17,7 @@ ext {
     assertj_version = '3.27.7'
     // Sentry runtime SDK, bundled per loader. The io.sentry.jvm.gradle source-context upload
     // plugin is versioned separately, in settings.gradle.
-    sentry_version = '8.56.0'
+    sentry_version = '8.57.0'
 }
 
 repositories {
