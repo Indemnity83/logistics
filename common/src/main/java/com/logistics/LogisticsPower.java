@@ -597,9 +597,12 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         static void register() {
             // The single untiered Battery became the Copper tier, which kept its capacity and
             // throughput, so a world saved before the line existed loads unchanged.
+            //
+            // The block entity type deliberately keeps its own "power/battery" id and needs no
+            // alias — aliasing a name that is still the live one throws on registration. Only the
+            // block and item ids moved, so only they are bridged.
             INSTANCE.registerBlockAlias("power/battery", BLOCK.COPPER_BATTERY);
             INSTANCE.registerItemAlias("power/battery", BLOCK.COPPER_BATTERY.asItem());
-            INSTANCE.registerBlockEntityAlias("power/battery", ENTITY.BATTERY_BLOCK_ENTITY);
         }
     }
 }

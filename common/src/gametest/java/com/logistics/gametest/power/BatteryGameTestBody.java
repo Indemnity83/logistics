@@ -16,6 +16,7 @@ import com.logistics.pipe.network.PipeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Shared battery GameTest bodies, compiled directly into both loaders' {@code gametest} source
@@ -111,6 +112,90 @@ public class BatteryGameTestBody {
             }
             if (net.consumeEnergy(1)) {
                 context.fail("A battery alone should no longer power the network");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    private static Block blockFor(BatteryTier tier) {
+        return switch (tier) {
+            case COPPER -> LogisticsPower.BLOCK.COPPER_BATTERY;
+            case BRONZE -> LogisticsPower.BLOCK.BRONZE_BATTERY;
+            case GOLD -> LogisticsPower.BLOCK.GOLD_BATTERY;
+            case AMETHYST -> LogisticsPower.BLOCK.AMETHYST_BATTERY;
+            case ECHO -> LogisticsPower.BLOCK.ECHO_BATTERY;
+        };
+    }
+
+    /**
+     * All five tiers share one {@code BlockEntityType}, so a placed battery has to take its
+     * capacity from the block it belongs to. If that lookup regressed to a single constant, every
+     * tier would silently report the same ceiling.
+     */
+    public static void testEachTierReportsItsOwnCapacity(GameTestHelper context) {
+        // One position, reused: the empty test structure is only a few blocks across, and nothing
+        // here ticks, so replacing the block in place is both safe and free of neighbour effects.
+        BlockPos pos = new BlockPos(1, 1, 1);
+        for (BatteryTier tier : BatteryTier.values()) {
+            context.setBlock(pos, blockFor(tier));
+
+            BatteryBlockEntity battery = context.getBlockEntity(pos, BatteryBlockEntity.class);
+            if (battery == null) {
+                context.fail(tier + " battery should have a block entity");
+                return;
+            }
+            long actual = battery.energyStorage(null).getCapacity();
+            if (actual != tier.capacity()) {
+                context.fail(tier + " battery should hold " + tier.capacity() + " RF, got " + actual);
+                return;
+            }
+        }
+        context.succeed();
+    }
+
+    /**
+     * The tier has to govern the runtime ceiling, not just the reported number. A Gold battery
+     * pre-charged to what a Copper one holds is not full, so a real engine feeding it through a
+     * real cable must keep filling it past that mark -- which it cannot do if the ceiling
+     * regressed to the base tier's.
+     *
+     * <p>Pre-charging is what makes this affordable: copper cable moves 30 RF/t, so filling
+     * 1,600,000 RF from empty would take tens of thousands of ticks. Starting at Copper's ceiling
+     * puts the only interesting boundary a few ticks away.
+     */
+    public static void testHigherTierChargesPastTheLowerTierCeiling(GameTestHelper context) {
+        BlockPos batteryPos = new BlockPos(1, 1, 0);
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos enginePos = new BlockPos(1, 1, 2);
+
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.GOLD_BATTERY);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        // Engine placed last, facing the cable: setBlock fires neighbour updates that recompute
+        // POWERED, and an engine only exposes its buffer on the output face.
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.NORTH)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        BatteryBlockEntity battery = context.getBlockEntity(batteryPos, BatteryBlockEntity.class);
+        if (battery == null) {
+            context.fail("Gold battery should have a block entity");
+            return;
+        }
+        long copperCeiling = BatteryTier.COPPER.capacity();
+        setStored(battery, copperCeiling);
+
+        context.runAfterDelay(40, () -> {
+            long now = stored(battery);
+            if (now <= copperCeiling) {
+                context.fail("A Gold battery held at Copper's " + copperCeiling
+                        + " RF ceiling should keep charging, got " + now);
+                return;
+            }
+            if (now > BatteryTier.GOLD.capacity()) {
+                context.fail("A Gold battery should never exceed " + BatteryTier.GOLD.capacity()
+                        + " RF, got " + now);
                 return;
             }
             context.succeed();
