@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MRM",
+    "RCR",
+    "MRM"
+  ],
+  "key": {
+    "M": "minecraft:gold_ingot",
+    "R": "minecraft:redstone",
+    "C": "logistics:core/machine_core"
+  },
+  "result": {
+    "id": "logistics:power/gold_battery_frame",
+    "count": 1
+  }
+}

@@ -1,7 +1,6 @@
 package com.logistics.power.block;
 
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.power.block.entity.BatteryBlockEntity;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
@@ -31,13 +30,18 @@ public class BatteryBlockItem extends BlockItem {
             return 0;
         }
         // Clamp so any positive charge shows at least 1px and a full battery never overflows 13px.
-        int width = Math.round(13.0f * stored / BatteryBlockEntity.capacity());
+        int width = Math.round(13.0f * stored / tier().capacity());
         return Math.max(1, Math.min(13, width));
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
         return 0x00AA00;
+    }
+
+    /** Tier of the block this item places, so the bar scales against that tier's own capacity. */
+    private BatteryTier tier() {
+        return getBlock() instanceof BatteryBlock battery ? battery.tier() : BatteryTier.COPPER;
     }
 
     private static long getStoredEnergy(ItemStack stack) {

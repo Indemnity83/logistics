@@ -7,6 +7,7 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.power.AbstractBatteryBlockEntity;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.automation.kiln.KilnBlockEntity;
+import com.logistics.power.block.BatteryTier;
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
@@ -40,7 +41,7 @@ public class BatteryGameTestBody {
     /** A placed battery has its block entity. */
     public static void testBatteryPlacement(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(pos, LogisticsPower.BLOCK.COPPER_BATTERY);
 
         if (context.getBlockEntity(pos, BatteryBlockEntity.class) == null) {
             context.fail("Battery should have a block entity");
@@ -52,13 +53,13 @@ public class BatteryGameTestBody {
     /** The CHARGE block state property tracks stored energy (drives the multipart fill bar). */
     public static void testBatteryChargeStateTracksEnergy(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
-        context.setBlock(pos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(pos, LogisticsPower.BLOCK.COPPER_BATTERY);
         BatteryBlockEntity battery = context.getBlockEntity(pos, BatteryBlockEntity.class);
         if (battery == null) {
             context.fail("Battery should have a block entity");
             return;
         }
-        setStored(battery, BatteryBlockEntity.capacity());
+        setStored(battery, BatteryTier.COPPER.capacity());
 
         context.runAfterDelay(5, () -> {
             int charge = context.getBlockState(pos).getValue(AbstractBatteryBlockEntity.CHARGE);
@@ -94,13 +95,13 @@ public class BatteryGameTestBody {
         BlockPos pipePos = new BlockPos(0, 1, 0);
         BlockPos batteryPos = new BlockPos(1, 1, 0);
         context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.COPPER_BATTERY);
         BatteryBlockEntity battery = context.getBlockEntity(batteryPos, BatteryBlockEntity.class);
         if (battery == null) {
             context.fail("Battery should have a block entity");
             return;
         }
-        setStored(battery, BatteryBlockEntity.capacity());
+        setStored(battery, BatteryTier.COPPER.capacity());
 
         context.runAfterDelay(25, () -> {
             PipeNetwork net = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(pipePos));
@@ -135,8 +136,8 @@ public class BatteryGameTestBody {
         // The empty one is placed first so it ticks first. Otherwise the charged battery pushes and
         // the empty one hands it straight back inside the same tick, and every between-tick sample
         // reads zero while the churn is happening.
-        context.setBlock(rightPos, LogisticsPower.BLOCK.BATTERY);
-        context.setBlock(leftPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(rightPos, LogisticsPower.BLOCK.COPPER_BATTERY);
+        context.setBlock(leftPos, LogisticsPower.BLOCK.COPPER_BATTERY);
         // Control: a real consumer on another face. Without it this test would pass just as well
         // if the battery's push had stopped working altogether.
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.KILN);
@@ -148,7 +149,7 @@ public class BatteryGameTestBody {
             return;
         }
 
-        long charge = BatteryBlockEntity.capacity() / 2;
+        long charge = BatteryTier.COPPER.capacity() / 2;
         setStored(left, charge);
         setStored(right, 0);
 
@@ -194,9 +195,9 @@ public class BatteryGameTestBody {
         BlockPos enginePos = new BlockPos(0, 1, 1);
 
         context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(northPos, LogisticsPower.BLOCK.BATTERY);
-        context.setBlock(southPos, LogisticsPower.BLOCK.BATTERY);
-        context.setBlock(upPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(northPos, LogisticsPower.BLOCK.COPPER_BATTERY);
+        context.setBlock(southPos, LogisticsPower.BLOCK.COPPER_BATTERY);
+        context.setBlock(upPos, LogisticsPower.BLOCK.COPPER_BATTERY);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)
@@ -250,8 +251,8 @@ public class BatteryGameTestBody {
 
         context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
-        context.setBlock(firstPos, LogisticsPower.BLOCK.BATTERY);
-        context.setBlock(secondPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(firstPos, LogisticsPower.BLOCK.COPPER_BATTERY);
+        context.setBlock(secondPos, LogisticsPower.BLOCK.COPPER_BATTERY);
 
         CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
         BatteryBlockEntity first = context.getBlockEntity(firstPos, BatteryBlockEntity.class);
@@ -262,7 +263,7 @@ public class BatteryGameTestBody {
         }
         sink.setUnlimitedDrainRate();
 
-        long charge = BatteryBlockEntity.capacity() / 2;
+        long charge = BatteryTier.COPPER.capacity() / 2;
         setStored(first, charge);
         setStored(second, charge);
 
@@ -307,8 +308,8 @@ public class BatteryGameTestBody {
         BlockPos leftPos = new BlockPos(0, 1, 0);
         BlockPos rightPos = new BlockPos(2, 1, 0);
         context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
-        context.setBlock(rightPos, LogisticsPower.BLOCK.BATTERY);
-        context.setBlock(leftPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(rightPos, LogisticsPower.BLOCK.COPPER_BATTERY);
+        context.setBlock(leftPos, LogisticsPower.BLOCK.COPPER_BATTERY);
 
         BatteryBlockEntity left = context.getBlockEntity(leftPos, BatteryBlockEntity.class);
         BatteryBlockEntity right = context.getBlockEntity(rightPos, BatteryBlockEntity.class);
@@ -317,7 +318,7 @@ public class BatteryGameTestBody {
             return;
         }
 
-        long charge = BatteryBlockEntity.capacity() / 2;
+        long charge = BatteryTier.COPPER.capacity() / 2;
         setStored(left, charge);
         setStored(right, 0);
 

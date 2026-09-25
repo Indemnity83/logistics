@@ -16,6 +16,9 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @DisplayName("LogisticsConfigHost (configory)")
 class LogisticsConfigHostTest {
@@ -146,7 +149,11 @@ class LogisticsConfigHostTest {
                 "logistics.engines.creative",
                 "logistics.engines.magmatic",
                 "logistics.engines.fuel",
-                "logistics.power.battery",
+                "logistics.power.battery.copper",
+                "logistics.power.battery.bronze",
+                "logistics.power.battery.gold",
+                "logistics.power.battery.amethyst",
+                "logistics.power.battery.echo",
                 "logistics.power.cables",
                 "logistics.machines.macerator",
                 "logistics.machines.kiln",
@@ -251,8 +258,8 @@ class LogisticsConfigHostTest {
         assertThat(configOf(LogisticsCore.CONFIG.REDSTONE_BUFFER_CAPACITY)
                         .trySet(LogisticsCore.CONFIG.REDSTONE_BUFFER_CAPACITY, 0L))
                 .isFalse();
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_CAPACITY)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_CAPACITY, 0L))
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_COPPER_CAPACITY)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_COPPER_CAPACITY, 0L))
                 .isFalse();
         assertThat(configOf(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY)
                         .trySet(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY, 0L))
@@ -302,22 +309,42 @@ class LogisticsConfigHostTest {
                 .isFalse();
     }
 
-    @Test
-    @DisplayName("the battery's per-side push cannot exceed its own I/O ceiling")
-    void batteryOutputPerSideIsBoundedByMaxIo() {
-        long maxIo = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_MAX_IO);
+    /**
+     * Every battery tier declares its own mutual max_io/output_per_side clamp, so a tier whose
+     * pair of lambdas points at the wrong tier's keys would validate against a sibling and go
+     * unnoticed. Checking all five keeps that copy-paste honest.
+     */
+    static Stream<Arguments> batteryTierIoKeys() {
+        return Stream.of(
+                Arguments.of("copper",
+                        LogisticsPower.CONFIG.BATTERY_COPPER_MAX_IO,
+                        LogisticsPower.CONFIG.BATTERY_COPPER_OUTPUT_PER_SIDE),
+                Arguments.of("bronze",
+                        LogisticsPower.CONFIG.BATTERY_BRONZE_MAX_IO,
+                        LogisticsPower.CONFIG.BATTERY_BRONZE_OUTPUT_PER_SIDE),
+                Arguments.of("gold",
+                        LogisticsPower.CONFIG.BATTERY_GOLD_MAX_IO,
+                        LogisticsPower.CONFIG.BATTERY_GOLD_OUTPUT_PER_SIDE),
+                Arguments.of("amethyst",
+                        LogisticsPower.CONFIG.BATTERY_AMETHYST_MAX_IO,
+                        LogisticsPower.CONFIG.BATTERY_AMETHYST_OUTPUT_PER_SIDE),
+                Arguments.of("echo",
+                        LogisticsPower.CONFIG.BATTERY_ECHO_MAX_IO,
+                        LogisticsPower.CONFIG.BATTERY_ECHO_OUTPUT_PER_SIDE));
+    }
 
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE, maxIo + 1))
-                .isFalse();
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, 0L))
-                .isFalse();
+    @ParameterizedTest(name = "{0} battery")
+    @MethodSource("batteryTierIoKeys")
+    @DisplayName("a battery's per-side push cannot exceed its own I/O ceiling")
+    void batteryOutputPerSideIsBoundedByMaxIo(
+            String tier, ConfigKey<Long> maxIoKey, ConfigKey<Long> outputPerSideKey) {
+        long maxIo = LogisticsConfigHost.get(maxIoKey);
+
+        assertThat(configOf(outputPerSideKey).trySet(outputPerSideKey, maxIo + 1)).isFalse();
+        assertThat(configOf(maxIoKey).trySet(maxIoKey, 0L)).isFalse();
         // And from the other side: dropping the ceiling below the push it already permits.
-        long perSide = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE);
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, perSide - 1))
-                .isFalse();
+        long perSide = LogisticsConfigHost.get(outputPerSideKey);
+        assertThat(configOf(maxIoKey).trySet(maxIoKey, perSide - 1)).isFalse();
     }
 
     @Test

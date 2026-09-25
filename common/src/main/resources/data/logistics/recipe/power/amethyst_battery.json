@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NBN",
+    "BRB",
+    " B "
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "B": "minecraft:amethyst_shard",
+    "R": "logistics:power/amethyst_battery_frame_filled"
+  },
+  "result": {
+    "id": "logistics:power/amethyst_battery",
+    "count": 1
+  }
+}

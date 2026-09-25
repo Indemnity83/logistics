@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:power/battery",
+          "name": "logistics:power/copper_battery",
           "functions": [
             {
               "function": "minecraft:copy_components",
