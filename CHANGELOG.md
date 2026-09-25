@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.10](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.9...mc26.3-v0.8.10) (2026-09-22)
+
+
+### Changed
+
+* **energy:** batteries on one cable level out ([#1257](https://github.com/Indemnity83/logistics/issues/1257)) ([103a7fb](https://github.com/Indemnity83/logistics/commit/103a7fb38ccbfcdd7f1f80662441e33a1bb36410))
+* **energy:** let the logistics network drain a Power Junction without a rate cap ([#1263](https://github.com/Indemnity83/logistics/issues/1263)) ([ebeb8b7](https://github.com/Indemnity83/logistics/commit/ebeb8b72724383ab74635c828847350b72cc5835))
+
+
+### Fixed
+
+* **energy:** empty a battery bank evenly instead of one at a time ([#1256](https://github.com/Indemnity83/logistics/issues/1256)) ([3295780](https://github.com/Indemnity83/logistics/commit/3295780b0e0056c7f8b2217e6d8dc675d69b3e07))
+* **energy:** serve machines before batteries on a cable ([#1255](https://github.com/Indemnity83/logistics/issues/1255)) ([9915d17](https://github.com/Indemnity83/logistics/commit/9915d17d712c6660a67a0c0484565121e35c3ba3))
+* **energy:** stop a cable draining the Power Junction ([#1253](https://github.com/Indemnity83/logistics/issues/1253)) ([4a5d01d](https://github.com/Indemnity83/logistics/commit/4a5d01d8efcdf898ab4a0b3d66b32d82666bcac3))
+
 ## [0.8.9](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.8...mc26.3-v0.8.9) (2026-09-21)
 
 
