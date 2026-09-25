@@ -559,21 +559,21 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 
 #### Loose ends (found along the way, not required for automation-domain completion)
 
-11. **Quarry chunk-loading toggle** — surfaced while verifying the Quarry; needs a
+11. **Quarry chunk-loading toggle** ([#1283](https://github.com/Indemnity83/logistics/issues/1283)) — surfaced while verifying the Quarry; needs a
     `ChunkLoadingComponent`-level or GameTest check that toggling `quarry_load_chunks` actually
     acquires/releases chunk tickets.
-12. **Marker block** — stateful, zero coverage, likely a short wiki page; do this before revisiting
+12. **Marker block** ([#1284](https://github.com/Indemnity83/logistics/issues/1284)) — stateful, zero coverage, likely a short wiki page; do this before revisiting
     quarry marker-consumption, since that depends on the Marker block having basic tests first. Not
     itself an automation-domain block (`LogisticsCore.BLOCK.MARKER`), but tightly coupled to the
     Laser Quarry's custom-bounds feature.
 
 #### Other domains (after automation)
 
-13. **CraftingModule / ProcessModule / SatelliteModule pipes** — well unit-tested, zero in-world
+13. **CraftingModule / ProcessModule / SatelliteModule pipes** ([#1286](https://github.com/Indemnity83/logistics/issues/1286)) — well unit-tested, zero in-world
     GameTest; low-risk pass adding wiki-traceability to already-correct assertions.
-14. **GoldCable** — untested sibling in an otherwise-tested power-tier family; small,
+14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287)) — untested sibling in an otherwise-tested power-tier family; small,
     pure-math-friendly like Kiln's RF numbers.
-15. **Fluid-routing modules** (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
+15. **Fluid-routing modules** ([#1285](https://github.com/Indemnity83/logistics/issues/1285)) (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
     FluidVoidModule) — zero coverage at any level, real check-valve/routing-policy logic backing 4
     registered pipe blocks.
 ~~16. **Share the CableGameTest tests**~~ — done. All 13 portable tests now run on both loaders,
