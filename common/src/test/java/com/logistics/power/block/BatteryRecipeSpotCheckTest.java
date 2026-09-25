@@ -32,24 +32,26 @@ class BatteryRecipeSpotCheckTest {
      * The fill step is the whole point of the ladder: a Transposer recipe whose fluid amount is
      * <em>negative</em> drains the tank (Fill mode). A positive amount would silently invert the
      * recipe into one that fills the machine's tank from the frame instead.
+     *
+     * <p>There is exactly one fill recipe, on the generic Machine Frame — the tier comes from the
+     * battery's body material, not from a per-tier frame.
      */
-    @ParameterizedTest(name = "{0}")
-    @CsvSource({"gold,1000,8000", "amethyst,2000,12000", "echo,4000,16000"})
-    @DisplayName("filling a frame drains liquid redstone and yields the filled frame")
-    void frameFillDrainsLiquidRedstone(String tier, int milliBuckets, int energy) throws IOException {
-        JsonObject recipe = loadRecipe("data/logistics/recipe/transposer/fill_" + tier + "_battery_frame.json");
+    @Test
+    @DisplayName("filling the Machine Frame drains liquid redstone and yields the filled frame")
+    void frameFillDrainsLiquidRedstone() throws IOException {
+        JsonObject recipe = loadRecipe("data/logistics/recipe/transposer/fill_machine_frame.json");
 
         assertThat(recipe.get("type").getAsString()).isEqualTo("logistics:transposer");
-        assertThat(recipe.get("input").getAsString()).isEqualTo("logistics:power/" + tier + "_battery_frame");
+        assertThat(recipe.get("input").getAsString()).isEqualTo("logistics:core/machine_core");
         assertThat(recipe.getAsJsonObject("result").get("id").getAsString())
-                .isEqualTo("logistics:power/" + tier + "_battery_frame_filled");
+                .isEqualTo("logistics:core/machine_core_filled");
 
         JsonObject fluid = recipe.getAsJsonObject("fluid");
         assertThat(fluid.get("fluid").getAsString()).isEqualTo("logistics:core/liquid_redstone");
         assertThat(fluid.get("amount").getAsInt())
                 .as("negative drains the tank; a positive amount would invert the recipe")
-                .isEqualTo(-milliBuckets);
-        assertThat(recipe.get("energy").getAsInt()).isEqualTo(energy);
+                .isEqualTo(-2000);
+        assertThat(recipe.get("energy").getAsInt()).isEqualTo(12000);
     }
 
     /**
@@ -63,7 +65,7 @@ class BatteryRecipeSpotCheckTest {
         JsonObject recipe = loadRecipe("data/logistics/recipe/power/" + tier + "_battery.json");
 
         assertThat(recipe.getAsJsonObject("key").get("R").getAsString())
-                .isEqualTo("logistics:power/" + tier + "_battery_frame_filled");
+                .isEqualTo("logistics:core/machine_core_filled");
         assertThat(recipe.getAsJsonObject("result").get("id").getAsString())
                 .isEqualTo("logistics:power/" + tier + "_battery");
     }
@@ -77,22 +79,26 @@ class BatteryRecipeSpotCheckTest {
 
         assertThat(recipe.getAsJsonObject("key").get("R").getAsString())
                 .isEqualTo("minecraft:redstone_block");
-        assertThat(getClass().getClassLoader()
-                        .getResource("data/logistics/recipe/transposer/fill_" + tier + "_battery_frame.json"))
-                .as("%s must not have a frame fill recipe", tier)
-                .isNull();
+        assertThat(recipe.getAsJsonObject("key").get("R").getAsString())
+                .as("%s must not need a filled frame", tier)
+                .isNotEqualTo("logistics:core/machine_core_filled");
     }
 
-    @Test
-    @DisplayName("an empty frame is built around the mod's Machine Frame")
-    void emptyFrameUsesTheMachineFrame() throws IOException {
-        JsonObject recipe = loadRecipe("data/logistics/recipe/power/gold_battery_frame.json");
-
-        // "Machine Frame" in-game; logistics:core/machine_core is its registry id.
-        assertThat(recipe.getAsJsonObject("key").get("C").getAsString())
-                .isEqualTo("logistics:core/machine_core");
-        assertThat(recipe.getAsJsonObject("key").get("M").getAsString()).isEqualTo("minecraft:gold_ingot");
-        assertThat(recipe.getAsJsonObject("result").get("id").getAsString())
-                .isEqualTo("logistics:power/gold_battery_frame");
+    /**
+     * Every tier's body material must be its own namesake, including Copper — a tier named after a
+     * metal it does not contain is the kind of thing that only gets noticed after release.
+     */
+    @ParameterizedTest(name = "{0} -> {1}")
+    @CsvSource({
+        "copper,minecraft:copper_ingot",
+        "bronze,logistics:core/bronze_ingot",
+        "gold,minecraft:gold_ingot",
+        "amethyst,minecraft:amethyst_shard",
+        "echo,minecraft:echo_shard"
+    })
+    @DisplayName("each tier is built from its own namesake material")
+    void eachTierUsesItsNamesakeMaterial(String tier, String material) throws IOException {
+        JsonObject recipe = loadRecipe("data/logistics/recipe/power/" + tier + "_battery.json");
+        assertThat(recipe.getAsJsonObject("key").get("B").getAsString()).isEqualTo(material);
     }
 }

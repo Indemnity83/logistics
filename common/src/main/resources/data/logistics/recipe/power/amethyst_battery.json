@@ -8,7 +8,7 @@
   "key": {
     "N": "minecraft:iron_nugget",
     "B": "minecraft:amethyst_shard",
-    "R": "logistics:power/amethyst_battery_frame_filled"
+    "R": "logistics:core/machine_core_filled"
   },
   "result": {
     "id": "logistics:power/amethyst_battery",

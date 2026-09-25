@@ -1,8 +1,8 @@
 {
   "type": "logistics:transposer",
-  "input": "logistics:power/amethyst_battery_frame",
+  "input": "logistics:core/machine_core",
   "result": {
-    "id": "logistics:power/amethyst_battery_frame_filled",
+    "id": "logistics:core/machine_core_filled",
     "count": 1
   },
   "fluid": {

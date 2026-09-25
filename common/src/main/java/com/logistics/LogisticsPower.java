@@ -9,7 +9,6 @@ import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import com.logistics.power.block.BatteryBlock;
 import com.logistics.power.block.BatteryBlockItem;
@@ -80,7 +79,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
-        ITEM.register();
         BLOCK.register();
         ENTITY.register();
         SCREEN.register();
@@ -380,28 +378,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         }
     }
 
-    public static final class ITEM {
-        private ITEM() {}
-
-        public static Item GOLD_BATTERY_FRAME;
-        public static Item AMETHYST_BATTERY_FRAME;
-        public static Item ECHO_BATTERY_FRAME;
-        public static Item GOLD_BATTERY_FRAME_FILLED;
-        public static Item AMETHYST_BATTERY_FRAME_FILLED;
-        public static Item ECHO_BATTERY_FRAME_FILLED;
-
-        static void register() {
-            // Empty frames are crafted; the Transposer fills each with liquid redstone to get the
-            // filled form the matching battery is then built from. Copper and Bronze skip this step.
-            GOLD_BATTERY_FRAME = INSTANCE.registerItem("gold_battery_frame", Item::new);
-            AMETHYST_BATTERY_FRAME = INSTANCE.registerItem("amethyst_battery_frame", Item::new);
-            ECHO_BATTERY_FRAME = INSTANCE.registerItem("echo_battery_frame", Item::new);
-            GOLD_BATTERY_FRAME_FILLED = INSTANCE.registerItem("gold_battery_frame_filled", Item::new);
-            AMETHYST_BATTERY_FRAME_FILLED = INSTANCE.registerItem("amethyst_battery_frame_filled", Item::new);
-            ECHO_BATTERY_FRAME_FILLED = INSTANCE.registerItem("echo_battery_frame_filled", Item::new);
-        }
-    }
-
     public static final class BLOCK {
         private BLOCK() {}
 
@@ -573,12 +549,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(BLOCK.FUEL_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
-            TAB.add(ITEM.GOLD_BATTERY_FRAME);
-            TAB.add(ITEM.GOLD_BATTERY_FRAME_FILLED);
-            TAB.add(ITEM.AMETHYST_BATTERY_FRAME);
-            TAB.add(ITEM.AMETHYST_BATTERY_FRAME_FILLED);
-            TAB.add(ITEM.ECHO_BATTERY_FRAME);
-            TAB.add(ITEM.ECHO_BATTERY_FRAME_FILLED);
             TAB.add(BLOCK.COPPER_BATTERY);
             TAB.add(BLOCK.BRONZE_BATTERY);
             TAB.add(BLOCK.GOLD_BATTERY);

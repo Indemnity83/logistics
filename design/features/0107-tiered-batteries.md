@@ -5,8 +5,14 @@
 > **Maps to (roadmap):** Phase 1 — Battery → tiered energy-storage line
 
 The single Battery became a five-tier line — **Copper · Bronze · Gold · Amethyst · Echo** — whose
-upper three tiers are built from a **frame filled with liquid redstone in the Transposer**, the way
-Thermal Expansion builds its Energy Cells.
+upper three tiers are built around the mod's existing **Machine Frame, filled with liquid redstone
+in the Transposer**, in the spirit of how Thermal Expansion builds its Energy Cells.
+
+**One frame, not a tiered ladder of them.** TE ships a frame per cell tier; we deliberately do not.
+The tier comes from the battery's own body material, and all three upper tiers consume the same
+Filled Machine Frame. That keeps the fill mechanic without reviving the "cores" line that
+[`../progression-tiers.md`](../progression-tiers.md) dropped, and without adding six near-identical
+items to the registry.
 
 **This supersedes the original brief**, which specified three plain crafted tiers (Copper/Gold/Ender)
 and explicitly scoped "energy-cell 'frames' cosmetic variants" *out*. Frames turned out not to be
@@ -42,13 +48,17 @@ TE-faithful precedent; see [`0106-machine-upgrades.md`](0106-machine-upgrades.md
 `CableTier`/`CableBlock` arrangement. `BatteryTier` carries the id and display name and reads its
 numbers from per-tier config sections (`power/battery/<tier>`).
 
-| Tier | Capacity | Max I/O per side | Push per side | Frame fill |
-|---|---|---|---|---|
-| Copper | 100,000 | 1,000 | 200 | — |
-| Bronze | 400,000 | 2,000 | 400 | — |
-| Gold | 1,600,000 | 4,000 | 800 | 1,000 mB · 8,000 RF |
-| Amethyst | 6,400,000 | 8,000 | 1,600 | 2,000 mB · 12,000 RF |
-| Echo | 25,600,000 | 16,000 | 3,200 | 4,000 mB · 16,000 RF |
+| Tier | Capacity | Max I/O per side | Push per side | Body material | Centre |
+|---|---|---|---|---|---|
+| Copper | 100,000 | 1,000 | 200 | Copper Ingot | Redstone Block |
+| Bronze | 400,000 | 2,000 | 400 | Bronze Ingot | Redstone Block |
+| Gold | 1,600,000 | 4,000 | 800 | Gold Ingot | Filled Machine Frame |
+| Amethyst | 6,400,000 | 8,000 | 1,600 | Amethyst Shard | Filled Machine Frame |
+| Echo | 25,600,000 | 16,000 | 3,200 | Echo Shard | Filled Machine Frame |
+
+All five share one recipe silhouette, so the ladder reads as a family; only the body material and
+the centre change. The Filled Machine Frame costs **2,000 mB of liquid redstone and 12,000 RF** in
+the Transposer.
 
 ×4 capacity and ×2 I/O per step — a 256× spread, the same *shape* as TE's ~160× without copying its
 absolute values, per "copy the shape, not the numbers" below.
@@ -60,7 +70,9 @@ ids moved.
 
 **The fill step is pure data.** `TransposerRecipe` already accepted arbitrary `item + fluid → item`
 (`fill_black_concrete.json` is the same shape), and liquid redstone was already obtainable from the
-Crucible, so no Java and no JEI work was needed for the fill chain.
+Crucible, so the fill chain is one recipe file and no JEI work. The only new item is
+`core/machine_core_filled` ("Filled Machine Frame"), which renders as the existing Machine Frame
+model with liquid redstone filling its hollow centre.
 
 **Ladder choice.** Copper/Gold/Amethyst come from the decided cable subset in
 [`../progression-tiers.md`](../progression-tiers.md); Bronze fills the early-alloy gap at rank 3;
@@ -109,8 +121,9 @@ cable".
 
 ## Scope & non-goals
 
-- **In (shipped):** five tiers, per-tier capacity/throughput, the frame + Transposer fill chain for
-  the upper three, in-world + item charge display, registry alias from the untiered Battery.
+- **In (shipped):** five tiers, per-tier capacity/throughput, a single Transposer-filled Machine
+  Frame gating the upper three, in-world + item charge display, registry alias from the untiered
+  Battery.
 - **Open:** configurable I/O (per-block, then per-side).
 - **Out:** wireless/cross-dim transfer (Tesseract — out of scope per the TE breakdown),
   redstone-controlled output modes (a later augment), in-world upgrade kits (see
@@ -122,7 +135,8 @@ cable".
       loaders.
 - [x] Charge shows in-world and on the item for all tiers, scaled to each tier's own capacity.
 - [x] A world saved before the line loads with its batteries intact at Copper's stats.
-- [x] The upper three tiers require a Transposer fill; the lower two do not.
+- [x] The upper three tiers require a Transposer-filled Machine Frame; the lower two do not.
+- [x] Each tier is built from its own namesake material — no tiered frame or core items.
 - [ ] I/O rates are configurable in-game and clamp correctly (never exceed tier max), persisted
       across save/load and break/place.
 
@@ -130,6 +144,6 @@ cable".
 
 - Roadmap: [`../delivery-plan.md`](../delivery-plan.md) → Phase 1 → Battery (tiers); [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) → "Energy Cells" row
 - Code: `power/block/{BatteryTier,BatteryBlock,BatteryBlockItem}`, `power/block/entity/BatteryBlockEntity`, `core/lib/power/AbstractBatteryBlockEntity` (tier-ready constructor), registration + `ALIAS` in `LogisticsPower.java`; tier precedent `power/cable/{CableTier,CableBlock}`; data-component precedent `pipe/data/PipeDataComponents`
-- Fill chain: `data/logistics/recipe/transposer/fill_<tier>_battery_frame.json`, `automation/transposer/{TransposerRecipe,SignedFluidAmount}`
+- Fill chain: `data/logistics/recipe/transposer/fill_machine_frame.json`, `automation/transposer/{TransposerRecipe,SignedFluidAmount}`
 - TE reference (verified against `ThermalExpansion-1.12.2-5.5.7.1` / `ThermalDynamics-1.12.2-2.5.6.1` / `ThermalFoundation-1.12.2-2.6.7.1`): `ItemFrame.frameCell*`, `TransposerManager`, `TDCrafting.addTransposerFill`, `ItemUpgrade`
 - Related: [`0105-alloy-smelter.md`](0105-alloy-smelter.md) (materials gate), [`0106-machine-upgrades.md`](0106-machine-upgrades.md) (upgrade kits; creates the demand for bigger storage)
