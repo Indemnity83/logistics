@@ -62,7 +62,7 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 |---|---|---|
 | **Cables** | conductivity | Copper · Gold · **Amethyst** · Ender |
 | **Gears** ✅ | mechanical | Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite *(shipped; tin gear removed)* |
-| **Batteries** ([0107](features/0107-tiered-batteries.md)) | storage | Copper · Gold · Ender *(not yet built — single Battery today)* |
+| **Batteries** ✅ ([0107](features/0107-tiered-batteries.md)) | storage | Copper · Bronze · Gold · Amethyst · **Echo Shard** *(shipped; upper three built via a Transposer-filled frame)* |
 | **Valves / chipsets** | electronics | *component catalog, not a strict ladder — 15 valves + 7 chipsets (shipped)* |
 | **Machine frames** (future) | structural | Iron · Bronze · Diamond · Netherite |
 | **Chassis MkI–V** | slot count | *intentional exception — numeric, not a material tier* |
@@ -71,6 +71,10 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 
 Per the maintainer call, **existing lines conform too** (not just new work). These are implementation tasks for later PRs on the `mc/*` branches — this doc records the decision; the code changes are separate:
 
+- **Batteries** — ✅ **conformed**, with one deliberate divergence: the line ends at **Echo Shard**
+  (rank 9) rather than Ender (rank 8). Ender's flavour is "Dimensional", which belongs to transport;
+  Echo is the ultimate tier and suits storage. So batteries and cables share ranks 1–6 and part at
+  the top — do not assume one ladder covers both.
 - **Cables** — add an **Amethyst** tier → `Copper 30 / Gold 60 / Amethyst 120 / Ender 240` RF/t (keeps the ×2 ladder; Amethyst takes the old Ender rate and Ender rises for late-game headroom — see [`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md)). Numbers tunable against the RF curve. Touches `power/cable/CableTier` + an `amethyst_cable` block/model/recipe.
 - **Gears** — ✅ **conformed.** The gear line is now exactly the canonical ladder: Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite (8 gears). The `tin_gear` was **removed** in v0.8.0 (#610) — the earlier "grandfather it" call was reversed once tin's only role was confirmed to be a Bronze feedstock. Treat tin everywhere as a Bronze feedstock, not a rank.
 - **Cores / Valves** — the "cores" idea was **dropped**; there is no cores item. The electronics components are the **valve** line (15 valves, reworked v0.8.3 with electron-tube textures) plus **chipsets** (7). The valve set already spans well past Copper·Bronze (tin/copper/rubber/bronze/iron/gold/lapis/apatite/obsidian/amethyst/emerald/blazing/diamond/echo/netherite) — richer than the old canonical subset; it reads as a component catalog rather than a strict progression ladder. Couples to the deferred programmable-behavior work ([`rfcs/0001-programmable-behavior.md`](rfcs/0001-programmable-behavior.md)).
