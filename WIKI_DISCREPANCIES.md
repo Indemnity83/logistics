@@ -57,34 +57,29 @@ logistics-docs commit 61b2243a.
 
 ## Sawmill
 
-### Plant-pulping byproducts are undocumented
-- **Wiki says** (`wiki/Sawmill.txt` § Recipes → Plants → Pulped Biomass): no `Byproduct` column at
-  all for any of the three listed rows (Oak Leaves, Sugar Cane, Wheat) — implies none of them drop
-  anything beyond the 1 Pulped Biomass.
-- **Code does**: only Oak Leaves genuinely has no byproduct (confirmed: `pulped_biomass_from_leaves.json`).
-  `pulped_biomass_from_wheat.json` grants a 50% chance of a bonus `minecraft:wheat_seeds`, and
-  `pulped_biomass_from_sugar_cane.json` grants a **guaranteed 2x `minecraft:sugar`** (chance `2.0`).
-  (`pulped_biomass_from_wheat_seeds.json` is a separate Wheat Seeds → Pulped Biomass recipe, not one
-  of the wiki's three listed rows, and also has no byproduct.) Confirmed via `SawmillRecipeSpotCheckTest`.
-- **This is different from the Kiln/Pump findings above** — not a mislabeled number, a genuine
-  missing fact. A player pulping wheat or sugar cane gets a real bonus item the wiki never mentions.
-- **Decision needed**: add a `Byproduct`/`ByproductChance` column to the wiki's Wheat and Sugar Cane
-  rows (Wheat: seeds, 50%; Sugar Cane: sugar, guaranteed 2x) — this looks like a documentation
-  omission to fill in, not a code change.
+<!--
+Resolved (closed): Plant-pulping byproducts were undocumented. The wiki's Plants → Pulped Biomass
+table listed no `Byproduct` column for any row, implying none of Oak Leaves, Sugar Cane or Wheat
+dropped anything beyond the 1 Pulped Biomass. Only Oak Leaves was actually correct: wheat pulping
+grants a 50% `minecraft:wheat_seeds` byproduct and sugar cane pulping a guaranteed 2x
+`minecraft:sugar` (chance `2.0`). Unlike the Kiln/Pump findings this was a genuine missing fact, not
+a mislabeled number — a player pulping wheat or sugar cane got a real bonus item the wiki never
+mentioned. Confirmed via `SawmillRecipeSpotCheckTest`. Resolved as a documentation omission: the
+wiki rows now carry `Byproduct=Sugar`/`ByproductChance=200%` and `Byproduct=Wheat Seeds`/`50%`.
+Fixed in logistics-docs commit 579e74e91.
+-->
 
 ## Sequential Fabricator
 
-### The queue only sounds like it holds one selection at a time
-- **Wiki says** (`wiki/Sequential Fabricator.txt` § Usage): "Choose *the* chipset to build from the
-  machine's GUI, then feed it the ingredients; the Sequential Fabricator consumes them in order and
-  produces *the selected* chipset" — singular phrasing throughout.
-- **Code does**: `FabricatorProcessorComponent` maintains a `List<ResourceId> selected` — the GUI can
-  toggle *any number* of chipsets into the queue at once, and the machine cycles through all
-  selected-and-currently-craftable ones round-robin, building and ejecting each in turn. Confirmed
-  live via `SequentialFabricatorGameTest#testCyclesThroughMultipleSelectedChipsets`, which queues two
-  chipsets with materials for both up front and gets both built without re-selecting between them.
-- **This isn't wrong, just incomplete** — a player reading "the selected chipset" would reasonably
-  assume one at a time and never discover the queue-multiple-and-let-it-cycle workflow, which seems
-  like the more useful way to run the machine unattended.
-- **Decision needed**: reword the wiki to describe queuing multiple chipsets and the round-robin
-  cycling behavior — a documentation addition, not a code question.
+<!--
+Resolved (closed): The queue only sounded like it held one selection at a time. The wiki's Usage
+section used singular phrasing throughout ("choose *the* chipset", "produces *the selected*
+chipset"), but `FabricatorProcessorComponent` maintains a `List<ResourceId> selected` — the GUI can
+toggle any number of chipsets into the queue at once, and the machine cycles round-robin through
+all selected-and-currently-craftable ones, building and ejecting each in turn. Confirmed live via
+`SequentialFabricatorGameTest#testCyclesThroughMultipleSelectedChipsets`. Not wrong, just
+incomplete: a player reading "the selected chipset" would never discover the
+queue-multiple-and-let-it-cycle workflow, which is the more useful way to run the machine
+unattended. Resolved as a documentation addition — the Usage section now describes queuing multiple
+chipsets and the round-robin cycling. Fixed in logistics-docs commit 579e74e91.
+-->
