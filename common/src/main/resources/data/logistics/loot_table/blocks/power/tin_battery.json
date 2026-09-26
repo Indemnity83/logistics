@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:power/bronze_battery",
+          "name": "logistics:power/tin_battery",
           "functions": [
             {
               "function": "minecraft:copy_components",

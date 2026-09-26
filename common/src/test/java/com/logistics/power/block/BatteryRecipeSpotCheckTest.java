@@ -72,7 +72,7 @@ class BatteryRecipeSpotCheckTest {
 
     /** Copper and Bronze are crafted outright, as TE's two lowest cell frames are. */
     @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"copper", "bronze"})
+    @ValueSource(strings = {"tin", "copper"})
     @DisplayName("the two lowest tiers need no frame and no fluid")
     void lowestTiersSkipTheFillStep(String tier) throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/power/" + tier + "_battery.json");
@@ -90,8 +90,8 @@ class BatteryRecipeSpotCheckTest {
      */
     @ParameterizedTest(name = "{0} -> {1}")
     @CsvSource({
+        "tin,logistics:core/tin_ingot",
         "copper,minecraft:copper_ingot",
-        "bronze,logistics:core/bronze_ingot",
         "gold,minecraft:gold_ingot",
         "amethyst,minecraft:amethyst_shard",
         "echo,minecraft:echo_shard"

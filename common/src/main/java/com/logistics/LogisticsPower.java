@@ -99,8 +99,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private static final Config steam = configFor(LogisticsConfigHost.MOD_ID, "engines.steam");
         private static final Config fuel = configFor(LogisticsConfigHost.MOD_ID, "engines.fuel");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
+        private static final Config batteryTin = configFor(LogisticsConfigHost.MOD_ID, "power.battery.tin");
         private static final Config batteryCopper = configFor(LogisticsConfigHost.MOD_ID, "power.battery.copper");
-        private static final Config batteryBronze = configFor(LogisticsConfigHost.MOD_ID, "power.battery.bronze");
         private static final Config batteryGold = configFor(LogisticsConfigHost.MOD_ID, "power.battery.gold");
         private static final Config batteryAmethyst = configFor(LogisticsConfigHost.MOD_ID, "power.battery.amethyst");
         private static final Config batteryEcho = configFor(LogisticsConfigHost.MOD_ID, "power.battery.echo");
@@ -278,6 +278,20 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .register();
 
         // Batteries — one config section per tier; Copper carries the pre-tier Battery's values.
+        public static final ConfigKey<Long> BATTERY_TIN_CAPACITY = batteryTin.defineLong("capacity", 25_000L)
+                .min(1L)
+                .describe("Tin battery total RF storage")
+                .register();
+        public static final ConfigKey<Long> BATTERY_TIN_MAX_IO = batteryTin.defineLong("max_io", 500L)
+                .min(1L)
+                .minValueOf(() -> CONFIG.BATTERY_TIN_OUTPUT_PER_SIDE)
+                .describe("Tin battery max RF/t inserted or extracted per side")
+                .register();
+        public static final ConfigKey<Long> BATTERY_TIN_OUTPUT_PER_SIDE = batteryTin.defineLong("output_per_side", 100L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.BATTERY_TIN_MAX_IO)
+                .describe("Tin battery max RF/t actively pushed into each adjacent machine")
+                .register();
         public static final ConfigKey<Long> BATTERY_COPPER_CAPACITY = batteryCopper.defineLong("capacity", 100_000L)
                 .min(1L)
                 .describe("Copper battery total RF storage")
@@ -292,58 +306,44 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .maxValueOf(() -> CONFIG.BATTERY_COPPER_MAX_IO)
                 .describe("Copper battery max RF/t actively pushed into each adjacent machine")
                 .register();
-        public static final ConfigKey<Long> BATTERY_BRONZE_CAPACITY = batteryBronze.defineLong("capacity", 400_000L)
-                .min(1L)
-                .describe("Bronze battery total RF storage")
-                .register();
-        public static final ConfigKey<Long> BATTERY_BRONZE_MAX_IO = batteryBronze.defineLong("max_io", 2_000L)
-                .min(1L)
-                .minValueOf(() -> CONFIG.BATTERY_BRONZE_OUTPUT_PER_SIDE)
-                .describe("Bronze battery max RF/t inserted or extracted per side")
-                .register();
-        public static final ConfigKey<Long> BATTERY_BRONZE_OUTPUT_PER_SIDE = batteryBronze.defineLong("output_per_side", 400L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.BATTERY_BRONZE_MAX_IO)
-                .describe("Bronze battery max RF/t actively pushed into each adjacent machine")
-                .register();
-        public static final ConfigKey<Long> BATTERY_GOLD_CAPACITY = batteryGold.defineLong("capacity", 1_600_000L)
+        public static final ConfigKey<Long> BATTERY_GOLD_CAPACITY = batteryGold.defineLong("capacity", 400_000L)
                 .min(1L)
                 .describe("Gold battery total RF storage")
                 .register();
-        public static final ConfigKey<Long> BATTERY_GOLD_MAX_IO = batteryGold.defineLong("max_io", 4_000L)
+        public static final ConfigKey<Long> BATTERY_GOLD_MAX_IO = batteryGold.defineLong("max_io", 2_000L)
                 .min(1L)
                 .minValueOf(() -> CONFIG.BATTERY_GOLD_OUTPUT_PER_SIDE)
                 .describe("Gold battery max RF/t inserted or extracted per side")
                 .register();
-        public static final ConfigKey<Long> BATTERY_GOLD_OUTPUT_PER_SIDE = batteryGold.defineLong("output_per_side", 800L)
+        public static final ConfigKey<Long> BATTERY_GOLD_OUTPUT_PER_SIDE = batteryGold.defineLong("output_per_side", 400L)
                 .min(0L)
                 .maxValueOf(() -> CONFIG.BATTERY_GOLD_MAX_IO)
                 .describe("Gold battery max RF/t actively pushed into each adjacent machine")
                 .register();
-        public static final ConfigKey<Long> BATTERY_AMETHYST_CAPACITY = batteryAmethyst.defineLong("capacity", 6_400_000L)
+        public static final ConfigKey<Long> BATTERY_AMETHYST_CAPACITY = batteryAmethyst.defineLong("capacity", 1_600_000L)
                 .min(1L)
                 .describe("Amethyst battery total RF storage")
                 .register();
-        public static final ConfigKey<Long> BATTERY_AMETHYST_MAX_IO = batteryAmethyst.defineLong("max_io", 8_000L)
+        public static final ConfigKey<Long> BATTERY_AMETHYST_MAX_IO = batteryAmethyst.defineLong("max_io", 4_000L)
                 .min(1L)
                 .minValueOf(() -> CONFIG.BATTERY_AMETHYST_OUTPUT_PER_SIDE)
                 .describe("Amethyst battery max RF/t inserted or extracted per side")
                 .register();
-        public static final ConfigKey<Long> BATTERY_AMETHYST_OUTPUT_PER_SIDE = batteryAmethyst.defineLong("output_per_side", 1_600L)
+        public static final ConfigKey<Long> BATTERY_AMETHYST_OUTPUT_PER_SIDE = batteryAmethyst.defineLong("output_per_side", 800L)
                 .min(0L)
                 .maxValueOf(() -> CONFIG.BATTERY_AMETHYST_MAX_IO)
                 .describe("Amethyst battery max RF/t actively pushed into each adjacent machine")
                 .register();
-        public static final ConfigKey<Long> BATTERY_ECHO_CAPACITY = batteryEcho.defineLong("capacity", 25_600_000L)
+        public static final ConfigKey<Long> BATTERY_ECHO_CAPACITY = batteryEcho.defineLong("capacity", 6_400_000L)
                 .min(1L)
                 .describe("Echo battery total RF storage")
                 .register();
-        public static final ConfigKey<Long> BATTERY_ECHO_MAX_IO = batteryEcho.defineLong("max_io", 16_000L)
+        public static final ConfigKey<Long> BATTERY_ECHO_MAX_IO = batteryEcho.defineLong("max_io", 8_000L)
                 .min(1L)
                 .minValueOf(() -> CONFIG.BATTERY_ECHO_OUTPUT_PER_SIDE)
                 .describe("Echo battery max RF/t inserted or extracted per side")
                 .register();
-        public static final ConfigKey<Long> BATTERY_ECHO_OUTPUT_PER_SIDE = batteryEcho.defineLong("output_per_side", 3_200L)
+        public static final ConfigKey<Long> BATTERY_ECHO_OUTPUT_PER_SIDE = batteryEcho.defineLong("output_per_side", 1_600L)
                 .min(0L)
                 .maxValueOf(() -> CONFIG.BATTERY_ECHO_MAX_IO)
                 .describe("Echo battery max RF/t actively pushed into each adjacent machine")
@@ -388,8 +388,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block FUEL_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
+        public static Block TIN_BATTERY;
         public static Block COPPER_BATTERY;
-        public static Block BRONZE_BATTERY;
         public static Block GOLD_BATTERY;
         public static Block AMETHYST_BATTERY;
         public static Block ECHO_BATTERY;
@@ -421,8 +421,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
                 props -> new CreativeSinkBlock(props.mapColor(MapColor.COLOR_PURPLE)
                     .strength(5.0f).sound(SoundType.STONE)));
+            TIN_BATTERY = registerBattery("tin_battery", BatteryTier.TIN, MapColor.COLOR_LIGHT_GRAY, SoundType.METAL);
             COPPER_BATTERY = registerBattery("copper_battery", BatteryTier.COPPER, MapColor.TERRACOTTA_BLUE, SoundType.METAL);
-            BRONZE_BATTERY = registerBattery("bronze_battery", BatteryTier.BRONZE, MapColor.TERRACOTTA_ORANGE, SoundType.COPPER);
             GOLD_BATTERY = registerBattery("gold_battery", BatteryTier.GOLD, MapColor.GOLD, SoundType.METAL);
             AMETHYST_BATTERY = registerBattery("amethyst_battery", BatteryTier.AMETHYST, MapColor.COLOR_PURPLE, SoundType.AMETHYST);
             ECHO_BATTERY = registerBattery("echo_battery", BatteryTier.ECHO, MapColor.COLOR_BLACK, SoundType.METAL);
@@ -478,7 +478,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 INSTANCE.registerBlockEntity("creative_sink", CreativeSinkBlockEntity::new, BLOCK.CREATIVE_SINK);
             BATTERY_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("battery", BatteryBlockEntity::new,
-                        BLOCK.COPPER_BATTERY, BLOCK.BRONZE_BATTERY, BLOCK.GOLD_BATTERY,
+                        BLOCK.TIN_BATTERY, BLOCK.COPPER_BATTERY, BLOCK.GOLD_BATTERY,
                         BLOCK.AMETHYST_BATTERY, BLOCK.ECHO_BATTERY);
             CABLE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("cable", CableBlockEntity::new,
@@ -549,8 +549,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(BLOCK.FUEL_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
+            TAB.add(BLOCK.TIN_BATTERY);
             TAB.add(BLOCK.COPPER_BATTERY);
-            TAB.add(BLOCK.BRONZE_BATTERY);
             TAB.add(BLOCK.GOLD_BATTERY);
             TAB.add(BLOCK.AMETHYST_BATTERY);
             TAB.add(BLOCK.ECHO_BATTERY);

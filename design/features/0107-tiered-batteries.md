@@ -4,7 +4,7 @@
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Energy Cells: Leadstone→Resonant) · **Depends on:** the Transposer (v0.8.6) and liquid redstone
 > **Maps to (roadmap):** Phase 1 — Battery → tiered energy-storage line
 
-The single Battery became a five-tier line — **Copper · Bronze · Gold · Amethyst · Echo** — whose
+The single Battery became a five-tier line — **Tin · Copper · Gold · Amethyst · Echo** — whose
 upper three tiers are built around the mod's existing **Machine Frame, filled with liquid redstone
 in the Transposer**, in the spirit of how Thermal Expansion builds its Energy Cells.
 
@@ -50,11 +50,11 @@ numbers from per-tier config sections (`power/battery/<tier>`).
 
 | Tier | Capacity | Max I/O per side | Push per side | Body material | Centre |
 |---|---|---|---|---|---|
+| Tin | 25,000 | 500 | 100 | Tin Ingot | Redstone Block |
 | Copper | 100,000 | 1,000 | 200 | Copper Ingot | Redstone Block |
-| Bronze | 400,000 | 2,000 | 400 | Bronze Ingot | Redstone Block |
-| Gold | 1,600,000 | 4,000 | 800 | Gold Ingot | Filled Machine Frame |
-| Amethyst | 6,400,000 | 8,000 | 1,600 | Amethyst Shard | Filled Machine Frame |
-| Echo | 25,600,000 | 16,000 | 3,200 | Echo Shard | Filled Machine Frame |
+| Gold | 400,000 | 2,000 | 400 | Gold Ingot | Filled Machine Frame |
+| Amethyst | 1,600,000 | 4,000 | 800 | Amethyst Shard | Filled Machine Frame |
+| Echo | 6,400,000 | 8,000 | 1,600 | Echo Shard | Filled Machine Frame |
 
 All five share one recipe silhouette, so the ladder reads as a family; only the body material and
 the centre change. The Filled Machine Frame costs **2,000 mB of liquid redstone and 12,000 RF** in
@@ -65,6 +65,7 @@ absolute values, per "copy the shape, not the numbers" below.
 
 **Copper carries the pre-tier Battery's exact numbers** (100,000 RF / 1,000 / 200) and
 `logistics:power/battery` aliases to it, so a world saved before the line existed loads unchanged.
+Tin was added *underneath* Copper rather than displacing it, precisely so that stays true.
 The block entity type keeps its own `power/battery` id and needs no alias — only the block and item
 ids moved.
 

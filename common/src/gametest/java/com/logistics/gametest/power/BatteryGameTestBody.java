@@ -120,8 +120,8 @@ public class BatteryGameTestBody {
 
     private static Block blockFor(BatteryTier tier) {
         return switch (tier) {
+            case TIN -> LogisticsPower.BLOCK.TIN_BATTERY;
             case COPPER -> LogisticsPower.BLOCK.COPPER_BATTERY;
-            case BRONZE -> LogisticsPower.BLOCK.BRONZE_BATTERY;
             case GOLD -> LogisticsPower.BLOCK.GOLD_BATTERY;
             case AMETHYST -> LogisticsPower.BLOCK.AMETHYST_BATTERY;
             case ECHO -> LogisticsPower.BLOCK.ECHO_BATTERY;

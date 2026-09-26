@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "logistics:block/power/bronze_battery"
+        "model": "logistics:block/power/tin_battery"
       }
     },
     {

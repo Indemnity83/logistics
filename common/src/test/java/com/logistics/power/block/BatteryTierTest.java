@@ -21,11 +21,14 @@ class BatteryTierTest {
      * otherwise loading a pre-tier world silently re-rates every battery in it.
      */
     @Test
-    @DisplayName("Copper keeps the values the untiered Battery shipped with")
+    @DisplayName("Copper keeps the values the untiered Battery shipped with, with Tin added below it")
     void copperPreservesTheLegacyBatteryNumbers() {
         assertThat(BatteryTier.COPPER.capacity()).isEqualTo(100_000L);
         assertThat(BatteryTier.COPPER.maxIo()).isEqualTo(1_000L);
         assertThat(BatteryTier.COPPER.outputPerSide()).isEqualTo(200L);
+        assertThat(BatteryTier.TIN.capacity())
+                .as("Tin was added underneath Copper, not in place of it")
+                .isLessThan(BatteryTier.COPPER.capacity());
     }
 
     @Test
@@ -57,8 +60,8 @@ class BatteryTierTest {
     @DisplayName("every tier reads its own config section")
     void eachTierReadsItsOwnKeys(BatteryTier tier) {
         assertThat(tier.capacity()).isEqualTo(LogisticsConfigHost.get(switch (tier) {
+            case TIN -> LogisticsPower.CONFIG.BATTERY_TIN_CAPACITY;
             case COPPER -> LogisticsPower.CONFIG.BATTERY_COPPER_CAPACITY;
-            case BRONZE -> LogisticsPower.CONFIG.BATTERY_BRONZE_CAPACITY;
             case GOLD -> LogisticsPower.CONFIG.BATTERY_GOLD_CAPACITY;
             case AMETHYST -> LogisticsPower.CONFIG.BATTERY_AMETHYST_CAPACITY;
             case ECHO -> LogisticsPower.CONFIG.BATTERY_ECHO_CAPACITY;

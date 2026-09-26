@@ -7,11 +7,11 @@
   ],
   "key": {
     "N": "minecraft:iron_nugget",
-    "B": "logistics:core/bronze_ingot",
+    "B": "logistics:core/tin_ingot",
     "R": "minecraft:redstone_block"
   },
   "result": {
-    "id": "logistics:power/bronze_battery",
+    "id": "logistics:power/tin_battery",
     "count": 1
   }
 }
