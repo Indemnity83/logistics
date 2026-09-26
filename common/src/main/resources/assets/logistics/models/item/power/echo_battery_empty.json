@@ -1,9 +1,6 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "parent": "minecraft:item/generated",
   "textures": {
-    "side": "logistics:block/power/echo_battery_empty_sides",
-    "top": "logistics:block/power/echo_battery_top",
-    "bottom": "logistics:block/power/echo_battery_bottom",
-    "particle": "logistics:block/power/echo_battery_empty_sides"
+    "layer0": "logistics:item/power/echo_battery_empty"
   }
 }
