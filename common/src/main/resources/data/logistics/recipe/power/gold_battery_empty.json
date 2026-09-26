@@ -2,16 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "NBN",
-    "BRB",
+    "BCB",
     " B "
   ],
   "key": {
     "N": "minecraft:iron_nugget",
-    "B": "minecraft:echo_shard",
-    "R": "logistics:core/machine_core_filled"
+    "B": "minecraft:gold_ingot",
+    "C": "logistics:core/quartz_crystal"
   },
   "result": {
-    "id": "logistics:power/echo_battery",
+    "id": "logistics:power/gold_battery_empty",
     "count": 1
   }
 }

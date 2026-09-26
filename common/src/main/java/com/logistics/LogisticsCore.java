@@ -410,7 +410,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item COPPER_NUGGET;
         public static Item APATITE;
         public static Item MACHINE_CORE;
-        public static Item MACHINE_CORE_FILLED;
         public static Item REDSTONE_RECEPTION_COIL;
         public static Item RUBBER;
         public static Item NATURAL_POLYMER;
@@ -504,9 +503,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Components
             MACHINE_CORE = INSTANCE.registerItem("machine_core", Item::new);
-            // Filled with liquid redstone in the Transposer; the upper battery tiers
-            // are built around one of these. Deliberately untiered.
-            MACHINE_CORE_FILLED = INSTANCE.registerItem("machine_core_filled", Item::new);
             REDSTONE_RECEPTION_COIL = INSTANCE.registerItem("redstone_reception_coil", Item::new);
             RUBBER = INSTANCE.registerItem("rubber", Item::new);
             NATURAL_POLYMER = INSTANCE.registerItem("natural_polymer", Item::new);
@@ -641,7 +637,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Components
             TAB.add(ITEM.MACHINE_CORE);
-            TAB.add(ITEM.MACHINE_CORE_FILLED);
             TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
             TAB.add(ITEM.SILICON_WAFER);
             TAB.add(BLOCK.MARKER);

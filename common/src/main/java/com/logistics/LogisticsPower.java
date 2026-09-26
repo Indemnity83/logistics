@@ -9,6 +9,7 @@ import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import com.logistics.power.block.BatteryBlock;
 import com.logistics.power.block.BatteryBlockItem;
@@ -79,6 +80,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        ITEM.register();
         BLOCK.register();
         ENTITY.register();
         SCREEN.register();
@@ -378,6 +380,24 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         }
     }
 
+    public static final class ITEM {
+        private ITEM() {}
+
+        public static Item GOLD_BATTERY_EMPTY;
+        public static Item AMETHYST_BATTERY_EMPTY;
+        public static Item ECHO_BATTERY_EMPTY;
+
+        static void register() {
+            // The upper tiers are crafted empty — a quartz-crystal vessel in place of the solid
+            // redstone block the lower tiers use — then filled with liquid redstone in the
+            // Transposer to become the battery itself. Items, not blocks: the fill happens in a
+            // machine slot, and placing an unfilled battery would only store nothing.
+            GOLD_BATTERY_EMPTY = INSTANCE.registerItem("gold_battery_empty", Item::new);
+            AMETHYST_BATTERY_EMPTY = INSTANCE.registerItem("amethyst_battery_empty", Item::new);
+            ECHO_BATTERY_EMPTY = INSTANCE.registerItem("echo_battery_empty", Item::new);
+        }
+    }
+
     public static final class BLOCK {
         private BLOCK() {}
 
@@ -549,6 +569,9 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(BLOCK.FUEL_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
+            TAB.add(ITEM.GOLD_BATTERY_EMPTY);
+            TAB.add(ITEM.AMETHYST_BATTERY_EMPTY);
+            TAB.add(ITEM.ECHO_BATTERY_EMPTY);
             TAB.add(BLOCK.TIN_BATTERY);
             TAB.add(BLOCK.COPPER_BATTERY);
             TAB.add(BLOCK.GOLD_BATTERY);

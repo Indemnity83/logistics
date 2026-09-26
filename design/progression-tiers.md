@@ -82,6 +82,13 @@ The two are disjoint, which is the point: Bronze is a *structural* alloy and doe
 energy line, and Gold is a *conductor* and does not appear in the structural one. Batteries take the
 whole energy ladder. Machine frames, when they are built, take the whole structural one.
 
+**Energy storage consumes no Machine Frame, and machines consume no battery vessel.** The energy line
+fills its own quartz-crystal vessel (see [`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md));
+the Machine Frame is reserved for the structural line
+([`features/0111-machine-frame-tiers.md`](features/0111-machine-frame-tiers.md)). The battery work
+briefly used a Transposer-filled Machine Frame and it was removed for exactly this reason — do not
+reintroduce it.
+
 **Unresolved — Ender and the cables.** The energy ladder has no Ender, but **Ender Cable is shipped**
 (`logistics:power/ender_cable`, 120 RF/t) and the cable retrofit below still names Ender as its top
 rank. Either the cable line moves onto the energy ladder — renaming Ender Cable, which needs a

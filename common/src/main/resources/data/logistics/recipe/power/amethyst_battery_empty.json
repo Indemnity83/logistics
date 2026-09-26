@@ -2,16 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "NBN",
-    "BRB",
+    "BCB",
     " B "
   ],
   "key": {
     "N": "minecraft:iron_nugget",
     "B": "minecraft:amethyst_shard",
-    "R": "logistics:core/machine_core_filled"
+    "C": "logistics:core/quartz_crystal"
   },
   "result": {
-    "id": "logistics:power/amethyst_battery",
+    "id": "logistics:power/amethyst_battery_empty",
     "count": 1
   }
 }
