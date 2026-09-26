@@ -11,6 +11,7 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
+import com.logistics.power.block.BatteryTier;
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -321,7 +322,7 @@ public class PowerJunctionGameTestBody {
 
         context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.KILN);
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.COPPER_BATTERY);
         context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
 
         PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
@@ -344,7 +345,7 @@ public class PowerJunctionGameTestBody {
                 return;
             }
             // Phase 2 control: swap the source. The same cable and machine must still work.
-            setBatteryStored(battery, BatteryBlockEntity.capacity());
+            setBatteryStored(battery, BatteryTier.COPPER.capacity());
         });
 
         context.runAfterDelay(60, () -> {

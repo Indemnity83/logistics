@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NBN",
+    "BCB",
+    " B "
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "B": "minecraft:echo_shard",
+    "C": "logistics:core/quartz_crystal"
+  },
+  "result": {
+    "id": "logistics:power/echo_battery_empty",
+    "count": 1
+  }
+}

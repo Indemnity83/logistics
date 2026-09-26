@@ -58,7 +58,7 @@ public class MagmaticEngineGameTestBody {
     public static void testGeneratesFromLavaAndDelivers(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         BlockPos batteryPos = new BlockPos(1, 1, 0); // output faces EAST
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.COPPER_BATTERY);
         MagmaticEngineBlockEntity engine = placePowered(context, pos);
         if (engine == null) {
             context.fail("Magmatic engine block entity not found");

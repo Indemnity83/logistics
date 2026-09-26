@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "logistics:block/power/battery"
+    "model": "logistics:block/power/echo_battery"
   }
 }

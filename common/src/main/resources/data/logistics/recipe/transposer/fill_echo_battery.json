@@ -1,0 +1,13 @@
+{
+  "type": "logistics:transposer",
+  "input": "logistics:power/echo_battery_empty",
+  "result": {
+    "id": "logistics:power/echo_battery",
+    "count": 1
+  },
+  "fluid": {
+    "fluid": "logistics:core/liquid_redstone",
+    "amount": -4000
+  },
+  "energy": 16000
+}

@@ -134,7 +134,7 @@ public class ReactionEngineGameTestBody {
         BlockPos enginePos = new BlockPos(0, 1, 0);
         BlockPos batteryPos = new BlockPos(1, 1, 0); // engine output faces EAST toward the battery
 
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.COPPER_BATTERY);
         context.setBlock(enginePos, LogisticsPower.BLOCK.REACTION_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)

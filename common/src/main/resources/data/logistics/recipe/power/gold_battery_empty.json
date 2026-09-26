@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NBN",
+    "BCB",
+    " B "
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "B": "minecraft:gold_ingot",
+    "C": "logistics:core/quartz_crystal"
+  },
+  "result": {
+    "id": "logistics:power/gold_battery_empty",
+    "count": 1
+  }
+}

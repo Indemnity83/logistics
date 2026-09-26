@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "logistics:block/power/amethyst_battery_sides",
+    "top": "logistics:block/power/amethyst_battery_top",
+    "bottom": "logistics:block/power/amethyst_battery_bottom",
+    "particle": "logistics:block/power/amethyst_battery_sides"
+  }
+}

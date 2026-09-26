@@ -30,6 +30,7 @@ The first batch covers the **[Fluids foundation](0101-fluids-foundation.md)** (t
 | 0108 | [Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) ❌ *not planned — hoppers cover it* | Pipes | Skip | — |
 | 0109 | [Remote Orderer](0109-remote-orderer.md) 🔍 *exploratory — not committed* | Logistics QoL | Modernize | — |
 | 0110 | [Firewall Pipe](0110-firewall-pipe.md) ⏸️ *deferred — no use case yet* | Logistics advanced | Port | — |
+| 0111 | [Machine Frame Tiers](0111-machine-frame-tiers.md) 📋 *brief only — blocked on 0106* | Machines + materials | Modernize | an answer to 0106's augments-vs-tiers question |
 
 ### Reading the order
 
@@ -37,12 +38,13 @@ The step numbers encode dependencies, but several briefs are independent and can
 
 - **Shipped — `0101` Fluids:** the keystone, ✅ shipped in v0.7.3 (standalone cellular fluid pipes + Glass Tank + Pump on both loaders). This unblocked the deferred fluid batch below.
 - **Machine / dust chain — `0102` ✅ → `0104` ✅ / `0105` ✅ (mostly shipped):** [Macerator Secondary Outputs](0102-macerator-secondary-outputs.md) (v0.8.0), [Sawmill](0104-sawmill.md) (v0.8.0), and [Alloy Smelter](0105-alloy-smelter.md) (v0.8.2, Bronze) are **shipped**. The [Hand Grinder](0103-hand-grinder.md) (no-power ore→dust on-ramp) was **not** built — the machines shipped without needing it; it's still open if we want an early no-power path. [Machine Upgrades](0106-machine-upgrades.md) remains **exploratory** (per [`ROADMAP.md`](../../ROADMAP.md) Exploring/RFC).
-- **Still open — `0107`:** [Tiered Batteries](0107-tiered-batteries.md) has no dependencies and is the clearest remaining Phase-1 power gap (single Battery today). ([Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) is **not planned** — hoppers cover it; [Remote Orderer](0109-remote-orderer.md) is **exploratory** — see [`ROADMAP.md`](../../ROADMAP.md).)
+- **Shipped — `0107`:** [Tiered Batteries](0107-tiered-batteries.md) shipped as a five-tier craft-then-fill line (Tin/Copper/Gold/Amethyst/Echo); player-configurable I/O is the remaining slice. ([Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) is **not planned** — hoppers cover it; [Remote Orderer](0109-remote-orderer.md) is **exploratory** — see [`ROADMAP.md`](../../ROADMAP.md).)
+- **Blocked — `0111`:** [Machine Frame Tiers](0111-machine-frame-tiers.md) is written but **not startable**: what a frame tier actually *does* overlaps [0106](0106-machine-upgrades.md)'s unresolved augments-vs-tiers question, and building both would ship two systems for modifying a machine. Settle 0106 first.
 - **Deferred — `0110`:** the [Firewall Pipe](0110-firewall-pipe.md) is **parked** — no solid use case established yet (maintainer, Jul 2026). Not a 1.0 item; revisit if network segmentation earns its place.
 
 ### Deferred to a later batch (Phase 1, fluid-blocked or needs a Discussion)
 
-Not written yet — they wait on the keystone or on an open decision, and will take `0111+` steps:
+Not written yet — they wait on the keystone or on an open decision, and take steps after `0111`:
 
 - **Was fluid-blocked — now mostly shipped:** the combustion-tier **Fuel Engine**, the **Magmatic/Steam/Reaction** dynamo tiers, the **Crucible** (magma crucible), and the **oil fuel chain** (Refinery) all shipped in v0.8.2–v0.8.4. Still open from this group: the **Fluid Transposer** and **fluid logistics** (provider/supplier/request) — the transposer is the fluid↔item packaging step the logistics side depends on.
 - **Deferred post-1.0 (RFC, not a feature brief):** the programmable-automation / gates+circuits system (BuildCraft gates + TE programmable augments + Forestry circuits) — **not a 1.0 item**; revisit when Forestry needs circuit boards (Phase 2) or later. See [`../rfcs/0001-programmable-behavior.md`](../rfcs/0001-programmable-behavior.md). *(Distinct from the machine-modifier upgrades, [0106](0106-machine-upgrades.md) — themselves exploratory, not committed for 1.0.)*

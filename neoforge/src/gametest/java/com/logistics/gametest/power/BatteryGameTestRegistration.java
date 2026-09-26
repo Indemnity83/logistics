@@ -21,6 +21,14 @@ public final class BatteryGameTestRegistration {
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("power/battery_placement", 100, BatteryGameTestBody::testBatteryPlacement),
         new GameTestCase(
+            "power/each_tier_reports_its_own_capacity",
+            100,
+            BatteryGameTestBody::testEachTierReportsItsOwnCapacity),
+        new GameTestCase(
+            "power/higher_tier_charges_past_the_lower_tier_ceiling",
+            80,
+            BatteryGameTestBody::testHigherTierChargesPastTheLowerTierCeiling),
+        new GameTestCase(
             "power/batteries_on_one_cable_drain_evenly",
             90,
             BatteryGameTestBody::testBatteriesOnOneCableDrainEvenly),

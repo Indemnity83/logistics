@@ -21,6 +21,18 @@ public class BatteryGameTest {
         BatteryGameTestBody.testBatteryPlacement(context);
     }
 
+    /** Every tier reports its own capacity, though all five share one block entity type. */
+    @GameTest
+    public void testEachTierReportsItsOwnCapacity(GameTestHelper context) {
+        BatteryGameTestBody.testEachTierReportsItsOwnCapacity(context);
+    }
+
+    /** A Gold battery keeps charging past the ceiling a Copper one would stop at. */
+    @GameTest(maxTicks = 60)
+    public void testHigherTierChargesPastTheLowerTierCeiling(GameTestHelper context) {
+        BatteryGameTestBody.testHigherTierChargesPastTheLowerTierCeiling(context);
+    }
+
     /** The CHARGE block state property tracks stored energy (drives the multipart fill bar). */
     @GameTest(maxTicks = 30)
     public void testBatteryChargeStateTracksEnergy(GameTestHelper context) {

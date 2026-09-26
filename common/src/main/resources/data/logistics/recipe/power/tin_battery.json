@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NBN",
+    "BRB",
+    " B "
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "B": "logistics:core/tin_ingot",
+    "R": "minecraft:redstone_block"
+  },
+  "result": {
+    "id": "logistics:power/tin_battery",
+    "count": 1
+  }
+}
