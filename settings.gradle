@@ -29,7 +29,7 @@ pluginManagement {
         // loom is the exception: it is a per-branch Minecraft pin, not "latest wins".
         id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
         id 'net.neoforged.moddev' version '2.0.147'
-        id 'com.diffplug.spotless' version '8.10.2'
+        id 'com.diffplug.spotless' version '8.10.3'
         id 'io.sentry.jvm.gradle' version '6.23.0'
     }
 }
