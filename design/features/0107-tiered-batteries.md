@@ -4,9 +4,9 @@
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Energy Cells: Leadstone→Resonant) · **Depends on:** the Transposer (v0.8.6) and liquid redstone
 > **Maps to (roadmap):** Phase 1 — Battery → tiered energy-storage line
 
-The single Battery became a five-tier line — **Copper · Gold · Amethyst · Echo** — whose
-upper three tiers are built around the mod's existing **Machine Frame, filled with liquid redstone
-in the Transposer**, in the spirit of how Thermal Expansion builds its Energy Cells.
+The single Battery became a four-tier line — **Copper · Gold · Amethyst · Echo** — whose
+upper three tiers are **crafted empty and then filled in the Transposer**, in the spirit of how
+Thermal Expansion builds its Energy Cells.
 
 **No frame at all — the battery is what you fill.** Thermal ships *two* fill patterns, and the one
 worth copying is the simpler of them:
@@ -59,18 +59,25 @@ numbers from per-tier config sections (`power/battery/<tier>`).
 | Tier | Capacity | Max I/O per side | Push per side | Body | Centre | Then |
 |---|---|---|---|---|---|---|
 | Copper | 100,000 | 1,000 | 200 | Copper Ingot | Redstone Block | — done |
-| Gold | 400,000 | 2,000 | 400 | Gold Ingot | Quartz Crystal | + 1,000 mB · 8,000 RF |
-| Amethyst | 1,600,000 | 4,000 | 800 | Amethyst Shard | Quartz Crystal | + 2,000 mB · 12,000 RF |
-| Echo | 6,400,000 | 8,000 | 1,600 | Echo Shard | Quartz Crystal | + 4,000 mB · 16,000 RF |
+| Gold | 400,000 | 2,000 | 400 | Gold Ingot | Quartz Crystal | + 1,800 mB liquid redstone · 8,000 RF |
+| Amethyst | 1,600,000 | 4,000 | 800 | Amethyst Shard | Quartz Crystal | + 2,000 mB liquid glowstone · 12,000 RF |
+| Echo | 6,400,000 | 8,000 | 1,600 | Echo Shard | Quartz Crystal | + 3,000 mB liquid ender · 16,000 RF |
 
 **The centre slot carries the progression.** The low tiers pack in *solid* redstone. Past a certain
-capacity solid redstone is not dense enough, so the centre becomes a **quartz-crystal vessel** and
-the redstone arrives as a liquid from the Transposer. That is why a machine enters the chain at all,
-rather than the fluid step being an arbitrary toll. `core/quartz_crystal` is the mod's existing glass
-block (`noOcclusion`, `SoundType.GLASS`, smelted from quartz dust) and is already the glass component
-in all 15 valve recipes — no new material was needed.
+capacity solid redstone is not dense enough, so the centre becomes a **quartz-crystal vessel** the
+Transposer charges with a fluid. That is why a machine enters the chain at all, rather than the fluid
+step being an arbitrary toll. `core/quartz_crystal` is the mod's existing glass block
+(`noOcclusion`, `SoundType.GLASS`, smelted from quartz dust) and is already the glass component in
+all 15 valve recipes — no new material was needed.
 
-All five share one recipe silhouette, so the ladder reads as a family; only the body material and
+**Each tier takes its own fluid**, so the ladder is legible from the fill alone rather than being one
+redstone toll charged three times — this is the one place we deliberately diverge from Thermal, which
+reuses `fluidRedstone` for every fill. Gold packs in more redstone than a player can press into a
+solid block (1,800 mB ≈ 2 redstone blocks); Amethyst moves up to **liquid glowstone** (2,000 mB ≈ 2
+glowstone blocks); Echo takes **liquid ender** (3,000 mB ≈ 12 ender pearls), matching its Deep/exotic
+rank.
+
+All four share one recipe silhouette, so the ladder reads as a family; only the body material and
 the centre change. **The upper three have no crafting recipe of their own** — the Transposer is the
 only route to them, so the fluid gate cannot be skipped.
 

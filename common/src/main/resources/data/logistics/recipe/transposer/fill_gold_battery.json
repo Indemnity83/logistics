@@ -7,7 +7,7 @@
   },
   "fluid": {
     "fluid": "logistics:core/liquid_redstone",
-    "amount": -1000
+    "amount": -1800
   },
   "energy": 8000
 }

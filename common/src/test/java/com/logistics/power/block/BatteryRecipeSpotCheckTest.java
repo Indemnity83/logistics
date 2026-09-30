@@ -36,9 +36,14 @@ class BatteryRecipeSpotCheckTest {
      * the chain is craft-then-fill, two steps.
      */
     @ParameterizedTest(name = "{0}")
-    @CsvSource({"gold,1000,8000", "amethyst,2000,12000", "echo,4000,16000"})
+    @CsvSource({
+        "gold,logistics:core/liquid_redstone,1800,8000",
+        "amethyst,logistics:core/liquid_glowstone,2000,12000",
+        "echo,logistics:core/liquid_ender,3000,16000"
+    })
     @DisplayName("filling an empty battery drains liquid redstone and yields the battery")
-    void fillingAnEmptyBatteryYieldsTheBattery(String tier, int milliBuckets, int energy) throws IOException {
+    void fillingAnEmptyBatteryYieldsTheBattery(String tier, String fluid, int milliBuckets, int energy)
+            throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/transposer/fill_" + tier + "_battery.json");
 
         assertThat(recipe.get("type").getAsString()).isEqualTo("logistics:transposer");
@@ -46,9 +51,9 @@ class BatteryRecipeSpotCheckTest {
         assertThat(recipe.getAsJsonObject("result").get("id").getAsString())
                 .isEqualTo("logistics:power/" + tier + "_battery");
 
-        JsonObject fluid = recipe.getAsJsonObject("fluid");
-        assertThat(fluid.get("fluid").getAsString()).isEqualTo("logistics:core/liquid_redstone");
-        assertThat(fluid.get("amount").getAsInt())
+        JsonObject fluidSpec = recipe.getAsJsonObject("fluid");
+        assertThat(fluidSpec.get("fluid").getAsString()).isEqualTo(fluid);
+        assertThat(fluidSpec.get("amount").getAsInt())
                 .as("negative drains the tank; a positive amount would invert the recipe")
                 .isEqualTo(-milliBuckets);
         assertThat(recipe.get("energy").getAsInt()).isEqualTo(energy);
@@ -83,7 +88,7 @@ class BatteryRecipeSpotCheckTest {
 
     /** Tin and Copper pack in solid redstone and are finished at the crafting table. */
     @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"tin", "copper"})
+    @ValueSource(strings = {"copper"})
     @DisplayName("the two lowest tiers are crafted whole from solids")
     void lowestTiersSkipTheFillStep(String tier) throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/power/" + tier + "_battery.json");
@@ -102,7 +107,6 @@ class BatteryRecipeSpotCheckTest {
      */
     @ParameterizedTest(name = "{0} -> {1}")
     @CsvSource({
-        "tin,logistics:core/tin_ingot",
         "copper,minecraft:copper_ingot",
         "gold,minecraft:gold_ingot",
         "amethyst,minecraft:amethyst_shard",

@@ -6,8 +6,8 @@
     "count": 1
   },
   "fluid": {
-    "fluid": "logistics:core/liquid_redstone",
-    "amount": -4000
+    "fluid": "logistics:core/liquid_ender",
+    "amount": -3000
   },
   "energy": 16000
 }

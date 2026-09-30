@@ -6,7 +6,7 @@
     "count": 1
   },
   "fluid": {
-    "fluid": "logistics:core/liquid_redstone",
+    "fluid": "logistics:core/liquid_glowstone",
     "amount": -2000
   },
   "energy": 12000
