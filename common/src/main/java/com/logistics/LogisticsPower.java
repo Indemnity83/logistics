@@ -101,7 +101,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private static final Config steam = configFor(LogisticsConfigHost.MOD_ID, "engines.steam");
         private static final Config fuel = configFor(LogisticsConfigHost.MOD_ID, "engines.fuel");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
-        private static final Config batteryTin = configFor(LogisticsConfigHost.MOD_ID, "power.battery.tin");
         private static final Config batteryCopper = configFor(LogisticsConfigHost.MOD_ID, "power.battery.copper");
         private static final Config batteryGold = configFor(LogisticsConfigHost.MOD_ID, "power.battery.gold");
         private static final Config batteryAmethyst = configFor(LogisticsConfigHost.MOD_ID, "power.battery.amethyst");
@@ -280,20 +279,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .register();
 
         // Batteries — one config section per tier; Copper carries the pre-tier Battery's values.
-        public static final ConfigKey<Long> BATTERY_TIN_CAPACITY = batteryTin.defineLong("capacity", 25_000L)
-                .min(1L)
-                .describe("Tin battery total RF storage")
-                .register();
-        public static final ConfigKey<Long> BATTERY_TIN_MAX_IO = batteryTin.defineLong("max_io", 500L)
-                .min(1L)
-                .minValueOf(() -> CONFIG.BATTERY_TIN_OUTPUT_PER_SIDE)
-                .describe("Tin battery max RF/t inserted or extracted per side")
-                .register();
-        public static final ConfigKey<Long> BATTERY_TIN_OUTPUT_PER_SIDE = batteryTin.defineLong("output_per_side", 100L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.BATTERY_TIN_MAX_IO)
-                .describe("Tin battery max RF/t actively pushed into each adjacent machine")
-                .register();
         public static final ConfigKey<Long> BATTERY_COPPER_CAPACITY = batteryCopper.defineLong("capacity", 100_000L)
                 .min(1L)
                 .describe("Copper battery total RF storage")
@@ -408,7 +393,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block FUEL_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
-        public static Block TIN_BATTERY;
         public static Block COPPER_BATTERY;
         public static Block GOLD_BATTERY;
         public static Block AMETHYST_BATTERY;
@@ -441,7 +425,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
                 props -> new CreativeSinkBlock(props.mapColor(MapColor.COLOR_PURPLE)
                     .strength(5.0f).sound(SoundType.STONE)));
-            TIN_BATTERY = registerBattery("tin_battery", BatteryTier.TIN, MapColor.COLOR_LIGHT_GRAY, SoundType.METAL);
             COPPER_BATTERY = registerBattery("copper_battery", BatteryTier.COPPER, MapColor.TERRACOTTA_BLUE, SoundType.METAL);
             GOLD_BATTERY = registerBattery("gold_battery", BatteryTier.GOLD, MapColor.GOLD, SoundType.METAL);
             AMETHYST_BATTERY = registerBattery("amethyst_battery", BatteryTier.AMETHYST, MapColor.COLOR_PURPLE, SoundType.AMETHYST);
@@ -498,7 +481,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 INSTANCE.registerBlockEntity("creative_sink", CreativeSinkBlockEntity::new, BLOCK.CREATIVE_SINK);
             BATTERY_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("battery", BatteryBlockEntity::new,
-                        BLOCK.TIN_BATTERY, BLOCK.COPPER_BATTERY, BLOCK.GOLD_BATTERY,
+                        BLOCK.COPPER_BATTERY, BLOCK.GOLD_BATTERY,
                         BLOCK.AMETHYST_BATTERY, BLOCK.ECHO_BATTERY);
             CABLE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("cable", CableBlockEntity::new,
@@ -572,7 +555,6 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(ITEM.GOLD_BATTERY_EMPTY);
             TAB.add(ITEM.AMETHYST_BATTERY_EMPTY);
             TAB.add(ITEM.ECHO_BATTERY_EMPTY);
-            TAB.add(BLOCK.TIN_BATTERY);
             TAB.add(BLOCK.COPPER_BATTERY);
             TAB.add(BLOCK.GOLD_BATTERY);
             TAB.add(BLOCK.AMETHYST_BATTERY);

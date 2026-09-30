@@ -4,7 +4,7 @@
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) (Energy Cells: Leadstone→Resonant) · **Depends on:** the Transposer (v0.8.6) and liquid redstone
 > **Maps to (roadmap):** Phase 1 — Battery → tiered energy-storage line
 
-The single Battery became a five-tier line — **Tin · Copper · Gold · Amethyst · Echo** — whose
+The single Battery became a five-tier line — **Copper · Gold · Amethyst · Echo** — whose
 upper three tiers are built around the mod's existing **Machine Frame, filled with liquid redstone
 in the Transposer**, in the spirit of how Thermal Expansion builds its Energy Cells.
 
@@ -52,13 +52,12 @@ TE-faithful precedent; see [`0106-machine-upgrades.md`](0106-machine-upgrades.md
 
 ## What shipped
 
-**Five tiers**, each a distinct block + item over one shared `BlockEntityType`, mirroring the
+**Four tiers**, each a distinct block + item over one shared `BlockEntityType`, mirroring the
 `CableTier`/`CableBlock` arrangement. `BatteryTier` carries the id and display name and reads its
 numbers from per-tier config sections (`power/battery/<tier>`).
 
 | Tier | Capacity | Max I/O per side | Push per side | Body | Centre | Then |
 |---|---|---|---|---|---|---|
-| Tin | 25,000 | 500 | 100 | Tin Ingot | Redstone Block | — done |
 | Copper | 100,000 | 1,000 | 200 | Copper Ingot | Redstone Block | — done |
 | Gold | 400,000 | 2,000 | 400 | Gold Ingot | Quartz Crystal | + 1,000 mB · 8,000 RF |
 | Amethyst | 1,600,000 | 4,000 | 800 | Amethyst Shard | Quartz Crystal | + 2,000 mB · 12,000 RF |
@@ -80,7 +79,10 @@ absolute values, per "copy the shape, not the numbers" below.
 
 **Copper carries the pre-tier Battery's exact numbers** (100,000 RF / 1,000 / 200) and
 `logistics:power/battery` aliases to it, so a world saved before the line existed loads unchanged.
-Tin was added *underneath* Copper rather than displacing it, precisely so that stays true.
+The alias is a registry-id mapping, so what makes Copper the right target is **storage parity**, not
+recipe parity — the recipe did change (brick → copper ingot). Capacity parity is the one that
+matters: a saved battery's stored energy rides along in `block_entity_data`, so aliasing to a
+smaller tier would silently clamp and destroy it.
 The block entity type keeps its own `power/battery` id and needs no alias — only the block and item
 ids moved.
 
@@ -148,7 +150,7 @@ cable".
 
 ## Done when
 
-- [x] Five battery tiers place, store, and transfer energy with distinct capacity/throughput on both
+- [x] Four battery tiers place, store, and transfer energy with distinct capacity/throughput on both
       loaders.
 - [x] Charge shows in-world and on the item for all tiers, scaled to each tier's own capacity.
 - [x] A world saved before the line loads with its batteries intact at Copper's stats.

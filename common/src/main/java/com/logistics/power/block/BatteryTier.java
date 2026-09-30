@@ -8,11 +8,9 @@ import com.logistics.LogisticsPower;
  * mirroring {@link com.logistics.power.cable.CableTier}.
  *
  * <p>{@link #COPPER} carries the values the single untiered Battery shipped with, so a world
- * saved before the line existed loads at its original capacity and throughput. {@link #TIN}
- * was added underneath it rather than displacing it, for that reason.
+ * saved before the line existed loads at its original capacity and throughput.
  */
 public enum BatteryTier {
-    TIN("tin_battery", "Tin Battery"),
     COPPER("copper_battery", "Copper Battery"),
     GOLD("gold_battery", "Gold Battery"),
     AMETHYST("amethyst_battery", "Amethyst Battery"),
@@ -37,7 +35,6 @@ public enum BatteryTier {
     /** Total RF storage, sourced from the {@code power/battery/<tier>} config. */
     public long capacity() {
         return switch (this) {
-            case TIN -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_TIN_CAPACITY);
             case COPPER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_COPPER_CAPACITY);
             case GOLD -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_GOLD_CAPACITY);
             case AMETHYST -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_AMETHYST_CAPACITY);
@@ -48,7 +45,6 @@ public enum BatteryTier {
     /** Max RF/t inserted or extracted per side. */
     public long maxIo() {
         return switch (this) {
-            case TIN -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_TIN_MAX_IO);
             case COPPER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_COPPER_MAX_IO);
             case GOLD -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_GOLD_MAX_IO);
             case AMETHYST -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_AMETHYST_MAX_IO);
@@ -59,7 +55,6 @@ public enum BatteryTier {
     /** Max RF/t actively pushed into each adjacent machine. */
     public long outputPerSide() {
         return switch (this) {
-            case TIN -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_TIN_OUTPUT_PER_SIDE);
             case COPPER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_COPPER_OUTPUT_PER_SIDE);
             case GOLD -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_GOLD_OUTPUT_PER_SIDE);
             case AMETHYST -> LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_AMETHYST_OUTPUT_PER_SIDE);

@@ -149,7 +149,6 @@ class LogisticsConfigHostTest {
                 "logistics.engines.creative",
                 "logistics.engines.magmatic",
                 "logistics.engines.fuel",
-                "logistics.power.battery.tin",
                 "logistics.power.battery.copper",
                 "logistics.power.battery.gold",
                 "logistics.power.battery.amethyst",
@@ -316,9 +315,6 @@ class LogisticsConfigHostTest {
      */
     static Stream<Arguments> batteryTierIoKeys() {
         return Stream.of(
-                Arguments.of("tin",
-                        LogisticsPower.CONFIG.BATTERY_TIN_MAX_IO,
-                        LogisticsPower.CONFIG.BATTERY_TIN_OUTPUT_PER_SIDE),
                 Arguments.of("copper",
                         LogisticsPower.CONFIG.BATTERY_COPPER_MAX_IO,
                         LogisticsPower.CONFIG.BATTERY_COPPER_OUTPUT_PER_SIDE),
