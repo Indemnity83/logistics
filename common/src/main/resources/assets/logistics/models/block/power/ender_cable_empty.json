@@ -1,8 +1,0 @@
-{
-  "parent": "block/block",
-  "textures": {
-    "particle": "logistics:block/power/ender_cable",
-    "1": "logistics:block/power/ender_cable"
-  },
-  "elements": []
-}
