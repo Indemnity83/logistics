@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "logistics:power/stirling_engine",
+    "logistics:core/redstone_engine",
     "logistics:core/tin_ore",
     "logistics:core/deepslate_tin_ore",
     "logistics:core/tin_block",
@@ -19,6 +20,7 @@
     "logistics:automation/sequential_fabricator",
     "logistics:automation/transposer",
     "logistics:automation/laser_quarry",
-    "logistics:pipe/power_junction"
+    "logistics:pipe/power_junction",
+    "logistics:power/battery"
   ]
 }

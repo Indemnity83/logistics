@@ -139,6 +139,31 @@ class ToolHarvestContractTest extends MinecraftTestEnvironment {
     }
 
     /**
+     * The other half of {@code requiresCorrectToolForDrops}: a {@code mineable/*} tag says which
+     * tool, but only a {@code needs_*_tool} tag says which <em>tier</em>. With no tier tag the
+     * vanilla default applies and a wooden pickaxe harvests the block, so a tool-gated block in
+     * {@code mineable/pickaxe} alone is silently free to mine.
+     *
+     * <p>Every sibling check here passed for such a block — it is mineable, and it does require a
+     * tool — which is exactly how two shipped blocks stayed untiered until this check was added.
+     */
+    @Test
+    @DisplayName("every tool-gated block declares which tool tier it needs")
+    void everyToolGatedBlockDeclaresItsTier() {
+        Set<String> tiered = idsInNeedsToolTags();
+        List<String> failures = new ArrayList<>();
+
+        ourBlocks().forEach((id, block) -> {
+            if (block.defaultBlockState().requiresCorrectToolForDrops() && !tiered.contains(id)) {
+                failures.add(id + " requires the correct tool but is in no needs_*_tool tag, so a "
+                    + "wooden pickaxe harvests it");
+            }
+        });
+
+        assertThat(failures).as("tool-gated blocks with no tool tier").isEmpty();
+    }
+
+    /**
      * The stricter half of the rule above. Being harvestable by <em>some</em> tool is not enough:
      * everything tool-gated we ship is machinery, ore or metal, so the pickaxe is what a player
      * actually swings at it. A tool-gated block outside {@code mineable/pickaxe} is destroyed for
