@@ -10,7 +10,8 @@ class CableTierTest {
     void cableTiersUseExpectedTransferRates() {
         assertThat(CableTier.COPPER.transferRate()).isEqualTo(30);
         assertThat(CableTier.GOLD.transferRate()).isEqualTo(60);
-        assertThat(CableTier.ENDER.transferRate()).isEqualTo(120);
+        assertThat(CableTier.AMETHYST.transferRate()).isEqualTo(120);
+        assertThat(CableTier.ECHO.transferRate()).isEqualTo(240);
     }
 
     @Test

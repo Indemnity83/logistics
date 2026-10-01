@@ -49,6 +49,7 @@ The spine lists only **progression-bearing** tiers. The system is *total*: every
 
 - **Alloy feedstock (no rank):** **Tin** (shipped) — and, if the alloy set later expands, **Nickel** — exist only to craft alloys (Bronze; Invar later); never a tier on their own. (Nickel/Invar are **not implemented yet** — Bronze is the only alloy today. See [`features/0105-alloy-smelter.md`](features/0105-alloy-smelter.md).)
 - **Our alloys (occupy a rank):** **Bronze** = rank 3 (Industrial). **Invar** = a structural/precision alloy sitting around rank 3–4 (between Industrial and Conductive); its job is machine frames / precision components, so it participates as a *component material*, not a separate visual tier. New alloys take the rank of their role, keep their own name, and respect the ordering.
+- **Infused alloys (take the rank of their fluid's tier):** **Caterium**, **Lumenite** and **Echonite** — a conductor quenched in a charged fluid in the Transposer, shipped as the body material of the Conductive, Resonant and Deep energy tiers. They are alloys in the sense Bronze is: they occupy a rank rather than defining a new one, and the rank is their fluid's (redstone/glowstone/ender). See [`features/0112-infused-alloys.md`](features/0112-infused-alloys.md).
 - **Function accents (no rank):** carry a *function*, not a progression step — use them for the system they evoke, not as tiers: **Redstone** → signal/logic (reserve for gates/circuits; *not* power cables), **Lapis** → enchant, **Emerald** → trade, **Blaze / Quartz / Glowstone** → nether components, **Obsidian** → containment/blast.
 - **Out of scope:** purely decorative/world materials define no tier.
 
@@ -60,7 +61,7 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 
 | Line | Flavor | Canonical subset |
 |---|---|---|
-| **Cables** | conductivity | Copper · Gold · **Amethyst** · Ender |
+| **Cables** ✅ | conductivity | Copper · Gold · **Amethyst** · **Echo** *(shipped at 30/60/120/240 RF/t; the upper two are built from infused alloys)* |
 | **Gears** ✅ | mechanical | Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite *(shipped; tin gear removed)* |
 | **Batteries** ([0107](features/0107-tiered-batteries.md)) | storage | Copper · Gold · Ender *(not yet built — single Battery today)* |
 | **Valves / chipsets** | electronics | *component catalog, not a strict ladder — 15 valves + 7 chipsets (shipped)* |
@@ -71,7 +72,8 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 
 Per the maintainer call, **existing lines conform too** (not just new work). These are implementation tasks for later PRs on the `mc/*` branches — this doc records the decision; the code changes are separate:
 
-- **Cables** — add an **Amethyst** tier → `Copper 30 / Gold 60 / Amethyst 120 / Ender 240` RF/t (keeps the ×2 ladder; Amethyst takes the old Ender rate and Ender rises for late-game headroom — see [`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md)). Numbers tunable against the RF curve. Touches `power/cable/CableTier` + an `amethyst_cable` block/model/recipe.
+- **Cables** — ✅ **conformed.** `Copper 30 / Gold 60 / Amethyst 120 / Echo 240` RF/t, keeping the ×2 ladder: Amethyst took the old Ender rate and the top tier rose for late-game headroom.
+  **The Ender Cable became the Echo Cable**, which is what settles the standing question of whether cables keep Ender or move onto the energy ladder — they moved. `logistics:power/ender_cable` aliases to `power/echo_cable` for both block and item, so no saved world breaks; cables hold no state, so being re-rated 120 → 240 costs nothing. Ender keeps rank 8 on the spine for *transport* (teleport/wireless), it simply is not an **energy** tier.
 - **Gears** — ✅ **conformed.** The gear line is now exactly the canonical ladder: Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite (8 gears). The `tin_gear` was **removed** in v0.8.0 (#610) — the earlier "grandfather it" call was reversed once tin's only role was confirmed to be a Bronze feedstock. Treat tin everywhere as a Bronze feedstock, not a rank.
 - **Cores / Valves** — the "cores" idea was **dropped**; there is no cores item. The electronics components are the **valve** line (15 valves, reworked v0.8.3 with electron-tube textures) plus **chipsets** (7). The valve set already spans well past Copper·Bronze (tin/copper/rubber/bronze/iron/gold/lapis/apatite/obsidian/amethyst/emerald/blazing/diamond/echo/netherite) — richer than the old canonical subset; it reads as a component catalog rather than a strict progression ladder. Couples to the deferred programmable-behavior work ([`rfcs/0001-programmable-behavior.md`](rfcs/0001-programmable-behavior.md)).
 

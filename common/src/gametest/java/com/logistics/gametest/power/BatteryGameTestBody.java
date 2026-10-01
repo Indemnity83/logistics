@@ -248,7 +248,7 @@ public class BatteryGameTestBody {
         BlockPos firstPos = new BlockPos(1, 2, 1);
         BlockPos secondPos = new BlockPos(1, 1, 0);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.ECHO_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
         context.setBlock(firstPos, LogisticsPower.BLOCK.BATTERY);
         context.setBlock(secondPos, LogisticsPower.BLOCK.BATTERY);
@@ -306,7 +306,7 @@ public class BatteryGameTestBody {
         BlockPos cablePos = new BlockPos(1, 1, 0);
         BlockPos leftPos = new BlockPos(0, 1, 0);
         BlockPos rightPos = new BlockPos(2, 1, 0);
-        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.ECHO_CABLE);
         context.setBlock(rightPos, LogisticsPower.BLOCK.BATTERY);
         context.setBlock(leftPos, LogisticsPower.BLOCK.BATTERY);
 

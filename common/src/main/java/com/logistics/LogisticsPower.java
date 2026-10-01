@@ -83,6 +83,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         SCREEN.register();
         RECIPE.register();
         CREATIVE.register();
+        ALIAS.register();
     }
 
     /**
@@ -296,9 +297,13 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .min(0L)
                 .describe("Gold cable RF/t throughput")
                 .register();
-        public static final ConfigKey<Long> CABLE_ENDER_TRANSFER = cables.defineLong("ender", 120L)
+        public static final ConfigKey<Long> CABLE_AMETHYST_TRANSFER = cables.defineLong("amethyst", 120L)
                 .min(0L)
-                .describe("Ender cable RF/t throughput")
+                .describe("Amethyst cable RF/t throughput")
+                .register();
+        public static final ConfigKey<Long> CABLE_ECHO_TRANSFER = cables.defineLong("echo", 240L)
+                .min(0L)
+                .describe("Echo cable RF/t throughput")
                 .register();
 
         static void register() {
@@ -329,7 +334,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block BATTERY;
         public static Block COPPER_CABLE;
         public static Block GOLD_CABLE;
-        public static Block ENDER_CABLE;
+        public static Block AMETHYST_CABLE;
+        public static Block ECHO_CABLE;
 
         static void register() {
             // Each engine's map color is its housing material — stone, netherite, nether brick, copper,
@@ -361,7 +367,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 BatteryBlockItem::new);
             COPPER_CABLE = registerCable("copper_cable", CableTier.COPPER, SoundType.COPPER);
             GOLD_CABLE = registerCable("gold_cable", CableTier.GOLD, SoundType.METAL);
-            ENDER_CABLE = registerCable("ender_cable", CableTier.ENDER, SoundType.AMETHYST);
+            AMETHYST_CABLE = registerCable("amethyst_cable", CableTier.AMETHYST, SoundType.AMETHYST);
+            ECHO_CABLE = registerCable("echo_cable", CableTier.ECHO, SoundType.SCULK);
         }
 
         /** Map color stays NONE — a cable is a thin strand, and drawing it would hide the ground. */
@@ -405,7 +412,24 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 INSTANCE.registerBlockEntity("battery", BatteryBlockEntity::new, BLOCK.BATTERY);
             CABLE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("cable", CableBlockEntity::new,
-                        BLOCK.COPPER_CABLE, BLOCK.GOLD_CABLE, BLOCK.ENDER_CABLE);
+                        BLOCK.COPPER_CABLE, BLOCK.GOLD_CABLE,
+                        BLOCK.AMETHYST_CABLE, BLOCK.ECHO_CABLE);
+        }
+    }
+
+    public static final class ALIAS {
+        private ALIAS() {}
+
+        static void register() {
+            // The Ender Cable became the Echo tier when the cable line moved onto the energy ladder.
+            // It keeps its throughput slot's identity, not its number: the old 120 RF/t is now the
+            // Amethyst tier, and Echo sits above it at 240. A saved world's cables are re-rated
+            // upward, which is safe — cables hold no state, so there is nothing to clamp.
+            //
+            // The block entity type is registered as "cable" and is shared by every tier, so it
+            // never carried a tier-specific id and needs no alias.
+            INSTANCE.registerBlockAlias("power/ender_cable", BLOCK.ECHO_CABLE);
+            INSTANCE.registerItemAlias("power/ender_cable", BLOCK.ECHO_CABLE.asItem());
         }
     }
 
@@ -475,7 +499,8 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(BLOCK.BATTERY);
             TAB.add(BLOCK.COPPER_CABLE);
             TAB.add(BLOCK.GOLD_CABLE);
-            TAB.add(BLOCK.ENDER_CABLE);
+            TAB.add(BLOCK.AMETHYST_CABLE);
+            TAB.add(BLOCK.ECHO_CABLE);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }

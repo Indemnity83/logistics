@@ -31,7 +31,7 @@ import net.minecraft.world.level.storage.TagValueInput;
  */
 public class CableGameTestBody {
 
-    /** Ender Cable throughput: the per-tick budget the consumer-before-battery test needs. */
+    /** Amethyst Cable throughput: the per-tick budget the consumer-before-battery test needs. */
     private static final long CABLE_BUDGET_FOR_TIER_TEST = 120L;
 
     /**
@@ -363,29 +363,29 @@ public class CableGameTestBody {
     }
 
     public static void testMixedTierRouteIsCappedByWeakestCable(GameTestHelper context) {
-        BlockPos enderCablePos = new BlockPos(1, 1, 1);
+        BlockPos echoCablePos = new BlockPos(1, 1, 1);
         BlockPos copperCablePos = new BlockPos(2, 1, 1);
         BlockPos sinkPos = new BlockPos(3, 1, 1);
 
-        context.setBlock(enderCablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(echoCablePos, LogisticsPower.BLOCK.ECHO_CABLE);
         context.setBlock(copperCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
-        CableBlockEntity enderCable = context.getBlockEntity(enderCablePos, CableBlockEntity.class);
+        CableBlockEntity echoCable = context.getBlockEntity(echoCablePos, CableBlockEntity.class);
         CreativeSinkBlockEntity sink = context.getBlockEntity(sinkPos, CreativeSinkBlockEntity.class);
-        if (enderCable == null || sink == null) {
-            context.fail("Expected ender cable and creative sink block entities");
+        if (echoCable == null || sink == null) {
+            context.fail("Expected echo cable and creative sink block entities");
             return;
         }
         sink.setUnlimitedDrainRate();
 
-        long inserted = enderCable.energyStorage(Direction.WEST).insert(60L, false);
+        long inserted = echoCable.energyStorage(Direction.WEST).insert(60L, false);
         if (inserted != 30L) {
-            context.fail("Ender-to-copper route should be capped at 30 RF/t, got: " + inserted);
+            context.fail("Echo-to-copper route should be capped at 30 RF/t, got: " + inserted);
             return;
         }
 
-        long extra = enderCable.energyStorage(Direction.WEST).insert(60L, false);
+        long extra = echoCable.energyStorage(Direction.WEST).insert(60L, false);
         if (extra != 0L) {
             context.fail("Copper bottleneck should be spent for the tick, got extra: " + extra);
             return;
@@ -739,7 +739,7 @@ public class CableGameTestBody {
      * few RF it can use this tick. Split pro rata across one flat list the consumer gets a rounding
      * error and the battery soaks up the network.
      *
-     * <p>An Ender Cable and a wound-up engine on purpose. At a copper cable's 30 RF/t every
+     * <p>An Amethyst Cable and a wound-up engine on purpose. At a copper cable's 30 RF/t every
      * {@code floor(ideal)} lands on zero and {@code distributeRemainder} hands the budget out one RF
      * at a time, evenly -- which masks the imbalance entirely. The weights only decide the split once
      * there is enough per tick for the flooring to mean something.
@@ -754,7 +754,7 @@ public class CableGameTestBody {
         BlockPos batteryPos = new BlockPos(1, 2, 1);
         BlockPos enginePos = new BlockPos(0, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.AMETHYST_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
         context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE

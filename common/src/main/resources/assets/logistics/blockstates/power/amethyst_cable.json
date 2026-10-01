@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "waterlogged=false": { "model": "logistics:block/power/amethyst_cable_empty" },
+    "waterlogged=true": { "model": "logistics:block/power/amethyst_cable_empty" }
+  }
+}

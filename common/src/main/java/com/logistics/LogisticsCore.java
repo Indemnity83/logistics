@@ -407,6 +407,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item TIN_NUGGET;
         public static Item BRONZE_INGOT;
         public static Item BRONZE_NUGGET;
+        public static Item CATERIUM_INGOT;
+        public static Item LUMENITE_INGOT;
+        public static Item ECHONITE_INGOT;
         public static Item COPPER_NUGGET;
         public static Item APATITE;
         public static Item MACHINE_CORE;
@@ -496,6 +499,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Bronze Materials
             BRONZE_INGOT = INSTANCE.registerItem("bronze_ingot", Item::new);
             BRONZE_NUGGET = INSTANCE.registerItem("bronze_nugget", Item::new);
+
+            // Infused alloys — a conductor quenched in a charged fluid in the Transposer. Each one
+            // is the body material of its energy tier, for both cables and batteries.
+            CATERIUM_INGOT = INSTANCE.registerItem("caterium_ingot", Item::new);
+            LUMENITE_INGOT = INSTANCE.registerItem("lumenite_ingot", Item::new);
+            ECHONITE_INGOT = INSTANCE.registerItem("echonite_ingot", Item::new);
             COPPER_NUGGET = INSTANCE.registerItem("copper_nugget", Item::new);
 
             // Apatite
@@ -631,6 +640,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.TIN_NUGGET);
             TAB.add(ITEM.COPPER_NUGGET);
             TAB.add(ITEM.BRONZE_NUGGET);
+            TAB.add(ITEM.CATERIUM_INGOT);
+            TAB.add(ITEM.LUMENITE_INGOT);
+            TAB.add(ITEM.ECHONITE_INGOT);
             TAB.add(BLOCK.APATITE_BLOCK);
             TAB.add(BLOCK.TIN_BLOCK);
             TAB.add(BLOCK.BRONZE_BLOCK);

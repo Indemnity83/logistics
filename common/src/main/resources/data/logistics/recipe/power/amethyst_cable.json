@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["RRR", "LLL", "RRR"],
+  "key": {
+    "L": "logistics:core/lumenite_ingot",
+    "R": "logistics:core/rubber"
+  },
+  "result": {
+    "count": 8,
+    "id": "logistics:power/amethyst_cable"
+  }
+}

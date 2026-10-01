@@ -12,7 +12,7 @@ Files are prefixed **`PPSS-`** — two digits of **phase**, two digits of **step
 
 - `01xx` = Phase 1 (Automation core), `02xx` = Phase 2 (Forestry), `03xx` = Phase 3 (Transport).
 - The step is the **suggested build order** within the phase, dependency-aware (a feature's prerequisites have lower step numbers). It's a guide, not a contract — parallel tracks exist (see below).
-- New briefs in a batch continue the sequence (this batch ends at `0110`; the deferred fluid-blocked items become `0111+`). When build order changes, briefs are renumbered so the ids keep tracking it.
+- New briefs in a batch continue the sequence (this batch ends at `0110`; the deferred fluid-blocked items become `0111+`). `0111` is reserved for the tiered machine-frame brief landing alongside the battery line. When build order changes, briefs are renumbered so the ids keep tracking it.
 
 ## This batch: Phase 1 keystone + ready-now
 
@@ -30,6 +30,7 @@ The first batch covers the **[Fluids foundation](0101-fluids-foundation.md)** (t
 | 0108 | [Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) ❌ *not planned — hoppers cover it* | Pipes | Skip | — |
 | 0109 | [Remote Orderer](0109-remote-orderer.md) 🔍 *exploratory — not committed* | Logistics QoL | Modernize | — |
 | 0110 | [Firewall Pipe](0110-firewall-pipe.md) ⏸️ *deferred — no use case yet* | Logistics advanced | Port | — |
+| 0112 | [Infused Alloys](0112-infused-alloys.md) ✅ *shipped* | Materials | Modernize | the Transposer; the Crucible's charged fluids |
 
 ### Reading the order
 

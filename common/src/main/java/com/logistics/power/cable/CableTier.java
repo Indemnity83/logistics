@@ -6,7 +6,8 @@ import com.logistics.LogisticsPower;
 public enum CableTier {
     COPPER("copper_cable", "Copper Cable"),
     GOLD("gold_cable", "Gold Cable"),
-    ENDER("ender_cable", "Ender Cable");
+    AMETHYST("amethyst_cable", "Amethyst Cable"),
+    ECHO("echo_cable", "Echo Cable");
 
     private static final String BASE_MODEL_PREFIX = "cable_";
 
@@ -31,7 +32,8 @@ public enum CableTier {
         return switch (this) {
             case COPPER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_COPPER_TRANSFER);
             case GOLD -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_GOLD_TRANSFER);
-            case ENDER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_ENDER_TRANSFER);
+            case AMETHYST -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_AMETHYST_TRANSFER);
+            case ECHO -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_ECHO_TRANSFER);
         };
     }
 
