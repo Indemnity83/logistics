@@ -1,6 +1,6 @@
 # Infused Alloys (Caterium · Lumenite · Echonite)
 
-> **Status:** ✅ Shipped · **Phase:** 1 — Automation core · **Module:** `logistics-core` (materials)
+> **Status:** 🚧 Materials shipped — consumers and `ender_dust` still open · **Phase:** 1 — Automation core · **Module:** `logistics-core` (materials)
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) ("High-tier alloys") · **Depends on:** the Transposer (v0.8.6) and the Crucible's charged fluids
 > **Maps to (roadmap):** Phase 1 — cable tiers; Phase 1 — Battery tiers
 

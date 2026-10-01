@@ -30,7 +30,7 @@ The first batch covers the **[Fluids foundation](0101-fluids-foundation.md)** (t
 | 0108 | [Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) ❌ *not planned — hoppers cover it* | Pipes | Skip | — |
 | 0109 | [Remote Orderer](0109-remote-orderer.md) 🔍 *exploratory — not committed* | Logistics QoL | Modernize | — |
 | 0110 | [Firewall Pipe](0110-firewall-pipe.md) ⏸️ *deferred — no use case yet* | Logistics advanced | Port | — |
-| 0112 | [Infused Alloys](0112-infused-alloys.md) ✅ *shipped* | Materials | Modernize | the Transposer; the Crucible's charged fluids |
+| 0112 | [Infused Alloys](0112-infused-alloys.md) 🚧 *materials shipped* | Materials | Modernize | the Transposer; the Crucible's charged fluids |
 
 ### Reading the order
 
