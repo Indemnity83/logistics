@@ -50,21 +50,21 @@ the mod's `item + fluid → item` bridge and already does this exact shape.
 
 One palette per alloy, applied to three shared silhouettes so every form reads as the same material:
 
-| Form | Silhouette | Why |
-|---|---|---|
-| Ingot | vanilla `iron_ingot` | reads instantly as an ingot; the palette does the identifying |
-| Nugget | `nugget_abyssium` | a small faceted gem, distinct from the ingot at inventory scale |
-| Block | `block_metal_abyssium` | a dark field with glowing studs — the only shape in the pack that *looks* infused |
+| Alloy | Ingot | Nugget | Block |
+|---|---|---|---|
+| Caterium | vanilla `iron_ingot` | `nugget_fiery` | `block_metal_fiery` |
+| Lumenite | vanilla `iron_ingot` | `nugget_aurichalcum` | `block_metal_aurichalcum_block_1` |
+| Echonite | vanilla `iron_ingot` | `nugget_abyssium` | `block_metal_abyssium` |
 
-Each palette is eight steps from a near-black shadow to a single bright **glint**, and the glint is
-reserved for the ingot's lit edge and the block's studs. Two mappings are deliberate rather than
-mechanical: the ingot holds the bright end back (the vanilla base is top-heavy — levels 5–7 are 53%
-of its pixels, so a linear map would wash the whole thing out), and the block caps one step below
-the glint so a storage block stays in-material instead of flashing specular across a full face.
+**The ingot is the constant.** All three share the vanilla ingot silhouette, so the ladder reads as
+one family and the palette alone identifies the tier. Nuggets and blocks take a donor each, because
+those are the forms a player sees in bulk — a repeated shape across three storage blocks would be
+dull, and at nugget scale a distinct outline is easier to tell apart than a colour.
 
-Abyssium's shapes are used for all three alloys rather than one donor each, because the pack has no
-brass block — a per-material shape set was not available, and a shared silhouette makes the ladder
-read as a family anyway.
+Each palette is eight steps from a near-black shadow to a single bright **glint**. The ingot mapping
+is deliberate rather than mechanical: the vanilla base is top-heavy — levels 5–7 are 53% of its
+pixels — so a linear map washes it out, and the bright end is held back so only the lit edge fires.
+The block donors all carry a real dark-to-light spread of their own, so they take a plain rank map.
 
 ## Balance
 
