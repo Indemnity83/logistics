@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": { "B": "#c:ingots/caterium" },
+  "pattern": ["BBB", "BBB", "BBB"],
+  "result": { "count": 1, "id": "logistics:core/caterium_block" }
+}
