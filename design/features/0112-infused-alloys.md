@@ -35,8 +35,9 @@ into it. This is exactly how Thermal's Lumium works (tin + silver + glowstone �
 
 ## What shipped
 
-- Three items in `logistics-core`: `core/caterium_ingot`, `core/lumenite_ingot`, `core/echonite_ingot`,
-  each with a `#c:ingots/<name>` tag following the Bronze precedent.
+- Three materials in `logistics-core`, each in the full **ingot / nugget / storage block** set that
+  Bronze and Tin already ship, with `#c:ingots/<name>`, `#c:nuggets/<name>` and
+  `#c:storage_blocks/<name>` tags and the usual 9↔1 compression recipes both ways.
 - Three Transposer recipes. **No new machine and no new code** — `TransposerRecipe` already accepted
   arbitrary `item + fluid → item`, and a negative `SignedFluidAmount` is the Fill direction.
 - All three fluids were already Crucible-obtainable, so nothing new had to be made survival-reachable.
@@ -44,6 +45,26 @@ into it. This is exactly how Thermal's Lumium works (tin + silver + glowstone �
 **Not the Alloy Smelter**, despite the name. That machine takes two *solid* ingredients
 (`ingredients: [...]`) and has no fluid input; the fluid is the entire point here. The Transposer is
 the mod's `item + fluid → item` bridge and already does this exact shape.
+
+## Art
+
+One palette per alloy, applied to three shared silhouettes so every form reads as the same material:
+
+| Form | Silhouette | Why |
+|---|---|---|
+| Ingot | vanilla `iron_ingot` | reads instantly as an ingot; the palette does the identifying |
+| Nugget | `nugget_abyssium` | a small faceted gem, distinct from the ingot at inventory scale |
+| Block | `block_metal_abyssium` | a dark field with glowing studs — the only shape in the pack that *looks* infused |
+
+Each palette is eight steps from a near-black shadow to a single bright **glint**, and the glint is
+reserved for the ingot's lit edge and the block's studs. Two mappings are deliberate rather than
+mechanical: the ingot holds the bright end back (the vanilla base is top-heavy — levels 5–7 are 53%
+of its pixels, so a linear map would wash the whole thing out), and the block caps one step below
+the glint so a storage block stays in-material instead of flashing specular across a full face.
+
+Abyssium's shapes are used for all three alloys rather than one donor each, because the pack has no
+brass block — a per-material shape set was not available, and a shared silhouette makes the ladder
+read as a family anyway.
 
 ## Balance
 
@@ -58,9 +79,6 @@ the number most likely to need tuning once the top of the ladder sees real play.
 ## Scope & non-goals
 
 - **In:** three ingots, three Transposer recipes, `c:` tags, and their use as cable body material.
-- **Out:** nugget and block storage forms — the art exists in the unused-texture pack, but neither
-  has a purpose while the alloys are produced in fixed single units and consumed three at a time.
-  Add them if a compression recipe ever earns its place.
 - **Out:** any fourth alloy. The set is closed at three because the energy ladder has three tiers
   above Copper. A new alloy needs a new rank to body, not just a new fluid.
 
@@ -82,6 +100,7 @@ dust/ingot variants. That was dropped: Bronze's variants are all genuinely bronz
 - [x] Each is the body material of its cable tier, with one shared recipe silhouette.
 - [x] A spot-check test pins each alloy to its conductor, fluid, volume and energy.
 - [ ] The battery line is rebuilt on them, retiring the `<tier>_battery_empty` items.
+- [x] Each alloy ships ingot, nugget and storage block with compression recipes both ways.
 - [ ] `ender_dust` has a purpose or a removal plan.
 
 ## References

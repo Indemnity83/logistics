@@ -332,6 +332,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Block TIN_BLOCK;
         public static Block RAW_TIN_BLOCK;
         public static Block BRONZE_BLOCK;
+        public static Block CATERIUM_BLOCK;
+        public static Block LUMENITE_BLOCK;
+        public static Block ECHONITE_BLOCK;
         public static Block APATITE_ORE;
         public static Block APATITE_BLOCK;
         public static Block QUARTZ_CRYSTAL;
@@ -362,6 +365,18 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Bronze Storage Block
             BRONZE_BLOCK = INSTANCE.registerBlockWithItem("bronze_block",
                 props -> new Block(props.mapColor(MapColor.COLOR_ORANGE)
+                    .strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+
+            CATERIUM_BLOCK = INSTANCE.registerBlockWithItem("caterium_block",
+                props -> new Block(props.mapColor(MapColor.COLOR_ORANGE)
+                    .strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+
+            LUMENITE_BLOCK = INSTANCE.registerBlockWithItem("lumenite_block",
+                props -> new Block(props.mapColor(MapColor.COLOR_PURPLE)
+                    .strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
+
+            ECHONITE_BLOCK = INSTANCE.registerBlockWithItem("echonite_block",
+                props -> new Block(props.mapColor(MapColor.COLOR_CYAN)
                     .strength(3.0f, 6.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()));
 
             // Apatite Ore and Storage Block
@@ -410,6 +425,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item CATERIUM_INGOT;
         public static Item LUMENITE_INGOT;
         public static Item ECHONITE_INGOT;
+        public static Item CATERIUM_NUGGET;
+        public static Item LUMENITE_NUGGET;
+        public static Item ECHONITE_NUGGET;
         public static Item COPPER_NUGGET;
         public static Item APATITE;
         public static Item MACHINE_CORE;
@@ -505,6 +523,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             CATERIUM_INGOT = INSTANCE.registerItem("caterium_ingot", Item::new);
             LUMENITE_INGOT = INSTANCE.registerItem("lumenite_ingot", Item::new);
             ECHONITE_INGOT = INSTANCE.registerItem("echonite_ingot", Item::new);
+            CATERIUM_NUGGET = INSTANCE.registerItem("caterium_nugget", Item::new);
+            LUMENITE_NUGGET = INSTANCE.registerItem("lumenite_nugget", Item::new);
+            ECHONITE_NUGGET = INSTANCE.registerItem("echonite_nugget", Item::new);
             COPPER_NUGGET = INSTANCE.registerItem("copper_nugget", Item::new);
 
             // Apatite
@@ -643,6 +664,12 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.CATERIUM_INGOT);
             TAB.add(ITEM.LUMENITE_INGOT);
             TAB.add(ITEM.ECHONITE_INGOT);
+            TAB.add(ITEM.CATERIUM_NUGGET);
+            TAB.add(ITEM.LUMENITE_NUGGET);
+            TAB.add(ITEM.ECHONITE_NUGGET);
+            TAB.add(BLOCK.CATERIUM_BLOCK);
+            TAB.add(BLOCK.LUMENITE_BLOCK);
+            TAB.add(BLOCK.ECHONITE_BLOCK);
             TAB.add(BLOCK.APATITE_BLOCK);
             TAB.add(BLOCK.TIN_BLOCK);
             TAB.add(BLOCK.BRONZE_BLOCK);
