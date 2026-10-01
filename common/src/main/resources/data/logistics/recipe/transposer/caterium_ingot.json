@@ -1,7 +1,7 @@
 {
   "type": "logistics:transposer",
-  "input": "minecraft:gold_ingot",
+  "input": "logistics:core/gold_dust",
   "result": { "id": "logistics:core/caterium_ingot", "count": 1 },
-  "fluid": { "fluid": "logistics:core/liquid_redstone", "amount": -250 },
+  "fluid": { "fluid": "logistics:core/liquid_redstone", "amount": -1000 },
   "energy": 2000
 }

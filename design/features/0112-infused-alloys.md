@@ -4,13 +4,17 @@
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) ("High-tier alloys") · **Depends on:** the Transposer (v0.8.6) and the Crucible's charged fluids
 > **Maps to (roadmap):** Phase 1 — cable tiers; Phase 1 — Battery tiers
 
-Three metals made by quenching a conductor in a charged fluid in the **Transposer**:
+Three metals, each one **dust quenched in a bucket of a charged fluid** in the **Transposer**:
 
-| Alloy | Conductor | Fluid | Energy | Tier it bodies |
+| Alloy | Dust | Fluid | Energy | Tier it bodies |
 |---|---|---|---|---|
-| **Caterium** | Gold Ingot | 250 mB liquid redstone | 2,000 RF | Conductive |
-| **Lumenite** | Amethyst Dust | 500 mB liquid glowstone | 3,000 RF | Resonant |
-| **Echonite** | Echo Dust | 750 mB liquid ender | 4,000 RF | Deep |
+| **Caterium** | Gold Dust | 1,000 mB liquid redstone | 2,000 RF | Conductive |
+| **Lumenite** | Amethyst Dust | 1,000 mB liquid glowstone | 3,000 RF | Resonant |
+| **Echonite** | Echo Dust | 1,000 mB liquid ender | 4,000 RF | Deep |
+
+**One rule, three materials: macerate, then infuse.** Holding the dust and the volume constant
+means the only thing that varies across the line is *which* fluid, which is exactly the thing that
+identifies the tier. Energy is the one escalating cost.
 
 They are the **body material of the upper energy tiers** — the thing a cable or a battery at that
 rank is built from — rather than a tier of their own. The rank is the fluid's, not the metal's.
@@ -21,10 +25,11 @@ The energy ladder's upper tiers needed a body material, and neither obvious opti
 
 - **Raw dust in the recipe** (`2 ender dust + 1 gold ingot`, as the old Ender Cable did) reads wrong:
   dust is not a conductor, and "sprinkle powder on gold" says nothing about why the tier is better.
+  Dust as *feedstock for a smelt* is fine — it is dust as the finished conductor that does not work.
 - **Craft-an-empty-block-and-fill-it**, which the battery line used, is two steps that produce one
   single-purpose item. An "Empty Gold Battery" can only ever become a battery.
 
-An alloy fixes both. It is a conductor, so a cable made of it makes sense; and it is reusable, so the
+An alloy fixes both. It is a metal, so a cable made of it makes sense; and it is reusable, so the
 same ingot bodies the cable, the battery, and whatever later machine wants that rank. The item count
 comes out level — three alloys replace three `<tier>_battery_empty` items — while the *concept* count
 drops from two ("fill a block", "dust in a recipe") to one.
@@ -71,13 +76,22 @@ The block donors all carry a real dark-to-light spread of their own, so they tak
 
 ## Balance
 
-First-pass numbers, all pure data. The fluid cost escalates 250 → 500 → 750 mB and the energy 2,000
-→ 4,000 RF. Against the Crucible's yields that is 2½ redstone, 2 glowstone dust, and 3 ender pearls
-per ingot respectively. A cable tier consumes 3 ingots for 8 cables.
+First-pass numbers, all pure data. Every alloy is 1 dust + 1,000 mB; only the energy escalates,
+2,000 → 3,000 → 4,000 RF. Against the Crucible's yields, one bucket costs:
 
-Worth watching: the old Ender Cable cost 2 ender dust for 8 cables, and the Echo Cable now costs
-9 pearls' worth. That is a deliberate increase for a tier that also doubled in throughput, but it is
-the number most likely to need tuning once the top of the ladder sees real play.
+| Alloy | Fluid cost per ingot |
+|---|---|
+| Caterium | 10 redstone |
+| Lumenite | 4 glowstone dust (or 1 glowstone block) |
+| Echonite | 4 ender pearls |
+
+A cable tier consumes 3 ingots for 8 cables, so an Echo Cable run is 3 echo dust + 12 ender pearls.
+
+**That is the number most likely to need tuning.** The old Ender Cable cost 2 ender dust for the
+same 8 cables, so the top tier is substantially dearer now — deliberate for a tier that also doubled
+in throughput and sits a rank higher, but it has not met real play yet. The flat 1,000 mB is chosen
+for legibility over fine-grained balance; if the top tier bites, raise the ingot yield rather than
+breaking the one-bucket rule, since the rule is what makes the line readable.
 
 ## Scope & non-goals
 

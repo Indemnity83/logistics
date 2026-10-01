@@ -34,11 +34,11 @@ class InfusedAlloyRecipeSpotCheckTest {
 
     @ParameterizedTest(name = "{0}")
     @CsvSource({
-        "caterium,minecraft:gold_ingot,logistics:core/liquid_redstone,250,2000",
-        "lumenite,logistics:core/amethyst_dust,logistics:core/liquid_glowstone,500,3000",
-        "echonite,logistics:core/echo_dust,logistics:core/liquid_ender,750,4000"
+        "caterium,logistics:core/gold_dust,logistics:core/liquid_redstone,1000,2000",
+        "lumenite,logistics:core/amethyst_dust,logistics:core/liquid_glowstone,1000,3000",
+        "echonite,logistics:core/echo_dust,logistics:core/liquid_ender,1000,4000"
     })
-    @DisplayName("each alloy is its own conductor quenched in its own fluid")
+    @DisplayName("every alloy is one dust quenched in one bucket of its own fluid")
     void alloyMatchesItsInfusion(String alloy, String input, String fluid, int milliBuckets, int energy)
             throws IOException {
         JsonObject recipe = loadRecipe(alloy);
