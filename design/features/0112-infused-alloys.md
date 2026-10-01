@@ -50,20 +50,19 @@ the mod's `item + fluid → item` bridge and already does this exact shape.
 
 One palette per alloy, applied to three shared silhouettes so every form reads as the same material:
 
-| Alloy | Ingot | Nugget | Block | Treatment |
-|---|---|---|---|---|
-| Caterium | `ingot_fiery` | `nugget_fiery` | `block_metal_fiery` | used as-is |
-| Lumenite | vanilla `iron_ingot` | `nugget_aurichalcum` | `block_metal_aurichalcum_block_1` | recoloured |
-| Echonite | vanilla `iron_ingot` | `nugget_abyssium` | `block_metal_abyssium` | recoloured |
+| Alloy | Donor set | Treatment |
+|---|---|---|
+| Caterium | `*_fiery` (block, ingot, nugget) | **used verbatim** — already a molten, charged metal |
+| Lumenite | `*_aurichalcum` (`block_2`, ingot, nugget) | **hue rotated +218°**, gold → amethyst |
+| Echonite | `*_abyssium` (block, nugget) + vanilla `iron_ingot` | recoloured onto a sculk palette |
 
-Caterium takes the `fiery` set **verbatim** — it already reads as a molten, charged metal and needed
-no palette work. Lumenite and Echonite are recoloured onto their own palettes because no donor in
-the pack carried their colours.
+Each alloy takes a whole donor set, so its three forms share one artist's hand. Where a donor's own
+colour already worked it is left alone; Lumenite needed only a **pure hue rotation** — saturation
+and value untouched, which is why the donor's shading and specular survive intact. Only Echonite
+needed a built palette, because nothing in the pack carried sculk's near-black blue-green.
 
-A consequence worth naming: Caterium's ingot therefore has a different silhouette from the other
-two, which use the vanilla ingot shape. The three still read as one line because the *forms* match
-(ingot, nugget, block) and the recipes are identical, but the ladder is no longer identified by
-palette alone.
+Echonite's ingot is the one piece still on the vanilla ingot silhouette rather than its donor's,
+since the abyssium ingot's shape did not read as cleanly at inventory scale.
 
 Each palette is eight steps from a near-black shadow to a single bright **glint**. The ingot mapping
 is deliberate rather than mechanical: the vanilla base is top-heavy — levels 5–7 are 53% of its
