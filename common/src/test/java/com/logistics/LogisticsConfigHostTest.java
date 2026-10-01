@@ -146,7 +146,10 @@ class LogisticsConfigHostTest {
                 "logistics.engines.creative",
                 "logistics.engines.magmatic",
                 "logistics.engines.fuel",
-                "logistics.power.battery",
+                "logistics.power.battery.basic",
+                "logistics.power.battery.conductive",
+                "logistics.power.battery.resonant",
+                "logistics.power.battery.deep",
                 "logistics.power.cables",
                 "logistics.machines.macerator",
                 "logistics.machines.kiln",
@@ -251,8 +254,8 @@ class LogisticsConfigHostTest {
         assertThat(configOf(LogisticsCore.CONFIG.REDSTONE_BUFFER_CAPACITY)
                         .trySet(LogisticsCore.CONFIG.REDSTONE_BUFFER_CAPACITY, 0L))
                 .isFalse();
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_CAPACITY)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_CAPACITY, 0L))
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY, 0L))
                 .isFalse();
         assertThat(configOf(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY)
                         .trySet(LogisticsPower.CONFIG.REACTION_TANK_CAPACITY, 0L))
@@ -305,18 +308,19 @@ class LogisticsConfigHostTest {
     @Test
     @DisplayName("the battery's per-side push cannot exceed its own I/O ceiling")
     void batteryOutputPerSideIsBoundedByMaxIo() {
-        long maxIo = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_MAX_IO);
+        // Checked on the Basic tier; every tier declares the same pair of mutual bounds.
+        long maxIo = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO);
 
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE, maxIo + 1))
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_BASIC_OUTPUT_PER_SIDE)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_BASIC_OUTPUT_PER_SIDE, maxIo + 1))
                 .isFalse();
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, 0L))
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO, 0L))
                 .isFalse();
         // And from the other side: dropping the ceiling below the push it already permits.
-        long perSide = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_OUTPUT_PER_SIDE);
-        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_MAX_IO)
-                        .trySet(LogisticsPower.CONFIG.BATTERY_MAX_IO, perSide - 1))
+        long perSide = LogisticsConfigHost.get(LogisticsPower.CONFIG.BATTERY_BASIC_OUTPUT_PER_SIDE);
+        assertThat(configOf(LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO)
+                        .trySet(LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO, perSide - 1))
                 .isFalse();
     }
 
