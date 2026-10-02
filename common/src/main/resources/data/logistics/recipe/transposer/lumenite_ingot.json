@@ -1,0 +1,7 @@
+{
+  "type": "logistics:transposer",
+  "input": "logistics:core/amethyst_dust",
+  "result": { "id": "logistics:core/lumenite_ingot", "count": 1 },
+  "fluid": { "fluid": "logistics:core/liquid_glowstone", "amount": -1000 },
+  "energy": 3000
+}
