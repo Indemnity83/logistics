@@ -34,7 +34,7 @@ class AlloyStorageRecipeSpotCheckTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"caterium"})
+    @ValueSource(strings = {"caterium", "lumenite"})
     @DisplayName("nine ingots make a block and the block gives nine back")
     void blockRoundTrips(String alloy) throws IOException {
         JsonObject pack = load(alloy + "_block");
@@ -51,7 +51,7 @@ class AlloyStorageRecipeSpotCheckTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"caterium"})
+    @ValueSource(strings = {"caterium", "lumenite"})
     @DisplayName("one ingot makes nine nuggets and nine nuggets give it back")
     void nuggetRoundTrips(String alloy) throws IOException {
         JsonObject split = load(alloy + "_nugget");

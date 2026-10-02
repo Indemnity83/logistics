@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "c:storage_blocks/lumenite"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "logistics:core/lumenite_ingot"
+  }
+}
