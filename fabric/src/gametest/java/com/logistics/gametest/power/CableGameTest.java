@@ -29,7 +29,7 @@ public class CableGameTest {
         BlockPos cablePos = new BlockPos(1, 1, 1);
         BlockPos sinkPos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
@@ -87,7 +87,7 @@ public class CableGameTest {
         BlockPos cablePos = new BlockPos(1, 1, 1);
         BlockPos sinkPos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);

@@ -24,20 +24,26 @@ import static com.logistics.LogisticsMod.LOGGER;
 public final class LogisticsPowerClient implements ClientDomainBootstrap {
     public LogisticsPowerClient() {
         ModelLoadingPlugin.register(pluginContext -> {
-            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.COPPER_CABLE, ctx -> {
-                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.COPPER);
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.BASIC_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.BASIC);
                 for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
                     ctx.setModel(state, root);
                 }
             });
-            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.GOLD_CABLE, ctx -> {
-                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.GOLD);
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.CONDUCTIVE_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.CONDUCTIVE);
                 for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
                     ctx.setModel(state, root);
                 }
             });
-            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.ENDER_CABLE, ctx -> {
-                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.ENDER);
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.RESONANT_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.RESONANT);
+                for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
+                    ctx.setModel(state, root);
+                }
+            });
+            pluginContext.registerBlockStateResolver(LogisticsPower.BLOCK.DEEP_CABLE, ctx -> {
+                CableUnbakedRoot root = new CableUnbakedRoot(CableTier.DEEP);
                 for (var state : ctx.block().getStateDefinition().getPossibleStates()) {
                     ctx.setModel(state, root);
                 }
@@ -59,9 +65,10 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
         BlockEntityRenderers.register(LogisticsPower.ENTITY.CREATIVE_ENGINE_BLOCK_ENTITY, EngineBlockEntityRenderer::new);
 
         // Register cable blocks for cutout rendering (transparent textures)
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.COPPER_CABLE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.GOLD_CABLE, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.ENDER_CABLE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.BASIC_CABLE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.CONDUCTIVE_CABLE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.RESONANT_CABLE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(LogisticsPower.BLOCK.DEEP_CABLE, RenderType.cutout());
 
         // Engines render cutout so the outer trunk's transparent window gaps reveal the heat core
         // drawn behind them in the BER. MC 1.21.1 vanilla doesn't honor the model "render_type"

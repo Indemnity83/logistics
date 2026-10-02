@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "logistics:block/power/conductive_cable_dynamic" }
+  }
+}

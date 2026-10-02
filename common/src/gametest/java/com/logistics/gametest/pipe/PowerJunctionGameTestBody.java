@@ -319,7 +319,7 @@ public class PowerJunctionGameTestBody {
         BlockPos machinePos = new BlockPos(2, 1, 0);
         BlockPos batteryPos = new BlockPos(1, 2, 0);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.KILN);
         context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
         context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);

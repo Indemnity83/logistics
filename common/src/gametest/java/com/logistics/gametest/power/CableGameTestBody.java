@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.Blocks;
  */
 public class CableGameTestBody {
 
-    /** Ender Cable throughput: the per-tick budget the consumer-before-battery test needs. */
+    /** Resonant Cable throughput: the per-tick budget the consumer-before-battery test needs. */
     private static final long CABLE_BUDGET_FOR_TIER_TEST = 120L;
 
     /**
@@ -48,8 +48,8 @@ public class CableGameTestBody {
         BlockPos secondCablePos = new BlockPos(2, 1, 1);
         BlockPos machinePos = new BlockPos(3, 1, 1);
 
-        context.setBlock(firstCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(secondCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(firstCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(secondCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()
@@ -84,7 +84,7 @@ public class CableGameTestBody {
         BlockPos enginePos = new BlockPos(1, 1, 1);
         BlockPos cablePos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST)
@@ -120,11 +120,11 @@ public class CableGameTestBody {
         BlockPos reactionEnginePos = new BlockPos(4, 1, 1);
         BlockPos reactionCablePos = new BlockPos(5, 1, 1);
 
-        context.setBlock(steamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(steamCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(steamEnginePos, LogisticsPower.BLOCK.STEAM_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST));
-        context.setBlock(reactionCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(reactionCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(reactionEnginePos, LogisticsPower.BLOCK.REACTION_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST));
@@ -147,7 +147,7 @@ public class CableGameTestBody {
         BlockPos enginePos = new BlockPos(1, 1, 1);
         BlockPos cablePos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, Direction.EAST));
@@ -180,7 +180,7 @@ public class CableGameTestBody {
         BlockPos cablePos = new BlockPos(2, 1, 1);
         BlockPos machinePos = new BlockPos(3, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
         context.setBlock(enginePos, LogisticsCore.BLOCK.REDSTONE_ENGINE
                 .defaultBlockState()
@@ -235,7 +235,7 @@ public class CableGameTestBody {
     public static void testCablePlacementExposesEnergyStorage(GameTestHelper context) {
         BlockPos cablePos = new BlockPos(1, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
         if (cable == null) {
@@ -267,8 +267,8 @@ public class CableGameTestBody {
         BlockPos relayCablePos = new BlockPos(2, 1, 1);
         BlockPos machinePos = new BlockPos(3, 1, 1);
 
-        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(relayCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(relayCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         CableBlockEntity sourceCable = (CableBlockEntity) context.getBlockEntity(sourceCablePos);
@@ -301,7 +301,7 @@ public class CableGameTestBody {
         BlockPos cablePos = new BlockPos(1, 1, 1);
         BlockPos machinePos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
@@ -330,7 +330,7 @@ public class CableGameTestBody {
         BlockPos smallSinkPos = new BlockPos(2, 1, 1);
         BlockPos largeSinkPos = new BlockPos(1, 1, 2);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(smallSinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
         context.setBlock(largeSinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
@@ -361,31 +361,31 @@ public class CableGameTestBody {
     }
 
     public static void testMixedTierRouteIsCappedByWeakestCable(GameTestHelper context) {
-        BlockPos enderCablePos = new BlockPos(1, 1, 1);
-        BlockPos copperCablePos = new BlockPos(2, 1, 1);
+        BlockPos deepCablePos = new BlockPos(1, 1, 1);
+        BlockPos basicCablePos = new BlockPos(2, 1, 1);
         BlockPos sinkPos = new BlockPos(3, 1, 1);
 
-        context.setBlock(enderCablePos, LogisticsPower.BLOCK.ENDER_CABLE);
-        context.setBlock(copperCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(deepCablePos, LogisticsPower.BLOCK.DEEP_CABLE);
+        context.setBlock(basicCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
-        CableBlockEntity enderCable = (CableBlockEntity) context.getBlockEntity(enderCablePos);
+        CableBlockEntity deepCable = (CableBlockEntity) context.getBlockEntity(deepCablePos);
         CreativeSinkBlockEntity sink = (CreativeSinkBlockEntity) context.getBlockEntity(sinkPos);
-        if (enderCable == null || sink == null) {
-            context.fail("Expected ender cable and creative sink block entities");
+        if (deepCable == null || sink == null) {
+            context.fail("Expected deep cable and creative sink block entities");
             return;
         }
         sink.setUnlimitedDrainRate();
 
-        long inserted = enderCable.energyStorage(Direction.WEST).insert(60L, false);
+        long inserted = deepCable.energyStorage(Direction.WEST).insert(60L, false);
         if (inserted != 30L) {
-            context.fail("Ender-to-copper route should be capped at 30 RF/t, got: " + inserted);
+            context.fail("Deep-to-basic route should be capped at 30 RF/t, got: " + inserted);
             return;
         }
 
-        long extra = enderCable.energyStorage(Direction.WEST).insert(60L, false);
+        long extra = deepCable.energyStorage(Direction.WEST).insert(60L, false);
         if (extra != 0L) {
-            context.fail("Copper bottleneck should be spent for the tick, got extra: " + extra);
+            context.fail("Basic bottleneck should be spent for the tick, got extra: " + extra);
             return;
         }
 
@@ -405,7 +405,7 @@ public class CableGameTestBody {
         BlockPos sinkPos = new BlockPos(2, 1, 1);
         BlockPos neighborPos = new BlockPos(1, 2, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
@@ -452,9 +452,9 @@ public class CableGameTestBody {
         BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
         BlockPos machinePos = new BlockPos(4, 1, 1);
 
-        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(removedCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(removedCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         context.runAfterDelay(2, () -> {
@@ -492,15 +492,15 @@ public class CableGameTestBody {
         BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
         BlockPos machinePos = new BlockPos(4, 1, 1);
 
-        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(restoredCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(restoredCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         context.runAfterDelay(2, () -> {
             context.setBlock(restoredCablePos, Blocks.AIR);
             context.runAfterDelay(2, () -> {
-                context.setBlock(restoredCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+                context.setBlock(restoredCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
 
                 CableBlockEntity sourceCable = (CableBlockEntity) context.getBlockEntity(sourceCablePos);
                 MaceratorBlockEntity machine = (MaceratorBlockEntity) context.getBlockEntity(machinePos);
@@ -537,7 +537,7 @@ public class CableGameTestBody {
         BlockPos cablePos = new BlockPos(1, 1, 1);
         BlockPos pipePos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(pipePos, LogisticsPipe.BLOCK.ITEM_EXTRACTOR_PIPE);
 
         PipeBlockEntity pipe = (PipeBlockEntity) context.getBlockEntity(pipePos);
@@ -547,7 +547,7 @@ public class CableGameTestBody {
         }
 
         // Read the cached path the game itself uses, not a freshly computed answer.
-        CableBlock cableBlock = (CableBlock) LogisticsPower.BLOCK.COPPER_CABLE;
+        CableBlock cableBlock = (CableBlock) LogisticsPower.BLOCK.BASIC_CABLE;
         CableBlock.ConnectionType connection =
                 cableBlock.getConnectionType(context.getLevel(), context.absolutePos(cablePos), Direction.EAST);
         if (connection != CableBlock.ConnectionType.NONE) {
@@ -590,9 +590,9 @@ public class CableGameTestBody {
         BlockPos downstreamCablePos = new BlockPos(3, 1, 1);
         BlockPos machinePos = new BlockPos(4, 1, 1);
 
-        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(rebuiltCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(sourceCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(rebuiltCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(downstreamCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.MACERATOR);
 
         HolderLookup.Provider registries = context.getLevel().registryAccess();
@@ -606,7 +606,7 @@ public class CableGameTestBody {
 
             CompoundTag saved = original.saveCustomOnly(registries);
             context.setBlock(rebuiltCablePos, Blocks.AIR);
-            context.setBlock(rebuiltCablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+            context.setBlock(rebuiltCablePos, LogisticsPower.BLOCK.BASIC_CABLE);
 
             CableBlockEntity rebuilt = (CableBlockEntity) context.getBlockEntity(rebuiltCablePos);
             if (rebuilt == null) {
@@ -653,7 +653,7 @@ public class CableGameTestBody {
         BlockPos cablePos = new BlockPos(1, 1, 1);
         BlockPos sinkPos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
         if (cable == null) {
@@ -697,7 +697,7 @@ public class CableGameTestBody {
         BlockPos cablePos = new BlockPos(1, 1, 1);
         BlockPos sinkPos = new BlockPos(2, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
 
         CableBlockEntity cable = (CableBlockEntity) context.getBlockEntity(cablePos);
@@ -737,7 +737,7 @@ public class CableGameTestBody {
      * few RF it can use this tick. Split pro rata across one flat list the consumer gets a rounding
      * error and the battery soaks up the network.
      *
-     * <p>An Ender Cable and a wound-up engine on purpose. At a copper cable's 30 RF/t every
+     * <p>A Resonant Cable and a wound-up engine on purpose. At a Basic cable's 30 RF/t every
      * {@code floor(ideal)} lands on zero and {@code distributeRemainder} hands the budget out one RF
      * at a time, evenly -- which masks the imbalance entirely. The weights only decide the split once
      * there is enough per tick for the flooring to mean something.
@@ -752,7 +752,7 @@ public class CableGameTestBody {
         BlockPos batteryPos = new BlockPos(1, 2, 1);
         BlockPos enginePos = new BlockPos(0, 1, 1);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.ENDER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.RESONANT_CABLE);
         context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
         context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE

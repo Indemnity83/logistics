@@ -91,7 +91,7 @@ public class QuarryGameTestBody {
         BlockPos cablePos = quarryPos.relative(face);
         BlockPos enginePos = cablePos.relative(face);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()
                 .setValue(AbstractEngineBlock.FACING, face.getOpposite())
