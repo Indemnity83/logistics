@@ -1,6 +1,6 @@
 # Infused Alloys (Caterium · Lumenite · Echonite)
 
-> **Status:** 🚧 In progress — Caterium shipped · **Phase:** 1 — Automation core · **Module:** `logistics-core` (materials)
+> **Status:** 🚧 In progress — Caterium and Lumenite shipped · **Phase:** 1 — Automation core · **Module:** `logistics-core` (materials)
 > **Source:** [`../mods/thermal-expansion.md`](../mods/thermal-expansion.md) ("High-tier alloys") · **Depends on:** the Transposer (v0.8.6) and the Crucible's charged fluids
 > **Maps to (roadmap):** Phase 1 — cable tiers; Phase 1 — Battery tiers
 
@@ -9,7 +9,7 @@ Three metals, each **one dust quenched in one bucket of a charged fluid** in the
 | Alloy | Dust | Fluid | Energy | Tier it bodies | Status |
 |---|---|---|---|---|---|
 | **Caterium** | Gold Dust | 1,000 mB liquid redstone | 2,000 RF | Conductive (rank 4) | ✅ shipped |
-| **Lumenite** | Amethyst Dust | 1,000 mB liquid glowstone | 3,000 RF | Resonant (rank 6) | 📋 next |
+| **Lumenite** | Amethyst Dust | 1,000 mB liquid glowstone | 3,000 RF | Resonant (rank 6) | ✅ shipped |
 | **Echonite** | Echo Dust | 1,000 mB liquid ender | 4,000 RF | Deep (rank 9) | 📋 next |
 
 **One rule, three materials: macerate, then infuse.** Holding the dust and the volume constant means
@@ -113,7 +113,8 @@ dust, with no echo in it" is thematically wrong just to keep an item alive.
 - [x] Caterium crafts in the Transposer from gold dust and liquid redstone.
 - [x] It ships ingot, nugget and storage block with compression recipes both ways.
 - [x] Spot-check tests pin the infusion and the 9↔1 round trips.
-- [ ] Lumenite and Echonite ship on the same rule.
+- [x] Lumenite ships on the same rule.
+- [ ] Echonite ships on the same rule.
 - [ ] The cable and battery ladders are built from them.
 - [ ] `ender_dust` has a purpose or a removal plan.
 
