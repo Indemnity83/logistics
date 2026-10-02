@@ -83,6 +83,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         SCREEN.register();
         RECIPE.register();
         CREATIVE.register();
+        ALIAS.register();
     }
 
     /**
@@ -288,17 +289,21 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .register();
 
         // Cables
-        public static final ConfigKey<Long> CABLE_COPPER_TRANSFER = cables.defineLong("copper", 30L)
+        public static final ConfigKey<Long> CABLE_BASIC_TRANSFER = cables.defineLong("basic", 30L)
                 .min(0L)
-                .describe("Copper cable RF/t throughput")
+                .describe("Basic cable RF/t throughput")
                 .register();
-        public static final ConfigKey<Long> CABLE_GOLD_TRANSFER = cables.defineLong("gold", 60L)
+        public static final ConfigKey<Long> CABLE_CONDUCTIVE_TRANSFER = cables.defineLong("conductive", 60L)
                 .min(0L)
-                .describe("Gold cable RF/t throughput")
+                .describe("Conductive cable RF/t throughput")
                 .register();
-        public static final ConfigKey<Long> CABLE_ENDER_TRANSFER = cables.defineLong("ender", 120L)
+        public static final ConfigKey<Long> CABLE_RESONANT_TRANSFER = cables.defineLong("resonant", 120L)
                 .min(0L)
-                .describe("Ender cable RF/t throughput")
+                .describe("Resonant cable RF/t throughput")
+                .register();
+        public static final ConfigKey<Long> CABLE_DEEP_TRANSFER = cables.defineLong("deep", 240L)
+                .min(0L)
+                .describe("Deep cable RF/t throughput")
                 .register();
 
         static void register() {
@@ -327,9 +332,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
         public static Block BATTERY;
-        public static Block COPPER_CABLE;
-        public static Block GOLD_CABLE;
-        public static Block ENDER_CABLE;
+        public static Block BASIC_CABLE;
+        public static Block CONDUCTIVE_CABLE;
+        public static Block RESONANT_CABLE;
+        public static Block DEEP_CABLE;
 
         static void register() {
             // Each engine's map color is its housing material — stone, netherite, nether brick, copper,
@@ -359,9 +365,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 props -> new BatteryBlock(props.mapColor(MapColor.TERRACOTTA_BLUE)
                     .strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()),
                 BatteryBlockItem::new);
-            COPPER_CABLE = registerCable("copper_cable", CableTier.COPPER, SoundType.COPPER);
-            GOLD_CABLE = registerCable("gold_cable", CableTier.GOLD, SoundType.METAL);
-            ENDER_CABLE = registerCable("ender_cable", CableTier.ENDER, SoundType.AMETHYST);
+            BASIC_CABLE = registerCable("basic_cable", CableTier.BASIC, SoundType.COPPER);
+            CONDUCTIVE_CABLE = registerCable("conductive_cable", CableTier.CONDUCTIVE, SoundType.METAL);
+            RESONANT_CABLE = registerCable("resonant_cable", CableTier.RESONANT, SoundType.AMETHYST);
+            DEEP_CABLE = registerCable("deep_cable", CableTier.DEEP, SoundType.SCULK);
         }
 
         /** Map color stays NONE — a cable is a thin strand, and drawing it would hide the ground. */
@@ -405,7 +412,30 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 INSTANCE.registerBlockEntity("battery", BatteryBlockEntity::new, BLOCK.BATTERY);
             CABLE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("cable", CableBlockEntity::new,
-                        BLOCK.COPPER_CABLE, BLOCK.GOLD_CABLE, BLOCK.ENDER_CABLE);
+                        BLOCK.BASIC_CABLE, BLOCK.CONDUCTIVE_CABLE,
+                        BLOCK.RESONANT_CABLE, BLOCK.DEEP_CABLE);
+        }
+    }
+
+    public static final class ALIAS {
+        private ALIAS() {}
+
+        static void register() {
+            // The cable line moved from material names onto the ladder's tier adjectives, so every
+            // id changed even where the tier did not. Copper and Gold keep their rates and become
+            // Basic and Conductive; Ender becomes Deep and is re-rated 120 -> 240 RF/t, which is
+            // safe because a cable holds no state -- there is nothing to clamp or lose.
+            //
+            // The block entity type is registered as "cable" and shared by every tier, so it never
+            // carried a tier-specific id and needs no alias.
+            bridge("copper_cable", BLOCK.BASIC_CABLE);
+            bridge("gold_cable", BLOCK.CONDUCTIVE_CABLE);
+            bridge("ender_cable", BLOCK.DEEP_CABLE);
+        }
+
+        private static void bridge(String name, Block block) {
+            INSTANCE.registerBlockAlias("power/" + name, block);
+            INSTANCE.registerItemAlias("power/" + name, block.asItem());
         }
     }
 
@@ -473,9 +503,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
             TAB.add(BLOCK.BATTERY);
-            TAB.add(BLOCK.COPPER_CABLE);
-            TAB.add(BLOCK.GOLD_CABLE);
-            TAB.add(BLOCK.ENDER_CABLE);
+            TAB.add(BLOCK.BASIC_CABLE);
+            TAB.add(BLOCK.CONDUCTIVE_CABLE);
+            TAB.add(BLOCK.RESONANT_CABLE);
+            TAB.add(BLOCK.DEEP_CABLE);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
