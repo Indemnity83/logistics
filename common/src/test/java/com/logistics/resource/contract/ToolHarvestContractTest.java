@@ -144,8 +144,8 @@ class ToolHarvestContractTest extends MinecraftTestEnvironment {
      * vanilla default applies and a wooden pickaxe harvests the block, so a tool-gated block in
      * {@code mineable/pickaxe} alone is silently free to mine.
      *
-     * <p>Every sibling check here passed for such a block — it is mineable, and it does require a
-     * tool — which is exactly how two shipped blocks stayed untiered until this check was added.
+     * <p>Every sibling check here passes for such a block: it is mineable, and it does require a
+     * tool. This is the only one that looks at the tier, so nothing else catches an untiered block.
      */
     @Test
     @DisplayName("every tool-gated block declares which tool tier it needs")
