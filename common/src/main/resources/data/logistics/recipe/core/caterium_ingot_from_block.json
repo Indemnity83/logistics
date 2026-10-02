@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "c:storage_blocks/caterium"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "logistics:core/caterium_ingot"
+  }
+}
