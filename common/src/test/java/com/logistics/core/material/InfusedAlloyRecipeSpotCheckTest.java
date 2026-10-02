@@ -37,7 +37,8 @@ class InfusedAlloyRecipeSpotCheckTest {
     @ParameterizedTest(name = "{0}")
     @CsvSource({
         "caterium,logistics:core/gold_dust,logistics:core/liquid_redstone,1000,2000",
-        "lumenite,logistics:core/amethyst_dust,logistics:core/liquid_glowstone,1000,3000"
+        "lumenite,logistics:core/amethyst_dust,logistics:core/liquid_glowstone,1000,3000",
+        "echonite,logistics:core/echo_dust,logistics:core/liquid_ender,1000,4000"
     })
     @DisplayName("every alloy is one dust quenched in one bucket of its own fluid")
     void alloyMatchesItsInfusion(String alloy, String dust, String fluid, int milliBuckets, int energy)
