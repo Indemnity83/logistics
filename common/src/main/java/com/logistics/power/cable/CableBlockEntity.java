@@ -176,7 +176,7 @@ public class CableBlockEntity extends BaseBlockEntity
     }
 
     private CableTier tier() {
-        return getBlockState().getBlock() instanceof CableBlock cableBlock ? cableBlock.tier() : CableTier.COPPER;
+        return getBlockState().getBlock() instanceof CableBlock cableBlock ? cableBlock.tier() : CableTier.BASIC;
     }
 
     private final class CableEnergyStorage implements IEnergyStorage {

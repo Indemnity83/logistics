@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:power/gold_cable"
+          "name": "logistics:power/conductive_cable"
         }
       ]
     }

@@ -2,8 +2,8 @@
 	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"1": "logistics:block/power/copper_cable",
-		"particle": "logistics:block/power/copper_cable"
+		"1": "logistics:block/power/basic_cable",
+		"particle": "logistics:block/power/basic_cable"
 	},
 	"elements": [
 		{
