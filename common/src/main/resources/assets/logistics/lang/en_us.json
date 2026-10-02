@@ -154,6 +154,7 @@
   "block.logistics.core.tin_block": "Block of Tin",
   "block.logistics.core.raw_tin_block": "Block of Raw Tin",
   "block.logistics.core.bronze_block": "Block of Bronze",
+  "block.logistics.core.caterium_block": "Block of Caterium",
   "block.logistics.core.apatite_ore": "Apatite Ore",
   "block.logistics.core.apatite_block": "Block of Apatite",
   "item.logistics.core.apatite": "Apatite",
@@ -162,6 +163,8 @@
   "item.logistics.core.tin_nugget": "Tin Nugget",
   "item.logistics.core.bronze_ingot": "Bronze Ingot",
   "item.logistics.core.bronze_nugget": "Bronze Nugget",
+  "item.logistics.core.caterium_ingot": "Caterium Ingot",
+  "item.logistics.core.caterium_nugget": "Caterium Nugget",
   "item.logistics.core.copper_nugget": "Copper Nugget",
   "item.logistics.core.machine_core": "Machine Frame",
   "item.logistics.core.redstone_reception_coil": "Redstone Reception Coil",
@@ -416,12 +419,15 @@
 
   "tag.item.c.ingots.tin": "Tin Ingots",
   "tag.item.c.ingots.bronze": "Bronze Ingots",
+  "tag.item.c.ingots.caterium": "Caterium Ingots",
   "tag.item.c.nuggets.tin": "Tin Nuggets",
   "tag.item.c.nuggets.bronze": "Bronze Nuggets",
+  "tag.item.c.nuggets.caterium": "Caterium Nuggets",
   "tag.item.c.nuggets.copper": "Copper Nuggets",
   "tag.item.c.raw_materials.tin": "Raw Tin",
   "tag.item.c.ores.tin": "Tin Ores",
   "tag.item.c.storage_blocks.tin": "Tin Storage Blocks",
   "tag.item.c.storage_blocks.bronze": "Bronze Storage Blocks",
+  "tag.item.c.storage_blocks.caterium": "Caterium Storage Blocks",
   "tag.item.c.storage_blocks.raw_tin": "Raw Tin Storage Blocks"
 }
