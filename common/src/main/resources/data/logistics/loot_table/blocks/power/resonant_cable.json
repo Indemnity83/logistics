@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:power/copper_cable"
+          "name": "logistics:power/resonant_cable"
         }
       ]
     }

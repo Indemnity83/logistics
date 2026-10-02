@@ -1,12 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["RRR", "GGG", "RRR"],
+  "pattern": ["RRR", "BBB", "RRR"],
   "key": {
-    "G": "minecraft:gold_ingot",
+    "B": "logistics:core/caterium_ingot",
     "R": "logistics:core/rubber"
   },
   "result": {
     "count": 8,
-    "id": "logistics:power/gold_cable"
+    "id": "logistics:power/conductive_cable"
   }
 }

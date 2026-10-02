@@ -1,12 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": ["RRR", "CCC", "RRR"],
+  "pattern": ["RRR", "BBB", "RRR"],
   "key": {
-    "C": "minecraft:copper_ingot",
+    "B": "logistics:core/lumenite_ingot",
     "R": "logistics:core/rubber"
   },
   "result": {
     "count": 8,
-    "id": "logistics:power/copper_cable"
+    "id": "logistics:power/resonant_cable"
   }
 }

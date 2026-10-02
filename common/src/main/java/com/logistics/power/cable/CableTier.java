@@ -4,9 +4,10 @@ import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsPower;
 
 public enum CableTier {
-    COPPER("copper_cable", "Copper Cable"),
-    GOLD("gold_cable", "Gold Cable"),
-    ENDER("ender_cable", "Ender Cable");
+    BASIC("basic_cable", "Basic Cable"),
+    CONDUCTIVE("conductive_cable", "Conductive Cable"),
+    RESONANT("resonant_cable", "Resonant Cable"),
+    DEEP("deep_cable", "Deep Cable");
 
     private static final String BASE_MODEL_PREFIX = "cable_";
 
@@ -29,9 +30,10 @@ public enum CableTier {
     /** RF/tick throughput limit, sourced from the {@code power/cables} config. */
     public long transferRate() {
         return switch (this) {
-            case COPPER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_COPPER_TRANSFER);
-            case GOLD -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_GOLD_TRANSFER);
-            case ENDER -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_ENDER_TRANSFER);
+            case BASIC -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_BASIC_TRANSFER);
+            case CONDUCTIVE -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_CONDUCTIVE_TRANSFER);
+            case RESONANT -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_RESONANT_TRANSFER);
+            case DEEP -> LogisticsConfigHost.get(LogisticsPower.CONFIG.CABLE_DEEP_TRANSFER);
         };
     }
 
