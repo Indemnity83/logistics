@@ -364,6 +364,13 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             fuel.registerSanitizeHook(() -> fuel.repairMinMax(FUEL_MIN_OUTPUT, FUEL_MAX_OUTPUT));
             LogisticsConfigMigrator.mapLegacyPair(
                     "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
+
+            // The single untiered battery's config became four per-tier sections. Basic carries the
+            // old numbers, so the old file's values belong to it -- and a raised capacity has to
+            // arrive before any battery loads, or EnergyComponent clamps the saved charge away.
+            LogisticsConfigMigrator.mapSplitField("power/battery.json", "capacity", BATTERY_BASIC_CAPACITY);
+            LogisticsConfigMigrator.mapSplitPair("power/battery.json", "output_per_side", "max_io",
+                    BATTERY_BASIC_OUTPUT_PER_SIDE, BATTERY_BASIC_MAX_IO);
         }
     }
 

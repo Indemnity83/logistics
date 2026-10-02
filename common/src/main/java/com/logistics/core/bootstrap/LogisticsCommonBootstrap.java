@@ -10,9 +10,12 @@ public final class LogisticsCommonBootstrap {
         for (DomainBootstrap bootstrap : domains) {
             bootstrap.registerConfig();
         }
-        // Phase B: load all per-domain configs (defaults + hooks), then migrate a legacy logistics.json if present.
+        // Phase B: load all per-domain configs (defaults + hooks), then migrate a legacy logistics.json and
+        // any config section that has since split into subsections. Both run before blocks exist, so a
+        // migrated capacity is in place before the first block entity reads it.
         LogisticsConfigHost.load();
         LogisticsConfigMigrator.migrateIfNeeded();
+        LogisticsConfigMigrator.migrateSplitSections();
         // Phase C: register blocks/items/etc.; config is loaded and safe to read.
         for (DomainBootstrap bootstrap : domains) {
             bootstrap.initCommon();
