@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.11](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.10...mc26.3-v0.8.11) (2026-10-02)
+
+
+### Added
+
+* **core:** add Caterium, the conductive infused alloy ([#1316](https://github.com/Indemnity83/logistics/issues/1316)) ([a0ca488](https://github.com/Indemnity83/logistics/commit/a0ca488f4ab0accbcac8c62c778a121a4c8ac5d1))
+* **core:** add Echonite, the deep infused alloy ([#1318](https://github.com/Indemnity83/logistics/issues/1318)) ([1887b85](https://github.com/Indemnity83/logistics/commit/1887b85f9ecbba8b5996d5b1d3e49acb9d3fadd1))
+* **core:** add Lumenite, the resonant infused alloy ([#1317](https://github.com/Indemnity83/logistics/issues/1317)) ([c17cf60](https://github.com/Indemnity83/logistics/commit/c17cf60c07392fde5c57a23d8b2563a7c86e04bf))
+
+
+### Changed
+
+* **energy:** raise the top cable tier to 240 RF/t ([975750a](https://github.com/Indemnity83/logistics/commit/975750a36bc89371e43b447281894e1b866ca58f))
+* **energy:** rename the Ender Cable to the Deep Cable ([975750a](https://github.com/Indemnity83/logistics/commit/975750a36bc89371e43b447281894e1b866ca58f))
+
 ## [0.8.10](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.9...mc26.3-v0.8.10) (2026-09-22)
 
 
