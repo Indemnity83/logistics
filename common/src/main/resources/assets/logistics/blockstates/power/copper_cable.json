@@ -1,6 +1,0 @@
-{
-  "variants": {
-    "waterlogged=false": { "model": "logistics:block/power/copper_cable_empty" },
-    "waterlogged=true": { "model": "logistics:block/power/copper_cable_empty" }
-  }
-}
