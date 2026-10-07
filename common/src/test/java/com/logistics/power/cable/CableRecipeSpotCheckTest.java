@@ -2,9 +2,9 @@ package com.logistics.power.cable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.logistics.test.RecipeJson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,26 +51,11 @@ class CableRecipeSpotCheckTest {
         assertThat(pattern).containsExactly("RRR", "BBB", "RRR");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(ingredient(key.get("R"))).as("sheath is always rubber").isEqualTo("logistics:core/rubber");
-        assertThat(ingredient(key.get("B"))).as("core is the tier's body material").isEqualTo(body);
+        assertThat(RecipeJson.ingredient(key.get("R"))).as("sheath is always rubber").isEqualTo("logistics:core/rubber");
+        assertThat(RecipeJson.ingredient(key.get("B"))).as("core is the tier's body material").isEqualTo(body);
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:power/" + tier + "_cable");
         assertThat(result.get("count").getAsInt()).isEqualTo(8);
-    }
-
-    /**
-     * An ingredient in its canonical {@code #tag} / {@code item} spelling.
-     *
-     * <p>Vanilla accepts a bare string for an {@code Ingredient} on 26.x but demands an object on
-     * 1.21.1, so the shipped JSON differs by branch while the recipe does not. Normalising here
-     * keeps the assertions — and this file — the same across branches.
-     */
-    private static String ingredient(JsonElement element) {
-        if (element.isJsonPrimitive()) {
-            return element.getAsString();
-        }
-        JsonObject object = element.getAsJsonObject();
-        return object.has("tag") ? "#" + object.get("tag").getAsString() : object.get("item").getAsString();
     }
 }

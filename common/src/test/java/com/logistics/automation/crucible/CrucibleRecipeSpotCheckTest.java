@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.logistics.test.RecipeJson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,12 +27,6 @@ class CrucibleRecipeSpotCheckTest {
     }
 
     /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
-    private static String ingredientId(JsonObject ingredient) {
-        return ingredient.has("tag")
-                ? "#" + ingredient.get("tag").getAsString()
-                : ingredient.get("item").getAsString();
-    }
-
     /**
      * Wiki claim (Crafting template): a 3x3 shaped recipe — row 1: _, Magma Block, _; row 2: Nether
      * Bricks, Machine Frame, Nether Bricks; row 3: Copper Gear, Redstone Reception Coil, Copper Gear
@@ -50,11 +45,11 @@ class CrucibleRecipeSpotCheckTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(ingredientId(key.getAsJsonObject("H"))).isEqualTo("minecraft:magma_block");
-        assertThat(ingredientId(key.getAsJsonObject("N"))).isEqualTo("minecraft:nether_bricks");
-        assertThat(ingredientId(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
-        assertThat(ingredientId(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
-        assertThat(ingredientId(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("H"))).isEqualTo("minecraft:magma_block");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("N"))).isEqualTo("minecraft:nether_bricks");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/crucible");
@@ -71,7 +66,7 @@ class CrucibleRecipeSpotCheckTest {
     void iceMatchesWiki() throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/crucible/water_from_ice.json");
 
-        assertThat(ingredientId(recipe.getAsJsonObject("ingredient"))).isEqualTo("minecraft:ice");
+        assertThat(RecipeJson.ingredient(recipe.getAsJsonObject("ingredient"))).isEqualTo("minecraft:ice");
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("fluid").getAsString()).isEqualTo("minecraft:water");
         assertThat(result.get("amount").getAsInt()).isEqualTo(1_000);
@@ -87,7 +82,7 @@ class CrucibleRecipeSpotCheckTest {
     void bitumenMatchesWiki() throws IOException {
         JsonObject recipe = loadRecipe("data/logistics/recipe/crucible/crude_oil_from_bitumen.json");
 
-        assertThat(ingredientId(recipe.getAsJsonObject("ingredient"))).isEqualTo("logistics:core/bitumen");
+        assertThat(RecipeJson.ingredient(recipe.getAsJsonObject("ingredient"))).isEqualTo("logistics:core/bitumen");
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("fluid").getAsString()).isEqualTo("logistics:core/crude_oil");
         assertThat(result.get("amount").getAsInt()).isEqualTo(250);

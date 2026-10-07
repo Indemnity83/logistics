@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.logistics.test.RecipeJson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,12 +28,6 @@ class AlloySmelterRecipeSpotCheckTest {
     }
 
     /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
-    private static String ingredientId(JsonObject ingredient) {
-        return ingredient.has("tag")
-                ? "#" + ingredient.get("tag").getAsString()
-                : ingredient.get("item").getAsString();
-    }
-
     /**
      * Wiki claim (Crafting template): a 3x3 shaped recipe — row 1: _, Diamond Gear, _; row 2: Sand,
      * Machine Frame, Sand; row 3: Copper Gear, Redstone Reception Coil, Copper Gear -> 1 Alloy
@@ -51,15 +46,15 @@ class AlloySmelterRecipeSpotCheckTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(ingredientId(key.getAsJsonObject("D"))).isEqualTo("logistics:core/diamond_gear");
-        assertThat(ingredientId(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
-        assertThat(ingredientId(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
-        assertThat(ingredientId(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("D"))).isEqualTo("logistics:core/diamond_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
 
         JsonArray sandOptions = key.getAsJsonArray("S");
         assertThat(sandOptions).hasSize(2);
-        assertThat(ingredientId(sandOptions.get(0).getAsJsonObject())).isEqualTo("minecraft:sand");
-        assertThat(ingredientId(sandOptions.get(1).getAsJsonObject())).isEqualTo("minecraft:red_sand");
+        assertThat(RecipeJson.ingredient(sandOptions.get(0).getAsJsonObject())).isEqualTo("minecraft:sand");
+        assertThat(RecipeJson.ingredient(sandOptions.get(1).getAsJsonObject())).isEqualTo("minecraft:red_sand");
     }
 
     /**
@@ -75,8 +70,8 @@ class AlloySmelterRecipeSpotCheckTest {
 
         JsonArray ingredients = recipe.getAsJsonArray("ingredients");
         assertThat(ingredients).hasSize(2);
-        assertThat(ingredientId(ingredients.get(0).getAsJsonObject())).isEqualTo("#c:ores/iron");
-        assertThat(ingredientId(ingredients.get(1).getAsJsonObject())).isEqualTo("#c:sands");
+        assertThat(RecipeJson.ingredient(ingredients.get(0).getAsJsonObject())).isEqualTo("#c:ores/iron");
+        assertThat(RecipeJson.ingredient(ingredients.get(1).getAsJsonObject())).isEqualTo("#c:sands");
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("minecraft:iron_ingot");
@@ -101,9 +96,9 @@ class AlloySmelterRecipeSpotCheckTest {
         JsonArray ingredients = recipe.getAsJsonArray("ingredients");
         assertThat(ingredients).hasSize(2);
         JsonObject copper = ingredients.get(0).getAsJsonObject();
-        assertThat(ingredientId(copper.getAsJsonObject("id"))).isEqualTo("minecraft:copper_ingot");
+        assertThat(RecipeJson.ingredient(copper.getAsJsonObject("id"))).isEqualTo("minecraft:copper_ingot");
         assertThat(copper.get("count").getAsInt()).isEqualTo(3);
-        assertThat(ingredientId(ingredients.get(1).getAsJsonObject())).isEqualTo("#c:ingots/tin");
+        assertThat(RecipeJson.ingredient(ingredients.get(1).getAsJsonObject())).isEqualTo("#c:ingots/tin");
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:core/bronze_ingot");

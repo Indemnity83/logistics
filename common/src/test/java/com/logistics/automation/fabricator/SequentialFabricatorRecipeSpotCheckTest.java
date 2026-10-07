@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.logistics.test.RecipeJson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,12 +29,6 @@ class SequentialFabricatorRecipeSpotCheckTest {
     }
 
     /** This branch's vanilla Ingredient JSON is always {@code {"item": ...}} or {@code {"tag": ...}}. */
-    private static String ingredientId(JsonObject ingredient) {
-        return ingredient.has("tag")
-                ? "#" + ingredient.get("tag").getAsString()
-                : ingredient.get("item").getAsString();
-    }
-
     /**
      * Wiki claim (Crafting template): a 3x3 shaped recipe — row 1: _, Netherite Gear, _; row 2:
      * Obsidian, Machine Frame, Obsidian; row 3: Copper Gear, Redstone Reception Coil, Copper Gear ->
@@ -52,11 +47,11 @@ class SequentialFabricatorRecipeSpotCheckTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(ingredientId(key.getAsJsonObject("N"))).isEqualTo("logistics:core/netherite_gear");
-        assertThat(ingredientId(key.getAsJsonObject("O"))).isEqualTo("minecraft:obsidian");
-        assertThat(ingredientId(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
-        assertThat(ingredientId(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
-        assertThat(ingredientId(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("N"))).isEqualTo("logistics:core/netherite_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("O"))).isEqualTo("minecraft:obsidian");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
 
         JsonObject result = recipe.getAsJsonObject("result");
         assertThat(result.get("id").getAsString()).isEqualTo("logistics:automation/sequential_fabricator");
@@ -77,7 +72,7 @@ class SequentialFabricatorRecipeSpotCheckTest {
         JsonArray ingredients = recipe.getAsJsonArray("ingredients");
         assertThat(ingredients).hasSize(1);
         JsonObject ingredient = ingredients.get(0).getAsJsonObject();
-        assertThat(ingredientId(ingredient.getAsJsonObject("ingredient"))).isEqualTo("minecraft:redstone");
+        assertThat(RecipeJson.ingredient(ingredient.getAsJsonObject("ingredient"))).isEqualTo("minecraft:redstone");
         assertThat(ingredient.get("count").getAsInt()).isEqualTo(1);
 
         JsonObject result = recipe.getAsJsonObject("result");
@@ -98,9 +93,9 @@ class SequentialFabricatorRecipeSpotCheckTest {
 
         JsonArray ingredients = recipe.getAsJsonArray("ingredients");
         assertThat(ingredients).hasSize(2);
-        assertThat(ingredientId(ingredients.get(0).getAsJsonObject().getAsJsonObject("ingredient")))
+        assertThat(RecipeJson.ingredient(ingredients.get(0).getAsJsonObject().getAsJsonObject("ingredient")))
                 .isEqualTo("minecraft:redstone");
-        assertThat(ingredientId(ingredients.get(1).getAsJsonObject().getAsJsonObject("ingredient")))
+        assertThat(RecipeJson.ingredient(ingredients.get(1).getAsJsonObject().getAsJsonObject("ingredient")))
                 .isEqualTo("minecraft:netherite_ingot");
 
         JsonObject result = recipe.getAsJsonObject("result");
