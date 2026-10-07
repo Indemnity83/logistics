@@ -2,8 +2,8 @@ package com.logistics.core.material;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.logistics.test.RecipeJson;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +46,7 @@ class InfusedAlloyRecipeSpotCheckTest {
         JsonObject recipe = loadRecipe(alloy);
 
         assertThat(recipe.get("type").getAsString()).isEqualTo("logistics:transposer");
-        assertThat(ingredient(recipe.get("input"))).isEqualTo(dust);
+        assertThat(RecipeJson.ingredient(recipe.get("input"))).isEqualTo(dust);
         assertThat(recipe.get("energy").getAsInt()).isEqualTo(energy);
 
         JsonObject result = recipe.getAsJsonObject("result");
@@ -57,20 +57,5 @@ class InfusedAlloyRecipeSpotCheckTest {
         assertThat(fluidSpec.get("fluid").getAsString()).isEqualTo(fluid);
         // Negative drains the Transposer's tank — the Fill direction.
         assertThat(fluidSpec.get("amount").getAsInt()).isEqualTo(-milliBuckets);
-    }
-
-    /**
-     * An ingredient in its canonical {@code #tag} / {@code item} spelling.
-     *
-     * <p>Vanilla accepts a bare string for an {@code Ingredient} on 26.x but demands an object on
-     * 1.21.1, so the shipped JSON differs by branch while the recipe does not. Normalising here
-     * keeps the assertions — and this file — the same across branches.
-     */
-    private static String ingredient(JsonElement element) {
-        if (element.isJsonPrimitive()) {
-            return element.getAsString();
-        }
-        JsonObject object = element.getAsJsonObject();
-        return object.has("tag") ? "#" + object.get("tag").getAsString() : object.get("item").getAsString();
     }
 }
