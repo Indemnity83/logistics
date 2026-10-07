@@ -9,6 +9,7 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsPipe;
+import com.logistics.LogisticsPower;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +23,8 @@ class LogisticsConfigMigratorTest {
         LogisticsAutomation.CONFIG.QUARRY_AREA, LogisticsAutomation.CONFIG.QUARRY_SCAN_RATE,
         LogisticsPipe.CONFIG.PIPE_MIN_SPEED, LogisticsPipe.CONFIG.PIPE_MAX_SPEED,
         LogisticsCore.CONFIG.REDSTONE_OUTPUT, LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED,
+        LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY, LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO,
+        LogisticsPower.CONFIG.BATTERY_BASIC_OUTPUT_PER_SIDE,
     };
 
     @BeforeEach
@@ -73,5 +76,68 @@ class LogisticsConfigMigratorTest {
                 .isLessThanOrEqualTo(LogisticsConfigHost.get(LogisticsPipe.CONFIG.PIPE_MAX_SPEED)); // repaired
         assertThat(LogisticsConfigHost.get(LogisticsCore.CONFIG.REDSTONE_OUTPUT)).isEqualTo(99L);
         assertThat(LogisticsConfigHost.get(LogisticsCore.CONFIG.CRASH_REPORTING_ENABLED)).isTrue();
+    }
+
+    /**
+     * The pre-tier {@code power/battery.json} folds into the Basic tier.
+     *
+     * <p>Capacity matters most: {@code EnergyComponent} clamps a saved charge to the configured
+     * capacity on load, so a player who raised it and then updated would lose the excess RF in every
+     * battery they own, not merely their setting.
+     */
+    @Test
+    @DisplayName("the pre-tier battery section migrates into the Basic tier")
+    void migratesBatterySectionIntoBasic() {
+        registerBatterySplit();
+
+        JsonObject legacy = new JsonObject();
+        legacy.addProperty("capacity", 500_000);
+        legacy.addProperty("max_io", 4_000);
+        legacy.addProperty("output_per_side", 900);
+        LogisticsConfigMigrator.applySplit("power/battery.json", legacy);
+
+        assertThat(valueOf(LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY)).isEqualTo(500_000L);
+        assertThat(valueOf(LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO)).isEqualTo(4_000L);
+        assertThat(valueOf(LogisticsPower.CONFIG.BATTERY_BASIC_OUTPUT_PER_SIDE)).isEqualTo(900L);
+    }
+
+    /** A value the player already set on the new section wins; migration never overwrites it. */
+    @Test
+    @DisplayName("an already-customised Basic setting is left alone")
+    void doesNotOverwriteCustomisedBasicSettings() {
+        registerBatterySplit();
+        ConfigRegistry.config(LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY.configId())
+                .set(LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY, 250_000L);
+
+        JsonObject legacy = new JsonObject();
+        legacy.addProperty("capacity", 500_000);
+        LogisticsConfigMigrator.applySplit("power/battery.json", legacy);
+
+        assertThat(valueOf(LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY)).isEqualTo(250_000L);
+    }
+
+    /** Only the Basic tier inherits the old numbers — the tiers above it keep their own defaults. */
+    @Test
+    @DisplayName("migration does not touch the tiers above Basic")
+    void leavesHigherTiersAtTheirDefaults() {
+        registerBatterySplit();
+
+        JsonObject legacy = new JsonObject();
+        legacy.addProperty("capacity", 500_000);
+        LogisticsConfigMigrator.applySplit("power/battery.json", legacy);
+
+        assertThat(valueOf(LogisticsPower.CONFIG.BATTERY_CONDUCTIVE_CAPACITY))
+                .isEqualTo(LogisticsPower.CONFIG.BATTERY_CONDUCTIVE_CAPACITY.definition().defaultValue());
+    }
+
+    private static void registerBatterySplit() {
+        LogisticsConfigMigrator.mapSplitField(
+                "power/battery.json", "capacity", LogisticsPower.CONFIG.BATTERY_BASIC_CAPACITY);
+        LogisticsConfigMigrator.mapSplitPair("power/battery.json", "output_per_side", "max_io",
+                LogisticsPower.CONFIG.BATTERY_BASIC_OUTPUT_PER_SIDE, LogisticsPower.CONFIG.BATTERY_BASIC_MAX_IO);
+    }
+
+    private static <T> T valueOf(ConfigKey<T> key) {
+        return ConfigRegistry.config(key.configId()).get(key);
     }
 }

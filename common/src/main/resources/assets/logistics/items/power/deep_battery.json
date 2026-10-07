@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/power/deep_battery",
+    "type": "minecraft:model"
+  }
+}
