@@ -2,7 +2,7 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "rolls": 1,
+      "bonus_rolls": 0.0,
       "conditions": [
         {
           "condition": "minecraft:survives_explosion"
@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:power/battery",
+          "name": "logistics:power/deep_battery",
           "functions": [
             {
               "function": "minecraft:copy_components",
@@ -22,7 +22,9 @@
             }
           ]
         }
-      ]
+      ],
+      "rolls": 1.0
     }
-  ]
+  ],
+  "random_sequence": "logistics:blocks/power/deep_battery"
 }
