@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import com.logistics.power.block.BatteryBlock;
 import com.logistics.power.block.BatteryBlockItem;
+import com.logistics.power.block.BatteryTier;
 import com.logistics.power.block.CreativeSinkBlock;
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
@@ -83,6 +84,7 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         SCREEN.register();
         RECIPE.register();
         CREATIVE.register();
+        ALIAS.register();
     }
 
     /**
@@ -97,7 +99,10 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         private static final Config steam = configFor(LogisticsConfigHost.MOD_ID, "engines.steam");
         private static final Config fuel = configFor(LogisticsConfigHost.MOD_ID, "engines.fuel");
         private static final Config creative = configFor(LogisticsConfigHost.MOD_ID, "engines.creative");
-        private static final Config battery = configFor(LogisticsConfigHost.MOD_ID, "power.battery");
+        private static final Config batteryBasic = configFor(LogisticsConfigHost.MOD_ID, "power.battery.basic");
+        private static final Config batteryConductive = configFor(LogisticsConfigHost.MOD_ID, "power.battery.conductive");
+        private static final Config batteryResonant = configFor(LogisticsConfigHost.MOD_ID, "power.battery.resonant");
+        private static final Config batteryDeep = configFor(LogisticsConfigHost.MOD_ID, "power.battery.deep");
         private static final Config cables = configFor(LogisticsConfigHost.MOD_ID, "power.cables");
 
         private CONFIG() {}
@@ -272,33 +277,79 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
                 .register();
 
         // Battery
-        public static final ConfigKey<Long> BATTERY_CAPACITY = battery.defineLong("capacity", 100_000L)
+        public static final ConfigKey<Long> BATTERY_BASIC_CAPACITY = batteryBasic.defineLong("capacity", 100_000L)
                 .min(1L)
-                .describe("Total RF storage")
+                .describe("Basic battery total RF storage")
                 .register();
-        public static final ConfigKey<Long> BATTERY_MAX_IO = battery.defineLong("max_io", 1_000L)
+        public static final ConfigKey<Long> BATTERY_BASIC_MAX_IO = batteryBasic.defineLong("max_io", 1_000L)
                 .min(1L)
-                .minValueOf(() -> CONFIG.BATTERY_OUTPUT_PER_SIDE)
-                .describe("Max RF/t inserted or extracted per side")
+                .minValueOf(() -> CONFIG.BATTERY_BASIC_OUTPUT_PER_SIDE)
+                .describe("Basic battery max RF/t inserted or extracted per side")
                 .register();
-        public static final ConfigKey<Long> BATTERY_OUTPUT_PER_SIDE = battery.defineLong("output_per_side", 200L)
+        public static final ConfigKey<Long> BATTERY_BASIC_OUTPUT_PER_SIDE = batteryBasic.defineLong("output_per_side", 200L)
                 .min(0L)
-                .maxValueOf(() -> CONFIG.BATTERY_MAX_IO)
-                .describe("Max RF/t actively pushed into each adjacent machine")
+                .maxValueOf(() -> CONFIG.BATTERY_BASIC_MAX_IO)
+                .describe("Basic battery max RF/t actively pushed into each adjacent machine")
+                .register();
+        public static final ConfigKey<Long> BATTERY_CONDUCTIVE_CAPACITY = batteryConductive.defineLong("capacity", 400_000L)
+                .min(1L)
+                .describe("Conductive battery total RF storage")
+                .register();
+        public static final ConfigKey<Long> BATTERY_CONDUCTIVE_MAX_IO = batteryConductive.defineLong("max_io", 2_000L)
+                .min(1L)
+                .minValueOf(() -> CONFIG.BATTERY_CONDUCTIVE_OUTPUT_PER_SIDE)
+                .describe("Conductive battery max RF/t inserted or extracted per side")
+                .register();
+        public static final ConfigKey<Long> BATTERY_CONDUCTIVE_OUTPUT_PER_SIDE = batteryConductive.defineLong("output_per_side", 400L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.BATTERY_CONDUCTIVE_MAX_IO)
+                .describe("Conductive battery max RF/t actively pushed into each adjacent machine")
+                .register();
+        public static final ConfigKey<Long> BATTERY_RESONANT_CAPACITY = batteryResonant.defineLong("capacity", 1_600_000L)
+                .min(1L)
+                .describe("Resonant battery total RF storage")
+                .register();
+        public static final ConfigKey<Long> BATTERY_RESONANT_MAX_IO = batteryResonant.defineLong("max_io", 4_000L)
+                .min(1L)
+                .minValueOf(() -> CONFIG.BATTERY_RESONANT_OUTPUT_PER_SIDE)
+                .describe("Resonant battery max RF/t inserted or extracted per side")
+                .register();
+        public static final ConfigKey<Long> BATTERY_RESONANT_OUTPUT_PER_SIDE = batteryResonant.defineLong("output_per_side", 800L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.BATTERY_RESONANT_MAX_IO)
+                .describe("Resonant battery max RF/t actively pushed into each adjacent machine")
+                .register();
+        public static final ConfigKey<Long> BATTERY_DEEP_CAPACITY = batteryDeep.defineLong("capacity", 6_400_000L)
+                .min(1L)
+                .describe("Deep battery total RF storage")
+                .register();
+        public static final ConfigKey<Long> BATTERY_DEEP_MAX_IO = batteryDeep.defineLong("max_io", 8_000L)
+                .min(1L)
+                .minValueOf(() -> CONFIG.BATTERY_DEEP_OUTPUT_PER_SIDE)
+                .describe("Deep battery max RF/t inserted or extracted per side")
+                .register();
+        public static final ConfigKey<Long> BATTERY_DEEP_OUTPUT_PER_SIDE = batteryDeep.defineLong("output_per_side", 1_600L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.BATTERY_DEEP_MAX_IO)
+                .describe("Deep battery max RF/t actively pushed into each adjacent machine")
                 .register();
 
         // Cables
-        public static final ConfigKey<Long> CABLE_COPPER_TRANSFER = cables.defineLong("copper", 30L)
+        public static final ConfigKey<Long> CABLE_BASIC_TRANSFER = cables.defineLong("basic", 30L)
                 .min(0L)
-                .describe("Copper cable RF/t throughput")
+                .describe("Basic cable RF/t throughput")
                 .register();
-        public static final ConfigKey<Long> CABLE_GOLD_TRANSFER = cables.defineLong("gold", 60L)
+        public static final ConfigKey<Long> CABLE_CONDUCTIVE_TRANSFER = cables.defineLong("conductive", 60L)
                 .min(0L)
-                .describe("Gold cable RF/t throughput")
+                .describe("Conductive cable RF/t throughput")
                 .register();
-        public static final ConfigKey<Long> CABLE_ENDER_TRANSFER = cables.defineLong("ender", 120L)
+        public static final ConfigKey<Long> CABLE_RESONANT_TRANSFER = cables.defineLong("resonant", 120L)
                 .min(0L)
-                .describe("Ender cable RF/t throughput")
+                .describe("Resonant cable RF/t throughput")
+                .register();
+        public static final ConfigKey<Long> CABLE_DEEP_TRANSFER = cables.defineLong("deep", 240L)
+                .min(0L)
+                .describe("Deep cable RF/t throughput")
                 .register();
 
         static void register() {
@@ -313,6 +364,13 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             fuel.registerSanitizeHook(() -> fuel.repairMinMax(FUEL_MIN_OUTPUT, FUEL_MAX_OUTPUT));
             LogisticsConfigMigrator.mapLegacyPair(
                     "engine", "stirlingMinOutput", "stirlingMaxOutput", STIRLING_MIN_OUTPUT, STIRLING_MAX_OUTPUT);
+
+            // The single untiered battery's config became four per-tier sections. Basic carries the
+            // old numbers, so the old file's values belong to it -- and a raised capacity has to
+            // arrive before any battery loads, or EnergyComponent clamps the saved charge away.
+            LogisticsConfigMigrator.mapSplitField("power/battery.json", "capacity", BATTERY_BASIC_CAPACITY);
+            LogisticsConfigMigrator.mapSplitPair("power/battery.json", "output_per_side", "max_io",
+                    BATTERY_BASIC_OUTPUT_PER_SIDE, BATTERY_BASIC_MAX_IO);
         }
     }
 
@@ -326,10 +384,14 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
         public static Block FUEL_ENGINE;
         public static Block CREATIVE_ENGINE;
         public static Block CREATIVE_SINK;
-        public static Block BATTERY;
-        public static Block COPPER_CABLE;
-        public static Block GOLD_CABLE;
-        public static Block ENDER_CABLE;
+        public static Block BASIC_BATTERY;
+        public static Block CONDUCTIVE_BATTERY;
+        public static Block RESONANT_BATTERY;
+        public static Block DEEP_BATTERY;
+        public static Block BASIC_CABLE;
+        public static Block CONDUCTIVE_CABLE;
+        public static Block RESONANT_CABLE;
+        public static Block DEEP_CABLE;
 
         static void register() {
             // Each engine's map color is its housing material — stone, netherite, nether brick, copper,
@@ -355,13 +417,25 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
                 props -> new CreativeSinkBlock(props.mapColor(MapColor.COLOR_PURPLE)
                     .strength(5.0f).sound(SoundType.STONE)));
-            BATTERY = INSTANCE.registerBlockWithItem("battery",
-                props -> new BatteryBlock(props.mapColor(MapColor.TERRACOTTA_BLUE)
-                    .strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops()),
-                BatteryBlockItem::new);
-            COPPER_CABLE = registerCable("copper_cable", CableTier.COPPER, SoundType.COPPER);
-            GOLD_CABLE = registerCable("gold_cable", CableTier.GOLD, SoundType.METAL);
-            ENDER_CABLE = registerCable("ender_cable", CableTier.ENDER, SoundType.AMETHYST);
+            BASIC_BATTERY = registerBattery("basic_battery", BatteryTier.BASIC);
+            CONDUCTIVE_BATTERY = registerBattery("conductive_battery", BatteryTier.CONDUCTIVE);
+            RESONANT_BATTERY = registerBattery("resonant_battery", BatteryTier.RESONANT);
+            DEEP_BATTERY = registerBattery("deep_battery", BatteryTier.DEEP);
+            BASIC_CABLE = registerCable("basic_cable", CableTier.BASIC, SoundType.COPPER);
+            CONDUCTIVE_CABLE = registerCable("conductive_cable", CableTier.CONDUCTIVE, SoundType.METAL);
+            RESONANT_CABLE = registerCable("resonant_cable", CableTier.RESONANT, SoundType.AMETHYST);
+            DEEP_CABLE = registerCable("deep_cable", CableTier.DEEP, SoundType.SCULK);
+        }
+
+        /**
+         * Every tier shares one housing, so only the tier differs. The map color stays the housing's
+         * blue rather than the accent material's — what a player sees from above is the shell.
+         */
+        private static Block registerBattery(String name, BatteryTier tier) {
+            return INSTANCE.registerBlockWithItem(name,
+                    props -> new BatteryBlock(props.mapColor(MapColor.TERRACOTTA_BLUE)
+                        .strength(3.0f).sound(SoundType.METAL).requiresCorrectToolForDrops(), tier),
+                    BatteryBlockItem::new);
         }
 
         /** Map color stays NONE — a cable is a thin strand, and drawing it would hide the ground. */
@@ -402,10 +476,44 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             CREATIVE_SINK_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("creative_sink", CreativeSinkBlockEntity::new, BLOCK.CREATIVE_SINK);
             BATTERY_BLOCK_ENTITY =
-                INSTANCE.registerBlockEntity("battery", BatteryBlockEntity::new, BLOCK.BATTERY);
+                INSTANCE.registerBlockEntity("battery", BatteryBlockEntity::new,
+                        BLOCK.BASIC_BATTERY, BLOCK.CONDUCTIVE_BATTERY,
+                        BLOCK.RESONANT_BATTERY, BLOCK.DEEP_BATTERY);
             CABLE_BLOCK_ENTITY =
                 INSTANCE.registerBlockEntity("cable", CableBlockEntity::new,
-                        BLOCK.COPPER_CABLE, BLOCK.GOLD_CABLE, BLOCK.ENDER_CABLE);
+                        BLOCK.BASIC_CABLE, BLOCK.CONDUCTIVE_CABLE,
+                        BLOCK.RESONANT_CABLE, BLOCK.DEEP_CABLE);
+        }
+    }
+
+    public static final class ALIAS {
+        private ALIAS() {}
+
+        static void register() {
+            // The cable line moved from material names onto the ladder's tier adjectives, so every
+            // id changed even where the tier did not. Copper and Gold keep their rates and become
+            // Basic and Conductive; Ender becomes Deep and is re-rated 120 -> 240 RF/t, which is
+            // safe because a cable holds no state -- there is nothing to clamp or lose.
+            //
+            // The block entity type is registered as "cable" and shared by every tier, so it never
+            // carried a tier-specific id and needs no alias.
+            bridge("copper_cable", BLOCK.BASIC_CABLE);
+            bridge("gold_cable", BLOCK.CONDUCTIVE_CABLE);
+            bridge("ender_cable", BLOCK.DEEP_CABLE);
+
+            // The single untiered Battery becomes the Basic tier, which keeps its exact capacity and
+            // throughput. The alias target is chosen by *storage parity*, not recipe parity: a saved
+            // battery's stored energy rides along in block_entity_data, so pointing it at a smaller
+            // tier would silently clamp and destroy it.
+            //
+            // The block entity type keeps its own "battery" id and needs no alias -- only the block
+            // and item ids moved.
+            bridge("battery", BLOCK.BASIC_BATTERY);
+        }
+
+        private static void bridge(String name, Block block) {
+            INSTANCE.registerBlockAlias("power/" + name, block);
+            INSTANCE.registerItemAlias("power/" + name, block.asItem());
         }
     }
 
@@ -472,10 +580,14 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             TAB.add(BLOCK.FUEL_ENGINE);
             TAB.add(BLOCK.CREATIVE_ENGINE);
             TAB.add(BLOCK.CREATIVE_SINK);
-            TAB.add(BLOCK.BATTERY);
-            TAB.add(BLOCK.COPPER_CABLE);
-            TAB.add(BLOCK.GOLD_CABLE);
-            TAB.add(BLOCK.ENDER_CABLE);
+            TAB.add(BLOCK.BASIC_BATTERY);
+            TAB.add(BLOCK.CONDUCTIVE_BATTERY);
+            TAB.add(BLOCK.RESONANT_BATTERY);
+            TAB.add(BLOCK.DEEP_BATTERY);
+            TAB.add(BLOCK.BASIC_CABLE);
+            TAB.add(BLOCK.CONDUCTIVE_CABLE);
+            TAB.add(BLOCK.RESONANT_CABLE);
+            TAB.add(BLOCK.DEEP_CABLE);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }

@@ -57,7 +57,7 @@ public class CableBlockEntityRenderer implements BlockEntityRenderer<CableBlockE
         BlockEntityRenderState.extractBase(entity, state, crumblingOverlay);
         CableTier tier = entity.getBlockState().getBlock() instanceof CableBlock cable
                 ? cable.tier()
-                : CableTier.COPPER;
+                : CableTier.BASIC;
         state.parts = partsFor(tier, entity.getRenderConnectionMask());
     }
 

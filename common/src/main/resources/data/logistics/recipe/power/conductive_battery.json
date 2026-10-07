@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NCN",
+    "CBC",
+    "CCC"
+  ],
+  "key": {
+    "N": "logistics:core/caterium_nugget",
+    "C": "minecraft:clay_ball",
+    "B": "logistics:core/caterium_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:power/conductive_battery"
+  }
+}
