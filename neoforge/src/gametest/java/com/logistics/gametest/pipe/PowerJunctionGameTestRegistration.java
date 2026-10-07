@@ -20,6 +20,23 @@ public final class PowerJunctionGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("pipe/junction_powers_network", 60, PowerJunctionGameTestBody::testJunctionPowersNetwork),
+        new GameTestCase("pipe/cable_fills_the_junction", 60, PowerJunctionGameTestBody::testCableFillsTheJunction),
+        new GameTestCase(
+            "pipe/cable_fills_the_junction_from_above",
+            60,
+            PowerJunctionGameTestBody::testCableFillsTheJunctionFromAbove),
+        new GameTestCase(
+            "pipe/junction_accepts_energy_on_every_face",
+            40,
+            PowerJunctionGameTestBody::testJunctionAcceptsEnergyOnEveryFace),
+        new GameTestCase(
+            "pipe/magmatic_engine_fills_junction_through_cable",
+            180,
+            PowerJunctionGameTestBody::testMagmaticEngineFillsJunctionThroughCable),
+        new GameTestCase(
+            "pipe/adjacent_engine_fills_the_junction",
+            60,
+            PowerJunctionGameTestBody::testAdjacentEngineFillsTheJunction),
         new GameTestCase(
             "pipe/network_draws_past_the_old_output_cap",
             80,
