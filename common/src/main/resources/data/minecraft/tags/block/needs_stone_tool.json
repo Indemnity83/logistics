@@ -24,6 +24,9 @@
     "logistics:automation/transposer",
     "logistics:automation/laser_quarry",
     "logistics:pipe/power_junction",
-    "logistics:power/battery"
+    "logistics:power/basic_battery",
+    "logistics:power/conductive_battery",
+    "logistics:power/resonant_battery",
+    "logistics:power/deep_battery"
   ]
 }
