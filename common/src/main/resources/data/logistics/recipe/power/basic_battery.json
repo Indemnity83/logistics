@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NCN",
+    "CBC",
+    "CCC"
+  ],
+  "key": {
+    "N": "logistics:core/copper_nugget",
+    "C": "minecraft:clay_ball",
+    "B": "minecraft:redstone_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:power/basic_battery"
+  }
+}
