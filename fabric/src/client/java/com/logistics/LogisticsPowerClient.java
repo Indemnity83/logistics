@@ -48,7 +48,10 @@ public final class LogisticsPowerClient implements ClientDomainBootstrap {
 
         // Battery charge overlay uses a transparent texture and needs the cutout layer (NeoForge
         // picks this up from "render_type" in the battery_charge_* models).
-        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.BATTERY, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.BASIC_BATTERY, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.CONDUCTIVE_BATTERY, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.RESONANT_BATTERY, ChunkSectionLayer.CUTOUT);
+        BlockRenderLayerMap.putBlock(LogisticsPower.BLOCK.DEEP_BATTERY, ChunkSectionLayer.CUTOUT);
 
         // Register screens
         MenuScreens.register(LogisticsPower.SCREEN.STIRLING_ENGINE, StirlingEngineScreen::new);

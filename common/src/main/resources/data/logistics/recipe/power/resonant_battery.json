@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NCN",
+    "CBC",
+    "CCC"
+  ],
+  "key": {
+    "N": "logistics:core/lumenite_nugget",
+    "C": "minecraft:clay_ball",
+    "B": "logistics:core/lumenite_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:power/resonant_battery"
+  }
+}
