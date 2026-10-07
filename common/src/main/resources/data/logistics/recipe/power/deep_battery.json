@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NCN",
+    "CBC",
+    "CCC"
+  ],
+  "key": {
+    "N": {
+      "item": "logistics:core/echonite_nugget"
+    },
+    "C": {
+      "item": "minecraft:clay_ball"
+    },
+    "B": {
+      "item": "logistics:core/echonite_block"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "logistics:power/deep_battery"
+  }
+}
