@@ -58,4 +58,34 @@ public class PowerJunctionGameTest {
     public void testNetworkDrawsPastTheOldOutputCap(GameTestHelper context) {
         PowerJunctionGameTestBody.testNetworkDrawsPastTheOldOutputCap(context);
     }
+
+    /** An engine fills a junction through a cable, not only when placed against it. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testCableFillsTheJunction(GameTestHelper context) {
+        PowerJunctionGameTestBody.testCableFillsTheJunction(context);
+    }
+
+    /** Control: the same engine and junction with no cable between them. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testAdjacentEngineFillsTheJunction(GameTestHelper context) {
+        PowerJunctionGameTestBody.testAdjacentEngineFillsTheJunction(context);
+    }
+
+    /** A fuelled Magmatic Engine fills a junction through a cable (the reported scenario). */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 180)
+    public void testMagmaticEngineFillsJunctionThroughCable(GameTestHelper context) {
+        PowerJunctionGameTestBody.testMagmaticEngineFillsJunctionThroughCable(context);
+    }
+
+    /** A cable directly above a junction fills it — no face is special. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 60)
+    public void testCableFillsTheJunctionFromAbove(GameTestHelper context) {
+        PowerJunctionGameTestBody.testCableFillsTheJunctionFromAbove(context);
+    }
+
+    /** Every face of a junction exposes the same insert-capable storage. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testJunctionAcceptsEnergyOnEveryFace(GameTestHelper context) {
+        PowerJunctionGameTestBody.testJunctionAcceptsEnergyOnEveryFace(context);
+    }
 }
