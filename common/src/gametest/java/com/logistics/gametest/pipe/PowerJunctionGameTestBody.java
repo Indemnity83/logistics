@@ -309,10 +309,9 @@ public class PowerJunctionGameTestBody {
     /**
      * The cable reaches the junction from <em>above</em> rather than the side.
      *
-     * <p>Checked because "maybe the face matters" is the obvious suspicion when a junction charges
-     * from a touching engine but not through a cable. It does not: a junction's energy capability is
-     * the same insert-only view on all six faces. This test exists so that stays true — adding side
-     * gating to {@code EnergyStorageComponent} later would break it here rather than in a bug report.
+     * <p>A junction's energy capability is the same insert-only view on all six faces. Adding side
+     * gating to {@code EnergyStorageComponent} would break this, and the vertical approach is the
+     * one a horizontal-only test would miss.
      */
     public static void testCableFillsTheJunctionFromAbove(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 2, 0);
@@ -372,9 +371,10 @@ public class PowerJunctionGameTestBody {
     }
 
     /**
-     * The player's exact report, with a real fuelled engine rather than the Creative one: a Magmatic
-     * Engine one cable away from a junction. Creative engines deliver on a different code path (no
-     * heat soak, no fuel gating), so a Creative-only test can pass while a fuelled engine does not.
+     * The same fill path driven by a fuelled engine rather than the Creative one.
+     *
+     * <p>A Creative engine skips heat soak and fuel gating, so it can deliver while a fuelled engine
+     * does not. Covering both means a regression in the gating cannot hide behind the simpler path.
      */
     public static void testMagmaticEngineFillsJunctionThroughCable(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 1, 0);
@@ -408,11 +408,11 @@ public class PowerJunctionGameTestBody {
     }
 
     /**
-     * An engine filling a junction <em>through a cable</em> — the path a player actually builds.
+     * An engine fills a junction <em>through a cable</em>, not only when placed against it.
      *
-     * <p>Reported by a player on 0.8.10: a junction only charges when the engine is placed directly
-     * against it. Every other junction test either sets the buffer by hand or proves a cable cannot
-     * <em>drain</em> one, so the fill path across a cable had no coverage at all.
+     * <p>The junction's whole purpose is to take RF off a cable network, and every other test here
+     * either sets the buffer directly or asserts a cable cannot <em>drain</em> one. This is the only
+     * one that exercises the fill path.
      */
     public static void testCableFillsTheJunction(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 1, 0);
