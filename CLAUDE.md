@@ -205,9 +205,14 @@ commit, and Release Please only ever reads the commit.
 replaces the subject with the first of them, and the PR title — usually the headline entry — is
 lost from the changelog entirely, along with the `(#N)` suffix Release Please reads to link the PR.
 
-- `-m ""` keeps the PR title. Use it for a single-change PR.
-- `-m "<title>\n\n<extra lines>"` for a multi-change PR: **restate the PR title as the subject**,
-  then a blank line, then one `type(scope): description` per additional change.
+- `-m ""` keeps the PR title, and GitHub appends the `(#N)` PR reference for you. Use it for a
+  single-change PR.
+- `-m "<title> (#N)\n\n<extra lines>"` for a multi-change PR: **restate the PR title as the
+  subject**, then a blank line, then one `type(scope): description` per additional change.
+
+**Write `(#N)` yourself whenever you pass `-m`.** GitHub only appends the PR reference to a message
+it generated. Supplying one suppresses that, and Release Please reads `(#N)` to link the entry — so
+every changelog line from that commit loses its link, silently.
 
 See [Multi-change squash commits](#multi-change-squash-commits).
 
@@ -751,11 +756,11 @@ remove(automation): drop the macerator's wood-pulp recipes
 Those extra lines are supplied at merge time, since the PR body is discarded:
 
 ```bash
-# Single change — the PR title becomes the whole message.
+# Single change — the PR title becomes the whole message, with (#N) appended for you.
 git town ship -m ""
 
-# Several changes — the subject must repeat the PR title, or it is lost.
-git town ship -m "feat(automation): add the sawmill
+# Several changes — repeat the PR title as the subject, and write (#N) yourself.
+git town ship -m "feat(automation): add the sawmill (#1234)
 
 change(automation): rename Wood Pulp to Sawdust
 balance(automation): move wood processing from the macerator to the sawmill"
