@@ -50,6 +50,10 @@ public final class ModuleGameTestRegistration {
             80,
             ModuleGameTestBody::testSinkModuleFilterMatchRoutesToInventory),
         new GameTestCase(
+            "pipe/sink_with_no_room_is_passed_over",
+            80,
+            ModuleGameTestBody::testSinkWithNoRoomIsPassedOver),
+        new GameTestCase(
             "pipe/sink_module_default_route_accepts_items",
             80,
             ModuleGameTestBody::testSinkModuleDefaultRouteAcceptsItems),

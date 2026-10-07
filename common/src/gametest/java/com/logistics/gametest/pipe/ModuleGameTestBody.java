@@ -23,7 +23,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.Container;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -422,6 +424,60 @@ public class ModuleGameTestBody {
     }
 
     // ==================== SinkModule ====================
+
+    /**
+     * A diamond passes over a sink whose chest is full and lands in the next sink that has room.
+     *
+     * <p>Layout (y=1): [feed] → [sink A] → [sink B], each sink with a chest to its NORTH. Both
+     * filter diamonds and A's chest is full, so A ranks first but cannot hold the stack. A pipe
+     * hands its cargo to the attached inventory on arrival and drops whatever will not fit, so
+     * routing to A at all is what puts the diamond on the floor.
+     */
+    public static void testSinkWithNoRoomIsPassedOver(GameTestHelper context) {
+        BlockPos feedPos = new BlockPos(0, 1, 1);
+        BlockPos sinkAPos = new BlockPos(1, 1, 1);
+        BlockPos sinkBPos = new BlockPos(2, 1, 1);
+        BlockPos fullChestPos = new BlockPos(1, 1, 0);   // NORTH of sink A
+        BlockPos emptyChestPos = new BlockPos(2, 1, 0);  // NORTH of sink B
+
+        context.setBlock(fullChestPos, Blocks.CHEST);
+        context.setBlock(emptyChestPos, Blocks.CHEST);
+        context.setBlock(feedPos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(sinkAPos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        context.setBlock(sinkBPos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        placeChargedPowerJunction(context, feedPos.above());
+
+        PipeBlockEntity feed = context.getBlockEntity(feedPos, PipeBlockEntity.class);
+        Container fullChest = context.getBlockEntity(fullChestPos, ChestBlockEntity.class);
+        if (feed == null || fullChest == null) {
+            context.fail("Expected a feed pipe and a chest");
+            return;
+        }
+
+        // Leave no room for the diamond: every slot holds a full stack of something else.
+        for (int slot = 0; slot < fullChest.getContainerSize(); slot++) {
+            fullChest.setItem(slot, new ItemStack(Items.STONE, Items.STONE.getDefaultMaxStackSize()));
+        }
+
+        CompoundTag filterTag = new CompoundTag();
+        filterTag.putString("0", BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString());
+        for (BlockPos sinkPos : List.of(sinkAPos, sinkBPos)) {
+            PipeBlockEntity sink = context.getBlockEntity(sinkPos, PipeBlockEntity.class);
+            PipeContext ctx =
+                    new PipeContext(context.getLevel(), sinkPos, context.getBlockState(sinkPos), sink);
+            ctx.putCompoundTag(new SinkModule(5), SinkModule.FILTERS, filterTag.copy());
+        }
+
+        // SinkModule registers its interest after SYNC_INTERVAL = 20 ticks.
+        context.runAfterDelay(22, () -> {
+            TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.WEST, 0.1f);
+            if (!feed.forceAddItem(diamond, Direction.WEST)) {
+                context.fail("Feed pipe should accept the force-injected diamond");
+            }
+        });
+
+        context.succeedWhen(() -> context.assertContainerContains(emptyChestPos, Items.DIAMOND));
+    }
 
     /**
      * Verifies that SinkModule routes a filter-matched item into the adjacent inventory.

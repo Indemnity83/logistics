@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -81,6 +83,32 @@ public class MinecraftWorldView implements IWorldView {
         PipeContext ctx = pipeEntity.createContext();
 
         return pipe.matchesSinkFilter(ctx, stack);
+    }
+
+    @Override
+    public boolean sinkHasRoomFor(BlockPos pos, ItemStack stack) {
+        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity)) {
+            return false;
+        }
+        IItemKey key = ItemStorageLookup.of(stack);
+        long wanted = stack.getCount();
+        boolean sawStorage = false;
+
+        for (Direction dir : Direction.values()) {
+            BlockPos neighbour = pos.relative(dir);
+            // A neighbouring pipe is a route, not a destination -- its room says nothing about
+            // whether this sink can unload.
+            if (level.getBlockEntity(neighbour) instanceof PipeBlockEntity) continue;
+
+            IItemStorage storage = ItemStorageLookup.find(level, neighbour, dir.getOpposite());
+            if (storage == null) continue;
+            sawStorage = true;
+            if (storage.insert(key, wanted, true) >= wanted) return true;
+        }
+
+        // A sink with no attached inventory at all is left alone: it may unload through a module
+        // rather than a capability, and excluding it would remove a route that works today.
+        return !sawStorage;
     }
 
     @Override
