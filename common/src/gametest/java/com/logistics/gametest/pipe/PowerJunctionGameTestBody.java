@@ -11,7 +11,13 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
+import com.logistics.core.lib.fluids.FluidUnits;
+import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.power.block.BatteryTier;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
+import net.minecraft.world.level.material.Fluids;
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -293,6 +299,176 @@ public class PowerJunctionGameTestBody {
             long drawn = before - junction.energyStorage(null).getAmount();
             if (drawn != BURST_DRAW) {
                 context.fail("Expected " + BURST_DRAW + " RF drawn from the junction in one tick, drew " + drawn);
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+
+    /**
+     * The cable reaches the junction from <em>above</em> rather than the side.
+     *
+     * <p>A junction's energy capability is the same insert-only view on all six faces. Adding side
+     * gating to {@code EnergyStorageComponent} would break this, and the vertical approach is the
+     * one a horizontal-only test would miss.
+     */
+    public static void testCableFillsTheJunctionFromAbove(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 2, 0);
+        BlockPos cablePos = new BlockPos(1, 2, 0);
+        BlockPos junctionPos = new BlockPos(1, 1, 0);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
+        if (junction == null) {
+            context.fail("Expected a junction");
+            return;
+        }
+
+        context.runAfterDelay(40, () -> {
+            long stored = junction.energyStorage(null).getAmount();
+            if (stored <= 0) {
+                context.fail("A junction fed by a cable directly above it charged " + stored
+                        + " RF; a junction must accept energy on every face");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** Every face of a junction exposes the same insert-capable storage — no face is special. */
+    public static void testJunctionAcceptsEnergyOnEveryFace(GameTestHelper context) {
+        BlockPos junctionPos = new BlockPos(0, 1, 0);
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
+        if (junction == null) {
+            context.fail("Expected a junction");
+            return;
+        }
+
+        for (Direction side : Direction.values()) {
+            IEnergyStorage storage = junction.energyStorage(side);
+            if (storage == null) {
+                context.fail("Junction exposed no energy storage on " + side);
+                return;
+            }
+            if (!storage.canInsert()) {
+                context.fail("Junction refused insertion on " + side);
+                return;
+            }
+            if (storage.insert(64L, true) <= 0) {
+                context.fail("Junction simulated a zero insert on " + side);
+                return;
+            }
+        }
+        context.succeed();
+    }
+
+    /**
+     * The same fill path driven by a fuelled engine rather than the Creative one.
+     *
+     * <p>A Creative engine skips heat soak and fuel gating, so it can deliver while a fuelled engine
+     * does not. Covering both means a regression in the gating cannot hide behind the simpler path.
+     */
+    public static void testMagmaticEngineFillsJunctionThroughCable(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 0);
+        BlockPos cablePos = new BlockPos(1, 1, 0);
+        BlockPos junctionPos = new BlockPos(2, 1, 0);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.MAGMATIC_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        MagmaticEngineBlockEntity engine = context.getBlockEntity(enginePos, MagmaticEngineBlockEntity.class);
+        PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
+        if (engine == null || junction == null) {
+            context.fail("Expected a magmatic engine and a junction");
+            return;
+        }
+        engine.fluidStorage(Direction.UP).insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(4000), false);
+
+        context.runAfterDelay(140, () -> {
+            long stored = junction.energyStorage(null).getAmount();
+            if (stored <= 0) {
+                context.fail("A junction one cable away from a fuelled Magmatic Engine charged "
+                        + stored + " RF");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * An engine fills a junction <em>through a cable</em>, not only when placed against it.
+     *
+     * <p>The junction's whole purpose is to take RF off a cable network, and every other test here
+     * either sets the buffer directly or asserts a cable cannot <em>drain</em> one. This is the only
+     * one that exercises the fill path.
+     */
+    public static void testCableFillsTheJunction(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 0);
+        BlockPos cablePos = new BlockPos(1, 1, 0);
+        BlockPos junctionPos = new BlockPos(2, 1, 0);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
+        CreativeEngineBlockEntity engine = context.getBlockEntity(enginePos, CreativeEngineBlockEntity.class);
+        if (junction == null || engine == null) {
+            context.fail("Expected a junction and an engine");
+            return;
+        }
+
+        context.runAfterDelay(40, () -> {
+            long stored = junction.energyStorage(null).getAmount();
+            if (stored <= 0) {
+                context.fail("A junction one cable away from a running engine charged "
+                        + stored + " RF; a cable must be able to fill a junction");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * Control for {@link #testCableFillsTheJunction}: the same engine and junction with no cable
+     * between them. If this passes while that one fails, the defect is in the cable network's
+     * delivery rather than in the engine or the junction's buffer.
+     */
+    public static void testAdjacentEngineFillsTheJunction(GameTestHelper context) {
+        BlockPos enginePos = new BlockPos(0, 1, 0);
+        BlockPos junctionPos = new BlockPos(1, 1, 0);
+
+        context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+
+        PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
+        if (junction == null) {
+            context.fail("Expected a junction");
+            return;
+        }
+
+        context.runAfterDelay(40, () -> {
+            long stored = junction.energyStorage(null).getAmount();
+            if (stored <= 0) {
+                context.fail("A junction directly against a running engine charged " + stored + " RF");
                 return;
             }
             context.succeed();
