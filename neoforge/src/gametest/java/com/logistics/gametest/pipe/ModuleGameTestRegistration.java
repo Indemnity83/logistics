@@ -54,6 +54,10 @@ public final class ModuleGameTestRegistration {
             80,
             ModuleGameTestBody::testSinkWithNoRoomIsPassedOver),
         new GameTestCase(
+            "pipe/remainder_is_rehomed_when_destination_fills_in_flight",
+            100,
+            ModuleGameTestBody::testRemainderIsRehomedWhenDestinationFillsInFlight),
+        new GameTestCase(
             "pipe/sink_module_default_route_accepts_items",
             80,
             ModuleGameTestBody::testSinkModuleDefaultRouteAcceptsItems),

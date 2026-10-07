@@ -480,6 +480,91 @@ public class ModuleGameTestBody {
     }
 
     /**
+     * A destination that fills up while the item is in flight re-homes the cargo instead of
+     * spilling it.
+     *
+     * <p>Layout (y=1): [feed] → [relay] → [sink A] → [sink B], with a chest NORTH of each sink.
+     * Both filter diamonds and A outranks B, so routing commits to A while A's chest is empty.
+     * A's chest is then filled on the first tick after the diamond is actually bound for it —
+     * polled rather than scheduled, because picking a tick by hand either fills too early (routing
+     * then simply picks B, and the test proves nothing) or too late. At the moment of hand-off A
+     * has no room, which only a check there can catch: at routing time A genuinely had room.
+     */
+    public static void testRemainderIsRehomedWhenDestinationFillsInFlight(GameTestHelper context) {
+        BlockPos feedPos = new BlockPos(0, 1, 1);
+        BlockPos relayPos = new BlockPos(1, 1, 1);
+        BlockPos sinkAPos = new BlockPos(2, 1, 1);
+        BlockPos sinkBPos = new BlockPos(3, 1, 1);
+        BlockPos chestAPos = new BlockPos(2, 1, 0);
+        BlockPos chestBPos = new BlockPos(3, 1, 0);
+
+        context.setBlock(chestAPos, Blocks.CHEST);
+        context.setBlock(chestBPos, Blocks.CHEST);
+        for (BlockPos pipePos : List.of(feedPos, relayPos, sinkAPos, sinkBPos)) {
+            context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        }
+        placeChargedPowerJunction(context, feedPos.above());
+
+        PipeBlockEntity feed = context.getBlockEntity(feedPos, PipeBlockEntity.class);
+        if (feed == null) {
+            context.fail("Expected a feed pipe");
+            return;
+        }
+
+        CompoundTag filterTag = new CompoundTag();
+        filterTag.putString("0", BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString());
+        for (BlockPos sinkPos : List.of(sinkAPos, sinkBPos)) {
+            PipeBlockEntity sink = context.getBlockEntity(sinkPos, PipeBlockEntity.class);
+            PipeContext ctx =
+                    new PipeContext(context.getLevel(), sinkPos, context.getBlockState(sinkPos), sink);
+            int priority = sinkPos.equals(sinkAPos) ? 9 : 5;
+            ctx.putCompoundTag(new SinkModule(priority), SinkModule.FILTERS, filterTag.copy());
+        }
+
+        // SinkModule registers its interest after SYNC_INTERVAL = 20 ticks.
+        context.runAfterDelay(22, () -> {
+            TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.WEST, 0.1f);
+            if (!feed.forceAddItem(diamond, Direction.WEST)) {
+                context.fail("Feed pipe should accept the force-injected diamond");
+            }
+        });
+
+        boolean[] closed = {false};
+        for (int tick = 23; tick < 70; tick++) {
+            context.runAfterDelay(tick, () -> {
+                if (closed[0] || !isBoundFor(context, sinkAPos, List.of(feedPos, relayPos))) {
+                    return;
+                }
+                closed[0] = true;
+                Container chestA = context.getBlockEntity(chestAPos, ChestBlockEntity.class);
+                for (int slot = 0; slot < chestA.getContainerSize(); slot++) {
+                    chestA.setItem(slot, new ItemStack(Items.STONE, Items.STONE.getDefaultMaxStackSize()));
+                }
+            });
+        }
+
+        context.succeedWhen(() -> {
+            if (!closed[0]) {
+                context.fail("No item was ever bound for sink A, so nothing tested the hand-off");
+            }
+            context.assertContainerContains(chestBPos, Items.DIAMOND);
+        });
+    }
+
+    /** Whether any item still short of {@code destination} is already routed to it. */
+    private static boolean isBoundFor(GameTestHelper context, BlockPos destination, List<BlockPos> upstream) {
+        BlockPos absolute = context.absolutePos(destination);
+        for (BlockPos pipePos : upstream) {
+            PipeBlockEntity pipe = context.getBlockEntity(pipePos, PipeBlockEntity.class);
+            if (pipe == null) continue;
+            for (TravelingItem item : pipe.getTravelingItems()) {
+                if (absolute.equals(item.getDestination())) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Verifies that SinkModule routes a filter-matched item into the adjacent inventory.
      *
      * <p>SinkModule.matchesFilter() calls BuiltInRegistries.ITEM.get() and then route() uses

@@ -144,6 +144,12 @@ public class ModuleGameTest {
         ModuleGameTestBody.testSinkWithNoRoomIsPassedOver(context);
     }
 
+    /** A destination that fills while the item is in flight re-homes the cargo instead of spilling it. */
+    @GameTest(maxTicks = 100)
+    public void testRemainderIsRehomedWhenDestinationFillsInFlight(GameTestHelper context) {
+        ModuleGameTestBody.testRemainderIsRehomedWhenDestinationFillsInFlight(context);
+    }
+
     /**
      * Verifies that SinkModule with default route accepts any item that has no network destination.
      *
