@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/power/conductive_battery",
+    "type": "minecraft:model"
+  }
+}
