@@ -27,9 +27,9 @@ The automation core has come a long way. Since the fluid foundation landed, most
 
 - **Machines** — Alloy Smelter, Sawmill, Crucible, Refinery, the Sequential Fabricator, and the Transposer (fluid↔item packaging), plus macerator byproduct outputs.
 - **Fluid logistics** — the Fluid Provider and Fluid Supplier pipes and their chassis modules, a dedicated fluid supplier GUI, and partial/exact + minimum-deficit supply modes.
-- **Power** — the Fuel (combustion), Steam, Magmatic, and Reaction engines join the Redstone/Stirling line; the Power Junction powers logistics networks; cables/batteries no longer power pipes directly.
+- **Power** — the Fuel (combustion), Steam, Magmatic, and Reaction engines join the Redstone/Stirling line; the Power Junction powers logistics networks; cables/batteries no longer power pipes directly. Cables now run four tiers on the energy ladder — Basic, Conductive, Resonant, Deep.
 - **Fuel chain** — crude oil worldgen and the oil → fuel refining chain; biomass/biofuel fluids seeded.
-- **Materials** — the Bronze alloy line, chipsets, the reworked valve lineup, rubber, and an expanded dust/byproduct chain.
+- **Materials** — the Bronze alloy line, the **infused alloys** (Caterium, Lumenite, Echonite — one dust quenched in one bucket of a charged fluid), chipsets, the reworked valve lineup, rubber, and an expanded dust/byproduct chain.
 - **Correctness** — a large routing, energy, and machine-behaviour fix pass across v0.8.8–v0.8.10, and support for Minecraft 26.3.
 
 ## Now
@@ -38,7 +38,7 @@ Work currently active or near-term — the remaining run at the 1.0 bar (the bar
 
 | Area              | Status      | Notes                                                                                                  |
 |-------------------|-------------|--------------------------------------------------------------------------------------------------------|
-| Tiered batteries  | Planned     | Copper/Gold/Ender energy-storage line with configurable I/O — the last untouched item on the 1.0 bar    |
+| Tiered batteries  | In progress | Four-tier line on the energy ladder (Basic/Conductive/Resonant/Deep), crafted from the infused alloys. The alloys and the cable ladder have shipped; the battery line itself is in review. Configurable I/O remains open |
 | Fluid request     | Planned     | The one remaining piece of fluid logistics: requesting a liquid from the network. Provider, supplier, and the fluid↔item step (the Transposer) have shipped |
 | Loader parity     | Ongoing     | Keep Fabric and NeoForge aligned; hold both to the 1.0 bar                                              |
 

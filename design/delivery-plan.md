@@ -13,7 +13,7 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 | Phase                   | Theme                                                                                                  | Source mods                            | State          |
 |-------------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------|----------------|
 | **0 — Foundation**      | Materials, tools, energy, the pipe network                                                             | Logistics Pipes, base of BuildCraft/TE | ✅ Largely done |
-| **1 — Automation core** | Round out engines, ore processing, RF machines, and the quarry                                         | BuildCraft + Thermal Expansion         | 🚧 Nearly complete — engines, ore-processing machines, the fuel chain, the Transposer, and fluid provider/supplier shipped; remaining: tiered batteries, fluid *request*, and the loader-parity/polish push (firewall pipe deferred) |
+| **1 — Automation core** | Round out engines, ore processing, RF machines, and the quarry                                         | BuildCraft + Thermal Expansion         | 🚧 Nearly complete — engines, ore-processing machines, the fuel chain, the Transposer, and fluid provider/supplier shipped; remaining: the tiered-battery line (its alloys and cable ladder have shipped), fluid *request*, and the loader-parity/polish push (firewall pipe deferred) |
 | **2 — Forestry**        | Industrial Forestry: farms, processing, power, electronics *(tree harvesting only; no genetics/breeding)* | Forestry                               | — Not started  |
 | **3 — Transport**       | Rails, advanced carts, tanks, signals, bulk processing                                                 | Railcraft                              | — Not started  |
 
@@ -27,7 +27,7 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 
 ### Definition of done for 1.0
 
-1. **Phase 1 feature-complete** — the BC/TE gaps filled. Shipped: fluids foundation ✅, the combustion-tier **Fuel Engine** ✅, the **Steam / Magmatic / Reaction** engines ✅ (dynamo tiers unified into the engine line), **Alloy Smelter** ✅, **Sawmill** ✅, **Crucible** ✅, **Refinery** + oil/fuel chain ✅, macerator byproduct outputs ✅, and the **Sequential Fabricator** ✅ (the end-game manufacturer). Logistics Pipes is already done. **Still open for the bar:** tiered batteries and fluid **request**. (Fluid logistics' other two thirds have since shipped — the **Transposer** fluid↔item step ✅ v0.8.6 and the **Fluid Provider / Fluid Supplier** pipes and chassis modules ✅ v0.8.6.) *(The **firewall pipe** and **machine upgrades** are **not** part of the 1.0 bar — firewall is deferred pending a solid use case; machine upgrades are exploratory — see [ROADMAP.md](../ROADMAP.md) Exploring/RFC.)*
+1. **Phase 1 feature-complete** — the BC/TE gaps filled. Shipped: fluids foundation ✅, the combustion-tier **Fuel Engine** ✅, the **Steam / Magmatic / Reaction** engines ✅ (dynamo tiers unified into the engine line), **Alloy Smelter** ✅, **Sawmill** ✅, **Crucible** ✅, **Refinery** + oil/fuel chain ✅, macerator byproduct outputs ✅, and the **Sequential Fabricator** ✅ (the end-game manufacturer). Logistics Pipes is already done. **Still open for the bar:** the tiered-battery line (in review — its **infused alloys** ✅ and the four-tier **cable ladder** ✅ have shipped) and fluid **request**. (Fluid logistics' other two thirds have since shipped — the **Transposer** fluid↔item step ✅ v0.8.6 and the **Fluid Provider / Fluid Supplier** pipes and chassis modules ✅ v0.8.6.) *(The **firewall pipe** and **machine upgrades** are **not** part of the 1.0 bar — firewall is deferred pending a solid use case; machine upgrades are exploratory — see [ROADMAP.md](../ROADMAP.md) Exploring/RFC.)*
 2. **Loader parity** — NeoForge shipped, not "in progress." Fabric + NeoForge both at the bar.
 3. **Format stability** — block/BE NBT, data components, and config settled; **no save-breaking changes expected**. This is the real meaning of 1.0.
    - **Content availability** is part of this promise: a 1.0 world must stay fully playable through later phases — no post-1.0 material may become *unobtainable* on an existing save. New materials are sourced without new worldgen ore where possible; any genuinely-new ore commits to retrogen, not pre-seeding. See [RFC 0004](rfcs/0004-worldgen-stability.md).
@@ -37,9 +37,9 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 
 With the engine and machine lines shipped, the call is to **close the 1.0 bar rather than open Phase 2** (Forestry seeds already leaked in, but farms wait for 1.0).
 
-**Original sequence (Jul 2026)** was batteries first, then fluid logistics. In practice the fluid work went first and batteries were never started — item 2 below is what's left of it. Remaining, ordered by ascending risk/effort:
+**Original sequence (Jul 2026)** was batteries first, then fluid logistics. In practice the fluid work went first and batteries came last. Remaining, ordered by ascending risk/effort:
 
-1. **Tiered Batteries** ([`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md)) — the last self-contained Phase-1 power gap (Copper/Gold/Ender storage line with configurable I/O). Low design risk; the clear first win, and now the only 1.0-bar item with no work behind it at all.
+1. **Tiered Batteries** ([`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md)) — the last self-contained Phase-1 power gap. The materials and the cable ladder it shares are done: **Caterium / Lumenite / Echonite** ✅ and cables retiered to **Basic / Conductive / Resonant / Deep** ✅. The battery line itself is in review; **configurable I/O** is the part still unbuilt.
 2. **Fluid request** — the remaining slice of fluid logistics. The **Transposer** (fluid↔item packaging) shipped in v0.8.6, and the **Fluid Provider / Fluid Supplier** pipes and chassis modules shipped alongside it; requesting a liquid from the network is the piece still missing. Spike/brief before building.
 
 Then: confirm **NeoForge parity**, run a **balance pass**, refresh docs, and gate on `1.0.0-pre.N`.
@@ -69,7 +69,7 @@ Then: confirm **NeoForge parity**, run a **balance pass**, refresh docs, and gat
 - ✅ Three-tier pipe model (Mechanical → Smart → Network)
 - ✅ Full logistics network: provider / requester / supplier / crafting / process / satellite + chassis MkI–V & modules
 - ✅ Base materials: tin, bronze, apatite, dusts, gears, chipsets, valves; tools (wrench)
-- ✅ Engines (redstone / stirling / creative) with heat stages; cables (copper/gold/ender); battery
+- ✅ Engines (redstone / stirling / creative) with heat stages; cables (basic/conductive/resonant/deep); battery
 - ✅ Macerator (RF grinding + custom recipes + JEI), Kiln (RF furnace), Laser Quarry (marker-bounded)
 
 > Detail and any remaining gaps live in [`mods/logistics-pipes.md`](mods/logistics-pipes.md) and the Phase-0 portions of [`mods/buildcraft.md`](mods/buildcraft.md) and [`mods/thermal-expansion.md`](mods/thermal-expansion.md).
@@ -88,7 +88,7 @@ Then: confirm **NeoForge parity**, run a **balance pass**, refresh docs, and gat
 - ✅ Combustion-tier **Fuel Engine** (fluid fuel + coolant, manage-or-explode tension) *(v0.8.4)*
 - ✅ Dynamos unified into the engine line — **Magmatic** (lava/fluid-fuel), **Steam** (boiler/pressure), and **Reaction** (custom reactant recipes) engines *(v0.8.4)*
 - ✅ **Power Junction** — powers a logistics network from cables/batteries; engines power extraction pipes directly *(v0.8.0)*
-- Battery → tiered energy-storage line with configurable I/O — **still open** ([`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md))
+- Battery → tiered energy-storage line — storage tiers in review, **configurable I/O still open** ([`features/0107-tiered-batteries.md`](features/0107-tiered-batteries.md))
 
 **Ore processing & machines**
 - ✅ Macerator secondary/byproduct outputs (chance-based) *(v0.8.0)*
