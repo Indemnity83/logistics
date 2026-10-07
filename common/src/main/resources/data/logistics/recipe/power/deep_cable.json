@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["RRR", "BBB", "RRR"],
+  "key": {
+    "B": "logistics:core/echonite_ingot",
+    "R": "logistics:core/rubber"
+  },
+  "result": {
+    "count": 8,
+    "id": "logistics:power/deep_cable"
+  }
+}

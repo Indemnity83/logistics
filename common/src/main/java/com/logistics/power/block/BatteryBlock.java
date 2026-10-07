@@ -18,12 +18,23 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Energy buffer block. Accepts power from generators and supplies it to adjacent
  * machines and connected logistics pipe networks.
+ *
+ * <p>The tier is baked into the {@link Block} instance rather than the block state, so the five
+ * grades are five blocks sharing one block entity type — the same arrangement
+ * {@link com.logistics.power.cable.CableBlock} uses.
  */
 public class BatteryBlock extends BaseEntityBlock {
 
-    public BatteryBlock(Properties properties) {
+    private final BatteryTier tier;
+
+    public BatteryBlock(Properties properties, BatteryTier tier) {
         super(properties);
+        this.tier = tier;
         registerDefaultState(stateDefinition.any().setValue(AbstractBatteryBlockEntity.CHARGE, 0));
+    }
+
+    public BatteryTier tier() {
+        return tier;
     }
 
     @Override

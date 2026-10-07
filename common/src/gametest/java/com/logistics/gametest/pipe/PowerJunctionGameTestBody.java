@@ -1,9 +1,9 @@
 package com.logistics.gametest.pipe;
 
 import com.logistics.LogisticsAutomation;
+import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.automation.kiln.KilnBlockEntity;
-import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
@@ -11,11 +11,12 @@ import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.network.PipeNetwork;
-import com.logistics.core.lib.power.AbstractEngineBlock;
-import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
-import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.power.block.BatteryTier;
+import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -318,7 +319,7 @@ public class PowerJunctionGameTestBody {
         BlockPos cablePos = new BlockPos(1, 2, 0);
         BlockPos junctionPos = new BlockPos(1, 1, 0);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()
@@ -380,7 +381,7 @@ public class PowerJunctionGameTestBody {
         BlockPos cablePos = new BlockPos(1, 1, 0);
         BlockPos junctionPos = new BlockPos(2, 1, 0);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
         context.setBlock(enginePos, LogisticsPower.BLOCK.MAGMATIC_ENGINE
                 .defaultBlockState()
@@ -418,7 +419,7 @@ public class PowerJunctionGameTestBody {
         BlockPos cablePos = new BlockPos(1, 1, 0);
         BlockPos junctionPos = new BlockPos(2, 1, 0);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
         context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
                 .defaultBlockState()
@@ -495,9 +496,9 @@ public class PowerJunctionGameTestBody {
         BlockPos machinePos = new BlockPos(2, 1, 0);
         BlockPos batteryPos = new BlockPos(1, 2, 0);
 
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
         context.setBlock(machinePos, LogisticsAutomation.BLOCK.KILN);
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BASIC_BATTERY);
         context.setBlock(junctionPos, LogisticsPipe.BLOCK.POWER_JUNCTION);
 
         PowerJunctionBlockEntity junction = context.getBlockEntity(junctionPos, PowerJunctionBlockEntity.class);
@@ -520,7 +521,7 @@ public class PowerJunctionGameTestBody {
                 return;
             }
             // Phase 2 control: swap the source. The same cable and machine must still work.
-            setBatteryStored(battery, BatteryBlockEntity.capacity());
+            setBatteryStored(battery, BatteryTier.BASIC.capacity());
         });
 
         context.runAfterDelay(60, () -> {

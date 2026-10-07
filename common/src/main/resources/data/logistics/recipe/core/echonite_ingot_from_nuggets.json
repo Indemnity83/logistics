@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": { "N": "#c:nuggets/echonite" },
+  "pattern": ["NNN", "NNN", "NNN"],
+  "result": { "count": 1, "id": "logistics:core/echonite_ingot" }
+}

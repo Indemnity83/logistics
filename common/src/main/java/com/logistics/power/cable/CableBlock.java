@@ -87,7 +87,7 @@ public class CableBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     private final CableTier tier;
 
     public CableBlock(Properties settings) {
-        this(settings, CableTier.COPPER);
+        this(settings, CableTier.BASIC);
     }
 
     public CableBlock(Properties settings, CableTier tier) {

@@ -50,7 +50,7 @@ public class SteamEngineGameTestBody {
     public static void testSteamEngineDeliversRfFromPressureThenSags(GameTestHelper context) {
         BlockPos pos = new BlockPos(0, 1, 0);
         BlockPos batteryPos = new BlockPos(1, 1, 0); // output faces EAST
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BASIC_BATTERY);
         SteamEngineBlockEntity engine = placePowered(context, pos);
         if (engine == null) {
             context.fail("Steam engine block entity not found");
@@ -95,8 +95,8 @@ public class SteamEngineGameTestBody {
         BlockPos pos = new BlockPos(0, 1, 0);
         BlockPos cablePos = new BlockPos(1, 1, 0); // output faces EAST → cable → battery
         BlockPos batteryPos = new BlockPos(2, 1, 0);
-        context.setBlock(cablePos, LogisticsPower.BLOCK.COPPER_CABLE);
-        context.setBlock(batteryPos, LogisticsPower.BLOCK.BATTERY);
+        context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+        context.setBlock(batteryPos, LogisticsPower.BLOCK.BASIC_BATTERY);
         SteamEngineBlockEntity engine = placePowered(context, pos);
         if (engine == null) {
             context.fail("Steam engine block entity not found");
