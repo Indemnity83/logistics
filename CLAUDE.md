@@ -192,16 +192,24 @@ to run from scripts/agents. Prefer these over plain `git` for the standard featu
 | `git checkout -b <branch>` (off current branch, stacked) | `git town append <branch>` |
 | `git pull` / manually merging main into a feature branch | `git town sync` |
 | Opening a PR by hand | `git town propose` |
-| Squash-merging a PR | `git town ship -m "<extra changelog lines, or empty>"` |
+| Squash-merging a PR | `git town ship -m ""` (or `-m "<full message>"` — see below) |
 | Deleting a merged/obsolete feature branch | `git town delete` |
 | `git checkout <branch>` when you don't remember the name | `git town switch` |
 
 **`git town ship` drops a PR's body — pass changelog lines with `-m`.** Squash merges here keep
 only the PR title (`squash_merge_commit_message: BLANK`), so commits stay short and link to the PR
 for detail. The cost: `type(scope): description` lines written into a PR body never reach the
-commit, and Release Please only ever reads the commit. A bare `git town ship` supplies an empty
-body and loses them silently. `-m` sets the body *only* — restating the subject duplicates that
-entry. See [Multi-change squash commits](#multi-change-squash-commits).
+commit, and Release Please only ever reads the commit.
+
+**`-m` is the *whole* commit message, not the body.** Passing only the extra changelog lines
+replaces the subject with the first of them, and the PR title — usually the headline entry — is
+lost from the changelog entirely, along with the `(#N)` suffix Release Please reads to link the PR.
+
+- `-m ""` keeps the PR title. Use it for a single-change PR.
+- `-m "<title>\n\n<extra lines>"` for a multi-change PR: **restate the PR title as the subject**,
+  then a blank line, then one `type(scope): description` per additional change.
+
+See [Multi-change squash commits](#multi-change-squash-commits).
 
 **Local git metadata overrides the file.** `git config git-town.main-branch …` in a clone silently
 wins over `.git-town.toml`, and list settings like `perennials` *merge* rather than replace, so a
@@ -743,8 +751,13 @@ remove(automation): drop the macerator's wood-pulp recipes
 Those extra lines are supplied at merge time, since the PR body is discarded:
 
 ```bash
-git town ship -m ""                                     # single change
-git town ship -m "change(automation): rename Wood Pulp to Sawdust
+# Single change — the PR title becomes the whole message.
+git town ship -m ""
+
+# Several changes — the subject must repeat the PR title, or it is lost.
+git town ship -m "feat(automation): add the sawmill
+
+change(automation): rename Wood Pulp to Sawdust
 balance(automation): move wood processing from the macerator to the sawmill"
 ```
 
