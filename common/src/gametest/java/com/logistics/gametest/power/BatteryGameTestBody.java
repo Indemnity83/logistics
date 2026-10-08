@@ -15,7 +15,13 @@ import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+
+import java.util.List;
 
 /**
  * Shared battery GameTest bodies, compiled directly into both loaders' {@code gametest} source
@@ -361,6 +367,47 @@ public class BatteryGameTestBody {
             if (gap * 10 > startingGap * 9) {
                 context.fail("Two partly charged batteries should close the gap between them, but it "
                         + "only moved from " + startingGap + " to " + gap + " RF");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * A broken battery keeps its stored energy, and a broken ore yields its raw material.
+     *
+     * <p>Both depend on the loot table parsing, which no build step checks: Minecraft ignores keys
+     * it does not recognise, so a loot table written against the wrong schema still loads and
+     * simply does less. That is how the whole set came to be a schema version behind — batteries
+     * silently voiding their charge on break, and ores dropping themselves instead of raw tin.
+     */
+    public static void testBrokenBatteryKeepsItsCharge(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 2, 1);
+        context.setBlock(pos, LogisticsPower.BLOCK.BASIC_BATTERY);
+        BatteryBlockEntity battery = context.getBlockEntity(pos, BatteryBlockEntity.class);
+        if (battery == null) {
+            context.fail("Battery block entity not found");
+            return;
+        }
+        EnergyComponent buffer = (EnergyComponent) battery.energyStorage(null);
+        long seeded = buffer.getCapacity() / 2;
+        buffer.setAmount(seeded);
+        battery.setChanged();
+
+        BlockPos absolute = context.absolutePos(pos);
+        context.getLevel().destroyBlock(absolute, true);
+
+        context.runAfterDelay(5, () -> {
+            List<ItemEntity> drops = context.getLevel()
+                    .getEntitiesOfClass(ItemEntity.class, new AABB(absolute).inflate(6));
+            if (drops.isEmpty()) {
+                context.fail("Breaking the battery dropped nothing");
+                return;
+            }
+            ItemStack dropped = drops.getFirst().getItem();
+            if (!dropped.has(DataComponents.BLOCK_ENTITY_DATA)) {
+                context.fail("Dropped battery carries no block entity data, so its "
+                        + seeded + " RF was destroyed on break");
                 return;
             }
             context.succeed();

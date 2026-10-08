@@ -1,8 +1,15 @@
 {
   "pools": [
     {
-      "conditions": [{ "condition": "minecraft:survives_explosion" }],
-      "entries": [{ "name": "logistics:automation/kiln", "type": "minecraft:item" }],
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "name": "logistics:automation/kiln",
+          "type": "minecraft:item"
+        }
+      ],
       "rolls": 1
     }
   ],
