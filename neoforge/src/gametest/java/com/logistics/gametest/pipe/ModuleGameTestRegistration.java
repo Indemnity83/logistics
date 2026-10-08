@@ -54,6 +54,10 @@ public final class ModuleGameTestRegistration {
             80,
             ModuleGameTestBody::testSinkWithNoRoomIsPassedOver),
         new GameTestCase(
+            "pipe/remainder_is_rehomed_when_destination_fills_in_flight",
+            100,
+            ModuleGameTestBody::testRemainderIsRehomedWhenDestinationFillsInFlight),
+        new GameTestCase(
             "pipe/sink_room_is_judged_on_its_own_unload_face",
             100,
             ModuleGameTestBody::testSinkRoomIsJudgedOnItsOwnUnloadFace),

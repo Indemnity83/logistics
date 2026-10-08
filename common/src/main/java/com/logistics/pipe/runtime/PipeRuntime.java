@@ -512,23 +512,21 @@ public final class PipeRuntime {
                 }
                 if (inserted < item.getStack().getCount()) {
                     long failed = item.getStack().getCount() - inserted;
-                    if (item.getDeliveryId() != null && item.getDestination() != null) {
-                        PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
-                        if (network != null) {
-                            network.notifyDelivery(
-                                    item.getDeliveryId(),
-                                    item.getDestination(),
-                                    ItemStorageLookup.of(item.getStack()),
-                                    inserted);
-                            network.notifyDeliveryFailed(
-                                    item.getDeliveryId(),
-                                    item.getDestination(),
-                                    ItemStorageLookup.of(item.getStack()),
-                                    failed);
-                        }
+                    PipeNetwork network = NetworkRegistry.getNetwork(world, pos);
+                    if (item.getDeliveryId() != null && item.getDestination() != null && network != null) {
+                        network.notifyDelivery(
+                                item.getDeliveryId(),
+                                item.getDestination(),
+                                ItemStorageLookup.of(item.getStack()),
+                                inserted);
                     }
+                    // Shrink first: from here on the item *is* the remainder, so every count the
+                    // re-home or the drop reports is the part the inventory refused.
                     item.getStack().shrink((int) inserted);
-                    PipeBlockEntity.dropItem(world, pos, item);
+                    if (!rehomeRemainder(ctx, item, network)) {
+                        notifyDeliveryFailed(world, pos, item, failed);
+                        PipeBlockEntity.dropItem(world, pos, item);
+                    }
                 }
                 return;
             }
@@ -543,8 +541,48 @@ public final class PipeRuntime {
             item = remaining;
         }
 
+        // Nothing here would take it. Try somewhere else before giving up on it.
+        if (rehomeRemainder(ctx, item, NetworkRegistry.getNetwork(world, pos))) {
+            return;
+        }
+
         // Item could not enter any storage — drop it.
         notifyDropAndDrop(world, pos, item);
+    }
+
+    /**
+     * Send cargo its destination just refused to another sink that has room, instead of dropping it.
+     *
+     * <p>The refusing sink is this pipe, so it is excluded from the lookup: its inventory has
+     * already said no, and routing back would only repeat the refusal. Only a sink that reports
+     * room is accepted, which is what makes this terminate — an item cannot be shuttled between
+     * full inventories, and the unreset TTL caps even the case where room disappears in transit.
+     *
+     * <p>The old delivery goes back to the network first, so the order it belonged to is re-placed
+     * rather than silently lost; the item travels on as unrouted cargo with a fresh destination.
+     *
+     * @return true if the remainder is now travelling again, or was already empty; false if the
+     *         caller still has to drop it
+     */
+    private static boolean rehomeRemainder(TickContext ctx, TravelingItem item, @Nullable PipeNetwork network) {
+        if (item.getStack().isEmpty()) return true;
+        if (network == null) return false;
+
+        // This pipe is both where the item is travelling from and the sink to skip.
+        BlockPos here = ctx.pos();
+        BlockPos sink = network.findSinkWithRoomFor(item.getStack(), here, here);
+        if (sink == null) return false;
+
+        Direction refusedToward = item.getDirection();
+        Deliveries.abandon(network, item);
+        item.setDestination(sink);
+
+        NetDbg.out("[PipeRuntime @ {}] {} refused at {}, re-homing {} to {}",
+                ctx.pos(), item.getStack().getItem(), refusedToward, item.getStack().getCount(), sink);
+
+        // Enters from the side that refused it, so the pipe routes it back out by another arm.
+        ctx.blockEntity().forceAddItem(item, refusedToward);
+        return true;
     }
 
     /**
