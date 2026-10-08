@@ -1,6 +1,8 @@
 package com.logistics.core.lib.pipe;
 
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Role interface for sink-style modules that can accept specific items from the network.
@@ -19,4 +21,17 @@ public interface ItemAcceptingModule extends Module {
      * @return true if the module accepts this item
      */
     boolean acceptsItem(PipeContext ctx, ItemStack stack);
+
+    /**
+     * The face this module hands accepted items to, or {@code null} if it does not unload through a
+     * capability on one particular face.
+     *
+     * <p>Routing probes this face for room. Checking any adjacent inventory instead would accept a
+     * sink whose chosen face is full merely because some other face has space, and the item would
+     * still be handed to the full one on arrival.
+     */
+    @Nullable
+    default Direction unloadFace(PipeContext ctx) {
+        return null;
+    }
 }

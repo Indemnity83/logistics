@@ -313,6 +313,24 @@ public class ChassisPipe extends ItemPipe {
     }
 
     @Override
+    @Nullable
+    public Direction unloadFaceFor(PipeContext ctx, ItemStack stack) {
+        for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
+            Module module = entry.module();
+            PipeContext scoped = entry.scopedContext(ctx);
+            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(scoped, stack)) {
+                return sink.unloadFace(scoped);
+            }
+        }
+        for (Module module : getStaticModules()) {
+            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(ctx, stack)) {
+                return sink.unloadFace(ctx);
+            }
+        }
+        return null;
+    }
+
+    @Override
     public boolean onExternalInsert(PipeContext ctx, ItemStack stack, Direction from) {
         for (DynamicModule entry : getDynamicModuleEntries(ctx)) {
             if (entry.module().onExternalInsert(entry.scopedContext(ctx), stack, from)) return true;

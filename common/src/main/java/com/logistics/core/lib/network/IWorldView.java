@@ -34,6 +34,22 @@ public interface IWorldView {
     boolean matchesSinkFilter(BlockPos pos, net.minecraft.world.item.ItemStack stack);
 
     /**
+     * Whether the inventory behind the sink at {@code pos} can take the whole stack right now.
+     *
+     * <p>A filter match says a sink <em>wants</em> an item; this says it has somewhere to put it.
+     * Routing needs both: a pipe hands its cargo to the attached inventory on arrival and drops
+     * whatever will not fit, so choosing a full sink spills the remainder on the floor.
+     *
+     * <p>The whole stack is required rather than any part of it, because a partial insert is
+     * exactly what spills — the accepted part lands and the rest is dropped.
+     *
+     * <p>Defaults to {@code true} so a view that cannot see inventories routes as before.
+     */
+    default boolean sinkHasRoomFor(BlockPos pos, net.minecraft.world.item.ItemStack stack) {
+        return true;
+    }
+
+    /**
      * Ask the provider pipe at {@code provider} to extract and dispatch items to {@code requester}.
      * Finds the pipe's modules and calls {@code onDispatch()} on the first module that can fulfill.
      *

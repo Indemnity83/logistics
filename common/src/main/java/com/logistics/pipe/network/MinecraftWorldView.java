@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import com.logistics.core.lib.storage.IItemKey;
+import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.ItemStorageLookup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -81,6 +83,28 @@ public class MinecraftWorldView implements IWorldView {
         PipeContext ctx = pipeEntity.createContext();
 
         return pipe.matchesSinkFilter(ctx, stack);
+    }
+
+    @Override
+    public boolean sinkHasRoomFor(BlockPos pos, ItemStack stack) {
+        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
+            return false;
+        }
+        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+        ItemPipe pipe = block.getPipe();
+        PipeContext ctx = pipeEntity.createContext();
+
+        Direction face = pipe.unloadFaceFor(ctx, stack);
+        if (face == null) {
+            // Unloads through a module rather than a capability on one face. Left alone: excluding
+            // it would remove a route that works today.
+            return true;
+        }
+        IItemStorage storage = ItemStorageLookup.find(level, pos.relative(face), face.getOpposite());
+        if (storage == null) {
+            return true;
+        }
+        return storage.insert(ItemStorageLookup.of(stack), stack.getCount(), true) >= stack.getCount();
     }
 
     @Override
