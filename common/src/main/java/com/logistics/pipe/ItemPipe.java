@@ -203,6 +203,17 @@ public class ItemPipe extends Pipe {
         return false;
     }
 
+    /** The face the first module accepting {@code stack} would unload it to, if it has one. */
+    @Nullable
+    public Direction unloadFaceFor(PipeContext ctx, ItemStack stack) {
+        for (Module module : getModules(ctx)) {
+            if (module instanceof ItemAcceptingModule sink && sink.acceptsItem(ctx, stack)) {
+                return sink.unloadFace(ctx);
+            }
+        }
+        return null;
+    }
+
     /**
      * Dispatch items to a requester by asking the first module that can fulfill to extract.
      *

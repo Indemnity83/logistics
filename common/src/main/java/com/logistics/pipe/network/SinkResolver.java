@@ -145,6 +145,10 @@ class SinkResolver {
      * <p>The tiebreaker is only consulted on an actual priority tie, so the distance BFS behind
      * {@link INetworkGraph#hopDistance} is never paid for on the common no-tie path.
      *
+     * <p>Run twice: once skipping sinks with no room for the stack, then — only if that found
+     * nothing — again without the room check. A pipe drops whatever its destination will not take,
+     * so preferring a sink that can hold the cargo is what stops full inventories spilling it.
+     *
      * @param stack        item to route
      * @param filteredOnly if true, skip priority-0 (catch-all) sinks
      * @param source       position the item travels from; {@code null} skips the distance tier
@@ -156,6 +160,23 @@ class SinkResolver {
         Set<BlockPos> specific = specificInterests.get(stack.getItem());
         if (specific != null) candidates.addAll(specific);
 
+        BlockPos withRoom = select(candidates, stack, filteredOnly, source, true);
+        if (withRoom != null) return withRoom;
+
+        // Nothing that wants this item can hold it right now. Fall back to the old choice rather
+        // than refusing to route: a sink that unloads through a module reports no room here, and
+        // declining to pick one would strand items that route fine today.
+        return select(candidates, stack, filteredOnly, source, false);
+    }
+
+    /**
+     * Highest-priority accepting sink among {@code candidates}.
+     *
+     * @param requireRoom when true, skip sinks whose attached inventory cannot take the whole stack
+     */
+    @Nullable
+    private BlockPos select(Set<BlockPos> candidates, ItemStack stack, boolean filteredOnly,
+            @Nullable BlockPos source, boolean requireRoom) {
         Comparator<BlockPos> tieBreak = RoutingPreference.among(source, graph::hopDistance);
 
         BlockPos best = null;
@@ -166,10 +187,11 @@ class SinkResolver {
             if (filteredOnly && priority <= 0) continue;
             if (priority < bestPriority) continue;
             if (priority == bestPriority && best != null && tieBreak.compare(pos, best) >= 0) continue;
-            if (worldView.matchesSinkFilter(pos, stack)) {
-                best = pos;
-                bestPriority = priority;
-            }
+            if (!worldView.matchesSinkFilter(pos, stack)) continue;
+            // Checked after the filter so the inventory probe is only paid for on a real candidate.
+            if (requireRoom && !worldView.sinkHasRoomFor(pos, stack)) continue;
+            best = pos;
+            bestPriority = priority;
         }
         return best;
     }
