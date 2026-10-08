@@ -424,10 +424,13 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item BRONZE_NUGGET;
         public static Item CATERIUM_INGOT;
         public static Item CATERIUM_NUGGET;
+        public static Item CATERIUM_DUST;
         public static Item LUMENITE_INGOT;
         public static Item LUMENITE_NUGGET;
+        public static Item LUMENITE_DUST;
         public static Item ECHONITE_INGOT;
         public static Item ECHONITE_NUGGET;
+        public static Item ECHONITE_DUST;
         public static Item COPPER_NUGGET;
         public static Item APATITE;
         public static Item MACHINE_CORE;
@@ -521,14 +524,17 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Caterium — gold dust quenched in liquid redstone, the Conductive tier's body material.
             CATERIUM_INGOT = INSTANCE.registerItem("caterium_ingot", Item::new);
             CATERIUM_NUGGET = INSTANCE.registerItem("caterium_nugget", Item::new);
+            CATERIUM_DUST = INSTANCE.registerItem("caterium_dust", Item::new);
 
             // Lumenite — amethyst dust quenched in liquid glowstone, the Resonant tier.
             LUMENITE_INGOT = INSTANCE.registerItem("lumenite_ingot", Item::new);
             LUMENITE_NUGGET = INSTANCE.registerItem("lumenite_nugget", Item::new);
+            LUMENITE_DUST = INSTANCE.registerItem("lumenite_dust", Item::new);
 
             // Echonite — echo dust quenched in liquid ender, the Deep tier.
             ECHONITE_INGOT = INSTANCE.registerItem("echonite_ingot", Item::new);
             ECHONITE_NUGGET = INSTANCE.registerItem("echonite_nugget", Item::new);
+            ECHONITE_DUST = INSTANCE.registerItem("echonite_dust", Item::new);
             COPPER_NUGGET = INSTANCE.registerItem("copper_nugget", Item::new);
 
             // Apatite
@@ -664,12 +670,15 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.TIN_NUGGET);
             TAB.add(ITEM.COPPER_NUGGET);
             TAB.add(ITEM.BRONZE_NUGGET);
+            TAB.add(ITEM.CATERIUM_DUST);
             TAB.add(ITEM.CATERIUM_INGOT);
             TAB.add(ITEM.CATERIUM_NUGGET);
             TAB.add(BLOCK.CATERIUM_BLOCK);
+            TAB.add(ITEM.LUMENITE_DUST);
             TAB.add(ITEM.LUMENITE_INGOT);
             TAB.add(ITEM.LUMENITE_NUGGET);
             TAB.add(BLOCK.LUMENITE_BLOCK);
+            TAB.add(ITEM.ECHONITE_DUST);
             TAB.add(ITEM.ECHONITE_INGOT);
             TAB.add(ITEM.ECHONITE_NUGGET);
             TAB.add(BLOCK.ECHONITE_BLOCK);

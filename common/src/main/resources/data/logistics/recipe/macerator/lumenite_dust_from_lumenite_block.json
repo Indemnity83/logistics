@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/lumenite_block",
+  "result": {
+    "id": "logistics:core/lumenite_dust",
+    "count": 9
+  },
+  "energy": 2000
+}
