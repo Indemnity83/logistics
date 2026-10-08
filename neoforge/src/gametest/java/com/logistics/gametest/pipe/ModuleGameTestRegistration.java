@@ -54,6 +54,10 @@ public final class ModuleGameTestRegistration {
             80,
             ModuleGameTestBody::testSinkWithNoRoomIsPassedOver),
         new GameTestCase(
+            "pipe/sink_room_is_judged_on_its_own_unload_face",
+            100,
+            ModuleGameTestBody::testSinkRoomIsJudgedOnItsOwnUnloadFace),
+        new GameTestCase(
             "pipe/sink_module_default_route_accepts_items",
             80,
             ModuleGameTestBody::testSinkModuleDefaultRouteAcceptsItems),

@@ -480,6 +480,62 @@ public class ModuleGameTestBody {
     }
 
     /**
+     * Room on a sink's other faces does not make it a valid destination.
+     *
+     * <p>A sink unloads to one chosen face — the first inventory face, or whichever the player set
+     * with a wrench — so that is the only face whose space matters. Sink A here has a full chest
+     * below it (its chosen face, DOWN sorting first) and an empty one to the SOUTH. Probing any
+     * adjacent inventory would see the empty one, pick A over the lower-priority B, and then hand
+     * the diamond to the full chest on arrival.
+     */
+    public static void testSinkRoomIsJudgedOnItsOwnUnloadFace(GameTestHelper context) {
+        BlockPos feedPos = new BlockPos(0, 2, 0);
+        BlockPos sinkAPos = new BlockPos(1, 2, 0);
+        BlockPos sinkBPos = new BlockPos(2, 2, 0);
+        BlockPos fullChestPos = new BlockPos(1, 1, 0);    // DOWN of sink A — its unload face
+        BlockPos decoyChestPos = new BlockPos(1, 2, 1);   // SOUTH of sink A — empty, but unused
+        BlockPos targetChestPos = new BlockPos(2, 1, 0);  // DOWN of sink B
+
+        context.setBlock(fullChestPos, Blocks.CHEST);
+        context.setBlock(decoyChestPos, Blocks.CHEST);
+        context.setBlock(targetChestPos, Blocks.CHEST);
+        for (BlockPos pipePos : List.of(feedPos, sinkAPos, sinkBPos)) {
+            context.setBlock(pipePos, LogisticsPipe.BLOCK.BASIC_LOGISTICS_PIPE);
+        }
+        placeChargedPowerJunction(context, feedPos.above());
+
+        PipeBlockEntity feed = context.getBlockEntity(feedPos, PipeBlockEntity.class);
+        Container fullChest = context.getBlockEntity(fullChestPos, ChestBlockEntity.class);
+        if (feed == null || fullChest == null) {
+            context.fail("Expected a feed pipe and a chest");
+            return;
+        }
+        for (int slot = 0; slot < fullChest.getContainerSize(); slot++) {
+            fullChest.setItem(slot, new ItemStack(Items.STONE, Items.STONE.getDefaultMaxStackSize()));
+        }
+
+        CompoundTag filterTag = new CompoundTag();
+        filterTag.putString("0", BuiltInRegistries.ITEM.getKey(Items.DIAMOND).toString());
+        for (BlockPos sinkPos : List.of(sinkAPos, sinkBPos)) {
+            PipeBlockEntity sink = context.getBlockEntity(sinkPos, PipeBlockEntity.class);
+            PipeContext ctx =
+                    new PipeContext(context.getLevel(), sinkPos, context.getBlockState(sinkPos), sink);
+            int priority = sinkPos.equals(sinkAPos) ? 9 : 5;
+            ctx.putCompoundTag(new SinkModule(priority), SinkModule.FILTERS, filterTag.copy());
+        }
+
+        // SinkModule registers its interest after SYNC_INTERVAL = 20 ticks.
+        context.runAfterDelay(22, () -> {
+            TravelingItem diamond = new TravelingItem(new ItemStack(Items.DIAMOND), Direction.WEST, 0.1f);
+            if (!feed.forceAddItem(diamond, Direction.WEST)) {
+                context.fail("Feed pipe should accept the force-injected diamond");
+            }
+        });
+
+        context.succeedWhen(() -> context.assertContainerContains(targetChestPos, Items.DIAMOND));
+    }
+
+    /**
      * Verifies that SinkModule routes a filter-matched item into the adjacent inventory.
      *
      * <p>SinkModule.matchesFilter() calls BuiltInRegistries.ITEM.get() and then route() uses

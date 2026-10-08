@@ -87,28 +87,24 @@ public class MinecraftWorldView implements IWorldView {
 
     @Override
     public boolean sinkHasRoomFor(BlockPos pos, ItemStack stack) {
-        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity)) {
+        if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity pipeEntity)) {
             return false;
         }
-        IItemKey key = ItemStorageLookup.of(stack);
-        long wanted = stack.getCount();
-        boolean sawStorage = false;
+        PipeBlock block = (PipeBlock) pipeEntity.getBlockState().getBlock();
+        ItemPipe pipe = block.getPipe();
+        PipeContext ctx = pipeEntity.createContext();
 
-        for (Direction dir : Direction.values()) {
-            BlockPos neighbour = pos.relative(dir);
-            // A neighbouring pipe is a route, not a destination -- its room says nothing about
-            // whether this sink can unload.
-            if (level.getBlockEntity(neighbour) instanceof PipeBlockEntity) continue;
-
-            IItemStorage storage = ItemStorageLookup.find(level, neighbour, dir.getOpposite());
-            if (storage == null) continue;
-            sawStorage = true;
-            if (storage.insert(key, wanted, true) >= wanted) return true;
+        Direction face = pipe.unloadFaceFor(ctx, stack);
+        if (face == null) {
+            // Unloads through a module rather than a capability on one face. Left alone: excluding
+            // it would remove a route that works today.
+            return true;
         }
-
-        // A sink with no attached inventory at all is left alone: it may unload through a module
-        // rather than a capability, and excluding it would remove a route that works today.
-        return !sawStorage;
+        IItemStorage storage = ItemStorageLookup.find(level, pos.relative(face), face.getOpposite());
+        if (storage == null) {
+            return true;
+        }
+        return storage.insert(ItemStorageLookup.of(stack), stack.getCount(), true) >= stack.getCount();
     }
 
     @Override

@@ -144,6 +144,12 @@ public class ModuleGameTest {
         ModuleGameTestBody.testSinkWithNoRoomIsPassedOver(context);
     }
 
+    /** Room on a sink's other faces does not make it a valid destination. */
+    @GameTest(maxTicks = 100)
+    public void testSinkRoomIsJudgedOnItsOwnUnloadFace(GameTestHelper context) {
+        ModuleGameTestBody.testSinkRoomIsJudgedOnItsOwnUnloadFace(context);
+    }
+
     /**
      * Verifies that SinkModule with default route accepts any item that has no network destination.
      *
