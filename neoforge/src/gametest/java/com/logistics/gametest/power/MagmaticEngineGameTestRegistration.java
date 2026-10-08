@@ -30,4 +30,10 @@ public final class MagmaticEngineGameTestRegistration {
     public static void testGeneratesFromLavaAndDelivers(GameTestHelper context) {
         MagmaticEngineGameTestBody.testGeneratesFromLavaAndDelivers(context);
     }
+
+    /** A partly-filled buffer does not stop the engine relighting. */
+    @GameTest(template = "empty", batch = "magmaticengine", timeoutTicks = 100)
+    public static void testRelightsWithAPartlyFullBuffer(GameTestHelper context) {
+        MagmaticEngineGameTestBody.testRelightsWithAPartlyFullBuffer(context);
+    }
 }

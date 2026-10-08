@@ -3,6 +3,7 @@ package com.logistics.power.engine.ui;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.HeatStage;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
+import com.logistics.power.engine.magmatic.MagmaticEngineComponent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -126,5 +127,12 @@ public class MagmaticEngineScreenHandler extends AbstractContainerMenu {
 
     public boolean isLit() {
         return data.get(MagmaticEngineBlockEntity.DATA_LIT) != 0;
+    }
+
+    /** What is stopping an unlit engine from igniting, as the server sees it. */
+    public MagmaticEngineComponent.IgnitionBlock getIgnitionBlock() {
+        MagmaticEngineComponent.IgnitionBlock[] values = MagmaticEngineComponent.IgnitionBlock.values();
+        int ordinal = data.get(MagmaticEngineBlockEntity.DATA_IGNITION_BLOCK);
+        return ordinal >= 0 && ordinal < values.length ? values[ordinal] : MagmaticEngineComponent.IgnitionBlock.NONE;
     }
 }

@@ -22,4 +22,10 @@ public class MagmaticEngineGameTest {
     public void testGeneratesFromLavaAndDelivers(GameTestHelper context) {
         MagmaticEngineGameTestBody.testGeneratesFromLavaAndDelivers(context);
     }
+
+    /** A partly-filled buffer does not stop the engine relighting. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void testRelightsWithAPartlyFullBuffer(GameTestHelper context) {
+        MagmaticEngineGameTestBody.testRelightsWithAPartlyFullBuffer(context);
+    }
 }

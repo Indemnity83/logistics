@@ -90,4 +90,39 @@ public class MagmaticEngineGameTestBody {
             context.succeed();
         });
     }
+
+    /**
+     * A partly-filled buffer does not stop the engine relighting.
+     *
+     * <p>Ignition used to need room for a whole batch's hot potential — three quarters of the
+     * default buffer — so a quarter-full engine sat cold until something drained it. The engine
+     * burns its batch out and discards whatever the buffer will not take, so that reservation
+     * bought nothing and cost most of the duty cycle. Seeded here at half full, with no consumer
+     * attached so nothing can drain it.
+     */
+    public static void testRelightsWithAPartlyFullBuffer(GameTestHelper context) {
+        BlockPos pos = new BlockPos(0, 1, 0);
+        MagmaticEngineBlockEntity engine = placePowered(context, pos);
+        if (engine == null) {
+            context.fail("Magmatic engine block entity not found");
+            return;
+        }
+        engine.fluidStorage(Direction.UP).insert(SimpleFluidKey.of(Fluids.LAVA), FluidUnits.mb(2000), false);
+
+        EnergyComponent buffer = (EnergyComponent) engine.energyStorage(null);
+        buffer.setAmount(buffer.getCapacity() / 2);
+
+        context.runAfterDelay(60, () -> {
+            MagmaticEngineBlockEntity e = (MagmaticEngineBlockEntity) context.getBlockEntity(pos);
+            if (e.simulation().remainingBurnTicks() <= 0) {
+                context.fail("Engine should have lit a batch with the buffer half full");
+                return;
+            }
+            if (e.simulation().temperatureCelsius() <= 20) {
+                context.fail("Engine should be heat-soaking, temp: " + e.simulation().temperatureCelsius());
+                return;
+            }
+            context.succeed();
+        });
+    }
 }
