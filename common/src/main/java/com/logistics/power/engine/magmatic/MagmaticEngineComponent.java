@@ -140,15 +140,43 @@ public final class MagmaticEngineComponent
         lastWasted = attempted - accepted; // discarded — never stored or converted to heat
     }
 
+    /**
+     * Why an unlit engine is not igniting, for the GUI readout. Only meaningful while unlit: a lit
+     * engine is burning a batch whatever this says.
+     *
+     * <p>Fuel is reported ahead of the buffer when both block. Only one line is shown, and a dry
+     * tank reported as "waiting for buffer space" sends the player to their power network over a
+     * problem that is in front of them. ({@link #tryCommitLavaBatch} keeps its own order: there
+     * every condition has to pass, so which one short-circuits first makes no difference.)
+     */
+    public IgnitionBlock ignitionBlock() {
+        Fluid fluid = lavaStore.tank().getFluidKey().getFluid();
+        if (!isFuel.test(fluid)) {
+            return IgnitionBlock.NO_LAVA;
+        }
+        long batch = FluidUnits.mb(profile.batchMb());
+        if (lavaStore.tank().extract(SimpleFluidKey.of(fluid), batch, true) != batch) {
+            return IgnitionBlock.PARTIAL_BATCH;
+        }
+        if (energy.getCapacity() - energy.getAmount() < profile.ignitionHeadroomRf()) {
+            return IgnitionBlock.BUFFER_FULL;
+        }
+        return IgnitionBlock.NONE;
+    }
+
+    /** What is stopping an unlit engine from committing a batch. */
+    public enum IgnitionBlock {
+        NONE,
+        BUFFER_FULL,
+        NO_LAVA,
+        PARTIAL_BATCH
+    }
+
     /** Consume a whole 100 mB lava batch, gated by admission space; returns whether a batch was committed. */
     private boolean tryCommitLavaBatch() {
         long free = energy.getCapacity() - energy.getAmount();
-        // The admission requirement can exceed the buffer entirely, and free never can, so it is
-        // capped at what the buffer holds: a backed-up buffer still blocks ignition, a drained one
-        // never does. RF generated beyond the buffer is discarded, as above.
-        long required = Math.min(profile.maximumBatchPotentialRf(), energy.getCapacity());
-        if (free < required) {
-            return false; // never commit lava into a backed-up buffer
+        if (free < profile.ignitionHeadroomRf()) {
+            return false; // never light a batch into a buffer that is already full
         }
         Fluid fluid = lavaStore.tank().getFluidKey().getFluid();
         if (!isFuel.test(fluid)) {

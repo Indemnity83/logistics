@@ -107,25 +107,28 @@ public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngine
         return lines;
     }
 
+    /**
+     * The readout for an unlit engine comes from the server, which is the only side that knows what
+     * the ignition check actually rejected. Guessing it here from the lava level alone reported
+     * "Waiting for Buffer Space" for a tank holding the wrong fluid or less than a full batch.
+     */
     private String statusKey() {
-        boolean powered = menu.isPowered();
         boolean lit = menu.isLit();
-        boolean bufferFull = menu.getEnergyBarHeight(10_000) >= 10_000;
-        boolean hasLava = menu.getLavaAmountMb() > 0;
-        if (!powered) {
+        if (!menu.isPowered()) {
             return lit
                     ? "tooltip.logistics.magmatic_engine.status.paused"
                     : "tooltip.logistics.magmatic_engine.status.redstone_disabled";
         }
         if (lit) {
-            return bufferFull
+            return menu.getEnergyBarHeight(10_000) >= 10_000
                     ? "tooltip.logistics.magmatic_engine.status.output_full"
                     : "tooltip.logistics.magmatic_engine.status.generating";
         }
-        if (hasLava) {
-            return "tooltip.logistics.magmatic_engine.status.waiting";
-        }
-        return "tooltip.logistics.magmatic_engine.status.no_lava";
+        return switch (menu.getIgnitionBlock()) {
+            case BUFFER_FULL -> "tooltip.logistics.magmatic_engine.status.waiting";
+            case PARTIAL_BATCH -> "tooltip.logistics.magmatic_engine.status.partial_batch";
+            case NO_LAVA, NONE -> "tooltip.logistics.magmatic_engine.status.no_lava";
+        };
     }
 
     private static String thermalKey(HeatStage stage) {
