@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "logistics:core/lumenite_ingot"
+  },
+  "result": {
+    "id": "logistics:core/lumenite_dust",
+    "count": 1
+  },
+  "energy": 2000
+}

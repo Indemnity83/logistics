@@ -1,0 +1,11 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": {
+    "item": "logistics:core/echonite_ingot"
+  },
+  "result": {
+    "id": "logistics:core/echonite_dust",
+    "count": 1
+  },
+  "energy": 2000
+}
