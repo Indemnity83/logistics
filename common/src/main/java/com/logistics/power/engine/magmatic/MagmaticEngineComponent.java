@@ -140,15 +140,38 @@ public final class MagmaticEngineComponent
         lastWasted = attempted - accepted; // discarded — never stored or converted to heat
     }
 
+    /**
+     * Why an unlit engine is not igniting, for the GUI readout. Only meaningful while unlit: a lit
+     * engine is burning a batch whatever this says.
+     */
+    public IgnitionBlock ignitionBlock() {
+        if (energy.getCapacity() - energy.getAmount() < profile.ignitionHeadroomRf()) {
+            return IgnitionBlock.BUFFER_FULL;
+        }
+        if (!isFuel.test(lavaStore.tank().getFluidKey().getFluid())) {
+            return IgnitionBlock.NO_LAVA;
+        }
+        long batch = FluidUnits.mb(profile.batchMb());
+        if (lavaStore.tank().extract(SimpleFluidKey.of(lavaStore.tank().getFluidKey().getFluid()), batch, true)
+                != batch) {
+            return IgnitionBlock.PARTIAL_BATCH;
+        }
+        return IgnitionBlock.NONE;
+    }
+
+    /** What is stopping an unlit engine from committing a batch. */
+    public enum IgnitionBlock {
+        NONE,
+        BUFFER_FULL,
+        NO_LAVA,
+        PARTIAL_BATCH
+    }
+
     /** Consume a whole 100 mB lava batch, gated by admission space; returns whether a batch was committed. */
     private boolean tryCommitLavaBatch() {
         long free = energy.getCapacity() - energy.getAmount();
-        // The admission requirement can exceed the buffer entirely, and free never can, so it is
-        // capped at what the buffer holds: a backed-up buffer still blocks ignition, a drained one
-        // never does. RF generated beyond the buffer is discarded, as above.
-        long required = Math.min(profile.maximumBatchPotentialRf(), energy.getCapacity());
-        if (free < required) {
-            return false; // never commit lava into a backed-up buffer
+        if (free < profile.ignitionHeadroomRf()) {
+            return false; // never light a batch into a buffer that is already full
         }
         Fluid fluid = lavaStore.tank().getFluidKey().getFluid();
         if (!isFuel.test(fluid)) {

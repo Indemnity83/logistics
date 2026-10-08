@@ -31,6 +31,9 @@ public record MagmaticEngineProfile(
                 0.0025, 0.0010, 0.27, 0.23, 0.77, 0.73);
     }
 
+    /** Seconds of hot output the buffer must have room for before a batch may be lit, in ticks. */
+    private static final int IGNITION_HEADROOM_TICKS = 100;
+
     /** Powered burn ticks a single committed batch lasts (2,000 for 100 mB of 20,000-tick lava); never below 1. */
     public int batchBurnTicks() {
         return Math.max(1, bucketBurnTicks * batchMb / 1000);
@@ -51,9 +54,27 @@ public record MagmaticEngineProfile(
         return Math.round(baseOutputPerTick * 1.5);
     }
 
-    /** Conservative max RF a single batch could ever produce — the ignition admission requirement. */
+    /** Max RF a single batch could ever produce, if it ran fully heat-soaked for its whole burn. */
     public long maximumBatchPotentialRf() {
         return hotOutputPerTick() * (long) batchBurnTicks();
+    }
+
+    /**
+     * Free buffer space required before a fresh lava batch may be committed.
+     *
+     * <p>Only a few seconds of output, not the batch's whole potential. Reserving the full batch
+     * ({@link #maximumBatchPotentialRf}) would be three quarters of the default buffer, so the
+     * engine refused to relight at a quarter full and spent most of its duty cycle cold — where it
+     * makes a third of the RF it would hot. It also bought nothing: a lit engine burns its batch
+     * out regardless of demand and discards whatever the buffer will not take, so the lava is spent
+     * either way. The admission check only needs to stop a batch being lit into a buffer that is
+     * already full.
+     *
+     * <p>Capped at the buffer's own size so a configuration with a very small buffer can still
+     * ignite at all.
+     */
+    public long ignitionHeadroomRf() {
+        return Math.min(hotOutputPerTick() * IGNITION_HEADROOM_TICKS, bufferCapacity);
     }
 
     /**

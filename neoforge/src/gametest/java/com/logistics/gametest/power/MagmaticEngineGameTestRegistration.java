@@ -21,7 +21,10 @@ public final class MagmaticEngineGameTestRegistration {
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("power/accepts_lava_rejects_other", 100, MagmaticEngineGameTestBody::testAcceptsLavaRejectsOther),
         new GameTestCase(
-            "power/generates_from_lava_and_delivers", 140, MagmaticEngineGameTestBody::testGeneratesFromLavaAndDelivers));
+            "power/generates_from_lava_and_delivers", 140, MagmaticEngineGameTestBody::testGeneratesFromLavaAndDelivers),
+        new GameTestCase(
+            "power/relights_with_a_partly_full_buffer", 100,
+            MagmaticEngineGameTestBody::testRelightsWithAPartlyFullBuffer));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
