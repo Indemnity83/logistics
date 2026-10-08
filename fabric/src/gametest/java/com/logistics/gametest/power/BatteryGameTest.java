@@ -62,4 +62,10 @@ public class BatteryGameTest {
     public void testBatteriesOnOneCableFillEvenly(GameTestHelper context) {
         BatteryGameTestBody.testBatteriesOnOneCableFillEvenly(context);
     }
+
+    /** A broken battery keeps its stored energy. */
+    @GameTest(maxTicks = 60)
+    public void testBrokenBatteryKeepsItsCharge(GameTestHelper context) {
+        BatteryGameTestBody.testBrokenBatteryKeepsItsCharge(context);
+    }
 }

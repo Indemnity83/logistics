@@ -3,11 +3,14 @@
   "pools": [
     {
       "rolls": 1,
-      "conditions": [
-        { "condition": "minecraft:survives_explosion" }
-      ],
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
       "entries": [
-        { "type": "minecraft:item", "name": "logistics:core/oil_red_sand" }
+        {
+          "type": "minecraft:item",
+          "name": "logistics:core/oil_red_sand"
+        }
       ]
     }
   ]

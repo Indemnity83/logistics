@@ -40,7 +40,9 @@ public final class BatteryGameTestRegistration {
         new GameTestCase(
             "power/network_without_battery_is_unpowered", 60, BatteryGameTestBody::testNetworkWithoutBatteryIsUnpowered),
         new GameTestCase(
-            "power/charged_battery_does_not_power_network", 60, BatteryGameTestBody::testChargedBatteryDoesNotPowerNetwork));
+            "power/charged_battery_does_not_power_network", 60, BatteryGameTestBody::testChargedBatteryDoesNotPowerNetwork),
+        new GameTestCase(
+            "power/broken_battery_keeps_its_charge", 60, BatteryGameTestBody::testBrokenBatteryKeepsItsCharge));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
