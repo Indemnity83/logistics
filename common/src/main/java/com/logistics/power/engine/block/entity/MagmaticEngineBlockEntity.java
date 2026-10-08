@@ -54,7 +54,8 @@ public class MagmaticEngineBlockEntity extends EngineEntity implements HasFluidS
     public static final int DATA_LAVA_CAPACITY = 10;
     public static final int DATA_POWERED = 11;
     public static final int DATA_LIT = 12;
-    public static final int DATA_COUNT = 13;
+    public static final int DATA_IGNITION_BLOCK = 13; // MagmaticEngineComponent.IgnitionBlock ordinal
+    public static final int DATA_COUNT = 14;
 
     private final ContainerData containerData = new ContainerData() {
         @Override
@@ -73,6 +74,7 @@ public class MagmaticEngineBlockEntity extends EngineEntity implements HasFluidS
                 case DATA_LAVA_CAPACITY -> capacityMb(lavaTank);
                 case DATA_POWERED -> isPowered() ? 1 : 0;
                 case DATA_LIT -> magmaSim.lit() ? 1 : 0;
+                case DATA_IGNITION_BLOCK -> magmaSim.ignitionBlock().ordinal();
                 default -> 0;
             };
         }
