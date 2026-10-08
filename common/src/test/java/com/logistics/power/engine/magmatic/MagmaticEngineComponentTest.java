@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * Behavior of the Magmatic Engine simulation. Uses vanilla lava via an injected validity predicate (so
  * tests don't need the lava tag bound), an {@link EngineEnergyOutputComponent} buffer, and a
  * {@link FluidStoreComponent} lava tank seeded directly. Config-default profile: base 10 RF/t, 40k buffer,
- * 4,000 mB tank, 20,000-tick bucket → 2,000-tick batch, 5/10/15 RF/t, 30,000 RF admission.
+ * 4,000 mB tank, 20,000-tick bucket → 2,000-tick batch, 5/10/15 RF/t, 1,500 RF ignition headroom.
  */
 class MagmaticEngineComponentTest extends MinecraftTestEnvironment {
 
@@ -286,27 +286,43 @@ class MagmaticEngineComponentTest extends MinecraftTestEnvironment {
 
     // ==================== Ignition gating ====================
 
+    /**
+     * Ignition needs a few seconds of headroom, not room for the batch's whole output. Requiring
+     * the latter was 30,000 of the default 40,000 buffer, so the engine stopped relighting at a
+     * quarter full and idled cold through most of its duty cycle.
+     */
     @Test
-    void ignitionRequiresMaximumBatchPotentialFree() {
+    void ignitionRequiresOnlyShortHeadroom() {
         FluidStoreComponent lavaA = tank(Fluids.LAVA, 4000);
-        MagmaticEngineComponent tooFull = engine(energy(40_000, 40_000 - 29_999), lavaA, () -> true); // 29,999 free
+        MagmaticEngineComponent tooFull = engine(energy(40_000, 40_000 - 1_499), lavaA, () -> true); // 1,499 free
         seed(tooFull, 0, 0.0);
         tick(tooFull);
         assertThat(tooFull.lit()).isFalse();
         assertThat(lavaA.tank().getAmount()).isEqualTo(mb(4000)); // no lava consumed
 
         FluidStoreComponent lavaB = tank(Fluids.LAVA, 4000);
-        MagmaticEngineComponent justEnough = engine(energy(40_000, 40_000 - 30_000), lavaB, () -> true); // 30,000 free
+        MagmaticEngineComponent justEnough = engine(energy(40_000, 40_000 - 1_500), lavaB, () -> true); // 1,500 free
         seed(justEnough, 0, 0.0);
         tick(justEnough);
         assertThat(justEnough.lit()).isTrue();
         assertThat(lavaB.tank().getAmount()).isEqualTo(mb(3_900));
     }
 
+    /** A buffer with room to spare ignites, where the old whole-batch reservation refused. */
+    @Test
+    void ignitesWithTheBufferHalfFull() {
+        FluidStoreComponent lava = tank(Fluids.LAVA, 4000);
+        MagmaticEngineComponent m = engine(energy(40_000, 20_000), lava, () -> true); // 20,000 free
+        seed(m, 0, 0.0);
+        tick(m);
+        assertThat(m.lit()).isTrue();
+        assertThat(lava.tank().getAmount()).isEqualTo(mb(3_900));
+    }
+
     @Test
     void temperatureDoesNotLowerRequiredAdmissionSpace() {
         FluidStoreComponent lava = tank(Fluids.LAVA, 4000);
-        MagmaticEngineComponent m = engine(energy(40_000, 40_000 - 29_999), lava, () -> true); // 29,999 free
+        MagmaticEngineComponent m = engine(energy(40_000, 40_000 - 1_499), lava, () -> true); // 1,499 free
         seed(m, 0, 0.9); // hot but unlit
         tick(m);
         assertThat(m.lit()).isFalse(); // temperature doesn't reduce the requirement
@@ -473,5 +489,38 @@ class MagmaticEngineComponentTest extends MinecraftTestEnvironment {
         assertThat(m.lastAttempted()).isZero();
         assertThat(m.lastAccepted()).isZero();
         assertThat(m.lastWasted()).isZero();
+    }
+
+    // ==================== Ignition-block readout ====================
+
+    /**
+     * Fuel outranks the buffer when both block. The GUI shows one line, and a dry tank reported as
+     * "waiting for buffer space" points the player at their power network instead of the tank.
+     */
+    @Test
+    void reportsNoLavaOverAFullBufferWhenTheTankIsEmpty() {
+        MagmaticEngineComponent m = engine(energy(40_000, 40_000), tank(null, 0), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.NO_LAVA);
+    }
+
+    /** A dreg too small to commit is named as such, not blamed on the buffer. */
+    @Test
+    void reportsPartialBatchOverAFullBufferForADregOfLava() {
+        MagmaticEngineComponent m = engine(energy(40_000, 40_000), tank(Fluids.LAVA, 50), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.PARTIAL_BATCH);
+    }
+
+    /** With fuel ready, a backed-up buffer is the real answer. */
+    @Test
+    void reportsBufferFullWhenFuelIsReadyButThereIsNoHeadroom() {
+        MagmaticEngineComponent m = engine(energy(40_000, 40_000), tank(Fluids.LAVA, 4000), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.BUFFER_FULL);
+    }
+
+    /** Nothing blocking: fuel ready and headroom to spare. */
+    @Test
+    void reportsNothingBlockingWhenReadyToIgnite() {
+        MagmaticEngineComponent m = engine(energy(40_000, 20_000), tank(Fluids.LAVA, 4000), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.NONE);
     }
 }

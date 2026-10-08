@@ -358,6 +358,7 @@
   "tooltip.logistics.magmatic_engine.status.output_full": "Output Full \u2014 Energy Wasting",
   "tooltip.logistics.magmatic_engine.status.generating": "Generating",
   "tooltip.logistics.magmatic_engine.status.waiting": "Waiting for Buffer Space",
+  "tooltip.logistics.magmatic_engine.status.partial_batch": "Not Enough Lava for a Batch",
   "tooltip.logistics.magmatic_engine.status.no_lava": "No Lava",
   "jade.logistics.engine.stage": "Stage",
   "jade.logistics.engine.temperature": "Temperature",
