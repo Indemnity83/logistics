@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.8.11](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.10...mc26.3-v0.8.11) (2026-10-08)
+
+
+### Added
+
+* **core:** add Caterium, the conductive infused alloy ([#1316](https://github.com/Indemnity83/logistics/issues/1316)) ([a0ca488](https://github.com/Indemnity83/logistics/commit/a0ca488f4ab0accbcac8c62c778a121a4c8ac5d1))
+* **core:** add Echonite, the deep infused alloy ([#1318](https://github.com/Indemnity83/logistics/issues/1318)) ([1887b85](https://github.com/Indemnity83/logistics/commit/1887b85f9ecbba8b5996d5b1d3e49acb9d3fadd1))
+* **core:** add Lumenite, the resonant infused alloy ([#1317](https://github.com/Indemnity83/logistics/issues/1317)) ([c17cf60](https://github.com/Indemnity83/logistics/commit/c17cf60c07392fde5c57a23d8b2563a7c86e04bf))
+* **energy:** retier batteries as Basic, Conductive, Resonant and Deep ([7ce7f8d](https://github.com/Indemnity83/logistics/commit/7ce7f8d7e745f61fdd35832a179c2d37d68b1f4e))
+
+
+### Changed
+
+* **energy:** raise the top cable tier to 240 RF/t ([975750a](https://github.com/Indemnity83/logistics/commit/975750a36bc89371e43b447281894e1b866ca58f))
+* **energy:** rename the Battery to the Basic Battery ([7ce7f8d](https://github.com/Indemnity83/logistics/commit/7ce7f8d7e745f61fdd35832a179c2d37d68b1f4e))
+* **energy:** rename the Ender Cable to the Deep Cable ([975750a](https://github.com/Indemnity83/logistics/commit/975750a36bc89371e43b447281894e1b866ca58f))
+
+
+### Fixed
+
+* **core:** stop a wooden pickaxe harvesting the Redstone Engine and Battery ([#1322](https://github.com/Indemnity83/logistics/issues/1322)) ([aeb7971](https://github.com/Indemnity83/logistics/commit/aeb79718df5e2c8082217a06fc26cef124e4dca6))
+* **core:** stop batteries and ores losing their drops on 26.3 ([#1355](https://github.com/Indemnity83/logistics/issues/1355)) ([c3355c7](https://github.com/Indemnity83/logistics/commit/c3355c7b5bba8a2be68a5d33ccd1b0dc8da6aeb7))
+* **energy:** keep the magmatic engine running until its buffer is nearly full ([#1353](https://github.com/Indemnity83/logistics/issues/1353)) ([8b90bfe](https://github.com/Indemnity83/logistics/commit/8b90bfe8f6a5c74ed838bff465cc61a9948cef00))
+* **routing:** re-home items a full destination turns away ([#1352](https://github.com/Indemnity83/logistics/issues/1352)) ([5cf8e70](https://github.com/Indemnity83/logistics/commit/5cf8e701cddeecc1c7f342826a590e0d57de6344))
+* **routing:** stop routing items to a destination that is full ([#1331](https://github.com/Indemnity83/logistics/issues/1331)) ([d3f02a8](https://github.com/Indemnity83/logistics/commit/d3f02a8660bd162e19d5d3df45819f66f2752d59))
+
 ## [0.8.10](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.9...mc26.3-v0.8.10) (2026-09-22)
 
 
