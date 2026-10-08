@@ -144,6 +144,12 @@ public class ModuleGameTest {
         ModuleGameTestBody.testSinkWithNoRoomIsPassedOver(context);
     }
 
+    /** Room on a sink's other faces does not make it a valid destination. */
+    @GameTest(maxTicks = 100)
+    public void testSinkRoomIsJudgedOnItsOwnUnloadFace(GameTestHelper context) {
+        ModuleGameTestBody.testSinkRoomIsJudgedOnItsOwnUnloadFace(context);
+    }
+
     /** A destination that fills while the item is in flight re-homes the cargo instead of spilling it. */
     @GameTest(maxTicks = 100)
     public void testRemainderIsRehomedWhenDestinationFillsInFlight(GameTestHelper context) {
