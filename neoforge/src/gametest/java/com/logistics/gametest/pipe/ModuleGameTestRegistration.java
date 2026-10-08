@@ -140,6 +140,18 @@ public final class ModuleGameTestRegistration {
         ModuleGameTestBody.testSinkModuleFilterMatchRoutesToInventory(context);
     }
 
+    /** A diamond passes over a sink whose chest is full and lands in one that has room. */
+    @GameTest(template = "empty", batch = "module", timeoutTicks = 80)
+    public static void testSinkWithNoRoomIsPassedOver(GameTestHelper context) {
+        ModuleGameTestBody.testSinkWithNoRoomIsPassedOver(context);
+    }
+
+    /** Room on a sink's other faces does not make it a valid destination. */
+    @GameTest(template = "empty", batch = "module", timeoutTicks = 100)
+    public static void testSinkRoomIsJudgedOnItsOwnUnloadFace(GameTestHelper context) {
+        ModuleGameTestBody.testSinkRoomIsJudgedOnItsOwnUnloadFace(context);
+    }
+
     /**
     * Verifies that SinkModule with default route accepts any item that has no network destination.
     *

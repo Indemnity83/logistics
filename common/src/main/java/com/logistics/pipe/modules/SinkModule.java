@@ -295,6 +295,12 @@ public class SinkModule implements Module, TickingModule, RoutingModule, ItemAcc
         }
     }
 
+    @Override
+    @Nullable
+    public Direction unloadFace(PipeContext ctx) {
+        return getSinkDirection(ctx);
+    }
+
     @Nullable
     private Direction getSinkDirection(PipeContext ctx) {
         return DirectionSerializer.load(ctx, this, SINK_DIRECTION);

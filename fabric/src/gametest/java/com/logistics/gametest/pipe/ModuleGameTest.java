@@ -132,6 +132,18 @@ public class ModuleGameTest {
         ModuleGameTestBody.testSinkModuleFilterMatchRoutesToInventory(context);
     }
 
+    /** A diamond passes over a sink whose chest is full and lands in one that has room. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 80)
+    public void testSinkWithNoRoomIsPassedOver(GameTestHelper context) {
+        ModuleGameTestBody.testSinkWithNoRoomIsPassedOver(context);
+    }
+
+    /** Room on a sink's other faces does not make it a valid destination. */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void testSinkRoomIsJudgedOnItsOwnUnloadFace(GameTestHelper context) {
+        ModuleGameTestBody.testSinkRoomIsJudgedOnItsOwnUnloadFace(context);
+    }
+
     /**
     * Verifies that SinkModule with default route accepts any item that has no network destination.
     *
