@@ -490,4 +490,37 @@ class MagmaticEngineComponentTest extends MinecraftTestEnvironment {
         assertThat(m.lastAccepted()).isZero();
         assertThat(m.lastWasted()).isZero();
     }
+
+    // ==================== Ignition-block readout ====================
+
+    /**
+     * Fuel outranks the buffer when both block. The GUI shows one line, and a dry tank reported as
+     * "waiting for buffer space" points the player at their power network instead of the tank.
+     */
+    @Test
+    void reportsNoLavaOverAFullBufferWhenTheTankIsEmpty() {
+        MagmaticEngineComponent m = engine(energy(40_000, 40_000), tank(null, 0), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.NO_LAVA);
+    }
+
+    /** A dreg too small to commit is named as such, not blamed on the buffer. */
+    @Test
+    void reportsPartialBatchOverAFullBufferForADregOfLava() {
+        MagmaticEngineComponent m = engine(energy(40_000, 40_000), tank(Fluids.LAVA, 50), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.PARTIAL_BATCH);
+    }
+
+    /** With fuel ready, a backed-up buffer is the real answer. */
+    @Test
+    void reportsBufferFullWhenFuelIsReadyButThereIsNoHeadroom() {
+        MagmaticEngineComponent m = engine(energy(40_000, 40_000), tank(Fluids.LAVA, 4000), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.BUFFER_FULL);
+    }
+
+    /** Nothing blocking: fuel ready and headroom to spare. */
+    @Test
+    void reportsNothingBlockingWhenReadyToIgnite() {
+        MagmaticEngineComponent m = engine(energy(40_000, 20_000), tank(Fluids.LAVA, 4000), () -> true);
+        assertThat(m.ignitionBlock()).isEqualTo(MagmaticEngineComponent.IgnitionBlock.NONE);
+    }
 }

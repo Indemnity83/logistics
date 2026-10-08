@@ -143,18 +143,23 @@ public final class MagmaticEngineComponent
     /**
      * Why an unlit engine is not igniting, for the GUI readout. Only meaningful while unlit: a lit
      * engine is burning a batch whatever this says.
+     *
+     * <p>Fuel is reported ahead of the buffer when both block. Only one line is shown, and a dry
+     * tank reported as "waiting for buffer space" sends the player to their power network over a
+     * problem that is in front of them. ({@link #tryCommitLavaBatch} keeps its own order: there
+     * every condition has to pass, so which one short-circuits first makes no difference.)
      */
     public IgnitionBlock ignitionBlock() {
-        if (energy.getCapacity() - energy.getAmount() < profile.ignitionHeadroomRf()) {
-            return IgnitionBlock.BUFFER_FULL;
-        }
-        if (!isFuel.test(lavaStore.tank().getFluidKey().getFluid())) {
+        Fluid fluid = lavaStore.tank().getFluidKey().getFluid();
+        if (!isFuel.test(fluid)) {
             return IgnitionBlock.NO_LAVA;
         }
         long batch = FluidUnits.mb(profile.batchMb());
-        if (lavaStore.tank().extract(SimpleFluidKey.of(lavaStore.tank().getFluidKey().getFluid()), batch, true)
-                != batch) {
+        if (lavaStore.tank().extract(SimpleFluidKey.of(fluid), batch, true) != batch) {
             return IgnitionBlock.PARTIAL_BATCH;
+        }
+        if (energy.getCapacity() - energy.getAmount() < profile.ignitionHeadroomRf()) {
+            return IgnitionBlock.BUFFER_FULL;
         }
         return IgnitionBlock.NONE;
     }
