@@ -1,0 +1,9 @@
+{
+  "type": "logistics:macerator",
+  "ingredient": "logistics:core/caterium_block",
+  "result": {
+    "id": "logistics:core/caterium_dust",
+    "count": 9
+  },
+  "energy": 2000
+}
