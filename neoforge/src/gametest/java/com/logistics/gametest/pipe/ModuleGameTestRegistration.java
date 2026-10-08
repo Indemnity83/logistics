@@ -146,6 +146,12 @@ public final class ModuleGameTestRegistration {
         ModuleGameTestBody.testSinkWithNoRoomIsPassedOver(context);
     }
 
+    /** A destination that fills while the item is in flight re-homes the cargo instead of spilling it. */
+    @GameTest(template = "empty", batch = "module", timeoutTicks = 100)
+    public static void testRemainderIsRehomedWhenDestinationFillsInFlight(GameTestHelper context) {
+        ModuleGameTestBody.testRemainderIsRehomedWhenDestinationFillsInFlight(context);
+    }
+
     /** Room on a sink's other faces does not make it a valid destination. */
     @GameTest(template = "empty", batch = "module", timeoutTicks = 100)
     public static void testSinkRoomIsJudgedOnItsOwnUnloadFace(GameTestHelper context) {

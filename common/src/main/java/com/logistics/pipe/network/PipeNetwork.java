@@ -518,6 +518,18 @@ public class PipeNetwork implements ILogisticsNetwork {
     }
 
     @Override
+    @Nullable
+    public BlockPos findSinkWithRoomFor(ItemStack stack, @Nullable BlockPos source, @Nullable BlockPos exclude) {
+        if (worldView == null) {
+            throw new IllegalStateException("Cannot use findSinkWithRoomFor without IWorldView");
+        }
+        BlockPos sink = sinkResolver.findSinkWithRoomFor(stack, source, exclude);
+        NetDbg.out("[Network {}] Re-home lookup for {} (excluding {}) -> {}",
+                getNetworkIdShort(id), stack.getItem(), exclude, sink);
+        return sink;
+    }
+
+    @Override
     public BlockPos findFilteredSinkFor(ItemStack stack) {
         return findFilteredSinkFor(stack, null);
     }

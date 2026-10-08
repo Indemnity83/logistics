@@ -128,6 +128,26 @@ class SinkResolver {
     }
 
     /**
+     * Find a sink that can hold the stack right now, ignoring {@code exclude}.
+     *
+     * <p>Unlike {@link #findSinkFor}, this never falls back to a sink with no room: the caller is
+     * re-homing cargo an inventory has just refused, and a destination that cannot hold it would
+     * only refuse it again. Returning null means "nowhere to put this", which is what bounds the
+     * re-homing — without the room requirement an item could be handed between full sinks forever.
+     *
+     * @param stack   item to route
+     * @param source  position the item travels from; {@code null} skips the distance tiebreak
+     * @param exclude sink to skip, normally the one that just refused the stack
+     * @return a sink with room, or null if none has any
+     */
+    @Nullable
+    BlockPos findSinkWithRoomFor(ItemStack stack, @Nullable BlockPos source, @Nullable BlockPos exclude) {
+        Set<BlockPos> candidates = candidatesFor(stack);
+        candidates.remove(exclude);
+        return select(candidates, stack, false, source, true);
+    }
+
+    /**
      * Core resolution: build candidate set from interest indices, then single-pass
      * select the highest-priority registered, reachable sink that the world view accepts.
      *
@@ -155,10 +175,7 @@ class SinkResolver {
      */
     @Nullable
     private BlockPos findSink(ItemStack stack, boolean filteredOnly, @Nullable BlockPos source) {
-        // Candidate set = generic-interest pipes ∪ pipes interested in this specific item
-        Set<BlockPos> candidates = new HashSet<>(genericInterests);
-        Set<BlockPos> specific = specificInterests.get(stack.getItem());
-        if (specific != null) candidates.addAll(specific);
+        Set<BlockPos> candidates = candidatesFor(stack);
 
         BlockPos withRoom = select(candidates, stack, filteredOnly, source, true);
         if (withRoom != null) return withRoom;
@@ -167,6 +184,14 @@ class SinkResolver {
         // than refusing to route: a sink that unloads through a module reports no room here, and
         // declining to pick one would strand items that route fine today.
         return select(candidates, stack, filteredOnly, source, false);
+    }
+
+    /** Generic-interest pipes union the pipes interested in this specific item. */
+    private Set<BlockPos> candidatesFor(ItemStack stack) {
+        Set<BlockPos> candidates = new HashSet<>(genericInterests);
+        Set<BlockPos> specific = specificInterests.get(stack.getItem());
+        if (specific != null) candidates.addAll(specific);
+        return candidates;
     }
 
     /**
