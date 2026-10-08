@@ -379,6 +379,23 @@ public interface ILogisticsNetwork {
     BlockPos findSinkFor(ItemStack stack, BlockPos source);
 
     /**
+     * Find a sink with room for {@code stack} right now, other than {@code exclude}.
+     *
+     * <p>For re-homing cargo a destination has just refused. Unlike {@link #findSinkFor}, a sink
+     * with no room is never returned, so a null result means the item has nowhere to go and the
+     * caller should fall back to dropping it rather than keep passing it around.
+     *
+     * @param stack   item to find a sink for
+     * @param source  position the item is travelling from
+     * @param exclude sink to skip, normally the one that just refused the stack
+     * @return position of a sink with room, or null if none has any
+     */
+    @Nullable
+    default BlockPos findSinkWithRoomFor(ItemStack stack, BlockPos source, @Nullable BlockPos exclude) {
+        return null;
+    }
+
+    /**
      * Find a filtered sink for an item stack (no default-route fallback), without a source
      * position. Only returns pipes that have an explicit item filter matching the stack.
      * Used by QuickSort to avoid dumping items into catch-all default routes.

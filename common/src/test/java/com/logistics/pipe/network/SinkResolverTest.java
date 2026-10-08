@@ -417,4 +417,39 @@ class SinkResolverTest extends MinecraftTestEnvironment {
 
         assertEquals(POS_A, resolverA.findSinkFor(new ItemStack(Items.STONE), null));
     }
+
+    /** The sink that just refused the cargo is skipped, even though it still ranks highest. */
+    @Test
+    void findSinkWithRoomForSkipsTheExcludedSink() {
+        graphA.addNode(POS_A);
+        graphA.addNode(POS_B);
+        resolverA.registerSink(POS_A, 10);
+        resolverA.registerSink(POS_B, 5);
+        resolverA.registerGenericSinkInterest(POS_A);
+        resolverA.registerGenericSinkInterest(POS_B);
+        accepting.add(POS_A);
+        accepting.add(POS_B);
+
+        assertEquals(POS_B, resolverA.findSinkWithRoomFor(new ItemStack(Items.STONE), null, POS_A));
+    }
+
+    /**
+     * No fallback to a full sink here, unlike {@link SinkResolver#findSinkFor}. A caller re-homing
+     * refused cargo would just be told to try somewhere that cannot take it either, and handing the
+     * item between full sinks is what would never terminate.
+     */
+    @Test
+    void findSinkWithRoomForReturnsNullWhenTheOnlyAlternativeIsFull() {
+        graphA.addNode(POS_A);
+        graphA.addNode(POS_B);
+        resolverA.registerSink(POS_A, 10);
+        resolverA.registerSink(POS_B, 5);
+        resolverA.registerGenericSinkInterest(POS_A);
+        resolverA.registerGenericSinkInterest(POS_B);
+        accepting.add(POS_A);
+        accepting.add(POS_B);
+        full.add(POS_B);
+
+        assertNull(resolverA.findSinkWithRoomFor(new ItemStack(Items.STONE), null, POS_A));
+    }
 }
