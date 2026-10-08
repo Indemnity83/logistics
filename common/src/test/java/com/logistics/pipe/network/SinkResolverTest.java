@@ -32,11 +32,14 @@ class SinkResolverTest extends MinecraftTestEnvironment {
 
     // Tracks which positions the stub world view reports as accepting all items
     private final Set<BlockPos> accepting = new HashSet<>();
+    // Positions whose attached inventory is full; empty means everything has room
+    private final Set<BlockPos> full = new HashSet<>();
 
     private final IWorldView stubView = new IWorldView() {
         @Override public boolean isPipe(BlockPos pos) { return false; }
         @Override public List<BlockPos> getConnectedNeighbors(BlockPos pos) { return List.of(); }
         @Override public boolean matchesSinkFilter(BlockPos pos, ItemStack stack) { return accepting.contains(pos); }
+        @Override public boolean sinkHasRoomFor(BlockPos pos, ItemStack stack) { return !full.contains(pos); }
         @Override public long dispatch(BlockPos p, BlockPos r, IItemKey i, long a, UUID d) { return 0; }
         @Override public boolean isClientSide() { return false; }
         @Override public void broadcastAlert(BlockPos pos, Component message) {}
@@ -373,5 +376,45 @@ class SinkResolverTest extends MinecraftTestEnvironment {
 
         assertNull(resolverA.findSinkFor(new ItemStack(Items.IRON_INGOT), null));
         assertNull(resolverA.findSinkFor(new ItemStack(Items.GOLD_INGOT), null));
+    }
+
+    /**
+     * A sink whose inventory is full loses to one that can hold the stack, even though the full one
+     * ranks higher. A pipe drops whatever its destination will not take, so routing by priority
+     * alone spills the cargo on the floor.
+     */
+    @Test
+    void prefersASinkWithRoomOverAHigherPriorityFullOne() {
+        graphA.addNode(POS_A);
+        graphA.addNode(POS_B);
+        resolverA.registerSink(POS_A, 10);
+        resolverA.registerSink(POS_B, 5);
+        resolverA.registerGenericSinkInterest(POS_A);
+        resolverA.registerGenericSinkInterest(POS_B);
+        accepting.add(POS_A);
+        accepting.add(POS_B);
+        full.add(POS_A);
+
+        assertEquals(POS_B, resolverA.findSinkFor(new ItemStack(Items.STONE), null));
+    }
+
+    /**
+     * With every sink full the old choice still stands. Refusing to route would strand items that
+     * work today — a sink unloading through a module reports no room but accepts the delivery.
+     */
+    @Test
+    void fallsBackToTheBestSinkWhenNoneHasRoom() {
+        graphA.addNode(POS_A);
+        graphA.addNode(POS_B);
+        resolverA.registerSink(POS_A, 10);
+        resolverA.registerSink(POS_B, 5);
+        resolverA.registerGenericSinkInterest(POS_A);
+        resolverA.registerGenericSinkInterest(POS_B);
+        accepting.add(POS_A);
+        accepting.add(POS_B);
+        full.add(POS_A);
+        full.add(POS_B);
+
+        assertEquals(POS_A, resolverA.findSinkFor(new ItemStack(Items.STONE), null));
     }
 }
