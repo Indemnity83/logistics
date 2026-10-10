@@ -23,6 +23,9 @@ class DustTagContractTest {
 
     private static final Pattern DUST = Pattern.compile("logistics:core/[a-z_]+_dust");
 
+    /** Dusts whose ids do not end in {@code _dust}. */
+    private static final Set<String> OTHER_DUSTS = Set.of("logistics:core/sawdust");
+
     /** Recipe keys holding what a recipe produces; everything else a recipe names is an input. */
     private static final Set<String> OUTPUT_KEYS = Set.of("result", "byproduct");
 
@@ -43,7 +46,7 @@ class DustTagContractTest {
             tagged.addAll(values(file));
         }
         for (String item : ResourceFiles.itemDefinitionIds()) {
-            if (DUST.matcher(item).matches() && !tagged.contains(item)) {
+            if (isDust(item) && !tagged.contains(item)) {
                 failures.add(item + " is in no c:dusts/* tag");
             }
         }
@@ -57,13 +60,17 @@ class DustTagContractTest {
         List<String> failures = new ArrayList<>();
         for (Path file : ResourceFiles.dataJsonFiles("logistics/recipe")) {
             for (String id : inputs(ResourceFiles.parse(file))) {
-                if (DUST.matcher(id).matches()) {
+                if (isDust(id)) {
                     failures.add(ResourceFiles.describe(file) + " -> asks for " + id + "; use its c:dusts tag");
                 }
             }
         }
 
         assertThat(failures).as("recipes naming one of our dusts as an input").isEmpty();
+    }
+
+    private static boolean isDust(String id) {
+        return DUST.matcher(id).matches() || OTHER_DUSTS.contains(id);
     }
 
     private static List<String> inputs(JsonElement element) {
