@@ -13,7 +13,7 @@
       "item": "minecraft:redstone"
     },
     "M": {
-      "item": "logistics:core/rubber"
+      "tag": "c:ingots/rubber"
     }
   },
   "result": {

@@ -10,7 +10,7 @@
       "item": "logistics:core/echonite_ingot"
     },
     "R": {
-      "item": "logistics:core/rubber"
+      "tag": "c:ingots/rubber"
     }
   },
   "result": {

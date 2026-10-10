@@ -51,7 +51,7 @@ class CableRecipeSpotCheckTest {
         assertThat(pattern).containsExactly("RRR", "BBB", "RRR");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(RecipeJson.ingredient(key.get("R"))).as("sheath is always rubber").isEqualTo("logistics:core/rubber");
+        assertThat(RecipeJson.ingredient(key.get("R"))).as("sheath is any rubber").isEqualTo("#c:ingots/rubber");
         assertThat(RecipeJson.ingredient(key.get("B"))).as("core is the tier's body material").isEqualTo(body);
 
         JsonObject result = recipe.getAsJsonObject("result");
