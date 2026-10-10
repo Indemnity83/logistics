@@ -1,7 +1,7 @@
 {
   "type": "logistics:macerator",
   "ingredient": {
-    "item": "logistics:core/raw_tin"
+    "tag": "c:raw_materials/tin"
   },
   "result": {
     "id": "logistics:core/tin_dust",

@@ -13,7 +13,7 @@
       "item": "minecraft:redstone"
     },
     "M": {
-      "item": "logistics:core/tin_ingot"
+      "tag": "c:ingots/tin"
     }
   },
   "result": {
