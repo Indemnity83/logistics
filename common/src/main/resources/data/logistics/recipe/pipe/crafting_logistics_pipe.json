@@ -6,7 +6,7 @@
   ],
   "key": {
     "A": "logistics:core/iron_gear",
-    "B": "logistics:core/amethyst_dust",
+    "B": "#c:dusts/amethyst",
     "C": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {
