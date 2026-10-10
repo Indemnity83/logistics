@@ -1,6 +1,6 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": "logistics:core/echonite_dust",
+  "ingredient": "#c:dusts/echonite",
   "result": {
     "id": "logistics:core/echonite_ingot"
   },

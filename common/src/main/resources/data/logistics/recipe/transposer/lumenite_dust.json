@@ -1,6 +1,6 @@
 {
   "type": "logistics:transposer",
-  "input": "logistics:core/amethyst_dust",
+  "input": "#c:dusts/amethyst",
   "result": {
     "id": "logistics:core/lumenite_dust",
     "count": 1
