@@ -69,6 +69,18 @@ class DustTagContractTest {
         assertThat(failures).as("recipes naming one of our dusts as an input").isEmpty();
     }
 
+    @Test
+    @DisplayName("sawdust carries both names other mods use for it")
+    void sawdustCarriesBothNames() {
+        Path dustTags = ResourceFiles.dataRoot().resolve("c/tags/item/dusts");
+        // Tech Reborn reads c:dusts/saw; Mekanism and Immersive Engineering read c:dusts/wood.
+        for (String name : List.of("saw", "wood")) {
+            assertThat(values(dustTags.resolve(name + ".json")))
+                .as("c:dusts/%s", name)
+                .contains("logistics:core/sawdust");
+        }
+    }
+
     private static boolean isDust(String id) {
         return DUST.matcher(id).matches() || OTHER_DUSTS.contains(id);
     }
