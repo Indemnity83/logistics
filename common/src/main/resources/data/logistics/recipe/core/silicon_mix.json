@@ -2,16 +2,16 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "logistics:core/quartz_dust"
+      "tag": "c:dusts/quartz"
     },
     {
-      "item": "logistics:core/quartz_dust"
+      "tag": "c:dusts/quartz"
     },
     {
-      "item": "logistics:core/quartz_dust"
+      "tag": "c:dusts/quartz"
     },
     {
-      "item": "logistics:core/coal_dust"
+      "tag": "c:dusts/coal"
     }
   ],
   "result": {

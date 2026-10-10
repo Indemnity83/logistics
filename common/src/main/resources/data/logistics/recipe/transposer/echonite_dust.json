@@ -1,7 +1,7 @@
 {
   "type": "logistics:transposer",
   "input": {
-    "item": "logistics:core/echo_dust"
+    "tag": "c:dusts/echo"
   },
   "result": {
     "id": "logistics:core/echonite_dust",

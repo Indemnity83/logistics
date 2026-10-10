@@ -5,7 +5,7 @@
       "item": "minecraft:slime_ball"
     },
     {
-      "item": "logistics:core/coal_dust"
+      "tag": "c:dusts/coal"
     }
   ],
   "result": {

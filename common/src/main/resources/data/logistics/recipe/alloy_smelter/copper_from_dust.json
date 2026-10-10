@@ -2,7 +2,7 @@
   "type": "logistics:alloy_smelter",
   "ingredients": [
     {
-      "item": "logistics:core/copper_dust"
+      "tag": "c:dusts/copper"
     },
     {
       "tag": "c:sands"

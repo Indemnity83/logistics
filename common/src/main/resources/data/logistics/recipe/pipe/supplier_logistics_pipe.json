@@ -9,7 +9,7 @@
       "item": "logistics:core/iron_gear"
     },
     "B": {
-      "item": "logistics:core/lapis_dust"
+      "tag": "c:dusts/lapis"
     },
     "C": {
       "item": "logistics:pipe/basic_logistics_pipe"

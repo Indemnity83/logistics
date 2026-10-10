@@ -2,7 +2,7 @@
   "type": "logistics:alloy_smelter",
   "ingredients": [
     {
-      "item": "logistics:core/tin_dust"
+      "tag": "c:dusts/tin"
     },
     {
       "tag": "c:sands"

@@ -6,7 +6,7 @@
   ],
   "key": {
     "L": {
-      "item": "logistics:core/lapis_dust"
+      "tag": "c:dusts/lapis"
     },
     "S": {
       "item": "minecraft:stick"

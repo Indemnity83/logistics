@@ -9,7 +9,7 @@
       "item": "logistics:core/iron_chipset"
     },
     "B": {
-      "item": "logistics:core/amethyst_dust"
+      "tag": "c:dusts/amethyst"
     },
     "C": {
       "item": "logistics:pipe/basic_logistics_pipe"

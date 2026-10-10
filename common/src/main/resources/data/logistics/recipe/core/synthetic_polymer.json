@@ -5,7 +5,7 @@
       "item": "logistics:core/tar"
     },
     {
-      "item": "logistics:core/coal_dust"
+      "tag": "c:dusts/coal"
     }
   ],
   "result": {

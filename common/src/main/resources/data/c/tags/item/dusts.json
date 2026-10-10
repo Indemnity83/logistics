@@ -1,0 +1,26 @@
+{
+  "replace": false,
+  "values": [
+    "#c:dusts/amethyst",
+    "#c:dusts/apatite",
+    "#c:dusts/bronze",
+    "#c:dusts/caterium",
+    "#c:dusts/coal",
+    "#c:dusts/copper",
+    "#c:dusts/diamond",
+    "#c:dusts/echo",
+    "#c:dusts/echonite",
+    "#c:dusts/emerald",
+    "#c:dusts/ender_pearl",
+    "#c:dusts/gold",
+    "#c:dusts/iron",
+    "#c:dusts/lapis",
+    "#c:dusts/lumenite",
+    "#c:dusts/netherite",
+    "#c:dusts/obsidian",
+    "#c:dusts/prismarine",
+    "#c:dusts/quartz",
+    "#c:dusts/sulfur",
+    "#c:dusts/tin"
+  ]
+}

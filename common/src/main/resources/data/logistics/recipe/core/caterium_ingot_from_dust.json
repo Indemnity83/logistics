@@ -1,7 +1,7 @@
 {
   "type": "minecraft:smelting",
   "ingredient": {
-    "item": "logistics:core/caterium_dust"
+    "tag": "c:dusts/caterium"
   },
   "result": {
     "id": "logistics:core/caterium_ingot"

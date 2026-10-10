@@ -1,7 +1,7 @@
 {
   "type": "logistics:transposer",
   "input": {
-    "item": "logistics:core/gold_dust"
+    "tag": "c:dusts/gold"
   },
   "result": {
     "id": "logistics:core/caterium_dust",

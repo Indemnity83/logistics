@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "id": {
-        "item": "logistics:core/copper_dust"
+        "tag": "c:dusts/copper"
       },
       "count": 3
     },

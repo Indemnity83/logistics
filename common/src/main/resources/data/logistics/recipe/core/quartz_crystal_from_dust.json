@@ -1,7 +1,7 @@
 {
   "type": "minecraft:smelting",
   "ingredient": {
-    "item": "logistics:core/quartz_dust"
+    "tag": "c:dusts/quartz"
   },
   "result": {
     "id": "logistics:core/quartz_crystal"

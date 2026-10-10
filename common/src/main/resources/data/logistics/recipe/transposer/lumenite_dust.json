@@ -1,7 +1,7 @@
 {
   "type": "logistics:transposer",
   "input": {
-    "item": "logistics:core/amethyst_dust"
+    "tag": "c:dusts/amethyst"
   },
   "result": {
     "id": "logistics:core/lumenite_dust",

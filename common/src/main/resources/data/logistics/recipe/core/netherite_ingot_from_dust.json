@@ -1,7 +1,7 @@
 {
   "type": "minecraft:smelting",
   "ingredient": {
-    "item": "logistics:core/netherite_dust"
+    "tag": "c:dusts/netherite"
   },
   "result": {
     "id": "minecraft:netherite_ingot"

@@ -1,7 +1,7 @@
 {
   "type": "minecraft:smelting",
   "ingredient": {
-    "item": "logistics:core/lumenite_dust"
+    "tag": "c:dusts/lumenite"
   },
   "result": {
     "id": "logistics:core/lumenite_ingot"
