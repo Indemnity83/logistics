@@ -3,11 +3,11 @@
   "ingredients": [
     "#c:dusts/coal",
     "#c:dusts/sulfur",
-    "logistics:core/niter",
-    "logistics:core/niter"
+    "#c:dusts/saltpeter",
+    "#c:dusts/saltpeter"
   ],
   "result": {
     "id": "minecraft:gunpowder",
-    "count": 1
+    "count": 2
   }
 }
