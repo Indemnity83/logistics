@@ -4,7 +4,7 @@
   "key": {
     "Q": "logistics:core/quartz_crystal",
     "R": "minecraft:redstone",
-    "M": "logistics:core/tin_ingot"
+    "M": "#c:ingots/tin"
   },
   "result": { "count": 1, "id": "logistics:core/tin_valve" }
 }
