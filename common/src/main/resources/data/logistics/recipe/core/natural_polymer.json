@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     "minecraft:slime_ball",
-    "logistics:core/coal_dust"
+    "#c:dusts/coal"
   ],
   "result": {
     "id": "logistics:core/natural_polymer",

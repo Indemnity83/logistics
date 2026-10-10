@@ -2,7 +2,7 @@
   "type": "logistics:alloy_smelter",
   "ingredients": [
     "logistics:core/natural_polymer",
-    "logistics:core/sulfur_dust"
+    "#c:dusts/sulfur"
   ],
   "result": { "id": "logistics:core/rubber", "count": 2 },
   "energy": 1000

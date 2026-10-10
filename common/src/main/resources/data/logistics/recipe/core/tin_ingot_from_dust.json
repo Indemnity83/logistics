@@ -1,6 +1,6 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": "logistics:core/tin_dust",
+  "ingredient": "#c:dusts/tin",
   "result": {
     "id": "logistics:core/tin_ingot"
   },

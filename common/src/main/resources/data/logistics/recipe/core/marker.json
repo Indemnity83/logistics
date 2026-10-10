@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["L", "S"],
   "key": {
-    "L": "logistics:core/lapis_dust",
+    "L": "#c:dusts/lapis",
     "S": "minecraft:stick"
   },
   "result": {
