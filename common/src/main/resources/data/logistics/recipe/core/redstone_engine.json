@@ -4,7 +4,7 @@
   "key": {
     "P": "#minecraft:planks",
     "G": "minecraft:glass",
-    "W": "logistics:core/wooden_gear",
+    "W": "#c:gears/wood",
     "p": "minecraft:piston"
   },
   "result": {

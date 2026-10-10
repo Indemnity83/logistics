@@ -1,7 +1,7 @@
 {
   "key": {
     "D": "minecraft:diamond",
-    "G": "logistics:core/gold_gear"
+    "G": "#c:gears/gold"
   },
   "pattern": [" D ", "DGD", " D "],
   "result": {
