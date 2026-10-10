@@ -433,7 +433,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item ECHONITE_INGOT;
         public static Item ECHONITE_NUGGET;
         public static Item ECHONITE_DUST;
-        public static Item COPPER_NUGGET;
         public static Item APATITE;
         public static Item MACHINE_CORE;
         public static Item REDSTONE_RECEPTION_COIL;
@@ -537,7 +536,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             ECHONITE_INGOT = INSTANCE.registerItem("echonite_ingot", Item::new);
             ECHONITE_NUGGET = INSTANCE.registerItem("echonite_nugget", Item::new);
             ECHONITE_DUST = INSTANCE.registerItem("echonite_dust", Item::new);
-            COPPER_NUGGET = INSTANCE.registerItem("copper_nugget", Item::new);
 
             // Apatite
             APATITE = INSTANCE.registerItem("apatite", Item::new);
@@ -666,7 +664,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.TIN_INGOT);
             TAB.add(ITEM.BRONZE_INGOT);
             TAB.add(ITEM.TIN_NUGGET);
-            TAB.add(ITEM.COPPER_NUGGET);
             TAB.add(ITEM.BRONZE_NUGGET);
             TAB.add(ITEM.CATERIUM_DUST);
             TAB.add(ITEM.CATERIUM_INGOT);
@@ -776,6 +773,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             // Wood Pulp renamed to Sawdust; old recipes/worlds resolve to the new item.
             INSTANCE.registerItemAlias("core/wood_pulp", ITEM.SAWDUST);
+
+            // Copper Nugget duplicated the vanilla item; existing stacks resolve to the vanilla nugget.
+            INSTANCE.registerItemAlias("core/copper_nugget", Items.COPPER_NUGGET);
 
             // Marker moved from the automation domain to core in 0.8.0; the automation IDs were live
             // through 0.7.4. Prune when the 0.9 major opens.
