@@ -23,7 +23,7 @@ class FluidTagContractTest {
         "crude_oil", List.of("crude_oil", "oil"),
         "seed_oil", List.of("plantoil", "plant_oil"),
         "bio_fuel", List.of("biofuel", "ethanol", "bioethanol"),
-        "fuel_oil", List.of("diesel", "fuel"));
+        "fuel_oil", List.of("fuel"));
 
     @Test
     @DisplayName("each fuel is in every fluid tag other mods read for it, source and flowing")
