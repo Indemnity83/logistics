@@ -6,7 +6,7 @@
   ],
   "key": {
     "A": "logistics:core/iron_chipset",
-    "B": "logistics:core/lapis_dust",
+    "B": "#c:dusts/lapis",
     "C": "logistics:pipe/basic_logistics_pipe"
   },
   "result": {

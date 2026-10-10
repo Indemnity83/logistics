@@ -1,6 +1,6 @@
 {
   "type": "logistics:transposer",
-  "input": "logistics:core/gold_dust",
+  "input": "#c:dusts/gold",
   "result": {
     "id": "logistics:core/caterium_dust",
     "count": 1

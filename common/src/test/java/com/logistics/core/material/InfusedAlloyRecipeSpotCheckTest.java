@@ -48,9 +48,9 @@ class InfusedAlloyRecipeSpotCheckTest {
 
     @ParameterizedTest(name = "{0}")
     @CsvSource({
-        "caterium,logistics:core/gold_dust,logistics:core/liquid_redstone,1000,2000",
-        "lumenite,logistics:core/amethyst_dust,logistics:core/liquid_glowstone,1000,3000",
-        "echonite,logistics:core/echo_dust,logistics:core/liquid_ender,1000,4000"
+        "caterium,#c:dusts/gold,logistics:core/liquid_redstone,1000,2000",
+        "lumenite,#c:dusts/amethyst,logistics:core/liquid_glowstone,1000,3000",
+        "echonite,#c:dusts/echo,logistics:core/liquid_ender,1000,4000"
     })
     @DisplayName("every alloy is one dust quenched in one bucket of its own fluid")
     void alloyMatchesItsInfusion(String alloy, String dust, String fluid, int milliBuckets, int energy)
@@ -77,7 +77,7 @@ class InfusedAlloyRecipeSpotCheckTest {
     void alloyDustRoundTripsThroughItsIngot(String alloy) throws IOException {
         JsonObject smelt = load("data/logistics/recipe/core/" + alloy + "_ingot_from_dust.json");
         assertThat(smelt.get("type").getAsString()).isEqualTo("minecraft:smelting");
-        assertThat(RecipeJson.ingredient(smelt.get("ingredient"))).isEqualTo("logistics:core/" + alloy + "_dust");
+        assertThat(RecipeJson.ingredient(smelt.get("ingredient"))).isEqualTo("#c:dusts/" + alloy);
         assertThat(smelt.getAsJsonObject("result").get("id").getAsString())
             .isEqualTo("logistics:core/" + alloy + "_ingot");
 

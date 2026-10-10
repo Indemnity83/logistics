@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     "logistics:core/tar",
-    "logistics:core/coal_dust"
+    "#c:dusts/coal"
   ],
   "result": {
     "id": "logistics:core/synthetic_polymer",
