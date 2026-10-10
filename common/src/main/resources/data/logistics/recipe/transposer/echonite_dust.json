@@ -1,6 +1,6 @@
 {
   "type": "logistics:transposer",
-  "input": "logistics:core/echo_dust",
+  "input": "#c:dusts/echo",
   "result": {
     "id": "logistics:core/echonite_dust",
     "count": 1

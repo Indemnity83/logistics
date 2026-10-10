@@ -1,8 +1,8 @@
 {
   "type": "logistics:alloy_smelter",
   "ingredients": [
-    { "id": "logistics:core/copper_dust", "count": 3 },
-    "logistics:core/tin_dust"
+    { "id": "#c:dusts/copper", "count": 3 },
+    "#c:dusts/tin"
   ],
   "result": { "id": "logistics:core/bronze_ingot", "count": 4 },
   "energy": 4000
