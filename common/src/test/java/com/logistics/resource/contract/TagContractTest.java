@@ -92,6 +92,35 @@ class TagContractTest {
         assertThat(failures).as("looping tag references").isEmpty();
     }
 
+    @Test
+    @DisplayName("every ore says what rock it sits in and how much it drops")
+    void everyOreHasPlacementTags() {
+        Map<String, Path> tags = shippedTags();
+        List<String> failures = new ArrayList<>();
+
+        for (String registry : List.of("block", "item")) {
+            Set<String> ores = new LinkedHashSet<>();
+            tags.forEach((id, file) -> {
+                if (id.startsWith("c:" + registry + ":ores/")) {
+                    valuesOf(file).stream().filter(v -> v.startsWith(ResourceFiles.NAMESPACE + ":")).forEach(ores::add);
+                }
+            });
+            for (String family : List.of("ores_in_ground/", "ore_rates/")) {
+                for (String ore : ores) {
+                    long count = tags.entrySet().stream()
+                        .filter(e -> e.getKey().startsWith("c:" + registry + ":" + family))
+                        .filter(e -> valuesOf(e.getValue()).contains(ore))
+                        .count();
+                    if (count != 1) {
+                        failures.add(registry + " " + ore + " is in " + count + " c:" + family + "* tags; expected exactly 1");
+                    }
+                }
+            }
+        }
+
+        assertThat(failures).as("ores missing placement tags").isEmpty();
+    }
+
     /** Sanity guard, not a coverage claim: catches walking an empty or wrong directory. */
     @Test
     @DisplayName("the shipped tag set has not collapsed")

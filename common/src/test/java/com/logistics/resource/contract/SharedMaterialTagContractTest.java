@@ -13,26 +13,26 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Metals other mods also make are interchangeable with ours: a recipe asks for the conventional
- * tag, never our item, so another mod's tin or bronze works anywhere ours does.
+ * Materials other mods also make are interchangeable with ours: a recipe asks for the conventional
+ * tag, never our item, so another mod's tin, bronze or apatite works anywhere ours does.
  */
-@DisplayName("Shared metal tag contract")
-class SharedMetalTagContractTest {
+@DisplayName("Shared material tag contract")
+class SharedMaterialTagContractTest {
 
-    /** Metals that other mods also add, by the material name their {@code c:} tags end in. */
-    private static final Set<String> SHARED_METALS = Set.of("tin", "raw_tin", "bronze");
+    /** Materials that other mods also add, by the material name their {@code c:} tags end in. */
+    private static final Set<String> SHARED_MATERIALS = Set.of("tin", "raw_tin", "bronze", "apatite");
 
     /** Tag forms covered. Gears are excluded; gear recipes still name our gears directly. */
-    private static final Set<String> FORMS = Set.of("ingots", "nuggets", "ores", "raw_materials", "storage_blocks");
+    private static final Set<String> FORMS = Set.of("gems", "ingots", "nuggets", "ores", "raw_materials", "storage_blocks");
 
     /** Recipe keys holding what a recipe produces; everything else a recipe names is an input. */
     private static final Set<String> OUTPUT_KEYS = Set.of("result", "byproduct");
 
     @Test
-    @DisplayName("no recipe asks for our tin or bronze by exact id")
-    void recipesAskForSharedMetalTags() {
-        Map<String, String> tagOf = sharedMetalTags();
-        assertThat(tagOf).as("our items in shared metal tags; the tag scan found nothing").isNotEmpty();
+    @DisplayName("no recipe asks for our tin, bronze or apatite by exact id")
+    void recipesAskForSharedMaterialTags() {
+        Map<String, String> tagOf = sharedMaterialTags();
+        assertThat(tagOf).as("our items in shared material tags; the tag scan found nothing").isNotEmpty();
 
         List<String> failures = new ArrayList<>();
         for (Path file : ResourceFiles.dataJsonFiles("logistics/recipe")) {
@@ -43,11 +43,11 @@ class SharedMetalTagContractTest {
             }
         }
 
-        assertThat(failures).as("recipes naming our tin or bronze as an input").isEmpty();
+        assertThat(failures).as("recipes naming our tin, bronze or apatite as an input").isEmpty();
     }
 
-    /** Each of our items in a {@code c:<form>/<shared metal>} tag, mapped to that tag. */
-    private static Map<String, String> sharedMetalTags() {
+    /** Each of our items in a {@code c:<form>/<shared material>} tag, mapped to that tag. */
+    private static Map<String, String> sharedMaterialTags() {
         Path root = ResourceFiles.dataRoot().resolve("c/tags/item");
         Map<String, String> tagOf = new LinkedHashMap<>();
         for (Path file : ResourceFiles.jsonFilesUnder(root)) {
@@ -56,7 +56,7 @@ class SharedMetalTagContractTest {
             String material = name.substring(name.lastIndexOf('/') + 1);
             if (!name.contains("/")
                     || !FORMS.contains(name.substring(0, name.indexOf('/')))
-                    || !SHARED_METALS.contains(material)) {
+                    || !SHARED_MATERIALS.contains(material)) {
                 continue;
             }
             for (JsonElement entry : ResourceFiles.parse(file).getAsJsonArray("values")) {
