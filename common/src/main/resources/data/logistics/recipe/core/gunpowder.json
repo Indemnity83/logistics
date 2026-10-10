@@ -8,14 +8,14 @@
       "tag": "c:dusts/sulfur"
     },
     {
-      "item": "logistics:core/niter"
+      "tag": "c:dusts/saltpeter"
     },
     {
-      "item": "logistics:core/niter"
+      "tag": "c:dusts/saltpeter"
     }
   ],
   "result": {
     "id": "minecraft:gunpowder",
-    "count": 1
+    "count": 2
   }
 }

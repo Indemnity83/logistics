@@ -9,7 +9,7 @@
   },
   "energy": 3000,
   "byproduct": {
-    "id": "logistics:core/niter",
+    "id": "logistics:core/saltpeter",
     "chance": 0.2
   }
 }

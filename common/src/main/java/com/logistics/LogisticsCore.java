@@ -468,7 +468,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item PRISMARINE_DUST;
         public static Item SULFUR_DUST;
         public static Item QUICKSILVER;
-        public static Item NITER;
+        public static Item SALTPETER;
         public static Item SILICON_MIX;
         public static Item SILICON_WAFER;
         public static Item FLOUR;
@@ -577,7 +577,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             PRISMARINE_DUST = INSTANCE.registerItem("prismarine_dust", Item::new);
             SULFUR_DUST = INSTANCE.registerItem("sulfur_dust", Item::new);
             QUICKSILVER = INSTANCE.registerItem("quicksilver", Item::new);
-            NITER = INSTANCE.registerItem("niter", Item::new);
+            SALTPETER = INSTANCE.registerItem("saltpeter", Item::new);
             SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
             SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
@@ -751,7 +751,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.SILICON_MIX);
             TAB.add(ITEM.SLAG);
             TAB.add(ITEM.RICH_SLAG);
-            TAB.add(ITEM.NITER);
+            TAB.add(ITEM.SALTPETER);
             TAB.add(ITEM.QUICKSILVER);
             TAB.add(ITEM.BITUMEN);
             TAB.add(ITEM.TAR);
@@ -774,6 +774,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         static void register() {
             // Wood Pulp renamed to Sawdust; old recipes/worlds resolve to the new item.
             INSTANCE.registerItemAlias("core/wood_pulp", ITEM.SAWDUST);
+
+            // Niter renamed to Saltpeter.
+            INSTANCE.registerItemAlias("core/niter", ITEM.SALTPETER);
 
             // Marker moved from the automation domain to core in 0.8.0; the automation IDs were live
             // through 0.7.4. Prune when the 0.9 major opens.
