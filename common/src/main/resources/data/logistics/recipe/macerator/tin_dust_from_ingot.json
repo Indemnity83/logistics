@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "logistics:core/tin_ingot",
+  "ingredient": "#c:ingots/tin",
   "result": {
     "id": "logistics:core/tin_dust",
     "count": 1
