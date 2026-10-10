@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "logistics:core/bronze_block",
+  "ingredient": "#c:storage_blocks/bronze",
   "result": {
     "id": "logistics:core/bronze_dust",
     "count": 9

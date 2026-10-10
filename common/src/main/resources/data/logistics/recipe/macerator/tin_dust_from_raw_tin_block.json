@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "logistics:core/raw_tin_block",
+  "ingredient": "#c:storage_blocks/raw_tin",
   "result": {
     "id": "logistics:core/tin_dust",
     "count": 9

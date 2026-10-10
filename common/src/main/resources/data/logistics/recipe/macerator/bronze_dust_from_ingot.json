@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "logistics:core/bronze_ingot",
+  "ingredient": "#c:ingots/bronze",
   "result": {
     "id": "logistics:core/bronze_dust",
     "count": 1
