@@ -21,12 +21,12 @@ public final class FabricMobLootModifier {
 
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
-            // The Breeze (modern air-elemental analogue of TE's Blitz) drops niter,
+            // The Breeze (modern air-elemental analogue of TE's Blitz) drops saltpeter,
             // at the same rate a creeper drops gunpowder: 0-2 + a Looting bonus.
             if (BREEZE.equals(key)) {
                 tableBuilder.pool(LootPool.lootPool()
                     .setRolls(ContextIntProviders.exactly(1))
-                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.NITER)
+                    .add(LootItem.lootTableItem(LogisticsCore.ITEM.SALTPETER)
                         .apply(SetItemCountFunction.setCount(ContextIntProviders.between(0, 2)))
                         .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
                             registries.lookupOrThrow(Registries.ENCHANTMENT),
