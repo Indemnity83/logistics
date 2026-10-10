@@ -24,7 +24,7 @@ class DustTagContractTest {
     private static final Pattern DUST = Pattern.compile("logistics:core/[a-z_]+_dust");
 
     /** Dusts whose ids do not end in {@code _dust}. */
-    private static final Set<String> OTHER_DUSTS = Set.of("logistics:core/sawdust");
+    private static final Set<String> OTHER_DUSTS = Set.of("logistics:core/sawdust", "logistics:core/saltpeter");
 
     /** Recipe keys holding what a recipe produces; everything else a recipe names is an input. */
     private static final Set<String> OUTPUT_KEYS = Set.of("result", "byproduct");
