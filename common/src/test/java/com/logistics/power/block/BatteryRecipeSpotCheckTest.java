@@ -38,7 +38,7 @@ class BatteryRecipeSpotCheckTest {
 
     @ParameterizedTest(name = "{0}")
     @CsvSource({
-        "basic,minecraft:redstone_block,logistics:core/copper_nugget",
+        "basic,minecraft:redstone_block,minecraft:copper_nugget",
         "conductive,logistics:core/caterium_block,logistics:core/caterium_nugget",
         "resonant,logistics:core/lumenite_block,logistics:core/lumenite_nugget",
         "deep,logistics:core/echonite_block,logistics:core/echonite_nugget"
