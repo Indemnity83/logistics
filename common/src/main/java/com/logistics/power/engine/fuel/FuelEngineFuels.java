@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public final class FuelEngineFuels {
 
     private static final List<Tier> TIERS = List.of(
-            new Tier(new FuelEngineFuel(150_000L, 2.25), List.of(fluidTag("fuel"), fluidTag("diesel"))),
+            new Tier(new FuelEngineFuel(150_000L, 2.25), List.of(fluidTag("fuel"))),
             new Tier(new FuelEngineFuel(80_000L, 1.5), List.of(fluidTag("biofuel"))),
             new Tier(new FuelEngineFuel(40_000L, 3.0), List.of(fluidTag("crude_oil"), fluidTag("oil"))));
 

@@ -39,11 +39,10 @@ class FuelEnginePropertiesTest {
     @Test
     void fuelTiersByConventionalTag() {
         assertThat(FuelEngineFuels.forTags(inTags("fuel"))).isEqualTo(new FuelEngineFuel(150_000L, 2.25));
-        assertThat(FuelEngineFuels.forTags(inTags("diesel"))).isEqualTo(new FuelEngineFuel(150_000L, 2.25));
         assertThat(FuelEngineFuels.forTags(inTags("biofuel"))).isEqualTo(new FuelEngineFuel(80_000L, 1.5));
         assertThat(FuelEngineFuels.forTags(inTags("crude_oil"))).isEqualTo(new FuelEngineFuel(40_000L, 3.0));
         assertThat(FuelEngineFuels.forTags(inTags("oil"))).isEqualTo(new FuelEngineFuel(40_000L, 3.0));
-        assertThat(FuelEngineFuels.forTags(inTags("ethanol", "plantoil"))).isNull();
+        assertThat(FuelEngineFuels.forTags(inTags("diesel", "ethanol", "plantoil"))).isNull();
         assertThat(FuelEngineFuels.forTags(inTags())).isNull();
     }
 
