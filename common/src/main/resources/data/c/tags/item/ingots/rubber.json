@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "logistics:core/rubber",
+    { "id": "techreborn:rubber", "required": false }
+  ]
+}
