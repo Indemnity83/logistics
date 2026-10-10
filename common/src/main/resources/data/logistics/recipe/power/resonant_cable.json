@@ -3,7 +3,7 @@
   "pattern": ["RRR", "BBB", "RRR"],
   "key": {
     "B": "logistics:core/lumenite_ingot",
-    "R": "logistics:core/rubber"
+    "R": "#c:ingots/rubber"
   },
   "result": {
     "count": 8,
