@@ -8,7 +8,7 @@
   "key": {
     "G": "#c:glass_blocks",
     "T": "minecraft:redstone_torch",
-    "E": "logistics:core/gold_gear",
+    "E": "#c:gears/gold",
     "F": "logistics:pipe/item_filter_pipe"
   },
   "result": {

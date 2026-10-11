@@ -5,7 +5,7 @@
     "B"
   ],
   "key": {
-    "A": "logistics:core/diamond_gear",
+    "A": "#c:gears/diamond",
     "B": "logistics:pipe/extractor_module"
   },
   "result": {
