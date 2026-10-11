@@ -566,8 +566,9 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 
 13. **CraftingModule / ProcessModule / SatelliteModule pipes** ([#1286](https://github.com/Indemnity83/logistics/issues/1286)) — well unit-tested, zero in-world
     GameTest; low-risk pass adding wiki-traceability to already-correct assertions.
-14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287)) — untested sibling in an otherwise-tested power-tier family; small,
-    pure-math-friendly like Kiln's RF numbers.
+~~14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287))~~ — done. Gold is now the Conductive Cable;
+    `CableGameTestBody` pins its 60 RF/t on a real engine-fed run and as the cap on a Deep-to-Conductive
+    run, plus the `gold_cable` alias, on both loaders. `CableTierTest` adds the doubling ladder.
 15. **Fluid-routing modules** ([#1285](https://github.com/Indemnity83/logistics/issues/1285)) (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
     FluidVoidModule) — zero coverage at any level, real check-valve/routing-policy logic backing 4
     registered pipe blocks.
