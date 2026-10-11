@@ -33,12 +33,13 @@ The Battery is mined with a pickaxe of any tier; without one it drops nothing.
 
 == Usage ==
 
-The Battery buffers RF on your power grid. Engines charge it through cables, and it discharges through cables to whatever needs power — most often a machine such as a [[Kiln]], [[Macerator]], or [[Sawmill]], or a [[Power Junction]].
+The Battery buffers RF on your power grid. Engines charge it through cables, and it discharges through cables to whatever needs power — most often a machine such as a [[Kiln]], [[Macerator]], or [[Sawmill]], or a [[Power Junction]]. A Battery is the grid's reserve rather than its first choice: on a shared cable, machines are served before Batteries are topped up, and a Battery gives only once the generators on that cable are spent.
 
 * Holds '''100,000 RF''' by default
 * Moves at most '''1,000 RF/t''' in or out of any one side, and actively pushes at most '''200 RF/t''' into each adjacent machine
 * Charge level is shown as a fill bar on the placed block and as a green charge bar on the item
-* If several Batteries serve one grid, they are drawn in the order they were connected
+* A bank of Batteries on one cable is drawn from together, each contributing in proportion to what it can give, so the bank empties evenly rather than one cell at a time
+* Batteries wired to the same cable level out: charge runs from a fuller cell to an emptier one and stops once their fill fractions match
 
 The capacity and both transfer limits live in <code>config/logistics/power.battery.json</code>, and can be changed in-game with the operator-only <code>/logistics config power.battery &lt;key&gt; &lt;value&gt;</code> command:
 
@@ -66,7 +67,9 @@ Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pi
 {{History|head=1|v0.7.0|[[File:Grid Battery.png|32px]] Added '''Battery'''.}}
 {{History|v0.8.0|A Battery no longer powers a logistics network directly; route its RF through a [[Power Junction]] instead.}}
 {{History|v0.8.7|A Battery now requires a pickaxe to drop; previously any tool worked.}}
-{{History|foot=1|v0.8.8|The per-side push is now held to the Battery's own I/O limit, and a Battery no longer starves the cable network it sits on.}}
+{{History|v0.8.8|The per-side push is now held to the Battery's own I/O limit, and a Battery no longer starves the cable network it sits on.}}
+{{History|v0.8.9|Batteries no longer drain each other.}}
+{{History|foot=1|v0.8.10|Batteries on one cable now level out, charge running downhill only and stopping when their fill fractions match. A bank is drained evenly instead of one cell at a time, and machines on the cable are served before any Battery is topped up.}}
 
 == See also ==
 * [[RF Energy]] - How the power system works
