@@ -52,6 +52,9 @@ public class FluidRoutingGameTestBody {
      * <p>Two Insertion Fluid Pipes in a row, each beside a nearly-full tank: the first tank must be topped off
      * before the second receives anything, and the second is topped off from the first pipe's overflow.
      *
+     * <p>NOTE: the page's next claim, "It also fills a cauldron", no longer holds — cauldron filling was
+     * removed in #888. See WIKI_DISCREPANCIES.md.
+     *
      * @see <a href="https://logistics.fandom.com/wiki/Insertion_Fluid_Pipe#Usage">wiki/Insertion Fluid Pipe.txt § Usage</a>
      */
     public static void insertionPipesTopOffTanksInSequence(GameTestHelper context) {

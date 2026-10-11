@@ -42,6 +42,7 @@ class FluidRoutingModulesTest extends MinecraftTestEnvironment {
             assertThat(module.canConnectToFluidHandler()).isTrue();
         }
 
+        /** The buffer is not widened to hold a cauldron level; see WIKI_DISCREPANCIES.md § Insertion Fluid Pipe. */
         @ParameterizedTest(name = "{0}")
         @ValueSource(longs = {0, 1, 250, 1_000})
         @DisplayName("leaves transfer rate and buffer capacity at the shared default")
