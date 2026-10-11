@@ -17,6 +17,7 @@
 
 	"entrypoints": {
 		"fabric-gametest": [
+			"com.logistics.gametest.HarnessGameTest",
 			"com.logistics.gametest.RecipeLoadingGameTest",
 			"com.logistics.gametest.ReloadLifecycleGameTest",
 			"com.logistics.gametest.ServerDataLoadingGameTest",
