@@ -1,7 +1,7 @@
 {
   "key": {
     "C": "minecraft:copper_ingot",
-    "G": "logistics:core/stone_gear"
+    "G": "#c:gears/stone"
   },
   "pattern": [" C ", "CGC", " C "],
   "result": {
