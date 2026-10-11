@@ -14,10 +14,15 @@
 
 * [[File:Grid Bronze Ingot.png|24px|link=Bronze Ingot]] '''[[Bronze Ingot]]''' — a tin-and-copper alloy
 
+== Mod compatibility ==
+
+Tin is published across the conventional tags — <code>#c:ingots/tin</code>, <code>#c:nuggets/tin</code>, <code>#c:storage_blocks/tin</code>, <code>#c:raw_materials/tin</code> and <code>#c:ores/tin</code> — and Logistics recipes read them. Any mod's tin works in the [[Macerator]] and in the [[Tin Valve]] craft, and Logistics tin works in theirs. See [[Mod Compatibility]].
+
 {{Disambig}}
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Apatite]], [[Bronze]] — other material families
 * [[Materials]] — all crafting components
 * [[Macerator]] — grinds tin into [[Tin Dust]] (ore doubling)

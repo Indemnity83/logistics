@@ -35,10 +35,16 @@ The '''Fuel Oil Bucket''' is a container-only item: it fills and drains tanks an
 == History ==
 
 {{History|head=1|v0.8.3|[[File:Grid Fuel Oil.png|32px]] Added '''Fuel Oil'''.}}
-{{History|foot=1|v0.8.4|Now burned in the [[Fuel Engine]] to generate power.}}
+{{History|v0.8.4|Now burned in the [[Fuel Engine]] to generate power.}}
+{{History|foot=1|v0.8.12|Published as <code>#c:fuel</code> for other mods' generators.}}
+
+== Mod compatibility ==
+
+Fuel Oil is published as <code>#c:fuel</code>, so other mods' generators can burn it. The [[Fuel Engine]] reads the same tag, so another mod's refined fuel burns here at the same tier. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Fuel Engine]] - Burns Fuel Oil for power
 * [[Crude Oil]] - Refined into Fuel Oil
 * [[Refinery]] - Refines crude oil into Fuel Oil

@@ -31,7 +31,7 @@ The Sawmill is mined with a stone pickaxe or better; without one it drops nothin
 |Output=Sawmill
 }}
 
-Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with an [[Iron Axe]] and planks on top.
+Shares the standard machine base — a [[Machine Frame]], a [[Redstone Reception Coil]], and two [[Copper Gear|copper gears]] — with an {{Mcw|Iron Axe|iron axe}} and planks on top.
 
 == Usage ==
 

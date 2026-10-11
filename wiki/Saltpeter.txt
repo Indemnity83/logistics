@@ -1,0 +1,59 @@
+{{Item
+|image     = Grid Saltpeter.png
+|type      = Item (Material)
+|stackable = Yes (64)
+|added     = v0.8.0
+}}
+
+'''Saltpeter''' is a material recovered from sandstone in a [[Macerator]] and dropped by the Breeze. It is an ingredient for [[#Usage|crafting gunpowder]].
+
+== Obtaining ==
+
+=== Grinding ===
+
+Saltpeter drops as a 40% byproduct when grinding sandstone or red sandstone (and their slab, stairs, and wall variants) into sand in a [[Macerator]]:
+
+{{Grinding|head=1|foot=1 |Input=Sandstone |ingredients=Sandstone (and variants) |Output=Sand,2 |Byproduct=Saltpeter |ByproductChance=40%}}
+
+=== Mob loot ===
+
+Breezes drop 0–2 Saltpeter upon death. The amount is increased by 1 per level of Looting, for a maximum of 0–5 with Looting III.
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Two Saltpeter combine with [[Coal Dust]] and [[Sulfur Dust]] to make two {{Mcw|Gunpowder|gunpowder}}:
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Coal Dust |B1=Sulfur Dust
+|A2=Saltpeter |B2=Saltpeter
+|Output=Gunpowder,2
+}}
+
+== Mod compatibility ==
+
+Saltpeter is published as <code>#c:dusts/saltpeter</code>, and the gunpowder recipe accepts that tag rather than this item specifically — so another mod's saltpeter works here, and ours works in its recipes. See [[Mod Compatibility]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/saltpeter|item.logistics.core.saltpeter}}
+
+== History ==
+
+{{History|head=1|v0.8.0|[[File:Grid Saltpeter.png|32px]] Added '''Niter'''.}}
+{{History|foot=1|v0.8.12|Renamed from '''Niter''' to '''Saltpeter''', the name other tech mods use for it. The gunpowder craft now yields 2 and accepts any mod's coal, sulfur and saltpeter dust.}}
+
+== See also ==
+
+* [[Sulfur Dust]] - The other gunpowder dust
+* [[Coal Dust]] - The third gunpowder ingredient
+* [[Macerator]] - Produces Saltpeter
+* [[Mod Compatibility]] - Tags shared with other mods
+* [[Materials]] - Material overview
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

@@ -31,10 +31,16 @@ Valves are not used in any recipe yet — they are reserved for future [[Logisti
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Bronze Valve (v0.2.0).png|32px]] Added '''Bronze Valve'''.}}
-{{History|foot=1|v0.8.3|[[File:Grid Bronze Valve.png|32px]] The texture of the Bronze Valve has been changed. Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}, and [[Bronze Ingot]] — no longer built from a core.}}
+{{History|v0.8.3|[[File:Grid Bronze Valve.png|32px]] The texture of the Bronze Valve has been changed. Reworked the recipe to a workbench craft of [[Quartz Crystal|quartz crystals]], {{Mcw|Redstone Dust|redstone}}
+{{History|foot=1|v0.8.12|The craft now accepts any mod's bronze ingot.}}, and [[Bronze Ingot]] — no longer built from a core.}}
+
+== Mod compatibility ==
+
+The craft reads <code>#c:ingots/bronze</code>, so any mod's bronze ingot builds a Bronze Valve. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Valves]] - All valves
 * [[Quartz Crystal]] - Shared valve ingredient
 * [[Bronze Ingot]] - Tier material

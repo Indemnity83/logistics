@@ -101,8 +101,10 @@ Once installed, learn how to build your first network:
 
 * [[Your First Pipe Network]] - Build a basic item transport system
 * [[Pipes]] - Learn what each pipe family does
+* [[Mod Compatibility]] - What Logistics shares with other tech mods
 
 ==See Also==
+* [[Mod Compatibility]] - Running Logistics alongside other tech mods
 * [[Pipe Networks]] - How pipes connect
 * [[Pipes]] - All available pipe types
 * [[Copper Transport Pipe]] - Basic transport pipe

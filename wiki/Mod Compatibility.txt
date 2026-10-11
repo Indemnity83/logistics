@@ -1,0 +1,102 @@
+'''Logistics''' is built to share its materials with other tech mods rather than keep a parallel set of its own. It does that through '''conventional tags''' — the <code>c:</code> tag namespace that Fabric and NeoForge mods agree on — so a dust is a dust whoever made it.
+
+This cuts both ways. Logistics '''publishes''' its items into those tags, so another mod's recipes can take them; and Logistics '''recipes read the tags''' rather than naming its own items, so another mod's equivalents work here. You do not need to pick a side: one iron dust is as good as another.
+
+== What Logistics accepts ==
+
+Logistics recipes are written against tags, so an ingredient from any mod that publishes the same tag is accepted. In practice that means:
+
+* '''Rubber''' — <code>#c:ingots/rubber</code>, so rubber from [https://modrinth.com/mod/techreborn Tech Reborn] or [https://modrinth.com/mod/create-tfmg Create: The Factory Must Grow] insulates [[Cables]] just as well as ours.
+* '''Dusts''' — <code>#c:dusts/*</code> for bronze, coal, quartz, sulfur, iron, copper, gold, tin, lapis, amethyst, echo, diamond, netherite, saltpeter and the infused alloys. [https://modrinth.com/mod/techreborn Tech Reborn], [https://modrinth.com/mod/mekanism Mekanism] and friends all publish these, so their dusts smelt in a [[Kiln]] exactly like ours.
+* '''Gears''' — <code>#c:gears/*</code> for wood, stone, copper, iron, bronze, gold, diamond and netherite. A gear from [https://modrinth.com/mod/modern-industrialization Modern Industrialization] or [https://modrinth.com/mod/immersiveengineering Immersive Engineering] drops straight into our machines, pipes and engines — including the [[Machine Frame]] and the [[Gears|gear]] upgrades.
+* '''Tin and bronze''' — <code>#c:ingots/*</code>, <code>#c:nuggets/*</code>, <code>#c:storage_blocks/*</code> and <code>#c:raw_materials/tin</code>, so any mod's tin or bronze works in the [[Macerator]] and in the [[Tin Valve]] and [[Bronze Valve]] crafts.
+* '''Ores''' — <code>#c:ores/*</code>, so another mod's tin ore macerates here.
+* '''Apatite''' — <code>#c:gems/apatite</code> and <code>#c:ores/apatite</code>.
+* '''Slag''' — <code>#c:slag</code>.
+* '''Flour''' — <code>#c:flours/wheat</code>, so [https://modrinth.com/mod/create Create]'s wheat flour bakes in the bread, cake and cookie crafts.
+* '''Vanilla staples''' — <code>#c:sands</code> and <code>#c:glass_blocks</code>, so coloured and modded variants work where plain sand or glass would.
+
+== What Logistics publishes ==
+
+=== Items ===
+
+{| class="wikitable"
+! Tag !! Logistics item
+|-
+| <code>#c:dusts/*</code> || every [[Dusts|dust]], including [[Sawdust]] under both <code>#c:dusts/saw</code> and <code>#c:dusts/wood</code>
+|-
+| <code>#c:gears/*</code> || every [[Gears|gear]]
+|-
+| <code>#c:ingots/tin</code>, <code>#c:ingots/bronze</code> || [[Tin Ingot]], [[Bronze Ingot]]
+|-
+| <code>#c:ingots/caterium</code>, <code>#c:ingots/lumenite</code>, <code>#c:ingots/echonite</code> || the [[Caterium|infused alloy]] ingots
+|-
+| <code>#c:ingots/rubber</code> || [[Rubber]]
+|-
+| <code>#c:nuggets/*</code>, <code>#c:storage_blocks/*</code> || the matching nuggets and storage blocks
+|-
+| <code>#c:gems/apatite</code>, <code>#c:ores/apatite</code> || [[Apatite (gem)|Apatite]] and [[Apatite Ore]]
+|-
+| <code>#c:ores/tin</code>, <code>#c:raw_materials/tin</code> || [[Tin Ore]] and [[Raw Tin]]
+|-
+| <code>#c:slag</code> || [[Slag]]
+|-
+| <code>#c:flours/wheat</code> || [[Flour]]
+|-
+| <code>#c:tools/wrench</code> || the [[Wrench]], so other mods' blocks recognise it as a wrench
+|}
+
+[[Sawdust]] is published under both <code>#c:dusts/saw</code> and <code>#c:dusts/wood</code>, because mods disagree about which to read; between them that covers [https://modrinth.com/mod/mekanism Mekanism], [https://modrinth.com/mod/immersiveengineering Immersive Engineering] and [https://modrinth.com/mod/techreborn Tech Reborn]. [[Slag]] goes out under <code>#c:slag</code> for [https://modrinth.com/mod/immersiveengineering Immersive Engineering], and [[Flour]] under <code>#c:flours/wheat</code> for [https://modrinth.com/mod/create Create].
+
+=== Fluids ===
+
+{| class="wikitable"
+! Tag !! Logistics fluid
+|-
+| <code>#c:crude_oil</code>, <code>#c:oil</code> || [[Crude Oil]]
+|-
+| <code>#c:fuel</code> || [[Fuel Oil]]
+|-
+| <code>#c:biofuel</code>, <code>#c:bioethanol</code>, <code>#c:ethanol</code> || [[Bio Fuel]]
+|-
+| <code>#c:plant_oil</code>, <code>#c:plantoil</code> || [[Seed Oil]]
+|}
+
+Both spellings of the plant-oil and ethanol tags are published, because different mods settled on different ones. Between them these put [[Crude Oil]], [[Seed Oil]], [[Bio Fuel]] and [[Fuel Oil]] in front of other mods' generators and refineries.
+
+== Burning other mods' fuels ==
+
+The [[Fuel Engine]] picks its fuel by tag, not by fluid, so any mod's fuel burns at the matching tier. A fluid in more than one tag burns at the best of them:
+
+{| class="wikitable"
+! Tag !! RF per bucket !! Heat
+|-
+| <code>#c:fuel</code> || 150,000 RF || Moderate
+|-
+| <code>#c:biofuel</code> || 80,000 RF || Cool
+|-
+| <code>#c:crude_oil</code> / <code>#c:oil</code> || 40,000 RF || Hot
+|}
+
+== Renamed and removed items ==
+
+Two items changed identity in v0.8.12, and both convert automatically — existing stacks and placed blocks resolve to the replacement, so no world or recipe breaks:
+
+* '''[[Saltpeter]]''', formerly '''Niter''' — renamed to the name other tech mods use.
+* '''Copper Nugget''' — Logistics used to add its own, duplicating the vanilla item. It now uses the vanilla nugget, and publishes that into <code>#c:nuggets/copper</code>. On '''Minecraft 1.21.1''' the mod keeps its own nugget, because vanilla has none at that version.
+
+== HUD and recipe browsers ==
+
+Logistics machines report their state to [https://modrinth.com/mod/jade Jade], and every machine recipe — including the engines' fuels — appears in [https://modrinth.com/mod/jei Just Enough Items].
+
+== See also ==
+
+* [[Dusts]], [[Gears]] - The two biggest shared families
+* [[Rubber]], [[Sawdust]], [[Slag]], [[Flour]] - Items shared with named mods
+* [[Fuel Engine]] - Burns any mod's fuel
+* [[Wrench]] - Recognised as a wrench by other mods
+* [[Installation]] - Getting the mod running
+
+{{Navbox Logistics}}
+
+[[Category:Guides]]

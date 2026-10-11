@@ -42,10 +42,16 @@ Rubber insulates every [[Cables|power cable]] — six pieces wrapped around a co
 == History ==
 
 {{History|head=1|v0.6.0|[[File:Grid Rubber Chunk.png|32px]] Added '''Rubber Mix''' and '''Rubber Chunk''' alongside the power cables.}}
-{{History|foot=1|v0.8.3|[[File:Grid Rubber.png|32px]] Replaced Rubber Mix and Rubber Chunk with '''Rubber''', now smelted in the [[Alloy Smelter]] from a [[Natural Polymer]] or [[Synthetic Polymer]] and [[Sulfur Dust]].}}
+{{History|v0.8.3|[[File:Grid Rubber.png|32px]] Replaced Rubber Mix and Rubber Chunk with '''Rubber''', now smelted in the [[Alloy Smelter]] from a [[Natural Polymer]] or [[Synthetic Polymer]] and [[Sulfur Dust]].}}
+{{History|foot=1|v0.8.12|Published as <code>#c:ingots/rubber</code>; the cable crafts now accept any mod's rubber.}}
+
+== Mod compatibility ==
+
+Rubber is published as <code>#c:ingots/rubber</code>, and the [[Cables|cable]] crafts read that tag rather than this item — so rubber from [https://modrinth.com/mod/techreborn Tech Reborn] or [https://modrinth.com/mod/create-tfmg Create: The Factory Must Grow] insulates a cable just as well, and Logistics rubber works in their recipes. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Natural Polymer]], [[Synthetic Polymer]] - Smelted into Rubber
 * [[Cables]] - Insulated with Rubber
 * [[Caterium]], [[Lumenite]], [[Echonite]] - The upper grades' conductive cores

@@ -17,8 +17,13 @@ Gears are published under the conventional <code>#c:gears</code> item tag, with 
 subtag (<code>#c:gears/copper</code>, <code>#c:gears/iron</code>, and so on), so other mods' recipes
 can accept a Logistics gear and vice versa.
 
+== Mod compatibility ==
+
+Every gear is published under its conventional tag — <code>#c:gears/wood</code> through <code>#c:gears/netherite</code> — and the recipes that consume gears read those tags. A gear from [https://modrinth.com/mod/modern-industrialization Modern Industrialization] or [https://modrinth.com/mod/immersiveengineering Immersive Engineering] drops straight into any Logistics machine, pipe or engine, and Logistics gears work in theirs. See [[Mod Compatibility]].
+
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Valves]], [[Chipsets]] — other crafting components
 * [[Materials]] — all crafting components
 * [[Machines]] — what gears help build

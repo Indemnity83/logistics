@@ -30,6 +30,7 @@
 
 * [[File:Grid Slag.png|24px|link=Slag]] '''[[Slag]]''' and '''[[Rich Slag]]''' — [[Alloy Smelter]] byproducts
 * [[File:Grid Pulped Biomass.png|24px|link=Pulped Biomass]] '''[[Pulped Biomass]]''' — plant mulch from the [[Sawmill]]
+* [[File:Grid Flour.png|24px|link=Flour]] '''[[Flour]]''' — milled from wheat, and shared with [https://modrinth.com/mod/create Create]
 
 == See also ==
 

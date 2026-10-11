@@ -106,7 +106,7 @@ The Macerator also breaks worked blocks back down into raw materials, and recove
 
 {{Grinding|head=1 |Input=Cobblestone |Output=Gravel |Byproduct=Sand |ByproductChance=15%}}
 {{Grinding |Input=Gravel |Output=Sand |Byproduct=Flint |ByproductChance=15%}}
-{{Grinding |Input=Sandstone |ingredients=Sandstone (and variants) |Output=Sand,2 |Byproduct=Niter |ByproductChance=40%}}
+{{Grinding |Input=Sandstone |ingredients=Sandstone (and variants) |Output=Sand,2 |Byproduct=Saltpeter |ByproductChance=40%}}
 {{Grinding |Input=Glass |ingredients=Glass, any stained glass, or a {{Mcw|Glass Bottle|glass bottle}} |Output=Sand}}
 {{Grinding |Input=Netherrack |Output=Gravel |Byproduct=Sulfur Dust |ByproductChance=15%}}
 {{Grinding |Input=Clay |Output=Clay Ball,4}}
@@ -173,7 +173,7 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 [Nether Quartz] → Macerator → [Quartz Dust] → Kiln → [Quartz Crystal]
 </pre>
 
-Flour stands in for {{Mcw|Wheat|wheat}} in the {{Mcw|Bread|bread}}, {{Mcw|Cake|cake}}, and {{Mcw|Cookie|cookie}} recipes.
+[[Flour]] stands in for {{Mcw|Wheat|wheat}} in the {{Mcw|Bread|bread}}, {{Mcw|Cake|cake}}, and {{Mcw|Cookie|cookie}} recipes.
 
 == Data values ==
 
@@ -187,9 +187,15 @@ Flour stands in for {{Mcw|Wheat|wheat}} in the {{Mcw|Bread|bread}}, {{Mcw|Cake|c
 {{History|v0.8.0|[[File:Grid Macerator.png|32px]] The texture of the Macerator has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]]; added chance byproducts and block recycling; renamed Wood Pulp to [[Sawdust]].}}
 {{History|v0.8.2|Added grinding for the oil blocks into [[Bitumen]] and [[Tar]].}}
 {{History|v0.8.7|Loose raw iron, raw copper, raw gold, and [[Raw Tin|raw tin]] can now be ground into dust.}}
-{{History|foot=1|v0.8.8|The input slot now refuses items no loaded recipe can grind, so a wrongly-routed item can no longer jam the machine.}}
+{{History|v0.8.8|The input slot now refuses items no loaded recipe can grind, so a wrongly-routed item can no longer jam the machine.}}
+{{History|foot=1|v0.8.12|Recipes now read conventional tags, so ore, ingots and dusts from other mods can be ground here.}}
+
+== Mod compatibility ==
+
+The Macerator's recipes read conventional tags rather than naming Logistics' own items, so ore, ingots and dusts from other mods grind here exactly like ours — tin and bronze from any mod, and dusts from [https://modrinth.com/mod/techreborn Tech Reborn], [https://modrinth.com/mod/mekanism Mekanism] and friends. Its own products go out under the same tags: [[Sawdust]] as <code>#c:dusts/saw</code> and <code>#c:dusts/wood</code>, [[Slag]] as <code>#c:slag</code>, and [[Flour]] as <code>#c:flours/wheat</code>. See [[Mod Compatibility]].
 
 == See also ==
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Machine Frame]], [[Redstone Reception Coil]] - Crafting components
 * [[Alloy Smelter]] - Smelts the dusts and ores this grinds
 * [[Crucible]] - Companion melting machine

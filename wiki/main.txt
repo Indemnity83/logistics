@@ -25,6 +25,7 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 * [[File:Grid Wrench.png|20px|link=Wrench]] '''[[Tools]]''' — [[Wrench]], [[Marking Fluid]], and [[Marker]]
 * [[File:Grid Apatite Ore.png|20px|link=Apatite]] '''World generation''' — the mod's naturally-occurring materials: [[Tin]], [[Apatite]], [[Oil]], and [[Peat]]
 * [[File:Grid Crafting Table.png|20px|link=Recipes]] '''[[Recipes]]''' — how crafting recipes are shown across the wiki
+* [[File:Grid Lead.png|20px|link=Mod Compatibility]] '''[[Mod Compatibility]]''' — the <code>c:</code> tags Logistics shares with other tech mods
 * [[File:Grid Knowledge Book.png|20px|link=Pipes]] '''Core concepts''' — [[Pipes]] · [[Pipe Networks]] · [[Connectivity]] · [[Routing]] · [[Item Transport]]
 
 ==Contributing==

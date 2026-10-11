@@ -1,0 +1,67 @@
+{{Item
+|image     = Grid Flour.png
+|type      = Item (Material)
+|renewable = Yes
+|stackable = Yes (64)
+|added     = v0.8.0
+}}
+
+'''Flour''' is milled from {{Mcw|Wheat|wheat}} in a [[Macerator]]. It doubles wheat's yield in baking: the same loaf, cake, or batch of cookies costs half the grain when the wheat is milled first.
+
+== Obtaining ==
+
+=== Grinding ===
+
+One wheat mills into two Flour:
+
+{{Grinding|head=1|foot=1 |Input=Wheat |Output=Flour,2}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+Flour substitutes for wheat in the three vanilla baking recipes, at half the count:
+
+{{Crafting|head=1|showdescription=1
+|name={{Mcw|Bread}}
+|A1=Flour |B1=Flour |C1=Flour
+|Output=Bread
+|description=Three Flour, where bread normally takes three wheat — so one and a half wheat, milled.}}
+{{Crafting|showdescription=1
+|name={{Mcw|Cookie}}
+|A1=Flour |B1=Cocoa Beans |C1=Flour
+|Output=Cookie,8
+|description=Two Flour and a {{Mcw|Cocoa Beans|cocoa bean}}.}}
+{{Crafting|foot=1|showdescription=1
+|name={{Mcw|Cake}}
+|A1=Milk Bucket |B1=Milk Bucket |C1=Milk Bucket
+|A2=Sugar |B2=Egg |C2=Sugar
+|A3=Flour |B3=Flour |C3=Flour
+|Output=Cake
+|description=Three Flour in place of the cake's three wheat.}}
+
+== Mod compatibility ==
+
+Flour is published as <code>#c:flours/wheat</code>, and the baking recipes read that tag rather than this item — so [https://modrinth.com/mod/create Create]'s wheat flour, or any other mod's, bakes here, and Logistics flour works in theirs. See [[Mod Compatibility]].
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/flour|item.logistics.core.flour}}
+
+== History ==
+
+{{History|head=1|v0.8.0|[[File:Grid Flour.png|32px]] Added '''Flour'''.}}
+{{History|foot=1|v0.8.12|Published as <code>#c:flours/wheat</code>, and the baking recipes now accept any mod's wheat flour.}}
+
+== See also ==
+
+* [[Macerator]] - Mills the wheat
+* [[Mod Compatibility]] - Tags shared with other mods
+* [[Sawdust]], [[Slag]] - Other shared Macerator products
+* [[Materials]] - Material overview
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

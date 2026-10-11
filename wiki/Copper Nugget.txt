@@ -6,35 +6,15 @@
 |added     = v0.8.3
 }}
 
-'''Copper nuggets''' are pieces of copper worth one-ninth of a {{Mcw|Copper Ingot|copper ingot}}, handy for fine crafting and storage.
+The '''copper nugget''' Logistics recipes call for is the {{Mcw|Copper Nugget|vanilla item}}. Logistics added a nugget of its own in v0.8.3, before vanilla had one; since v0.8.12 it uses vanilla's instead and publishes it as <code>#c:nuggets/copper</code>, so any mod's copper nugget works in its recipes. Existing stacks of the old Logistics nugget convert to the vanilla one automatically.
 
-== Obtaining ==
-
-=== Crafting ===
-
-{{Crafting
-|head=1
-|foot=1
-|showname=0
-|B2=Copper Ingot
-|Output=Copper Nugget,9
-}}
+On '''Minecraft 1.21.1''' the mod still adds its own nugget, because vanilla has none at that version. Everything below reads the same either way.
 
 == Usage ==
-
-Nine copper nuggets craft back into a {{Mcw|Copper Ingot|copper ingot}}.
 
 === Crafting ingredient ===
 
 {{Crafting|head=1
-|name={{Mcw|Copper Ingot}}
-|A1=Copper Nugget |B1=Copper Nugget |C1=Copper Nugget
-|A2=Copper Nugget |B2=Copper Nugget |C2=Copper Nugget
-|A3=Copper Nugget |B3=Copper Nugget |C3=Copper Nugget
-|Output=Copper Ingot
-}}
-
-{{Crafting|foot=1
 |name=[[Blank Module]]
 |A1=Paper |B1=Redstone |C1=Paper
 |A2=Paper |B2=Redstone |C2=Paper
@@ -42,20 +22,27 @@ Nine copper nuggets craft back into a {{Mcw|Copper Ingot|copper ingot}}.
 |Output=Blank Module
 }}
 
-== Data values ==
+{{Crafting|foot=1
+|name=[[Batteries|Basic Battery]]
+|A1=Copper Nugget |B1=Clay Ball |C1=Copper Nugget
+|A2=Clay Ball |B2=Block of Redstone |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Basic Battery
+}}
 
-=== ID ===
-
-{{ID|head=1|foot=1|logistics:core/copper_nugget|item.logistics.core.copper_nugget}}
+Nine nuggets craft into a {{Mcw|Copper Ingot|copper ingot}} and back again through vanilla's own recipes; Logistics no longer supplies its own pair.
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.3|[[File:Grid Copper Nugget.png|32px]] Added '''Copper Nugget'''.}}
+{{History|head=1|v0.8.3|[[File:Grid Copper Nugget.png|32px]] Added '''Copper Nugget''', which vanilla did not yet have.}}
+{{History|foot=1|v0.8.12|Removed in favour of the vanilla nugget, which Logistics now publishes as <code>#c:nuggets/copper</code>. Existing nuggets convert automatically. Minecraft 1.21.1 keeps the Logistics nugget, as vanilla has none there.}}
 
 == See also ==
 
 * [[Blank Module]] - Crafted with a copper nugget
-* [[Tin Nugget]], [[Bronze Nugget]] - Other mod nuggets
+* [[Batteries]] - The Basic Battery's corner pieces
+* [[Tin Nugget]], [[Bronze Nugget]] - Nuggets Logistics does add
+* [[Mod Compatibility]] - Tags shared with other mods
 
 {{Navbox Logistics}}
 

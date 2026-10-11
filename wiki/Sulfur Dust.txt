@@ -24,12 +24,12 @@ The [[Macerator]] grinds sulfur and its variants into Sulfur Dust ''(Minecraft 2
 
 === Crafting ingredient ===
 
-Sulfur Dust combines with [[Coal Dust]] and [[Niter]] to make gunpowder:
+Sulfur Dust combines with [[Coal Dust]] and two [[Saltpeter]] to make two {{Mcw|Gunpowder|gunpowder}}:
 
 {{Crafting|head=1|foot=1|showname=0
 |A1=Coal Dust |B1=Sulfur Dust
-|A2=Niter |B2=Niter
-|Output=Gunpowder
+|A2=Saltpeter |B2=Saltpeter
+|Output=Gunpowder,2
 }}
 
 == Data values ==
@@ -44,7 +44,7 @@ Sulfur Dust combines with [[Coal Dust]] and [[Niter]] to make gunpowder:
 
 == See also ==
 
-* [[Niter]] - The other gunpowder dust
+* [[Saltpeter]] - The other gunpowder dust
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 

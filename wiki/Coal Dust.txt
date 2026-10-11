@@ -47,9 +47,9 @@
 
 {{Crafting|foot=1
 |name={{Mcw|Gunpowder}}
-|A1=Coal Dust |B1=Sulfur Dust |C1=Niter
-|A2=Niter
-|Output=Gunpowder
+|A1=Coal Dust |B1=Sulfur Dust |C1=Saltpeter
+|A2=Saltpeter
+|Output=Gunpowder,2
 }}
 
 == Data values ==

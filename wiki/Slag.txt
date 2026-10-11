@@ -32,10 +32,16 @@ Slag and [[Pulped Biomass]] combine into dirt:
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.2|[[File:Grid Slag.png|32px]] Added '''Slag'''.}}
+{{History|head=1|v0.8.2|[[File:Grid Slag.png|32px]] Added '''Slag'''.}}
+{{History|foot=1|v0.8.12|Published as <code>#c:slag</code> and accepted by tag, so it is shared with other mods.}}
+
+== Mod compatibility ==
+
+Slag is published as <code>#c:slag</code>, the tag [https://modrinth.com/mod/immersiveengineering Immersive Engineering] reads, and the recipes that consume it accept that tag — so slag from either mod works in either. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Alloy Smelter]] - Produces Slag as a byproduct
 * [[Rich Slag]] - The higher-grade byproduct
 * [[Pulped Biomass]] - Combined with Slag into dirt

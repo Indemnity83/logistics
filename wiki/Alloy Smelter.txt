@@ -101,7 +101,7 @@ Worked metal items smelt back into their base ingots (plus a chance of [[Slag]])
 
 {{Alloy Smelter|head=1 |Input=Anvil |Input2=Sand;Red Sand |Output=Iron Ingot |OutputCount=31 |Byproduct=Slag |ByproductChance=50%}}
 {{Alloy Smelter |Input=Hopper |Input2=Sand;Red Sand |Output=Iron Ingot |OutputCount=5 |Byproduct=Slag |ByproductChance=25%}}
-{{Alloy Smelter |foot=1 |Input=Iron Pickaxe |ingredients=[[Iron Pickaxe]] (and other iron tools) + Sand |Input2=Sand;Red Sand |Output=Iron Ingot |Byproduct=Slag |ByproductChance=10%}}
+{{Alloy Smelter |foot=1 |Input=Iron Pickaxe |ingredients={{Mcw|Iron Pickaxe}} (and other iron tools) + Sand |Input2=Sand;Red Sand |Output=Iron Ingot |Byproduct=Slag |ByproductChance=10%}}
 
 The full recycling list — every anvil tier, minecart, pressure plate, and iron or gold tool and armor piece — is browsable in JEI.
 

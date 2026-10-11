@@ -30,10 +30,16 @@ Valves are not used in any recipe yet — they are reserved for future [[Logisti
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.3|[[File:Grid Tin Valve.png|32px]] Added '''Tin Valve'''.}}
+{{History|head=1|v0.8.3|[[File:Grid Tin Valve.png|32px]] Added '''Tin Valve'''.}}
+{{History|foot=1|v0.8.12|The craft now accepts any mod's tin ingot.}}
+
+== Mod compatibility ==
+
+The craft reads <code>#c:ingots/tin</code>, so any mod's tin ingot builds a Tin Valve. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Valves]] - All valves
 * [[Quartz Crystal]] - Shared valve ingredient
 * [[Tin Ingot]] - Tier material

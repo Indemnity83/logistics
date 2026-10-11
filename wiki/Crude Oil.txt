@@ -46,10 +46,16 @@ The '''Crude Oil Bucket''' places and picks up the fluid like a {{Mcw|Water|wate
 == History ==
 
 {{History|head=1|v0.8.2|[[File:Grid Crude Oil.png|32px]] Added '''Crude Oil''', the oil-bearing blocks, and [[Bitumen]].}}
-{{History|foot=1|v0.8.7|Being submerged in Crude Oil now obscures vision and applies Nausea, Poison, and Slowness III. A [[Transposer]] can now soak sand and gravel in it to make the oil-bearing blocks.}}
+{{History|v0.8.7|Being submerged in Crude Oil now obscures vision and applies Nausea, Poison, and Slowness III. A [[Transposer]] can now soak sand and gravel in it to make the oil-bearing blocks.}}
+{{History|foot=1|v0.8.12|Published as <code>#c:crude_oil</code> and <code>#c:oil</code> for other mods' generators and refineries.}}
+
+== Mod compatibility ==
+
+Crude Oil is published as <code>#c:crude_oil</code> and <code>#c:oil</code>, so other mods' generators and refineries can burn and process it. The [[Fuel Engine]] reads the same tags, so another mod's crude oil burns here too. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Oil Sand]], [[Oil Red Sand]], [[Oil Shale]] - Oil-bearing blocks
 * [[Bitumen]], [[Tar]] - Extracted oil products from the [[Macerator]]
 * [[Crucible]] - Liquefies oil blocks into Crude Oil

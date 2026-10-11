@@ -12,7 +12,7 @@
 * [[File:Grid Lapis Dust.png|24px|link=Lapis Dust]] '''[[Lapis Dust]]'''
 * [[File:Grid Coal Dust.png|24px|link=Coal Dust]] '''[[Coal Dust]]'''
 * [[File:Grid Sulfur Dust.png|24px|link=Sulfur Dust]] '''[[Sulfur Dust]]'''
-* [[File:Grid Niter.png|24px|link=Niter]] '''[[Niter]]'''
+* [[File:Grid Saltpeter.png|24px|link=Saltpeter]] '''[[Saltpeter]]'''
 * [[File:Grid Quartz Dust.png|24px|link=Quartz Dust]] '''[[Quartz Dust]]'''
 * [[File:Grid Apatite Dust.png|24px|link=Apatite Dust]] '''[[Apatite Dust]]'''
 * [[File:Grid Amethyst Dust.png|24px|link=Amethyst Dust]] '''[[Amethyst Dust]]'''
@@ -39,8 +39,13 @@ The main use of metal dusts is doubling ore output. Grinding one ore block produ
 
 Grinding the source ore in the [[Macerator]] grants the same experience the furnace would, so no experience is lost in the process. (Smelting the dust itself grants none.)
 
+== Mod compatibility ==
+
+Every dust is published under its conventional tag — <code>#c:dusts/iron</code>, <code>#c:dusts/bronze</code>, <code>#c:dusts/coal</code>, <code>#c:dusts/quartz</code>, <code>#c:dusts/sulfur</code> and the rest — and Logistics recipes read those tags rather than naming its own items. A dust from [https://modrinth.com/mod/techreborn Tech Reborn], [https://modrinth.com/mod/mekanism Mekanism] or any other mod smelts and crafts here exactly like ours. See [[Mod Compatibility]].
+
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Macerator]] - Produces all dusts
 * [[Kiln]] - Smelts metal dusts into ingots and Quartz Dust into Quartz Crystal
 * [[Quicksilver]] - Another material the Macerator produces (liquid metal, not a dust)

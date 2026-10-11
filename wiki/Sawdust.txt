@@ -43,10 +43,16 @@ Nothing else consumes Sawdust: it has no crafting or machine recipes.
 == History ==
 
 {{History|head=1|v0.8.0|Renamed from '''Wood Pulp''' to '''Sawdust'''.}}
-{{History|foot=1|v0.8.9|Sawdust now burns as a furnace fuel, for 100 ticks a piece.}}
+{{History|v0.8.9|Sawdust now burns as a furnace fuel, for 100 ticks a piece.}}
+{{History|foot=1|v0.8.12|Published under both <code>#c:dusts/saw</code> and <code>#c:dusts/wood</code>, so it works in other mods' recipes.}}
+
+== Mod compatibility ==
+
+Sawdust is published under both <code>#c:dusts/saw</code> and <code>#c:dusts/wood</code>, because mods disagree about which to read. Between them that covers [https://modrinth.com/mod/mekanism Mekanism], [https://modrinth.com/mod/immersiveengineering Immersive Engineering] and [https://modrinth.com/mod/techreborn Tech Reborn], so Logistics sawdust works in their recipes and theirs works here. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Sawmill]] - Produces Sawdust
 * [[Macerator]] - Grinds wood into Sawdust
 * [[Materials]] - Material overview

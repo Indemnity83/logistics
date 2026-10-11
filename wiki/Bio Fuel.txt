@@ -35,10 +35,16 @@ The '''Bio Fuel Bucket''' is a container-only item: it fills and drains tanks an
 == History ==
 
 {{History|head=1|v0.8.3|[[File:Grid Bio Fuel.png|32px]] Added '''Bio Fuel'''.}}
-{{History|foot=1|v0.8.4|Now burned in the [[Fuel Engine]] to generate power.}}
+{{History|v0.8.4|Now burned in the [[Fuel Engine]] to generate power.}}
+{{History|foot=1|v0.8.12|Published as <code>#c:biofuel</code>, <code>#c:bioethanol</code> and <code>#c:ethanol</code> for other mods' generators.}}
+
+== Mod compatibility ==
+
+Bio Fuel is published as <code>#c:biofuel</code>, <code>#c:bioethanol</code> and <code>#c:ethanol</code> — all three spellings, because mods settled on different ones — so other mods' generators can burn it. The [[Fuel Engine]] reads the same tags, so another mod's biofuel burns here too. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Fuel Engine]] - Burns Bio Fuel for power
 * [[Liquid Biomass]] - Refined into Bio Fuel
 * [[Refinery]] - Refines liquid biomass into Bio Fuel

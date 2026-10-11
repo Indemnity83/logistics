@@ -13,10 +13,15 @@
 * [[File:Grid Bronze Valve.png|24px|link=Bronze Valve]] '''[[Bronze Valve]]''' — a fluid-network valve crafted from bronze ingots
 * [[File:Grid Machine Frame.png|24px|link=Machine Frame]] '''[[Machine Frame]]''' — the heart of every machine, built around a [[Bronze Gear]]
 
+== Mod compatibility ==
+
+Bronze is published as <code>#c:ingots/bronze</code>, <code>#c:nuggets/bronze</code>, <code>#c:storage_blocks/bronze</code>, <code>#c:dusts/bronze</code> and <code>#c:gears/bronze</code>, and Logistics recipes read those tags. Any mod's bronze works in the [[Macerator]], the [[Bronze Valve]] craft and the [[Bronze Gear]], and Logistics bronze works in theirs. See [[Mod Compatibility]].
+
 {{Disambig}}
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Apatite]], [[Tin]] — other material families
 * [[Materials]] — all crafting components
 * [[Machine Frame]] — a machine component made from bronze

@@ -26,7 +26,7 @@ Twenty seeds fill one bucket's worth. Farming the seeds is the cheap part; the [
 
 == Usage ==
 
-Seed Oil is not yet consumed by any machine or recipe. It can be tanked, piped, and bucketed like any other fluid, but nothing currently burns or refines it.
+No Logistics machine or recipe consumes Seed Oil yet. It can be tanked, piped, and bucketed like any other fluid, and it is published as a plant oil for other mods, so a mod that processes plant oil can take it.
 
 === Bucket ===
 
@@ -41,10 +41,16 @@ The '''Seed Oil Bucket''' is a container-only item: it fills and drains tanks an
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.7|[[File:Grid Seed Oil.png|32px]] Added '''Seed Oil'''.}}
+{{History|head=1|v0.8.7|[[File:Grid Seed Oil.png|32px]] Added '''Seed Oil'''.}}
+{{History|foot=1|v0.8.12|Published as <code>#c:plant_oil</code> and <code>#c:plantoil</code>, so other mods can use it.}}
+
+== Mod compatibility ==
+
+Seed Oil is published as <code>#c:plant_oil</code> and <code>#c:plantoil</code> — both spellings — so other mods that process plant oil can take it even though no Logistics recipe consumes it yet. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Transposer]] - Presses seeds into Seed Oil
 * [[Bio Fuel]], [[Fuel Oil]] - The mod's other refined fluids
 * [[Fluids]] - All mod fluids

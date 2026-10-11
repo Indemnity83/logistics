@@ -49,7 +49,7 @@
   | group8 = Components
   | list8  = [[File:Grid Machine Frame.png|20px|link=Machine Frame]]&nbsp;[[Machine Frame]] · [[File:Grid Redstone Reception Coil.png|20px|link=Redstone Reception Coil]]&nbsp;[[Redstone Reception Coil]] · [[File:Grid Quartz Crystal.png|20px|link=Quartz Crystal]]&nbsp;[[Quartz Crystal]] · [[File:Grid Copper Nugget.png|20px|link=Copper Nugget]]&nbsp;[[Copper Nugget]] · [[File:Grid Rubber.png|20px|link=Rubber]]&nbsp;[[Rubber]] · [[File:Grid Natural Polymer.png|20px|link=Natural Polymer]]&nbsp;[[Natural Polymer]] · [[File:Grid Synthetic Polymer.png|20px|link=Synthetic Polymer]]&nbsp;[[Synthetic Polymer]]
   | group9 = Byproducts
-  | list9  = [[File:Grid Slag.png|20px|link=Slag]]&nbsp;[[Slag]] · [[File:Grid Rich Slag.png|20px|link=Rich Slag]]&nbsp;[[Rich Slag]] · [[File:Grid Pulped Biomass.png|20px|link=Pulped Biomass]]&nbsp;[[Pulped Biomass]] · [[File:Grid Sawdust.png|20px|link=Sawdust]]&nbsp;[[Sawdust]] · [[File:Grid Niter.png|20px|link=Niter]]&nbsp;[[Niter]] · [[File:Grid Quicksilver.png|20px|link=Quicksilver]]&nbsp;[[Quicksilver]]
+  | list9  = [[File:Grid Slag.png|20px|link=Slag]]&nbsp;[[Slag]] · [[File:Grid Rich Slag.png|20px|link=Rich Slag]]&nbsp;[[Rich Slag]] · [[File:Grid Pulped Biomass.png|20px|link=Pulped Biomass]]&nbsp;[[Pulped Biomass]] · [[File:Grid Sawdust.png|20px|link=Sawdust]]&nbsp;[[Sawdust]] · [[File:Grid Flour.png|20px|link=Flour]]&nbsp;[[Flour]] · [[File:Grid Saltpeter.png|20px|link=Saltpeter]]&nbsp;[[Saltpeter]] · [[File:Grid Quicksilver.png|20px|link=Quicksilver]]&nbsp;[[Quicksilver]]
   }}
 
 | list4 = {{Navbox

@@ -59,10 +59,16 @@ Install Jade alongside Logistics to read this information by simply looking at a
 
 == History ==
 
-{{History|head=1|foot=1|v0.1.0|[[File:Grid Wrench.png|32px]] Added '''Wrench'''.}}
+{{History|head=1|v0.1.0|[[File:Grid Wrench.png|32px]] Added '''Wrench'''.}}
+{{History|foot=1|v0.8.12|Published as <code>#c:tools/wrench</code>, so other mods recognise it as a wrench.}}
+
+== Mod compatibility ==
+
+The Wrench is published as <code>#c:tools/wrench</code>, so other mods' blocks recognise it as a wrench and let it rotate or configure them. See [[Mod Compatibility]].
 
 == See also ==
 
+* [[Mod Compatibility]] - Tags shared with other mods
 * [[Item Merger Pipe]] - Configure output direction
 * [[Item Extractor Pipe]] - Select extraction face
 * [[Item Filter Pipe]] - Open filter GUI

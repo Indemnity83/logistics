@@ -118,7 +118,9 @@ function p.refinery(frame)
 
 	out[#out + 1] = '\n|-'
 	if showName then
-		local nm = trim(args.name) or ('[[' .. outName .. ']]')
+		-- Routed through ItemLink so a vanilla product links out to the Minecraft Wiki; a bare
+		-- [[...]] here made every vanilla recipe output a redlink.
+		local nm = trim(args.name) or itemlink.linkFor(outName)
 		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
 	end
 	local ingredients = ingredientsCell(args, inName, inAmount)

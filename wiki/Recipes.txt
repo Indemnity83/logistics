@@ -14,6 +14,10 @@ The recipe-heavy overview pages are the quickest way to browse what's craftable:
 
 Individual machine, tool, and module pages each show their own recipe as well.
 
+== Other mods' materials ==
+
+Most Logistics recipes are written against conventional <code>c:</code> tags rather than naming its own items, so an equivalent ingredient from another tech mod is accepted — another mod's iron dust, bronze ingot or gear works wherever ours would. See [[Mod Compatibility]] for the full list.
+
 == For editors ==
 
 See [[Help:Page layout]] for how to add a recipe to a page (single recipe → [[Template:Grid Crafting Table|Grid Crafting Table]]; several recipes on one page → a [[Template:Crafting|Crafting]] table).

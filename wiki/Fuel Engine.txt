@@ -64,9 +64,15 @@ Use a [[Wrench]] to rotate the output face and to reset a thermal shutdown.
 
 {{History|head=1|v0.8.4|[[File:Grid Fuel Engine.png|32px]] Added '''Fuel Engine'''.}}
 {{History|v0.8.5|Now requires an iron pickaxe to drop.}}
-{{History|foot=1|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
+{{History|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
+{{History|foot=1|v0.8.12|Fuels are now chosen by conventional tag, so the engine burns other mods' fuel, biofuel and crude oil at the matching tier.}}
+
+== Mod compatibility ==
+
+The Fuel Engine picks its fuel by conventional tag rather than by fluid, so any mod's fuel burns at the matching tier — <code>#c:fuel</code> at 150,000 RF per bucket, <code>#c:biofuel</code> at 80,000, and <code>#c:crude_oil</code> or <code>#c:oil</code> at 40,000. A fluid carrying more than one of those tags burns at the best of them. Logistics' own fuels are published into the same tags, so other mods' generators can burn them in return. See [[Mod Compatibility]].
 
 == See also ==
+* [[Mod Compatibility]] - Tags shared with other mods
 
 * [[RF Energy]] - Understanding the power system
 * [[Engines]] - All engines
