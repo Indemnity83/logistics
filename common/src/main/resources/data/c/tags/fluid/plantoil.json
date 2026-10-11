@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "logistics:core/seed_oil",
+    "logistics:core/flowing_seed_oil"
+  ]
+}
