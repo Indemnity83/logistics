@@ -93,7 +93,19 @@ public final class CableGameTestRegistration {
         new GameTestCase(
             "power/cable_device_removed_mid_tick_receives_nothing",
             60,
-            CableGameTestBody::testDeviceRemovedMidTickReceivesNothing));
+            CableGameTestBody::testDeviceRemovedMidTickReceivesNothing),
+        new GameTestCase(
+            "power/conductive_cable_carries_sixty_rf_per_tick",
+            80,
+            CableGameTestBody::testConductiveCableCarriesSixtyRfPerTick),
+        new GameTestCase(
+            "power/conductive_cable_caps_a_deep_cable_run",
+            80,
+            CableGameTestBody::testConductiveCableCapsADeepCableRun),
+        new GameTestCase(
+            "power/gold_cable_id_resolves_to_conductive_cable",
+            40,
+            CableGameTestBody::testGoldCableIdResolvesToConductiveCable));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

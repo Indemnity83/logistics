@@ -9,6 +9,18 @@ All entries below are resolved and closed — kept as HTML comments so the same 
 fixes aren't rediscovered from scratch later. New findings go in a fresh, uncommented section above
 the closed ones.
 
+## Cables
+
+Open: the config file path. `wiki/Cables.txt` § Usage → Configuration says the throughputs "live in
+`config/logistics/power.cables.json`". The config id `logistics.power.cables` is stored as nested
+directories, so the real file is `config/logistics/power/cables.json` — confirmed in the generated
+run configs on both loaders (`fabric/build/run/gameTest/...`, `neoforge/runs/gameTestServer/...`).
+The command form `/logistics config power.cables <key> <value>` is correct. The same dotted-filename
+convention appears on `Batteries.txt` (`power.battery.<tier>.json`), `Laser Quarry.txt`
+(`machines.quarry.json`), `Installation.txt` and `Template_Config.txt`, so this is likely a
+site-wide wording fix rather than a Cables-only one. Every number on the page (30/60/120/240 RF/t,
+each grade double the one below) matches `LogisticsPower.CONFIG.CABLE_*_TRANSFER`.
+
 ## Kiln
 
 <!--
