@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.8.12](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.11...mc1.21.11-v0.8.12) (2026-10-11)
+
+
+### Added
+
+* **compat:** accept dusts from other mods in recipes ([#1362](https://github.com/Indemnity83/logistics/issues/1362)) ([0fc1ffe](https://github.com/Indemnity83/logistics/commit/0fc1ffe45e3c7f907f29f1689c1dfe250032da9b))
+* **compat:** accept gears from other mods in recipes ([#1368](https://github.com/Indemnity83/logistics/issues/1368)) ([13dd79d](https://github.com/Indemnity83/logistics/commit/13dd79d5b2ce20061ad7208cb867f1a02ca6d1e8))
+* **compat:** accept rubber from Tech Reborn and other mods ([#1361](https://github.com/Indemnity83/logistics/issues/1361)) ([66606f7](https://github.com/Indemnity83/logistics/commit/66606f7c852266144d9873d4de5afc736e51edf9))
+* **compat:** accept saltpeter from other mods in gunpowder ([cebee1c](https://github.com/Indemnity83/logistics/commit/cebee1c46638f659f3748934770849d3bae68589))
+* **compat:** accept tin and bronze from other mods in recipes ([#1363](https://github.com/Indemnity83/logistics/issues/1363)) ([adf8793](https://github.com/Indemnity83/logistics/commit/adf87939718dd3d79ea7ffef1dc02829cf8fa39f))
+* **compat:** let Mekanism and Immersive Engineering use our sawdust ([#1367](https://github.com/Indemnity83/logistics/issues/1367)) ([0fa4d00](https://github.com/Indemnity83/logistics/commit/0fa4d006925793fc9af0e06e27eb5421f05be33d))
+* **compat:** let other mods recognize our wrench ([#1369](https://github.com/Indemnity83/logistics/issues/1369)) ([af77ac0](https://github.com/Indemnity83/logistics/commit/af77ac0f84c1a4102476c4202b8286cae94e1f5a))
+* **compat:** share flour with Create and other mods ([#1371](https://github.com/Indemnity83/logistics/issues/1371)) ([01bf524](https://github.com/Indemnity83/logistics/commit/01bf52473acfafe3eaded992db99053405f0288e))
+* **compat:** share slag with Immersive Engineering and other mods ([#1372](https://github.com/Indemnity83/logistics/issues/1372)) ([d487033](https://github.com/Indemnity83/logistics/commit/d487033f980148c5d6d1100e79d4db93a5ba3f3b))
+* **compat:** tag apatite and ores for other mods ([#1370](https://github.com/Indemnity83/logistics/issues/1370)) ([c7a4949](https://github.com/Indemnity83/logistics/commit/c7a4949491ce7e27027c2d3e090f15fb935e9c6a))
+* **compat:** tag our oils and fuels for other mods ([#1373](https://github.com/Indemnity83/logistics/issues/1373)) ([6d43a4c](https://github.com/Indemnity83/logistics/commit/6d43a4cd43a065dddeedfc2e3ae3ef7f88db1c09))
+* **compat:** tag sawdust for use in other mods' recipes ([#1364](https://github.com/Indemnity83/logistics/issues/1364)) ([3ed9ba2](https://github.com/Indemnity83/logistics/commit/3ed9ba282792b74606f93cc5cfa6e1171771fb3f))
+* **energy:** burn other mods' fuels in the Fuel Engine ([#1374](https://github.com/Indemnity83/logistics/issues/1374)) ([18458b2](https://github.com/Indemnity83/logistics/commit/18458b24b66ea64447fa9cf5992271c4b3d4ad19))
+
+
+### Changed
+
+* **core:** rename Niter to Saltpeter ([#1365](https://github.com/Indemnity83/logistics/issues/1365)) ([cebee1c](https://github.com/Indemnity83/logistics/commit/cebee1c46638f659f3748934770849d3bae68589))
+* **crafting:** make 2 gunpowder per craft ([#1365](https://github.com/Indemnity83/logistics/issues/1365)) ([edab548](https://github.com/Indemnity83/logistics/commit/edab548bb9c57e8aa794e839d9d2218bc8037a4b))
+
+
+### Fixed
+
+* **core:** use the vanilla copper nugget instead of a duplicate ([#1356](https://github.com/Indemnity83/logistics/issues/1356)) ([8aef2fc](https://github.com/Indemnity83/logistics/commit/8aef2fceb916595fc225c02c2de93c81afcbfeec))
+
 ## [0.8.11](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.10...mc1.21.11-v0.8.11) (2026-10-08)
 
 
