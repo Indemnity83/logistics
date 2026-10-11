@@ -1,0 +1,99 @@
+{{About|the ingot|the storage block|Block of Echonite|the nugget|Echonite Nugget|the dust|Echonite Dust|the metal in general|Echonite}}
+{{Item
+|image     = Grid Echonite Ingot.png
+|type      = Item (Alloy)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Echonite ingots''' are the infused alloy behind the '''deep''' power tier — the [[Cables|Deep Cable]] is wound from them, and the [[Batteries|Deep Battery]] is built on a block of them. They are smelted from [[Echonite Dust]]; there is no ore.
+
+== Obtaining ==
+
+=== Smelting ===
+
+Smelt [[Echonite Dust]] in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
+
+{{Smelting|head=1|foot=1
+|name=Echonite Ingot
+|Input=Echonite Dust
+|Output=Echonite Ingot
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1
+|name=Echonite Ingot
+|B2=Block of Echonite
+|Output=Echonite Ingot,9
+}}
+
+{{Crafting|foot=1
+|name=Echonite Ingot
+|A1=Echonite Nugget |B1=Echonite Nugget |C1=Echonite Nugget
+|A2=Echonite Nugget |B2=Echonite Nugget |C2=Echonite Nugget
+|A3=Echonite Nugget |B3=Echonite Nugget |C3=Echonite Nugget
+|Output=Echonite Ingot
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Cables|Deep Cable]]
+|A1=Rubber |B1=Rubber |C1=Rubber
+|A2=Echonite Ingot |B2=Echonite Ingot |C2=Echonite Ingot
+|A3=Rubber |B3=Rubber |C3=Rubber
+|Output=Deep Cable,8
+}}
+
+{{Crafting
+|name=[[Block of Echonite]]
+|A1=Echonite Ingot |B1=Echonite Ingot |C1=Echonite Ingot
+|A2=Echonite Ingot |B2=Echonite Ingot |C2=Echonite Ingot
+|A3=Echonite Ingot |B3=Echonite Ingot |C3=Echonite Ingot
+|Output=Block of Echonite
+}}
+
+{{Crafting|foot=1
+|name=[[Echonite Nugget]]
+|B2=Echonite Ingot
+|Output=Echonite Nugget,9
+}}
+
+=== Grinding ===
+
+Grind an ingot in a [[Macerator]] to recover [[Echonite Dust]]:
+
+{{Grinding|head=1|foot=1
+|Input=Echonite Ingot
+|Output=Echonite Dust
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/echonite_ingot|item.logistics.core.echonite_ingot}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Echonite Ingot.png|32px]] Added '''Echonite Ingot'''.}}
+
+== Trivia ==
+
+* Infusing [[Echo Dust|echo dust]] with [[Liquid Ender]] folds a little extra space into the metal — the deepest reservoir and the fastest conductor the mod has.
+
+== See also ==
+
+* [[Echonite]] - All echonite blocks and items
+* [[Echonite Dust]] - What it is smelted from
+* [[Cables]] - The deep cable tier
+* [[Batteries]] - The deep storage tier
+* [[Block of Echonite]], [[Echonite Nugget]] - Storage forms
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

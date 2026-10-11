@@ -1,0 +1,99 @@
+{{About|the ingot|the storage block|Block of Lumenite|the nugget|Lumenite Nugget|the dust|Lumenite Dust|the metal in general|Lumenite}}
+{{Item
+|image     = Grid Lumenite Ingot.png
+|type      = Item (Alloy)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Lumenite ingots''' are the infused alloy behind the '''resonant''' power tier — the [[Cables|Resonant Cable]] is wound from them, and the [[Batteries|Resonant Battery]] is built on a block of them. They are smelted from [[Lumenite Dust]]; there is no ore.
+
+== Obtaining ==
+
+=== Smelting ===
+
+Smelt [[Lumenite Dust]] in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
+
+{{Smelting|head=1|foot=1
+|name=Lumenite Ingot
+|Input=Lumenite Dust
+|Output=Lumenite Ingot
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1
+|name=Lumenite Ingot
+|B2=Block of Lumenite
+|Output=Lumenite Ingot,9
+}}
+
+{{Crafting|foot=1
+|name=Lumenite Ingot
+|A1=Lumenite Nugget |B1=Lumenite Nugget |C1=Lumenite Nugget
+|A2=Lumenite Nugget |B2=Lumenite Nugget |C2=Lumenite Nugget
+|A3=Lumenite Nugget |B3=Lumenite Nugget |C3=Lumenite Nugget
+|Output=Lumenite Ingot
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Cables|Resonant Cable]]
+|A1=Rubber |B1=Rubber |C1=Rubber
+|A2=Lumenite Ingot |B2=Lumenite Ingot |C2=Lumenite Ingot
+|A3=Rubber |B3=Rubber |C3=Rubber
+|Output=Resonant Cable,8
+}}
+
+{{Crafting
+|name=[[Block of Lumenite]]
+|A1=Lumenite Ingot |B1=Lumenite Ingot |C1=Lumenite Ingot
+|A2=Lumenite Ingot |B2=Lumenite Ingot |C2=Lumenite Ingot
+|A3=Lumenite Ingot |B3=Lumenite Ingot |C3=Lumenite Ingot
+|Output=Block of Lumenite
+}}
+
+{{Crafting|foot=1
+|name=[[Lumenite Nugget]]
+|B2=Lumenite Ingot
+|Output=Lumenite Nugget,9
+}}
+
+=== Grinding ===
+
+Grind an ingot in a [[Macerator]] to recover [[Lumenite Dust]]:
+
+{{Grinding|head=1|foot=1
+|Input=Lumenite Ingot
+|Output=Lumenite Dust
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/lumenite_ingot|item.logistics.core.lumenite_ingot}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Lumenite Ingot.png|32px]] Added '''Lumenite Ingot'''.}}
+
+== Trivia ==
+
+* Infusing [[Amethyst Dust|amethyst dust]] with [[Liquid Glowstone]] sets the crystal lattice humming, and a resonant lattice holds far more charge than it has any right to.
+
+== See also ==
+
+* [[Lumenite]] - All lumenite blocks and items
+* [[Lumenite Dust]] - What it is smelted from
+* [[Cables]] - The resonant cable tier
+* [[Batteries]] - The resonant storage tier
+* [[Block of Lumenite]], [[Lumenite Nugget]] - Storage forms
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

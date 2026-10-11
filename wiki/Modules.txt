@@ -84,6 +84,8 @@ When several sinks accept the same item, the network delivers to the highest-pri
 
 Ties go to the nearest sink; a tie on distance too is settled by block position, so a network that merges or splits keeps sending the same item to the same place.
 
+A sink only counts as a destination while it has room. The network looks at the face the sink actually unloads to — the first inventory face, or whichever one was set with a [[Wrench]] — and passes over a sink whose inventory there is full, even if a different face has space. If a destination fills up while the item is still in transit, the item is re-homed to another sink with room when it arrives rather than dropped on the floor.
+
 ==See Also==
 * [[Chassis Logistics Pipe]] - The pipe that holds modules
 * [[Blank Module]] - Base crafting component for all modules

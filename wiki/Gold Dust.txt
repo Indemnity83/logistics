@@ -44,6 +44,15 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 |Output=Gold Ingot
 }}
 
+=== Infusing ===
+
+A [[Transposer]] infuses it with [[Liquid Redstone]] into [[Caterium Dust]], the conductive rung of the power ladder:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Gold Dust |FluidIn=Liquid Redstone |InAmount=1000 |Output=Caterium Dust
+|ingredients=One [[Gold Dust]] plus 1,000 mB of [[Liquid Redstone]] in the tank
+|notes=2,000 RF}}
+
 == Data values ==
 
 === ID ===
@@ -57,6 +66,7 @@ Smelt it in a furnace, blast furnace, or a [[Kiln]]:
 
 == See also ==
 
+* [[Caterium]] - The alloy it infuses into
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 * [[Kiln]] - Smelts dust into ingots and crystals

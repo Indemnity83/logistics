@@ -1,0 +1,99 @@
+{{About|the ingot|the storage block|Block of Caterium|the nugget|Caterium Nugget|the dust|Caterium Dust|the metal in general|Caterium}}
+{{Item
+|image     = Grid Caterium Ingot.png
+|type      = Item (Alloy)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Caterium ingots''' are the infused alloy behind the '''conductive''' power tier — the [[Cables|Conductive Cable]] is wound from them, and the [[Batteries|Conductive Battery]] is built on a block of them. They are smelted from [[Caterium Dust]]; there is no ore.
+
+== Obtaining ==
+
+=== Smelting ===
+
+Smelt [[Caterium Dust]] in a furnace, blast furnace, or a [[Kiln]] (RF-powered, no fuel):
+
+{{Smelting|head=1|foot=1
+|name=Caterium Ingot
+|Input=Caterium Dust
+|Output=Caterium Ingot
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1
+|name=Caterium Ingot
+|B2=Block of Caterium
+|Output=Caterium Ingot,9
+}}
+
+{{Crafting|foot=1
+|name=Caterium Ingot
+|A1=Caterium Nugget |B1=Caterium Nugget |C1=Caterium Nugget
+|A2=Caterium Nugget |B2=Caterium Nugget |C2=Caterium Nugget
+|A3=Caterium Nugget |B3=Caterium Nugget |C3=Caterium Nugget
+|Output=Caterium Ingot
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Cables|Conductive Cable]]
+|A1=Rubber |B1=Rubber |C1=Rubber
+|A2=Caterium Ingot |B2=Caterium Ingot |C2=Caterium Ingot
+|A3=Rubber |B3=Rubber |C3=Rubber
+|Output=Conductive Cable,8
+}}
+
+{{Crafting
+|name=[[Block of Caterium]]
+|A1=Caterium Ingot |B1=Caterium Ingot |C1=Caterium Ingot
+|A2=Caterium Ingot |B2=Caterium Ingot |C2=Caterium Ingot
+|A3=Caterium Ingot |B3=Caterium Ingot |C3=Caterium Ingot
+|Output=Block of Caterium
+}}
+
+{{Crafting|foot=1
+|name=[[Caterium Nugget]]
+|B2=Caterium Ingot
+|Output=Caterium Nugget,9
+}}
+
+=== Grinding ===
+
+Grind an ingot in a [[Macerator]] to recover [[Caterium Dust]]:
+
+{{Grinding|head=1|foot=1
+|Input=Caterium Ingot
+|Output=Caterium Dust
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/caterium_ingot|item.logistics.core.caterium_ingot}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Caterium Ingot.png|32px]] Added '''Caterium Ingot'''.}}
+
+== Trivia ==
+
+* Infusing [[Gold Dust|gold dust]] with [[Liquid Redstone]] gives a metal that carries current far better than gold alone — the first rung above plain copper wiring.
+
+== See also ==
+
+* [[Caterium]] - All caterium blocks and items
+* [[Caterium Dust]] - What it is smelted from
+* [[Cables]] - The conductive cable tier
+* [[Batteries]] - The conductive storage tier
+* [[Block of Caterium]], [[Caterium Nugget]] - Storage forms
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

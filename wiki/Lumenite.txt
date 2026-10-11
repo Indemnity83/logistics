@@ -1,0 +1,26 @@
+'''Lumenite''' is an infused alloy — a deep violet metal with no ore of its own. It is made by infusing [[Amethyst Dust|amethyst dust]] with [[Liquid Glowstone]] in a [[Transposer]], then smelting the result. Lumenite exists to build the '''resonant''' rung of the power ladder: the [[Batteries|Resonant Battery]] and the [[Cables|Resonant Cable]].
+
+== Blocks and items ==
+
+* [[File:Grid Lumenite Dust.png|24px|link=Lumenite Dust]] '''[[Lumenite Dust]]''' — the infused dust, and the only way into the family
+* [[File:Grid Lumenite Ingot.png|24px|link=Lumenite Ingot]] '''[[Lumenite Ingot]]''' — the ingot, smelted from the dust
+* [[File:Grid Block of Lumenite.png|24px|link=Block of Lumenite]] '''[[Block of Lumenite]]''' — compact storage for nine ingots
+* [[File:Grid Lumenite Nugget.png|24px|link=Lumenite Nugget]] '''[[Lumenite Nugget]]''' — one-ninth of an ingot
+
+== Uses ==
+
+* [[File:Grid Resonant Battery.png|24px|link=Batteries]] '''[[Batteries|Resonant Battery]]''' — the resonant storage tier, built on a [[Block of Lumenite]] core
+* [[File:Grid Resonant Cable.png|24px|link=Cables]] '''[[Cables|Resonant Cable]]''' — the resonant cable tier, wound from Lumenite ingots
+
+{{Disambig}}
+
+== See also ==
+
+* [[Caterium]], [[Lumenite]], [[Echonite]] — the three infused alloys
+* [[Transposer]] — infuses the dust
+* [[Materials]] — all crafting components
+* [[Batteries]], [[Cables]] — what Lumenite is for
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

@@ -35,6 +35,8 @@ Pipes have limited internal capacity:
 # '''Insertion''' - Attempts to insert into adjacent inventory
 # '''Drop/Complete''' - Either inserted successfully or dropped as entity
 
+On a [[Logistics Pipes|logistics network]], a destination is only chosen while it has room, and an item whose destination fills up mid-flight is re-homed to another sink with room on arrival. Items still drop when nothing on the network can take them.
+
 ==Insertion Behavior==
 
 When items reach a pipe exit:

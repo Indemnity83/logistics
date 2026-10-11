@@ -34,7 +34,7 @@ The Magmatic Engine is mined with an iron pickaxe or better; without one it drop
 
 == Usage ==
 
-Pipe {{Mcw|Lava|lava}} into the engine's tank (4,000 mB) with a [[Fluid Pipes|fluid pipe]] — or feed it from a [[Crucible]]. It draws lava in small batches and heat-soaks as it runs: a cold engine generates about '''5 RF/t''', a warmed one '''10 RF/t''', and a fully heat-soaked one up to '''15 RF/t'''. A bucket of lava (1,000 mB) lasts roughly 20,000 powered ticks. Output flows from a configurable face; if the buffer fills, excess generation is wasted. A [[Jade]] readout shows its temperature, output, and lava level.
+Pipe {{Mcw|Lava|lava}} into the engine's tank (4,000 mB) with a [[Fluid Pipes|fluid pipe]] — or feed it from a [[Crucible]]. It draws lava in small batches and heat-soaks as it runs: a cold engine generates about '''5 RF/t''', a warmed one '''10 RF/t''', and a fully heat-soaked one up to '''15 RF/t'''. A bucket of lava (1,000 mB) lasts roughly 20,000 powered ticks. Output flows from a configurable face; if the buffer fills, excess generation is wasted. A committed batch always burns to the end, so draw the engine's power away if you don't want to lose it. The engine relights whenever its buffer has a few seconds of output free, so a partly-charged buffer is no obstacle; it holds off only when the buffer is essentially full, when the tank holds something other than lava, or when there is less than a full batch of lava left. The GUI names whichever of those is stopping it. A [https://modrinth.com/mod/jade Jade] readout shows its temperature, output, and lava level.
 
 Its fuels are listed in the Just Enough Items (JEI) recipe browser, with the burn time and RF/t each one yields.
 
@@ -52,7 +52,8 @@ Use a [[Wrench]] to rotate the output face.
 
 {{History|head=1|v0.8.4|[[File:Grid Magmatic Engine.png|32px]] Added '''Magmatic Engine'''.}}
 {{History|v0.8.5|Now requires an iron pickaxe to drop; hardness lowered from 5.0 to 2.0.}}
-{{History|foot=1|v0.8.8|The engine no longer locks itself out of ignition when its buffer is smaller than a full batch of generation. A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
+{{History|v0.8.8|The engine no longer locks itself out of ignition when its buffer is smaller than a full batch of generation. A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
+{{History|foot=1|v0.8.11|The engine now relights with only a few seconds of output free in its buffer, instead of needing room for a whole batch — it previously sat cold at a quarter full for most of its duty cycle. The GUI now names the real reason an unlit engine is not igniting, including a new '''Not Enough Lava for a Batch''' readout.}}
 
 == See also ==
 

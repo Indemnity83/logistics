@@ -1,0 +1,101 @@
+'''Batteries''' buffer [[RF Energy|RF]] on a power grid. [[Engines]] charge them through [[Cables]], and they discharge through cables to whatever needs power — most often a machine such as a [[Kiln]], [[Macerator]], or [[Sawmill]], or a [[Power Junction]]. They come in four tiers that behave identically apart from how much they hold and how fast they move it.
+
+A battery is the grid's reserve rather than its first choice: on a shared cable, machines are served before batteries are topped up, and a battery gives only once the generators on that cable are spent.
+
+== Variants ==
+
+Every tier is the same shape — two [[Caterium Nugget|nuggets]] in the top corners, a storage block core, and {{Mcw|Clay Ball|clay balls}} filling the rest. The core sets the tier:
+
+{{Crafting|head=1|showdescription=1
+|name=Basic Battery
+|A1=Copper Nugget |B1=Clay Ball |C1=Copper Nugget
+|A2=Clay Ball |B2=Block of Redstone |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Basic Battery
+|description=Holds '''100,000 RF'''; moves '''1,000 RF/t''' per side and pushes '''200 RF/t''' into each adjacent machine.}}
+{{Crafting|showdescription=1
+|name=Conductive Battery
+|A1=Caterium Nugget |B1=Clay Ball |C1=Caterium Nugget
+|A2=Clay Ball |B2=Block of Caterium |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Conductive Battery
+|description=Holds '''400,000 RF'''; moves '''2,000 RF/t''' per side and pushes '''400 RF/t''' into each adjacent machine.}}
+{{Crafting|showdescription=1
+|name=Resonant Battery
+|A1=Lumenite Nugget |B1=Clay Ball |C1=Lumenite Nugget
+|A2=Clay Ball |B2=Block of Lumenite |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Resonant Battery
+|description=Holds '''1,600,000 RF'''; moves '''4,000 RF/t''' per side and pushes '''800 RF/t''' into each adjacent machine.}}
+{{Crafting|foot=1|showdescription=1
+|name=Deep Battery
+|A1=Echonite Nugget |B1=Clay Ball |C1=Echonite Nugget
+|A2=Clay Ball |B2=Block of Echonite |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Deep Battery
+|description=Holds '''6,400,000 RF'''; moves '''8,000 RF/t''' per side and pushes '''1,600 RF/t''' into each adjacent machine.}}
+
+Each tier holds four times the charge of the one below it and moves it twice as fast, so a Deep Battery is worth sixty-four Basic Batteries of storage at eight times the throughput. The three upper cores are [[Caterium|infused alloys]], each made by infusing a dust with a fluid in a [[Transposer]].
+
+== Obtaining ==
+
+=== Breaking ===
+
+Every tier is mined with a stone pickaxe or better; without one it drops nothing. A broken battery keeps its stored charge.
+
+{{Breaking
+|tier=stone
+|name1=Basic Battery      |icon1=Grid Basic Battery.png      |hardness1=3
+|name2=Conductive Battery |icon2=Grid Conductive Battery.png |hardness2=3
+|name3=Resonant Battery   |icon3=Grid Resonant Battery.png   |hardness3=3
+|name4=Deep Battery       |icon4=Grid Deep Battery.png       |hardness4=3
+}}
+
+== Usage ==
+
+* Charge level is shown as a fill bar on the placed block and as a green charge bar on the item
+* A bank of batteries on one cable is drawn from together, each contributing in proportion to what it can give, so the bank empties evenly rather than one cell at a time
+* Batteries wired to the same cable level out: charge runs from a fuller cell to an emptier one and stops once their fill fractions match
+
+To power a [[Logistics Pipes|logistics network]], feed a battery's RF into a [[Power Junction]] — pipes do not draw from a battery directly.
+
+Note that extraction pipes (the [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]]) are paced by an adjacent '''engine''' instead, not by a battery.
+
+=== Configuration ===
+
+Each tier has its own config file, <code>config/logistics/power.battery.&lt;tier&gt;.json</code>, with the same three keys. Change them in-game with the operator-only <code>/logistics config power.battery.&lt;tier&gt; &lt;key&gt; &lt;value&gt;</code> command:
+
+{{Config|head=1|capacity|Total RF storage.|100000 / 400000 / 1600000 / 6400000|Integer}}
+{{Config|max_io|Max RF/t inserted or extracted per side.|1000 / 2000 / 4000 / 8000|Integer}}
+{{Config|foot=1|output_per_side|Max RF/t actively pushed into each adjacent machine.|200 / 400 / 800 / 1600|Integer}}
+
+== Data values ==
+
+=== IDs ===
+
+{{ID|head=1|logistics:power/basic_battery|block.logistics.power.basic_battery|name=Basic Battery}}
+{{ID|logistics:power/conductive_battery|block.logistics.power.conductive_battery|name=Conductive Battery}}
+{{ID|logistics:power/resonant_battery|block.logistics.power.resonant_battery|name=Resonant Battery}}
+{{ID|foot=1|logistics:power/deep_battery|block.logistics.power.deep_battery|name=Deep Battery}}
+
+== History ==
+
+{{History|head=1|v0.7.0|[[File:Grid Basic Battery.png|32px]] Added the '''Battery'''.}}
+{{History|v0.8.0|A Battery no longer powers a logistics network directly; route its RF through a [[Power Junction]] instead.}}
+{{History|v0.8.7|A Battery now requires a pickaxe to drop; previously any tool worked.}}
+{{History|v0.8.8|The per-side push is now held to the Battery's own I/O limit, and a Battery no longer starves the cable network it sits on.}}
+{{History|v0.8.9|Batteries no longer drain each other.}}
+{{History|v0.8.10|Batteries on one cable now level out, charge running downhill only and stopping when their fill fractions match. A bank is drained evenly instead of one cell at a time, and machines on the cable are served before any Battery is topped up.}}
+{{History|foot=1|v0.8.11|The single Battery became a four-tier ladder: '''Basic''', '''Conductive''', '''Resonant''' and '''Deep'''. The old Battery is now the Basic Battery, with the same capacity and throughput, and existing batteries carry over with their stored charge. A stone pickaxe is now required — a wooden one no longer works.}}
+
+== See also ==
+
+* [[RF Energy]] - How the power system works
+* [[Power Junction]] - Feeds stored RF into a logistics network
+* [[Engines]] - Generating RF
+* [[Cables]] - Distributing RF
+* [[Caterium]], [[Lumenite]], [[Echonite]] - The infused alloys behind the upper tiers
+
+{{Navbox Logistics}}
+
+[[Category:Power]]

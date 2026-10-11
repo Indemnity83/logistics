@@ -1,30 +1,92 @@
-'''Cables''' carry [[RF Energy|RF]] power between [[Redstone Engine|engines]], a [[Battery]], and machines, so power can be routed across a distance instead of relying on a direct face-to-face connection. They come in three grades that behave identically apart from how much RF they move per tick.
+'''Cables''' carry [[RF Energy|RF]] power between [[Engines|engines]], [[Batteries|batteries]], and machines, so power can be routed across a distance instead of relying on a direct face-to-face connection. They come in four grades that behave identically apart from how much RF they move per tick.
 
 == Variants ==
 
-All cables are crafted '''8 at a time''' from [[Rubber]] wrapped around a conductive core:
+All cables are crafted '''8 at a time''' from [[Rubber]] wrapped around a conductive core. The core sets the grade:
 
 {{Crafting|head=1|showdescription=1
-|name=Copper Cable |A1=Rubber |B1=Rubber |C1=Rubber |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
-{{Crafting
-|name=Gold Cable   |A1=Rubber |B1=Rubber |C1=Rubber |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
-{{Crafting|foot=1
-|name=Ender Cable  |A1=Rubber |B1=Rubber |C1=Rubber |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber |B3=Rubber |C3=Rubber |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
+|name=Basic Cable
+|A1=Rubber |B1=Rubber |C1=Rubber
+|A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot
+|A3=Rubber |B3=Rubber |C3=Rubber
+|Output=Basic Cable,8
+|description='''30 RF/t''' — the cheapest grade, wound around {{Mcw|Copper Ingot|copper}}.}}
+{{Crafting|showdescription=1
+|name=Conductive Cable
+|A1=Rubber |B1=Rubber |C1=Rubber
+|A2=Caterium Ingot |B2=Caterium Ingot |C2=Caterium Ingot
+|A3=Rubber |B3=Rubber |C3=Rubber
+|Output=Conductive Cable,8
+|description='''60 RF/t''' — wound around [[Caterium Ingot|caterium]].}}
+{{Crafting|showdescription=1
+|name=Resonant Cable
+|A1=Rubber |B1=Rubber |C1=Rubber
+|A2=Lumenite Ingot |B2=Lumenite Ingot |C2=Lumenite Ingot
+|A3=Rubber |B3=Rubber |C3=Rubber
+|Output=Resonant Cable,8
+|description='''120 RF/t''' — wound around [[Lumenite Ingot|lumenite]].}}
+{{Crafting|foot=1|showdescription=1
+|name=Deep Cable
+|A1=Rubber |B1=Rubber |C1=Rubber
+|A2=Echonite Ingot |B2=Echonite Ingot |C2=Echonite Ingot
+|A3=Rubber |B3=Rubber |C3=Rubber
+|Output=Deep Cable,8
+|description='''240 RF/t''' — the highest throughput, wound around [[Echonite Ingot|echonite]].}}
+
+Each grade carries twice the RF of the one below it. The three upper cores are [[Caterium|infused alloys]], each made by infusing a dust with a fluid in a [[Transposer]].
 
 == Usage ==
 
-Cables connect to each other and to adjacent power blocks, forming a power network that carries RF from an [[Redstone Engine|engine]] to a [[Battery]] or machine. Each tier moves more RF per tick — '''Copper''' 30, '''Gold''' 60, '''Ender''' 120 — but the slowest cable on a run caps its throughput, so match the cable to the demand. Use Copper for short engine-to-battery hops and Ender for long runs or high-demand batteries.
+Cables connect to each other and to adjacent power blocks, forming a power network that carries RF from an [[Engines|engine]] to a [[Batteries|battery]], a [[Power Junction]], or a machine. Each grade moves more RF per tick — '''Basic''' 30, '''Conductive''' 60, '''Resonant''' 120, '''Deep''' 240 — but the slowest cable on a run caps its throughput, so match the cable to the demand. Use Basic for short engine-to-battery hops and Deep for long runs or high-demand banks.
 
 A cable never moves more than its grade allows, and RF a machine cannot accept this tick stays in the network. A slow machine at the end of a run throttles delivery to what it can take.
 
-The network serves machines first and storage second. Every machine and [[Power Junction]] on a cable is satisfied before a [[Battery]] is topped up, and a Battery is drawn on only once the generators on that cable are spent. Where several devices sit in the same tier, the tick's budget is split between them in proportion to what each one asks for.
+The network serves machines first and storage second. Every machine and [[Power Junction]] on a cable is satisfied before a [[Batteries|battery]] is topped up, and a battery is drawn on only once the generators on that cable are spent. Where several devices sit in the same tier, the tick's budget is split between them in proportion to what each one asks for.
+
+=== Configuration ===
+
+All four throughputs live in <code>config/logistics/power.cables.json</code>, and can be changed in-game with the operator-only <code>/logistics config power.cables &lt;key&gt; &lt;value&gt;</code> command:
+
+{{Config|head=1|basic|Basic cable RF/t throughput.|30|Integer}}
+{{Config|conductive|Conductive cable RF/t throughput.|60|Integer}}
+{{Config|resonant|Resonant cable RF/t throughput.|120|Integer}}
+{{Config|foot=1|deep|Deep cable RF/t throughput.|240|Integer}}
+
+== Obtaining ==
+
+=== Breaking ===
+
+Cables are soft and break almost instantly. Any pickaxe drops them.
+
+{{Breaking
+|tier=wood
+|name1=Basic Cable      |icon1=Grid Basic Cable.png      |hardness1=0.3
+|name2=Conductive Cable |icon2=Grid Conductive Cable.png |hardness2=0.3
+|name3=Resonant Cable   |icon3=Grid Resonant Cable.png   |hardness3=0.3
+|name4=Deep Cable       |icon4=Grid Deep Cable.png       |hardness4=0.3
+}}
+
+== Data values ==
+
+=== IDs ===
+
+{{ID|head=1|logistics:power/basic_cable|block.logistics.power.basic_cable|name=Basic Cable}}
+{{ID|logistics:power/conductive_cable|block.logistics.power.conductive_cable|name=Conductive Cable}}
+{{ID|logistics:power/resonant_cable|block.logistics.power.resonant_cable|name=Resonant Cable}}
+{{ID|foot=1|logistics:power/deep_cable|block.logistics.power.deep_cable|name=Deep Cable}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|The cable line was renamed onto the power ladder's tier adjectives and gained a fourth grade. '''Copper''' became '''Basic''' and '''Gold''' became '''Conductive''', both keeping their rates; '''Ender''' became '''Deep''' and was re-rated from 120 to '''240 RF/t'''; and a new '''Resonant''' grade fills the 120 RF/t slot. The upper three grades are now wound around the [[Caterium|infused alloys]] rather than gold and ender. Cables already placed in a world carry over to their new names.}}
 
 == See also ==
 
 * [[RF Energy]] — how the power system works
-* [[Battery]] — stores RF for the logistics network
-* [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] — generate RF
+* [[Batteries]] — store RF for the logistics network
+* [[Power Junction]] — feeds RF into the logistics network
+* [[Engines]] — generate RF
 * [[Rubber]] — crafting component
+* [[Caterium]], [[Lumenite]], [[Echonite]] — the infused alloy cores
 
 {{Navbox Logistics}}
 

@@ -44,7 +44,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Basic Logistics Pipe.png|32px]] Added '''Basic Logistics Pipe'''.}}
-{{History|foot=1|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
+{{History|foot=1|v0.8.11|The network no longer sends items to this pipe when its output inventory is full; a full destination is passed over, and an item whose destination fills up in transit is re-homed instead of dropped.}}
 
 == See also ==
 

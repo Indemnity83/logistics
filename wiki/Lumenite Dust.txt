@@ -1,0 +1,69 @@
+{{About|the dust|the ingot|Lumenite Ingot|the nugget|Lumenite Nugget|the storage block|Block of Lumenite|the metal in general|Lumenite}}
+{{Item
+|image     = Grid Lumenite Dust.png
+|type      = Item (Dust)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Lumenite Dust''' is [[Amethyst Dust|amethyst dust]] infused with [[Liquid Glowstone]] in a [[Transposer]]. It is the entry point to the [[Lumenite]] family — there is no ore and no other route in. Smelt it for a [[Lumenite Ingot]].
+
+== Obtaining ==
+
+=== Transposer ===
+
+The [[Transposer]] draws 1,000 mB of [[Liquid Glowstone]] from its tank to infuse one dust:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Amethyst Dust |FluidIn=Liquid Glowstone |InAmount=1000 |Output=Lumenite Dust
+|ingredients=One [[Amethyst Dust]] plus 1,000 mB of [[Liquid Glowstone]] in the tank
+|notes=3,000 RF}}
+
+=== Grinding ===
+
+A [[Macerator]] recovers the dust from finished lumenite:
+
+{{Grinding|head=1|showname=0
+|Input=Block of Lumenite
+|Output=Lumenite Dust,9
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Lumenite Ingot
+|Output=Lumenite Dust,1
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Lumenite Dust
+|Output=Lumenite Ingot
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/lumenite_dust|item.logistics.core.lumenite_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Lumenite Dust.png|32px]] Added '''Lumenite Dust'''.}}
+
+== See also ==
+
+* [[Lumenite]] - Material overview
+* [[Lumenite Ingot]] - Smelted form
+* [[Transposer]] - Infuses the dust
+* [[Liquid Glowstone]] - The infusing fluid
+* [[Dusts]] - All dusts
+* [[Macerator]] - Recovers the dust
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

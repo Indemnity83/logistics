@@ -15,6 +15,9 @@
 * [[File:Grid Tin Ingot.png|24px|link=Tin]] '''[[Tin]]''' — ore, ingot, nugget, storage blocks, and dust
 * [[File:Grid Bronze Ingot.png|24px|link=Bronze]] '''[[Bronze]]''' — the copper-and-tin alloy
 * [[File:Grid Apatite.png|24px|link=Apatite]] '''[[Apatite]]''' — the gem and its ore
+* [[File:Grid Caterium Ingot.png|24px|link=Caterium]] '''[[Caterium]]''' — the conductive infused alloy
+* [[File:Grid Lumenite Ingot.png|24px|link=Lumenite]] '''[[Lumenite]]''' — the resonant infused alloy
+* [[File:Grid Echonite Ingot.png|24px|link=Echonite]] '''[[Echonite]]''' — the deep infused alloy
 
 == Oil & fuels ==
 

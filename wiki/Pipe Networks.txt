@@ -29,6 +29,8 @@ Items travel through the network until they:
 * '''Drop''' - No valid path found, item drops as entity
 * '''Get deleted''' - Enters an [[Item Void Pipe]]
 
+On a logistics network a full destination is skipped rather than chosen, and an item whose destination fills up while it is in transit is re-homed to another sink that has room (see [[Modules#Sink priority|sink priority]]).
+
 ==See Also==
 * [[Connectivity]] - How pipes connect to each other
 * [[Routing]] - How items choose paths

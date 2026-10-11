@@ -1,0 +1,63 @@
+{{About|the nugget|the ingot|Caterium Ingot|the mineral block|Block of Caterium|the dust|Caterium Dust|the metal in general|Caterium}}
+{{Item
+|image     = Grid Caterium Nugget.png
+|type      = Item
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Caterium nuggets''' are pieces of caterium worth one-ninth of a [[Caterium Ingot|caterium ingot]]. Two of them trim the corners of a [[Batteries|Conductive Battery]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|name=Caterium Nugget
+|B2=Caterium Ingot
+|Output=Caterium Nugget,9
+}}
+
+== Usage ==
+
+Nine nuggets craft back into a [[Caterium Ingot|caterium ingot]].
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Batteries|Conductive Battery]]
+|A1=Caterium Nugget |B1=Clay Ball |C1=Caterium Nugget
+|A2=Clay Ball |B2=Block of Caterium |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Conductive Battery
+}}
+
+{{Crafting|foot=1
+|name=[[Caterium Ingot]]
+|A1=Caterium Nugget |B1=Caterium Nugget |C1=Caterium Nugget
+|A2=Caterium Nugget |B2=Caterium Nugget |C2=Caterium Nugget
+|A3=Caterium Nugget |B3=Caterium Nugget |C3=Caterium Nugget
+|Output=Caterium Ingot
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/caterium_nugget|item.logistics.core.caterium_nugget}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Caterium Nugget.png|32px]] Added '''Caterium Nugget'''.}}
+
+== See also ==
+
+* [[Caterium]] - Material overview
+* [[Caterium Ingot]] - The full ingot
+* [[Block of Caterium]] - Bulk storage block
+* [[Batteries]] - What nuggets are used for
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

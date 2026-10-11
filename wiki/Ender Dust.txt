@@ -18,17 +18,9 @@
 
 == Usage ==
 
-=== Crafting ingredient ===
+Ender Dust is not currently consumed by any machine or recipe. It can be stored and piped like any other [[Dusts|dust]], but nothing is built from it.
 
-Ender Dust is used to craft the [[Ender Cable]], the fastest [[Cables|cable]] tier:
-
-{{Crafting|head=1|foot=1
-|name=[[Ender Cable]]
-|A1=Rubber |B1=Rubber |C1=Rubber
-|A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust
-|A3=Rubber |B3=Rubber |C3=Rubber
-|Output=Ender Cable,8
-}}
+For ender in a recipe, the mod reaches for [[Liquid Ender]] instead — melted from an {{Mcw|Ender Pearl|ender pearl}} in a [[Crucible]] — which is what infuses [[Echonite Dust]] for the [[Cables|Deep Cable]] and [[Batteries|Deep Battery]].
 
 == Data values ==
 
@@ -38,14 +30,15 @@ Ender Dust is used to craft the [[Ender Cable]], the fastest [[Cables|cable]] ti
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Ender Dust.png|32px]] Added '''Ender Dust'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Ender Dust.png|32px]] Added '''Ender Dust'''.}}
+{{History|foot=1|v0.8.11|No longer used to craft a cable; the deep-tier cable is wound from [[Echonite Ingot|echonite]] instead. Ender Dust currently has no use.}}
 
 == See also ==
 
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
-* [[Ender Cable]], [[Cables]] - Crafted with Ender Dust
-* [[Rubber]] - The cable's other ingredient
+* [[Liquid Ender]] - The ender the mod's recipes actually use
+* [[Echonite]] - The deep-tier alloy, infused with Liquid Ender
 
 {{Navbox Logistics}}
 

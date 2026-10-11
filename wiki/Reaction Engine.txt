@@ -10,7 +10,7 @@
 |added            = v0.8.4
 }}
 
-The '''Reaction Engine''' combines a liquid reactant with a solid reagent to release a huge burst of [[RF Energy|RF]] over a short reaction. It is '''bufferless''' — the energy is pushed straight into the network as it is produced, and any that the network cannot accept is lost — so pair it with a [[Battery]] or a large draw.
+The '''Reaction Engine''' combines a liquid reactant with a solid reagent to release a huge burst of [[RF Energy|RF]] over a short reaction. It is '''bufferless''' — the energy is pushed straight into the network as it is produced, and any that the network cannot accept is lost — so pair it with a [[Batteries|battery]] or a large draw.
 
 == Obtaining ==
 
@@ -34,7 +34,7 @@ The Reaction Engine is mined with a diamond pickaxe or better; without one it dr
 
 == Usage ==
 
-Pipe a reactant fluid into the tank (4,000 mB) with a [[Fluid Pipes|fluid pipe]] and supply the matching solid reagent. When both are present the engine consumes them and generates its full energy across the reaction time, delivering it to the network as it goes. Because there is no internal buffer, size your cabling and storage to absorb the burst. A [[Jade]] readout shows the reactant, pressure, and generation.
+Pipe a reactant fluid into the tank (4,000 mB) with a [[Fluid Pipes|fluid pipe]] and supply the matching solid reagent. When both are present the engine consumes them and generates its full energy across the reaction time, delivering it to the network as it goes. Because there is no internal buffer, size your cabling and storage to absorb the burst. A [https://modrinth.com/mod/jade Jade] readout shows the reactant, pressure, and generation.
 
 === Reactions ===
 
@@ -72,7 +72,7 @@ Use a [[Wrench]] to rotate the output face.
 
 * [[RF Energy]] - Understanding the power system
 * [[Engines]] - All engines
-* [[Battery]] - Absorbs the energy burst
+* [[Batteries]] - Absorbs the energy burst
 * [[Liquid Ender]], [[Liquid Glowstone]] - Reactant fluids from the [[Crucible]]
 * [[Fluid Pipes]] - Supply the reactant
 * [[Netherite Gear]] - Crafting component

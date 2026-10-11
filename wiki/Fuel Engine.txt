@@ -34,7 +34,7 @@ The Fuel Engine is mined with an iron pickaxe or better; without one it drops no
 
 == Usage ==
 
-Pipe a liquid fuel into the fuel tank and water into the coolant tank (4,000 mB each) with [[Fluid Pipes|fluid pipes]]. While burning it generates '''10–40 RF/t''' from a configurable face. Generation produces waste heat; the coolant carries it away. If the engine overheats past 250&nbsp;°C it triggers a '''thermal shutdown''' — right-click it with a [[Wrench]] to reset. A [[Jade]] readout shows its temperature, output, and fuel and coolant levels.
+Pipe a liquid fuel into the fuel tank and water into the coolant tank (4,000 mB each) with [[Fluid Pipes|fluid pipes]]. While burning it generates '''10–40 RF/t''' from a configurable face. Generation produces waste heat; the coolant carries it away. If the engine overheats past 250&nbsp;°C it triggers a '''thermal shutdown''' — right-click it with a [[Wrench]] to reset. A [https://modrinth.com/mod/jade Jade] readout shows its temperature, output, and fuel and coolant levels.
 
 === Fuels ===
 

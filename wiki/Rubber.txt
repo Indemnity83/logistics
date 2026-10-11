@@ -25,11 +25,13 @@ The two polymers give a renewable ([[Natural Polymer|slime-based]]) and a minera
 Rubber insulates every [[Cables|power cable]] — six pieces wrapped around a conductive core, crafted '''8 at a time''':
 
 {{Crafting|head=1|showdescription=1
-|name=[[Cables|Copper Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Copper Cable,8 |description=30 RF/t — the cheapest grade.}}
-{{Crafting
-|name=[[Cables|Gold Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Gold Ingot |B2=Gold Ingot |C2=Gold Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Gold Cable,8 |description=60 RF/t — the mid grade.}}
-{{Crafting|foot=1
-|name=[[Cables|Ender Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Ender Dust |B2=Gold Ingot |C2=Ender Dust |A3=Rubber |B3=Rubber |C3=Rubber |Output=Ender Cable,8 |description=120 RF/t — the highest throughput.}}
+|name=[[Cables|Basic Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Copper Ingot |B2=Copper Ingot |C2=Copper Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Basic Cable,8 |description=30 RF/t — the cheapest grade.}}
+{{Crafting|showdescription=1
+|name=[[Cables|Conductive Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Caterium Ingot |B2=Caterium Ingot |C2=Caterium Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Conductive Cable,8 |description=60 RF/t.}}
+{{Crafting|showdescription=1
+|name=[[Cables|Resonant Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Lumenite Ingot |B2=Lumenite Ingot |C2=Lumenite Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Resonant Cable,8 |description=120 RF/t.}}
+{{Crafting|foot=1|showdescription=1
+|name=[[Cables|Deep Cable]] |A1=Rubber |B1=Rubber |C1=Rubber |A2=Echonite Ingot |B2=Echonite Ingot |C2=Echonite Ingot |A3=Rubber |B3=Rubber |C3=Rubber |Output=Deep Cable,8 |description=240 RF/t — the highest throughput.}}
 
 == Data values ==
 
@@ -46,6 +48,7 @@ Rubber insulates every [[Cables|power cable]] — six pieces wrapped around a co
 
 * [[Natural Polymer]], [[Synthetic Polymer]] - Smelted into Rubber
 * [[Cables]] - Insulated with Rubber
+* [[Caterium]], [[Lumenite]], [[Echonite]] - The upper grades' conductive cores
 * [[Alloy Smelter]] - Smelts polymers into Rubber
 * [[Sulfur Dust]] - Co-ingredient
 

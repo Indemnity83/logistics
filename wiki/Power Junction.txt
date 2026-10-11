@@ -9,7 +9,7 @@
 |added           = v0.8.0
 }}
 
-The '''Power Junction''' is the single point where electrical power enters a [[Logistics Pipes|logistics network]]. [[Cables]], engines, and [[Battery|batteries]] feed RF into the junction, and the network draws what it needs out of the junction's buffer. A network with no Power Junction has no power; a [[Battery]] placed directly on the pipes does not feed them.
+The '''Power Junction''' is the single point where electrical power enters a [[Logistics Pipes|logistics network]]. [[Cables]], engines, and [[Batteries|batteries]] feed RF into the junction, and the network draws what it needs out of the junction's buffer. A network with no Power Junction has no power; a [[Batteries|battery]] placed directly on the pipes does not feed them.
 
 == Obtaining ==
 
@@ -36,10 +36,10 @@ The Power Junction is mined with a stone pickaxe or better; without one it drops
 Place the Power Junction so it touches both your power grid and your [[Logistics Pipes|logistics network]]. It buffers the two sides:
 
 * Holds up to '''1,000,000 RF'''.
-* Accepts up to '''128 RF/t''' from adjacent [[Cables]], [[Engines]], or a [[Battery]]. This is the rate that matters when sizing a grid — how fast a junction fills is what the network's throughput is built around.
+* Accepts up to '''128 RF/t''' from adjacent [[Cables]], [[Engines]], or a [[Batteries|battery]]. This is the rate that matters when sizing a grid — how fast a junction fills is what the network's throughput is built around.
 * Lets the network draw on the whole buffer in a single tick; there is no rate cap on the way out, so a burst of routing or crafting can spend the full million.
 
-RF that has entered the junction belongs to the logistics network. The junction accepts power from the world but never gives it back, so a [[Cables|cable]] cannot pull that charge out again into a [[Battery]] or machine.
+RF that has entered the junction belongs to the logistics network. The junction accepts power from the world but never gives it back, so a [[Cables|cable]] cannot pull that charge out again into a [[Batteries|battery]] or machine.
 
 The front face shows a charge indicator that fills as the buffer charges. Run your power into a junction, and the junction into the network — without one, the network cannot be powered.
 
@@ -57,7 +57,7 @@ The front face shows a charge indicator that fills as the buffer charges. Run yo
 
 == See also ==
 
-* [[Battery]] - Stores RF to feed the junction
+* [[Batteries]] - Stores RF to feed the junction
 * [[Logistics Pipes]] - The network the junction powers
 * [[Cables]] - Carry RF to the junction
 * [[Stirling Engine]] - Generates RF

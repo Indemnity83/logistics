@@ -82,8 +82,8 @@ Engines generate RF energy, which cables carry to machines and to a [[Power Junc
 * '''[[Stirling Engine]]''' - High power from fuel
 * '''[[Creative Engine]]''' - Unlimited power for creative mode
 * '''[[Power Junction]]''' - Feeds power into the logistics network
-* '''[[Battery]]''' - Store RF for later use
-* '''[[Copper Cable]]''' / '''[[Gold Cable]]''' / '''[[Ender Cable]]''' - Carry RF between engines, batteries, and machines
+* '''[[Batteries]]''' - Store RF for later use
+* '''[[Cables]]''' - Carry RF between engines, batteries, and machines, in Basic, Conductive, Resonant and Deep grades
 
 [[Energy|Browse all power →]]
 

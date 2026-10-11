@@ -16,11 +16,11 @@ The '''Redstone Engine''' is a basic power generator that converts a {{Mcw|Redst
 
 === Breaking ===
 
-The Redstone Engine is mined with an axe or a pickaxe; without one it drops nothing. An axe is the faster of the two.
+The Redstone Engine is mined with a stone-tier axe or pickaxe or better; below that tier it drops nothing. An axe is the faster of the two.
 
 {{Breaking
 |tool=axe
-|tier=wood
+|tier=stone
 |name1=Redstone Engine |icon1=Grid Redstone Engine.png |hardness1=2
 }}
 
@@ -57,7 +57,8 @@ The Redstone Engine produces low RF, suitable for light-duty machines, early-gam
 {{History|v0.8.4|[[File:Grid Redstone Engine.png|32px]] The texture has been refreshed.}}
 {{History|v0.8.5|Now requires an axe to drop; hardness lowered from 5.0 to 2.0.}}
 {{History|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
-{{History|foot=1|v0.8.9|A pickaxe now drops the engine as well as an axe.}}
+{{History|v0.8.9|A pickaxe now drops the engine as well as an axe.}}
+{{History|foot=1|v0.8.11|Now requires a stone-tier tool to drop; a wooden pickaxe no longer harvests it.}}
 
 == See also ==
 * [[RF Energy]] - Understanding the power system

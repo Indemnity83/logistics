@@ -1,0 +1,82 @@
+{{About|the mineral block|the ingot|Lumenite Ingot|the nugget|Lumenite Nugget|the dust|Lumenite Dust|the metal in general|Lumenite}}
+{{Block
+|image     = Grid Block of Lumenite.png
+|type      = Block
+|tool      = Stone Pickaxe
+|hardness  = 3
+|blastresistance = 6
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+A '''block of lumenite''' is a storage block equivalent to nine [[Lumenite Ingot|lumenite ingots]]. It is also the core of a [[Batteries|Resonant Battery]], so it is a crafting component as much as a storage block.
+
+== Obtaining ==
+
+=== Breaking ===
+
+A block of lumenite can be mined only with a stone pickaxe or better. Mined without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Block of Lumenite |icon1=Grid Block of Lumenite.png |hardness1=3
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|name=Block of Lumenite
+|A1=Lumenite Ingot |B1=Lumenite Ingot |C1=Lumenite Ingot
+|A2=Lumenite Ingot |B2=Lumenite Ingot |C2=Lumenite Ingot
+|A3=Lumenite Ingot |B3=Lumenite Ingot |C3=Lumenite Ingot
+|Output=Block of Lumenite
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Batteries|Resonant Battery]]
+|A1=Lumenite Nugget |B1=Clay Ball |C1=Lumenite Nugget
+|A2=Clay Ball |B2=Block of Lumenite |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Resonant Battery
+}}
+
+{{Crafting|foot=1
+|name=[[Lumenite Ingot]]
+|B2=Block of Lumenite
+|Output=Lumenite Ingot,9
+}}
+
+=== Grinding ===
+
+A [[Macerator]] grinds the whole block down at once:
+
+{{Grinding|head=1|foot=1
+|Input=Block of Lumenite
+|Output=Lumenite Dust,9
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/lumenite_block|block.logistics.core.lumenite_block}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Block of Lumenite.png|32px]] Added '''Block of Lumenite'''.}}
+
+== See also ==
+
+* [[Lumenite]] - Material overview
+* [[Lumenite Ingot]] - The ingot it stores
+* [[Lumenite Nugget]] - Smaller unit
+* [[Batteries]] - Built on this block
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

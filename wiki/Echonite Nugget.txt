@@ -1,0 +1,63 @@
+{{About|the nugget|the ingot|Echonite Ingot|the mineral block|Block of Echonite|the dust|Echonite Dust|the metal in general|Echonite}}
+{{Item
+|image     = Grid Echonite Nugget.png
+|type      = Item
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Echonite nuggets''' are pieces of echonite worth one-ninth of a [[Echonite Ingot|echonite ingot]]. Two of them trim the corners of a [[Batteries|Deep Battery]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|name=Echonite Nugget
+|B2=Echonite Ingot
+|Output=Echonite Nugget,9
+}}
+
+== Usage ==
+
+Nine nuggets craft back into a [[Echonite Ingot|echonite ingot]].
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Batteries|Deep Battery]]
+|A1=Echonite Nugget |B1=Clay Ball |C1=Echonite Nugget
+|A2=Clay Ball |B2=Block of Echonite |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Deep Battery
+}}
+
+{{Crafting|foot=1
+|name=[[Echonite Ingot]]
+|A1=Echonite Nugget |B1=Echonite Nugget |C1=Echonite Nugget
+|A2=Echonite Nugget |B2=Echonite Nugget |C2=Echonite Nugget
+|A3=Echonite Nugget |B3=Echonite Nugget |C3=Echonite Nugget
+|Output=Echonite Ingot
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/echonite_nugget|item.logistics.core.echonite_nugget}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Echonite Nugget.png|32px]] Added '''Echonite Nugget'''.}}
+
+== See also ==
+
+* [[Echonite]] - Material overview
+* [[Echonite Ingot]] - The full ingot
+* [[Block of Echonite]] - Bulk storage block
+* [[Batteries]] - What nuggets are used for
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

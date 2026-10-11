@@ -9,7 +9,7 @@ A single recipe is drawn as a Minecraft-style crafting grid with the [[Template:
 The recipe-heavy overview pages are the quickest way to browse what's craftable:
 
 * '''Pipes''' — [[Transport Pipes]], [[Logistics Pipes]], [[Fluid Pipes]]
-* '''Power''' — [[Cables]], and the engines and [[Battery]] under [[Energy]]
+* '''Power''' — [[Cables]], and the engines and [[Batteries|battery]] under [[Energy]]
 * '''Components''' — [[Gears]], [[Valves]], [[Chipsets]], [[Dusts]]
 
 Individual machine, tool, and module pages each show their own recipe as well.

@@ -9,7 +9,7 @@
 |added            = v0.6.0
 }}
 
-The '''Creative Engine''' is a power source that produces an unlimited supply of [[RF Energy|RF]] for testing and creative-mode builds. It lets you power a [[Battery]], the logistics network, or any machine without worrying about fuel or engine output.
+The '''Creative Engine''' is a power source that produces an unlimited supply of [[RF Energy|RF]] for testing and creative-mode builds. It lets you power a [[Batteries|battery]], the logistics network, or any machine without worrying about fuel or engine output.
 
 == Obtaining ==
 
@@ -28,8 +28,8 @@ The Creative Engine is mined with a pickaxe of any tier; without one it drops no
 
 * Outputs a steady, configurable amount of RF every tick — effectively infinite power
 * Never runs out of fuel and never overheats
-* Output is delivered through [[Copper Cable|power cables]] just like the [[Redstone Engine]] and [[Stirling Engine]]
-* Useful for charging a [[Battery]] instantly while testing a logistics network
+* Output is delivered through [[Cables|power cables]] just like the [[Redstone Engine]] and [[Stirling Engine]]
+* Useful for charging a [[Batteries|battery]] instantly while testing a logistics network
 
 == Data values ==
 
@@ -43,9 +43,9 @@ The Creative Engine is mined with a pickaxe of any tier; without one it drops no
 
 == See also ==
 * [[RF Energy]] - How the power system works
-* [[Battery]] - Stores RF for the logistics network
+* [[Batteries]] - Stores RF for the logistics network
 * [[Redstone Engine]], [[Stirling Engine]] - Survival-friendly power sources
-* [[Copper Cable]], [[Gold Cable]], [[Ender Cable]] - Distribute RF
+* [[Cables]] - Distribute RF
 
 {{Navbox Logistics}}
 

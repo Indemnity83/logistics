@@ -1,0 +1,26 @@
+'''Echonite''' is an infused alloy — a dark teal metal with no ore of its own. It is made by infusing [[Echo Dust|echo dust]] with [[Liquid Ender]] in a [[Transposer]], then smelting the result. Echonite exists to build the '''deep''' rung of the power ladder: the [[Batteries|Deep Battery]] and the [[Cables|Deep Cable]].
+
+== Blocks and items ==
+
+* [[File:Grid Echonite Dust.png|24px|link=Echonite Dust]] '''[[Echonite Dust]]''' — the infused dust, and the only way into the family
+* [[File:Grid Echonite Ingot.png|24px|link=Echonite Ingot]] '''[[Echonite Ingot]]''' — the ingot, smelted from the dust
+* [[File:Grid Block of Echonite.png|24px|link=Block of Echonite]] '''[[Block of Echonite]]''' — compact storage for nine ingots
+* [[File:Grid Echonite Nugget.png|24px|link=Echonite Nugget]] '''[[Echonite Nugget]]''' — one-ninth of an ingot
+
+== Uses ==
+
+* [[File:Grid Deep Battery.png|24px|link=Batteries]] '''[[Batteries|Deep Battery]]''' — the deep storage tier, built on a [[Block of Echonite]] core
+* [[File:Grid Deep Cable.png|24px|link=Cables]] '''[[Cables|Deep Cable]]''' — the deep cable tier, wound from Echonite ingots
+
+{{Disambig}}
+
+== See also ==
+
+* [[Caterium]], [[Lumenite]], [[Echonite]] — the three infused alloys
+* [[Transposer]] — infuses the dust
+* [[Materials]] — all crafting components
+* [[Batteries]], [[Cables]] — what Echonite is for
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

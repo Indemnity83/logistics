@@ -88,7 +88,7 @@ The setting lives in <code>config/logistics/machines.quarry.json</code> and can 
 
 === Jade HUD ===
 
-With [https://www.curseforge.com/minecraft/mc-mods/jade Jade] installed, looking at a Laser Quarry shows its live status in the HUD — including its working state and mining progress — so you can monitor it without opening the GUI.
+With [https://modrinth.com/mod/jade Jade] installed, looking at a Laser Quarry shows its live status in the HUD — including its working state and mining progress — so you can monitor it without opening the GUI.
 
 == Data values ==
 

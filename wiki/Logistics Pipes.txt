@@ -15,7 +15,7 @@
 
 == Power ==
 
-Logistics pipes are powered. The network draws [[RF Energy|RF]] through a [[Power Junction]]; while powered a pipe renders '''green''', and with no charge it renders '''red''', the network stops routing, and items in transit drop. A single Power Junction fed by an engine or [[Battery]] keeps every logistics pipe running.
+Logistics pipes are powered. The network draws [[RF Energy|RF]] through a [[Power Junction]]; while powered a pipe renders '''green''', and with no charge it renders '''red''', the network stops routing, and items in transit drop. A single Power Junction fed by an engine or [[Batteries|battery]] keeps every logistics pipe running.
 
 == Usage ==
 

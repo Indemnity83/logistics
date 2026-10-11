@@ -13,7 +13,7 @@
 * '''[[Sequential Fabricator]]''' - Assembles [[Chipsets|chipsets]] from redstone and a tier material
 
 ==Power==
-* '''[[Power Junction]]''' - Feeds RF from cables or a [[Battery]] into a [[Logistics Pipes|logistics network]]
+* '''[[Power Junction]]''' - Feeds RF from cables or a [[Batteries|battery]] into a [[Logistics Pipes|logistics network]]
 
 ==See Also==
 * [[Machine Frame]], [[Redstone Reception Coil]] - Shared components for all machines

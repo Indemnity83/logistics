@@ -1,0 +1,63 @@
+{{About|the nugget|the ingot|Lumenite Ingot|the mineral block|Block of Lumenite|the dust|Lumenite Dust|the metal in general|Lumenite}}
+{{Item
+|image     = Grid Lumenite Nugget.png
+|type      = Item
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Lumenite nuggets''' are pieces of lumenite worth one-ninth of a [[Lumenite Ingot|lumenite ingot]]. Two of them trim the corners of a [[Batteries|Resonant Battery]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|name=Lumenite Nugget
+|B2=Lumenite Ingot
+|Output=Lumenite Nugget,9
+}}
+
+== Usage ==
+
+Nine nuggets craft back into a [[Lumenite Ingot|lumenite ingot]].
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Batteries|Resonant Battery]]
+|A1=Lumenite Nugget |B1=Clay Ball |C1=Lumenite Nugget
+|A2=Clay Ball |B2=Block of Lumenite |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Resonant Battery
+}}
+
+{{Crafting|foot=1
+|name=[[Lumenite Ingot]]
+|A1=Lumenite Nugget |B1=Lumenite Nugget |C1=Lumenite Nugget
+|A2=Lumenite Nugget |B2=Lumenite Nugget |C2=Lumenite Nugget
+|A3=Lumenite Nugget |B3=Lumenite Nugget |C3=Lumenite Nugget
+|Output=Lumenite Ingot
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/lumenite_nugget|item.logistics.core.lumenite_nugget}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Lumenite Nugget.png|32px]] Added '''Lumenite Nugget'''.}}
+
+== See also ==
+
+* [[Lumenite]] - Material overview
+* [[Lumenite Ingot]] - The full ingot
+* [[Block of Lumenite]] - Bulk storage block
+* [[Batteries]] - What nuggets are used for
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

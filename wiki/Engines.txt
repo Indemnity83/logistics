@@ -16,7 +16,7 @@
 
 * [[RF Energy]] — the power system engines feed
 * [[Power Junction]] — feeds engine power into the logistics network
-* [[Battery]] — stores RF
+* [[Batteries]] — stores RF
 * [[Energy]] — power overview
 
 {{Navbox Logistics}}

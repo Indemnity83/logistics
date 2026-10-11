@@ -1,0 +1,69 @@
+{{About|the dust|the ingot|Caterium Ingot|the nugget|Caterium Nugget|the storage block|Block of Caterium|the metal in general|Caterium}}
+{{Item
+|image     = Grid Caterium Dust.png
+|type      = Item (Dust)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Caterium Dust''' is [[Gold Dust|gold dust]] infused with [[Liquid Redstone]] in a [[Transposer]]. It is the entry point to the [[Caterium]] family — there is no ore and no other route in. Smelt it for a [[Caterium Ingot]].
+
+== Obtaining ==
+
+=== Transposer ===
+
+The [[Transposer]] draws 1,000 mB of [[Liquid Redstone]] from its tank to infuse one dust:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Gold Dust |FluidIn=Liquid Redstone |InAmount=1000 |Output=Caterium Dust
+|ingredients=One [[Gold Dust]] plus 1,000 mB of [[Liquid Redstone]] in the tank
+|notes=2,000 RF}}
+
+=== Grinding ===
+
+A [[Macerator]] recovers the dust from finished caterium:
+
+{{Grinding|head=1|showname=0
+|Input=Block of Caterium
+|Output=Caterium Dust,9
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Caterium Ingot
+|Output=Caterium Dust,1
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Caterium Dust
+|Output=Caterium Ingot
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/caterium_dust|item.logistics.core.caterium_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Caterium Dust.png|32px]] Added '''Caterium Dust'''.}}
+
+== See also ==
+
+* [[Caterium]] - Material overview
+* [[Caterium Ingot]] - Smelted form
+* [[Transposer]] - Infuses the dust
+* [[Liquid Redstone]] - The infusing fluid
+* [[Dusts]] - All dusts
+* [[Macerator]] - Recovers the dust
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

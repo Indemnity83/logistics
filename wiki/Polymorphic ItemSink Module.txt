@@ -42,7 +42,8 @@ Seed the adjacent inventory with one of each item type you want it to accept and
 
 {{History|head=1|v0.2.0|[[File:Grid Polymorphic ItemSink Module (v0.2.0).png|32px]] Added '''Polymorphic ItemSink Module'''.}}
 {{History|v0.8.3|[[File:Grid Polymorphic ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
-{{History|foot=1|v0.8.8|Now ranks below the [[ItemSink Module]] instead of tying with it, so a configured Item Sink is no longer shadowed by a Polymorphic sink.}}
+{{History|v0.8.8|Now ranks below the [[ItemSink Module]] instead of tying with it, so a configured Item Sink is no longer shadowed by a Polymorphic sink.}}
+{{History|foot=1|v0.8.11|The network no longer sends items to a sink whose output inventory is full; a full sink is passed over, and an item whose sink fills up in transit is re-homed instead of dropped.}}
 
 == See also ==
 * [[ItemSink Module]] - Accept a specifically configured item type

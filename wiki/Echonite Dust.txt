@@ -1,0 +1,69 @@
+{{About|the dust|the ingot|Echonite Ingot|the nugget|Echonite Nugget|the storage block|Block of Echonite|the metal in general|Echonite}}
+{{Item
+|image     = Grid Echonite Dust.png
+|type      = Item (Dust)
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+'''Echonite Dust''' is [[Echo Dust|echo dust]] infused with [[Liquid Ender]] in a [[Transposer]]. It is the entry point to the [[Echonite]] family — there is no ore and no other route in. Smelt it for a [[Echonite Ingot]].
+
+== Obtaining ==
+
+=== Transposer ===
+
+The [[Transposer]] draws 1,000 mB of [[Liquid Ender]] from its tank to infuse one dust:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Echo Dust |FluidIn=Liquid Ender |InAmount=1000 |Output=Echonite Dust
+|ingredients=One [[Echo Dust]] plus 1,000 mB of [[Liquid Ender]] in the tank
+|notes=4,000 RF}}
+
+=== Grinding ===
+
+A [[Macerator]] recovers the dust from finished echonite:
+
+{{Grinding|head=1|showname=0
+|Input=Block of Echonite
+|Output=Echonite Dust,9
+}}
+
+{{Grinding|showname=0|foot=1
+|Input=Echonite Ingot
+|Output=Echonite Dust,1
+}}
+
+== Usage ==
+
+=== Smelting ===
+
+Smelt it in a furnace, blast furnace, or a [[Kiln]]:
+
+{{Smelting|head=1|foot=1|showname=0
+|Input=Echonite Dust
+|Output=Echonite Ingot
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/echonite_dust|item.logistics.core.echonite_dust}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Echonite Dust.png|32px]] Added '''Echonite Dust'''.}}
+
+== See also ==
+
+* [[Echonite]] - Material overview
+* [[Echonite Ingot]] - Smelted form
+* [[Transposer]] - Infuses the dust
+* [[Liquid Ender]] - The infusing fluid
+* [[Dusts]] - All dusts
+* [[Macerator]] - Recovers the dust
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

@@ -48,7 +48,8 @@ Install several Item Sink Modules in one chassis to make a multi-item sorting st
 
 {{History|head=1|v0.2.0|[[File:Grid ItemSink Module (v0.2.0).png|32px]] Added '''ItemSink Module'''.}}
 {{History|v0.8.3|[[File:Grid ItemSink Module.png|32px]] The texture has been updated. Recipe reworked — now built from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a chip.}}
-{{History|foot=1|v0.8.8|Now outranks the [[Polymorphic ItemSink Module]], which previously tied with it for the same items.}}
+{{History|v0.8.8|Now outranks the [[Polymorphic ItemSink Module]], which previously tied with it for the same items.}}
+{{History|foot=1|v0.8.11|The network no longer sends items to a sink whose output inventory is full; a full sink is passed over, and an item whose sink fills up in transit is re-homed instead of dropped.}}
 
 == See also ==
 * [[Polymorphic ItemSink Module]] - Accepts any item type that already exists in the adjacent inventory

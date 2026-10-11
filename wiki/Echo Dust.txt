@@ -19,7 +19,14 @@
 
 == Usage ==
 
-Echo Dust has no crafting, smelting, or machine recipes — nothing currently consumes it.
+=== Infusing ===
+
+A [[Transposer]] infuses it with [[Liquid Ender]] into [[Echonite Dust]], the deep rung of the power ladder:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Echo Dust |FluidIn=Liquid Ender |InAmount=1000 |Output=Echonite Dust
+|ingredients=One [[Echo Dust]] plus 1,000 mB of [[Liquid Ender]] in the tank
+|notes=4,000 RF}}
 
 == Data values ==
 
@@ -29,10 +36,12 @@ Echo Dust has no crafting, smelting, or machine recipes — nothing currently co
 
 == History ==
 
-{{History|head=1|foot=1|v0.2.0|[[File:Grid Echo Dust.png|32px]] Added '''Echo Dust'''.}}
+{{History|head=1|v0.2.0|[[File:Grid Echo Dust.png|32px]] Added '''Echo Dust'''.}}
+{{History|foot=1|v0.8.11|Echo Dust now has a use: a [[Transposer]] infuses it with [[Liquid Ender]] into [[Echonite Dust]].}}
 
 == See also ==
 
+* [[Echonite]] - The alloy it infuses into
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 

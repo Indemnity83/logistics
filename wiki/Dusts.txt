@@ -1,4 +1,4 @@
-'''Dusts''' are ground materials produced by the [[Macerator]]. Each dust has its own page covering how it is ground, smelted, or used.
+'''Dusts''' are powdered materials. Most are ground by the [[Macerator]]; the three infused dusts are made in a [[Transposer]] instead. Each dust has its own page covering how it is made, smelted, or used.
 
 == Variants ==
 
@@ -21,6 +21,14 @@
 * [[File:Grid Prismarine Dust.png|24px|link=Prismarine Dust]] '''[[Prismarine Dust]]'''
 * [[File:Grid Obsidian Dust.png|24px|link=Obsidian Dust]] '''[[Obsidian Dust]]'''
 * [[File:Grid Netherite Dust.png|24px|link=Netherite Dust]] '''[[Netherite Dust]]'''
+
+=== Infused dusts ===
+
+These three are made in a [[Transposer]] rather than ground in a [[Macerator]] — a dust infused with a Logistics fluid. Each one smelts into the alloy behind one rung of the power ladder:
+
+* [[File:Grid Caterium Dust.png|24px|link=Caterium Dust]] '''[[Caterium Dust]]''' — [[Gold Dust|gold]] infused with [[Liquid Redstone]]
+* [[File:Grid Lumenite Dust.png|24px|link=Lumenite Dust]] '''[[Lumenite Dust]]''' — [[Amethyst Dust|amethyst]] infused with [[Liquid Glowstone]]
+* [[File:Grid Echonite Dust.png|24px|link=Echonite Dust]] '''[[Echonite Dust]]''' — [[Echo Dust|echo]] infused with [[Liquid Ender]]
 
 == Ore doubling ==
 

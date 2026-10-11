@@ -42,7 +42,7 @@ The wrench works with any configurable Logistics block; future machines and comp
 
 === Inspecting blocks ===
 
-The wrench itself is for configuration only, not inspection. Hover information comes through '''[https://www.curseforge.com/minecraft/mc-mods/jade Jade]''' HUD integration, which displays:
+The wrench itself is for configuration only, not inspection. Hover information comes through '''[https://modrinth.com/mod/jade Jade]''' HUD integration, which displays:
 
 * Pipe contents (items currently inside a pipe)
 * Pipe module status (installed modules in a [[Chassis Logistics Pipe]])

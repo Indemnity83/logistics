@@ -109,6 +109,28 @@ Soaking sand or gravel in [[Crude Oil]] recreates the oil-bearing blocks, closin
 |Input=Gravel |FluidIn=Crude Oil |InAmount=1000 |Output=Oil Shale
 |notes=4,000 RF}}
 
+==== Infusing ====
+
+Infusing a dust with a Logistics fluid yields one of the three [[Caterium|infused alloys]] — the metals behind the upper rungs of the power ladder. Each takes 1,000 mB from the tank:
+
+{{Transposer|head=1
+|name=Caterium
+|Input=Gold Dust |FluidIn=Liquid Redstone |InAmount=1000 |Output=Caterium Dust
+|ingredients=One [[Gold Dust]] plus 1,000 mB of [[Liquid Redstone]]
+|notes=2,000 RF}}
+{{Transposer
+|name=Lumenite
+|Input=Amethyst Dust |FluidIn=Liquid Glowstone |InAmount=1000 |Output=Lumenite Dust
+|ingredients=One [[Amethyst Dust]] plus 1,000 mB of [[Liquid Glowstone]]
+|notes=3,000 RF}}
+{{Transposer|foot=1
+|name=Echonite
+|Input=Echo Dust |FluidIn=Liquid Ender |InAmount=1000 |Output=Echonite Dust
+|ingredients=One [[Echo Dust]] plus 1,000 mB of [[Liquid Ender]]
+|notes=4,000 RF}}
+
+Smelt the infused dust in a furnace, blast furnace, or [[Kiln]] for the ingot.
+
 == Data values ==
 
 === ID ===
@@ -119,7 +141,8 @@ Soaking sand or gravel in [[Crude Oil]] recreates the oil-bearing blocks, closin
 
 {{History|head=1|v0.8.6|[[File:Grid Transposer.png|32px]] Added '''Transposer'''.}}
 {{History|v0.8.7|Added an RF cost (previously free); recipes moved to a data-driven system with several new conversions, including [[Seed Oil]] and the oil-bearing blocks; crafting recipe swapped side buckets for glass.}}
-{{History|foot=1|v0.8.8|The input slot now refuses items no loaded recipe can convert, so a wrongly-routed item can no longer jam the machine.}}
+{{History|v0.8.8|The input slot now refuses items no loaded recipe can convert, so a wrongly-routed item can no longer jam the machine.}}
+{{History|foot=1|v0.8.11|Added the three infusing recipes that make [[Caterium Dust]], [[Lumenite Dust]] and [[Echonite Dust]].}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system

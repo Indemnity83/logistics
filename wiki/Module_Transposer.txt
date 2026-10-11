@@ -110,10 +110,12 @@ function p.transposer(frame)
 	out[#out + 1] = '\n|-'
 	if showName then
 		-- Default name: the produced item, or the produced fluid when the recipe only makes fluid.
+		-- Routed through ItemLink so a vanilla product (Mossy Cobblestone, Wet Sponge) links out to
+		-- the Minecraft Wiki; a bare [[...]] made those four a redlink on every Transposer page.
 		local nm = trim(args.name)
 		if not nm then
 			local subject = output or fluidOut
-			nm = subject and ('[[' .. subject .. ']]') or ''
+			nm = subject and itemlink.linkFor(subject) or ''
 		end
 		out[#out + 1] = '\n| class="logi-recipes-name" | ' .. nm
 	end

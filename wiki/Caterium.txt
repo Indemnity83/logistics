@@ -1,0 +1,26 @@
+'''Caterium''' is an infused alloy — a warm orange metal with no ore of its own. It is made by infusing [[Gold Dust|gold dust]] with [[Liquid Redstone]] in a [[Transposer]], then smelting the result. Caterium exists to build the '''conductive''' rung of the power ladder: the [[Batteries|Conductive Battery]] and the [[Cables|Conductive Cable]].
+
+== Blocks and items ==
+
+* [[File:Grid Caterium Dust.png|24px|link=Caterium Dust]] '''[[Caterium Dust]]''' — the infused dust, and the only way into the family
+* [[File:Grid Caterium Ingot.png|24px|link=Caterium Ingot]] '''[[Caterium Ingot]]''' — the ingot, smelted from the dust
+* [[File:Grid Block of Caterium.png|24px|link=Block of Caterium]] '''[[Block of Caterium]]''' — compact storage for nine ingots
+* [[File:Grid Caterium Nugget.png|24px|link=Caterium Nugget]] '''[[Caterium Nugget]]''' — one-ninth of an ingot
+
+== Uses ==
+
+* [[File:Grid Conductive Battery.png|24px|link=Batteries]] '''[[Batteries|Conductive Battery]]''' — the conductive storage tier, built on a [[Block of Caterium]] core
+* [[File:Grid Conductive Cable.png|24px|link=Cables]] '''[[Cables|Conductive Cable]]''' — the conductive cable tier, wound from Caterium ingots
+
+{{Disambig}}
+
+== See also ==
+
+* [[Caterium]], [[Lumenite]], [[Echonite]] — the three infused alloys
+* [[Transposer]] — infuses the dust
+* [[Materials]] — all crafting components
+* [[Batteries]], [[Cables]] — what Caterium is for
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

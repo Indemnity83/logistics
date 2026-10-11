@@ -1,0 +1,82 @@
+{{About|the mineral block|the ingot|Echonite Ingot|the nugget|Echonite Nugget|the dust|Echonite Dust|the metal in general|Echonite}}
+{{Block
+|image     = Grid Block of Echonite.png
+|type      = Block
+|tool      = Stone Pickaxe
+|hardness  = 3
+|blastresistance = 6
+|renewable = No
+|stackable = Yes (64)
+|added     = v0.8.11
+}}
+
+A '''block of echonite''' is a storage block equivalent to nine [[Echonite Ingot|echonite ingots]]. It is also the core of a [[Batteries|Deep Battery]], so it is a crafting component as much as a storage block.
+
+== Obtaining ==
+
+=== Breaking ===
+
+A block of echonite can be mined only with a stone pickaxe or better. Mined without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Block of Echonite |icon1=Grid Block of Echonite.png |hardness1=3
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1
+|name=Block of Echonite
+|A1=Echonite Ingot |B1=Echonite Ingot |C1=Echonite Ingot
+|A2=Echonite Ingot |B2=Echonite Ingot |C2=Echonite Ingot
+|A3=Echonite Ingot |B3=Echonite Ingot |C3=Echonite Ingot
+|Output=Block of Echonite
+}}
+
+== Usage ==
+
+=== Crafting ingredient ===
+
+{{Crafting|head=1
+|name=[[Batteries|Deep Battery]]
+|A1=Echonite Nugget |B1=Clay Ball |C1=Echonite Nugget
+|A2=Clay Ball |B2=Block of Echonite |C2=Clay Ball
+|A3=Clay Ball |B3=Clay Ball |C3=Clay Ball
+|Output=Deep Battery
+}}
+
+{{Crafting|foot=1
+|name=[[Echonite Ingot]]
+|B2=Block of Echonite
+|Output=Echonite Ingot,9
+}}
+
+=== Grinding ===
+
+A [[Macerator]] grinds the whole block down at once:
+
+{{Grinding|head=1|foot=1
+|Input=Block of Echonite
+|Output=Echonite Dust,9
+}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:core/echonite_block|block.logistics.core.echonite_block}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.11|[[File:Grid Block of Echonite.png|32px]] Added '''Block of Echonite'''.}}
+
+== See also ==
+
+* [[Echonite]] - Material overview
+* [[Echonite Ingot]] - The ingot it stores
+* [[Echonite Nugget]] - Smaller unit
+* [[Batteries]] - Built on this block
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

@@ -30,6 +30,15 @@
 
 An [[Iron Chipset]] substitutes for the [[Iron Gear]].
 
+=== Infusing ===
+
+A [[Transposer]] infuses it with [[Liquid Glowstone]] into [[Lumenite Dust]], the resonant rung of the power ladder:
+
+{{Transposer|head=1|foot=1|showname=0
+|Input=Amethyst Dust |FluidIn=Liquid Glowstone |InAmount=1000 |Output=Lumenite Dust
+|ingredients=One [[Amethyst Dust]] plus 1,000 mB of [[Liquid Glowstone]] in the tank
+|notes=3,000 RF}}
+
 == Data values ==
 
 === ID ===
@@ -42,6 +51,7 @@ An [[Iron Chipset]] substitutes for the [[Iron Gear]].
 
 == See also ==
 
+* [[Lumenite]] - The alloy it infuses into
 * [[Dusts]] - All dusts
 * [[Macerator]] - Produces dusts
 * [[Crafting Logistics Pipe]] - Crafted with Amethyst Dust
