@@ -9,6 +9,18 @@ All entries below are resolved and closed — kept as HTML comments so the same 
 fixes aren't rediscovered from scratch later. New findings go in a fresh, uncommented section above
 the closed ones.
 
+## Marker
+
+**Open: a lone marker activates instead of failing.** `wiki/Marker.txt` § Defining an area says
+"Activation fails if there are not three markers in a right triangle." That holds when other
+markers are in line but cannot form an L (`marker.activation.failed.invalid_l_shape`) or form one
+below 3x3 (`marker.activation.failed.too_small`). But a marker with *no* other marker within
+`MarkerManager.MAX_MARKER_DISTANCE` (64) along any horizontal axis takes the `NO_CONNECTIONS` path
+in `MarkerBlockEntity#toggleActivation`: it activates on its own (lit, projecting its beams, no
+area defined) and reports "Marker activated." Pinned by
+`MarkerGameTestBody#testLoneMarkerActivatesWithoutArea`. Decide whether solo activation is
+intended (document it as a way to line up the other markers) or should fail like the other cases.
+
 ## Cables
 
 Open: the config file path. `wiki/Cables.txt` § Usage → Configuration says the throughputs "live in
