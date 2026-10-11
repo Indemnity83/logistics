@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.logistics.test.RecipeJson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,9 +46,9 @@ class SequentialFabricatorRecipeSpotCheckTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(key.get("N").getAsString()).isEqualTo("logistics:core/netherite_gear");
+        assertThat(RecipeJson.ingredient(key.get("N"))).isEqualTo("#c:gears/netherite");
         assertThat(key.get("O").getAsString()).isEqualTo("minecraft:obsidian");
-        assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.get("G"))).isEqualTo("#c:gears/copper");
         assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
         assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
 
