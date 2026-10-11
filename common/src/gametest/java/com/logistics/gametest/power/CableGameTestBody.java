@@ -24,7 +24,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -875,14 +874,14 @@ public class CableGameTestBody {
      * Gold Cables saved in an older world load as Conductive Cables.
      */
     public static void testGoldCableIdResolvesToConductiveCable(GameTestHelper context) {
-        Identifier goldCable = ResourceId.in(LogisticsMod.MOD_ID, "power/gold_cable").toIdentifier();
+        ResourceId goldCable = ResourceId.in(LogisticsMod.MOD_ID, "power/gold_cable");
 
-        Block block = BuiltInRegistries.BLOCK.getValue(goldCable);
+        Block block = BuiltInRegistries.BLOCK.getValue(goldCable.toIdentifier());
         if (block != LogisticsPower.BLOCK.CONDUCTIVE_CABLE) {
             context.fail(goldCable + " should resolve to the Conductive Cable block, got: " + block);
             return;
         }
-        Item item = BuiltInRegistries.ITEM.getValue(goldCable);
+        Item item = BuiltInRegistries.ITEM.getValue(goldCable.toIdentifier());
         if (item != LogisticsPower.BLOCK.CONDUCTIVE_CABLE.asItem()) {
             context.fail(goldCable + " should resolve to the Conductive Cable item, got: " + item);
             return;
