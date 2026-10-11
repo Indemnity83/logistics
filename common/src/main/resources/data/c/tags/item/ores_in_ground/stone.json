@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "logistics:core/tin_ore",
+    "logistics:core/apatite_ore"
+  ]
+}

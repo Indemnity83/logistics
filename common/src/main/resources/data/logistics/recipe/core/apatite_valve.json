@@ -13,7 +13,7 @@
       "item": "minecraft:redstone"
     },
     "M": {
-      "item": "logistics:core/apatite"
+      "tag": "c:gems/apatite"
     }
   },
   "result": {

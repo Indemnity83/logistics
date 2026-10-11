@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "key": {
     "A": {
-      "item": "logistics:core/apatite"
+      "tag": "c:gems/apatite"
     }
   },
   "pattern": [
