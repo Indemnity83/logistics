@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "A": "logistics:core/apatite"
+    "A": "#c:gems/apatite"
   },
   "pattern": [
     "AAA",

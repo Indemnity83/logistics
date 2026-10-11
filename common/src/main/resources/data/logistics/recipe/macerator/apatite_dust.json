@@ -1,6 +1,6 @@
 {
   "type": "logistics:macerator",
-  "ingredient": "logistics:core/apatite_ore",
+  "ingredient": "#c:ores/apatite",
   "result": {
     "id": "logistics:core/apatite_dust",
     "count": 6
