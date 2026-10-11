@@ -710,6 +710,22 @@ The actual answer is that `Registries.TEST_FUNCTION` is a plain `BuiltInRegistri
 other (Blocks, Items, ...), so it goes through the same `DeferredRegister` + `RegisterEvent`
 unfreeze mechanism NeoForge already uses for those — not vanilla's bootstrap-time loader.
 
+### Keep a test inside its structure
+
+Every test runs in an 8x8x8 all-air structure — Fabric API's `fabric-gametest-api-v1:empty` on
+Fabric, `logistics_gametest:empty` on NeoForge — so a body owns relative `(0,0,0)` to `(7,7,7)`.
+Keep every entity a test looks for, and every block entity it needs ticking, inside it. The runner
+force-loads only the chunks under a test's structure, and starts the test once *those* are
+entity-ticking; it knows nothing about the rest of the world the body touches.
+
+Outside the structure, a chunk can be loaded while the entity manager has not caught up with it yet.
+An entity added there exists but is invisible to every area query (`getEntitiesOfClass`,
+`assertItemEntityPresent`, a quarry's sweep) for a few ticks, and a block entity there may not tick.
+It shows up as several unrelated tests in one batch failing together, mostly when theirs is the
+server's first batch, then passing on a re-run. NeoForge once used vanilla's 1x1x1
+`minecraft:empty`, which left almost every test's area in that state (#1245).
+`HarnessGameTestBody#testStructureCoversTheSharedFootprint` pins the footprint on both loaders.
+
 ### The one real exception: loader-native capability tests
 
 A test that specifically exercises a loader's own capability/interop API — not this mod's code —
