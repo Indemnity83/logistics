@@ -562,10 +562,13 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 11. **Quarry chunk-loading toggle** ([#1283](https://github.com/Indemnity83/logistics/issues/1283)) — surfaced while verifying the Quarry; needs a
     `ChunkLoadingComponent`-level or GameTest check that toggling `quarry_load_chunks` actually
     acquires/releases chunk tickets.
-12. **Marker block** ([#1284](https://github.com/Indemnity83/logistics/issues/1284)) — stateful, zero coverage, likely a short wiki page; do this before revisiting
-    quarry marker-consumption, since that depends on the Marker block having basic tests first. Not
-    itself an automation-domain block (`LogisticsCore.BLOCK.MARKER`), but tightly coupled to the
-    Laser Quarry's custom-bounds feature.
+~~12. **Marker block**~~ ([#1284](https://github.com/Indemnity83/logistics/issues/1284)) — done. New
+    `MarkerGameTest` drives a real Wrench through a player: activating an L from its corner or an
+    end, both failure modes, deactivating the set, break/drop/collision claims, and the active set's
+    bounds surviving reconstruction; `MarkerRecipeTest` checks the craft. One mismatch: a lone
+    marker activates on its own rather than failing (see `WIKI_DISCREPANCIES.md` § Marker). Marker
+    tests each build on their own layer — markers scan 64 blocks along their row, far past a
+    neighbouring test structure. Quarry marker-consumption is still untested.
 
 #### Other domains (after automation)
 
@@ -596,7 +599,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
 - **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, LaserQuarryFrameBlock (frame lifecycle contract), QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes), AlloySmelterConfig (power config defaults), AlloySmelterRecipeSpotCheck (crafting + ore-processing + alloying recipes), SequentialFabricatorConfig (power config defaults), SequentialFabricatorRecipeSpotCheck (crafting + cheapest/most-expensive chipset recipes)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
-- **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
+- **Core** — BaseBlockEntity, ResourceId, MarkerRecipe (wiki-vs-shipped-JSON content check), MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
 - **Resource contracts** — model parent chains (resolution + loop detection), model texture references, item definition model references; see "Resource contract testing" above
 
