@@ -16,7 +16,7 @@
       "item": "minecraft:egg"
     },
     "F": {
-      "item": "logistics:core/flour"
+      "tag": "c:flours/wheat"
     }
   },
   "result": {

@@ -14,22 +14,22 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Materials other mods also make are interchangeable with ours: a recipe asks for the conventional
- * tag, never our item, so another mod's tin, bronze or apatite works anywhere ours does.
+ * tag, never our item, so another mod's tin, bronze, apatite or flour works anywhere ours does.
  */
 @DisplayName("Shared material tag contract")
 class SharedMaterialTagContractTest {
 
     /** Materials that other mods also add, by the material name their {@code c:} tags end in. */
-    private static final Set<String> SHARED_MATERIALS = Set.of("tin", "raw_tin", "bronze", "apatite");
+    private static final Set<String> SHARED_MATERIALS = Set.of("tin", "raw_tin", "bronze", "apatite", "wheat");
 
     /** Tag forms covered. Gears are checked by {@link GearTagContractTest}. */
-    private static final Set<String> FORMS = Set.of("gems", "ingots", "nuggets", "ores", "raw_materials", "storage_blocks");
+    private static final Set<String> FORMS = Set.of("flours", "gems", "ingots", "nuggets", "ores", "raw_materials", "storage_blocks");
 
     /** Recipe keys holding what a recipe produces; everything else a recipe names is an input. */
     private static final Set<String> OUTPUT_KEYS = Set.of("result", "byproduct");
 
     @Test
-    @DisplayName("no recipe asks for our tin, bronze or apatite by exact id")
+    @DisplayName("no recipe asks for our shared materials by exact id")
     void recipesAskForSharedMaterialTags() {
         Map<String, String> tagOf = sharedMaterialTags();
         assertThat(tagOf).as("our items in shared material tags; the tag scan found nothing").isNotEmpty();
@@ -43,7 +43,7 @@ class SharedMaterialTagContractTest {
             }
         }
 
-        assertThat(failures).as("recipes naming our tin, bronze or apatite as an input").isEmpty();
+        assertThat(failures).as("recipes naming one of our shared materials as an input").isEmpty();
     }
 
     /** Each of our items in a {@code c:<form>/<shared material>} tag, mapped to that tag. */
