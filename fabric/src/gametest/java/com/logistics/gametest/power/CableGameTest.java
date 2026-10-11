@@ -239,4 +239,22 @@ public class CableGameTest {
     public void testMachineIsServedBeforeABattery(GameTestHelper context) {
         CableGameTestBody.testMachineIsServedBeforeABattery(context);
     }
+
+    /** A Conductive Cable carries exactly 60 RF/t. */
+    @GameTest(maxTicks = 60)
+    public void testConductiveCableCarriesSixtyRfPerTick(GameTestHelper context) {
+        CableGameTestBody.testConductiveCableCarriesSixtyRfPerTick(context);
+    }
+
+    /** A Conductive Cable caps a run that starts on a Deep Cable. */
+    @GameTest(maxTicks = 60)
+    public void testConductiveCableCapsADeepCableRun(GameTestHelper context) {
+        CableGameTestBody.testConductiveCableCapsADeepCableRun(context);
+    }
+
+    /** The pre-rename Gold Cable id resolves to the Conductive Cable. */
+    @GameTest
+    public void testGoldCableIdResolvesToConductiveCable(GameTestHelper context) {
+        CableGameTestBody.testGoldCableIdResolvesToConductiveCable(context);
+    }
 }
