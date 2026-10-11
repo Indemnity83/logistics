@@ -563,8 +563,9 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 
 13. **CraftingModule / ProcessModule / SatelliteModule pipes** ([#1286](https://github.com/Indemnity83/logistics/issues/1286)) — well unit-tested, zero in-world
     GameTest; low-risk pass adding wiki-traceability to already-correct assertions.
-14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287)) — untested sibling in an otherwise-tested power-tier family; small,
-    pure-math-friendly like Kiln's RF numbers.
+~~14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287))~~ — done. Gold is now the Conductive Cable;
+    `CableGameTestBody` pins its 60 RF/t on a real engine-fed run and as the cap on a Deep-to-Conductive
+    run, plus the `gold_cable` alias, on both loaders. `CableTierTest` adds the doubling ladder.
 15. **Fluid-routing modules** ([#1285](https://github.com/Indemnity83/logistics/issues/1285)) (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
     FluidVoidModule) — zero coverage at any level, real check-valve/routing-policy logic backing 4
     registered pipe blocks.
@@ -708,6 +709,10 @@ from newer Minecraft versions in a way worth knowing before you touch `neoforge/
   wedges in `clearSpaceForStructure` when a test writes to a negative relative coordinate; newer
   versions tolerate it. Hence `RefineryGameTestBody` and `FluidPumpGameTestBody` seat their machine
   at `z=3`, so the engine (`z=2`) and its redstone block (`z=1`) stay in bounds.
+- **Never power relative `(0,0,0)`.** On 1.21.1 that is the test's own structure block, in LOAD
+  mode; a redstone block beside it (e.g. at `(0,1,0)`) re-loads the empty structure over the test the
+  moment it is placed, silently erasing everything set up before it. Seat redstone sources elsewhere —
+  `CableGameTestBody`'s Conductive-tier tests put theirs at `(0,1,2)`.
 - **A failing test wedges the whole run.** The 1.21.1 runner re-queues that test's batch forever
   (hundreds of thousands of `Running test batch ...` lines) instead of finishing, and frequently
   never prints a failure at all. A hung run with a frozen progress bar therefore means *a test

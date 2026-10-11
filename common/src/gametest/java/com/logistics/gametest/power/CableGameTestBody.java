@@ -2,25 +2,32 @@ package com.logistics.gametest.power;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsMod;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.power.block.entity.BatteryBlockEntity;
 import com.logistics.power.block.entity.CreativeSinkBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 /**
@@ -41,6 +48,9 @@ public class CableGameTestBody {
      * enough that the double billing exhausts the cable's budget does it visibly go without.
      */
     private static final long CONSUMER_DRAIN_RATE = 100L;
+
+    /** Conductive Cable throughput, the rate the Conductive-tier tests pin. */
+    private static final long CONDUCTIVE_CABLE_RATE = 60L;
 
     public static void testCreativeEnginePowersCableNetwork(GameTestHelper context) {
         BlockPos enginePos = new BlockPos(0, 1, 1);
@@ -797,6 +807,149 @@ public class CableGameTestBody {
             // as well if buffers had stopped receiving power at all.
             if (batteryEnergy <= 0) {
                 context.fail("The battery received nothing; buffers should still take the leftover");
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /**
+     * Wiki claim (Usage): "Each grade moves more RF per tick — Basic 30, Conductive 60, Resonant
+     * 120, Deep 240" and "A cable never moves more than its grade allows."
+     *
+     * <p>A Creative Engine wound up past the cable's grade feeds one Conductive Cable into an
+     * unlimited sink, so the cable is the only thing that can limit the flow.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Cables#Usage">wiki/Cables.txt § Usage</a>
+     */
+    public static void testConductiveCableCarriesSixtyRfPerTick(GameTestHelper context) {
+        BlockPos signalPos = new BlockPos(0, 1, 2);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos cablePos = new BlockPos(1, 1, 1);
+        BlockPos sinkPos = new BlockPos(2, 1, 1);
+
+        context.setBlock(cablePos, LogisticsPower.BLOCK.CONDUCTIVE_CABLE);
+        CreativeSinkBlockEntity sink = placeUnlimitedSink(context, sinkPos);
+        CreativeEngineBlockEntity engine = placeWoundUpEngine(context, enginePos, signalPos);
+        if (sink == null || engine == null) {
+            return;
+        }
+
+        assertSinkReceivesCappedRate(context, sink, CONDUCTIVE_CABLE_RATE,
+                "A Conductive Cable fed by a " + engine.getOutputRate() + " RF/t engine");
+    }
+
+    /**
+     * Wiki claim (Usage): "the slowest cable on a run caps its throughput, so match the cable to the
+     * demand."
+     *
+     * <p>The engine feeds a Deep Cable (240 RF/t) with a Conductive Cable between it and the sink, so
+     * the Conductive grade is the slowest on the run and sets the rate.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Cables#Usage">wiki/Cables.txt § Usage</a>
+     */
+    public static void testConductiveCableCapsADeepCableRun(GameTestHelper context) {
+        BlockPos signalPos = new BlockPos(0, 1, 2);
+        BlockPos enginePos = new BlockPos(0, 1, 1);
+        BlockPos deepCablePos = new BlockPos(1, 1, 1);
+        BlockPos conductiveCablePos = new BlockPos(2, 1, 1);
+        BlockPos sinkPos = new BlockPos(3, 1, 1);
+
+        context.setBlock(deepCablePos, LogisticsPower.BLOCK.DEEP_CABLE);
+        context.setBlock(conductiveCablePos, LogisticsPower.BLOCK.CONDUCTIVE_CABLE);
+        CreativeSinkBlockEntity sink = placeUnlimitedSink(context, sinkPos);
+        CreativeEngineBlockEntity engine = placeWoundUpEngine(context, enginePos, signalPos);
+        if (sink == null || engine == null) {
+            return;
+        }
+
+        assertSinkReceivesCappedRate(context, sink, CONDUCTIVE_CABLE_RATE,
+                "A Deep-to-Conductive run fed by a " + engine.getOutputRate() + " RF/t engine");
+    }
+
+    /**
+     * The pre-rename {@code power/gold_cable} id resolves to the Conductive Cable, block and item, so
+     * Gold Cables saved in an older world load as Conductive Cables.
+     */
+    public static void testGoldCableIdResolvesToConductiveCable(GameTestHelper context) {
+        ResourceId goldCable = ResourceId.in(LogisticsMod.MOD_ID, "power/gold_cable");
+
+        Block block = BuiltInRegistries.BLOCK.get(goldCable.toIdentifier());
+        if (block != LogisticsPower.BLOCK.CONDUCTIVE_CABLE) {
+            context.fail(goldCable + " should resolve to the Conductive Cable block, got: " + block);
+            return;
+        }
+        Item item = BuiltInRegistries.ITEM.get(goldCable.toIdentifier());
+        if (item != LogisticsPower.BLOCK.CONDUCTIVE_CABLE.asItem()) {
+            context.fail(goldCable + " should resolve to the Conductive Cable item, got: " + item);
+            return;
+        }
+        context.succeed();
+    }
+
+    private static CreativeSinkBlockEntity placeUnlimitedSink(GameTestHelper context, BlockPos sinkPos) {
+        context.setBlock(sinkPos, LogisticsPower.BLOCK.CREATIVE_SINK);
+        CreativeSinkBlockEntity sink = (CreativeSinkBlockEntity) context.getBlockEntity(sinkPos);
+        if (sink == null) {
+            context.fail("Expected a creative sink block entity");
+            return null;
+        }
+        sink.setUnlimitedDrainRate();
+        return sink;
+    }
+
+    /**
+     * An east-facing Creative Engine held on by a real redstone block, cycled to twice the Conductive
+     * rate so the engine is never what limits the flow. Placed last so the cable is there to connect to.
+     *
+     * <p>Keep the signal clear of relative (0, 1, 0): on 1.21.1 the test's structure block sits in
+     * LOAD mode at (0, 0, 0), and powering it reloads the empty structure over the test.
+     */
+    private static CreativeEngineBlockEntity placeWoundUpEngine(
+            GameTestHelper context, BlockPos enginePos, BlockPos signalPos) {
+        long minimumRate = CONDUCTIVE_CABLE_RATE * 2;
+        context.setBlock(signalPos, Blocks.REDSTONE_BLOCK);
+        context.setBlock(enginePos, LogisticsPower.BLOCK.CREATIVE_ENGINE
+                .defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.EAST)
+                .setValue(AbstractEngineBlock.POWERED, true));
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(enginePos);
+        if (engine == null) {
+            context.fail("Expected a creative engine block entity");
+            return null;
+        }
+        for (int i = 0; i < CreativeEngineBlockEntity.OUTPUT_LEVELS.length && engine.getOutputRate() < minimumRate; i++) {
+            engine.cycleOutputLevel();
+        }
+        if (engine.getOutputRate() < minimumRate) {
+            context.fail("Creative engine could not reach " + minimumRate + " RF/t, got: " + engine.getOutputRate());
+            return null;
+        }
+        return engine;
+    }
+
+    /**
+     * Samples the sink's intake over a settled window. Every tick the engine sends must arrive as
+     * exactly {@code cappedRate}: more is the cap leaking, less is the cable starving the sink.
+     *
+     * <p>A tick of 0 is the engine, not the cable: an engine idles for one tick between piston cycles
+     * and sends nothing on it ({@code EngineCyclePlanner}), so roughly one tick in fourteen is empty at
+     * this output level. Those are tolerated, but only a few, so a cable that delivers nothing fails.
+     */
+    private static void assertSinkReceivesCappedRate(
+            GameTestHelper context, CreativeSinkBlockEntity sink, long cappedRate, String setup) {
+        int firstSample = 20;
+        int lastSample = 39;
+        List<Long> samples = new ArrayList<>();
+        for (int tick = firstSample; tick <= lastSample; tick++) {
+            context.runAfterDelay(tick, () -> samples.add(sink.energyReceivedLastTick()));
+        }
+        context.runAfterDelay(lastSample + 1, () -> {
+            boolean offRate = samples.stream().anyMatch(received -> received != cappedRate && received != 0L);
+            long fullTicks = samples.stream().filter(received -> received == cappedRate).count();
+            if (offRate || fullTicks * 4 < samples.size() * 3L) {
+                context.fail(setup + " should deliver exactly " + cappedRate
+                        + " RF on every tick the engine sends, got: " + samples);
                 return;
             }
             context.succeed();
