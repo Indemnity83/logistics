@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "logistics:core/fuel_oil",
+    "logistics:core/flowing_fuel_oil"
+  ]
+}
