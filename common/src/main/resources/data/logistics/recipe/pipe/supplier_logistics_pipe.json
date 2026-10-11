@@ -6,7 +6,7 @@
   ],
   "key": {
     "A": {
-      "item": "logistics:core/iron_gear"
+      "tag": "c:gears/iron"
     },
     "B": {
       "tag": "c:dusts/lapis"

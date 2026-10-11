@@ -7,7 +7,7 @@
   ],
   "key": {
     "N": {
-      "item": "logistics:core/netherite_gear"
+      "tag": "c:gears/netherite"
     },
     "O": {
       "item": "minecraft:obsidian"
@@ -16,7 +16,7 @@
       "item": "logistics:core/machine_core"
     },
     "G": {
-      "item": "logistics:core/copper_gear"
+      "tag": "c:gears/copper"
     },
     "C": {
       "item": "logistics:core/redstone_reception_coil"

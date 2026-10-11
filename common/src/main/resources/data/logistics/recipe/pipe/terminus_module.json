@@ -10,7 +10,7 @@
       "item": "minecraft:black_dye"
     },
     "B": {
-      "item": "logistics:core/iron_gear"
+      "tag": "c:gears/iron"
     },
     "C": {
       "item": "minecraft:purple_dye"

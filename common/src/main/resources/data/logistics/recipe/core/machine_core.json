@@ -4,7 +4,7 @@
   "key": {
     "I": { "item": "minecraft:iron_ingot" },
     "G": { "item": "minecraft:glass" },
-    "B": { "item": "logistics:core/bronze_gear" }
+    "B": { "tag": "c:gears/bronze" }
   },
   "result": { "id": "logistics:core/machine_core", "count": 1 }
 }

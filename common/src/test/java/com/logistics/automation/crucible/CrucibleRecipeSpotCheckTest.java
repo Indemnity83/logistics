@@ -47,7 +47,7 @@ class CrucibleRecipeSpotCheckTest {
         JsonObject key = recipe.getAsJsonObject("key");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("H"))).isEqualTo("minecraft:magma_block");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("N"))).isEqualTo("minecraft:nether_bricks");
-        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("#c:gears/copper");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
 

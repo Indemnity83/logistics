@@ -1,7 +1,7 @@
 {
   "key": {
     "G": {
-      "item": "logistics:core/copper_gear"
+      "tag": "c:gears/copper"
     },
     "I": {
       "item": "minecraft:iron_ingot"

@@ -1,7 +1,7 @@
 {
   "key": {
     "G": {
-      "item": "logistics:core/diamond_gear"
+      "tag": "c:gears/diamond"
     },
     "N": {
       "item": "minecraft:netherite_ingot"

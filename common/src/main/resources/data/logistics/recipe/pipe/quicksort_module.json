@@ -10,7 +10,7 @@
       "item": "minecraft:light_blue_dye"
     },
     "B": {
-      "item": "logistics:core/diamond_gear"
+      "tag": "c:gears/diamond"
     },
     "C": {
       "item": "minecraft:redstone"

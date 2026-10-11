@@ -46,7 +46,7 @@ class TransposerRecipeSpotCheckTest {
         JsonObject key = recipe.getAsJsonObject("key");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("B"))).isEqualTo("minecraft:bucket");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("S"))).isEqualTo("minecraft:glass");
-        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("#c:gears/copper");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
         // "Machine Frame" in-game; logistics:core/machine_core is its registry id.
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core");

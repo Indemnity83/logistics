@@ -64,7 +64,7 @@ class FluidPumpRecipeTest {
         JsonObject key = recipe.getAsJsonObject("key");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("T"))).isEqualTo("logistics:pipe/glass_tank");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("B"))).isEqualTo("minecraft:bucket");
-        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("#c:gears/copper");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
         // "Machine Frame" in-game; logistics:core/machine_core is its (unchanged) registry id.
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core");

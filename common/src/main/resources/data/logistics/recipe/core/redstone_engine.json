@@ -13,7 +13,7 @@
       "item": "minecraft:glass"
     },
     "W": {
-      "item": "logistics:core/wooden_gear"
+      "tag": "c:gears/wood"
     },
     "p": {
       "item": "minecraft:piston"

@@ -13,7 +13,7 @@
       "item": "minecraft:glass"
     },
     "g": {
-      "item": "logistics:core/gold_gear"
+      "tag": "c:gears/gold"
     },
     "p": {
       "item": "minecraft:piston"

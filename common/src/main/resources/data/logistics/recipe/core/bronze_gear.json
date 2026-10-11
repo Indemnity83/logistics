@@ -5,7 +5,7 @@
       "tag": "c:ingots/bronze"
     },
     "G": {
-      "item": "logistics:core/iron_gear"
+      "tag": "c:gears/iron"
     }
   },
   "pattern": [

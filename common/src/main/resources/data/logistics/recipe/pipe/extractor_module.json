@@ -10,7 +10,7 @@
       "item": "minecraft:cyan_dye"
     },
     "B": {
-      "item": "logistics:core/iron_gear"
+      "tag": "c:gears/iron"
     },
     "C": {
       "item": "minecraft:redstone"

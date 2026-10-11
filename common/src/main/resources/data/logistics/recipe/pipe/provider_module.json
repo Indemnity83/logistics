@@ -10,7 +10,7 @@
       "item": "minecraft:red_dye"
     },
     "B": {
-      "item": "logistics:core/gold_gear"
+      "tag": "c:gears/gold"
     },
     "C": {
       "item": "minecraft:redstone"

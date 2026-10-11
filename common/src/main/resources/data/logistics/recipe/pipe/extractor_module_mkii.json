@@ -6,7 +6,7 @@
   ],
   "key": {
     "A": {
-      "item": "logistics:core/gold_gear"
+      "tag": "c:gears/gold"
     },
     "B": {
       "item": "logistics:pipe/extractor_module"

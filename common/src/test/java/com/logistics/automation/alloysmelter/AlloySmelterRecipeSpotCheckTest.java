@@ -46,8 +46,8 @@ class AlloySmelterRecipeSpotCheckTest {
         assertThat(pattern.get(2).getAsString()).isEqualTo("GCG");
 
         JsonObject key = recipe.getAsJsonObject("key");
-        assertThat(RecipeJson.ingredient(key.getAsJsonObject("D"))).isEqualTo("logistics:core/diamond_gear");
-        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("D"))).isEqualTo("#c:gears/diamond");
+        assertThat(RecipeJson.ingredient(key.getAsJsonObject("G"))).isEqualTo("#c:gears/copper");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("C"))).isEqualTo("logistics:core/redstone_reception_coil");
         assertThat(RecipeJson.ingredient(key.getAsJsonObject("M"))).isEqualTo("logistics:core/machine_core"); // "Machine Frame" in-game
 

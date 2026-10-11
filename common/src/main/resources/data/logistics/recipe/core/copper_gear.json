@@ -4,7 +4,7 @@
       "item": "minecraft:copper_ingot"
     },
     "G": {
-      "item": "logistics:core/stone_gear"
+      "tag": "c:gears/stone"
     }
   },
   "pattern": [

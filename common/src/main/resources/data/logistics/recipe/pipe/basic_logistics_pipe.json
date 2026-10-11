@@ -13,7 +13,7 @@
       "item": "minecraft:redstone_torch"
     },
     "E": {
-      "item": "logistics:core/gold_gear"
+      "tag": "c:gears/gold"
     },
     "F": {
       "item": "logistics:pipe/item_filter_pipe"

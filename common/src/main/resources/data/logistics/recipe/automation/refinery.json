@@ -9,7 +9,7 @@
     "B": { "item": "minecraft:bucket" },
     "T": { "item": "logistics:pipe/glass_tank" },
     "M": { "item": "logistics:core/machine_core" },
-    "G": { "item": "logistics:core/copper_gear" },
+    "G": { "tag": "c:gears/copper" },
     "C": { "item": "logistics:core/redstone_reception_coil" }
   },
   "result": {
