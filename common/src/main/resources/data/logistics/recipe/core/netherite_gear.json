@@ -1,6 +1,6 @@
 {
   "key": {
-    "G": "logistics:core/diamond_gear",
+    "G": "#c:gears/diamond",
     "N": "minecraft:netherite_ingot"
   },
   "pattern": [" N ", "NGN", " N "],
