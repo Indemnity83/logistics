@@ -3,9 +3,9 @@
   "pattern": [" P ", "GMG", "DCD"],
   "key": {
     "P": "minecraft:diamond_pickaxe",
-    "G": "logistics:core/gold_gear",
+    "G": "#c:gears/gold",
     "M": "logistics:core/machine_core",
-    "D": "logistics:core/diamond_gear",
+    "D": "#c:gears/diamond",
     "C": "logistics:core/redstone_reception_coil"
   },
   "result": { "id": "logistics:automation/laser_quarry", "count": 1 }

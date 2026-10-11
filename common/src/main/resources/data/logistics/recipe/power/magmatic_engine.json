@@ -4,7 +4,7 @@
   "key": {
     "N": "minecraft:nether_bricks",
     "G": "minecraft:glass",
-    "g": "logistics:core/gold_gear",
+    "g": "#c:gears/gold",
     "p": "minecraft:piston"
   },
   "result": {
