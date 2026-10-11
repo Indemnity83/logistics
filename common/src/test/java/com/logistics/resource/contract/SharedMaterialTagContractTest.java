@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Materials other mods also make are interchangeable with ours: a recipe asks for the conventional
- * tag, never our item, so another mod's tin, bronze, apatite or flour works anywhere ours does.
+ * tag, never our item, so another mod's tin, bronze, apatite, flour or slag works anywhere ours does.
  */
 @DisplayName("Shared material tag contract")
 class SharedMaterialTagContractTest {
@@ -24,6 +24,9 @@ class SharedMaterialTagContractTest {
 
     /** Tag forms covered. Gears are checked by {@link GearTagContractTest}. */
     private static final Set<String> FORMS = Set.of("flours", "gems", "ingots", "nuggets", "ores", "raw_materials", "storage_blocks");
+
+    /** Single-level {@code c:} tags for materials other mods also add. */
+    private static final Set<String> SHARED_FLAT_TAGS = Set.of("slag");
 
     /** Recipe keys holding what a recipe produces; everything else a recipe names is an input. */
     private static final Set<String> OUTPUT_KEYS = Set.of("result", "byproduct");
@@ -46,7 +49,7 @@ class SharedMaterialTagContractTest {
         assertThat(failures).as("recipes naming one of our shared materials as an input").isEmpty();
     }
 
-    /** Each of our items in a {@code c:<form>/<shared material>} tag, mapped to that tag. */
+    /** Each of our items in a shared {@code c:} material tag, mapped to that tag. */
     private static Map<String, String> sharedMaterialTags() {
         Path root = ResourceFiles.dataRoot().resolve("c/tags/item");
         Map<String, String> tagOf = new LinkedHashMap<>();
@@ -54,9 +57,11 @@ class SharedMaterialTagContractTest {
             String name = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');
             name = name.substring(0, name.length() - ".json".length());
             String material = name.substring(name.lastIndexOf('/') + 1);
-            if (!name.contains("/")
-                    || !FORMS.contains(name.substring(0, name.indexOf('/')))
-                    || !SHARED_MATERIALS.contains(material)) {
+            boolean flat = SHARED_FLAT_TAGS.contains(name);
+            if (!flat
+                    && (!name.contains("/")
+                        || !FORMS.contains(name.substring(0, name.indexOf('/')))
+                        || !SHARED_MATERIALS.contains(material))) {
                 continue;
             }
             for (JsonElement entry : ResourceFiles.parse(file).getAsJsonArray("values")) {
