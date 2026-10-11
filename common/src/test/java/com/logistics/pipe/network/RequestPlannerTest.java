@@ -70,6 +70,12 @@ class RequestPlannerTest extends MinecraftTestEnvironment {
         assertEquals(PROVIDER1, ((PlanNode.ExtractNode) plan.roots().getFirst()).provider());
     }
 
+    /**
+     * Wiki claim (Crafting Logistics Pipe § Usage): "fulfills requests for items that aren't in
+     * stock by crafting them."
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Crafting_Logistics_Pipe#Usage">wiki/Crafting Logistics Pipe.txt § Usage</a>
+     */
     @Test
     void testPlanFromCrafter_whenNoStock() {
         controller.registerSupply(CRAFTER, Map.of(diamond(), 0L), 5);
@@ -83,6 +89,12 @@ class RequestPlannerTest extends MinecraftTestEnvironment {
         assertEquals(CRAFTER, ((PlanNode.CraftNode) plan.roots().getFirst()).crafter());
     }
 
+    /**
+     * Wiki claim (Crafting Logistics Pipe § Usage): "fulfills requests for items that aren't in
+     * stock by crafting them" — so items that are in stock are not crafted.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Crafting_Logistics_Pipe#Usage">wiki/Crafting Logistics Pipe.txt § Usage</a>
+     */
     @Test
     void testStockBeforeCrafter_prefersRealStock() {
         controller.registerSupply(PROVIDER1, Map.of(diamond(), 32L), 1);

@@ -9,6 +9,47 @@ All entries below are resolved and closed — kept as HTML comments so the same 
 fixes aren't rediscovered from scratch later. New findings go in a fresh, uncommented section above
 the closed ones.
 
+## Satellite Logistics Pipe
+
+Open: **Names are numbers.** The wiki's Usage section says to "Set a descriptive name in its GUI
+(e.g. "Iron Storage")". The satellite GUI is a numeric selector: `SatelliteScreenHandler` steps
+through 1–512 (`MAX_ID`) with +/- buttons and skips numbers other satellites hold, and the Process
+pipe's own selector addresses satellites by that number (`ProcessModule#getInputSatelliteId` is an
+`int`). `SatelliteModule` would store a free-text string, but nothing a player can reach writes
+one. Pinned in `SatelliteModuleTest#setSatelliteIdInt_positiveValue_persistsAndReadsBack` and
+`CraftingProcessSatelliteGameTest#testProcessPipeSmeltsThroughSatelliteFedFurnace`.
+
+Open: **Shared names do not load-balance.** The wiki says "Several satellites can share a name to
+load-balance deliveries." `PipeNetwork#registerSatellite` holds one position per name and ignores a
+second pipe claiming a taken name, so every delivery goes to whichever satellite registered first,
+and the GUI will not even select a taken number. Confirmed via
+`PipeNetworkSatelliteTest#secondSatelliteWithTakenNameIsIgnored`.
+
+Open: **Only the Process pipe addresses satellites.** Usage says satellites let "other pipes" route
+to them by name, and See also lists the Requester Logistics Pipe as one that "Routes items to
+satellites by name". `RequesterModule` has no satellite setting; `ProcessModule` is the only caller
+of `findSatellite`.
+
+## Crafting Logistics Pipe
+
+Open: **It needs an adjacent vanilla Crafter.** The wiki's Usage section describes configuring a
+3×3 recipe and the pipe crafting on request, but never mentions that the pipe crafts *through* an
+adjacent Crafter block (`CraftingModule#findAutocrafterDirection`). With no Crafter beside it the
+pipe advertises nothing (`updateCrafterSupply` registers an empty supply) and rejects every
+dispatch, so a player following the wiki gets a pipe that silently never crafts. A documentation
+omission rather than a wrong number, like the Sawmill byproducts below. Both crafting tests in
+`CraftingProcessSatelliteGameTestBody` place one.
+
+## Process Logistics Pipe
+
+Open: **"Watching machine state so it never overfills" is not backed by code.** The wiki's Usage
+section says the pipe watches the machine "so it never overfills". `ProcessModule#onDispatch`
+orders the inputs for the whole request up front (`executions × input count`) with no look at the
+machine's free space; the only cap is the 64-entry queue (`MAX_QUEUE_SIZE`). The machine's own slot
+limits still stop it holding more than a stack, but nothing in the pipe paces deliveries to it. Not
+live-verified with an oversized request — a large order against a single-stack machine would show
+what actually happens to the surplus.
+
 ## Kiln
 
 <!--
