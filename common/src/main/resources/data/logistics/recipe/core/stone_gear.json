@@ -1,6 +1,6 @@
 {
   "key": {
-    "G": "logistics:core/wooden_gear",
+    "G": "#c:gears/wood",
     "S": "minecraft:stone"
   },
   "pattern": [" S ", "SGS", " S "],

@@ -4,7 +4,7 @@
   "key": {
     "C": "minecraft:copper_ingot",
     "G": "minecraft:glass",
-    "g": "logistics:core/bronze_gear",
+    "g": "#c:gears/bronze",
     "p": "minecraft:piston"
   },
   "result": {

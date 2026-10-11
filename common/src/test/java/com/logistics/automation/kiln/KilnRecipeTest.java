@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.logistics.test.RecipeJson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,7 +55,7 @@ class KilnRecipeTest {
         JsonObject key = recipe.getAsJsonObject("key");
         assertThat(key.get("R").getAsString()).isEqualTo("minecraft:redstone");
         assertThat(key.get("B").getAsString()).isEqualTo("minecraft:bricks");
-        assertThat(key.get("G").getAsString()).isEqualTo("logistics:core/copper_gear");
+        assertThat(RecipeJson.ingredient(key.get("G"))).isEqualTo("#c:gears/copper");
         assertThat(key.get("C").getAsString()).isEqualTo("logistics:core/redstone_reception_coil");
         // "Machine Frame" in-game; logistics:core/machine_core is its (unchanged) registry id.
         assertThat(key.get("M").getAsString()).isEqualTo("logistics:core/machine_core");

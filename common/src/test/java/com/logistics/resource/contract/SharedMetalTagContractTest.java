@@ -22,7 +22,7 @@ class SharedMetalTagContractTest {
     /** Metals that other mods also add, by the material name their {@code c:} tags end in. */
     private static final Set<String> SHARED_METALS = Set.of("tin", "raw_tin", "bronze");
 
-    /** Tag forms covered. Gears are excluded; gear recipes still name our gears directly. */
+    /** Tag forms covered. Gears are checked by {@link GearTagContractTest}. */
     private static final Set<String> FORMS = Set.of("ingots", "nuggets", "ores", "raw_materials", "storage_blocks");
 
     /** Recipe keys holding what a recipe produces; everything else a recipe names is an input. */
