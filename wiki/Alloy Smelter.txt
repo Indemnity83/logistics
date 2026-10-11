@@ -85,7 +85,7 @@ Bronze is smelted from three copper and one tin, in ingot or [[Dusts|dust]] form
 
 === Rubber ===
 
-Either [[Polymers|polymer]] vulcanises into [[Rubber]] with [[Sulfur Dust]]:
+Either a [[Natural Polymer]] or a [[Synthetic Polymer]] vulcanises into [[Rubber]] with [[Sulfur Dust]]:
 
 {{Alloy Smelter|head=1 |Input=Natural Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2}}
 {{Alloy Smelter|foot=1 |Input=Synthetic Polymer |Input2=Sulfur Dust |Output=Rubber |OutputCount=2}}
@@ -121,6 +121,8 @@ The full recycling list — every anvil tier, minecart, pressure plate, and iron
 
 * [[Slag]], [[Rich Slag]] - Byproducts of processing
 * [[Bronze Ingot]] - Alloyed here from copper and tin
+* [[Rubber]] - Vulcanised here from either polymer
+* [[Natural Polymer]], [[Synthetic Polymer]] - The slime-based and tar-based routes to Rubber
 * [[Quicksilver]] - A flux that returns a bonus metal
 * [[Crucible]] - Companion melting machine
 * [[Macerator]] - Grinds ores into dusts that smelt here
