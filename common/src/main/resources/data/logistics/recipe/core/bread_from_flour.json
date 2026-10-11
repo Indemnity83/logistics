@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["FFF"],
   "key": {
-    "F": "logistics:core/flour"
+    "F": "#c:flours/wheat"
   },
   "result": { "id": "minecraft:bread", "count": 1 }
 }

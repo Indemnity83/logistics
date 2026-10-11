@@ -5,7 +5,7 @@
     "M": "minecraft:milk_bucket",
     "S": "minecraft:sugar",
     "E": "minecraft:egg",
-    "F": "logistics:core/flour"
+    "F": "#c:flours/wheat"
   },
   "result": { "id": "minecraft:cake", "count": 1 }
 }
