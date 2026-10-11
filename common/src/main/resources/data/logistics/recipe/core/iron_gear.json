@@ -1,6 +1,6 @@
 {
   "key": {
-    "G": "logistics:core/copper_gear",
+    "G": "#c:gears/copper",
     "I": "minecraft:iron_ingot"
   },
   "pattern": [" I ", "IGI", " I "],

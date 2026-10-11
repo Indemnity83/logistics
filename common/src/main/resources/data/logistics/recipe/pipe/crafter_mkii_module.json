@@ -5,7 +5,7 @@
     "B"
   ],
   "key": {
-    "A": "logistics:core/gold_gear",
+    "A": "#c:gears/gold",
     "B": "logistics:pipe/crafter_module"
   },
   "result": {
