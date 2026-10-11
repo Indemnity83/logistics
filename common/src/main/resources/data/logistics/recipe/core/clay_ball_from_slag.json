@@ -1,8 +1,8 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    "logistics:core/slag",
-    "logistics:core/slag",
+    "#c:slag",
+    "#c:slag",
     "minecraft:dirt",
     "minecraft:water_bucket"
   ],

@@ -1,7 +1,7 @@
 {
   "key": {
     "G": "minecraft:gold_ingot",
-    "B": "logistics:core/bronze_gear"
+    "B": "#c:gears/bronze"
   },
   "pattern": [" G ", "GBG", " G "],
   "result": {

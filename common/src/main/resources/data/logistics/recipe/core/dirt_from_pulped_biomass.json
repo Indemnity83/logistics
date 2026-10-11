@@ -3,8 +3,8 @@
   "ingredients": [
     "logistics:core/pulped_biomass",
     "logistics:core/pulped_biomass",
-    "logistics:core/slag",
-    "logistics:core/slag"
+    "#c:slag",
+    "#c:slag"
   ],
   "result": { "id": "minecraft:dirt", "count": 1 }
 }

@@ -4,7 +4,7 @@
   "key": {
     "S": "minecraft:stone",
     "G": "minecraft:glass",
-    "s": "logistics:core/stone_gear",
+    "s": "#c:gears/stone",
     "p": "minecraft:piston"
   },
   "result": {

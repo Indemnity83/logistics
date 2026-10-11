@@ -7,7 +7,7 @@
   ],
   "key": {
     "A": "minecraft:orange_dye",
-    "B": "logistics:core/iron_gear",
+    "B": "#c:gears/iron",
     "C": "minecraft:redstone",
     "D": "logistics:pipe/blank_module"
   },

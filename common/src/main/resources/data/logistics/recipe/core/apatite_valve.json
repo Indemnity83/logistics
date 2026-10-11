@@ -4,7 +4,7 @@
   "key": {
     "Q": "logistics:core/quartz_crystal",
     "R": "minecraft:redstone",
-    "M": "logistics:core/apatite"
+    "M": "#c:gems/apatite"
   },
   "result": { "count": 1, "id": "logistics:core/apatite_valve" }
 }

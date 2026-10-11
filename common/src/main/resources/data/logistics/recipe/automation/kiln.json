@@ -5,7 +5,7 @@
     "R": "minecraft:redstone",
     "B": "minecraft:bricks",
     "M": "logistics:core/machine_core",
-    "G": "logistics:core/copper_gear",
+    "G": "#c:gears/copper",
     "C": "logistics:core/redstone_reception_coil"
   },
   "result": { "id": "logistics:automation/kiln", "count": 1 }
