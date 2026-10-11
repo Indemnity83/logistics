@@ -55,6 +55,7 @@ import net.neoforged.fml.common.Mod;
 public final class LogisticsGameTestMod {
 
     public LogisticsGameTestMod(IEventBus modBus) {
+        HarnessGameTestRegistration.bootstrap();
         RecipeLoadingGameTestRegistration.bootstrap();
         ReloadLifecycleGameTestRegistration.bootstrap();
         ServerDataLoadingGameTestRegistration.bootstrap();
