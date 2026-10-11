@@ -36,10 +36,13 @@ import net.neoforged.neoforge.registries.DeferredHolder;
  */
 public final class GameTestRegistrationSupport {
 
-    // Unlike the old annotation-based framework, a missing structure now hard-fails placement
-    // instead of falling back to a generated empty box. Reuse vanilla's own "minecraft:empty"
-    // structure — the same one GameTestInstances.ALWAYS_PASS uses — rather than shipping our own.
-    private static final ResourceId EMPTY_STRUCTURE = ResourceId.of("empty");
+    // An 8x8x8 all-air structure: the same footprint as Fabric's fabric-gametest-api-v1:empty,
+    // which the shared bodies are laid out in. The runner force-loads only the chunks under the
+    // structure and starts a test once those are entity-ticking. Anything a test touches outside
+    // them may sit in a chunk the entity manager has not caught up with yet: an entity added
+    // there is invisible to AABB queries, and a block entity there may not tick. Vanilla's own
+    // 1x1x1 "minecraft:empty" leaves most of every test's area in that state.
+    private static final ResourceId EMPTY_STRUCTURE = ResourceId.in("logistics_gametest", "empty");
 
     private GameTestRegistrationSupport() {}
 
