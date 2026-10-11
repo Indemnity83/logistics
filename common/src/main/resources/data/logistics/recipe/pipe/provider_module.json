@@ -7,7 +7,7 @@
   ],
   "key": {
     "A": "minecraft:red_dye",
-    "B": "logistics:core/gold_gear",
+    "B": "#c:gears/gold",
     "C": "minecraft:redstone",
     "D": "logistics:pipe/blank_module"
   },
