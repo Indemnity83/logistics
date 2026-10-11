@@ -2,7 +2,13 @@ package com.logistics.power.engine.fuel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.logistics.LogisticsCore;
+import com.logistics.core.lib.resource.ResourceId;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.material.Fluid;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,15 +37,26 @@ class FuelEnginePropertiesTest {
     }
 
     @Test
-    void fuelTableByRegistryId() {
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("crude_oil").toString()))
-                .isEqualTo(new FuelEngineFuel(40_000L, 3.0));
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("bio_fuel").toString()))
-                .isEqualTo(new FuelEngineFuel(80_000L, 1.5));
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("fuel_oil").toString()))
+    void fuelTiersByConventionalTag() {
+        assertThat(FuelEngineFuels.forTags(inTags("fuel"))).isEqualTo(new FuelEngineFuel(150_000L, 2.25));
+        assertThat(FuelEngineFuels.forTags(inTags("biofuel"))).isEqualTo(new FuelEngineFuel(80_000L, 1.5));
+        assertThat(FuelEngineFuels.forTags(inTags("crude_oil"))).isEqualTo(new FuelEngineFuel(40_000L, 3.0));
+        assertThat(FuelEngineFuels.forTags(inTags("oil"))).isEqualTo(new FuelEngineFuel(40_000L, 3.0));
+        assertThat(FuelEngineFuels.forTags(inTags("diesel", "ethanol", "plantoil"))).isNull();
+        assertThat(FuelEngineFuels.forTags(inTags())).isNull();
+    }
+
+    @Test
+    void fluidInSeveralFuelTagsBurnsAsTheBest() {
+        assertThat(FuelEngineFuels.forTags(inTags("oil", "biofuel", "fuel")))
                 .isEqualTo(new FuelEngineFuel(150_000L, 2.25));
-        assertThat(FuelEngineFuels.byId(LogisticsCore.resource("liquid_redstone").toString())).isNull();
-        assertThat(FuelEngineFuels.byId(null)).isNull();
+        assertThat(FuelEngineFuels.forTags(inTags("crude_oil", "biofuel")))
+                .isEqualTo(new FuelEngineFuel(80_000L, 1.5));
+    }
+
+    private static Predicate<TagKey<Fluid>> inTags(String... paths) {
+        Set<String> ids = Arrays.stream(paths).map(path -> "c:" + path).collect(Collectors.toSet());
+        return tag -> ids.contains(ResourceId.wrap(tag.location()).toString());
     }
 
     @Test
