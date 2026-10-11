@@ -4,7 +4,7 @@
   "key": {
     "I": "minecraft:iron_ingot",
     "G": "minecraft:glass",
-    "g": "logistics:core/iron_gear",
+    "g": "#c:gears/iron",
     "p": "minecraft:piston"
   },
   "result": {

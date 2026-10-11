@@ -121,6 +121,14 @@ class TagContractTest {
         assertThat(failures).as("ores missing placement tags").isEmpty();
     }
 
+    @Test
+    @DisplayName("the wrench carries the conventional wrench tag")
+    void wrenchIsConventionallyTagged() {
+        Path tag = shippedTags().get("c:item:tools/wrench");
+        assertThat(tag).as("c:tools/wrench is shipped").isNotNull();
+        assertThat(valuesOf(tag)).contains("logistics:core/wrench");
+    }
+
     /** Sanity guard, not a coverage claim: catches walking an empty or wrong directory. */
     @Test
     @DisplayName("the shipped tag set has not collapsed")
