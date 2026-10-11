@@ -8,10 +8,10 @@
       "item": "logistics:core/pulped_biomass"
     },
     {
-      "item": "logistics:core/slag"
+      "tag": "c:slag"
     },
     {
-      "item": "logistics:core/slag"
+      "tag": "c:slag"
     }
   ],
   "result": {
