@@ -17,11 +17,13 @@
 
 	"entrypoints": {
 		"fabric-gametest": [
+			"com.logistics.gametest.HarnessGameTest",
 			"com.logistics.gametest.RecipeLoadingGameTest",
 			"com.logistics.gametest.ReloadLifecycleGameTest",
 			"com.logistics.gametest.ServerDataLoadingGameTest",
 			"com.logistics.gametest.core.OreGenerationGameTest",
 			"com.logistics.gametest.core.MaceratorGameTest",
+			"com.logistics.gametest.core.MarkerGameTest",
 			"com.logistics.gametest.core.SolidFuelGameTest",
 			"com.logistics.gametest.pipe.PipeInfrastructureGameTest",
 			"com.logistics.gametest.pipe.ModuleGameTest",
@@ -33,6 +35,7 @@
 			"com.logistics.gametest.pipe.FluidProviderGameTest",
 			"com.logistics.gametest.pipe.FluidSupplierGameTest",
 			"com.logistics.gametest.pipe.FluidPacketDropGameTest",
+			"com.logistics.gametest.pipe.FluidRoutingGameTest",
 			"com.logistics.gametest.pipe.GlassTankBucketGameTest",
 			"com.logistics.gametest.pipe.PowerJunctionGameTest",
 			"com.logistics.gametest.pipe.StrayPacketRerouteGameTest",
