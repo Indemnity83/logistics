@@ -658,4 +658,37 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.farm().areaSize()).isEqualTo(3);
         assertThat(farm.logic.decisions).as("one 3x3 pass, the back-off, then the next pass").isEqualTo(10);
     }
+
+    @Test
+    @DisplayName("the logic is handed the work area its plot belongs to")
+    void logicSeesWorkArea() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
+        farm.power(10_000);
+
+        farm.tick();
+
+        assertThat(farm.logic.lastArea).isNotNull();
+        assertThat(farm.logic.lastArea.size()).isEqualTo(3);
+        assertThat(farm.logic.lastArea.plot(0)).isEqualTo(farm.plot(0));
+    }
+
+    @Test
+    @DisplayName("the soil the logic sees is the one the farm would lay next")
+    void inputsReportNextSoil() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(false, true));
+        farm.items().setItem(FarmMachine.SOIL_START + 1, new ItemStack(Items.PODZOL, 3));
+        farm.items().setItem(FarmMachine.SOIL_START + 2, new ItemStack(Items.DIRT, 5));
+        farm.power(10_000);
+
+        farm.tick();
+
+        ItemStack soil = farm.logic.lastInputs.soil();
+        assertThat(soil.is(Items.PODZOL)).isTrue();
+        assertThat(soil.getCount()).isEqualTo(1);
+        assertThat(farm.logic.lastInputs.hasSoil()).isTrue();
+
+        farm.items().setItem(FarmMachine.SOIL_START + 1, ItemStack.EMPTY);
+        farm.items().setItem(FarmMachine.SOIL_START + 2, ItemStack.EMPTY);
+        assertThat(farm.logic.lastInputs.soil().isEmpty()).isTrue();
+    }
 }

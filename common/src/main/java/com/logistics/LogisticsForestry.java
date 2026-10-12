@@ -10,6 +10,7 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmMenu;
+import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
 import com.logistics.forestry.humus.HumusBlock;
 import java.util.ArrayList;
@@ -198,6 +199,18 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static final TagKey<Block> REPLACEABLE_SOIL =
                 TagKey.create(Registries.BLOCK, resource("replaceable_soil").toIdentifier());
 
+        /** Items the Arboretum plants. */
+        public static final TagKey<Item> ARBORETUM_GERMLINGS =
+                TagKey.create(Registries.ITEM, resource("arboretum_germlings").toIdentifier());
+
+        /** Items the Arboretum lays as soil. */
+        public static final TagKey<Item> ARBORETUM_SOILS =
+                TagKey.create(Registries.ITEM, resource("arboretum_soils").toIdentifier());
+
+        /** Saplings that only grow as an aligned 2×2 group, e.g. dark oak. */
+        public static final TagKey<Item> REQUIRES_2X2 =
+                TagKey.create(Registries.ITEM, resource("requires_2x2").toIdentifier());
+
         /** Ground the Crop Farm tills into farmland. */
         public static final TagKey<Block> TILLABLE =
                 TagKey.create(Registries.BLOCK, resource("tillable").toIdentifier());
@@ -218,11 +231,16 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         private static final List<Block> FARMS = new ArrayList<>();
 
         public static Block HUMUS;
+        public static Block ARBORETUM;
         public static Block CROP_FARM;
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
                 props -> new HumusBlock(props.mapColor(MapColor.DIRT).strength(0.5f).sound(SoundType.ROOTED_DIRT)));
+            ARBORETUM = registerFarm("arboretum",
+                props -> new ArboretumBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LIT) ? 13 : 0)));
             CROP_FARM = registerFarm("crop_farm",
                 props -> new CropFarmBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
@@ -290,6 +308,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         static void register() {
             TAB.add(ITEM.FERTILIZER);
             TAB.add(BLOCK.HUMUS);
+            TAB.add(BLOCK.ARBORETUM);
             TAB.add(BLOCK.CROP_FARM);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
