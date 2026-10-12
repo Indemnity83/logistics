@@ -14,6 +14,7 @@ import com.logistics.pipe.network.CraftBatchingService;
 import com.logistics.core.lib.network.CrafterBufferState;
 import com.logistics.core.lib.network.CrafterSnapshot;
 import com.logistics.core.lib.network.ILogisticsNetwork;
+import com.logistics.core.lib.network.IngredientChecker;
 import com.logistics.core.lib.network.RecipeIngredient;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.lib.compat.NbtCompat;
@@ -522,13 +523,7 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
         // force-routing all crafted output to the requester regardless of how much they wanted.
         long actualAmount = Math.min(amount, batchCount * resultCount);
 
-        // Aggregate total ingredient amounts needed for the capped batch count
-        Map<String, Long> totalNeededByItem = new LinkedHashMap<>();
-        for (int slot = 0; slot < 9; slot++) {
-            String ingredientId = getIngredientItem(ctx, slot);
-            if (ingredientId.isEmpty()) continue;
-            totalNeededByItem.merge(ingredientId, (long) getIngredientCount(ctx, slot) * batchCount, Long::sum);
-        }
+        Map<String, Long> totalNeededByItem = ingredientTotals(ctx, batchCount);
 
         // No ingredients configured — reject the dispatch
         if (totalNeededByItem.isEmpty()) {
@@ -780,27 +775,43 @@ public class CraftingModule implements Module, TickingModule, RoutingModule, Dis
             network.unregisterCrafterSnapshot(ctx.pos());
         }
 
-        network.registerProviderCheck(ctx.pos(), (amount, checker) -> {
-            int resultCount = getResultCount(ctx);
-            if (resultCount <= 0) return List.of();
-            long batchCount = (amount + resultCount - 1L) / resultCount;
-            List<IItemKey> missing = new ArrayList<>();
-            for (int slot = 0; slot < 9; slot++) {
-                String id = getIngredientItem(ctx, slot);
-                if (id.isEmpty()) continue;
-                long needed = (long) getIngredientCount(ctx, slot) * batchCount;
-                ItemStack stack = resolveItem(id);
-                if (stack.isEmpty()) {
-                    // Ingredient ID is not in the registry — recipe is misconfigured.
-                    // Use a placeholder so the missing list records a failure rather than
-                    // silently skipping the slot and letting a doomed order proceed.
-                    missing.addAll(checker.check(new ItemStack(net.minecraft.world.item.Items.AIR), needed));
-                    continue;
-                }
-                missing.addAll(checker.check(stack, needed));
+        network.registerProviderCheck(ctx.pos(), (amount, checker) -> checkIngredients(ctx, amount, checker));
+    }
+
+    /**
+     * Total of each ingredient id across the recipe grid for {@code batchCount} crafts, in grid
+     * order. An ingredient spread over several slots is one entry with the summed amount.
+     */
+    Map<String, Long> ingredientTotals(PipeContext ctx, long batchCount) {
+        Map<String, Long> totals = new LinkedHashMap<>();
+        for (int slot = 0; slot < 9; slot++) {
+            String id = getIngredientItem(ctx, slot);
+            if (id.isEmpty()) continue;
+            totals.merge(id, (long) getIngredientCount(ctx, slot) * batchCount, Long::sum);
+        }
+        return totals;
+    }
+
+    /**
+     * Whether the network can supply the ingredients to craft {@code amount} results: one
+     * {@code checker} call per distinct ingredient, returning the missing items.
+     */
+    List<IItemKey> checkIngredients(PipeContext ctx, long amount, IngredientChecker checker) {
+        int resultCount = getResultCount(ctx);
+        if (resultCount <= 0) return List.of();
+        long batchCount = (amount + resultCount - 1L) / resultCount;
+        List<IItemKey> missing = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : ingredientTotals(ctx, batchCount).entrySet()) {
+            ItemStack stack = resolveItem(entry.getKey());
+            if (stack.isEmpty()) {
+                // Unknown ingredient id (misconfigured recipe): check a placeholder so the
+                // failure is recorded instead of letting a doomed order proceed.
+                missing.addAll(checker.check(new ItemStack(net.minecraft.world.item.Items.AIR), entry.getValue()));
+                continue;
             }
-            return missing;
-        });
+            missing.addAll(checker.check(stack, entry.getValue()));
+        }
+        return missing;
     }
 
     /** Cancel all ingredient orders recorded in a single queue {@code entry}. */

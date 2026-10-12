@@ -155,11 +155,6 @@ public class CraftingProcessSatelliteGameTestBody {
      * crafting pipe can make — from 4 oak planks it has to order from the first crafting pipe,
      * which in turn crafts them from the provider's log.
      *
-     * <p>The second recipe uses its intermediate in a single grid slot on purpose: a recipe that
-     * spreads one crafted intermediate across several slots (a crafting table's 2x2 of planks) is
-     * refused as "missing ingredients" with exactly enough logs in stock, because the ingredient
-     * check rounds each slot up to a whole upstream batch separately.
-     *
      * <p>Layout (y=1; crafter A north of crafting pipe A, crafter B south of crafting pipe B):
      * <pre>
      *                              [crafter A]                   [dest chest]
@@ -202,6 +197,51 @@ public class CraftingProcessSatelliteGameTestBody {
             }
             if (count(context, sourcePos, Items.OAK_LOG) != 0) {
                 throw new GameTestAssertException("The oak log at the bottom of the tree should have been consumed");
+            }
+        });
+    }
+
+    /**
+     * A chained recipe that spreads one crafted intermediate across several grid slots must be
+     * judged on the ingredient's total, not slot by slot.
+     *
+     * <p>The network holds one oak log. A requester asks for a crafting table, whose recipe takes
+     * one oak plank in each of four slots. One log crafts exactly those four planks, so the
+     * request must succeed rather than be refused as missing logs.
+     *
+     * <p>Layout: as {@link #testChainedCraftingPipesConsumeEachOthersOutput}, with the second
+     * crafting pipe making crafting tables.
+     */
+    public static void testChainedCraftingPipesSupplyMultiSlotIntermediate(GameTestHelper context) {
+        BlockPos sourcePos = new BlockPos(0, 1, 1);
+        BlockPos providerPos = new BlockPos(1, 1, 1);
+        BlockPos planksPipePos = new BlockPos(2, 1, 1);
+        BlockPos planksCrafterPos = new BlockPos(2, 1, 0);
+        BlockPos tablePipePos = new BlockPos(3, 1, 1);
+        BlockPos tableCrafterPos = new BlockPos(3, 1, 2);
+        BlockPos requesterPos = new BlockPos(4, 1, 1);
+        BlockPos destPos = new BlockPos(4, 1, 0);
+
+        context.setBlock(destPos, Blocks.CHEST);
+        context.setBlock(requesterPos, LogisticsPipe.BLOCK.REQUESTER_LOGISTICS_PIPE);
+        context.setBlock(tableCrafterPos, Blocks.CRAFTER);
+        context.setBlock(tablePipePos, LogisticsPipe.BLOCK.CRAFTING_LOGISTICS_PIPE);
+        context.setBlock(planksCrafterPos, Blocks.CRAFTER);
+        context.setBlock(planksPipePos, LogisticsPipe.BLOCK.CRAFTING_LOGISTICS_PIPE);
+        placeSource(context, sourcePos, providerPos, new ItemStack(Items.OAK_LOG));
+        placeChargedPowerJunction(context, providerPos.above());
+
+        configureRecipe(context, planksPipePos, Items.OAK_LOG, new int[] {0}, Items.OAK_PLANKS, 4);
+        configureRecipe(context, tablePipePos, Items.OAK_PLANKS, new int[] {0, 1, 3, 4}, Items.CRAFTING_TABLE, 1);
+        requestFrom(context, requesterPos, "minecraft:crafting_table", 1);
+
+        context.succeedWhen(() -> {
+            int tables = count(context, destPos, Items.CRAFTING_TABLE);
+            if (tables < 1) {
+                throw new GameTestAssertException("Expected a crafting table crafted from chained planks, found " + tables);
+            }
+            if (count(context, sourcePos, Items.OAK_LOG) != 0) {
+                throw new GameTestAssertException("The single oak log should have been consumed for the planks");
             }
         });
     }

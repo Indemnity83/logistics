@@ -26,6 +26,11 @@ public final class CraftingProcessSatelliteGameTestRegistration {
         CraftingProcessSatelliteGameTestBody.testChainedCraftingPipesConsumeEachOthersOutput(context);
     }
 
+    @GameTest(template = "empty", batch = "craftingprocesssatellite", timeoutTicks = 420)
+    public static void testChainedCraftingPipesSupplyMultiSlotIntermediate(GameTestHelper context) {
+        CraftingProcessSatelliteGameTestBody.testChainedCraftingPipesSupplyMultiSlotIntermediate(context);
+    }
+
     @GameTest(template = "empty", batch = "craftingprocesssatellite", timeoutTicks = 520)
     public static void testProcessPipeSmeltsThroughSatelliteFedFurnace(GameTestHelper context) {
         CraftingProcessSatelliteGameTestBody.testProcessPipeSmeltsThroughSatelliteFedFurnace(context);
