@@ -512,6 +512,11 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         }
 
         @Override
+        public boolean hasWater() {
+            return false;
+        }
+
+        @Override
         public boolean hasFertilizer() {
             return fertilizer;
         }

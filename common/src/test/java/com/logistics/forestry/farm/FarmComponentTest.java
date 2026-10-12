@@ -498,6 +498,56 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("soil never fills in water: a source, a flow or a waterlogged block")
+    void soilNeverFillsWater() {
+        List<BlockState> wet = List.of(
+                Blocks.WATER.defaultBlockState(),
+                Fluids.FLOWING_WATER.getFlowing(3, false).createLegacyBlock(),
+                Blocks.SEAGRASS.defaultBlockState(),
+                Blocks.LIGHT.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, true));
+        for (BlockState water : wet) {
+            FarmHarness farm = new FarmHarness(layingPodzol());
+            farm.world.set(farm.plot(0).below(), water);
+            farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.PODZOL, 2));
+            farm.power(10_000);
+
+            farm.tick();
+
+            assertThat(farm.world.blocks).as("%s", water).containsEntry(farm.plot(0).below(), water);
+            assertThat(farm.world.broken).as("%s", water).isEmpty();
+            assertThat(farm.world.writeFlags).as("%s", water).isEmpty();
+            assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).as("%s", water).isEqualTo(2);
+            assertThat(farm.energy()).as("%s", water).isEqualTo(10_000);
+            assertThat(farm.farm().status()).as("%s", water).isEqualTo(FarmStatus.BLOCKED);
+        }
+    }
+
+    @Test
+    @DisplayName("a farm with a tank reports No water while it cannot cover one irrigation, even if no plot asked")
+    void reportsNoWaterWithoutIrrigating() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false));
+        farm.power(10_000);
+
+        farm.tick();
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
+
+        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(1_000), false);
+        farm.tick();
+        assertThat(farm.farm().status()).isNotEqualTo(FarmStatus.NO_WATER);
+    }
+
+    @Test
+    @DisplayName("a farm without a tank never reports No water")
+    void noTankNoWaterStatus() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(false, false));
+        farm.power(10_000);
+
+        farm.ticks(3);
+
+        assertThat(farm.farm().status()).isNotEqualTo(FarmStatus.NO_WATER);
+    }
+
+    @Test
     @DisplayName("irrigating wets farmland to full moisture without a neighbour update, spending water")
     void irrigates() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false).script((world, plot) -> {

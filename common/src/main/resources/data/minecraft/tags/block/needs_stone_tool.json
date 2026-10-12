@@ -23,6 +23,7 @@
     "logistics:automation/sequential_fabricator",
     "logistics:automation/transposer",
     "logistics:automation/laser_quarry",
+    "logistics:forestry/crop_farm",
     "logistics:pipe/power_junction",
     "logistics:power/basic_battery",
     "logistics:power/conductive_battery",
