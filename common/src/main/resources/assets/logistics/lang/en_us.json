@@ -207,6 +207,7 @@
   "block.logistics.core.oil_shale": "Oil Shale",
   "block.logistics.forestry.crop_farm": "Crop Farm",
   "block.logistics.forestry.humus": "Humus",
+  "block.logistics.forestry.arboretum": "Arboretum",
   "block.logistics.core.crude_oil": "Crude Oil",
   "item.logistics.core.silicon_mix": "Silicon Mix",
   "item.logistics.core.silicon_wafer": "Silicon Wafer",
@@ -513,5 +514,8 @@
   "tag.item.c.storage_blocks.raw_tin": "Raw Tin Storage Blocks",
   "tag.item.logistics.forestry.crop_germlings": "Crop Germlings",
   "tag.item.logistics.forestry.crop_soils": "Crop Soils",
-  "tag.item.logistics.forestry.fertilizers": "Fertilizers"
+  "tag.item.logistics.forestry.fertilizers": "Fertilizers",
+  "tag.item.logistics.forestry.arboretum_germlings": "Arboretum Germlings",
+  "tag.item.logistics.forestry.arboretum_soils": "Arboretum Soils",
+  "tag.item.logistics.forestry.requires_2x2": "Saplings Requiring 2×2"
 }

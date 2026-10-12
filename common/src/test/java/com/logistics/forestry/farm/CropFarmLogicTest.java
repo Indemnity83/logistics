@@ -389,6 +389,11 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
         }
 
         @Override
+        public ItemStack soil() {
+            return ItemStack.EMPTY;
+        }
+
+        @Override
         public boolean hasWater() {
             return water;
         }
