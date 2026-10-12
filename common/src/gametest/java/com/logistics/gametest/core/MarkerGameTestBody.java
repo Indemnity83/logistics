@@ -22,6 +22,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -292,7 +293,12 @@ public class MarkerGameTestBody {
         CompoundTag saved = original.saveCustomOnly(registries);
         BlockState activeState = context.getBlockState(shape.corner());
 
-        context.setBlock(shape.corner(), Blocks.AIR);
+        // Without block-entity side effects, as a chunk unload, so the rest of the set stays active.
+        context.getLevel()
+                .setBlock(
+                        context.absolutePos(shape.corner()),
+                        Blocks.AIR.defaultBlockState(),
+                        Block.UPDATE_ALL | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
         context.setBlock(shape.corner(), activeState);
 
         MarkerBlockEntity rebuilt = markerAt(context, shape.corner());
@@ -304,6 +310,66 @@ public class MarkerGameTestBody {
         rebuilt.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, registries, saved));
 
         if (!shape.assertActivated(context)) return;
+        context.succeed();
+    }
+
+    /**
+     * A marker needs a solid block under it, so removing that block pops the marker off and drops
+     * it, as a torch does.
+     */
+    public static void testMarkerPopsOffWhenFloorRemoved(GameTestHelper context) {
+        BlockPos pos = new BlockPos(0, 11, 0);
+        placeMarker(context, pos);
+
+        context.setBlock(pos.below(), Blocks.AIR);
+
+        if (!context.getBlockState(pos).isAir()) {
+            context.fail("A marker with nothing under it should pop off, but found " + context.getBlockState(pos));
+            return;
+        }
+        // Asserted at the drop, before the item can drift towards a neighbouring structure.
+        context.assertItemEntityCountIs(LogisticsCore.BLOCK.MARKER.asItem(), pos, 1.5, 1);
+        context.succeed();
+    }
+
+    /**
+     * Removing one marker of an active set without a player — here by replacing it directly, as a
+     * machine or another mod would — turns the rest of the set off, the same as breaking it.
+     */
+    public static void testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest(GameTestHelper context) {
+        LShape shape = LShape.at(12);
+        shape.place(context);
+        FeedbackRecordingPlayer player = FeedbackRecordingPlayer.holdingWrench(context);
+
+        context.useBlock(shape.corner(), player);
+        if (!shape.assertActivated(context)) return;
+
+        context.setBlock(shape.xEdge(), Blocks.AIR);
+
+        if (!assertAllInactive(context, shape.corner(), shape.zEdge())) return;
+        context.succeed();
+    }
+
+    /**
+     * An active marker that pops off because its floor was removed takes the rest of its set down
+     * with it.
+     */
+    public static void testActiveMarkerPoppingOffDeactivatesTheRest(GameTestHelper context) {
+        LShape shape = LShape.at(13);
+        shape.place(context);
+        FeedbackRecordingPlayer player = FeedbackRecordingPlayer.holdingWrench(context);
+
+        context.useBlock(shape.corner(), player);
+        if (!shape.assertActivated(context)) return;
+
+        context.setBlock(shape.xEdge().below(), Blocks.AIR);
+
+        if (!context.getBlockState(shape.xEdge()).isAir()) {
+            context.fail("The marker with nothing under it should pop off");
+            return;
+        }
+        context.assertItemEntityCountIs(LogisticsCore.BLOCK.MARKER.asItem(), shape.xEdge(), 1.5, 1);
+        if (!assertAllInactive(context, shape.corner(), shape.zEdge())) return;
         context.succeed();
     }
 
