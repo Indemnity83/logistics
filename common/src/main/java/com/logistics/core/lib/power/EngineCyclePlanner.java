@@ -10,7 +10,7 @@ public final class EngineCyclePlanner {
             float pistonSpeed,
             boolean sendsEnergyContinuously) {
         if (phase == CyclePhase.IDLE && powered) {
-            return new Result(CyclePhase.EXPANSION, progress, false);
+            return new Result(CyclePhase.EXPANSION, progress, sendsEnergyContinuously);
         }
 
         if (phase == CyclePhase.IDLE) {

@@ -20,6 +20,20 @@ class EngineCyclePlannerTest {
     }
 
     @Test
+    void advance_continuousEngineSendsOnRestartTick() {
+        EngineCyclePlanner.Result result = EngineCyclePlanner.advance(
+                CyclePhase.IDLE,
+                0.0f,
+                true,
+                0.08f,
+                true);
+
+        assertThat(result.phase()).isEqualTo(CyclePhase.EXPANSION);
+        assertThat(result.progress()).isZero();
+        assertThat(result.shouldSendEnergy()).isTrue();
+    }
+
+    @Test
     void advance_keepsIdleEngineStoppedWhenUnpowered() {
         EngineCyclePlanner.Result result = EngineCyclePlanner.advance(
                 CyclePhase.IDLE,
