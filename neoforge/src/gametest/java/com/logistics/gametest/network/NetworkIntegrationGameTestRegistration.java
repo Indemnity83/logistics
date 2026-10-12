@@ -116,4 +116,10 @@ public final class NetworkIntegrationGameTestRegistration {
     public static void testProviderReserveModeLeavesFirstSlot(GameTestHelper context) {
         NetworkIntegrationGameTestBody.testProviderReserveModeLeavesFirstSlot(context);
     }
+
+    /** A requester with a pipe continuing past it must keep every delivery addressed to it. */
+    @GameTest(template = "empty", batch = "networkintegration", timeoutTicks = 220)
+    public static void testMidLineRequesterKeepsItsDeliveries(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testMidLineRequesterKeepsItsDeliveries(context);
+    }
 }

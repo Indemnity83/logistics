@@ -118,4 +118,18 @@ public class NetworkIntegrationGameTest {
     public void testProviderReserveModeLeavesFirstSlot(GameTestHelper context) {
         NetworkIntegrationGameTestBody.testProviderReserveModeLeavesFirstSlot(context);
     }
+
+    /**
+     * A requester with a pipe continuing past it must keep every delivery addressed to it.
+     *
+     * <p>Layout (y=1): [source chest] [provider] [transport] [requester] [onward pipe] [onward chest],
+     * with the requester's chest south of it. Eight one-diamond orders must all land in the
+     * requester's chest and none in the onward chest.
+     *
+     * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testmidlinerequesterkeepsitsdeliveries
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
+    public void testMidLineRequesterKeepsItsDeliveries(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testMidLineRequesterKeepsItsDeliveries(context);
+    }
 }
