@@ -51,7 +51,17 @@ public final class MarkerGameTestRegistration {
         new GameTestCase(
             "core/marker_active_marker_survives_reconstruction",
             100,
-            MarkerGameTestBody::testActiveMarkerSurvivesReconstruction));
+            MarkerGameTestBody::testActiveMarkerSurvivesReconstruction),
+        new GameTestCase(
+            "core/marker_pops_off_when_floor_removed", 100, MarkerGameTestBody::testMarkerPopsOffWhenFloorRemoved),
+        new GameTestCase(
+            "core/marker_removing_active_marker_without_player_deactivates_rest",
+            100,
+            MarkerGameTestBody::testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest),
+        new GameTestCase(
+            "core/marker_active_marker_popping_off_deactivates_rest",
+            100,
+            MarkerGameTestBody::testActiveMarkerPoppingOffDeactivatesTheRest));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
