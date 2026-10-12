@@ -35,6 +35,7 @@
 			"com.logistics.gametest.pipe.FluidProviderGameTest",
 			"com.logistics.gametest.pipe.FluidSupplierGameTest",
 			"com.logistics.gametest.pipe.FluidPacketDropGameTest",
+			"com.logistics.gametest.pipe.FluidRoutingGameTest",
 			"com.logistics.gametest.pipe.GlassTankBucketGameTest",
 			"com.logistics.gametest.pipe.PowerJunctionGameTest",
 			"com.logistics.gametest.pipe.StrayPacketRerouteGameTest",
