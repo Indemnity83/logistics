@@ -109,4 +109,19 @@ public class MarkerGameTest {
     public void testActiveMarkerSurvivesReconstruction(GameTestHelper context) {
         MarkerGameTestBody.testActiveMarkerSurvivesReconstruction(context);
     }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testMarkerPopsOffWhenFloorRemoved(GameTestHelper context) {
+        MarkerGameTestBody.testMarkerPopsOffWhenFloorRemoved(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest(GameTestHelper context) {
+        MarkerGameTestBody.testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testActiveMarkerPoppingOffDeactivatesTheRest(GameTestHelper context) {
+        MarkerGameTestBody.testActiveMarkerPoppingOffDeactivatesTheRest(context);
+    }
 }

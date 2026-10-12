@@ -13,10 +13,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -80,14 +83,31 @@ public class MarkerBlock extends Block implements EntityBlock, WrenchBehavior.Wr
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && state.getValue(ACTIVE)) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof MarkerBlockEntity marker) {
-                marker.deactivateConnectedMarkers();
-            }
+    protected BlockState updateShape(
+            BlockState state,
+            Direction directionToNeighbour,
+            BlockState neighbourState,
+            LevelAccessor world,
+            BlockPos pos,
+            BlockPos neighbourPos) {
+        return directionToNeighbour == Direction.DOWN && !this.canSurvive(state, world, pos)
+                ? Blocks.AIR.defaultBlockState()
+                : super.updateShape(state, directionToNeighbour, neighbourState, world, pos, neighbourPos);
+    }
+
+    /**
+     * Turns the rest of the set off when this marker is removed: broken, exploded, popped off or
+     * replaced, including by {@code /setblock} and {@code /fill}. Not when the marker only changes
+     * its own state, so the deactivations this makes on the other markers cannot re-enter it. Runs
+     * before {@code super} removes the block entity that holds the set.
+     */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!level.isClientSide() && !state.is(newState.getBlock())
+                && level.getBlockEntity(pos) instanceof MarkerBlockEntity marker) {
+            marker.deactivateConnectedMarkers();
         }
-        return super.playerWillDestroy(level, pos, state, player);
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override

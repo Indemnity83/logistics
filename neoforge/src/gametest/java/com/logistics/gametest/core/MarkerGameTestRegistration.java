@@ -65,4 +65,19 @@ public final class MarkerGameTestRegistration {
     public static void testActiveMarkerSurvivesReconstruction(GameTestHelper context) {
         MarkerGameTestBody.testActiveMarkerSurvivesReconstruction(context);
     }
+
+    @GameTest(template = "empty", batch = "marker", timeoutTicks = 100)
+    public static void testMarkerPopsOffWhenFloorRemoved(GameTestHelper context) {
+        MarkerGameTestBody.testMarkerPopsOffWhenFloorRemoved(context);
+    }
+
+    @GameTest(template = "empty", batch = "marker", timeoutTicks = 100)
+    public static void testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest(GameTestHelper context) {
+        MarkerGameTestBody.testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest(context);
+    }
+
+    @GameTest(template = "empty", batch = "marker", timeoutTicks = 100)
+    public static void testActiveMarkerPoppingOffDeactivatesTheRest(GameTestHelper context) {
+        MarkerGameTestBody.testActiveMarkerPoppingOffDeactivatesTheRest(context);
+    }
 }
