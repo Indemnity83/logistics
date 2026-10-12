@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "c:dusts/apatite"
+    },
+    {
+      "tag": "c:dusts/saltpeter"
+    },
+    {
+      "item": "logistics:core/pulped_biomass"
+    }
+  ],
+  "result": {
+    "id": "logistics:forestry/fertilizer",
+    "count": 8
+  }
+}

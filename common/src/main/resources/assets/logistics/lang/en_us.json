@@ -3,6 +3,7 @@
   "itemGroup.logistics.2_pipes": "Logistics Pipes",
   "itemGroup.logistics.3_power": "Logistics Power",
   "itemGroup.logistics.4_automation": "Logistics Automation",
+  "itemGroup.logistics.5_forestry": "Logistics Forestry",
   "block.logistics.pipe.copper_transport_pipe": "Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.exposed": "Exposed Copper Transport Pipe",
   "block.logistics.pipe.copper_transport_pipe.weathered": "Weathered Copper Transport Pipe",
@@ -208,6 +209,7 @@
   "item.logistics.core.flour": "Flour",
   "item.logistics.core.sawdust": "Sawdust",
   "item.logistics.core.pulped_biomass": "Pulped Biomass",
+  "item.logistics.forestry.fertilizer": "Fertilizer",
   "item.logistics.core.slag": "Slag",
   "item.logistics.core.rich_slag": "Rich Slag",
   "item.logistics.core.bitumen": "Bitumen",
@@ -487,5 +489,6 @@
   "tag.item.c.storage_blocks.caterium": "Caterium Storage Blocks",
   "tag.item.c.storage_blocks.lumenite": "Lumenite Storage Blocks",
   "tag.item.c.storage_blocks.echonite": "Echonite Storage Blocks",
-  "tag.item.c.storage_blocks.raw_tin": "Raw Tin Storage Blocks"
+  "tag.item.c.storage_blocks.raw_tin": "Raw Tin Storage Blocks",
+  "tag.item.logistics.forestry.fertilizers": "Fertilizers"
 }

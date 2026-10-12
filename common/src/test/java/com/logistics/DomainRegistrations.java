@@ -31,5 +31,6 @@ public final class DomainRegistrations {
         LogisticsPipe.ITEM.register();
         LogisticsPower.BLOCK.register();
         LogisticsAutomation.BLOCK.register();
+        LogisticsForestry.ITEM.register();
     }
 }
