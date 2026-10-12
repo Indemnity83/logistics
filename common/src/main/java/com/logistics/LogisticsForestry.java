@@ -7,14 +7,23 @@ import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.forestry.farm.FarmBlockEntity;
+import com.logistics.forestry.farm.FarmMachineBlock;
+import com.logistics.forestry.farm.FarmMenu;
 import com.logistics.forestry.humus.HumusBlock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 public final class LogisticsForestry extends LogisticsMod implements DomainBootstrap {
@@ -57,12 +66,13 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
     }
 
     /**
-     * Farm consumables and soils: {@code config/logistics/forestry/fertilizer.json} and
-     * {@code config/logistics/forestry/humus.json}.
+     * Farm consumables and soils ({@code fertilizer.json}, {@code humus.json}) and the shared farm
+     * machine ({@code farm.json}), all under {@code config/logistics/forestry/}.
      */
     public static final class CONFIG extends ConfigEntries {
         private static final Config fertilizer = configFor(LogisticsConfigHost.MOD_ID, "forestry.fertilizer");
         private static final Config humus = configFor(LogisticsConfigHost.MOD_ID, "forestry.humus");
+        private static final Config farm = configFor(LogisticsConfigHost.MOD_ID, "forestry.farm");
 
         private CONFIG() {}
 
@@ -88,6 +98,91 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("Chance that Humus turns to dirt when its boost grows a tree (0.0-1.0)")
                 .register();
 
+        public static final ConfigKey<Integer> FARM_AREA_SIZE = farm.defineInt("area_size", 9)
+                .range(1, 33)
+                .describe("Width of the square plot in front of a farm (odd; an even value rounds up)")
+                .register();
+
+        public static final ConfigKey<Integer> FARM_WORK_INTERVAL_TICKS = farm.defineInt("work_interval_ticks", 10)
+                .min(1)
+                .describe("Ticks between plots; a farm works at most one plot per interval")
+                .register();
+
+        public static final ConfigKey<Long> FARM_ENERGY_CAPACITY = farm.defineLong("energy_capacity", 20_000L)
+                .min(1L)
+                .describe("Internal RF buffer capacity")
+                .register();
+
+        public static final ConfigKey<Long> FARM_MAX_ENERGY_INPUT = farm.defineLong("max_energy_input", 128L)
+                .min(1L)
+                .describe("Maximum RF accepted per tick")
+                .register();
+
+        public static final ConfigKey<Long> FARM_RF_HARVEST_PER_BLOCK = farm.defineLong("rf_harvest_per_block", 40L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .describe("RF per block harvested")
+                .register();
+
+        public static final ConfigKey<Long> FARM_RF_PLANT = farm.defineLong("rf_plant", 100L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .describe("RF per germling planted")
+                .register();
+
+        public static final ConfigKey<Long> FARM_RF_TILL = farm.defineLong("rf_till", 60L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .describe("RF per block tilled")
+                .register();
+
+        public static final ConfigKey<Long> FARM_RF_SOIL = farm.defineLong("rf_soil", 60L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .describe("RF per soil block laid")
+                .register();
+
+        public static final ConfigKey<Long> FARM_RF_IRRIGATE = farm.defineLong("rf_irrigate", 20L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .describe("RF per block irrigated")
+                .register();
+
+        public static final ConfigKey<Long> FARM_RF_FERTILIZE = farm.defineLong("rf_fertilize", 120L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .describe("RF per growth step applied with fertilizer")
+                .register();
+
+        public static final ConfigKey<Integer> FARM_WATER_CAPACITY_MB = farm.defineInt("water_capacity_mb", 8_000)
+                .min(1)
+                .describe("Water tank capacity (mB) of farms that irrigate")
+                .register();
+
+        public static final ConfigKey<Integer> FARM_WATER_PER_IRRIGATE_MB = farm.defineInt("water_per_irrigate_mb", 50)
+                .min(0)
+                .describe("Water (mB) per block irrigated")
+                .register();
+
+        public static final ConfigKey<Integer> FARM_HARVEST_BLOCKS_PER_TICK =
+                farm.defineInt("harvest_blocks_per_tick", 4)
+                        .min(1)
+                        .describe("Blocks broken per tick while harvesting, e.g. felling a tree")
+                        .register();
+
+        public static final ConfigKey<Integer> FARM_IDLE_BACKOFF_BASE_TICKS =
+                farm.defineInt("idle_backoff_base_ticks", 20)
+                        .min(1)
+                        .describe("Pause after a full pass over the plot finds nothing to do")
+                        .register();
+
+        public static final ConfigKey<Integer> FARM_IDLE_BACKOFF_MAX_TICKS =
+                farm.defineInt("idle_backoff_max_ticks", 200)
+                        .min(1)
+                        .minValueOf(() -> CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS)
+                        .describe("Longest pause between idle passes; the pause doubles per idle pass up to this")
+                        .register();
+
         static void register() {}
     }
 
@@ -97,16 +192,33 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Items a farm's fertilizer slot accepts. */
         public static final TagKey<Item> FERTILIZERS =
                 TagKey.create(Registries.ITEM, resource("fertilizers").toIdentifier());
+
+        /** Ground a farm may dig up to lay its own soil; anything else under a plot is left alone. */
+        public static final TagKey<Block> REPLACEABLE_SOIL =
+                TagKey.create(Registries.BLOCK, resource("replaceable_soil").toIdentifier());
     }
 
     public static final class BLOCK {
         private BLOCK() {}
+
+        /** Every farm block; {@link ENTITY#FARM} is valid for exactly these. */
+        private static final List<Block> FARMS = new ArrayList<>();
 
         public static Block HUMUS;
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
                 props -> new HumusBlock(props.mapColor(MapColor.DIRT).strength(0.5f).sound(SoundType.ROOTED_DIRT)));
+        }
+
+        /**
+         * Registers a farm block with its item and makes the shared {@link ENTITY#FARM} block entity
+         * valid for it. Call from {@link #register()}, which runs before {@link ENTITY#register()}.
+         */
+        static Block registerFarm(String name, Function<BlockBehaviour.Properties, FarmMachineBlock> factory) {
+            Block block = INSTANCE.registerBlockWithItem(name, factory::apply);
+            FARMS.add(block);
+            return block;
         }
     }
 
@@ -123,13 +235,23 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
     public static final class ENTITY {
         private ENTITY() {}
 
-        static void register() {}
+        /** The one block entity type every farm block shares. */
+        public static BlockEntityType<FarmBlockEntity> FARM;
+
+        static void register() {
+            FARM = INSTANCE.registerBlockEntity("farm", FarmBlockEntity::new, BLOCK.FARMS.toArray(new Block[0]));
+        }
     }
 
     public static final class MENU {
         private MENU() {}
 
-        static void register() {}
+        /** The one menu every farm block opens. */
+        public static MenuType<FarmMenu> FARM;
+
+        static void register() {
+            FARM = INSTANCE.registerMenuType("farm", FarmMenu::new);
+        }
     }
 
     public static final class RECIPE {

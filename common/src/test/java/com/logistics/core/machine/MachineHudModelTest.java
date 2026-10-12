@@ -61,4 +61,18 @@ class MachineHudModelTest extends MinecraftTestEnvironment {
         MachineHudModel.FluidEntry fluid = (MachineHudModel.FluidEntry) entries.get(0);
         assertThat(fluid.components()).isEqualTo(components);
     }
+
+    @Test
+    void roundTripsLabelledLinesWithAndWithoutArguments() {
+        MachineHudModel model = new MachineHudModel();
+        model.line("label.status", "value.working");
+        model.line("label.plot", "value.size", "9", "x");
+
+        CompoundTag data = new CompoundTag();
+        model.save(data);
+
+        assertThat(MachineHudModel.entries(data)).containsExactly(
+                new MachineHudModel.LineEntry("label.status", "value.working", List.of()),
+                new MachineHudModel.LineEntry("label.plot", "value.size", List.of("9", "x")));
+    }
 }

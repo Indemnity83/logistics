@@ -11,6 +11,7 @@ import com.logistics.automation.refinery.RefineryBlock;
 import com.logistics.automation.sawmill.SawmillBlock;
 import com.logistics.automation.transposer.TransposerBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.power.block.CreativeSinkBlock;
 import java.util.ServiceLoader;
 import snownee.jade.api.IWailaClientRegistration;
@@ -41,6 +42,7 @@ public class JadeLogisticsPlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, RefineryBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, SequentialFabricatorBlock.class);
         registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, TransposerBlock.class);
+        registration.registerBlockDataProvider(MachineServerDataProvider.INSTANCE, FarmMachineBlock.class);
     }
 
     @Override
