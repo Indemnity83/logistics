@@ -1,5 +1,7 @@
 package com.logistics.gametest.automation;
 
+import com.indemnity83.configory.Config;
+import com.indemnity83.configory.ConfigRegistry;
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -13,12 +15,17 @@ import com.logistics.power.cable.CableBlock;
 import com.logistics.power.cable.CableBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
@@ -374,5 +381,229 @@ public class QuarryGameTestBody {
         }
 
         context.succeed();
+    }
+
+    /** Ticks for a quarry to take out its tickets once it should. */
+    private static final int TICKET_ACQUIRE_TICKS = 10;
+
+    /** Longer than the quarry tickets' 20-tick timeout, so tickets still held after it are being renewed. */
+    private static final int TICKET_HOLD_TICKS = 40;
+
+    /**
+     * Ticks for a freshly ticketed, never-generated work area to finish loading. Generation runs off
+     * the server thread while the test server ticks as fast as it can, so this is generous: 75 to
+     * 1,100 ticks locally.
+     */
+    private static final int AREA_LOAD_TICKS = 6000;
+
+    /** Ticks for an unrenewed ticket on a loaded chunk to lapse: its 20-tick timeout plus slack. */
+    private static final int TICKET_RELEASE_TICKS = 200;
+
+    /**
+     * Wiki claims (Chunk loading): "Turning on the chunk-loading setting makes a running quarry hold
+     * itself and its work area loaded ... The chunk tickets are released once the quarry finishes or
+     * is removed." The off-by-default value is asserted in {@code LaserQuarryConfigTest}, and that a
+     * finished quarry stops asking for chunks in {@code QuarryChunkAreaTest}.
+     *
+     * <p>One quarry walked through the toggle, read from the server's own ticket storage: off, it
+     * takes no tickets; on, it takes them, its work area loads and ticks, and it keeps renewing them
+     * past their timeout; off again, they lapse; on again and then broken, they lapse too.
+     *
+     * <p>{@code load_chunks} is global, so this is one sequenced test rather than several fighting
+     * over it, and every exit puts the original value back. The work area is aimed far from every
+     * other test so its tickets can only be this quarry's. The quarry's own chunk can hold another
+     * test's quarry, so its ticket is only checked for release while the toggle is off and nothing
+     * can renew it.
+     *
+     * <p>The area is left to finish loading before anything is released: a ticket cannot lapse on a
+     * chunk that is still generating, so releasing straight away would measure generation time
+     * rather than the quarry.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Chunk_loading">wiki/Laser Quarry.txt § Chunk loading</a>
+     */
+    public static void testQuarryChunkLoadingToggle(GameTestHelper context) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        ChunkLoadingRun run = new ChunkLoadingRun(context, pos);
+
+        run.guarded(() -> {
+            run.setLoadChunks(false);
+
+            // Left unpowered: chunk loading does not wait on power, and an idle quarry builds no
+            // frame and mines nothing from under the rest of the run.
+            // NOTE: wiki/Laser Quarry.txt says a *running* quarry holds its chunks; the code holds
+            // them for any placed, unfinished quarry, powered or not. See WIKI_DISCREPANCIES.md.
+            context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+            LaserQuarryBlockEntity quarry = context.getBlockEntity(pos, LaserQuarryBlockEntity.class);
+            if (quarry == null) {
+                context.fail("Expected LaserQuarryBlockEntity");
+                return;
+            }
+            quarry.setCustomBounds(run.areaMinX(), run.areaMinZ(), run.areaMaxX(), run.areaMaxZ());
+
+            context.runAfterDelay(TICKET_ACQUIRE_TICKS, () -> run.guarded(() -> {
+                if (!run.areaReleased()) {
+                    context.fail("With load_chunks off the quarry should hold no tickets on its work area "
+                            + run.area);
+                    return;
+                }
+
+                run.setLoadChunks(true);
+                run.await(TICKET_ACQUIRE_TICKS, run::holdsAll,
+                        "With load_chunks on the quarry should ticket its own chunk " + run.center
+                                + " and its work area " + run.area,
+                        () -> run.await(AREA_LOAD_TICKS, run::areaTicking,
+                                "The quarry's tickets should load its work area " + run.area + " and keep it ticking",
+                                () -> chunkLoadingHeldPastTimeout(run)));
+            }));
+        });
+    }
+
+    /** {@link #testQuarryChunkLoadingToggle}: the tickets outlive their timeout, then lapse when toggled off. */
+    private static void chunkLoadingHeldPastTimeout(ChunkLoadingRun run) {
+        run.context.runAfterDelay(TICKET_HOLD_TICKS, () -> run.guarded(() -> {
+            if (!run.holdsAll() || !run.areaTicking()) {
+                run.context.fail("A quarry with load_chunks on should keep renewing its tickets and its work area "
+                        + "ticking, but they lapsed within " + TICKET_HOLD_TICKS + " ticks");
+                return;
+            }
+
+            run.setLoadChunks(false);
+            run.await(TICKET_RELEASE_TICKS, () -> !run.holdsCenter() && run.areaReleased(),
+                    "Turning load_chunks off should release the quarry's tickets",
+                    () -> chunkLoadingReleasedOnRemoval(run));
+        }));
+    }
+
+    /** {@link #testQuarryChunkLoadingToggle}: toggled back on, then breaking the quarry releases its tickets. */
+    private static void chunkLoadingReleasedOnRemoval(ChunkLoadingRun run) {
+        run.setLoadChunks(true);
+        run.await(TICKET_ACQUIRE_TICKS, run::holdsAll,
+                "Turning load_chunks back on should ticket the quarry's chunks again",
+                () -> {
+                    run.context.setBlock(run.pos, Blocks.AIR);
+                    run.await(TICKET_RELEASE_TICKS, run::areaReleased,
+                            "Removing a chunk-loading quarry should release its work-area tickets",
+                            () -> {
+                                run.restore();
+                                run.context.succeed();
+                            });
+                });
+    }
+
+    /**
+     * State for {@link #testQuarryChunkLoadingToggle}: the global {@code load_chunks} value to put
+     * back, and the chunks the quarry should be ticketing.
+     */
+    private static final class ChunkLoadingRun {
+        /** How far out the work area sits: far beyond any other test's quarry. */
+        private static final int AREA_OFFSET_CHUNKS = 256;
+
+        final GameTestHelper context;
+        final BlockPos pos;
+        final ServerLevel level;
+        final Config config;
+        final boolean original;
+        final ChunkPos center;
+        /** Two chunks side by side; the work area straddles the border between them. */
+        final List<ChunkPos> area;
+
+        ChunkLoadingRun(GameTestHelper context, BlockPos pos) {
+            this.context = context;
+            this.pos = pos;
+            this.level = context.getLevel();
+            this.config = ConfigRegistry.config(LogisticsAutomation.CONFIG.QUARRY_LOAD_CHUNKS.configId());
+            this.original = config.get(LogisticsAutomation.CONFIG.QUARRY_LOAD_CHUNKS);
+            BlockPos absPos = context.absolutePos(pos);
+            this.center = ChunkPos.containing(absPos);
+            ChunkPos first = new ChunkPos(center.x() + AREA_OFFSET_CHUNKS, center.z());
+            this.area = List.of(first, new ChunkPos(first.x() + 1, first.z()));
+        }
+
+        int areaMinX() {
+            return area.get(0).getMinBlockX() + 12;
+        }
+
+        int areaMaxX() {
+            return area.get(1).getMinBlockX() + 3;
+        }
+
+        int areaMinZ() {
+            return area.get(0).getMinBlockZ() + 4;
+        }
+
+        int areaMaxZ() {
+            return area.get(0).getMinBlockZ() + 11;
+        }
+
+        void setLoadChunks(boolean value) {
+            config.set(LogisticsAutomation.CONFIG.QUARRY_LOAD_CHUNKS, value);
+        }
+
+        void restore() {
+            setLoadChunks(original);
+        }
+
+        boolean holdsCenter() {
+            return hasTicket(center, LogisticsAutomation.TICKET_TYPE.QUARRY);
+        }
+
+        boolean holdsAll() {
+            return holdsCenter()
+                    && area.stream().allMatch(chunk -> hasTicket(chunk, LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY));
+        }
+
+        boolean areaReleased() {
+            return area.stream().noneMatch(chunk -> hasTicket(chunk, LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY));
+        }
+
+        /** Every work-area chunk is loaded and block-ticking, the state a ticket at that level asks for. */
+        boolean areaTicking() {
+            return area.stream().allMatch(chunk -> level.getChunkSource().isPositionTicking(chunk.pack()));
+        }
+
+        private boolean hasTicket(ChunkPos chunk, TicketType type) {
+            TicketStorage tickets = level.getDataStorage().get(TicketStorage.TYPE);
+            return tickets != null
+                    && tickets.getTickets(chunk.pack()).stream().anyMatch(ticket -> ticket.getType() == type);
+        }
+
+        /** Which quarry tickets the center and area chunks hold right now, for failure messages. */
+        private String describeTickets() {
+            List<ChunkPos> chunks = new ArrayList<>(area);
+            chunks.add(0, center);
+            StringBuilder description = new StringBuilder();
+            for (ChunkPos chunk : chunks) {
+                description.append(chunk).append(':');
+                description.append(hasTicket(chunk, LogisticsAutomation.TICKET_TYPE.QUARRY) ? " quarry" : "");
+                description.append(hasTicket(chunk, LogisticsAutomation.TICKET_TYPE.QUARRY_BOUNDARY) ? " boundary" : "");
+                description.append(';');
+            }
+            return description.toString();
+        }
+
+        /** Polls {@code condition} each tick, running {@code then} once it holds or failing after {@code ticksLeft}. */
+        void await(int ticksLeft, BooleanSupplier condition, String failure, Runnable then) {
+            guarded(() -> {
+                if (condition.getAsBoolean()) {
+                    then.run();
+                    return;
+                }
+                if (ticksLeft <= 0) {
+                    context.fail(failure + " (tickets now: " + describeTickets() + ")");
+                    return;
+                }
+                context.runAfterDelay(1, () -> await(ticksLeft - 1, condition, failure, then));
+            });
+        }
+
+        /** Runs {@code step}, putting {@code load_chunks} back before any failure escapes it. */
+        void guarded(Runnable step) {
+            try {
+                step.run();
+            } catch (RuntimeException | Error e) {
+                restore();
+                throw e;
+            }
+        }
     }
 }
