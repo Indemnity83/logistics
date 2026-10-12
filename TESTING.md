@@ -582,9 +582,12 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 ~~14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287))~~ — done. Gold is now the Conductive Cable;
     `CableGameTestBody` pins its 60 RF/t on a real engine-fed run and as the cap on a Deep-to-Conductive
     run, plus the `gold_cable` alias, on both loaders. `CableTierTest` adds the doubling ladder.
-15. **Fluid-routing modules** ([#1285](https://github.com/Indemnity83/logistics/issues/1285)) (FluidInsertionModule, FluidMergerModule, FluidBypassModule,
-    FluidVoidModule) — zero coverage at any level, real check-valve/routing-policy logic backing 4
-    registered pipe blocks.
+~~15. **Fluid-routing modules** ([#1285](https://github.com/Indemnity83/logistics/issues/1285))~~ — done. `FluidRoutingModulesTest` pins each module's
+    policy and the registered compositions, `FluidRoutingPipeRecipeSpotCheckTest` the eight sealing
+    recipes; `FluidRoutingGameTestBody` proves handler-first insertion, bypass, the merger's output
+    face and check valve, and voiding in-world off a real extractor feed. The routing itself lives in
+    `FluidPipeBlockEntity`, so it is GameTest-only. One open wiki mismatch: cauldron filling, removed
+    in #888.
 ~~16. **Share the CableGameTest tests**~~ — done. All 13 portable tests now run on both loaders,
     including network split/rejoin and mixed-tier capping. The `Transaction`-based ones were
     rewritten against `IEnergyStorage`'s simulate-boolean API rather than moved verbatim. Only the
@@ -597,7 +600,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 
 `common/src/test/java/` contains JUnit tests for all testable business logic:
 
-- **Pipe modules** — BoostModule, CraftingModule, EnchantmentSinkModule, ExtractionModule, BasicExtractorModule, AdvancedExtractorModule, InsertionModule, ItemFilterModule, MergerModule, ModSinkModule, PassiveSupplierModule, PipeMarkingModule, PolymorphicSinkModule, ProcessModule, QuickSortModule, RequesterModule, SatelliteModule, SinkModule, SupplierModule, TerminusModule, TransportModule, VoidModule, WeatheringModule, BlockConnectionModule (partial), PipeOnlyModule (partial)
+- **Pipe modules** — BoostModule, CraftingModule, EnchantmentSinkModule, ExtractionModule, BasicExtractorModule, AdvancedExtractorModule, FluidBypassModule, FluidInsertionModule, FluidMergerModule, FluidVoidModule, InsertionModule, ItemFilterModule, MergerModule, ModSinkModule, PassiveSupplierModule, PipeMarkingModule, PolymorphicSinkModule, ProcessModule, QuickSortModule, RequesterModule, SatelliteModule, SinkModule, SupplierModule, TerminusModule, TransportModule, VoidModule, WeatheringModule, BlockConnectionModule (partial), PipeOnlyModule (partial)
 - **Pipe network services** — CraftBatchingService, JobCoordinator, NetworkController, ReconciliationService, RequestPlanner, ReservationManager, SinkResolver
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
