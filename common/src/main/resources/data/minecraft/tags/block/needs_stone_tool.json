@@ -28,6 +28,7 @@
     "logistics:power/basic_battery",
     "logistics:power/conductive_battery",
     "logistics:power/resonant_battery",
-    "logistics:power/deep_battery"
+    "logistics:power/deep_battery",
+    "logistics:forestry/arboretum"
   ]
 }
