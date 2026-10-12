@@ -1,6 +1,6 @@
 # Arboretum
 
-> **Status:** 🚧 Planned — design settled, wave 1 · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
+> **Status:** ✅ **Shipped** (#1409) — tree farm on a fixed 9×9 plot · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block); Tree products) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md), [`0202-fertilizer-and-soils.md`](0202-fertilizer-and-soils.md) (Humus) · **Maps to (roadmap):** Phase 2 — Farms
 
 The tree farm (Forestry's Arboretum / Lumberjack): plants saplings, lays Humus, fertilizes, and fells whole grown trees into its output — logs, plus leaf drops (saplings, sticks, apples) and mangrove roots. Wood only; no tree breeding.
