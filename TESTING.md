@@ -554,9 +554,14 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 
 #### Loose ends (found along the way, not required for automation-domain completion)
 
-11. **Quarry chunk-loading toggle** ([#1283](https://github.com/Indemnity83/logistics/issues/1283)) — surfaced while verifying the Quarry; needs a
-    `ChunkLoadingComponent`-level or GameTest check that toggling `quarry_load_chunks` actually
-    acquires/releases chunk tickets.
+~~11. **Quarry chunk-loading toggle**~~ ([#1283](https://github.com/Indemnity83/logistics/issues/1283)) — done. `QuarryChunkAreaTest` pins the quarry's half in
+    JUnit (off → no area; on → its own chunk plus every chunk the default or marker area touches;
+    finished → no area), and `QuarryGameTest#testQuarryChunkLoadingToggle` walks one quarry
+    through off/on/off/on/broken against the server's real ticket storage: tickets appear, the area
+    loads and ticks, they outlive their 20-tick timeout, and they lapse when toggled off or the
+    quarry is removed. The toggle is global, so it is one sequenced test that restores the value on
+    every exit, with the work area aimed 256 chunks out so no other test's quarry can touch it.
+    Found that an unpowered quarry chunk-loads too (see `WIKI_DISCREPANCIES.md` § Laser Quarry).
 ~~12. **Marker block**~~ ([#1284](https://github.com/Indemnity83/logistics/issues/1284)) — done. New
     `MarkerGameTest` drives a real Wrench through a player: activating an L from its corner or an
     end, both failure modes, deactivating the set, break/drop/collision claims, and the active set's
@@ -592,7 +597,7 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, LaserQuarryFrameBlock (frame lifecycle contract), QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes), AlloySmelterConfig (power config defaults), AlloySmelterRecipeSpotCheck (crafting + ore-processing + alloying recipes), SequentialFabricatorConfig (power config defaults), SequentialFabricatorRecipeSpotCheck (crafting + cheapest/most-expensive chipset recipes)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, LaserQuarryFrameBlock (frame lifecycle contract), QuarryBlockBreaker, LaserQuarryConfig (default mining area + chunk-loading default), QuarryChunkArea (`load_chunks` gate and chunk-loaded area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes), AlloySmelterConfig (power config defaults), AlloySmelterRecipeSpotCheck (crafting + ore-processing + alloying recipes), SequentialFabricatorConfig (power config defaults), SequentialFabricatorRecipeSpotCheck (crafting + cheapest/most-expensive chipset recipes)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
 - **Core** — BaseBlockEntity, ResourceId, MarkerRecipe (wiki-vs-shipped-JSON content check), MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
