@@ -10,6 +10,7 @@ import com.logistics.gametest.automation.SawmillGameTestRegistration;
 import com.logistics.gametest.automation.SequentialFabricatorGameTestRegistration;
 import com.logistics.gametest.automation.TransposerGameTestRegistration;
 import com.logistics.gametest.core.MaceratorGameTestRegistration;
+import com.logistics.gametest.core.MarkerGameTestRegistration;
 import com.logistics.gametest.core.OreGenerationGameTestRegistration;
 import com.logistics.gametest.core.SolidFuelGameTestRegistration;
 import com.logistics.gametest.network.NetworkIntegrationGameTestRegistration;
@@ -56,6 +57,7 @@ import net.neoforged.fml.common.Mod;
 public final class LogisticsGameTestMod {
 
     public LogisticsGameTestMod(IEventBus modBus) {
+        HarnessGameTestRegistration.bootstrap();
         RecipeLoadingGameTestRegistration.bootstrap();
         ReloadLifecycleGameTestRegistration.bootstrap();
         ServerDataLoadingGameTestRegistration.bootstrap();
@@ -71,6 +73,7 @@ public final class LogisticsGameTestMod {
         TransposerGameTestRegistration.bootstrap();
 
         MaceratorGameTestRegistration.bootstrap();
+        MarkerGameTestRegistration.bootstrap();
         OreGenerationGameTestRegistration.bootstrap();
         SolidFuelGameTestRegistration.bootstrap();
 

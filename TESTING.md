@@ -559,20 +559,29 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 
 #### Loose ends (found along the way, not required for automation-domain completion)
 
-11. **Quarry chunk-loading toggle** ([#1283](https://github.com/Indemnity83/logistics/issues/1283)) — surfaced while verifying the Quarry; needs a
-    `ChunkLoadingComponent`-level or GameTest check that toggling `quarry_load_chunks` actually
-    acquires/releases chunk tickets.
-12. **Marker block** ([#1284](https://github.com/Indemnity83/logistics/issues/1284)) — stateful, zero coverage, likely a short wiki page; do this before revisiting
-    quarry marker-consumption, since that depends on the Marker block having basic tests first. Not
-    itself an automation-domain block (`LogisticsCore.BLOCK.MARKER`), but tightly coupled to the
-    Laser Quarry's custom-bounds feature.
+~~11. **Quarry chunk-loading toggle**~~ ([#1283](https://github.com/Indemnity83/logistics/issues/1283)) — done. `QuarryChunkAreaTest` pins the quarry's half in
+    JUnit (off → no area; on → its own chunk plus every chunk the default or marker area touches;
+    finished → no area), and `QuarryGameTest#testQuarryChunkLoadingToggle` walks one quarry
+    through off/on/off/on/broken against the server's real ticket storage: tickets appear, the area
+    loads and ticks, they outlive their 20-tick timeout, and they lapse when toggled off or the
+    quarry is removed. The toggle is global, so it is one sequenced test that restores the value on
+    every exit, with the work area aimed 256 chunks out so no other test's quarry can touch it.
+    Found that an unpowered quarry chunk-loads too (see `WIKI_DISCREPANCIES.md` § Laser Quarry).
+~~12. **Marker block**~~ ([#1284](https://github.com/Indemnity83/logistics/issues/1284)) — done. New
+    `MarkerGameTest` drives a real Wrench through a player: activating an L from its corner or an
+    end, both failure modes, deactivating the set, break/drop/collision claims, and the active set's
+    bounds surviving reconstruction; `MarkerRecipeTest` checks the craft. One mismatch: a lone
+    marker activates on its own rather than failing (see `WIKI_DISCREPANCIES.md` § Marker). Marker
+    tests each build on their own layer — markers scan 64 blocks along their row, far past a
+    neighbouring test structure. Quarry marker-consumption is still untested.
 
 #### Other domains (after automation)
 
 13. **CraftingModule / ProcessModule / SatelliteModule pipes** ([#1286](https://github.com/Indemnity83/logistics/issues/1286)) — well unit-tested, zero in-world
     GameTest; low-risk pass adding wiki-traceability to already-correct assertions.
-14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287)) — untested sibling in an otherwise-tested power-tier family; small,
-    pure-math-friendly like Kiln's RF numbers.
+~~14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287))~~ — done. Gold is now the Conductive Cable;
+    `CableGameTestBody` pins its 60 RF/t on a real engine-fed run and as the cap on a Deep-to-Conductive
+    run, plus the `gold_cable` alias, on both loaders. `CableTierTest` adds the doubling ladder.
 ~~15. **Fluid-routing modules** ([#1285](https://github.com/Indemnity83/logistics/issues/1285))~~ — done. `FluidRoutingModulesTest` pins each module's
     policy and the registered compositions, `FluidRoutingPipeRecipeSpotCheckTest` the eight sealing
     recipes; `FluidRoutingGameTestBody` proves handler-first insertion, bypass, the merger's output
@@ -596,9 +605,9 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 - **Failure accounting regressions** — tracked delivery failure, partial delivery followed by failed remainder, retry accounting, and job state after dispatch loss
 - **Pipe network graph** — NetworkGraph, NetworkPathfinder
 - **Pipe runtime** — TravelingItem, TravelingItemPhysics, RoutePlan
-- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, LaserQuarryFrameBlock (frame lifecycle contract), QuarryBlockBreaker, LaserQuarryConfig (default mining area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes), AlloySmelterConfig (power config defaults), AlloySmelterRecipeSpotCheck (crafting + ore-processing + alloying recipes), SequentialFabricatorConfig (power config defaults), SequentialFabricatorRecipeSpotCheck (crafting + cheapest/most-expensive chipset recipes)
+- **Automation** — GridScanner, FrameLayout, QuarryBounds, QuarryPhaseRunner, LaserQuarryFrameBlock (frame lifecycle contract), QuarryBlockBreaker, LaserQuarryConfig (default mining area + chunk-loading default), QuarryChunkArea (`load_chunks` gate and chunk-loaded area), KilnEnergyConfig (config defaults + RecipeProcessPlan smelt math), KilnRecipe (wiki-vs-shipped-JSON content check), FluidPumpConfig (tank/energy/push-rate config defaults), FluidPumpRecipe (wiki-vs-shipped-JSON content check), MaceratorConfig (power config defaults), MaceratorRecipeSpotCheck (wiki-vs-shipped-JSON content check), SawmillConfig (power config defaults), SawmillRecipeSpotCheck (wiki-vs-shipped-JSON content checks, incl. undocumented byproducts), TransposerConfig (power/tank config defaults), TransposerRecipeSpotCheck (crafting + bucket-conversion content checks), RefineryConfig (power/tank config defaults), RefineryRecipeSpotCheck (crafting + both distillation recipes, exhaustive), CrucibleConfig (power/tank config defaults), CrucibleRecipeSpotCheck (crafting + 2 melting recipes), AlloySmelterConfig (power config defaults), AlloySmelterRecipeSpotCheck (crafting + ore-processing + alloying recipes), SequentialFabricatorConfig (power config defaults), SequentialFabricatorRecipeSpotCheck (crafting + cheapest/most-expensive chipset recipes)
 - **Power** — CableTier, PIDController, EngineHeatModel, EngineCyclePlanner, StirlingGenerationPlanner, StirlingFuelState, CreativeOutputLevels, RedstoneTargetGate, CreativeSinkDrainState
-- **Core** — BaseBlockEntity, ResourceId, MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
+- **Core** — BaseBlockEntity, ResourceId, MarkerRecipe (wiki-vs-shipped-JSON content check), MaceratorRecipe, MaceratorBlockEntityLogic, FluidTankComponent, ItemInventoryComponent, RecipeProcessPlan (shared RF-cost math backing Kiln/Macerator/etc.)
 - **Serialization golden tests** — ItemFilterModule (backward compat), ProviderDispatchQueue, TravelingItem
 - **Resource contracts** — model parent chains (resolution + loop detection), model texture references, item definition model references; see "Resource contract testing" above
 
@@ -712,6 +721,22 @@ attempt at this integration used that hook and concluded NeoForge GameTests were
 The actual answer is that `Registries.TEST_FUNCTION` is a plain `BuiltInRegistries` entry like any
 other (Blocks, Items, ...), so it goes through the same `DeferredRegister` + `RegisterEvent`
 unfreeze mechanism NeoForge already uses for those — not vanilla's bootstrap-time loader.
+
+### Keep a test inside its structure
+
+Every test runs in an 8x8x8 all-air structure — Fabric API's `fabric-gametest-api-v1:empty` on
+Fabric, `logistics_gametest:empty` on NeoForge — so a body owns relative `(0,0,0)` to `(7,7,7)`.
+Keep every entity a test looks for, and every block entity it needs ticking, inside it. The runner
+force-loads only the chunks under a test's structure, and starts the test once *those* are
+entity-ticking; it knows nothing about the rest of the world the body touches.
+
+Outside the structure, a chunk can be loaded while the entity manager has not caught up with it yet.
+An entity added there exists but is invisible to every area query (`getEntitiesOfClass`,
+`assertItemEntityPresent`, a quarry's sweep) for a few ticks, and a block entity there may not tick.
+It shows up as several unrelated tests in one batch failing together, mostly when theirs is the
+server's first batch, then passing on a re-run. NeoForge once used vanilla's 1x1x1
+`minecraft:empty`, which left almost every test's area in that state (#1245).
+`HarnessGameTestBody#testStructureCoversTheSharedFootprint` pins the footprint on both loaders.
 
 ### The one real exception: loader-native capability tests
 

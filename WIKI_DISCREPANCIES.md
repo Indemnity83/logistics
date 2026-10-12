@@ -31,6 +31,43 @@ touch a tank directly. It can only empty a tank that an extractor is already pum
 The page also never says it connects to pipes only. Likely fix: reword the warning around
 extractors, and mention the pipes-only connection.
 
+## Laser Quarry
+
+Open: chunk loading is not limited to a *running* quarry. `wiki/Laser Quarry.txt` § Chunk loading
+says "Turning on the chunk-loading setting makes a running quarry hold itself and its work area
+loaded." With `load_chunks` on, `QuarryComponent#chunkArea` gates only on the config value and on
+the quarry not being finished — not on energy — so a placed quarry with no power at all keeps its
+own chunk and every work-area chunk loaded indefinitely. Confirmed live by
+`QuarryGameTest#testQuarryChunkLoadingToggle`, which uses an unpowered quarry. Needs a decision:
+reword the wiki ("a placed quarry that has not finished"), or gate the chunk loader on the quarry
+actually having power. Minor related wording: removal and finishing release the tickets by letting
+them lapse (20-tick timeout, `TICKET_TYPE.QUARRY`/`QUARRY_BOUNDARY`) rather than instantly, which
+the wiki's "released once the quarry finishes or is removed" covers well enough.
+
+## Marker
+
+**Open: a lone marker activates instead of failing.** `wiki/Marker.txt` § Defining an area says
+"Activation fails if there are not three markers in a right triangle." That holds when other
+markers are in line but cannot form an L (`marker.activation.failed.invalid_l_shape`) or form one
+below 3x3 (`marker.activation.failed.too_small`). But a marker with *no* other marker within
+`MarkerManager.MAX_MARKER_DISTANCE` (64) along any horizontal axis takes the `NO_CONNECTIONS` path
+in `MarkerBlockEntity#toggleActivation`: it activates on its own (lit, projecting its beams, no
+area defined) and reports "Marker activated." Pinned by
+`MarkerGameTestBody#testLoneMarkerActivatesWithoutArea`. Decide whether solo activation is
+intended (document it as a way to line up the other markers) or should fail like the other cases.
+
+## Cables
+
+Open: the config file path. `wiki/Cables.txt` § Usage → Configuration says the throughputs "live in
+`config/logistics/power.cables.json`". The config id `logistics.power.cables` is stored as nested
+directories, so the real file is `config/logistics/power/cables.json` — confirmed in the generated
+run configs on both loaders (`fabric/build/run/gameTest/...`, `neoforge/runs/gameTestServer/...`).
+The command form `/logistics config power.cables <key> <value>` is correct. The same dotted-filename
+convention appears on `Batteries.txt` (`power.battery.<tier>.json`), `Laser Quarry.txt`
+(`machines.quarry.json`), `Installation.txt` and `Template_Config.txt`, so this is likely a
+site-wide wording fix rather than a Cables-only one. Every number on the page (30/60/120/240 RF/t,
+each grade double the one below) matches `LogisticsPower.CONFIG.CABLE_*_TRANSFER`.
+
 ## Kiln
 
 <!--
