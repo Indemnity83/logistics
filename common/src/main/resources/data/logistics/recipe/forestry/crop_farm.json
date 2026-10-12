@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["VHV", "SMS", "GCG"],
+  "key": {
+    "V": { "item": "logistics:core/tin_valve" },
+    "H": { "item": "minecraft:iron_hoe" },
+    "S": { "item": "minecraft:wheat_seeds" },
+    "M": { "item": "logistics:core/machine_core" },
+    "G": { "tag": "c:gears/copper" },
+    "C": { "item": "logistics:core/redstone_reception_coil" }
+  },
+  "result": { "id": "logistics:forestry/crop_farm", "count": 1 }
+}

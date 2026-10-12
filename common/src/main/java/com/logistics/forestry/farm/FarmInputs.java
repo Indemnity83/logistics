@@ -18,6 +18,12 @@ public interface FarmInputs {
     /** Whether a soil item is available to lay. */
     boolean hasSoil();
 
+    /**
+     * Whether the water tank holds at least one irrigation's worth; always false for a farm without
+     * a tank. A logic asks to irrigate only when this is true.
+     */
+    boolean hasWater();
+
     /** Whether a fertilizer charge is available, stored or in the fertilizer slot. */
     boolean hasFertilizer();
 }
