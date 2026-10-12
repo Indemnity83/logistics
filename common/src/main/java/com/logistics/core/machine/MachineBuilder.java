@@ -1,5 +1,6 @@
 package com.logistics.core.machine;
 
+import com.logistics.core.lib.fluids.IFluidKey;
 import com.logistics.core.machine.component.ChunkLoadingComponent;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
@@ -127,6 +128,7 @@ public final class MachineBuilder {
         private final String id;
         private long capacity;
         private boolean outputOnly;
+        private Predicate<IFluidKey> inputFilter;
 
         private FluidBuilder(String id) {
             this.id = id;
@@ -143,11 +145,25 @@ public final class MachineBuilder {
             return this;
         }
 
+        /**
+         * Exposes the tank to pipes as fill-only, accepting just the fluids {@code filter} matches (the
+         * machine drains it internally).
+         */
+        public FluidBuilder inputOnly(Predicate<IFluidKey> filter) {
+            this.inputFilter = java.util.Objects.requireNonNull(filter);
+            return this;
+        }
+
         public FluidStoreComponent build() {
             if (capacity <= 0) {
                 throw new IllegalStateException("fluids(" + id + ") requires a positive capacity, got " + capacity);
             }
-            return components.add(new FluidStoreComponent(id, capacity, onChanged, outputOnly));
+            if (inputFilter != null && outputOnly) {
+                throw new IllegalStateException("fluids(" + id + ") cannot be both inputOnly and outputOnly");
+            }
+            return components.add(inputFilter != null
+                    ? FluidStoreComponent.inputOnly(id, capacity, onChanged, inputFilter)
+                    : new FluidStoreComponent(id, capacity, onChanged, outputOnly));
         }
     }
 
@@ -157,13 +173,17 @@ public final class MachineBuilder {
             NONE,
             FURNACE,
             BOTTOM_OUT,
-            TOP_IN
+            TOP_IN,
+            ANY_FACE
         }
+
+        private record SlotRange(int from, int toExclusive, Predicate<ItemStack> filter) {}
 
         private final String id;
         private SlotRole[] roles = new SlotRole[0];
         private AccessMode accessMode = AccessMode.NONE;
         private Predicate<ItemStack> insertFilter = stack -> true;
+        private final java.util.List<SlotRange> slotFilters = new java.util.ArrayList<>();
 
         private ItemsBuilder(String id) {
             this.id = id;
@@ -210,6 +230,27 @@ public final class MachineBuilder {
             return this;
         }
 
+        /**
+         * Any-face access: input slots insertable and output slots extractable from every face;
+         * {@link SlotRole#GENERIC} slots are unreachable. Route items to slots with
+         * {@link #slotFilter}.
+         */
+        public ItemsBuilder anyFaceAccess() {
+            this.accessMode = AccessMode.ANY_FACE;
+            this.insertFilter = stack -> true;
+            return this;
+        }
+
+        /**
+         * Restricts slots {@code fromSlot} (inclusive) to {@code toSlotExclusive} to items matching
+         * {@code filter}, for face insertion and {@code Container#canPlaceItem} alike. A slot covered
+         * by several ranges must satisfy all of them.
+         */
+        public ItemsBuilder slotFilter(int fromSlot, int toSlotExclusive, Predicate<ItemStack> filter) {
+            slotFilters.add(new SlotRange(fromSlot, toSlotExclusive, java.util.Objects.requireNonNull(filter)));
+            return this;
+        }
+
         public ItemStoreComponent build() {
             // Resolve the layout from the final roles so slot order is independent of call order.
             SidedLayout layout =
@@ -219,10 +260,33 @@ public final class MachineBuilder {
                         case BOTTOM_OUT -> SidedLayout.bottomOut(
                                 indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
                         case TOP_IN -> SidedLayout.topIn(indicesOf(SlotRole.INPUT), insertFilter);
+                        case ANY_FACE -> SidedLayout.anyFace(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT));
                         case NONE -> throw new IllegalStateException("items(" + id
-                                + ") requires an access mode: furnaceAccess(), bottomOutAccess() or topInAccess()");
+                                + ") requires an access mode: furnaceAccess(), bottomOutAccess(), topInAccess()"
+                                + " or anyFaceAccess()");
                     };
+            if (!slotFilters.isEmpty()) {
+                layout = layout.withSlotFilter(composedSlotFilter());
+            }
             return components.add(new ItemStoreComponent(id, roles, layout, onChanged));
+        }
+
+        private SidedLayout.SlotFilter composedSlotFilter() {
+            for (SlotRange range : slotFilters) {
+                if (range.from() < 0 || range.toExclusive() <= range.from() || range.toExclusive() > roles.length) {
+                    throw new IllegalStateException("items(" + id + ") slotFilter range [" + range.from() + ", "
+                            + range.toExclusive() + ") is outside its " + roles.length + " slots");
+                }
+            }
+            SlotRange[] ranges = slotFilters.toArray(new SlotRange[0]);
+            return (slot, stack) -> {
+                for (SlotRange range : ranges) {
+                    if (slot >= range.from() && slot < range.toExclusive() && !range.filter().test(stack)) {
+                        return false;
+                    }
+                }
+                return true;
+            };
         }
 
         private int[] indicesOf(SlotRole role) {

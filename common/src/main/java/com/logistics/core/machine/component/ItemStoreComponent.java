@@ -11,9 +11,10 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Fixed-size item inventory component wrapping the {@link ItemInventoryComponent} holder.
  *
- * <p>Carries a {@link SlotRole} per slot and a {@link SidedLayout} describing furnace-style sided
- * access. The host delegates its {@code WorldlyContainer} methods here via {@link SidedItems};
- * work components read/write the input and output slots through the role-based helpers.
+ * <p>Carries a {@link SlotRole} per slot and a {@link SidedLayout} describing sided access and
+ * per-slot filters. The host delegates its {@code WorldlyContainer} methods and
+ * {@code canPlaceItem} here via {@link SidedItems}; work components read/write the input and
+ * output slots through the role-based helpers.
  */
 public final class ItemStoreComponent implements MachineComponent, MachineComponent.SidedItems {
 
@@ -132,6 +133,11 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
     @Override
     public boolean canTake(int slot, ItemStack stack, Direction dir) {
         return layout.canTake(slot, stack, dir);
+    }
+
+    @Override
+    public boolean accepts(int slot, ItemStack stack) {
+        return layout.accepts(slot, stack);
     }
 
     // ----- persistence -----

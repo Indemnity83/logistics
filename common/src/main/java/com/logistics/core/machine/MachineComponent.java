@@ -67,6 +67,11 @@ public interface MachineComponent {
         boolean canPlace(int slot, ItemStack stack, Direction dir);
 
         boolean canTake(int slot, ItemStack stack, Direction dir);
+
+        /** Face-independent placement check backing {@link Container#canPlaceItem}. */
+        default boolean accepts(int slot, ItemStack stack) {
+            return true;
+        }
     }
 
     /** Reports recipe-processing state for HUD/integration code. */
