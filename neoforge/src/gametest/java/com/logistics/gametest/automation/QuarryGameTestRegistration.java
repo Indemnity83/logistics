@@ -92,7 +92,7 @@ public final class QuarryGameTestRegistration {
     * Wiki claims (Chunk loading): toggling {@code load_chunks} takes and releases the quarry's
     * chunk tickets; breaking the quarry releases them too.
     */
-    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 6620)
+    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 6720)
     public static void testQuarryChunkLoadingToggle(GameTestHelper context) {
         QuarryGameTestBody.testQuarryChunkLoadingToggle(context);
     }

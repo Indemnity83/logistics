@@ -382,6 +382,9 @@ public class QuarryGameTestBody {
     /** Ticks for a quarry to take out its tickets once it should. */
     private static final int TICKET_ACQUIRE_TICKS = 10;
 
+    /** Ticks for a freshly wired creative engine to get energy into the quarry, plus {@link #TICKET_ACQUIRE_TICKS}. */
+    private static final int POWER_UP_TICKS = 40;
+
     /** Longer than the quarry tickets' 20-tick timeout, so tickets still held after it are being renewed. */
     private static final int TICKET_HOLD_TICKS = 40;
 
@@ -398,18 +401,22 @@ public class QuarryGameTestBody {
     /**
      * Wiki claims (Chunk loading): "Turning on the chunk-loading setting makes a running quarry hold
      * itself and its work area loaded ... The chunk tickets are released once the quarry finishes or
-     * is removed." The off-by-default value is asserted in {@code LaserQuarryConfigTest}, and that a
-     * finished quarry stops asking for chunks in {@code QuarryChunkAreaTest}.
+     * is removed." The off-by-default value is asserted in {@code LaserQuarryConfigTest}, that a
+     * finished quarry stops asking for chunks in {@code QuarryChunkAreaTest}, and the grace window
+     * that rides out a brown-out in {@code QuarryChunkHoldTest}.
      *
      * <p>One quarry walked through the toggle, read from the server's own ticket storage: off, it
-     * takes no tickets; on, it takes them, its work area loads and ticks, and it keeps renewing them
-     * past their timeout; off again, they lapse; on again and then broken, they lapse too.
+     * takes no tickets; on but unpowered, still none; powered by a real creative engine and cable,
+     * it takes them, its work area loads and ticks, and it keeps renewing them past their timeout;
+     * off again, they lapse; on again, they come back; unwired, they are still held past their
+     * timeout; broken, they lapse.
      *
      * <p>{@code load_chunks} is global, so this is one sequenced test rather than several fighting
      * over it, and every exit puts the original value back. The work area is aimed far from every
-     * other test so its tickets can only be this quarry's. The quarry's own chunk can hold another
-     * test's quarry, so its ticket is only checked for release while the toggle is off and nothing
-     * can renew it.
+     * other test so its tickets can only be this quarry's, and so the powered quarry clears and
+     * frames out there rather than under the rig. The quarry's own chunk can hold another test's
+     * quarry, so its ticket is only checked for release while the toggle is off and nothing can
+     * renew it.
      *
      * <p>The area is left to finish loading before anything is released: a ticket cannot lapse on a
      * chunk that is still generating, so releasing straight away would measure generation time
@@ -424,11 +431,9 @@ public class QuarryGameTestBody {
         run.guarded(() -> {
             run.setLoadChunks(false);
 
-            // Left unpowered: chunk loading does not wait on power, and an idle quarry builds no
-            // frame and mines nothing from under the rest of the run.
-            // NOTE: wiki/Laser Quarry.txt says a *running* quarry holds its chunks; the code holds
-            // them for any placed, unfinished quarry, powered or not. See WIKI_DISCREPANCIES.md.
             context.setBlock(pos, LogisticsAutomation.BLOCK.LASER_QUARRY);
+            // Catches anything the quarry outputs, so nothing drops into neighbouring tests.
+            context.setBlock(pos.above(), Blocks.CHEST);
             LaserQuarryBlockEntity quarry = (LaserQuarryBlockEntity) context.getBlockEntity(pos);
             if (quarry == null) {
                 context.fail("Expected LaserQuarryBlockEntity");
@@ -444,12 +449,22 @@ public class QuarryGameTestBody {
                 }
 
                 run.setLoadChunks(true);
-                run.await(TICKET_ACQUIRE_TICKS, run::holdsAll,
-                        "With load_chunks on the quarry should ticket its own chunk " + run.center
-                                + " and its work area " + run.area,
-                        () -> run.await(AREA_LOAD_TICKS, run::areaTicking,
-                                "The quarry's tickets should load its work area " + run.area + " and keep it ticking",
-                                () -> chunkLoadingHeldPastTimeout(run)));
+                context.runAfterDelay(TICKET_ACQUIRE_TICKS, () -> run.guarded(() -> {
+                    if (!run.areaReleased()) {
+                        context.fail("With load_chunks on an unpowered quarry should hold no tickets on its "
+                                + "work area " + run.area);
+                        return;
+                    }
+
+                    run.powerOn();
+                    run.await(POWER_UP_TICKS, run::holdsAll,
+                            "With load_chunks on a powered quarry should ticket its own chunk " + run.center
+                                    + " and its work area " + run.area,
+                            () -> run.await(AREA_LOAD_TICKS, run::areaTicking,
+                                    "The quarry's tickets should load its work area " + run.area
+                                            + " and keep it ticking",
+                                    () -> chunkLoadingHeldPastTimeout(run)));
+                }));
             }));
         });
     }
@@ -466,23 +481,36 @@ public class QuarryGameTestBody {
             run.setLoadChunks(false);
             run.await(TICKET_RELEASE_TICKS, () -> !run.holdsCenter() && run.areaReleased(),
                     "Turning load_chunks off should release the quarry's tickets",
-                    () -> chunkLoadingReleasedOnRemoval(run));
+                    () -> chunkLoadingHeldThroughPowerLoss(run));
         }));
     }
 
-    /** {@link #testQuarryChunkLoadingToggle}: toggled back on, then breaking the quarry releases its tickets. */
-    private static void chunkLoadingReleasedOnRemoval(ChunkLoadingRun run) {
+    /** {@link #testQuarryChunkLoadingToggle}: toggled back on, the tickets return and survive the power being cut. */
+    private static void chunkLoadingHeldThroughPowerLoss(ChunkLoadingRun run) {
         run.setLoadChunks(true);
         run.await(TICKET_ACQUIRE_TICKS, run::holdsAll,
                 "Turning load_chunks back on should ticket the quarry's chunks again",
                 () -> {
-                    run.context.setBlock(run.pos, Blocks.AIR);
-                    run.await(TICKET_RELEASE_TICKS, run::areaReleased,
-                            "Removing a chunk-loading quarry should release its work-area tickets",
-                            () -> {
-                                run.restore();
-                                run.context.succeed();
-                            });
+                    run.powerOff();
+                    run.context.runAfterDelay(TICKET_HOLD_TICKS, () -> run.guarded(() -> {
+                        if (!run.holdsAll()) {
+                            run.context.fail("A quarry that just lost power should keep holding its chunks "
+                                    + "past their timeout, but they lapsed within " + TICKET_HOLD_TICKS + " ticks");
+                            return;
+                        }
+                        chunkLoadingReleasedOnRemoval(run);
+                    }));
+                });
+    }
+
+    /** {@link #testQuarryChunkLoadingToggle}: breaking the quarry releases its tickets. */
+    private static void chunkLoadingReleasedOnRemoval(ChunkLoadingRun run) {
+        run.context.setBlock(run.pos, Blocks.AIR);
+        run.await(TICKET_RELEASE_TICKS, run::areaReleased,
+                "Removing a chunk-loading quarry should release its work-area tickets",
+                () -> {
+                    run.restore();
+                    run.context.succeed();
                 });
     }
 
@@ -533,6 +561,23 @@ public class QuarryGameTestBody {
 
         void setLoadChunks(boolean value) {
             config.set(LogisticsAutomation.CONFIG.QUARRY_LOAD_CHUNKS, value);
+        }
+
+        /** Wires a creative engine to the quarry's east face through a copper cable. */
+        void powerOn() {
+            BlockPos cablePos = pos.east();
+            context.setBlock(cablePos, LogisticsPower.BLOCK.BASIC_CABLE);
+            context.setBlock(cablePos.east(), LogisticsPower.BLOCK.CREATIVE_ENGINE
+                    .defaultBlockState()
+                    .setValue(AbstractEngineBlock.FACING, Direction.WEST)
+                    .setValue(AbstractEngineBlock.POWERED, true));
+        }
+
+        /** Takes the {@link #powerOn} rig down again. */
+        void powerOff() {
+            BlockPos cablePos = pos.east();
+            context.setBlock(cablePos.east(), Blocks.AIR);
+            context.setBlock(cablePos, Blocks.AIR);
         }
 
         void restore() {
