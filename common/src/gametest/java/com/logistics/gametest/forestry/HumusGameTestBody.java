@@ -17,12 +17,14 @@ import net.minecraft.world.level.block.state.BlockState;
  * references them as {@code Consumer<GameTestHelper>}.
  *
  * <p>Light comes from a glowstone block set into the ground beside the humus rather than the sky,
- * so the result does not depend on the time of day the test happens to run at.
+ * so the result does not depend on the time of day the test happens to run at. Light propagates
+ * asynchronously after a block change, so each test waits until the level it needs is actually
+ * readable before random-ticking.
  */
 public class HumusGameTestBody {
 
-    /** Ticks for block-light updates to settle before a test reads light levels. */
-    private static final int LIGHT_SETTLE_TICKS = 5;
+    /** Ticks for a neighbour update to reach the sapling. */
+    private static final int SETTLE_TICKS = 5;
 
     /** Enough Humus random ticks that a 25% boost reaches the two steps a sapling needs. */
     private static final int MAX_RANDOM_TICKS = 1000;
@@ -58,7 +60,7 @@ public class HumusGameTestBody {
         context.setBlock(sapling, Blocks.OAK_SAPLING);
         // A neighbour update makes the sapling re-check its support.
         context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
-        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
+        context.runAfterDelay(SETTLE_TICKS, () -> {
             context.assertBlockPresent(Blocks.OAK_SAPLING, sapling);
             context.succeed();
         });
@@ -76,9 +78,7 @@ public class HumusGameTestBody {
         context.setBlock(humus.east(), Blocks.GLOWSTONE);
         context.setBlock(sapling, Blocks.OAK_SAPLING);
 
-        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
-            if (!assertBrightness(context, sapling.above(), true)) return;
-
+        whenLight(context, sapling.above(), true, () -> {
             for (int i = 0; i < MAX_RANDOM_TICKS && isSapling(context, sapling); i++) {
                 context.randomTick(humus);
             }
@@ -103,18 +103,24 @@ public class HumusGameTestBody {
         context.setBlock(flowered.east(), Blocks.GLOWSTONE);
         context.setBlock(flowered.above(), Blocks.DANDELION);
 
-        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
-            for (int i = 0; i < IDLE_RANDOM_TICKS; i++) {
-                context.randomTick(bare);
-                context.randomTick(flowered);
-            }
+        // Lit, so neither staying unchanged is down to a lack of light.
+        context.startSequence()
+                .thenWaitUntil(() -> {
+                    assertBrightness(context, bare.above(), true);
+                    assertBrightness(context, flowered.above(), true);
+                })
+                .thenExecute(() -> {
+                    for (int i = 0; i < IDLE_RANDOM_TICKS; i++) {
+                        context.randomTick(bare);
+                        context.randomTick(flowered);
+                    }
 
-            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, bare);
-            context.assertBlockPresent(Blocks.AIR, bare.above());
-            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, flowered);
-            context.assertBlockPresent(Blocks.DANDELION, flowered.above());
-            context.succeed();
-        });
+                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, bare);
+                    context.assertBlockPresent(Blocks.AIR, bare.above());
+                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, flowered);
+                    context.assertBlockPresent(Blocks.DANDELION, flowered.above());
+                    context.succeed();
+                });
     }
 
     /**
@@ -133,9 +139,7 @@ public class HumusGameTestBody {
         }
         context.setBlock(sapling.above(2), Blocks.STONE);
 
-        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
-            if (!assertBrightness(context, sapling.above(), false)) return;
-
+        whenLight(context, sapling.above(), false, () -> {
             for (int i = 0; i < IDLE_RANDOM_TICKS; i++) {
                 context.randomTick(humus);
             }
@@ -151,14 +155,22 @@ public class HumusGameTestBody {
         return state.getBlock() instanceof SaplingBlock;
     }
 
-    /** Fails the test unless the light at {@code pos} is (or is not) enough for a sapling to grow. */
-    private static boolean assertBrightness(GameTestHelper context, BlockPos pos, boolean bright) {
+    /**
+     * Runs {@code action} once the light at {@code pos} is (or is not) enough for a sapling to grow,
+     * retrying each tick until the test times out.
+     */
+    private static void whenLight(GameTestHelper context, BlockPos pos, boolean bright, Runnable action) {
+        context.startSequence()
+                .thenWaitUntil(() -> assertBrightness(context, pos, bright))
+                .thenExecute(action);
+    }
+
+    /** Throws unless the light at {@code pos} is (or is not) enough for a sapling to grow. */
+    private static void assertBrightness(GameTestHelper context, BlockPos pos, boolean bright) {
         int brightness = context.getLevel().getMaxLocalRawBrightness(context.absolutePos(pos));
-        if ((brightness >= HumusGrowth.MIN_BRIGHTNESS) != bright) {
-            context.fail("Expected the light above the sapling to be " + (bright ? "at least " : "below ")
-                    + HumusGrowth.MIN_BRIGHTNESS + ", was " + brightness);
-            return false;
-        }
-        return true;
+        context.assertTrue(
+                HumusGrowth.hasLightToGrow(brightness) == bright,
+                "Expected the light at " + pos + " to be " + (bright ? "at least " : "below ")
+                        + HumusGrowth.MIN_BRIGHTNESS + ", was " + brightness);
     }
 }
