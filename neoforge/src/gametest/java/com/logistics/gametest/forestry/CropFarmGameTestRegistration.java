@@ -26,7 +26,8 @@ public final class CropFarmGameTestRegistration {
             "forestry/crop_farm_harvests_and_replants_from_returned_seeds",
             2400,
             CropFarmGameTestBody::testHarvestsAndReplantsFromReturnedSeeds),
-        new GameTestCase("forestry/crop_farm_reports_no_water", 300, CropFarmGameTestBody::testReportsNoWater),
+        new GameTestCase(
+            "forestry/crop_farm_plants_but_reports_no_water", 620, CropFarmGameTestBody::testPlantsButReportsNoWater),
         new GameTestCase("forestry/crop_farm_does_nothing_without_power", 300, CropFarmGameTestBody::testDoesNothingWithoutPower),
         new GameTestCase("forestry/crop_farm_leaves_torch_on_plot", 800, CropFarmGameTestBody::testLeavesTorchOnPlot));
 

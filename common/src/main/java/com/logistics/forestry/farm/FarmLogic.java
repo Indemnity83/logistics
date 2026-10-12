@@ -56,8 +56,8 @@ public interface FarmLogic {
 
     /**
      * The one thing {@code plot} needs next. {@code plot} is at the farm's Y level and its soil is
-     * {@code plot.below()}. Expected priority: harvest, then soil or tilling, then irrigation, then
-     * planting, then fertilizing.
+     * {@code plot.below()}. Expected priority: harvest, then soil or tilling, then planting, then
+     * irrigation (only while {@link FarmInputs#hasWater()}), then fertilizing.
      *
      * <p>Only called while {@code plot} is loaded. Must not change the world; reads beyond the plot
      * should check {@link FarmWorld#isLoaded}.

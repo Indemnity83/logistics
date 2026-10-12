@@ -26,9 +26,9 @@ public class CropFarmGameTest {
         CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
     }
 
-    @GameTest(maxTicks = 300)
-    public void testReportsNoWater(GameTestHelper context) {
-        CropFarmGameTestBody.testReportsNoWater(context);
+    @GameTest(maxTicks = 600)
+    public void testPlantsButReportsNoWater(GameTestHelper context) {
+        CropFarmGameTestBody.testPlantsButReportsNoWater(context);
     }
 
     @GameTest(maxTicks = 300)
