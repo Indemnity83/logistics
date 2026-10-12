@@ -71,6 +71,16 @@ class SatelliteModuleTest {
 
     // ==================== setSatelliteId(int) ====================
 
+    /**
+     * Wiki claim (Usage): "Set a descriptive name in its GUI (e.g. "Iron Storage")".
+     *
+     * <p>NOTE: wiki/Satellite Logistics Pipe.txt describes a free-text name; the satellite GUI is a
+     * numeric selector ({@code SatelliteScreenHandler} steps through 1..N with +/- buttons and calls
+     * this overload), and the Process pipe addresses satellites by that number. See
+     * WIKI_DISCREPANCIES.md.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Satellite_Logistics_Pipe#Usage">wiki/Satellite Logistics Pipe.txt § Usage</a>
+     */
     @Test
     @DisplayName("setSatelliteId(int) persists positive value and getSatelliteIdInt reads it back")
     void setSatelliteIdInt_positiveValue_persistsAndReadsBack() {
