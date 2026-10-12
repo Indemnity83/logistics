@@ -225,6 +225,12 @@ class ProcessModuleTest {
         assertThat(module.getInputSatelliteId(ctx)).isEqualTo(0);
     }
 
+    /**
+     * Wiki claim (Usage): "mapping input/output faces" — inputs can be addressed to a satellite on
+     * another face of the machine while the process pipe extracts from its own.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Process_Logistics_Pipe#Usage">wiki/Process Logistics Pipe.txt § Usage</a>
+     */
     @Test
     @DisplayName("setInputSatelliteId persists and is readable back")
     void setInputSatelliteId_persistsAndReadsBack() {
