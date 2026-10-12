@@ -549,6 +549,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
    - `com.logistics.LogisticsPipe`
    - `com.logistics.LogisticsPower`
    - `com.logistics.LogisticsAutomation`
+   - `com.logistics.LogisticsForestry`
 5. **Initialization**: Each domain's `initCommon()` method is called to register blocks, items, etc.
 
 **Client initialization:**

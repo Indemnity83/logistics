@@ -131,7 +131,7 @@ tasks.register('checkImportBoundaries') {
             failures << "fabric import found in neoforge/: ${rootDir.toPath().relativize(it.toPath())}"
         }
 
-        def domains = ['pipe', 'power', 'automation']
+        def domains = ['pipe', 'power', 'automation', 'forestry']
         domains.each { domain ->
             def others = domains.findAll { it != domain }.join('|')
             importMatches("common/src/main/java/com/logistics/${domain}", /^import\s+(?:static\s+)?com\.logistics\.(${others})\..*/).each {
