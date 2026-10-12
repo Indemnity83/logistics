@@ -10,6 +10,7 @@ import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmMenu;
+import com.logistics.forestry.farm.crop.CropFarmBlock;
 import com.logistics.forestry.humus.HumusBlock;
 import java.util.ArrayList;
 import java.util.List;
@@ -196,6 +197,18 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Ground a farm may dig up to lay its own soil; anything else under a plot is left alone. */
         public static final TagKey<Block> REPLACEABLE_SOIL =
                 TagKey.create(Registries.BLOCK, resource("replaceable_soil").toIdentifier());
+
+        /** Ground the Crop Farm tills into farmland. */
+        public static final TagKey<Block> TILLABLE =
+                TagKey.create(Registries.BLOCK, resource("tillable").toIdentifier());
+
+        /** Seeds and crop items the Crop Farm plants. */
+        public static final TagKey<Item> CROP_GERMLINGS =
+                TagKey.create(Registries.ITEM, resource("crop_germlings").toIdentifier());
+
+        /** Soil the Crop Farm lays where its plot has no ground. */
+        public static final TagKey<Item> CROP_SOILS =
+                TagKey.create(Registries.ITEM, resource("crop_soils").toIdentifier());
     }
 
     public static final class BLOCK {
@@ -205,10 +218,15 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         private static final List<Block> FARMS = new ArrayList<>();
 
         public static Block HUMUS;
+        public static Block CROP_FARM;
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
                 props -> new HumusBlock(props.mapColor(MapColor.DIRT).strength(0.5f).sound(SoundType.ROOTED_DIRT)));
+            CROP_FARM = registerFarm("crop_farm",
+                props -> new CropFarmBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(CropFarmBlock.LIT) ? 13 : 0)));
         }
 
         /**
@@ -272,6 +290,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         static void register() {
             TAB.add(ITEM.FERTILIZER);
             TAB.add(BLOCK.HUMUS);
+            TAB.add(BLOCK.CROP_FARM);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
