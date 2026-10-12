@@ -128,6 +128,11 @@ public abstract class MachineEntity extends BaseBlockEntity
     }
 
     @Override
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return sidedItems().map(s -> s.accepts(slot, stack)).orElse(true);
+    }
+
+    @Override
     public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
         return sidedItems().map(s -> s.canTake(slot, stack, direction)).orElse(false);
     }
