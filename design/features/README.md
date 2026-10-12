@@ -57,7 +57,7 @@ The Phase 2 batch covers the **farms, soils and fertilizer** (design settled; se
 |---|---|---|---|---|
 | 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, fixed 9×9 plot, farm screen ✅ | 0 | the machine framework; Provider-pipe extractable-slot fix |
 | 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer ✅, Humus ✅, bog-earth maturity | 1 (maturity: 2) | 0201 |
-| 0203 | [Arboretum](0203-arboretum.md) | Tree farm + `TreeFeller` | 1 | 0201, 0202 (Humus) |
+| 0203 | [Arboretum](0203-arboretum.md) | Tree farm + `TreeFeller` ✅ | 1 | 0201, 0202 (Humus) |
 | 0204 | [Crop Farm](0204-crop-farm.md) | Field crops ✅ (+ gourd row pattern in wave 3) | 1 | 0201, 0202 (Fertilizer) |
 | 0205 | [Peat Bog](0205-peat-bog.md) | Bog Earth → Peat | 2 | 0201, 0202 (maturity) |
 | 0206 | [Mushroom Farm](0206-mushroom-farm.md) | Huge mushrooms + fungi | 2 | 0201, 0203 (`TreeFeller`) |
