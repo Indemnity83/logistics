@@ -72,6 +72,10 @@ import java.util.UUID;
  *   <li>SAMPLE - Leave 1 item of each type</li>
  * </ul>
  *
+ * <p>Every mode applies only to slots that would actually give up an item: a slot the face lists
+ * but refuses to extract from is never advertised, so the network cannot order what the Provider
+ * cannot deliver.
+ *
  * <p>RESERVE and GUARDED crop by <em>slot index</em>, not by occupancy: the protected slot is a
  * fixed place in the container whether or not anything is in it, so a player can point at it. An
  * empty slot 0 therefore protects nothing, and a container with no more slots than the crop
@@ -603,10 +607,9 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
 
         Map<IItemKey, Boolean> firstSlotSeen = new HashMap<>();
 
-        for (IItemView view : croppedView(storage, mode).contents()) {
+        for (IItemView view : extractableContents(croppedView(storage, mode))) {
             IItemKey key = view.resource();
             long rawAmount = view.amount();
-            if (rawAmount <= 0) continue;
 
             ItemStack stack = key.toStack(1);
             if (isFilteredOut(ctx, stack)) continue;
@@ -640,6 +643,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
                 IItemView view = slotted.slotView(slot);
                 if (view == null || view.amount() <= 0) continue;
                 if (!view.resource().equals(key)) continue;
+                if (slotted.extract(slot, key, 1, true) <= 0) continue;
 
                 long adjustedAmount = calculateAvailableAmount(mode, view.amount(), isFirstSlotOfType);
                 isFirstSlotOfType = false;
@@ -652,11 +656,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
             return totalExtracted;
         }
 
-        List<IItemView> views = new ArrayList<>();
-        for (IItemView view : cropped.contents()) {
-            if (view.amount() > 0) views.add(view);
-        }
-        for (IItemView view : views) {
+        for (IItemView view : extractableContents(cropped)) {
             if (remaining <= 0) break;
             if (!view.resource().equals(key)) continue;
 
@@ -670,6 +670,30 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
         }
 
         return totalExtracted;
+    }
+
+    /**
+     * The non-empty views of {@code storage} that would actually give up an item. A slot the
+     * accessed face lists but refuses to extract from (a machine's input slot read from its side)
+     * is not supply, so it is neither advertised nor counted as a mode's first slot of a type.
+     *
+     * <p>Slotted storages are probed per slot; resource-scoped ones can only be probed per resource.
+     */
+    static List<IItemView> extractableContents(IItemStorage storage) {
+        List<IItemView> views = new ArrayList<>();
+        if (storage instanceof ISlottedItemStorage slotted) {
+            for (int slot = 0; slot < slotted.slotCount(); slot++) {
+                IItemView view = slotted.slotView(slot);
+                if (view == null || view.amount() <= 0) continue;
+                if (slotted.extract(slot, view.resource(), 1, true) > 0) views.add(view);
+            }
+            return views;
+        }
+        for (IItemView view : storage.contents()) {
+            if (view.amount() <= 0) continue;
+            if (storage.extract(view.resource(), 1, true) > 0) views.add(view);
+        }
+        return views;
     }
 
     /**

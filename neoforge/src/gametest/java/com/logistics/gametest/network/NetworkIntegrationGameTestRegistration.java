@@ -117,6 +117,12 @@ public final class NetworkIntegrationGameTestRegistration {
         NetworkIntegrationGameTestBody.testProviderReserveModeLeavesFirstSlot(context);
     }
 
+    /** A Provider beside a machine must not offer the machine's input slot. */
+    @GameTest(template = "empty", batch = "networkintegration", timeoutTicks = 120)
+    public static void testProviderSkipsMachineInputSlot(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testProviderSkipsMachineInputSlot(context);
+    }
+
     /** A requester with a pipe continuing past it must keep every delivery addressed to it. */
     @GameTest(template = "empty", batch = "networkintegration", timeoutTicks = 220)
     public static void testMidLineRequesterKeepsItsDeliveries(GameTestHelper context) {

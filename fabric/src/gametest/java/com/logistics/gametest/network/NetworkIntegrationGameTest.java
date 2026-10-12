@@ -120,6 +120,20 @@ public class NetworkIntegrationGameTest {
     }
 
     /**
+     * A Provider beside a machine must not offer the machine's input slot.
+     *
+     * <p>Same layout as {@link #testProviderDeliversItemToRequester}, but the source is a Macerator
+     * holding diamonds in its input slot, which its side face refuses to extract. The network must
+     * never see them as supply and the requester must receive none.
+     *
+     * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testproviderskipsmachineinputslot
+     */
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void testProviderSkipsMachineInputSlot(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testProviderSkipsMachineInputSlot(context);
+    }
+
+    /**
      * A requester with a pipe continuing past it must keep every delivery addressed to it.
      *
      * <p>Layout (y=1): [source chest] [provider] [transport] [requester] [onward pipe] [onward chest],

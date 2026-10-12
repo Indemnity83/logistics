@@ -1,6 +1,8 @@
 package com.logistics.gametest.network;
 
+import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsPipe;
+import com.logistics.automation.macerator.MaceratorBlockEntity;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.pipe.block.entity.PowerJunctionBlockEntity;
 import com.logistics.core.lib.pipe.PipeContext;
@@ -32,6 +34,8 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
  * instead, which behaves identically on both loaders.
  */
 public class NetworkIntegrationGameTestBody {
+
+    private static final int MACERATOR_INPUT_SLOT = 0;
 
     /** Place a filled Power Junction so the network can pay module energy costs. */
     private static void placeChargedPowerJunction(GameTestHelper context, BlockPos pos) {
@@ -311,6 +315,87 @@ public class NetworkIntegrationGameTestBody {
             if (count < 4) {
                 context.assertTrue(false, "Expected >= 4 diamonds in dest chest, found: " + count);
             }
+        });
+    }
+
+    /**
+     * A Provider beside a machine must not offer the machine's input slot.
+     *
+     * <p>The same layout as {@link #testProviderDeliversItemToRequester}, which is the positive
+     * control, but the source is a Macerator holding diamonds in its input slot. Its side face lists
+     * that slot and refuses to extract it, so the network must never see the diamonds as supply and
+     * the requester must receive none.
+     *
+     * <p>Layout (y=1):
+     * [macerator] &#8592; [provider_pipe] &#8594; [transport_pipe] &#8594; [requester_pipe] &#8594; [dest_chest]
+     *  (0,1,0)          (1,1,0)           (2,1,0)             (3,1,0)          (4,1,0)
+     */
+    public static void testProviderSkipsMachineInputSlot(GameTestHelper context) {
+        BlockPos maceratorPos = new BlockPos(0, 1, 0);
+        BlockPos providerPos = new BlockPos(1, 1, 0);
+        BlockPos transportPos = new BlockPos(2, 1, 0);
+        BlockPos requesterPos = new BlockPos(3, 1, 0);
+        BlockPos destChestPos = new BlockPos(4, 1, 0);
+
+        context.setBlock(destChestPos, Blocks.CHEST);
+        context.setBlock(requesterPos, LogisticsPipe.BLOCK.REQUESTER_LOGISTICS_PIPE);
+        context.setBlock(transportPos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(providerPos, LogisticsPipe.BLOCK.PROVIDER_LOGISTICS_PIPE);
+        context.setBlock(maceratorPos, LogisticsAutomation.BLOCK.MACERATOR);
+        placeChargedPowerJunction(context, transportPos.above());
+
+        MaceratorBlockEntity macerator = (MaceratorBlockEntity) context.getBlockEntity(maceratorPos);
+        if (macerator == null) {
+            context.fail("Expected macerator block entity");
+            return;
+        }
+        macerator.setItem(MACERATOR_INPUT_SLOT, new ItemStack(Items.DIAMOND, 16));
+
+        PipeBlockEntity requesterEntity = (PipeBlockEntity) context.getBlockEntity(requesterPos);
+        if (requesterEntity == null) {
+            context.fail("Requester pipe should have a block entity");
+            return;
+        }
+        if (!(requesterEntity.getBlockState().getBlock() instanceof PipeBlock requesterBlock)
+                || requesterBlock.getPipe() == null) {
+            throw new IllegalStateException("Pipe missing for block entity at requesterPos");
+        }
+        RequesterModule requester = requesterBlock.getPipe().getModule(RequesterModule.class, requesterEntity);
+        if (requester == null) {
+            throw new IllegalStateException("RequesterModule missing from pipe at requesterPos");
+        }
+        requester.setRequestConfig(requesterEntity.createContext(), 0, "minecraft:diamond", 4);
+
+        context.onEachTick(() -> {
+            PipeNetwork network = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(providerPos));
+            if (network == null) return;
+            long advertised = network.getAvailableAmount(new ItemStack(Items.DIAMOND));
+            if (advertised > 0) {
+                throw new GameTestAssertException(
+                        "The network was offered " + advertised + " diamonds from the macerator's input slot");
+            }
+        });
+
+        // Long enough for several provider scans and requester cycles (the positive control
+        // delivers in about 40 ticks).
+        context.runAfterDelay(80, () -> {
+            PipeBlockEntity providerEntity = (PipeBlockEntity) context.getBlockEntity(providerPos);
+            if (providerEntity == null
+                    || !providerEntity.createContext().getInventoryConnections().contains(Direction.WEST)) {
+                context.fail("Provider should treat the macerator as an inventory connection");
+                return;
+            }
+            ItemStack input = macerator.getItem(MACERATOR_INPUT_SLOT);
+            if (!input.is(Items.DIAMOND) || input.getCount() != 16) {
+                context.fail("The macerator's input slot should be untouched but held: " + input);
+                return;
+            }
+            int delivered = countItems(context, destChestPos, Items.DIAMOND);
+            if (delivered != 0) {
+                context.fail("Expected no diamonds delivered from a machine input slot, found: " + delivered);
+                return;
+            }
+            context.succeed();
         });
     }
 
