@@ -28,6 +28,10 @@ public final class CraftingProcessSatelliteGameTestRegistration {
             420,
             CraftingProcessSatelliteGameTestBody::testChainedCraftingPipesConsumeEachOthersOutput),
         new GameTestCase(
+            "network/chained_crafting_pipes_supply_multi_slot_intermediate",
+            420,
+            CraftingProcessSatelliteGameTestBody::testChainedCraftingPipesSupplyMultiSlotIntermediate),
+        new GameTestCase(
             "network/process_pipe_smelts_through_satellite_fed_furnace",
             520,
             CraftingProcessSatelliteGameTestBody::testProcessPipeSmeltsThroughSatelliteFedFurnace));
