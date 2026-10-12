@@ -1,0 +1,164 @@
+package com.logistics.gametest.forestry;
+
+import com.logistics.LogisticsForestry;
+import com.logistics.forestry.humus.HumusGrowth;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.state.BlockState;
+
+/**
+ * Shared Humus GameTest bodies, compiled into both loaders' {@code gametest} source sets. Fabric's
+ * {@code HumusGameTest} delegates to these methods and NeoForge's {@code HumusGameTestRegistration}
+ * references them as {@code Consumer<GameTestHelper>}.
+ *
+ * <p>Light comes from a glowstone block set into the ground beside the humus rather than the sky,
+ * so the result does not depend on the time of day the test happens to run at.
+ */
+public class HumusGameTestBody {
+
+    /** Ticks for block-light updates to settle before a test reads light levels. */
+    private static final int LIGHT_SETTLE_TICKS = 5;
+
+    /** Enough Humus random ticks that a 25% boost reaches the two steps a sapling needs. */
+    private static final int MAX_RANDOM_TICKS = 1000;
+
+    /** Random ticks given to a Humus that should not change. */
+    private static final int IDLE_RANDOM_TICKS = 500;
+
+    /**
+     * Humus is in {@code #minecraft:dirt}, which saplings accept as soil, so an oak sapling can
+     * stand on it — where it cannot on stone.
+     */
+    public static void testSaplingSurvivesOnHumus(GameTestHelper context) {
+        BlockPos humus = new BlockPos(2, 1, 2);
+        BlockPos sapling = humus.above();
+        context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
+
+        if (!context.getBlockState(humus).is(BlockTags.DIRT)) {
+            context.fail("Humus should be in #minecraft:dirt");
+            return;
+        }
+
+        BlockPos stone = new BlockPos(5, 1, 5);
+        context.setBlock(stone, Blocks.STONE);
+        if (Blocks.OAK_SAPLING.defaultBlockState().canSurvive(context.getLevel(), context.absolutePos(stone.above()))) {
+            context.fail("An oak sapling should not survive on stone");
+            return;
+        }
+        if (!Blocks.OAK_SAPLING.defaultBlockState().canSurvive(context.getLevel(), context.absolutePos(sapling))) {
+            context.fail("An oak sapling should survive on humus");
+            return;
+        }
+
+        context.setBlock(sapling, Blocks.OAK_SAPLING);
+        // A neighbour update makes the sapling re-check its support.
+        context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
+        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
+            context.assertBlockPresent(Blocks.OAK_SAPLING, sapling);
+            context.succeed();
+        });
+    }
+
+    /**
+     * Random-ticking Humus in the light grows the oak sapling on it into a tree. The tree leaves the
+     * soil in place (it is in {@code #minecraft:dirt}), and the humus either survives or wears to
+     * dirt — never anything else.
+     */
+    public static void testHumusGrowsSaplingIntoTree(GameTestHelper context) {
+        BlockPos humus = new BlockPos(4, 1, 4);
+        BlockPos sapling = humus.above();
+        context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(humus.east(), Blocks.GLOWSTONE);
+        context.setBlock(sapling, Blocks.OAK_SAPLING);
+
+        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
+            if (!assertBrightness(context, sapling.above(), true)) return;
+
+            for (int i = 0; i < MAX_RANDOM_TICKS && isSapling(context, sapling); i++) {
+                context.randomTick(humus);
+            }
+
+            context.assertBlockPresent(Blocks.OAK_LOG, sapling);
+            Block soil = context.getBlockState(humus).getBlock();
+            if (soil != LogisticsForestry.BLOCK.HUMUS && soil != Blocks.DIRT) {
+                context.fail("Humus under a grown tree should be humus or dirt, was " + soil);
+                return;
+            }
+            context.succeed();
+        });
+    }
+
+    /** Humus with nothing growing on it, or a plant that is not a sapling, never changes. */
+    public static void testHumusWithoutSaplingNeverChanges(GameTestHelper context) {
+        BlockPos bare = new BlockPos(1, 1, 1);
+        BlockPos flowered = new BlockPos(5, 1, 1);
+        context.setBlock(bare, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(bare.east(), Blocks.GLOWSTONE);
+        context.setBlock(flowered, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(flowered.east(), Blocks.GLOWSTONE);
+        context.setBlock(flowered.above(), Blocks.DANDELION);
+
+        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
+            for (int i = 0; i < IDLE_RANDOM_TICKS; i++) {
+                context.randomTick(bare);
+                context.randomTick(flowered);
+            }
+
+            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, bare);
+            context.assertBlockPresent(Blocks.AIR, bare.above());
+            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, flowered);
+            context.assertBlockPresent(Blocks.DANDELION, flowered.above());
+            context.succeed();
+        });
+    }
+
+    /**
+     * A sapling sealed in the dark gets no boost: it is still at its first growth stage after
+     * Humus random ticks that would have advanced it in the light.
+     */
+    public static void testNoGrowthInDarkness(GameTestHelper context) {
+        BlockPos humus = new BlockPos(3, 1, 3);
+        BlockPos sapling = humus.above();
+        context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(sapling, Blocks.OAK_SAPLING);
+        // Seal the sapling and the space above it on every face.
+        for (Direction side : Direction.Plane.HORIZONTAL) {
+            context.setBlock(sapling.relative(side), Blocks.STONE);
+            context.setBlock(sapling.above().relative(side), Blocks.STONE);
+        }
+        context.setBlock(sapling.above(2), Blocks.STONE);
+
+        context.runAfterDelay(LIGHT_SETTLE_TICKS, () -> {
+            if (!assertBrightness(context, sapling.above(), false)) return;
+
+            for (int i = 0; i < IDLE_RANDOM_TICKS; i++) {
+                context.randomTick(humus);
+            }
+
+            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, humus);
+            context.assertBlockProperty(sapling, SaplingBlock.STAGE, 0);
+            context.succeed();
+        });
+    }
+
+    private static boolean isSapling(GameTestHelper context, BlockPos pos) {
+        BlockState state = context.getBlockState(pos);
+        return state.getBlock() instanceof SaplingBlock;
+    }
+
+    /** Fails the test unless the light at {@code pos} is (or is not) enough for a sapling to grow. */
+    private static boolean assertBrightness(GameTestHelper context, BlockPos pos, boolean bright) {
+        int brightness = context.getLevel().getMaxLocalRawBrightness(context.absolutePos(pos));
+        if ((brightness >= HumusGrowth.MIN_BRIGHTNESS) != bright) {
+            context.fail("Expected the light above the sapling to be " + (bright ? "at least " : "below ")
+                    + HumusGrowth.MIN_BRIGHTNESS + ", was " + brightness);
+            return false;
+        }
+        return true;
+    }
+}

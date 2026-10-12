@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:dirt"
+    },
+    {
+      "item": "logistics:core/pulped_biomass"
+    },
+    {
+      "tag": "c:dusts/wood"
+    }
+  ],
+  "result": {
+    "id": "logistics:forestry/humus",
+    "count": 2
+  }
+}
