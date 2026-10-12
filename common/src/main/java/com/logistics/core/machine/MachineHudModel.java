@@ -22,7 +22,7 @@ import net.minecraft.world.level.material.Fluid;
 public final class MachineHudModel {
 
     /** A single HUD contribution. */
-    public sealed interface Entry permits ProgressEntry, FluidEntry {}
+    public sealed interface Entry permits ProgressEntry, FluidEntry, LineEntry {}
 
     /** Active-recipe progress as a 0..1 fraction. */
     public record ProgressEntry(float fraction) implements Entry {}
@@ -31,11 +31,22 @@ public final class MachineHudModel {
     public record FluidEntry(String fluidId, DataComponentPatch components, long amountMb, long capacityMb)
             implements Entry {}
 
+    /**
+     * A labelled text line, {@code <label>: <value>}. Both are translation keys; {@code valueArgs}
+     * fill the value's placeholders as plain text.
+     */
+    public record LineEntry(String labelKey, String valueKey, List<String> valueArgs) implements Entry {
+        public LineEntry {
+            valueArgs = List.copyOf(valueArgs);
+        }
+    }
+
     private static final String HUD_KEY = "hud";
     private static final String COUNT = "n";
     private static final String TYPE = "type";
     private static final String TYPE_PROGRESS = "progress";
     private static final String TYPE_FLUID = "fluid";
+    private static final String TYPE_LINE = "line";
 
     private final List<Entry> entries = new ArrayList<>();
 
@@ -45,6 +56,10 @@ public final class MachineHudModel {
 
     public void fluid(Fluid fluid, DataComponentPatch components, long amountMb, long capacityMb) {
         entries.add(new FluidEntry(BuiltInRegistries.FLUID.getKey(fluid).toString(), components, amountMb, capacityMb));
+    }
+
+    public void line(String labelKey, String valueKey, String... valueArgs) {
+        entries.add(new LineEntry(labelKey, valueKey, List.of(valueArgs)));
     }
 
     public boolean isEmpty() {
@@ -75,6 +90,15 @@ public final class MachineHudModel {
                                 .encodeStart(NbtOps.INSTANCE, f.components())
                                 .result()
                                 .ifPresent(tag -> e.put("components", tag));
+                    }
+                }
+                case LineEntry l -> {
+                    e.putString(TYPE, TYPE_LINE);
+                    e.putString("label", l.labelKey());
+                    e.putString("value", l.valueKey());
+                    e.putInt("argc", l.valueArgs().size());
+                    for (int a = 0; a < l.valueArgs().size(); a++) {
+                        e.putString("arg" + a, l.valueArgs().get(a));
                     }
                 }
             }
@@ -108,6 +132,15 @@ public final class MachineHudModel {
                             components,
                             NbtCompat.getLong(e, "amount", 0L),
                             NbtCompat.getLong(e, "capacity", 0L)));
+                }
+                case TYPE_LINE -> {
+                    int argc = Math.max(0, NbtCompat.getInt(e, "argc", 0));
+                    List<String> args = new ArrayList<>(argc);
+                    for (int a = 0; a < argc; a++) {
+                        args.add(NbtCompat.getString(e, "arg" + a, ""));
+                    }
+                    result.add(new LineEntry(
+                            NbtCompat.getString(e, "label", ""), NbtCompat.getString(e, "value", ""), args));
                 }
                 default -> {}
             }

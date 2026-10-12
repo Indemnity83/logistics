@@ -8,8 +8,9 @@ import net.minecraft.network.chat.Component;
 
 /**
  * Builds the text portion of the machine HUD from the model synced by {@code MachineHudData}: a progress
- * line while the machine is processing. Graphical entries (fluid tanks) are drawn by the loader-specific
- * Jade provider, since their element API is version-specific.
+ * line while the machine is processing, plus any labelled lines (a farm's status). Graphical entries
+ * (fluid tanks) are drawn by the loader-specific Jade provider, since their element API is
+ * version-specific.
  */
 public final class MachineHudLines {
 
@@ -25,6 +26,11 @@ public final class MachineHudLines {
                         .append(Component.literal(": "))
                         .append(Component.literal(String.format("%.0f%%", progress.fraction() * 100))
                                 .withStyle(ChatFormatting.GREEN)));
+            } else if (entry instanceof MachineHudModel.LineEntry line) {
+                lines.add(Component.empty()
+                        .append(Component.translatable(line.labelKey()))
+                        .append(Component.literal(": "))
+                        .append(Component.translatable(line.valueKey(), line.valueArgs().toArray())));
             }
         }
         return lines;
