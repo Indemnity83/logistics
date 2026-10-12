@@ -30,7 +30,7 @@ public final class QuarryGameTestRegistration {
         new GameTestCase("automation/quarry_pipe_connection", 60, QuarryGameTestBody::testQuarryPipeConnection),
         new GameTestCase("automation/quarry_facing", 100, QuarryGameTestBody::testQuarryFacing),
         new GameTestCase(
-            "automation/quarry_chunk_loading_toggle", 6620, QuarryGameTestBody::testQuarryChunkLoadingToggle));
+            "automation/quarry_chunk_loading_toggle", 6720, QuarryGameTestBody::testQuarryChunkLoadingToggle));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

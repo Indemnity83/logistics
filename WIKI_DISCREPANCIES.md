@@ -72,19 +72,6 @@ touch a tank directly. It can only empty a tank that an extractor is already pum
 The page also never says it connects to pipes only. Likely fix: reword the warning around
 extractors, and mention the pipes-only connection.
 
-## Laser Quarry
-
-Open: chunk loading is not limited to a *running* quarry. `wiki/Laser Quarry.txt` § Chunk loading
-says "Turning on the chunk-loading setting makes a running quarry hold itself and its work area
-loaded." With `load_chunks` on, `QuarryComponent#chunkArea` gates only on the config value and on
-the quarry not being finished — not on energy — so a placed quarry with no power at all keeps its
-own chunk and every work-area chunk loaded indefinitely. Confirmed live by
-`QuarryGameTest#testQuarryChunkLoadingToggle`, which uses an unpowered quarry. Needs a decision:
-reword the wiki ("a placed quarry that has not finished"), or gate the chunk loader on the quarry
-actually having power. Minor related wording: removal and finishing release the tickets by letting
-them lapse (20-tick timeout, `TICKET_TYPE.QUARRY`/`QUARRY_BOUNDARY`) rather than instantly, which
-the wiki's "released once the quarry finishes or is removed" covers well enough.
-
 ## Marker
 
 **Open: a lone marker activates instead of failing.** `wiki/Marker.txt` § Defining an area says
@@ -108,6 +95,21 @@ convention appears on `Batteries.txt` (`power.battery.<tier>.json`), `Laser Quar
 (`machines.quarry.json`), `Installation.txt` and `Template_Config.txt`, so this is likely a
 site-wide wording fix rather than a Cables-only one. Every number on the page (30/60/120/240 RF/t,
 each grade double the one below) matches `LogisticsPower.CONFIG.CABLE_*_TRANSFER`.
+
+## Laser Quarry
+
+<!--
+Resolved (closed): chunk loading was not limited to a *running* quarry. `wiki/Laser Quarry.txt`
+§ Chunk loading says "Turning on the chunk-loading setting makes a running quarry hold itself and its
+work area loaded", but `QuarryComponent#chunkArea` gated only on `load_chunks` and the quarry not
+being finished, so a placed quarry with no power kept its chunks loaded indefinitely. Code fixed to
+match the wiki: the area is only supplied while the quarry has power, or had it within the last
+`QuarryChunkHold.GRACE_TICKS` (600 ticks, persisted across a reload) so a brown-out does not drop and
+re-take the tickets. Pinned by `QuarryChunkHoldTest`, `QuarryChunkAreaTest` and
+`QuarryGameTest#testQuarryChunkLoadingToggle`, which now powers its quarry. Removal and finishing
+release the tickets by letting them lapse (20-tick timeout) rather than instantly, which the wiki's
+"released once the quarry finishes or is removed" covers well enough.
+-->
 
 ## Kiln
 
