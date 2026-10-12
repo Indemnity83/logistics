@@ -8,14 +8,16 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 /**
  * NeoForge implementation of {@link BlockEntityTypeFactory}.
+ *
+ * <p>An empty block list is allowed, as on Fabric: a type shared by a family of blocks (every farm
+ * uses one) can exist before any block of the family does.
  */
 public final class NeoForgeBlockEntityTypeFactory implements BlockEntityTypeFactory {
 
     @Override
     public <T extends BlockEntity> BlockEntityType<T> build(BlockEntitySupplier<T> factory, Block... blocks) {
-        if (blocks == null || blocks.length == 0) {
-            throw new IllegalArgumentException(
-                    "build() requires at least one block; factory=" + factory.getClass().getName());
+        if (blocks == null) {
+            throw new IllegalArgumentException("build() requires a block array; factory=" + factory.getClass().getName());
         }
         return BlockEntityType.Builder.of(factory::create, blocks).build(null);
     }
