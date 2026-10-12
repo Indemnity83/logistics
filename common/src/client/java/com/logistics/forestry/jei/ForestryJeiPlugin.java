@@ -34,6 +34,7 @@ public class ForestryJeiPlugin implements IModPlugin {
         int boneMealCharges = LogisticsForestry.CONFIG.BONE_MEAL_CHARGES.definition().defaultValue();
 
         info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm", area);
+        info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum", area);
         info(registration, LogisticsForestry.ITEM.FERTILIZER, "fertilizer",
             Math.max(1, fertilizerCharges / boneMealCharges));
         info(registration, LogisticsForestry.BLOCK.HUMUS, "humus");
