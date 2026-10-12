@@ -6,6 +6,10 @@
     "minecraft:shroomlight",
     "minecraft:vine",
     "minecraft:cocoa",
-    "minecraft:mangrove_propagule"
+    "minecraft:mangrove_propagule",
+    {
+      "id": "minecraft:pale_hanging_moss",
+      "required": false
+    }
   ]
 }
