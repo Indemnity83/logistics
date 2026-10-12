@@ -64,6 +64,7 @@ jobs:
             energy
             storage
             crafting
+            farming
             worldgen
             ui
             api

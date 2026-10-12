@@ -51,6 +51,7 @@ Likely after the current automation core is stable.
 | Crafting terminal         | Exploring | Network-wide crafting already works through the Crafting and Process pipes and the Crafter modules. What's contemplated here is a dedicated request/crafting terminal block on top of them — not yet specified |
 | Firewall Pipe             | Deferred  | No solid use case yet — parked until network segmentation earns its place; also needs routing/boundary design work   |
 | Pipe based power delivery | Exploring | The Power Junction is a first step; the broader goal is one connection that feeds a machine both items and power     |
+| Forestry-style farms      | Design settled | One block per farm type with an upgradable work area, plus Fertilizer and Humus soils; the processing/biofuel chain comes later (not the multiblock multifarm) |
 
 ## Later
 
@@ -61,7 +62,6 @@ Important to the long-term vision, but not part of the immediate core milestone.
 | Area                  | Status        | Notes                                                                                                                 |
 |-----------------------|---------------|-----------------------------------------------------------------------------------------------------------------------|
 | Facades / pipe hiding | Planned later | Cosmetic integration for hiding pipes cleanly in builds                                                               |
-| Forestry-style farms  | Planned later | Single-block farms plus the processing/biofuel chain, modernized for current Minecraft (not the multiblock multifarm) |
 | Rail transport        | Planned later | Tracks, carts, routing, and train logistics                                                                           |
 
 ## Exploring / RFC
