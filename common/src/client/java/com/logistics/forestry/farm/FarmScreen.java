@@ -20,7 +20,7 @@ import net.minecraft.world.level.material.Fluids;
  */
 public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
 
-    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/container/forestry/farm.png");
+    private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/forestry/farm.png");
     private static final int TEXTURE_WIDTH = 256;
     private static final int TEXTURE_HEIGHT = 256;
 
