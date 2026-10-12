@@ -37,6 +37,10 @@ public final class NetworkIntegrationGameTestRegistration {
             120,
             NetworkIntegrationGameTestBody::testProviderReserveModeLeavesFirstSlot),
         new GameTestCase(
+            "network/provider_skips_machine_input_slot",
+            120,
+            NetworkIntegrationGameTestBody::testProviderSkipsMachineInputSlot),
+        new GameTestCase(
             "network/mid_line_requester_keeps_its_deliveries",
             220,
             NetworkIntegrationGameTestBody::testMidLineRequesterKeepsItsDeliveries),
