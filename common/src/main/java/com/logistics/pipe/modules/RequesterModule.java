@@ -13,6 +13,9 @@ import com.logistics.core.lib.storage.IItemKey;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.lib.pipe.PipeContext;
 import com.logistics.core.lib.pipe.PipeHud;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.RoutingModule;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.pipe.block.entity.PipeBlockEntity;
 import com.logistics.pipe.network.NetworkRegistry;
 import com.logistics.pipe.ui.RequesterScreenHandler;
@@ -45,7 +48,7 @@ import java.util.stream.Collectors;
  *
  * <p>Energy: costs {@value #RF_PER_REQUEST} RF per order placed (drawn from the network battery).
  */
-public class RequesterModule implements Module, TickingModule {
+public class RequesterModule implements Module, TickingModule, RoutingModule {
     private static final String REQUESTS = "requests";
     private static final String REQUESTER_DIRECTION = "requester_direction";
     private static final String TICKS_SINCE_REQUEST = "ticks_since_request";
@@ -113,6 +116,24 @@ public class RequesterModule implements Module, TickingModule {
         }
         String suffix = ctx.isInventoryConnection(direction) ? "_feature_extended" : "_feature";
         return LogisticsPipe.model("requester_logistics_pipe" + suffix);
+    }
+
+    /**
+     * Sends an item addressed to this pipe into the requester face, whatever other exits are open.
+     * An inventory that refuses it is handled at the hand-off, like any other refused delivery.
+     */
+    @Override
+    public RoutePlan route(PipeContext ctx, TravelingItem item, List<Direction> options) {
+        if (!ctx.pos().equals(item.getDestination())) {
+            return RoutePlan.pass();
+        }
+        Direction requesterDir = getRequesterDirection(ctx);
+        if (requesterDir == null || !options.contains(requesterDir)) {
+            return RoutePlan.pass();
+        }
+        NetDbg.out("[Requester @ {}] Routing {} x{} to inventory ({})",
+                ctx.pos(), item.getStack().getItem(), item.getStack().getCount(), requesterDir);
+        return RoutePlan.reroute(requesterDir);
     }
 
     /**
