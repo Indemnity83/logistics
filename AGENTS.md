@@ -779,7 +779,7 @@ Scopes identify the mod's product surface or implementation area.
 
 **Product scopes** — major player-recognizable systems, machines, and feature areas:
 `macerator`, `kiln`, `quarry`, `sawmill`, `pump`, `transport`, `routing`, `fluids`, `pipes`,
-`energy`, `storage`, `crafting`, `worldgen`, `ui`.
+`energy`, `storage`, `crafting`, `farming`, `worldgen`, `ui`.
 
 **Framework / internal scopes:** `core`, `automation`, `api`, `common`.
 **Platform scopes:** `fabric`, `neoforge`, `compat`.
@@ -792,6 +792,7 @@ Pipe-related scope rules:
 - `pipes` — shared pipe framework code used across multiple pipe families (use `transport`/`routing`/`fluids` for one family)
 
 Other rules:
+- Use `farming` for farm blocks, soils and fertilizer.
 - Use `automation` only for the shared machine framework or behavior that crosses multiple machines
   (shared components, machine base classes, reusable output handling, chunk loading, upgrade seams).
 - Use `core` for low-level shared infrastructure that is not specific to machines.

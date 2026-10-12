@@ -14,7 +14,7 @@ This file is the human-readable mirror of **GitHub Project #4 "Logistics Roadmap
 |-------------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------|----------------|
 | **0 — Foundation**      | Materials, tools, energy, the pipe network                                                             | Logistics Pipes, base of BuildCraft/TE | ✅ Largely done |
 | **1 — Automation core** | Round out engines, ore processing, RF machines, and the quarry                                         | BuildCraft + Thermal Expansion         | 🚧 Nearly complete — engines, ore-processing machines, the fuel chain, the Transposer, and fluid provider/supplier shipped; remaining: the tiered-battery line (its alloys and cable ladder have shipped), fluid *request*, and the loader-parity/polish push (firewall pipe deferred) |
-| **2 — Forestry**        | Industrial Forestry: farms, processing, power, electronics *(tree harvesting only; no genetics/breeding)* | Forestry                               | — Not started  |
+| **2 — Forestry**        | Industrial Forestry: farms, processing, power, electronics *(tree harvesting only; no genetics/breeding)* | Forestry                               | 🚧 Design settled — farms in progress |
 | **3 — Transport**       | Rails, advanced carts, tanks, signals, bulk processing                                                 | Railcraft                              | — Not started  |
 
 ---
@@ -124,12 +124,13 @@ Then: confirm **NeoForge parity**, run a **balance pass**, refresh docs, and gat
 
 *Industrial Forestry — farms, processing, power, and electronics. Derived from [`mods/forestry.md`](mods/forestry.md). Apatite (fertilizer) and the logic-chip/core/valve "electronics" are already seeded. The genetics/biology axis (bees, tree-breeding, butterflies) is **out of scope** — see [RFC 0002](rfcs/0002-forestry-bees.md).*
 
-**Farms** *(headline)*
-- Single-block farms (the older Forestry design, **not** the later multiblock multifarm) + farm-type selection/upgrades
-- Peat bog → peat fuel
-- Fertilizer chain on existing Apatite
+**Farms** *(headline — design settled; briefs [`0201`–`0209`](features/README.md#phase-2-batch-forestry-farms))*
+- Single-block farms (the older Forestry design, **not** the later multiblock multifarm), **one block per farm type**: Arboretum and Crop Farm first, then Peat Bog, Mushroom Farm and Stalk Farm *(name TBD)*, then Infernal Farm and Orchard; gourds are a Crop Farm row pattern
+- Each farm works a fixed **9×9** plot in front of the block, enlarged by a **Range Upgrade** (13×13 / 17×17); redstone pauses it; no fake players, no chunk loading
+- Peat bog → peat fuel: bog earth gains a wet-only **maturity** state, worked by the Peat Bog farm
+- Fertilizer chain on existing Apatite: a **Fertilizer** item (growth charges; bone meal = 1 charge) and **Humus** soil that speeds saplings
 
-**Processing & power** *(close second)*
+**Processing & power** *(close second — deferred beyond the farming plan)*
 - Carpenter (modernized — clearer than the original)
 - Squeezer → Fermenter → Still biofuel chain *(parallel fuel for the combustion engine)*
 - Bottler *(needs fluids)*
