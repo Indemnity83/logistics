@@ -18,6 +18,9 @@ public interface FarmInputs {
     /** Whether a soil item is available to lay. */
     boolean hasSoil();
 
+    /** The soil item the next {@link PlotAction.PlaceSoil} would lay (one of it), or empty. */
+    ItemStack soil();
+
     /** Whether a fertilizer charge is available, stored or in the fertilizer slot. */
     boolean hasFertilizer();
 }

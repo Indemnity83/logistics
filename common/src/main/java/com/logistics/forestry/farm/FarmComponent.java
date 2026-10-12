@@ -200,7 +200,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     private void work(FarmWorldAccess world, FarmSettings s, WorkArea area) {
         if (replanHarvest) {
-            replanHarvest(world);
+            replanHarvest(world, area);
         }
         if (!harvest.isEmpty()) {
             FarmStatus outcome = continueHarvest(world, s, area);
@@ -226,7 +226,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
         BlockPos plot = area.plot(index);
         FarmStatus outcome = world.isLoaded(plot)
-                ? execute(world, s, area, plot, logic.decide(world, plot, inputs))
+                ? execute(world, s, area, plot, logic.decide(world, area, plot, inputs))
                 : FarmStatus.IDLE;
         tracker.record(outcome);
         if (outcome == FarmStatus.WORKING) {
@@ -361,7 +361,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
     }
 
-    private void replanHarvest(FarmWorldAccess world) {
+    private void replanHarvest(FarmWorldAccess world, WorkArea area) {
         replanHarvest = false;
         BlockPos base = harvestBase;
         harvestBase = null;
@@ -369,7 +369,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (base == null || !harvest.isEmpty() || !world.isLoaded(base)) {
             return;
         }
-        if (logic.decide(world, base, inputs) instanceof PlotAction.Harvest replanned) {
+        if (logic.decide(world, area, base, inputs) instanceof PlotAction.Harvest replanned) {
             queueHarvest(world, replanned.blocks());
             if (!harvest.isEmpty()) {
                 harvestBase = base;
@@ -611,6 +611,12 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         @Override
         public boolean hasSoil() {
             return soilSlot() >= 0;
+        }
+
+        @Override
+        public ItemStack soil() {
+            int slot = soilSlot();
+            return slot >= 0 ? items.getItem(slot).copyWithCount(1) : ItemStack.EMPTY;
         }
 
         @Override

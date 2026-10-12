@@ -1,0 +1,6 @@
+{
+  "parent": "logistics:block/core/machine",
+  "textures": {
+    "front": "logistics:block/forestry/arboretum_off"
+  }
+}

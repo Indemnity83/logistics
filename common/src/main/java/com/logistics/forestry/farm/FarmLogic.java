@@ -1,5 +1,6 @@
 package com.logistics.forestry.farm;
 
+import com.logistics.core.machine.area.WorkArea;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -63,4 +64,13 @@ public interface FarmLogic {
      * should check {@link FarmWorld#isLoaded}.
      */
     PlotAction decide(FarmWorld world, BlockPos plot, FarmInputs inputs);
+
+    /**
+     * {@link #decide(FarmWorld, BlockPos, FarmInputs)} for a plot of {@code area}; the farm calls
+     * this one. Override it when the planting pattern depends on where {@code plot} lies in the
+     * area. Defaults to ignoring the area.
+     */
+    default PlotAction decide(FarmWorld world, WorkArea area, BlockPos plot, FarmInputs inputs) {
+        return decide(world, plot, inputs);
+    }
 }
