@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["VAV", "SMS", "GCG"],
+  "key": {
+    "V": { "item": "logistics:core/copper_valve" },
+    "A": { "item": "minecraft:iron_axe" },
+    "S": { "tag": "minecraft:saplings" },
+    "M": { "item": "logistics:core/machine_core" },
+    "G": { "tag": "c:gears/copper" },
+    "C": { "item": "logistics:core/redstone_reception_coil" }
+  },
+  "result": { "id": "logistics:forestry/arboretum", "count": 1 }
+}
