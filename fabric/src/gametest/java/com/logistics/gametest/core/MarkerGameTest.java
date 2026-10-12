@@ -109,4 +109,19 @@ public class MarkerGameTest {
     public void testActiveMarkerSurvivesReconstruction(GameTestHelper context) {
         MarkerGameTestBody.testActiveMarkerSurvivesReconstruction(context);
     }
+
+    @GameTest
+    public void testMarkerPopsOffWhenFloorRemoved(GameTestHelper context) {
+        MarkerGameTestBody.testMarkerPopsOffWhenFloorRemoved(context);
+    }
+
+    @GameTest
+    public void testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest(GameTestHelper context) {
+        MarkerGameTestBody.testRemovingActiveMarkerWithoutPlayerDeactivatesTheRest(context);
+    }
+
+    @GameTest
+    public void testActiveMarkerPoppingOffDeactivatesTheRest(GameTestHelper context) {
+        MarkerGameTestBody.testActiveMarkerPoppingOffDeactivatesTheRest(context);
+    }
 }
