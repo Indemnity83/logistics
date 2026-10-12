@@ -10,6 +10,7 @@ import com.logistics.automation.refinery.RefineryBlock;
 import com.logistics.automation.sawmill.SawmillBlock;
 import com.logistics.automation.transposer.TransposerBlock;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.pipe.block.FluidPipeBlock;
 import com.logistics.pipe.block.PipeBlock;
 import com.logistics.power.block.CreativeSinkBlock;
@@ -33,6 +34,7 @@ public final class JadeLogisticsClientPlugin implements JadeClientPlugin {
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, RefineryBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, SequentialFabricatorBlock.class);
         registration.registerBlockComponent(MachineComponentProvider.INSTANCE, TransposerBlock.class);
+        registration.registerBlockComponent(MachineComponentProvider.INSTANCE, FarmMachineBlock.class);
         registration.registerBlockComponent(PipeComponentProvider.INSTANCE, PipeBlock.class);
         registration.registerBlockComponent(FluidPipeComponentProvider.INSTANCE, FluidPipeBlock.class);
     }

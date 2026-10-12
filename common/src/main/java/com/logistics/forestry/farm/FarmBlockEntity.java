@@ -1,0 +1,95 @@
+package com.logistics.forestry.farm;
+
+import com.logistics.LogisticsForestry;
+import com.logistics.core.machine.MachineBuilder;
+import com.logistics.core.machine.MachineEntity;
+import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * The block entity every farm block shares ({@link LogisticsForestry.ENTITY#FARM}). Which farm it
+ * is comes from its block's {@link FarmMachineBlock#logic()}; the components are built by
+ * {@link FarmMachine#assemble}.
+ */
+public class FarmBlockEntity extends MachineEntity {
+
+    /** Logic for a block entity found on a block that is not a farm; accepts and does nothing. */
+    private static final FarmLogic UNKNOWN_FARM = new FarmLogic() {
+        @Override
+        public boolean isGermling(ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public PlotAction decide(FarmWorld world, BlockPos plot, FarmInputs inputs) {
+            return PlotAction.NONE;
+        }
+    };
+
+    // Assigned in configure(), which the super constructor calls: no initializers, they would run after it.
+    private FarmMachine parts;
+    private ContainerData containerData;
+
+    public FarmBlockEntity(BlockPos pos, BlockState state) {
+        super(LogisticsForestry.ENTITY.FARM, pos, state);
+    }
+
+    @Override
+    protected void configure(MachineBuilder machine) {
+        FarmLogic logic = getBlockState().getBlock() instanceof FarmMachineBlock farm ? farm.logic() : UNKNOWN_FARM;
+        parts = FarmMachine.assemble(machine, logic, FarmSettings::fromConfig, FarmComponent.LEVEL);
+        containerData = FarmMenu.dataSource(parts);
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, FarmBlockEntity farm) {
+        MachineEntity.tick(level, pos, state, farm);
+    }
+
+    @Override
+    public MenuProvider createMenuProvider() {
+        return new MenuProvider() {
+            @Override
+            public Component getDisplayName() {
+                return getBlockState().getBlock().getName();
+            }
+
+            @Override
+            public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+                return new FarmMenu(syncId, playerInventory, FarmBlockEntity.this, containerData);
+            }
+        };
+    }
+
+    public FarmLogic logic() {
+        return parts.logic();
+    }
+
+    public FarmStatus status() {
+        return parts.farm().status();
+    }
+
+    @Nullable
+    public UUID owner() {
+        return parts.farm().owner();
+    }
+
+    void setOwner(UUID owner) {
+        parts.farm().setOwner(owner);
+        setChanged();
+    }
+
+    /** Test seam: works a plot of {@code size} (odd) for this farm only; 0 or less restores the config value. */
+    public void setAreaSizeOverride(int size) {
+        parts.farm().setAreaSizeOverride(size);
+    }
+}
