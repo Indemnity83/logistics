@@ -66,7 +66,9 @@ class TagContractTest {
                     continue;
                 }
                 String referenced = tagId(namespaceOf(value.substring(1)), registryOf(id), pathOf(value.substring(1)));
-                if (!tags.containsKey(referenced) && !EXTERNAL_TAGS.contains(referenced)) {
+                if (!tags.containsKey(referenced)
+                        && !EXTERNAL_TAGS.contains(referenced)
+                        && !isVanillaTag(referenced)) {
                     failures.add(ResourceFiles.describe(file) + " -> references unknown tag '" + value
                         + "'; if a loader provides it, add \"" + referenced + "\" to EXTERNAL_TAGS with a reason");
                 }
@@ -157,6 +159,14 @@ class TagContractTest {
         }
         path.remove(id);
         return false;
+    }
+
+    /** A {@code minecraft} tag the game jar on the test classpath ships. */
+    private static boolean isVanillaTag(String id) {
+        String[] parts = id.split(":", 3);
+        return "minecraft".equals(parts[0])
+                && TagContractTest.class.getResource("/data/minecraft/tags/" + parts[1] + "/" + parts[2] + ".json")
+                        != null;
     }
 
     /** Every shipped tag, keyed {@code namespace:registry:path} from its file location. */
