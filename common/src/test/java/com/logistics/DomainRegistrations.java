@@ -33,6 +33,7 @@ public final class DomainRegistrations {
         LogisticsPipe.ITEM.register();
         LogisticsPower.BLOCK.register();
         LogisticsAutomation.BLOCK.register();
+        LogisticsForestry.BLOCK.register();
         LogisticsForestry.ITEM.register();
 
         // These items carry default components (e.g. cooking fuel). Bootstrap already ran its
