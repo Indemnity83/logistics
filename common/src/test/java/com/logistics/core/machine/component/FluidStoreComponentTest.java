@@ -64,4 +64,41 @@ class FluidStoreComponentTest extends MinecraftTestEnvironment {
         assertThat(reader.tank().getAmount()).isEqualTo(250);
         assertThat(reader.tank().getFluidKey()).isEqualTo(SimpleFluidKey.of(Fluids.LAVA));
     }
+
+    private FluidStoreComponent waterOnly() {
+        return FluidStoreComponent.inputOnly(
+                "water", 10_000, () -> {}, fluid -> fluid.getFluid() == Fluids.WATER);
+    }
+
+    @Test
+    void inputOnlyAcceptsMatchingFluid() {
+        FluidStoreComponent store = waterOnly();
+        var exposed = store.fluid(net.minecraft.core.Direction.NORTH);
+
+        assertThat(exposed.insert(SimpleFluidKey.of(Fluids.WATER), 1_000, true)).isEqualTo(1_000);
+        assertThat(store.tank().isEmpty()).isTrue(); // simulate changes nothing
+        assertThat(exposed.insert(SimpleFluidKey.of(Fluids.WATER), 1_000, false)).isEqualTo(1_000);
+        assertThat(store.tank().getAmount()).isEqualTo(1_000);
+        assertThat(exposed.contents()).hasSize(1);
+    }
+
+    @Test
+    void inputOnlyRejectsOtherFluids() {
+        FluidStoreComponent store = waterOnly();
+
+        assertThat(store.fluid(null).insert(SimpleFluidKey.of(Fluids.LAVA), 1_000, false)).isZero();
+        assertThat(store.tank().isEmpty()).isTrue();
+    }
+
+    @Test
+    void inputOnlyRefusesExtraction() {
+        FluidStoreComponent store = waterOnly();
+        store.tank().setContents(SimpleFluidKey.of(Fluids.WATER), 4_000);
+
+        assertThat(store.fluid(net.minecraft.core.Direction.DOWN).extract(SimpleFluidKey.of(Fluids.WATER), 1_000, false))
+                .isZero();
+        assertThat(store.tank().getAmount()).isEqualTo(4_000);
+        // The machine still drains internally.
+        assertThat(store.tank().extract(SimpleFluidKey.of(Fluids.WATER), 1_000, false)).isEqualTo(1_000);
+    }
 }
