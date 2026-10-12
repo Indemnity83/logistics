@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "#c:gems/apatite",
+    "#minecraft:sand",
+    "#minecraft:sand"
+  ],
+  "result": {
+    "id": "logistics:forestry/fertilizer",
+    "count": 4
+  }
+}
