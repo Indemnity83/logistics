@@ -110,6 +110,20 @@ public class NetworkIntegrationGameTest {
     }
 
     /**
+     * A requester with a pipe continuing past it must keep every delivery addressed to it.
+     *
+     * <p>Layout (y=1): [source chest] [provider] [transport] [requester] [onward pipe] [onward chest],
+     * with the requester's chest south of it. Eight one-diamond orders must all land in the
+     * requester's chest and none in the onward chest.
+     *
+     * <p>Run in-game: /test run logistics-gametest.networkintegrationgametest.testmidlinerequesterkeepsitsdeliveries
+     */
+    @GameTest(maxTicks = 200)
+    public void testMidLineRequesterKeepsItsDeliveries(GameTestHelper context) {
+        NetworkIntegrationGameTestBody.testMidLineRequesterKeepsItsDeliveries(context);
+    }
+
+    /**
      * An Enchantment Sink chassis must still receive items after the network splits.
      *
      * <p>Layout (y=1): [injector] [chassis + enchantment sink] [chest], with a two-pipe spur off
