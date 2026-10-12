@@ -14,14 +14,26 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Minimal {@link MachineContext} for unit tests: no live {@link Level}, registries from the
  * bootstrapped built-in registry, and no-op world mutations. Records whether {@code markChanged}
- * was called so tests can assert dirty-marking.
+ * was called so tests can assert dirty-marking. Hosted at the origin as air unless a position and
+ * state are given.
  */
 public final class FakeMachineContext implements MachineContext {
 
     private final HolderLookup.Provider registries =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     private final RandomSource random = RandomSource.create(42L);
+    private final BlockPos pos;
+    private final BlockState state;
     public int changedCalls;
+
+    public FakeMachineContext() {
+        this(BlockPos.ZERO, Blocks.AIR.defaultBlockState());
+    }
+
+    public FakeMachineContext(BlockPos pos, BlockState state) {
+        this.pos = pos;
+        this.state = state;
+    }
 
     @Override
     @Nullable
@@ -31,12 +43,12 @@ public final class FakeMachineContext implements MachineContext {
 
     @Override
     public BlockPos pos() {
-        return BlockPos.ZERO;
+        return pos;
     }
 
     @Override
     public BlockState blockState() {
-        return Blocks.AIR.defaultBlockState();
+        return state;
     }
 
     @Override
