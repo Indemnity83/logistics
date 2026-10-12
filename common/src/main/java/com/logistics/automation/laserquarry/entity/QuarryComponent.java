@@ -43,6 +43,7 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
     private final QuarryBounds bounds = new QuarryBounds();
     private final ArmController armController = new ArmController();
     private final QuarryPhaseRunner phaseRunner = new QuarryPhaseRunner();
+    private final QuarryChunkHold chunkHold = new QuarryChunkHold();
 
     private long lastSyncedEnergy = 0;
 
@@ -89,6 +90,12 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
             }
 
             setActive(energyPolicy.stored() > 0);
+
+            boolean wasHolding = chunkHold.holds();
+            chunkHold.tick(energyPolicy.stored() > 0 || energyPolicy.consumedThisTick());
+            if (wasHolding && !chunkHold.holds()) {
+                context.markChanged();
+            }
 
             boolean needsSync = energyPolicy.stored() != lastSyncedEnergy
                     || energyPolicy.consumedThisTick() != wasConsumedEnergy;
@@ -150,13 +157,16 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
 
     /**
      * The chunks to keep loaded this tick — the work-area boundary plus the quarry's own chunk — or
-     * {@code null} when chunk loading is disabled or the quarry has finished. Throws if a configured,
-     * unfinished quarry resolves no frame, preserving the original guard. Supplied to the sibling
-     * {@code ChunkLoadingComponent}, so it receives its own context.
+     * {@code null} when chunk loading is disabled, the quarry has finished, or it is not running (no
+     * power within the {@link QuarryChunkHold} grace window). Throws if a running quarry resolves no
+     * frame, preserving the original guard. Supplied to the sibling {@code ChunkLoadingComponent},
+     * which ticks after this component, so it receives its own context.
      */
     @Nullable
     public ChunkArea chunkArea(MachineContext context) {
-        if (!LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_LOAD_CHUNKS) || phaseRunner.isFinished()) {
+        if (!LogisticsConfigHost.get(LogisticsAutomation.CONFIG.QUARRY_LOAD_CHUNKS)
+                || phaseRunner.isFinished()
+                || !chunkHold.holds()) {
             return null;
         }
         QuarryFrameRect frame = QuarryFrameRect.resolve(
@@ -362,6 +372,7 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
         phaseRunner.save(tag);
         armController.save(tag);
         bounds.save(tag);
+        chunkHold.save(tag);
     }
 
     @Override
@@ -369,6 +380,7 @@ public final class QuarryComponent implements MachineComponent, QuarryContext {
         phaseRunner.load(tag);
         armController.load(tag);
         bounds.load(tag);
+        chunkHold.load(tag);
     }
 
     @Override
