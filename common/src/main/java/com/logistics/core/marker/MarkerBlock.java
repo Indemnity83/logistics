@@ -13,10 +13,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -79,14 +83,18 @@ public class MarkerBlock extends Block implements EntityBlock, WrenchBehavior.Wr
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && state.getValue(ACTIVE)) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof MarkerBlockEntity marker) {
-                marker.deactivateConnectedMarkers();
-            }
-        }
-        return super.playerWillDestroy(level, pos, state, player);
+    protected BlockState updateShape(
+            BlockState state,
+            LevelReader world,
+            ScheduledTickAccess ticks,
+            BlockPos pos,
+            Direction directionToNeighbour,
+            BlockPos neighbourPos,
+            BlockState neighbourState,
+            RandomSource random) {
+        return directionToNeighbour == Direction.DOWN && !this.canSurvive(state, world, pos)
+                ? Blocks.AIR.defaultBlockState()
+                : super.updateShape(state, world, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
     }
 
     @Override

@@ -133,6 +133,18 @@ public class MarkerBlockEntity extends BaseBlockEntity {
         }
     }
 
+    /**
+     * Turns the rest of the set off when this marker is removed: broken, exploded, popped off or
+     * replaced. Not called when the marker only changes its own state, so the {@link #deactivate()}
+     * calls this makes on the other markers cannot re-enter it. Vanilla skips it for
+     * {@code /setblock} and {@code /fill}, which suppress block-entity side effects.
+     */
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        deactivateConnectedMarkers();
+    }
+
     public boolean isActive() {
         return getBlockState().getValue(MarkerBlock.ACTIVE);
     }
