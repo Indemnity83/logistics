@@ -9,6 +9,28 @@ All entries below are resolved and closed — kept as HTML comments so the same 
 fixes aren't rediscovered from scratch later. New findings go in a fresh, uncommented section above
 the closed ones.
 
+## Insertion Fluid Pipe
+
+Open: the wiki says it fills cauldrons; the code dropped that before it shipped. `wiki/Insertion
+Fluid Pipe.txt` § Usage says "It also fills a cauldron, which accepts fluid a whole level at a time —
+1,000 mB for lava, 333⅓ mB per water level." #888 (`refactor(fluids): limit cauldron transfer to
+extraction only`) removed cauldron filling on purpose, along with the whole-chunk deposit and the
+Insertion pipe's widened 1,000 mB buffer. A cauldron level is now bigger than what an Insertion
+pipe offers in one deposit, so a cauldron next to one stays empty. Draining a cauldron with the
+Fluid Extractor Pipe still works (`CauldronFluidGameTestBody`). Likely fix: drop the sentence from
+the wiki. `FluidRoutingModulesTest` checks that the Insertion module leaves the buffer at its
+default size, so restoring the old 1,000 mB buffer by accident would fail that test.
+
+## Void Fluid Pipe
+
+Open (minor, wording): the wiki warns you could drain tanks without saying how. `wiki/Void Fluid
+Pipe.txt` § Usage says "place it deliberately so it doesn't drain tanks you meant to keep." A
+passive line never pulls fluid out of a tank. Only a Fluid Extractor Pipe or a Pump does. On top of
+that, the Void pipe connects only to other pipes (it carries `FluidBypassModule`), so it can never
+touch a tank directly. It can only empty a tank that an extractor is already pumping into its line.
+The page also never says it connects to pipes only. Likely fix: reword the warning around
+extractors, and mention the pipes-only connection.
+
 ## Laser Quarry
 
 Open: chunk loading is not limited to a *running* quarry. `wiki/Laser Quarry.txt` § Chunk loading
