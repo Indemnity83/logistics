@@ -1,6 +1,6 @@
 # Fertilizer & Soils
 
-> **Status:** 🚧 Planned — design settled; Fertilizer and Humus in wave 1, bog-earth maturity in wave 2 · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain); Bog Earth stays in `core`
+> **Status:** ✅ Fertilizer **shipped** (#1402) · ✅ Humus **shipped** (#1404) · 🚧 bog-earth maturity planned (wave 2) · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain); Bog Earth stays in `core`
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Fertilizer, Humus / compost, Peat bog / peat) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md) (fertilizer slot, charge model) · **Maps to (roadmap):** Phase 2 — Farms (fertilizer chain on existing Apatite)
 
 The consumables and soils the farms run on: a **Fertilizer** item spent as growth charges, a **Humus** soil block that speeds saplings, and a wet-only **maturity** state for the existing Bog Earth that the Peat Bog farm harvests.
