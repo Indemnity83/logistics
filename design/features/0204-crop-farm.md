@@ -1,6 +1,6 @@
 # Crop Farm
 
-> **Status:** 🚧 Planned — design settled, wave 1 (gourd row pattern in wave 3) · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
+> **Status:** ✅ **Shipped** (#1408) — field crops on a fixed 9×9 plot · 🚧 gourd row pattern planned (wave 3) · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md), [`0202-fertilizer-and-soils.md`](0202-fertilizer-and-soils.md) (Fertilizer) · **Maps to (roadmap):** Phase 2 — Farms
 
 The field-crop farm (Forestry's Managed Farm / Combine): tills, hydrates, plants, fertilizes and harvests mature crops, replanting from the harvest first. Later it also handles gourds with a row pattern, replacing Forestry's separate Gourmand farm.
@@ -34,7 +34,7 @@ Field crops are the most common thing players automate. **Goal:** a single block
 
 ## Open questions
 
-- The exact gourd row pattern (stem rows vs. fruit rows) inside a 9×9 / 13×13 / 17×17 plot.
+- The exact gourd row pattern (stem rows vs. fruit rows) inside the 9×9 plot.
 
 ## Done when
 

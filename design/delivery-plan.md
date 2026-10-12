@@ -126,7 +126,7 @@ Then: confirm **NeoForge parity**, run a **balance pass**, refresh docs, and gat
 
 **Farms** *(headline — design settled; briefs [`0201`–`0209`](features/README.md#phase-2-batch-forestry-farms))*
 - Single-block farms (the older Forestry design, **not** the later multiblock multifarm), **one block per farm type**: Arboretum and Crop Farm first, then Peat Bog, Mushroom Farm and Stalk Farm *(name TBD)*, then Infernal Farm and Orchard; gourds are a Crop Farm row pattern
-- Each farm works a fixed **9×9** plot in front of the block, enlarged by a **Range Upgrade** (13×13 / 17×17); redstone pauses it; no fake players, no chunk loading
+- Each farm works a fixed **9×9** plot in front of the block (work-area upgrades will come with the machine-wide upgrade design, [`0106`](features/0106-machine-upgrades.md)); redstone pauses it; no fake players, no chunk loading
 - Peat bog → peat fuel: bog earth gains a wet-only **maturity** state, worked by the Peat Bog farm
 - Fertilizer chain on existing Apatite: a **Fertilizer** item (growth charges; bone meal = 1 charge) and **Humus** soil that speeds saplings
 
