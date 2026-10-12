@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -394,6 +395,96 @@ public class NetworkIntegrationGameTestBody {
                         "Expected >= 4 diamonds delivered from slot 1, found: " + delivered);
             }
         });
+    }
+
+    /**
+     * A requester with a pipe continuing past it must keep every delivery addressed to it.
+     *
+     * <p>Each of the {@code requests} one-diamond orders travels as its own item and reaches the
+     * requester pipe with two exits open: its chest and the onward pipe. Every one has to end up in
+     * the requester's chest; any diamond in the onward chest was carried past its destination.
+     *
+     * <p>Layout (y=1):
+     * <pre>
+     * [source chest] [provider] [transport] [requester] [onward pipe] [onward chest]
+     *    (0,1,0)       (1,1,0)    (2,1,0)     (3,1,0)      (4,1,0)       (5,1,0)
+     *                                       [requester chest]
+     *                                           (3,1,1)
+     * </pre>
+     */
+    public static void testMidLineRequesterKeepsItsDeliveries(GameTestHelper context) {
+        int requests = 8;
+        BlockPos sourceChestPos = new BlockPos(0, 1, 0);
+        BlockPos providerPos = new BlockPos(1, 1, 0);
+        BlockPos transportPos = new BlockPos(2, 1, 0);
+        BlockPos requesterPos = new BlockPos(3, 1, 0);
+        BlockPos requesterChestPos = new BlockPos(3, 1, 1);
+        BlockPos onwardPipePos = new BlockPos(4, 1, 0);
+        BlockPos onwardChestPos = new BlockPos(5, 1, 0);
+
+        context.setBlock(requesterChestPos, Blocks.CHEST);
+        context.setBlock(onwardChestPos, Blocks.CHEST);
+        context.setBlock(requesterPos, LogisticsPipe.BLOCK.REQUESTER_LOGISTICS_PIPE);
+        context.setBlock(onwardPipePos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(transportPos, LogisticsPipe.BLOCK.COPPER_TRANSPORT_PIPE);
+        context.setBlock(providerPos, LogisticsPipe.BLOCK.PROVIDER_LOGISTICS_PIPE);
+        context.setBlock(sourceChestPos, Blocks.CHEST);
+        placeChargedPowerJunction(context, transportPos.above());
+
+        context.getBlockEntity(sourceChestPos, ChestBlockEntity.class)
+                .setItem(0, new ItemStack(Items.DIAMOND, requests));
+
+        PipeBlockEntity requesterEntity = context.getBlockEntity(requesterPos, PipeBlockEntity.class);
+        if (!(requesterEntity.getBlockState().getBlock() instanceof PipeBlock requesterBlock)
+                || requesterBlock.getPipe() == null) {
+            throw new IllegalStateException("Pipe missing for block entity at requesterPos");
+        }
+        RequesterModule requester = requesterBlock.getPipe().getModule(RequesterModule.class, requesterEntity);
+        if (requester == null) {
+            throw new IllegalStateException("RequesterModule missing from pipe at requesterPos");
+        }
+
+        context.onEachTick(() -> {
+            int strayed = countItems(context, onwardChestPos, Items.DIAMOND);
+            if (strayed > 0) {
+                throw context.assertionException(
+                        strayed + " diamond(s) ordered by the requester went past it into the onward chest");
+            }
+        });
+
+        // Once the provider has advertised its stock, place each order separately, as a player
+        // clicking Request repeatedly would.
+        context.runAfterDelay(20, () -> {
+            PipeNetwork network = NetworkRegistry.getNetwork(context.getLevel(), context.absolutePos(requesterPos));
+            if (network == null || network.getAvailableAmount(new ItemStack(Items.DIAMOND)) < requests) {
+                context.fail("Provider should advertise " + requests + " diamonds by tick 20");
+                return;
+            }
+            PipeContext requesterCtx = context.getBlockEntity(requesterPos, PipeBlockEntity.class).createContext();
+            for (int i = 0; i < requests; i++) {
+                requester.requestItem(requesterCtx, new ItemStack(Items.DIAMOND), 1);
+            }
+
+            context.succeedWhen(() -> {
+                int delivered = countItems(context, requesterChestPos, Items.DIAMOND);
+                if (delivered < requests) {
+                    throw context.assertionException(
+                            "Expected " + requests + " diamonds in the requester's chest, found: " + delivered);
+                }
+            });
+        });
+    }
+
+    private static int countItems(GameTestHelper context, BlockPos chestPos, Item item) {
+        ChestBlockEntity chest = context.getBlockEntity(chestPos, ChestBlockEntity.class);
+        int total = 0;
+        for (int slot = 0; slot < chest.getContainerSize(); slot++) {
+            ItemStack stack = chest.getItem(slot);
+            if (stack.is(item)) {
+                total += stack.getCount();
+            }
+        }
+        return total;
     }
 
     /**
