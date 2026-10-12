@@ -929,12 +929,8 @@ public class CableGameTestBody {
     }
 
     /**
-     * Samples the sink's intake over a settled window. Every tick the engine sends must arrive as
-     * exactly {@code cappedRate}: more is the cap leaking, less is the cable starving the sink.
-     *
-     * <p>A tick of 0 is the engine, not the cable: an engine idles for one tick between piston cycles
-     * and sends nothing on it ({@code EngineCyclePlanner}), so roughly one tick in fourteen is empty at
-     * this output level. Those are tolerated, but only a few, so a cable that delivers nothing fails.
+     * Samples the sink's intake over a settled window. Every sampled tick must arrive as exactly
+     * {@code cappedRate}: more is the cap leaking, less is the cable starving the sink.
      */
     private static void assertSinkReceivesCappedRate(
             GameTestHelper context, CreativeSinkBlockEntity sink, long cappedRate, String setup) {
@@ -945,9 +941,8 @@ public class CableGameTestBody {
             context.runAfterDelay(tick, () -> samples.add(sink.energyReceivedLastTick()));
         }
         context.runAfterDelay(lastSample + 1, () -> {
-            boolean offRate = samples.stream().anyMatch(received -> received != cappedRate && received != 0L);
-            long fullTicks = samples.stream().filter(received -> received == cappedRate).count();
-            if (offRate || fullTicks * 4 < samples.size() * 3L) {
+            boolean offRate = samples.stream().anyMatch(received -> received != cappedRate);
+            if (offRate) {
                 context.fail(setup + " should deliver exactly " + cappedRate
                         + " RF on every tick the engine sends, got: " + samples);
                 return;
