@@ -157,6 +157,11 @@ class CraftingModuleTest {
         assertEveryIngredientSlotStillHoldsItsFiller();
     }
 
+    /**
+     * Wiki claim (Usage): "Configure a 3×3 recipe in its GUI" — nine slots, 0-8, and no tenth.
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Crafting_Logistics_Pipe#Usage">wiki/Crafting Logistics Pipe.txt § Usage</a>
+     */
     @Test
     @DisplayName("setIngredient silently ignores slot index > 8")
     void setIngredient_ignoresSlotBeyondMax() {
@@ -189,6 +194,11 @@ class CraftingModuleTest {
         }
     }
 
+    /**
+     * Wiki claim (Usage): "Configure a 3×3 recipe in its GUI".
+     *
+     * @see <a href="https://logistics.fandom.com/wiki/Crafting_Logistics_Pipe#Usage">wiki/Crafting Logistics Pipe.txt § Usage</a>
+     */
     @ParameterizedTest(name = "slot {0}")
     @DisplayName("setIngredient accepts all valid slot indices 0-8")
     @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6, 7, 8})
