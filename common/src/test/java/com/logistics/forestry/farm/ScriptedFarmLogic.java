@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * A test farm: oak saplings and wheat seeds are germlings, dirt is soil, and each plot's action
+ * A test farm: oak saplings and wheat seeds are germlings, dirt and podzol are soil, and each plot's action
  * comes from a script. Counts its decisions.
  */
 final class ScriptedFarmLogic implements FarmLogic {
@@ -47,7 +47,7 @@ final class ScriptedFarmLogic implements FarmLogic {
 
     @Override
     public boolean isSoil(ItemStack stack) {
-        return stack.is(Items.DIRT);
+        return stack.is(Items.DIRT) || stack.is(Items.PODZOL);
     }
 
     @Override

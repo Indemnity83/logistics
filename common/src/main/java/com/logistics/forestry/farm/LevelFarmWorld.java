@@ -1,5 +1,6 @@
 package com.logistics.forestry.farm;
 
+import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.compat.PlantCompat;
 import com.logistics.core.lib.compat.ProtectionCompat;
 import java.util.ArrayList;
@@ -53,6 +54,11 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     @Override
     public boolean canFertilize(BlockPos pos) {
         return isLoaded(pos) && PlantCompat.canFertilize(level, pos, level.getBlockState(pos));
+    }
+
+    @Override
+    public boolean isReplaceableSoil(BlockPos pos) {
+        return isLoaded(pos) && level.getBlockState(pos).is(LogisticsForestry.TAG.REPLACEABLE_SOIL);
     }
 
     @Override

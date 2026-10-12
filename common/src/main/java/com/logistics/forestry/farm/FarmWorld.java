@@ -25,6 +25,12 @@ public interface FarmWorld {
     /** Whether bone meal would do anything to the block at {@code pos}; false when not loaded. */
     boolean canFertilize(BlockPos pos);
 
+    /**
+     * Whether the block at {@code pos} is ground a farm may dig up to lay its own soil
+     * ({@code logistics:forestry/replaceable_soil}); false when not loaded.
+     */
+    boolean isReplaceableSoil(BlockPos pos);
+
     /** This world classified for {@link com.logistics.forestry.logic.TreeFeller}. */
     default TreeView treeView() {
         return pos -> isLoaded(pos) ? LevelTreeView.classify(state(pos)) : TreeView.Kind.UNLOADED;

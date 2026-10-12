@@ -27,7 +27,11 @@ public sealed interface PlotAction {
         }
     }
 
-    /** Lay one soil item from the soil slots at {@code pos}, replacing what is there. */
+    /**
+     * Lay one soil item from the soil slots at {@code pos}. Only air, replaceable blocks and
+     * {@code logistics:forestry/replaceable_soil} ground are replaced (the latter's drops kept);
+     * anything else is left standing and reported as blocked.
+     */
     record PlaceSoil(BlockPos pos) implements PlotAction {
         public PlaceSoil {
             pos = pos.immutable();

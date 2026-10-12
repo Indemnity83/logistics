@@ -400,10 +400,12 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (current.is(soil.getBlock())) {
             return FarmStatus.IDLE;
         }
-        if (!world.canModify(pos) || current.hasBlockEntity()) {
+        boolean open = current.isAir() || current.canBeReplaced();
+        // Soil goes only where there was nothing, or ground the farm may dig up; never a player's floor.
+        if (!world.canModify(pos) || current.hasBlockEntity() || !(open || world.isReplaceableSoil(pos))) {
             return FarmStatus.BLOCKED;
         }
-        if (!current.isAir() && !current.canBeReplaced()) {
+        if (!open) {
             List<ItemStack> drops = world.breakBlock(pos);
             if (drops == null) {
                 return FarmStatus.BLOCKED;

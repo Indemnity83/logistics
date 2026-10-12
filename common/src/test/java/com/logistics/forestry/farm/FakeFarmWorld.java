@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -27,6 +28,9 @@ final class FakeFarmWorld implements FarmWorldAccess {
     final List<BlockPos> fertilized = new ArrayList<>();
     final List<ItemStack> loose = new ArrayList<>();
     Function<BlockState, List<ItemStack>> drops = state -> List.of(new ItemStack(state.getBlock().asItem()));
+    /** Stands in for the {@code replaceable_soil} tag, which is not bound in unit tests. */
+    Predicate<BlockState> replaceableSoil =
+            state -> state.is(Blocks.DIRT) || state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.SAND);
     boolean signal;
 
     void set(BlockPos pos, BlockState state) {
@@ -60,6 +64,11 @@ final class FakeFarmWorld implements FarmWorldAccess {
     @Override
     public boolean canFertilize(BlockPos pos) {
         return isLoaded(pos) && fertilizable.contains(pos);
+    }
+
+    @Override
+    public boolean isReplaceableSoil(BlockPos pos) {
+        return isLoaded(pos) && replaceableSoil.test(blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState()));
     }
 
     @Override

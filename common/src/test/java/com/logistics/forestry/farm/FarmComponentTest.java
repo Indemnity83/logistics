@@ -442,19 +442,59 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfSoil());
     }
 
+    /** Lays podzol under every plot that has none yet. */
+    private static ScriptedFarmLogic layingPodzol() {
+        return new ScriptedFarmLogic(false, true).script((world, plot) ->
+                world.state(plot.below()).is(Blocks.PODZOL) ? PlotAction.NONE : new PlotAction.PlaceSoil(plot.below()));
+    }
+
     @Test
-    @DisplayName("replacing a block with soil keeps the old block's drops")
-    void soilReplacementKeepsDrops() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(false, true).script((world, plot) ->
-                world.state(plot.below()).is(Blocks.DIRT) ? PlotAction.NONE : new PlotAction.PlaceSoil(plot.below())));
-        farm.world.set(farm.plot(0).below(), Blocks.SAND.defaultBlockState());
-        farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.DIRT, 2));
+    @DisplayName("soil is laid straight onto air")
+    void soilOnAir() {
+        FarmHarness farm = new FarmHarness(layingPodzol());
+        farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.PODZOL, 2));
         farm.power(10_000);
 
         farm.tick();
 
-        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
-        assertThat(farm.items().getItem(FarmMachine.OUTPUT_START).is(Items.SAND)).isTrue();
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.PODZOL.defaultBlockState());
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("replaceable ground such as dirt is dug up for soil, and its drops are kept")
+    void soilReplacesDirtKeepingDrops() {
+        FarmHarness farm = new FarmHarness(layingPodzol());
+        farm.world.set(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
+        farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.PODZOL, 2));
+        farm.power(10_000);
+
+        farm.tick();
+
+        assertThat(farm.world.broken).containsExactly(farm.plot(0).below());
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.PODZOL.defaultBlockState());
+        assertThat(farm.items().getItem(FarmMachine.OUTPUT_START).is(Items.DIRT)).isTrue();
+        assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).isEqualTo(1);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
+    }
+
+    @Test
+    @DisplayName("soil never replaces anything else, such as a stone floor")
+    void soilNeverReplacesStone() {
+        FarmHarness farm = new FarmHarness(layingPodzol());
+        farm.world.set(farm.plot(0).below(), Blocks.STONE.defaultBlockState());
+        farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.PODZOL, 2));
+        farm.power(10_000);
+
+        farm.tick();
+
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.STONE.defaultBlockState());
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.world.writeFlags).isEmpty();
+        assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).isEqualTo(2);
+        assertThat(farm.energy()).isEqualTo(10_000);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.BLOCKED);
     }
 
     @Test

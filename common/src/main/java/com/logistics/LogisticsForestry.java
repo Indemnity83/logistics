@@ -192,6 +192,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Items a farm's fertilizer slot accepts. */
         public static final TagKey<Item> FERTILIZERS =
                 TagKey.create(Registries.ITEM, resource("fertilizers").toIdentifier());
+
+        /** Ground a farm may dig up to lay its own soil; anything else under a plot is left alone. */
+        public static final TagKey<Block> REPLACEABLE_SOIL =
+                TagKey.create(Registries.BLOCK, resource("replaceable_soil").toIdentifier());
     }
 
     public static final class BLOCK {
