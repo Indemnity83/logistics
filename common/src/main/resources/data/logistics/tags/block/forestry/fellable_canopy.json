@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:leaves",
+    "#minecraft:wart_blocks",
+    "minecraft:shroomlight",
+    "minecraft:vine",
+    "minecraft:cocoa",
+    "minecraft:mangrove_propagule"
+  ]
+}
