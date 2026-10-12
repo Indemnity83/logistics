@@ -2,6 +2,7 @@ package com.logistics.neoforge.client;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsCore;
+import com.logistics.LogisticsForestry;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.pipe.render.FluidPipeBlockEntityRenderer;
@@ -25,6 +26,7 @@ import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.automation.transposer.TransposerScreen;
+import com.logistics.forestry.farm.FarmScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.automation.macerator.MaceratorScreen;
 import com.logistics.pipe.screen.AdvancedExtractorScreen;
@@ -231,6 +233,8 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsAutomation.MENU.REFINERY, RefineryScreen::new);
         event.register(LogisticsAutomation.MENU.SEQUENTIAL_FABRICATOR, SequentialFabricatorScreen::new);
         event.register(LogisticsAutomation.MENU.TRANSPOSER, TransposerScreen::new);
+
+        event.register(LogisticsForestry.MENU.FARM, FarmScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
