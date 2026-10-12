@@ -49,6 +49,22 @@ Not written yet — they wait on the keystone or on an open decision, and will t
 - **Deferred post-1.0 (RFC, not a feature brief):** the programmable-automation / gates+circuits system (BuildCraft gates + TE programmable augments + Forestry circuits) — **not a 1.0 item**; revisit when Forestry needs circuit boards (Phase 2) or later. See [`../rfcs/0001-programmable-behavior.md`](../rfcs/0001-programmable-behavior.md). *(Distinct from the machine-modifier upgrades, [0106](0106-machine-upgrades.md) — themselves exploratory, not committed for 1.0.)*
 - **Already done:** pipe operation power gating (✅, #464/#465/#469); the Fluids foundation (✅, v0.7.3 — fluid pipes, Glass Tank, Pump, machine fluid I/O).
 
+## Phase 2 batch: Forestry farms
+
+The Phase 2 batch covers the **farms, soils and fertilizer** (design settled; see [`../mods/forestry.md`](../mods/forestry.md)). It is post-1.0 work: farms ship as later 1.x minors, and the maintainer decides when wave 1 starts. One block per farm type; the processing chain (Squeezer/Fermenter/Still/Bottler) and peat/biofuel engines are deferred beyond this batch.
+
+| # | Brief | Area | Wave | Depends on |
+|---|---|---|---|---|
+| 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, Range Upgrade, farm screen | 0 | the machine framework; Provider-pipe extractable-slot fix |
+| 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer, Humus, bog-earth maturity | 1 (maturity: 2) | 0201 |
+| 0203 | [Arboretum](0203-arboretum.md) | Tree farm + `TreeFeller` | 1 | 0201, 0202 (Humus) |
+| 0204 | [Crop Farm](0204-crop-farm.md) | Field crops (+ gourd row pattern in wave 3) | 1 | 0201, 0202 (Fertilizer) |
+| 0205 | [Peat Bog](0205-peat-bog.md) | Bog Earth → Peat | 2 | 0201, 0202 (maturity) |
+| 0206 | [Mushroom Farm](0206-mushroom-farm.md) | Huge mushrooms + fungi | 2 | 0201, 0203 (`TreeFeller`) |
+| 0207 | [Stalk Farm](0207-stalk-farm.md) *(name TBD)* | Sugar cane, cactus, bamboo | 2 | 0201 |
+| 0208 | [Infernal Farm](0208-infernal-farm.md) | Nether wart | 3 | 0201 |
+| 0209 | [Orchard](0209-orchard.md) | Berries + cocoa | 3 | 0201 |
+
 ## Brief template
 
 Every brief uses the same shape. Copy this when adding one (name it `PPSS-<feature>.md`):

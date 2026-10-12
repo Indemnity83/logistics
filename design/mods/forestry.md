@@ -12,14 +12,17 @@ See [`../principles.md`](../principles.md) for the table legend. Forestry is lar
 
 | Feature | What it did (1.7.10–1.12.2) | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
-| Farm (single-block) | Automated planting/harvesting of a farm type | Port | Target the **older single-block Forestry farms**, *not* the later multiblock Multifarm. One block per farm + a farm-type selection; range/speed upgrades | — | Phase 2 — farms |
+| Farm (single-block) | Automated planting/harvesting of a farm type | Port | Target the **older single-block Forestry farms**, *not* the later multiblock Multifarm. **One block per farm type** — Arboretum, Crop Farm, Peat Bog, Mushroom Farm, Stalk Farm (name TBD), Infernal Farm, Orchard; gourds are handled by the Crop Farm. Each works a fixed **9×9** plot in front of the block, enlarged by a **Range Upgrade** (13×13 / 17×17). A redstone signal pauses it. No fake players, no chunk loading | 🚧 Planned | `farming` / Phase 2 — farms ([0201](../features/0201-farm-framework.md)) |
 | Multifarm (later multiblock) | Large modular managed-farm structure | Skip | Deliberately not porting the multiblock direction Forestry migrated to — keep farms as single blocks | ❌ | — |
-| Peat bog / peat | Grow peat → solid fuel | Port | Shipped early (v0.8.2) — **bog earth** + **peat** solid fuel. The bog-growth/fertilizer loop pairs with apatite | ✅ Done | `worldgen` / bog earth + peat |
-| Fertilizer / humus / compost | Apatite-based fertilizer speeds growth | Modernize | **Apatite already implemented** — build the fertilizer chain on it | 🚧 Planned | `core` / Apatite → fertilizer |
+| Peat bog / peat | Grow peat → solid fuel | Port | Shipped early (v0.8.2) — **bog earth** + **peat** solid fuel. Planned: a **bog-earth maturity** state (matures only while wet; mature bog earth drops Peat + dirt; the smelting route stays) and the **Peat Bog** farm that lays and harvests it | ✅ Done · 🚧 farm planned | `worldgen` / bog earth + peat; `farming` / [0205](../features/0205-peat-bog.md) |
+| Fertilizer | Apatite-based fertilizer speeds growth | Modernize | A **Fertilizer** item built on the existing Apatite: Apatite + 2 Sand → 4, or Apatite Dust + Saltpeter + Pulped Biomass → 8. Farms spend it as growth charges; bone meal is accepted at 1 charge | 🚧 Planned | `farming` / [0202](../features/0202-fertilizer-and-soils.md) |
+| Humus / compost | Rich soil that speeds sapling growth | Modernize | A **Humus** soil block: dirt + pulped biomass + sawdust (pulped biomass stands in for Forestry's mulch). Saplings on Humus grow faster; each tree grown may degrade it back to dirt. The Arboretum re-lays it | 🚧 Planned | `farming` / [0202](../features/0202-fertilizer-and-soils.md) |
 
 ## Processing machines & power
 
 *The chain that feeds the farms and turns their output into fuel and components — a close second to farms in priority.*
+
+> **Deferred beyond the farming plan:** the Squeezer → Fermenter → Still → Bottler processing chain and the peat / biofuel engine tiers are not part of the Phase 2 farm work. Farm output feeds what already exists in the meantime (Kiln, Sawmill, Crucible → Refinery → Bio Fuel, Stirling and Fuel engines).
 
 | Feature | What it did | Decision | Modern take / balance notes | Status | Maps to |
 |---|---|---|---|---|---|
