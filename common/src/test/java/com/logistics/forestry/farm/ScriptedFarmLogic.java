@@ -1,5 +1,6 @@
 package com.logistics.forestry.farm;
 
+import com.logistics.core.machine.area.WorkArea;
 import java.util.function.BiFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -7,7 +8,7 @@ import net.minecraft.world.item.Items;
 
 /**
  * A test farm: oak saplings and wheat seeds are germlings, dirt and podzol are soil, and each plot's action
- * comes from a script. Counts its decisions.
+ * comes from a script. Counts its decisions and remembers the area and inputs of the last one.
  */
 final class ScriptedFarmLogic implements FarmLogic {
 
@@ -15,6 +16,8 @@ final class ScriptedFarmLogic implements FarmLogic {
     private final boolean laysSoil;
     private BiFunction<FarmWorld, BlockPos, PlotAction> script = (world, plot) -> PlotAction.NONE;
     int decisions;
+    WorkArea lastArea;
+    FarmInputs lastInputs;
 
     ScriptedFarmLogic() {
         this(false, false);
@@ -48,6 +51,13 @@ final class ScriptedFarmLogic implements FarmLogic {
     @Override
     public boolean isSoil(ItemStack stack) {
         return stack.is(Items.DIRT) || stack.is(Items.PODZOL);
+    }
+
+    @Override
+    public PlotAction decide(FarmWorld world, WorkArea area, BlockPos plot, FarmInputs inputs) {
+        lastArea = area;
+        lastInputs = inputs;
+        return FarmLogic.super.decide(world, area, plot, inputs);
     }
 
     @Override

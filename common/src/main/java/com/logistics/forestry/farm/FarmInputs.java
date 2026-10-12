@@ -18,6 +18,9 @@ public interface FarmInputs {
     /** Whether a soil item is available to lay. */
     boolean hasSoil();
 
+    /** The soil item the next {@link PlotAction.PlaceSoil} would lay (one of it), or empty. */
+    ItemStack soil();
+
     /**
      * Whether the water tank holds at least one irrigation's worth; always false for a farm without
      * a tank. A logic asks to irrigate only when this is true.
