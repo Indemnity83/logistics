@@ -1,8 +1,15 @@
 package com.logistics.pipe.modules;
 
+import com.logistics.core.lib.block.capability.PipeConnection;
 import com.logistics.core.lib.pipe.PipeContext;
+import com.logistics.core.lib.pipe.RoutePlan;
+import com.logistics.core.lib.pipe.TravelingItem;
 import com.logistics.test.FakePipeAccess;
+import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +19,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("RequesterModule")
-class RequesterModuleTest {
+class RequesterModuleTest extends MinecraftTestEnvironment {
 
     private RequesterModule module;
     private FakePipeAccess access;
@@ -147,6 +154,71 @@ class RequesterModuleTest {
 
         int ticks = ctx.getInt(module, "ticks_since_request", 0);
         assertThat(ticks).isEqualTo(19);
+    }
+
+    // ==================== Routing ====================
+
+    /** A requester with its chest to the south and a pipe continuing east. */
+    private void attachChestSouthWithPipeEast() {
+        access.setConnection(Direction.SOUTH, PipeConnection.Type.INVENTORY);
+        access.setConnection(Direction.EAST, PipeConnection.Type.PIPE);
+        module.onConnectionsChanged(ctx, List.of(Direction.SOUTH, Direction.EAST));
+    }
+
+    private static TravelingItem diamondFor(BlockPos destination) {
+        return new TravelingItem(new ItemStack(Items.DIAMOND), Direction.EAST, 0.1f, destination);
+    }
+
+    @Test
+    @DisplayName("route sends an item addressed to this pipe into the requester face, not on down the line")
+    void route_addressedHere_goesToRequesterFace() {
+        attachChestSouthWithPipeEast();
+
+        RoutePlan plan = module.route(ctx, diamondFor(BlockPos.ZERO), List.of(Direction.EAST, Direction.SOUTH));
+
+        assertThat(plan.getType()).isEqualTo(RoutePlan.Type.REROUTE);
+        assertThat(plan.getDirections()).containsExactly(Direction.SOUTH);
+    }
+
+    @Test
+    @DisplayName("route passes an item addressed to another pipe")
+    void route_addressedElsewhere_passes() {
+        attachChestSouthWithPipeEast();
+
+        RoutePlan plan = module.route(ctx, diamondFor(new BlockPos(5, 0, 0)), List.of(Direction.EAST, Direction.SOUTH));
+
+        assertThat(plan.getType()).isEqualTo(RoutePlan.Type.PASS);
+    }
+
+    @Test
+    @DisplayName("route passes an item with no destination")
+    void route_noDestination_passes() {
+        attachChestSouthWithPipeEast();
+
+        RoutePlan plan = module.route(ctx, diamondFor(null), List.of(Direction.EAST, Direction.SOUTH));
+
+        assertThat(plan.getType()).isEqualTo(RoutePlan.Type.PASS);
+    }
+
+    @Test
+    @DisplayName("route passes when the requester face is not an exit, e.g. the item came back out of it")
+    void route_requesterFaceNotAnOption_passes() {
+        attachChestSouthWithPipeEast();
+
+        RoutePlan plan = module.route(ctx, diamondFor(BlockPos.ZERO), List.of(Direction.EAST));
+
+        assertThat(plan.getType()).isEqualTo(RoutePlan.Type.PASS);
+    }
+
+    @Test
+    @DisplayName("route passes when no inventory is attached")
+    void route_noInventoryAttached_passes() {
+        access.setConnection(Direction.EAST, PipeConnection.Type.PIPE);
+        module.onConnectionsChanged(ctx, List.of(Direction.EAST));
+
+        RoutePlan plan = module.route(ctx, diamondFor(BlockPos.ZERO), List.of(Direction.EAST));
+
+        assertThat(plan.getType()).isEqualTo(RoutePlan.Type.PASS);
     }
 
     // ==================== RequestConfig record ====================

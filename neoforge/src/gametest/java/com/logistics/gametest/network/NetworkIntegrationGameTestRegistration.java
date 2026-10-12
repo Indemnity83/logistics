@@ -37,6 +37,10 @@ public final class NetworkIntegrationGameTestRegistration {
             120,
             NetworkIntegrationGameTestBody::testProviderReserveModeLeavesFirstSlot),
         new GameTestCase(
+            "network/mid_line_requester_keeps_its_deliveries",
+            220,
+            NetworkIntegrationGameTestBody::testMidLineRequesterKeepsItsDeliveries),
+        new GameTestCase(
             "network/enchantment_sink_still_receives_after_network_split",
             120,
             NetworkIntegrationGameTestBody::testEnchantmentSinkStillReceivesAfterNetworkSplit),
