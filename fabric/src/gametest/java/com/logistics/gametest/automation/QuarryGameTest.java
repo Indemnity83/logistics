@@ -84,11 +84,12 @@ public class QuarryGameTest {
     /**
      * Wiki claims (Chunk loading): "Turning on the chunk-loading setting makes a running quarry hold
      * itself and its work area loaded ... The chunk tickets are released once the quarry finishes or
-     * is removed." Toggled off, on, off, on, then broken, read from the server's ticket storage.
+     * is removed." Toggled off, on unpowered, on powered, off, on, unwired, then broken, read from the
+     * server's ticket storage.
      *
      * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Chunk_loading">wiki/Laser Quarry.txt § Chunk loading</a>
      */
-    @GameTest(maxTicks = 6600)
+    @GameTest(maxTicks = 6700)
     public void testQuarryChunkLoadingToggle(GameTestHelper context) {
         QuarryGameTestBody.testQuarryChunkLoadingToggle(context);
     }

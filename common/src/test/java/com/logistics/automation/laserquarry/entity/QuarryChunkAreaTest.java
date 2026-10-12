@@ -28,7 +28,8 @@ import org.junit.jupiter.api.Test;
  * The quarry's half of the chunk-loading toggle: the area it hands its {@code ChunkLoadingComponent}
  * each tick. A {@code null} area is what stops the tickets being renewed, so it lapses on its own;
  * that the tickets really are acquired and released on a live server is proven by
- * {@code QuarryGameTestBody#testQuarryChunkLoadingToggle}.
+ * {@code QuarryGameTestBody#testQuarryChunkLoadingToggle}. When a quarry counts as running is
+ * covered by {@code QuarryChunkHoldTest}.
  *
  * @see <a href="https://logistics.fandom.com/wiki/Laser_Quarry#Chunk_loading">wiki/Laser Quarry.txt § Chunk loading</a>
  */
@@ -65,6 +66,22 @@ class QuarryChunkAreaTest extends MinecraftTestEnvironment {
         return new QuarryComponent("quarry", QUARRY_POS, energy, MachineModifiers.identity());
     }
 
+    /** A save taken on a tick the quarry had power. */
+    private static CompoundTag poweredSave() {
+        QuarryChunkHold hold = new QuarryChunkHold();
+        hold.tick(true);
+        CompoundTag saved = new CompoundTag();
+        hold.save(saved);
+        return saved;
+    }
+
+    /** A quarry restored from {@link #poweredSave}, so it counts as running. */
+    private static QuarryComponent runningQuarry() {
+        QuarryComponent quarry = quarry();
+        quarry.load(poweredSave(), null);
+        return quarry;
+    }
+
     private static FakeMachineContext facing(Direction facing) {
         return new FakeMachineContext(
                 QUARRY_POS,
@@ -86,6 +103,18 @@ class QuarryChunkAreaTest extends MinecraftTestEnvironment {
     void toggleOffRequestsNothing() {
         setLoadChunks(false);
 
+        assertThat(runningQuarry().chunkArea(facing(Direction.NORTH))).isNull();
+    }
+
+    /**
+     * Wiki claim (Chunk loading): "...makes a <em>running</em> quarry hold itself and its work area
+     * loaded" — a quarry that has had no power asks for nothing, even with {@code load_chunks} on.
+     */
+    @Test
+    @DisplayName("with load_chunks on an unpowered quarry asks for no chunks")
+    void unpoweredQuarryRequestsNothing() {
+        setLoadChunks(true);
+
         assertThat(quarry().chunkArea(facing(Direction.NORTH))).isNull();
     }
 
@@ -99,7 +128,7 @@ class QuarryChunkAreaTest extends MinecraftTestEnvironment {
     void toggleOnRequestsQuarryChunkAndDefaultArea() {
         setLoadChunks(true);
 
-        ChunkArea area = quarry().chunkArea(facing(Direction.NORTH));
+        ChunkArea area = runningQuarry().chunkArea(facing(Direction.NORTH));
 
         assertThat(area).isNotNull();
         assertThat(area.center()).isEqualTo(ChunkPos.containing(QUARRY_POS));
@@ -117,7 +146,7 @@ class QuarryChunkAreaTest extends MinecraftTestEnvironment {
     @DisplayName("with load_chunks on the quarry asks for every chunk its custom area touches")
     void toggleOnRequestsEveryChunkOfCustomArea() {
         setLoadChunks(true);
-        QuarryComponent quarry = quarry();
+        QuarryComponent quarry = runningQuarry();
         quarry.setCustomBounds(-5, 10, 20, 40);
 
         ChunkArea area = quarry.chunkArea(facing(Direction.NORTH));
@@ -142,7 +171,7 @@ class QuarryChunkAreaTest extends MinecraftTestEnvironment {
     void finishedQuarryRequestsNothing() {
         setLoadChunks(true);
         QuarryComponent quarry = quarry();
-        CompoundTag finished = new CompoundTag();
+        CompoundTag finished = poweredSave();
         finished.putBoolean("MiningFinished", true);
         quarry.load(finished, null);
 
