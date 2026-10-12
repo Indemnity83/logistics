@@ -24,6 +24,12 @@ public class CraftingProcessSatelliteGameTest {
         CraftingProcessSatelliteGameTestBody.testChainedCraftingPipesConsumeEachOthersOutput(context);
     }
 
+    /** Chained crafting pipes supply an intermediate used in several grid slots. */
+    @GameTest(maxTicks = 400)
+    public void testChainedCraftingPipesSupplyMultiSlotIntermediate(GameTestHelper context) {
+        CraftingProcessSatelliteGameTestBody.testChainedCraftingPipesSupplyMultiSlotIntermediate(context);
+    }
+
     /** A process pipe smelts through a blast furnace whose input is fed by a satellite. */
     @GameTest(maxTicks = 500)
     public void testProcessPipeSmeltsThroughSatelliteFedFurnace(GameTestHelper context) {
