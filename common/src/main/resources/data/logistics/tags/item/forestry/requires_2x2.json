@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:dark_oak_sapling",
+    {
+      "id": "minecraft:pale_oak_sapling",
+      "required": false
+    }
+  ]
+}
