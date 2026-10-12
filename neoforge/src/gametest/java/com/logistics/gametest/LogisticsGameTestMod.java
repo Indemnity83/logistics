@@ -13,6 +13,7 @@ import com.logistics.gametest.core.MaceratorGameTestRegistration;
 import com.logistics.gametest.core.MarkerGameTestRegistration;
 import com.logistics.gametest.core.OreGenerationGameTestRegistration;
 import com.logistics.gametest.core.SolidFuelGameTestRegistration;
+import com.logistics.gametest.forestry.HumusGameTestRegistration;
 import com.logistics.gametest.network.CraftingProcessSatelliteGameTestRegistration;
 import com.logistics.gametest.network.NetworkIntegrationGameTestRegistration;
 import com.logistics.gametest.pipe.CauldronFluidGameTestRegistration;
@@ -77,6 +78,8 @@ public final class LogisticsGameTestMod {
         MarkerGameTestRegistration.bootstrap();
         OreGenerationGameTestRegistration.bootstrap();
         SolidFuelGameTestRegistration.bootstrap();
+
+        HumusGameTestRegistration.bootstrap();
 
         NetworkIntegrationGameTestRegistration.bootstrap();
         CraftingProcessSatelliteGameTestRegistration.bootstrap();
