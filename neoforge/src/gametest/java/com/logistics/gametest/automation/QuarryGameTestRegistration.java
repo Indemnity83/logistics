@@ -87,4 +87,13 @@ public final class QuarryGameTestRegistration {
     public static void testQuarryFacing(GameTestHelper context) {
         QuarryGameTestBody.testQuarryFacing(context);
     }
+
+    /**
+    * Wiki claims (Chunk loading): toggling {@code load_chunks} takes and releases the quarry's
+    * chunk tickets; breaking the quarry releases them too.
+    */
+    @GameTest(template = "empty", batch = "quarry", timeoutTicks = 6620)
+    public static void testQuarryChunkLoadingToggle(GameTestHelper context) {
+        QuarryGameTestBody.testQuarryChunkLoadingToggle(context);
+    }
 }

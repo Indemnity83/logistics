@@ -9,6 +9,19 @@ All entries below are resolved and closed — kept as HTML comments so the same 
 fixes aren't rediscovered from scratch later. New findings go in a fresh, uncommented section above
 the closed ones.
 
+## Laser Quarry
+
+Open: chunk loading is not limited to a *running* quarry. `wiki/Laser Quarry.txt` § Chunk loading
+says "Turning on the chunk-loading setting makes a running quarry hold itself and its work area
+loaded." With `load_chunks` on, `QuarryComponent#chunkArea` gates only on the config value and on
+the quarry not being finished — not on energy — so a placed quarry with no power at all keeps its
+own chunk and every work-area chunk loaded indefinitely. Confirmed live by
+`QuarryGameTest#testQuarryChunkLoadingToggle`, which uses an unpowered quarry. Needs a decision:
+reword the wiki ("a placed quarry that has not finished"), or gate the chunk loader on the quarry
+actually having power. Minor related wording: removal and finishing release the tickets by letting
+them lapse (20-tick timeout, `TICKET_TYPE.QUARRY`/`QUARRY_BOUNDARY`) rather than instantly, which
+the wiki's "released once the quarry finishes or is removed" covers well enough.
+
 ## Marker
 
 **Open: a lone marker activates instead of failing.** `wiki/Marker.txt` § Defining an area says
