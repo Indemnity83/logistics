@@ -33,6 +33,7 @@ public final class DomainRegistrations {
         LogisticsPipe.ITEM.register();
         LogisticsPower.BLOCK.register();
         LogisticsAutomation.BLOCK.register();
+        LogisticsForestry.ITEM.register();
 
         // These items carry default components (e.g. cooking fuel). Bootstrap already ran its
         // binding pass before any of them existed, so bind again now that they do.
