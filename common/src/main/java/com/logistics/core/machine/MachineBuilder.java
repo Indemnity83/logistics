@@ -47,9 +47,17 @@ public final class MachineBuilder {
         return new RecipeProcessorBuilder(id);
     }
 
-    /** Registers an {@link UpgradeComponent} (no configuration) and returns it for wiring. */
+    /** Registers an {@link UpgradeComponent} with no upgrade slots; its modifiers are identity. */
     public UpgradeComponent upgrades(String id) {
         return components.add(new UpgradeComponent(id));
+    }
+
+    /**
+     * Registers an {@link UpgradeComponent} reading the {@link SlotRole#UPGRADE} slots of
+     * {@code items}. Register it before the components that react to {@link UpgradeComponent#onChange}.
+     */
+    public UpgradeComponent upgrades(String id, ItemStoreComponent items) {
+        return components.add(new UpgradeComponent(id, items));
     }
 
     public ChunkLoaderBuilder chunkLoader(String id) {
@@ -232,7 +240,7 @@ public final class MachineBuilder {
 
         /**
          * Any-face access: input slots insertable and output slots extractable from every face;
-         * {@link SlotRole#GENERIC} slots are unreachable. Route items to slots with
+         * {@link SlotRole#GENERIC} and {@link SlotRole#UPGRADE} slots are unreachable. Route items to slots with
          * {@link #slotFilter}.
          */
         public ItemsBuilder anyFaceAccess() {

@@ -76,16 +76,15 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
 
     private long insertIntoSlot(IItemKey item, ItemStack template, int slot, long remaining, boolean simulate) {
         ItemStack current = container.getItem(slot);
-        long containerLimit = container.getMaxStackSize();
         if (current.isEmpty()) {
-            long toInsert = Math.min(remaining, Math.min(template.getMaxStackSize(), containerLimit));
+            long toInsert = Math.min(remaining, stackLimit(slot, template));
             if (!simulate) {
                 container.setItem(slot, item.toStack((int) toInsert));
                 container.setChanged();
             }
             return toInsert;
         } else if (ItemStack.isSameItemSameComponents(current, template)) {
-            long slotLimit = Math.min(current.getMaxStackSize(), containerLimit);
+            long slotLimit = stackLimit(slot, current);
             long canFit = Math.max(0, slotLimit - current.getCount());
             long toInsert = Math.min(remaining, canFit);
             if (toInsert > 0 && !simulate) {
@@ -95,6 +94,15 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
             return toInsert;
         }
         return 0;
+    }
+
+    /** Most of {@code stack}'s item that {@code slot} holds: item, container and slot limits. */
+    private int stackLimit(int slot, ItemStack stack) {
+        int limit = Math.min(stack.getMaxStackSize(), container.getMaxStackSize());
+        if (container instanceof SlotStackLimits limits) {
+            limit = Math.min(limit, limits.slotStackLimit(slot, stack));
+        }
+        return Math.max(0, limit);
     }
 
     // Extraction applies only the face check. Vanilla's other half, Container#canTakeItem, is asked
@@ -172,9 +180,7 @@ public final class ContainerItemStorage implements ISlottedItemStorage {
         int actual = actualSlot(slot);
         ItemStack stack = container.getItem(actual);
         // An empty slot still holds a stack's worth; only a filled one narrows it to that item's limit.
-        return stack.isEmpty()
-                ? container.getMaxStackSize()
-                : Math.min(container.getMaxStackSize(), stack.getMaxStackSize());
+        return stack.isEmpty() ? container.getMaxStackSize() : stackLimit(actual, stack);
     }
 
     @Override

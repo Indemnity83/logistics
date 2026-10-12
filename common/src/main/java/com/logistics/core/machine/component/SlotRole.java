@@ -4,5 +4,7 @@ package com.logistics.core.machine.component;
 public enum SlotRole {
     INPUT,
     OUTPUT,
-    GENERIC
+    GENERIC,
+    /** Holds {@code UpgradeItem}s read by an {@code UpgradeComponent}; never reachable from a face. */
+    UPGRADE
 }

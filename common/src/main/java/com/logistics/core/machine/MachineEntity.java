@@ -13,6 +13,7 @@ import com.logistics.core.lib.menu.MenuValidity;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import com.logistics.core.lib.storage.ContainerItemStorage;
 import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.lib.storage.SlotStackLimits;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -43,7 +44,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class MachineEntity extends BaseBlockEntity
         implements MachineContext, HasItemStorage, HasEnergyStorage, HasFluidStorage,
-                HasExperienceStorage, WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider, ProcessingMachine {
+                HasExperienceStorage, WorldlyContainer, SlotStackLimits, MenuBehavior.HasMenu, EnergyDemandProvider,
+                ProcessingMachine {
 
     private static final int[] NO_SLOTS = new int[0];
 
@@ -130,6 +132,13 @@ public abstract class MachineEntity extends BaseBlockEntity
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return sidedItems().map(s -> s.accepts(slot, stack)).orElse(true);
+    }
+
+    @Override
+    public int slotStackLimit(int slot, ItemStack stack) {
+        return sidedItems()
+                .map(s -> s.slotStackLimit(slot, stack))
+                .orElse(Math.min(getMaxStackSize(), stack.getMaxStackSize()));
     }
 
     @Override

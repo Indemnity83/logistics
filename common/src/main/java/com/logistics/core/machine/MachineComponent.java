@@ -72,6 +72,11 @@ public interface MachineComponent {
         default boolean accepts(int slot, ItemStack stack) {
             return true;
         }
+
+        /** Most of {@code stack}'s item that {@code slot} holds. */
+        default int slotStackLimit(int slot, ItemStack stack) {
+            return Math.min(container().getMaxStackSize(), stack.getMaxStackSize());
+        }
     }
 
     /** Reports recipe-processing state for HUD/integration code. */

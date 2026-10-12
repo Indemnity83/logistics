@@ -242,6 +242,8 @@
   "item.logistics.core.diamond_valve": "Diamond Valve",
   "item.logistics.core.echo_valve": "Echo Valve",
   "item.logistics.core.netherite_valve": "Netherite Valve",
+  "item.logistics.core.range_upgrade": "Range Upgrade",
+  "tooltip.logistics.range_upgrade": "Widens a farm's work area. Up to 2 per machine.",
   "screen.logistics.item_filter": "Item Filter",
   "screen.logistics.requester": "Request Items",
   "screen.logistics.supplier": "Supplier Pipe",

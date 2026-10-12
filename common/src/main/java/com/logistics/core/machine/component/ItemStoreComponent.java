@@ -2,6 +2,7 @@ package com.logistics.core.machine.component;
 
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.machine.MachineComponent;
+import com.logistics.core.machine.upgrade.UpgradeItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -113,6 +114,11 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
         }
     }
 
+    /** Indices of the {@link SlotRole#UPGRADE} slots, in declaration order. */
+    public int[] upgradeSlots() {
+        return slotsWithRole(roles, SlotRole.UPGRADE);
+    }
+
     // ----- SidedItems -----
 
     @Override
@@ -135,9 +141,27 @@ public final class ItemStoreComponent implements MachineComponent, MachineCompon
         return layout.canTake(slot, stack, dir);
     }
 
+    /** {@link SlotRole#UPGRADE} slots take only {@link UpgradeItem}s, on top of the layout's filter. */
     @Override
     public boolean accepts(int slot, ItemStack stack) {
+        if (isUpgradeSlot(slot) && !(stack.getItem() instanceof UpgradeItem)) {
+            return false;
+        }
         return layout.accepts(slot, stack);
+    }
+
+    /** {@link SlotRole#UPGRADE} slots hold at most {@link UpgradeItem#maxPerSlot()} of an upgrade. */
+    @Override
+    public int slotStackLimit(int slot, ItemStack stack) {
+        int limit = Math.min(inventory.getMaxStackSize(), stack.getMaxStackSize());
+        if (isUpgradeSlot(slot) && stack.getItem() instanceof UpgradeItem upgrade) {
+            limit = Math.min(limit, upgrade.maxPerSlot());
+        }
+        return limit;
+    }
+
+    private boolean isUpgradeSlot(int slot) {
+        return slot >= 0 && slot < roles.length && roles[slot] == SlotRole.UPGRADE;
     }
 
     // ----- persistence -----

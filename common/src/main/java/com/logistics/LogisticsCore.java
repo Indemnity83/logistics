@@ -6,6 +6,7 @@ import com.indemnity83.configory.ConfigKey;
 import com.logistics.core.LogisticsConfigMigrator;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.crash.CrashReporting;
+import com.logistics.core.item.RangeUpgradeItem;
 import com.logistics.core.item.WrenchItem;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
@@ -505,6 +506,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item ECHO_VALVE;
         public static Item NETHERITE_VALVE;
 
+        // Machine upgrades
+        public static Item RANGE_UPGRADE;
+
         private ITEM() {}
 
         static void register() {
@@ -616,6 +620,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             DIAMOND_VALVE = INSTANCE.registerItem("diamond_valve", Item::new);
             ECHO_VALVE = INSTANCE.registerItem("echo_valve", Item::new);
             NETHERITE_VALVE = INSTANCE.registerItem("netherite_valve", Item::new);
+
+            // Machine upgrades
+            RANGE_UPGRADE = INSTANCE.registerItem("range_upgrade", RangeUpgradeItem::new);
         }
     }
 
@@ -723,6 +730,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.GOLD_CHIPSET);
             TAB.add(ITEM.DIAMOND_CHIPSET);
             TAB.add(ITEM.NETHERITE_CHIPSET);
+
+            // Machine upgrades
+            TAB.add(ITEM.RANGE_UPGRADE);
 
             // Dusts and powders (macerator outputs)
             TAB.add(ITEM.APATITE_DUST);
