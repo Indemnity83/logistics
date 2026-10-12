@@ -572,8 +572,10 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
 
 #### Other domains (after automation)
 
-13. **CraftingModule / ProcessModule / SatelliteModule pipes** ([#1286](https://github.com/Indemnity83/logistics/issues/1286)) — well unit-tested, zero in-world
-    GameTest; low-risk pass adding wiki-traceability to already-correct assertions.
+~~13. **CraftingModule / ProcessModule / SatelliteModule pipes**~~ ([#1286](https://github.com/Indemnity83/logistics/issues/1286)) — done.
+    `CraftingProcessSatelliteGameTestBody` crafts on request, chains two crafting pipes, and smelts
+    through a satellite-fed blast furnace; the unit tests that match a wiki claim now quote it.
+    Five wiki mismatches are logged in `WIKI_DISCREPANCIES.md`.
 ~~14. **GoldCable** ([#1287](https://github.com/Indemnity83/logistics/issues/1287))~~ — done. Gold is now the Conductive Cable;
     `CableGameTestBody` pins its 60 RF/t on a real engine-fed run and as the cap on a Deep-to-Conductive
     run, plus the `gold_cable` alias, on both loaders. `CableTierTest` adds the doubling ladder.
