@@ -229,6 +229,10 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                 ? execute(world, s, area, plot, logic.decide(world, plot, inputs))
                 : FarmStatus.IDLE;
         tracker.record(outcome);
+        // Logics only ask to irrigate when there is water, so a dry tank is reported here.
+        if (water != null && !inputs.hasWater()) {
+            tracker.record(FarmStatus.NO_WATER);
+        }
         if (outcome == FarmStatus.WORKING) {
             scanner.markWorked();
         }
@@ -399,6 +403,10 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         BlockState current = world.state(pos);
         if (current.is(soil.getBlock())) {
             return FarmStatus.IDLE;
+        }
+        // Never fill in water, a source, a flow or a waterlogged block.
+        if (!current.getFluidState().isEmpty()) {
+            return FarmStatus.BLOCKED;
         }
         boolean open = current.isAir() || current.canBeReplaced();
         // Soil goes only where there was nothing, or ground the farm may dig up; never a player's floor.
@@ -611,6 +619,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         @Override
         public boolean hasSoil() {
             return soilSlot() >= 0;
+        }
+
+        @Override
+        public boolean hasWater() {
+            return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerIrrigateMb());
         }
 
         @Override
