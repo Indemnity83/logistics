@@ -561,7 +561,10 @@ Recorded here so a pass doesn't have to re-derive priority order or re-discover 
     loads and ticks, they outlive their 20-tick timeout, and they lapse when toggled off or the
     quarry is removed. The toggle is global, so it is one sequenced test that restores the value on
     every exit, with the work area aimed 256 chunks out so no other test's quarry can touch it.
-    Found that an unpowered quarry chunk-loads too (see `WIKI_DISCREPANCIES.md` § Laser Quarry).
+    Found that an unpowered quarry chunk-loaded too; fixed in
+    [#1383](https://github.com/Indemnity83/logistics/issues/1383), so the GameTest now powers its
+    quarry and checks an unpowered one takes no tickets, and `QuarryChunkHoldTest` pins the grace
+    window that rides out a brown-out.
 ~~12. **Marker block**~~ ([#1284](https://github.com/Indemnity83/logistics/issues/1284)) — done. New
     `MarkerGameTest` drives a real Wrench through a player: activating an L from its corner or an
     end, both failure modes, deactivating the set, break/drop/collision claims, and the active set's
