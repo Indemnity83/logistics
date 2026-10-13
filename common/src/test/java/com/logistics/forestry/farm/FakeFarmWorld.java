@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -24,15 +25,19 @@ final class FakeFarmWorld implements FarmWorldAccess {
     final List<BlockPos> reads = new ArrayList<>();
     final List<BlockPos> broken = new ArrayList<>();
     final Map<BlockPos, Integer> writeFlags = new HashMap<>();
-    final List<ItemStack> loose = new ArrayList<>();
+    final List<LooseItem> loose = new ArrayList<>();
     Function<BlockState, List<ItemStack>> drops = state -> List.of(new ItemStack(state.getBlock().asItem()));
-    /** Stands in for the {@code replaceable_soil} tag, which is not bound in unit tests. */
-    Predicate<BlockState> replaceableSoil =
-            state -> state.is(Blocks.DIRT) || state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.SAND);
     boolean signal;
+
+    /** An item entity lying in the world. */
+    record LooseItem(BlockPos pos, ItemStack stack) {}
 
     void set(BlockPos pos, BlockState state) {
         blocks.put(pos.immutable(), state);
+    }
+
+    void drop(BlockPos pos, ItemStack stack) {
+        loose.add(new LooseItem(pos.immutable(), stack));
     }
 
     @Override
@@ -60,8 +65,10 @@ final class FakeFarmWorld implements FarmWorldAccess {
     }
 
     @Override
-    public boolean isReplaceableSoil(BlockPos pos) {
-        return isLoaded(pos) && replaceableSoil.test(blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState()));
+    public float destroySpeed(BlockPos pos) {
+        return isLoaded(pos)
+                ? blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState()).getDestroySpeed(EmptyBlockGetter.INSTANCE, pos)
+                : 0;
     }
 
     @Override
@@ -78,7 +85,7 @@ final class FakeFarmWorld implements FarmWorldAccess {
     @Nullable
     public List<ItemStack> breakBlock(BlockPos pos) {
         BlockState state = blocks.get(pos);
-        if (!isLoaded(pos) || state == null || state.isAir()) {
+        if (!isLoaded(pos) || state == null || state.isAir() || destroySpeed(pos) < 0) {
             return null;
         }
         blocks.remove(pos);
@@ -99,9 +106,15 @@ final class FakeFarmWorld implements FarmWorldAccess {
     }
 
     @Override
-    public List<ItemStack> collectItems(AABB box) {
-        List<ItemStack> collected = new ArrayList<>(loose);
-        loose.clear();
+    public List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where) {
+        List<ItemStack> collected = new ArrayList<>();
+        loose.removeIf(item -> {
+            if (box.contains(item.pos().getX() + 0.5, item.pos().getY() + 0.5, item.pos().getZ() + 0.5) && where.test(item.pos())) {
+                collected.add(item.stack());
+                return true;
+            }
+            return false;
+        });
         return collected;
     }
 }

@@ -16,12 +16,12 @@ public final class ArboretumGameTestRegistration {
 
     private ArboretumGameTestRegistration() {}
 
-    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 600)
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 1200)
     public static void testPlantsSaplingsOnLattice(GameTestHelper context) {
         ArboretumGameTestBody.testPlantsSaplingsOnLattice(context);
     }
 
-    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 2000)
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 3000)
     public static void testFellsGrownTreeAndReplants(GameTestHelper context) {
         ArboretumGameTestBody.testFellsGrownTreeAndReplants(context);
     }
@@ -36,14 +36,14 @@ public final class ArboretumGameTestRegistration {
         ArboretumGameTestBody.testRedstonePausesFarm(context);
     }
 
-    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 300)
-    public static void testLeavesStoneAndPlayerBuildsAlone(GameTestHelper context) {
-        ArboretumGameTestBody.testLeavesStoneAndPlayerBuildsAlone(context);
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 1200)
+    public static void testClearsBlocksFromRing(GameTestHelper context) {
+        ArboretumGameTestBody.testClearsBlocksFromRing(context);
     }
 
-    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 600)
-    public static void testHumusReplacesDirtUnderPlantingCorners(GameTestHelper context) {
-        ArboretumGameTestBody.testHumusReplacesDirtUnderPlantingCorners(context);
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 2000)
+    public static void testHumusReplacesDirtAcrossTheRing(GameTestHelper context) {
+        ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
     }
 
     @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 40)

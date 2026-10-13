@@ -11,12 +11,12 @@ import net.minecraft.gametest.framework.GameTestHelper;
  */
 public class ArboretumGameTest {
 
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 600)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
     public void testPlantsSaplingsOnLattice(GameTestHelper context) {
         ArboretumGameTestBody.testPlantsSaplingsOnLattice(context);
     }
 
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 3000)
     public void testFellsGrownTreeAndReplants(GameTestHelper context) {
         ArboretumGameTestBody.testFellsGrownTreeAndReplants(context);
     }
@@ -31,14 +31,14 @@ public class ArboretumGameTest {
         ArboretumGameTestBody.testRedstonePausesFarm(context);
     }
 
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 300)
-    public void testLeavesStoneAndPlayerBuildsAlone(GameTestHelper context) {
-        ArboretumGameTestBody.testLeavesStoneAndPlayerBuildsAlone(context);
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
+    public void testClearsBlocksFromRing(GameTestHelper context) {
+        ArboretumGameTestBody.testClearsBlocksFromRing(context);
     }
 
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 600)
-    public void testHumusReplacesDirtUnderPlantingCorners(GameTestHelper context) {
-        ArboretumGameTestBody.testHumusReplacesDirtUnderPlantingCorners(context);
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
+    public void testHumusReplacesDirtAcrossTheRing(GameTestHelper context) {
+        ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
