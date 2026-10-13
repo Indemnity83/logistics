@@ -12,7 +12,7 @@ import net.minecraft.core.Direction;
  * seen looking along {@code facing}. All positions are at {@code origin}'s Y; membership tests
  * ignore Y.
  */
-public record WorkArea(BlockPos origin, Direction facing, int size) {
+public record WorkArea(BlockPos origin, Direction facing, int size) implements PlotArea {
 
     public WorkArea {
         if (origin == null || facing == null) {
@@ -39,10 +39,12 @@ public record WorkArea(BlockPos origin, Direction facing, int size) {
         return new WorkArea(origin, facing, size + 2 * bonus);
     }
 
+    @Override
     public int plotCount() {
         return size * size;
     }
 
+    @Override
     public BlockPos plot(int index) {
         if (index < 0 || index >= plotCount()) {
             throw new IndexOutOfBoundsException("plot index " + index + " outside 0.." + (plotCount() - 1));
@@ -55,6 +57,7 @@ public record WorkArea(BlockPos origin, Direction facing, int size) {
     }
 
     /** Plot index of {@code pos} (Y ignored), or -1 when it lies outside the area. */
+    @Override
     public int indexOf(BlockPos pos) {
         int dx = pos.getX() - origin.getX();
         int dz = pos.getZ() - origin.getZ();
@@ -68,11 +71,13 @@ public record WorkArea(BlockPos origin, Direction facing, int size) {
     }
 
     /** True when {@code pos} lies inside the area's columns, at any Y. */
+    @Override
     public boolean contains(BlockPos pos) {
         return indexOf(pos) >= 0;
     }
 
     /** Lowest-X, lowest-Z corner, at the origin's Y. */
+    @Override
     public BlockPos min() {
         BlockPos a = plot(0);
         BlockPos b = plot(plotCount() - 1);
@@ -80,6 +85,7 @@ public record WorkArea(BlockPos origin, Direction facing, int size) {
     }
 
     /** Highest-X, highest-Z corner, at the origin's Y. */
+    @Override
     public BlockPos max() {
         BlockPos a = plot(0);
         BlockPos b = plot(plotCount() - 1);
