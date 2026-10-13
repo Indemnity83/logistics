@@ -77,11 +77,6 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
             }
 
             @Override
-            public boolean canFertilize(BlockPos pos) {
-                return world.canFertilize(pos);
-            }
-
-            @Override
             public boolean isReplaceableSoil(BlockPos pos) {
                 return world.isReplaceableSoil(pos);
             }
@@ -116,8 +111,6 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     void harvestsMatureCropFirst() {
         world.set(PLOT, wheat(CropBlock.MAX_AGE));
         world.set(SOIL, farmland(0));
-        world.fertilizable.add(PLOT);
-        inputs.fertilizer = true;
 
         assertThat(decide()).isEqualTo(PlotAction.harvest(PLOT));
     }
@@ -251,11 +244,9 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     // ==================== Water ====================
 
     @Test
-    @DisplayName("irrigates farmland under a growing crop once it is nearly dry, before fertilizing")
+    @DisplayName("irrigates farmland under a growing crop once it is nearly dry")
     void irrigatesNearlyDryFarmland() {
         world.set(PLOT, wheat(3));
-        world.fertilizable.add(PLOT);
-        inputs.fertilizer = true;
         for (int moisture = 0; moisture <= CropFarmLogic.IRRIGATE_AT_MOISTURE; moisture++) {
             world.set(SOIL, farmland(moisture));
 
@@ -275,38 +266,11 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("without water it does not ask to irrigate, and fertilizes instead")
+    @DisplayName("without water it does not ask to irrigate")
     void noIrrigationWithoutWater() {
         world.set(PLOT, wheat(3));
         world.set(SOIL, farmland(0));
         inputs.water = false;
-
-        assertThat(decide()).isEqualTo(PlotAction.NONE);
-
-        world.fertilizable.add(PLOT);
-        inputs.fertilizer = true;
-        assertThat(decide()).isEqualTo(new PlotAction.Fertilize(PLOT));
-    }
-
-    // ==================== Fertilize ====================
-
-    @Test
-    @DisplayName("fertilizes a growing crop on wet farmland when it has fertilizer")
-    void fertilizesGrowingCrop() {
-        world.set(PLOT, wheat(2));
-        world.set(SOIL, farmland(7));
-        world.fertilizable.add(PLOT);
-        inputs.fertilizer = true;
-
-        assertThat(decide()).isEqualTo(new PlotAction.Fertilize(PLOT));
-    }
-
-    @Test
-    @DisplayName("leaves a growing crop to grow on its own without fertilizer")
-    void waitsWithoutFertilizer() {
-        world.set(PLOT, wheat(2));
-        world.set(SOIL, farmland(7));
-        world.fertilizable.add(PLOT);
 
         assertThat(decide()).isEqualTo(PlotAction.NONE);
     }
@@ -349,7 +313,6 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     @DisplayName("leaves a plot with something else on it alone, whatever the ground needs")
     void obstaclesUntouched() {
         inputs.germlings.add(new ItemStack(Items.WHEAT_SEEDS, 4));
-        inputs.fertilizer = true;
         for (BlockState obstacle : List.of(
                 Blocks.TORCH.defaultBlockState(),
                 Blocks.OAK_FENCE.defaultBlockState(),
@@ -368,7 +331,6 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     private static final class Inputs implements FarmInputs {
         final List<ItemStack> germlings = new ArrayList<>();
         boolean water = true;
-        boolean fertilizer;
 
         @Override
         public List<ItemStack> germlings() {
@@ -396,11 +358,6 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
         @Override
         public boolean hasWater() {
             return water;
-        }
-
-        @Override
-        public boolean hasFertilizer() {
-            return fertilizer;
         }
     }
 }

@@ -26,7 +26,4 @@ public interface FarmInputs {
      * a tank. A logic asks to irrigate only when this is true.
      */
     boolean hasWater();
-
-    /** Whether a fertilizer charge is available, stored or in the fertilizer slot. */
-    boolean hasFertilizer();
 }

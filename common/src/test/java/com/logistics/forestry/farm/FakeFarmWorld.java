@@ -21,11 +21,9 @@ final class FakeFarmWorld implements FarmWorldAccess {
     final Map<BlockPos, BlockState> blocks = new HashMap<>();
     final Set<BlockPos> unloaded = new HashSet<>();
     final Set<BlockPos> claimed = new HashSet<>();
-    final Set<BlockPos> fertilizable = new HashSet<>();
     final List<BlockPos> reads = new ArrayList<>();
     final List<BlockPos> broken = new ArrayList<>();
     final Map<BlockPos, Integer> writeFlags = new HashMap<>();
-    final List<BlockPos> fertilized = new ArrayList<>();
     final List<ItemStack> loose = new ArrayList<>();
     Function<BlockState, List<ItemStack>> drops = state -> List.of(new ItemStack(state.getBlock().asItem()));
     /** Stands in for the {@code replaceable_soil} tag, which is not bound in unit tests. */
@@ -59,11 +57,6 @@ final class FakeFarmWorld implements FarmWorldAccess {
     @Override
     public boolean canSurvive(BlockState state, BlockPos pos) {
         return isLoaded(pos);
-    }
-
-    @Override
-    public boolean canFertilize(BlockPos pos) {
-        return isLoaded(pos) && fertilizable.contains(pos);
     }
 
     @Override
@@ -103,12 +96,6 @@ final class FakeFarmWorld implements FarmWorldAccess {
             blocks.put(pos.immutable(), state);
             writeFlags.put(pos.immutable(), flags);
         }
-    }
-
-    @Override
-    public boolean fertilize(BlockPos pos) {
-        fertilized.add(pos.immutable());
-        return true;
     }
 
     @Override

@@ -3,10 +3,8 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
-import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
-import com.logistics.forestry.fertilizer.FertilizerCharges;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.ArrayList;
 import java.util.List;
@@ -379,48 +377,6 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.broken).containsExactlyElementsOf(plan);
     }
 
-    // ==================== Fertilizer ====================
-
-    @Test
-    @DisplayName("fertilizer items are consumed one at a time, each banking its charges")
-    void fertilizerChargesOneItemAtATime() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic().script((world, plot) -> new PlotAction.Fertilize(plot)));
-        for (int i = 0; i < 9; i++) {
-            farm.world.fertilizable.add(farm.plot(i));
-        }
-        farm.items().setItem(FarmMachine.FERTILIZER_SLOT, new ItemStack(LogisticsForestry.ITEM.FERTILIZER, 2));
-        farm.power(10_000);
-        int perItem = FertilizerCharges.charges(new ItemStack(LogisticsForestry.ITEM.FERTILIZER));
-
-        farm.tick();
-        assertThat(farm.items().getItem(FarmMachine.FERTILIZER_SLOT).getCount()).isEqualTo(1);
-        assertThat(farm.farm().charges()).isEqualTo(perItem - 1);
-
-        farm.ticks(perItem - 1);
-        assertThat(farm.items().getItem(FarmMachine.FERTILIZER_SLOT).getCount()).isEqualTo(1);
-        assertThat(farm.farm().charges()).isZero();
-
-        farm.tick();
-        assertThat(farm.items().getItem(FarmMachine.FERTILIZER_SLOT).isEmpty()).isTrue();
-        assertThat(farm.farm().charges()).isEqualTo(perItem - 1);
-        assertThat(farm.world.fertilized).hasSize(perItem + 1);
-        assertThat(farm.energy()).isEqualTo(10_000 - (perItem + 1) * FarmHarness.SETTINGS.rfFertilize());
-    }
-
-    @Test
-    @DisplayName("without fertilizer a plant is left to grow on its own, with no error status")
-    void noFertilizerIsNotAProblem() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic().script((world, plot) -> new PlotAction.Fertilize(plot)));
-        farm.world.fertilizable.add(farm.plot(0));
-        farm.power(10_000);
-
-        farm.tick();
-
-        assertThat(farm.world.fertilized).isEmpty();
-        assertThat(farm.energy()).isEqualTo(10_000);
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.IDLE);
-    }
-
     // ==================== Soil and water ====================
 
     @Test
@@ -648,7 +604,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     @DisplayName("the area size override works a smaller plot")
     void areaSizeOverride() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
-        farm.settings = new FarmSettings(9, 1, 10_000, 1_000, 40, 100, 60, 60, 20, 120, 8_000, 50, 4, 20, 200);
+        farm.settings = new FarmSettings(9, 1, 10_000, 1_000, 40, 100, 60, 60, 20, 8_000, 50, 4, 20, 200);
         assertThat(farm.farm().areaSize()).isEqualTo(9);
 
         farm.farm().setAreaSizeOverride(3);

@@ -3,6 +3,7 @@ package com.logistics.gametest.forestry;
 import com.logistics.LogisticsForestry;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.compat.PlantCompat;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
@@ -225,8 +226,8 @@ public class CropFarmGameTestBody {
     }
 
     /**
-     * Fertilized wheat ripens, is harvested into the chest through the output hopper, and plots are
-     * sown again from the seeds the harvest returned.
+     * Wheat ripens, is harvested into the chest through the output hopper, and plots are sown again
+     * from the seeds the harvest returned. The test bone-meals growing wheat so it ripens quickly.
      *
      * <p>The hopper holds exactly one seed per plot, so every sowing beyond those nine used a
      * returned seed: replants = (wheat standing + harvests) - 9. A harvest drops exactly one wheat,
@@ -239,8 +240,16 @@ public class CropFarmGameTestBody {
             return;
         }
         rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
-        rig.input().setItem(1, new ItemStack(LogisticsForestry.ITEM.FERTILIZER, 8));
 
+        context.onEachTick(() -> {
+            for (BlockPos plot : PLOTS) {
+                BlockState state = context.getBlockState(plot);
+                if (state.is(Blocks.WHEAT)) {
+                    BlockPos pos = context.absolutePos(plot);
+                    PlantCompat.fertilize(context.getLevel(), context.getLevel().getRandom(), pos, state);
+                }
+            }
+        });
         context.succeedWhen(() -> {
             context.assertContainerContains(CHEST, Items.WHEAT);
             int harvests = count(context.getBlockEntity(CHEST, ChestBlockEntity.class), Items.WHEAT)

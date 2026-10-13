@@ -3,6 +3,7 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
+import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.MachineBuilder;
@@ -56,7 +57,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         @Override
         protected void configure(MachineBuilder machine) {
             FarmSettings settings = nextSettings;
-            parts = FarmMachine.assemble(machine, nextLogic, () -> settings, (ctx, owner) -> null, FarmHarness::isFertilizer);
+            parts = FarmMachine.assemble(machine, nextLogic, () -> settings, (ctx, owner) -> null);
         }
 
         @Override
@@ -185,20 +186,20 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("fertilizer shift-clicks into the fertilizer slot, not the germling slots")
-    void fertilizerRoutesToFertilizerSlot() {
+    @DisplayName("fertilizer and bone meal stay with the player: no farm slot takes them")
+    void fertilizerIsNotAccepted() {
         TestFarm farm = farm(new ScriptedFarmLogic(false, true));
         Inventory inventory = playerInventory();
-        inventory.setItem(0, new ItemStack(Items.BONE_MEAL, 70));
+        inventory.setItem(0, new ItemStack(Items.BONE_MEAL, 10));
+        inventory.setItem(1, new ItemStack(LogisticsForestry.ITEM.FERTILIZER, 10));
         FarmMenu menu = serverMenu(farm, inventory);
 
-        menu.quickMoveStack(null, hotbar(menu));
+        assertThat(menu.quickMoveStack(null, hotbar(menu))).isEqualTo(ItemStack.EMPTY);
+        assertThat(menu.quickMoveStack(null, hotbar(menu) + 1)).isEqualTo(ItemStack.EMPTY);
 
-        assertThat(farm.getItem(FarmMachine.FERTILIZER_SLOT).getCount()).isEqualTo(64);
-        assertThat(inventory.getItem(0).getCount()).as("the rest stays: no other slot takes fertilizer").isEqualTo(6);
-        for (int slot = FarmMachine.GERMLING_START; slot < FarmMachine.SOIL_END; slot++) {
-            assertThat(farm.getItem(slot).isEmpty()).as("slot %d", slot).isTrue();
-        }
+        assertThat(inventory.getItem(0).getCount()).isEqualTo(10);
+        assertThat(inventory.getItem(1).getCount()).isEqualTo(10);
+        assertThat(farm.isEmpty()).isTrue();
     }
 
     @Test
@@ -263,8 +264,9 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.getSlot(3).x).isEqualTo(96);
         assertThat(menu.getSlot(3).y).isEqualTo(17);
         assertThat(menu.getSlot(4).y).isEqualTo(35);
-        assertThat(menu.getSlot(FarmMachine.FERTILIZER_SLOT).x).isEqualTo(42);
-        assertThat(menu.getSlot(FarmMachine.FERTILIZER_SLOT).y).isEqualTo(53);
+        assertThat(menu.getSlot(8).x).as("output starts right after soil").isEqualTo(116);
+        assertThat(menu.getSlot(16).y).isEqualTo(53);
+        assertThat(MACHINE_SLOTS).isEqualTo(17);
         assertThat(menu.getSlot(FarmMachine.OUTPUT_START).x).isEqualTo(116);
         assertThat(menu.getSlot(FarmMachine.OUTPUT_START).y).isEqualTo(17);
         assertThat(menu.getSlot(FarmMachine.OUTPUT_END - 1).x).isEqualTo(152);
@@ -279,7 +281,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @DisplayName("the synced data decodes to the farm's energy, water, status, plot and flags")
     void syncedData() {
         // Values above a short's range, so the wide slot pairs are exercised.
-        FarmSettings settings = new FarmSettings(9, 10, 100_000, 128, 40, 100, 60, 60, 20, 120, 40_000, 50, 4, 20, 200);
+        FarmSettings settings = new FarmSettings(9, 10, 100_000, 128, 40, 100, 60, 60, 20, 40_000, 50, 4, 20, 200);
         TestFarm farm = farm(new ScriptedFarmLogic(true, false), settings);
         farm.parts.energy().setAmount(70_000);
         farm.parts.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(33_000), false);
@@ -295,8 +297,6 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.areaSize()).isEqualTo(9);
         assertThat(menu.usesWater()).isTrue();
         assertThat(menu.laysSoil()).isFalse();
-        assertThat(menu.fertilizerCharges()).isZero();
-        assertThat(menu.fertilizerChargeCapacity()).isPositive();
     }
 
     @Test
