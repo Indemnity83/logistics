@@ -51,14 +51,14 @@ Not written yet — they wait on the keystone or on an open decision, and will t
 
 ## Phase 2 batch: Forestry farms
 
-The Phase 2 batch covers the **farms, soils and fertilizer** (design settled; see [`../mods/forestry.md`](../mods/forestry.md)). It is post-1.0 work: farms ship as later 1.x minors, and the maintainer decides when wave 1 starts. One block per farm type, each working a fixed 9×9 plot; work-area upgrades will come with the machine-wide upgrade design ([0106](0106-machine-upgrades.md)). The processing chain (Squeezer/Fermenter/Still/Bottler) and peat/biofuel engines are deferred beyond this batch.
+The Phase 2 batch covers the **farms, soils and fertilizer** (design settled; see [`../mods/forestry.md`](../mods/forestry.md)). It is post-1.0 work: farms ship as later 1.x minors, and the maintainer decides when wave 1 starts. One block per farm type, each sitting at the centre of a free 9×9 and working a ring of plots around it; work-area upgrades will come with the machine-wide upgrade design ([0106](0106-machine-upgrades.md)). The processing chain (Squeezer/Fermenter/Still/Bottler) and peat/biofuel engines are deferred beyond this batch.
 
 | # | Brief | Area | Wave | Depends on |
 |---|---|---|---|---|
-| 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, fixed 9×9 plot, farm screen ✅ | 0 | the machine framework; Provider-pipe extractable-slot fix |
-| 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer ✅, Humus ✅, bog-earth maturity | 1 (maturity: 2) | 0201 |
-| 0203 | [Arboretum](0203-arboretum.md) | Tree farm + `TreeFeller` ✅ | 1 | 0201, 0202 (Humus) |
-| 0204 | [Crop Farm](0204-crop-farm.md) | Field crops ✅ (+ gourd row pattern in wave 3) | 1 | 0201, 0202 (Fertilizer) |
+| 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, centred ring around a free 9×9, farm screen ✅ | 0 | the machine framework; Provider-pipe extractable-slot fix |
+| 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer ✅ (item only, for a future augmentation), Humus ✅ (turns to sand under trees), bog-earth maturity | 1 (maturity: 2) | 0201 |
+| 0203 | [Arboretum](0203-arboretum.md) | Tree farm on a 13×13 ring + `TreeFeller` ✅ | 1 | 0201, 0202 (Humus) |
+| 0204 | [Crop Farm](0204-crop-farm.md) | Field crops on a 15×15 ring ✅ (+ gourd row pattern in wave 3) | 1 | 0201 |
 | 0205 | [Peat Bog](0205-peat-bog.md) | Bog Earth → Peat | 2 | 0201, 0202 (maturity) |
 | 0206 | [Mushroom Farm](0206-mushroom-farm.md) | Huge mushrooms + fungi | 2 | 0201, 0203 (`TreeFeller`) |
 | 0207 | [Stalk Farm](0207-stalk-farm.md) *(name TBD)* | Sugar cane, cactus, bamboo | 2 | 0201 |

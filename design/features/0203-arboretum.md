@@ -1,22 +1,25 @@
 # Arboretum
 
-> **Status:** ✅ **Shipped** (#1409) — tree farm on a fixed 9×9 plot · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
+> **Status:** ✅ **Shipped** (#1409) — tree farm working a 13×13 ring around a free 9×9 · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block); Tree products) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md), [`0202-fertilizer-and-soils.md`](0202-fertilizer-and-soils.md) (Humus) · **Maps to (roadmap):** Phase 2 — Farms
 
-The tree farm (Forestry's Arboretum / Lumberjack): plants saplings, lays Humus, fertilizes, and fells whole grown trees into its output — logs, plus leaf drops (saplings, sticks, apples) and mangrove roots. Wood only; no tree breeding.
+The tree farm (Forestry's Arboretum / Lumberjack): clears a ring around itself, lays Humus, plants saplings and fells whole grown trees into its output — logs, leaf drops (saplings, sticks, apples), mangrove roots, and the sand its trees leave behind. Wood only; no tree breeding.
 
 ## Problem & goal
 
-Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree farming today means a vanilla contraption. **Goal:** a single block that keeps a 9×9 plot planted and felled, safely — it must never chew through a player's build.
+Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree farming today means a vanilla contraption. **Goal:** a single block that keeps the ring around it planted and felled, safely — it must never chew through a player's build or the 9×9 the player builds in around it.
 
 ## Requirements
 
 ### Functional
-- **Germlings:** `#minecraft:saplings`, including mangrove propagule and azalea.
-- **Soil:** the dirt family; prefers **Humus**, which it re-lays from its soil slots.
+- **Area:** the farm sits at the centre of a free **9×9** and works the 2-wide ring out to **13×13** (88 plots). It clears each plot's column up to Y+9 ([0201](0201-farm-framework.md)).
+- **Slots:** saplings 0–3, Humus 4–7, output 8–16.
+- **Germlings:** `#minecraft:saplings`, including mangrove propagule and azalea. Single saplings go on every even step of each lane; 2×2 saplings go in aligned groups across both lanes, a group at every corner and two-cell groups along each edge.
+- **Soil:** **Humus only.** Anything else at Y-1, dirt and grass included, is replaced with Humus. Without Humus it neither replaces soil nor plants.
+- **Humus → sand:** a grown tree turns the Humus under it to sand, and a felling turns every trunk cell's Humus to sand (all four for a 2×2 tree). The next pass digs the sand into the output and lays fresh Humus. The output never voids: when full, the farm stalls with *Output full*.
 - **Harvest:** whole trees — logs, leaves (→ saplings / sticks / apples), mangrove roots.
 - **Water:** none.
-- **2×2 saplings:** planted as aligned 2×2 groups from the `logistics:forestry/requires_2x2` tag. The farm does its own 2×2 check before spending fertilizer, because a lone dark oak is a "valid" bonemeal target on 1.21.1 and then silently fails.
+- **2×2 saplings:** planted as aligned 2×2 groups from the `logistics:forestry/requires_2x2` tag. A group is planted all or none, only once four of the same sapling are on hand; a 2×2 sapling is never planted alone.
 - **Recipe:** standard farm recipe with the **copper valve**.
 
 ### Balance
@@ -48,7 +51,7 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 ## Done when
 
 - JUnit covers `TreeFeller`: 2×2 trees, mangroves (roots in, muddy roots out), persistent leaves left alone, `never_fell` and block entities skipped, the 1024 cap, and the no-natural-leaves "player build" case.
-- A GameTest grows and fells a tree in a 3×3 override plot with real power, hopper-fed saplings and hopper-to-chest output, then replants.
+- A GameTest grows and fells a tree in a `setAreaOverride(1, 5)` ring with real power, hopper-fed saplings and Humus and hopper-to-chest output, turns the trunk's Humus to sand, then swaps the sand for Humus and replants.
 
 ## References
 
