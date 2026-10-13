@@ -11,7 +11,6 @@ import com.logistics.core.machine.area.WorkArea;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
-import com.logistics.forestry.fertilizer.FertilizerCharges;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,7 +87,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private int savedCursor;
     private int stepsInPass;
     private int cooldown;
-    private int charges;
     @Nullable private UUID owner;
     private int areaSizeOverride;
     // Only the harvest's plot persists; the blocks are re-planned from it after a reload.
@@ -128,11 +126,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     public FarmStatus status() {
         return status;
-    }
-
-    /** Fertilizer charges banked from consumed fertilizer items. */
-    public int charges() {
-        return charges;
     }
 
     /** Width of the square plot currently worked. */
@@ -275,7 +268,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             case PlotAction.Till till -> till(world, s, till.pos(), till.result());
             case PlotAction.Irrigate irrigate -> irrigate(world, s, irrigate.pos());
             case PlotAction.Plant plant -> plant(world, s, plant.positions(), plant.germling());
-            case PlotAction.Fertilize fertilize -> fertilize(world, s, fertilize.pos());
             case PlotAction.None none -> FarmStatus.IDLE;
             case PlotAction.Blocked blocked ->
                 blocked.reason() == PlotAction.Reason.TOO_DARK ? FarmStatus.TOO_DARK : FarmStatus.BLOCKED;
@@ -511,29 +503,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return FarmStatus.WORKING;
     }
 
-    private FarmStatus fertilize(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
-        // Fertilizer is optional: without it plants simply grow at their own pace.
-        if (!world.isLoaded(pos) || !world.canFertilize(pos) || !inputs.hasFertilizer()) {
-            return FarmStatus.IDLE;
-        }
-        if (energy.amount() < s.rfFertilize()) {
-            return noPower(s.rfFertilize());
-        }
-        if (!world.canModify(pos)) {
-            return FarmStatus.BLOCKED;
-        }
-        if (charges <= 0) {
-            ItemStack fertilizer = items.getItem(FarmMachine.FERTILIZER_SLOT);
-            charges += FertilizerCharges.charges(fertilizer);
-            items.removeItem(FarmMachine.FERTILIZER_SLOT, 1);
-        }
-        charges--;
-        energy.consume(s.rfFertilize());
-        // The charge is spent like bone meal is, even when the plant's own growth roll fails.
-        world.fertilize(pos);
-        return FarmStatus.WORKING;
-    }
-
     private FarmStatus noPower(long needed) {
         powerNeeded = needed;
         return FarmStatus.NO_POWER;
@@ -631,11 +600,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         public boolean hasWater() {
             return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerIrrigateMb());
         }
-
-        @Override
-        public boolean hasFertilizer() {
-            return charges > 0 || FertilizerCharges.charges(items.getItem(FarmMachine.FERTILIZER_SLOT)) > 0;
-        }
     }
 
     // ==================== Status ====================
@@ -671,7 +635,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     @Override
     public void save(CompoundTag tag, HolderLookup.Provider registries) {
         tag.putInt("Cursor", scanner != null ? scanner.cursor() : savedCursor);
-        tag.putInt("Charges", charges);
         if (owner != null) {
             tag.putString("Owner", owner.toString());
         }
@@ -686,7 +649,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
         savedCursor = NbtCompat.getInt(tag, "Cursor", 0);
         scanner = null;
-        charges = Math.max(0, NbtCompat.getInt(tag, "Charges", 0));
         owner = parseUuid(NbtCompat.getString(tag, "Owner", ""));
         harvest.clear();
         harvestBase = NbtCompat.getBoolean(tag, "Harvesting", false)

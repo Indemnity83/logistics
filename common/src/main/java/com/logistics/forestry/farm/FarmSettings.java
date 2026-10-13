@@ -22,7 +22,6 @@ public record FarmSettings(
         long rfTill,
         long rfSoil,
         long rfIrrigate,
-        long rfFertilize,
         int waterCapacityMb,
         int waterPerIrrigateMb,
         int harvestBlocksPerTick,
@@ -39,7 +38,6 @@ public record FarmSettings(
         rfTill = Math.max(0, rfTill);
         rfSoil = Math.max(0, rfSoil);
         rfIrrigate = Math.max(0, rfIrrigate);
-        rfFertilize = Math.max(0, rfFertilize);
         waterCapacityMb = Math.max(1, waterCapacityMb);
         waterPerIrrigateMb = Math.max(0, waterPerIrrigateMb);
         harvestBlocksPerTick = Math.max(1, harvestBlocksPerTick);
@@ -58,7 +56,6 @@ public record FarmSettings(
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_TILL),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_SOIL),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_IRRIGATE),
-                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_FERTILIZE),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_CAPACITY_MB),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATE_MB),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_HARVEST_BLOCKS_PER_TICK),
