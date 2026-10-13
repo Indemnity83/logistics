@@ -17,8 +17,13 @@ public class HumusGameTest {
     }
 
     @GameTest(maxTicks = 40)
-    public void testHumusGrowsSaplingIntoTree(GameTestHelper context) {
-        HumusGameTestBody.testHumusGrowsSaplingIntoTree(context);
+    public void testHumusBoostGrowsTreeAndTurnsToSand(GameTestHelper context) {
+        HumusGameTestBody.testHumusBoostGrowsTreeAndTurnsToSand(context);
+    }
+
+    @GameTest(maxTicks = 40)
+    public void testHumusUnderLogTurnsToSand(GameTestHelper context) {
+        HumusGameTestBody.testHumusUnderLogTurnsToSand(context);
     }
 
     @GameTest(maxTicks = 40)
