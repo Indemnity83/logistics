@@ -1,6 +1,6 @@
 package com.logistics.forestry.farm;
 
-import com.logistics.core.machine.area.WorkArea;
+import com.logistics.core.machine.area.PlotArea;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -17,8 +17,33 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>{@link #usesWater()} and {@link #laysSoil()} shape the machine (its tank and soil slots), so
  * they must never change for a given farm type.
+ *
+ * <p>A farm works the ring of plots between two squares centred on it, {@link #ringInner()} and
+ * {@link #ringOuter()} wide. Before the logic is asked about a plot, the farm clears every block
+ * from the plot's column, {@link #clearanceHeight()} tall, that is not {@link #isOwnGrowth own
+ * growth}; the logic only decides once that column is clear.
  */
 public interface FarmLogic {
+
+    /** Side of the square around the farm, the farm included, that is never worked (odd). */
+    default int ringInner() {
+        return 9;
+    }
+
+    /** Side of the square whose ring outside {@link #ringInner()} is worked (odd, larger). */
+    default int ringOuter() {
+        return 13;
+    }
+
+    /** Blocks the farm keeps clear above each plot, counting the plot itself. */
+    default int clearanceHeight() {
+        return 1;
+    }
+
+    /** Whether {@code state} is the farm's own growth, which it harvests instead of clearing. */
+    default boolean isOwnGrowth(BlockState state) {
+        return false;
+    }
 
     /** Whether the farm has an input-only water tank and irrigates. */
     default boolean usesWater() {
@@ -57,8 +82,9 @@ public interface FarmLogic {
 
     /**
      * The one thing {@code plot} needs next. {@code plot} is at the farm's Y level and its soil is
-     * {@code plot.below()}. Expected priority: harvest, then soil or tilling, then planting, then
-     * irrigation (only while {@link FarmInputs#hasWater()}).
+     * {@code plot.below()}; above the soil the column holds only air and own growth. Expected
+     * priority: harvest, then soil or tilling, then planting, then irrigation (only while
+     * {@link FarmInputs#hasWater()}).
      *
      * <p>Only called while {@code plot} is loaded. Must not change the world; reads beyond the plot
      * should check {@link FarmWorld#isLoaded}.
@@ -70,7 +96,7 @@ public interface FarmLogic {
      * this one. Override it when the planting pattern depends on where {@code plot} lies in the
      * area. Defaults to ignoring the area.
      */
-    default PlotAction decide(FarmWorld world, WorkArea area, BlockPos plot, FarmInputs inputs) {
+    default PlotAction decide(FarmWorld world, PlotArea area, BlockPos plot, FarmInputs inputs) {
         return decide(world, plot, inputs);
     }
 }

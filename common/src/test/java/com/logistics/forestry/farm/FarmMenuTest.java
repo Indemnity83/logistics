@@ -281,7 +281,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @DisplayName("the synced data decodes to the farm's energy, water, status, plot and flags")
     void syncedData() {
         // Values above a short's range, so the wide slot pairs are exercised.
-        FarmSettings settings = new FarmSettings(9, 10, 100_000, 128, 40, 100, 60, 60, 20, 40_000, 50, 4, 20, 200);
+        FarmSettings settings = new FarmSettings(10, 100_000, 128, 40, 40, 100, 60, 60, 20, 40_000, 50, 4, 20, 200);
         TestFarm farm = farm(new ScriptedFarmLogic(true, false), settings);
         farm.parts.energy().setAmount(70_000);
         farm.parts.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(33_000), false);
@@ -294,7 +294,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.waterMb()).isEqualTo(33_000);
         assertThat(menu.waterCapacityMb()).isEqualTo(40_000);
         assertThat(menu.status()).isEqualTo(FarmStatus.IDLE);
-        assertThat(menu.areaSize()).isEqualTo(9);
+        assertThat(menu.areaSize()).as("the ring's outer side").isEqualTo(3);
         assertThat(menu.usesWater()).isTrue();
         assertThat(menu.laysSoil()).isFalse();
     }
