@@ -29,7 +29,11 @@ public final class CropFarmGameTestRegistration {
         new GameTestCase(
             "forestry/crop_farm_plants_but_reports_no_water", 620, CropFarmGameTestBody::testPlantsButReportsNoWater),
         new GameTestCase("forestry/crop_farm_does_nothing_without_power", 300, CropFarmGameTestBody::testDoesNothingWithoutPower),
-        new GameTestCase("forestry/crop_farm_leaves_torch_on_plot", 800, CropFarmGameTestBody::testLeavesTorchOnPlot));
+        new GameTestCase("forestry/crop_farm_leaves_torch_on_plot", 800, CropFarmGameTestBody::testLeavesTorchOnPlot),
+        new GameTestCase(
+            "forestry/crop_farm_lever_on_engine_does_not_pause_farm",
+            800,
+            CropFarmGameTestBody::testLeverOnEngineDoesNotPauseFarm));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
