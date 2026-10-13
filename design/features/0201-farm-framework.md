@@ -1,9 +1,9 @@
 # Farm Framework
 
-> **Status:** ✅ **Shipped** (#1406; farm screen #1407) — shared farm block, work loop, role-routed I/O, water tank and farm screen; fixed 9×9 plot · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain) + shared framework in `core`
+> **Status:** ✅ **Shipped** (#1406; farm screen #1407) — shared farm block, work loop, role-routed I/O, water tank and farm screen; ring farms (#1414–#1418) · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain) + shared framework in `core`
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** the machine framework (`core/machine/*`); a Provider-pipe fix (below) · **Maps to (roadmap):** Phase 2 — Farms
 
-The shared base every Phase 2 farm is built on: one block per farm type, a fixed square plot in front of the block, a work loop that harvests, lays soil, irrigates, plants and fertilizes one plot at a time, role-routed item I/O, an input-only water tank, and one shared farm screen. The individual farms ([0203](0203-arboretum.md)–[0209](0209-orchard.md)) only supply a `FarmLogic`.
+The shared base every Phase 2 farm is built on: one block per farm type, sitting at the centre of a free 9×9 and working a ring of plots around it, a work loop that clears, harvests, lays soil, tills and plants one plot at a time, role-routed item I/O, an input-only water tank, and one shared farm screen. The individual farms ([0203](0203-arboretum.md)–[0209](0209-orchard.md)) only supply a `FarmLogic`.
 
 ## Problem & goal
 
@@ -15,19 +15,20 @@ Nothing farm-related exists in code yet: there are no farm, harvest, bonemeal or
 
 ### Functional
 - **One block per farm type.** No farm-type selector. Every farm block shares one block entity type.
-- **Work area:** the farm sits at the edge-midpoint of its plot, facing into it. The plot is a fixed **9×9** at the block's Y level, with soil at Y-1. Work-area upgrades will come with the machine-wide upgrade design ([0106](0106-machine-upgrades.md)).
+- **Work area (centred ring):** the farm block sits at the centre. The inner **9×9**, farm included, is never touched: it is where the player puts pipes, engines and chests. The farm works the **ring** between that square and an outer square: **15×15** for the Crop Farm (a 3-wide band, 144 plots), **13×13** for the Arboretum (a 2-wide band, 88 plots). Plots are at the farm's Y, soil at Y-1. Each `FarmLogic` supplies `ringInner()`/`ringOuter()`. Work-area upgrades will come with the machine-wide upgrade design ([0106](0106-machine-upgrades.md)).
+- **Clearing:** before the logic works a plot, the farm clears the plot's column, top-down, one block per op at `rf_clear_per_block` RF: up to Y+4 for the Crop Farm, Y+9 for the Arboretum (`FarmLogic.clearanceHeight()`). Drops go to the output; fluids, source or flowing, are drained. The farm's own crops and trees are harvested, not cleared. **Block entities and unbreakable blocks (hardness < 0) are never broken**: the plot reports *Blocked* instead, so chests never spill. The soil layer is replaced with the farm's own soil unless it is already prepared (dirt or farmland for the Crop Farm, Humus for the Arboretum).
 - **Chunk behaviour:** works only while its chunk is loaded. No chunk loading, and a scan never loads chunks (`level.isLoaded(pos)` before every read).
-- **Work loop:** every N ticks the farm takes the next plot in a deterministic scan and performs at most one op, in priority order **HARVEST → SOIL/TILL → IRRIGATE → PLANT → FERTILIZE**. Each op costs RF; IRRIGATE also costs water (mB).
-- **Output:** a 9-slot internal buffer. When it is full the farm stops harvesting (planting and soil work continue) and shows *Output full*. It never drops items in the world; it sweeps up loose drops in its own area. Random drops beyond the free space go to an NBT overflow list.
+- **Work loop:** every N ticks the farm takes the next plot in a deterministic scan and performs at most one op: while the plot's column needs clearing, one CLEAR; otherwise the one op the logic picks (HARVEST, SOIL, TILL, MOISTEN or PLANT). Each op costs RF; TILL on a farm with a tank also costs water (`water_per_till_mb`).
+- **Output:** a 9-slot internal buffer. When it is full the farm stops harvesting (planting and soil work continue) and shows *Output full*. It never drops or voids items in the world; it sweeps up loose drops in its own ring. Random drops beyond the free space go to an NBT overflow list.
 - **Redstone:** a redstone signal pauses the farm.
-- **Status (Jade + GUI):** one of Working, No power, No water, No germlings, No soil, Output full, Paused (redstone), Idle (nothing to do), plus Too dark / Blocked instead of retrying forever (crops need light ≥ 8; farmland reverts under solid blocks).
+- **Status (Jade + GUI):** one of Working, No power, No water (Crop Farm), No germlings, No soil, Output full, Paused (redstone), Idle (nothing to do), plus Too dark / Blocked instead of retrying forever (crops need light ≥ 8; a protected block in a plot's column).
 - **No fake players.** Plant with `setBlock` after `canSurvive`; harvest with `Block.getDrops(…, ItemStack.EMPTY)` + `destroyBlock` (accept drops only when it returns true); grow through `PlantCompat`. The owner is recorded on placement behind a no-op `ProtectionCompat` seam, since claim mods see no break event without a fake player.
-- **Pipes and hoppers:** inserting on any face routes each item by role (germling → germling slots, soil → soil slots, fertilizer → fertilizer slot); anything else is refused. Every face exposes only the output slots for extraction, so a Provider pipe offers only produce and a Supplier pipe keeps inputs stocked.
-- **Water:** an input-only tank accepting `c:water`, filled by a Pump, fluid pipe, Glass Tank or Fluid Supplier pipe. Only farms that irrigate have one.
+- **Pipes and hoppers:** inserting on any face routes each item by role (germling → germling slots 0–3, soil → soil slots 4–7); once its group is full, or for anything else, it is refused. Output is slots 8–16. Every face exposes only the output slots for extraction, so a Provider pipe offers only produce and a Supplier pipe keeps inputs stocked.
+- **Water:** an input-only tank accepting `c:water`, filled by a Pump, fluid pipe, Glass Tank or Fluid Supplier pipe. Only farms that till with water have one (the Crop Farm).
 - **Power:** cables or engines like any machine. Not low-tier, so a Redstone engine can't power it.
 
 ### Balance
-- Steady-state draw of about **10–20 RF/t**, in line with the Kiln and Sawmill. Every number (op cost, water per irrigate, tick interval) is a config key.
+- Steady-state draw of about **10–20 RF/t**, in line with the Kiln and Sawmill. Every number (op cost, water per till, tick interval) is a config key in `forestry/farm.json`: `rf_clear_per_block` (40), `rf_moisten` (20), `water_per_till_mb` (250), and the other op costs.
 - Recipe: the standard machine recipe (Machine Frame + Redstone Reception Coil + copper gears) with themed items and **1–2 valves** per farm. Wave 1 is decided: Arboretum = copper, Crop Farm = tin. Proposed for later waves: Peat Bog = rubber, Mushroom = obsidian, Stalk = iron, Infernal = blazing, Orchard = emerald.
 
 ## Design sketch
@@ -39,7 +40,7 @@ Nothing farm-related exists in code yet: there are no farm, harvest, bonemeal or
   - `canFertilize(level, pos, state)` / `fertilize(level, random, pos, state)` — 26.x `BonemealableBlock` methods take an extra `BonemealSource`.
   - `harvestBerries(level, pos, state)` — 26.x reads harvest loot tables where 1.21.1 hard-codes counts.
   - Fungus growth — `NetherFungusBlock` with `Feature` keys on 26.x, `FungusBlock` with `ConfiguredFeature` keys on 1.21.1.
-- **`core/machine/area`:** `WorkArea` (a square in front of a facing) and `PlotScanner` (a resumable round-robin cursor that backs off after a pass with no work). Pure code; the quarry's `QuarryFrameRect` / `GridScanner` can adopt it later.
+- **`core/machine/area`:** a `PlotArea` interface implemented by `WorkArea` (a square) and `RingArea(origin, inner, outer)` (the band between two odd squares, exposing each plot's `lane` and `step` for planting patterns), plus `PlotScanner` (a resumable round-robin cursor that backs off after a pass with no work). Pure code; the quarry's `QuarryFrameRect` / `GridScanner` can adopt it later.
 - Add `'forestry'` to `domains` in the root `build.gradle` (`checkImportBoundaries`).
 
 ### Prerequisite fix — Provider pipes advertise only extractable slots
@@ -54,26 +55,27 @@ A real `fix(routing)` PR, worth landing without farms: `ProviderModule.scanStora
 common/src/main/java/com/logistics/forestry/farm/
 ├── FarmMachineBlock.java     # abstract; extends core/lib/block/MachineBlock; FACING + LIT
 ├── FarmBlockEntity.java      # one shared type for every farm block; MachineEntity + MachineBuilder
-├── FarmComponent.java        # the work-loop state machine; ops are FarmOperation OperationKeys
-├── FarmLogic.java            # per-farm SPI: germlings, soil, plot classification, harvest
-├── FarmOperation.java        # HARVEST / SOIL / IRRIGATE / PLANT / FERTILIZE
+├── FarmComponent.java        # the work loop: clears, then performs the logic's PlotAction
+├── ColumnClearer.java        # pure: next block to clear from a plot's column
+├── FarmLogic.java            # per-farm SPI: ring sizes, clearance, germlings, soil, plot actions
+├── PlotAction.java           # Harvest / PlaceSoil / Till / Moisten / Plant / None / Blocked
 └── FarmStatus.java
 ```
 - **Naming:** `FarmMachineBlock`, not `FarmBlock` (vanilla farmland on 1.21.1) and not `BushBlock`. Code never references the farmland class (`FarmBlock` on 1.21.1, `FarmlandBlock` on 26.x); use `Blocks.FARMLAND` + `BlockStateProperties.MOISTURE`, and write moisture with flag 2.
 - **One shared block entity type** registered for every farm block (`registerBlockEntity(name, factory, Block...)`), so NeoForge needs one capability line per capability.
 - **`FarmLogic` selection** in `configure()` from `getBlockState().getBlock()`. Fields are declared without initializers, as in `LaserQuarryBlockEntity`, because initializers run after `configure()`.
-- **Components:** `EnergyStorageComponent`, `ItemStoreComponent` with `SidedLayout.anyFace(...)` role filters, `FluidStoreComponent` with `inputOnly(c:water)` when the logic irrigates.
+- **Components:** `EnergyStorageComponent`, `ItemStoreComponent` with `SidedLayout.anyFace(...)` role filters, `FluidStoreComponent` with `inputOnly(c:water)` when the logic tills with water.
 - **World-touching component:** model `FarmComponent` on the Fluid Pump's `automation/pump/FluidPumpComponent`. Drop collection re-implements `QuarryBlockBreaker`'s `getDrops` + `destroyBlock` pattern and `QuarryOutput.collectLooseItems` in core, since domains can't import `automation`.
 - **Status / Jade:** expose status through `MachineHudModel`; register the abstract `FarmMachineBlock` once in both loaders' Jade plugins and the Fabric client plugin (subclasses match), backed by `compat/jade/MachineServerDataProvider`.
-- **Test hook:** `FarmBlockEntity.setAreaSizeOverride(int)`, a per-instance override following the `FluidPumpBlockEntity.setArmSpeedOverride` precedent, so GameTests fit a 3×3 plot into the standard empty structure.
+- **Test hooks:** `setAreaOverride(inner, outer)` and `setClearanceHeightOverride(h)`, per-instance overrides following the `FluidPumpBlockEntity.setArmSpeedOverride` precedent. GameTests use a (1, 5) ring so the farm fits the standard 8×8×8 empty structure.
 
 ### Shared farm screen
 One menu + screen for every farm, configured by farm type (approved layout):
 - **176×166**, ghost icons instead of text labels.
-- **Left:** energy bar, and a water gauge only for farms that irrigate.
-- **Middle:** a row of 4 germling slots; a row of 4 soil slots (hidden if the farm lays no soil); then the fertilizer slot + charge bar + status lamp.
-- **Right:** a 3×3 output grid.
-- **Status lamp** tooltip reads like "Working · 9×9 plot".
+- **Left:** energy bar, and a water gauge only on the Crop Farm.
+- **Middle:** a row of 4 germling slots (0–3); a row of 4 soil slots (4–7); then the status lamp.
+- **Right:** a 3×3 output grid (8–16).
+- **Status lamp** tooltip shows the ring size, e.g. "Working · 15×15".
 
 ## Scope & non-goals
 
@@ -84,15 +86,15 @@ One menu + screen for every farm, configured by farm type (approved layout):
 
 - **When wave 1 starts.** [`delivery-plan.md`](../delivery-plan.md) has farms wait for 1.0, and fluid request is still open. The maintainer decides.
 - **mc/1.21.1 port prerequisite:** that branch lacks `MachineHudModel` / `HudContributor`. Backport the HUD layer before the farm chunks are ported there.
-- Exact RF per op, water per irrigate, and the scan interval — tune in playtest within the 10–20 RF/t anchor.
+- Exact RF per op, water per till, and the scan interval — tune in playtest within the 10–20 RF/t anchor.
 
 ## Done when
 
 - A farm block with a trivial test `FarmLogic` works its plot on both loaders: no power → no work, Output full → stall, redstone → pause.
-- A hopper inserts germlings, soil and fertilizer into the right slots, and a hopper / Provider pipe can pull only output.
+- A hopper inserts germlings and soil into the right slots, and a hopper / Provider pipe can pull only output.
 - Water arrives from a Glass Tank or fluid pipe into the input-only tank.
-- JUnit covers `WorkArea` geometry for every facing, `PlotScanner` resume and back-off, the `SidedLayout` slot filters, and `FluidBuilder.inputOnly`.
-- GameTests (`common/src/gametest/.../forestry/`, both loaders, `checkFeatureTestParity`) use real connectivity — Creative Engine power, hopper input, hopper-to-chest output — and `setAreaSizeOverride(3)` instead of new `.nbt` structures.
+- JUnit covers `WorkArea` and `RingArea` geometry (counts, `indexOf` round-trip, corners, the excluded inner square), `ColumnClearer`, `PlotScanner` resume and back-off, the `SidedLayout` slot filters, and `FluidBuilder.inputOnly`.
+- GameTests (`common/src/gametest/.../forestry/`, both loaders, `checkFeatureTestParity`) use real connectivity — Creative Engine power, hopper input, hopper-to-chest output — and `setAreaOverride(1, 5)` instead of new `.nbt` structures.
 
 ## References
 
