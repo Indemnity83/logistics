@@ -34,6 +34,15 @@ public final class ArboretumGameTestRegistration {
             "forestry/arboretum_humus_replaces_dirt_across_the_ring", 2000,
             ArboretumGameTestBody::testHumusReplacesDirtAcrossTheRing),
         new GameTestCase(
+            "forestry/arboretum_felled_tree_leaves_sand_that_is_relaid_with_humus", 2000,
+            ArboretumGameTestBody::testFelledTreeLeavesSandThatIsRelaidWithHumus),
+        new GameTestCase(
+            "forestry/arboretum_felled_2x2_tree_leaves_sand_under_all_four_cells", 2000,
+            ArboretumGameTestBody::testFelled2x2TreeLeavesSandUnderAllFourCells),
+        new GameTestCase(
+            "forestry/arboretum_without_humus_sand_is_left_unplanted", 1200,
+            ArboretumGameTestBody::testWithoutHumusSandIsLeftUnplanted),
+        new GameTestCase(
             "forestry/arboretum_every_germling_grows_on_arboretum_soils", 40,
             ArboretumGameTestBody::testEveryGermlingGrowsOnArboretumSoils));
 

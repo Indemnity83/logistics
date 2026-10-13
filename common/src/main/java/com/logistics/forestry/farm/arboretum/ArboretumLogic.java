@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
  * At an anchor a 2×2 sapling is preferred over a single one. Each plot gets, in order: its tree
  * felled; its soil replaced with Humus unless it is Humus already; a sapling planted. Humus is the
  * only soil the Arboretum lays, so without it unprepared plots report no soil and stay unplanted.
+ * A felled tree leaves sand where its Humus was, which the next pass digs out and relays.
  */
 public final class ArboretumLogic implements FarmLogic {
 
@@ -95,6 +97,13 @@ public final class ArboretumLogic implements FarmLogic {
     @Override
     public boolean laysSoil() {
         return true;
+    }
+
+    /** Humus under a felled tree is spent and turns to sand. */
+    @Override
+    @Nullable
+    public BlockState soilAfterHarvest(BlockState soil) {
+        return isPrepared(soil) ? Blocks.SAND.defaultBlockState() : null;
     }
 
     @Override

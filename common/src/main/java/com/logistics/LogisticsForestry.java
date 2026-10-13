@@ -83,12 +83,6 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("Chance per Humus random tick to give the sapling above an extra growth step (0.0-1.0)")
                 .register();
 
-        public static final ConfigKey<Double> HUMUS_DEGRADE_CHANCE = humus.defineDouble("humus_degrade_chance", 0.5)
-                .finite()
-                .range(0.0, 1.0)
-                .describe("Chance that Humus turns to dirt when its boost grows a tree (0.0-1.0)")
-                .register();
-
         public static final ConfigKey<Integer> FARM_WORK_INTERVAL_TICKS = farm.defineInt("work_interval_ticks", 10)
                 .min(1)
                 .describe("Ticks between plots; a farm works at most one plot per interval")
