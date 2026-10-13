@@ -8,6 +8,7 @@ import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.core.machine.area.RingArea;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmSettings;
@@ -41,41 +42,44 @@ import org.jetbrains.annotations.Nullable;
  * Fabric's {@code CropFarmGameTest} delegates to these methods and NeoForge's
  * {@code CropFarmGameTestRegistration} references them as {@code Consumer<GameTestHelper>}.
  *
- * <p>Every test builds the same rig with real blocks: the farm faces east over a 3×3 plot
- * ({@link FarmBlockEntity#setAreaSizeOverride}), a Creative Engine held on by a redstone block
- * powers it from behind, a hopper on top feeds it, and a hopper underneath pulls its produce into a
- * chest. Water comes from a Glass Tank through a Fluid Extractor Pipe driven by a second engine.
- * Glowstone beside the plot keeps it bright whatever the sky does.
+ * <p>Every test builds the same rig with real blocks: the farm at the centre works the 16-plot ring
+ * between a 3×3 and a 5×5 square around it ({@link FarmBlockEntity#setAreaOverride}), at its Y,
+ * with soil one block below. Everything else stands in the 3×3 inside the ring, which the farm never
+ * touches: a Creative Engine held on by a redstone block powers the farm from the west, a hopper on
+ * top feeds it, and a hopper underneath pulls its produce into a chest. Water comes from a Glass Tank
+ * through a Fluid Extractor Pipe on the north side, driven by a second engine. Two glowstone lamps
+ * above the inner square keep the ring bright whatever the sky does.
  */
 public class CropFarmGameTestBody {
 
-    private static final BlockPos FARM = new BlockPos(2, 2, 3);
+    private static final BlockPos FARM = new BlockPos(3, 2, 3);
     private static final BlockPos ENGINE = FARM.west();
-    private static final BlockPos ENGINE_SIGNAL = ENGINE.west();
+    private static final BlockPos ENGINE_SIGNAL = ENGINE.south();
     private static final BlockPos INPUT_HOPPER = FARM.above();
     private static final BlockPos OUTPUT_HOPPER = FARM.below();
     private static final BlockPos CHEST = OUTPUT_HOPPER.below();
     private static final BlockPos WATER_PIPE = FARM.north();
-    private static final BlockPos WATER_TANK = WATER_PIPE.north();
-    private static final BlockPos PIPE_ENGINE = WATER_PIPE.west();
-    private static final BlockPos PIPE_ENGINE_SIGNAL = PIPE_ENGINE.west();
-    private static final BlockPos LAMP = new BlockPos(6, 1, 3);
+    private static final BlockPos WATER_TANK = WATER_PIPE.above();
+    private static final BlockPos PIPE_ENGINE = WATER_PIPE.east();
+    private static final BlockPos PIPE_ENGINE_SIGNAL = PIPE_ENGINE.above();
+    private static final List<BlockPos> LAMPS = List.of(new BlockPos(2, 4, 2), new BlockPos(4, 4, 4));
 
-    /** The 3×3 plot in front of the farm, at its Y; soil is one block below each. */
+    private static final int RING_INNER = 3;
+    private static final int RING_OUTER = 5;
+
+    /** The ring's plots, at the farm's Y, in scan order; soil is one block below each. */
     private static final List<BlockPos> PLOTS = plots();
 
-    private static final int AREA_SIZE = 3;
     private static final int MAX_MOISTURE = 7;
     private static final long TANK_MB = 4_000;
 
     private static List<BlockPos> plots() {
+        RingArea ring = new RingArea(FARM, RING_INNER, RING_OUTER);
         List<BlockPos> plots = new ArrayList<>();
-        for (int x = 3; x <= 5; x++) {
-            for (int z = 2; z <= 4; z++) {
-                plots.add(new BlockPos(x, 2, z));
-            }
+        for (int i = 0; i < ring.plotCount(); i++) {
+            plots.add(ring.plot(i));
         }
-        return plots;
+        return List.copyOf(plots);
     }
 
     private record Rig(FarmBlockEntity farm, HopperBlockEntity input, @Nullable GlassTankBlockEntity tank) {}
@@ -89,7 +93,7 @@ public class CropFarmGameTestBody {
         for (BlockPos plot : PLOTS) {
             context.setBlock(plot.below(), soil);
         }
-        context.setBlock(LAMP, Blocks.GLOWSTONE);
+        LAMPS.forEach(lamp -> context.setBlock(lamp, Blocks.GLOWSTONE));
 
         context.setBlock(FARM, LogisticsForestry.BLOCK.CROP_FARM.defaultBlockState()
                 .setValue(FarmMachineBlock.FACING, Direction.EAST));
@@ -103,7 +107,7 @@ public class CropFarmGameTestBody {
             context.fail("Expected the farm and input hopper block entities");
             return null;
         }
-        farm.setAreaSizeOverride(AREA_SIZE);
+        farm.setAreaOverride(RING_INNER, RING_OUTER);
 
         if (power) {
             CreativeEngineBlockEntity engine = placeEngine(context, ENGINE, ENGINE_SIGNAL, Direction.EAST);
@@ -123,13 +127,13 @@ public class CropFarmGameTestBody {
             tank = context.getBlockEntity(WATER_TANK, GlassTankBlockEntity.class);
             FluidPipeBlockEntity pipe = context.getBlockEntity(WATER_PIPE, FluidPipeBlockEntity.class);
             if (tank == null || pipe == null
-                    || placeEngine(context, PIPE_ENGINE, PIPE_ENGINE_SIGNAL, Direction.EAST) == null) {
+                    || placeEngine(context, PIPE_ENGINE, PIPE_ENGINE_SIGNAL, Direction.WEST) == null) {
                 context.fail("Expected the glass tank, extractor pipe and its engine");
                 return null;
             }
             // Filling the source tank is a precondition; the pipe carries it into the farm.
             tank.tank().setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(TANK_MB));
-            pipe.setFeatureDirection(Direction.NORTH);
+            pipe.setFeatureDirection(Direction.UP);
         }
         return new Rig(farm, input, tank);
     }
@@ -171,21 +175,22 @@ public class CropFarmGameTestBody {
         }
     }
 
+    private static void assertChestHolds(GameTestHelper context, Item item, String what) {
+        if (count(context.getBlockEntity(CHEST, ChestBlockEntity.class), item) == 0) {
+            throw context.assertionException(CHEST, what + " should have reached the chest");
+        }
+    }
+
     /**
-     * Dirt and grass under the plot are tilled into farmland and sown with hopper-fed seeds; short
-     * grass growing on one plot is cleared first.
+     * Dirt under the ring is tilled into farmland and sown with hopper-fed seeds; short grass growing
+     * on one plot is cleared first.
      */
     public static void testTillsAndPlantsWheat(GameTestHelper context) {
         Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
         if (rig == null) {
             return;
         }
-        for (int i = 0; i < PLOTS.size(); i += 2) {
-            context.setBlock(PLOTS.get(i).below(), Blocks.GRASS_BLOCK);
-        }
-        BlockPos overgrown = PLOTS.get(1);
-        context.setBlock(overgrown.below(), Blocks.GRASS_BLOCK);
-        context.setBlock(overgrown, Blocks.SHORT_GRASS);
+        context.setBlock(PLOTS.get(1), Blocks.SHORT_GRASS);
         rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
 
         context.succeedWhen(() -> assertWheatEverywhere(context, PLOTS));
@@ -219,8 +224,8 @@ public class CropFarmGameTestBody {
             }
             long left = farmWater(rig.farm());
             if (left <= 0 || left > FluidUnits.mb(TANK_MB) - irrigatedAtLeast) {
-                throw context.assertionException(FARM, "Irrigating 9 plots should have drawn on the farm's water, has "
-                        + FluidUnits.toMillibuckets(left) + " mB of " + TANK_MB);
+                throw context.assertionException(FARM, "Irrigating " + PLOTS.size() + " plots should have drawn on"
+                        + " the farm's water, has " + FluidUnits.toMillibuckets(left) + " mB of " + TANK_MB);
             }
         });
     }
@@ -229,10 +234,10 @@ public class CropFarmGameTestBody {
      * Wheat ripens, is harvested into the chest through the output hopper, and plots are sown again
      * from the seeds the harvest returned. The test bone-meals growing wheat so it ripens quickly.
      *
-     * <p>The hopper holds exactly one seed per plot, so every sowing beyond those nine used a
-     * returned seed: replants = (wheat standing + harvests) - 9. A harvest drops exactly one wheat,
-     * so harvests are counted as the wheat in the chest, the output hopper and the farm. Not every
-     * plot need be replanted: the output hopper is free to carry returned seeds off to the chest.
+     * <p>The hopper holds exactly one seed per plot, so every sowing beyond those used a returned
+     * seed: replants = (wheat standing + harvests) - plots. A harvest drops exactly one wheat, so
+     * harvests are counted as the wheat in the chest, the output hopper and the farm. Not every plot
+     * need be replanted: the output hopper is free to carry returned seeds off to the chest.
      */
     public static void testHarvestsAndReplantsFromReturnedSeeds(GameTestHelper context) {
         Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
@@ -334,7 +339,7 @@ public class CropFarmGameTestBody {
     /**
      * An engine on top of the farm, switched on by a lever on the engine, powers the farm without
      * relaying the lever's signal into it: the farm is not paused, and sows seeds fed in from a
-     * hopper behind it.
+     * hopper beside it.
      */
     public static void testLeverOnEngineDoesNotPauseFarm(GameTestHelper context) {
         Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false, true);
@@ -359,7 +364,7 @@ public class CropFarmGameTestBody {
         context.setBlock(ENGINE, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.EAST));
         HopperBlockEntity feeder = context.getBlockEntity(ENGINE, HopperBlockEntity.class);
         if (feeder == null) {
-            context.fail("Expected the feeding hopper behind the farm");
+            context.fail("Expected the feeding hopper beside the farm");
             return;
         }
         feeder.setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
@@ -375,22 +380,110 @@ public class CropFarmGameTestBody {
         });
     }
 
-    /** A torch standing on a plot is left alone, as is the dirt under it; the rest is farmed. */
-    public static void testLeavesTorchOnPlot(GameTestHelper context) {
+    // ==================== Clearing ====================
+
+    /** A torch standing on a plot is cleared into the chest, and the plot is farmed like the rest. */
+    public static void testClearsTorchFromPlot(GameTestHelper context) {
         Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
         if (rig == null) {
             return;
         }
-        BlockPos torch = PLOTS.get(PLOTS.size() / 2);
-        context.setBlock(torch, Blocks.TORCH);
-        List<BlockPos> others = new ArrayList<>(PLOTS);
-        others.remove(torch);
-        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, others.size()));
+        context.setBlock(PLOTS.get(PLOTS.size() / 2), Blocks.TORCH);
+        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
 
         context.succeedWhen(() -> {
-            context.assertBlockPresent(Blocks.TORCH, torch);
-            context.assertBlockPresent(Blocks.DIRT, torch.below());
+            assertChestHolds(context, Items.TORCH, "The cleared torch");
+            assertWheatEverywhere(context, PLOTS);
+        });
+    }
+
+    /** Cobblestone two blocks above a plot is cleared into the chest, and the ring is farmed. */
+    public static void testClearsBlockAbovePlot(GameTestHelper context) {
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        if (rig == null) {
+            return;
+        }
+        BlockPos cobble = PLOTS.get(3).above(2);
+        context.setBlock(cobble, Blocks.COBBLESTONE);
+        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
+
+        context.succeedWhen(() -> {
+            context.assertBlockPresent(Blocks.AIR, cobble);
+            assertChestHolds(context, Items.COBBLESTONE, "The cleared cobblestone");
+            assertWheatEverywhere(context, PLOTS);
+        });
+    }
+
+    /**
+     * A chest standing on a plot is a block entity, so it is never broken and never emptied: the
+     * chest and its contents are still there once the farm has sown the rest of the ring.
+     */
+    public static void testNeverBreaksChestInRing(GameTestHelper context) {
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        if (rig == null) {
+            return;
+        }
+        BlockPos stash = PLOTS.get(PLOTS.size() / 2);
+        context.setBlock(stash, Blocks.CHEST);
+        ChestBlockEntity chest = context.getBlockEntity(stash, ChestBlockEntity.class);
+        if (chest == null) {
+            context.fail("Expected the chest in the ring");
+            return;
+        }
+        chest.setItem(0, new ItemStack(Items.DIAMOND, 5));
+        List<BlockPos> others = new ArrayList<>(PLOTS);
+        others.remove(stash);
+        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, others.size()));
+
+        context.onEachTick(() -> context.assertBlockPresent(Blocks.CHEST, stash));
+        context.succeedWhen(() -> {
             assertWheatEverywhere(context, others);
+            ChestBlockEntity standing = context.getBlockEntity(stash, ChestBlockEntity.class);
+            if (count(standing, Items.DIAMOND) != 5) {
+                throw context.assertionException(stash, "The chest in the ring should still hold its 5 diamonds");
+            }
+            if (count(context.getBlockEntity(CHEST, ChestBlockEntity.class), Items.DIAMOND) != 0) {
+                throw context.assertionException(CHEST, "No diamond should have left the chest in the ring");
+            }
+        });
+    }
+
+    /** A block in the square inside the ring, right beside the farm, is never touched. */
+    public static void testLeavesInnerSquareAlone(GameTestHelper context) {
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        if (rig == null) {
+            return;
+        }
+        BlockPos inner = FARM.east();
+        context.setBlock(inner, Blocks.COBBLESTONE);
+        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
+
+        context.onEachTick(() -> context.assertBlockPresent(Blocks.COBBLESTONE, inner));
+        context.succeedWhen(() -> {
+            assertWheatEverywhere(context, PLOTS);
+            if (count(context.getBlockEntity(CHEST, ChestBlockEntity.class), Items.COBBLESTONE) != 0) {
+                throw context.assertionException(CHEST, "Nothing should have been cleared from inside the ring");
+            }
+        });
+    }
+
+    /**
+     * A grass block under a plot is not prepared soil: it is broken, its drop reaches the chest, and
+     * dirt from the soil slots takes its place before it is tilled and sown.
+     */
+    public static void testReplacesGrassWithDirt(GameTestHelper context) {
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        if (rig == null) {
+            return;
+        }
+        BlockPos grass = PLOTS.get(5).below();
+        context.setBlock(grass, Blocks.GRASS_BLOCK);
+        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
+        rig.input().setItem(1, new ItemStack(Items.DIRT, PLOTS.size()));
+
+        context.succeedWhen(() -> {
+            assertChestHolds(context, Items.DIRT, "The grass block's drop");
+            assertWheatEverywhere(context, PLOTS);
         });
     }
 }

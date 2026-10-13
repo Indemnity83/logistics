@@ -11,12 +11,12 @@ import net.minecraft.gametest.framework.GameTestHelper;
  */
 public class ArboretumGameTest {
 
-    @GameTest(maxTicks = 600)
+    @GameTest(maxTicks = 1200)
     public void testPlantsSaplingsOnLattice(GameTestHelper context) {
         ArboretumGameTestBody.testPlantsSaplingsOnLattice(context);
     }
 
-    @GameTest(maxTicks = 2000)
+    @GameTest(maxTicks = 3000)
     public void testFellsGrownTreeAndReplants(GameTestHelper context) {
         ArboretumGameTestBody.testFellsGrownTreeAndReplants(context);
     }
@@ -31,14 +31,14 @@ public class ArboretumGameTest {
         ArboretumGameTestBody.testRedstonePausesFarm(context);
     }
 
-    @GameTest(maxTicks = 300)
-    public void testLeavesStoneAndPlayerBuildsAlone(GameTestHelper context) {
-        ArboretumGameTestBody.testLeavesStoneAndPlayerBuildsAlone(context);
+    @GameTest(maxTicks = 1200)
+    public void testClearsBlocksFromRing(GameTestHelper context) {
+        ArboretumGameTestBody.testClearsBlocksFromRing(context);
     }
 
-    @GameTest(maxTicks = 600)
-    public void testHumusReplacesDirtUnderPlantingCorners(GameTestHelper context) {
-        ArboretumGameTestBody.testHumusReplacesDirtUnderPlantingCorners(context);
+    @GameTest(maxTicks = 2000)
+    public void testHumusReplacesDirtAcrossTheRing(GameTestHelper context) {
+        ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
     }
 
     @GameTest(maxTicks = 40)

@@ -89,11 +89,6 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("Chance that Humus turns to dirt when its boost grows a tree (0.0-1.0)")
                 .register();
 
-        public static final ConfigKey<Integer> FARM_AREA_SIZE = farm.defineInt("area_size", 9)
-                .range(1, 33)
-                .describe("Width of the square plot in front of a farm (odd; an even value rounds up)")
-                .register();
-
         public static final ConfigKey<Integer> FARM_WORK_INTERVAL_TICKS = farm.defineInt("work_interval_ticks", 10)
                 .min(1)
                 .describe("Ticks between plots; a farm works at most one plot per interval")
@@ -113,6 +108,12 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .min(0L)
                 .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
                 .describe("RF per block harvested")
+                .register();
+
+        public static final ConfigKey<Long> FARM_RF_CLEAR_PER_BLOCK = farm.defineLong("rf_clear_per_block", 40L)
+                .min(0L)
+                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .describe("RF per block or fluid cleared from above a plot")
                 .register();
 
         public static final ConfigKey<Long> FARM_RF_PLANT = farm.defineLong("rf_plant", 100L)
@@ -177,10 +178,6 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Items that count as fertilizer. */
         public static final TagKey<Item> FERTILIZERS =
                 TagKey.create(Registries.ITEM, resource("fertilizers").toIdentifier());
-
-        /** Ground a farm may dig up to lay its own soil; anything else under a plot is left alone. */
-        public static final TagKey<Block> REPLACEABLE_SOIL =
-                TagKey.create(Registries.BLOCK, resource("replaceable_soil").toIdentifier());
 
         /** Items the Arboretum plants. */
         public static final TagKey<Item> ARBORETUM_GERMLINGS =

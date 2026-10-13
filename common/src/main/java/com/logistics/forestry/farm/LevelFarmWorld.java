@@ -1,10 +1,10 @@
 package com.logistics.forestry.farm;
 
-import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.compat.ProtectionCompat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -47,8 +47,8 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     }
 
     @Override
-    public boolean isReplaceableSoil(BlockPos pos) {
-        return isLoaded(pos) && level.getBlockState(pos).is(LogisticsForestry.TAG.REPLACEABLE_SOIL);
+    public float destroySpeed(BlockPos pos) {
+        return isLoaded(pos) ? level.getBlockState(pos).getDestroySpeed(level, pos) : 0;
     }
 
     @Override
@@ -87,10 +87,10 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     }
 
     @Override
-    public List<ItemStack> collectItems(AABB box) {
+    public List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where) {
         List<ItemStack> stacks = new ArrayList<>();
         for (ItemEntity entity : level.getEntitiesOfClass(ItemEntity.class, box)) {
-            if (entity.isAlive() && !entity.getItem().isEmpty()) {
+            if (entity.isAlive() && !entity.getItem().isEmpty() && where.test(entity.blockPosition())) {
                 stacks.add(entity.getItem().copy());
                 entity.discard();
             }

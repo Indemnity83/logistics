@@ -21,11 +21,11 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("config defaults")
     void configDefaults() {
-        assertThat(LogisticsForestry.CONFIG.FARM_AREA_SIZE.definition().defaultValue()).isEqualTo(9);
         assertThat(LogisticsForestry.CONFIG.FARM_WORK_INTERVAL_TICKS.definition().defaultValue()).isEqualTo(10);
         assertThat(LogisticsForestry.CONFIG.FARM_ENERGY_CAPACITY.definition().defaultValue()).isEqualTo(20_000L);
         assertThat(LogisticsForestry.CONFIG.FARM_MAX_ENERGY_INPUT.definition().defaultValue()).isEqualTo(128L);
         assertThat(LogisticsForestry.CONFIG.FARM_RF_HARVEST_PER_BLOCK.definition().defaultValue()).isEqualTo(40L);
+        assertThat(LogisticsForestry.CONFIG.FARM_RF_CLEAR_PER_BLOCK.definition().defaultValue()).isEqualTo(40L);
         assertThat(LogisticsForestry.CONFIG.FARM_RF_PLANT.definition().defaultValue()).isEqualTo(100L);
         assertThat(LogisticsForestry.CONFIG.FARM_RF_TILL.definition().defaultValue()).isEqualTo(60L);
         assertThat(LogisticsForestry.CONFIG.FARM_RF_SOIL.definition().defaultValue()).isEqualTo(60L);
@@ -40,12 +40,12 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("out-of-range settings are normalised into a workable farm")
     void normalises() {
-        FarmSettings settings = new FarmSettings(8, 0, 0, -1, -5, -5, -5, -5, -5, 0, -1, 0, 0, -3);
+        FarmSettings settings = new FarmSettings(0, 0, -1, -5, -5, -5, -5, -5, -5, 0, -1, 0, 0, -3);
 
-        assertThat(settings.areaSize()).isEqualTo(9);
         assertThat(settings.workIntervalTicks()).isEqualTo(1);
         assertThat(settings.energyCapacity()).isEqualTo(1);
         assertThat(settings.rfPlant()).isZero();
+        assertThat(settings.rfClearPerBlock()).isZero();
         assertThat(settings.waterPerIrrigateMb()).isZero();
         assertThat(settings.harvestBlocksPerTick()).isEqualTo(1);
         assertThat(settings.idleBackoffBaseTicks()).isEqualTo(1);
