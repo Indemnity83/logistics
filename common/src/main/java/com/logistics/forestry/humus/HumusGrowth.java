@@ -22,12 +22,4 @@ public final class HumusGrowth {
     public static boolean shouldBoost(RandomSource random, double growthChance) {
         return random.nextDouble() < growthChance;
     }
-
-    /**
-     * Whether the humus wears out to dirt. Only a tree actually grown from the boost can wear it out;
-     * a sapling merely advancing a stage never does.
-     */
-    public static boolean shouldDegrade(boolean treeGrew, RandomSource random, double degradeChance) {
-        return treeGrew && random.nextDouble() < degradeChance;
-    }
 }

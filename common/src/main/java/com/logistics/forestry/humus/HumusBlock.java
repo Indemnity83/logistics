@@ -2,6 +2,7 @@ package com.logistics.forestry.humus;
 
 import com.logistics.LogisticsConfigHost;
 import com.logistics.LogisticsForestry;
+import com.logistics.forestry.logic.LevelTreeView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -11,8 +12,8 @@ import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Rich soil that gives the sapling standing on it extra growth steps. Each tree it grows may wear
- * it back down to dirt; nothing else does.
+ * Rich soil that gives the sapling standing on it extra growth steps. A tree standing on it spends
+ * it: Humus with wood above turns to sand, whether its own boost grew the tree or not.
  */
 public class HumusBlock extends Block {
 
@@ -27,6 +28,9 @@ public class HumusBlock extends Block {
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (turnToSandUnderTree(level, pos)) {
+            return;
+        }
         BlockPos saplingPos = pos.above();
         BlockState above = level.getBlockState(saplingPos);
         if (!(above.getBlock() instanceof SaplingBlock sapling)) {
@@ -40,11 +44,15 @@ public class HumusBlock extends Block {
         }
 
         sapling.advanceTree(level, saplingPos, above, random);
+        turnToSandUnderTree(level, pos);
+    }
 
-        boolean treeGrew = !(level.getBlockState(saplingPos).getBlock() instanceof SaplingBlock);
-        if (HumusGrowth.shouldDegrade(treeGrew, random, LogisticsConfigHost.get(LogisticsForestry.CONFIG.HUMUS_DEGRADE_CHANCE))
-                && level.getBlockState(pos).is(this)) {
-            level.setBlockAndUpdate(pos, Blocks.DIRT.defaultBlockState());
+    /** Turns the Humus at {@code pos} to sand when a tree's wood stands on it; true when it did. */
+    private boolean turnToSandUnderTree(ServerLevel level, BlockPos pos) {
+        if (!level.getBlockState(pos).is(this) || !level.getBlockState(pos.above()).is(LevelTreeView.FELLABLE_WOOD)) {
+            return false;
         }
+        level.setBlockAndUpdate(pos, Blocks.SAND.defaultBlockState());
+        return true;
     }
 }

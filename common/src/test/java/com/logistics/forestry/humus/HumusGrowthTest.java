@@ -13,10 +13,9 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Humus growth decisions")
 class HumusGrowthTest extends MinecraftTestEnvironment {
 
-    /** A random source whose every {@code nextDouble} is {@code roll}, counting how often it is asked. */
+    /** A random source whose every {@code nextDouble} is {@code roll}. */
     private static final class FixedRoll extends SingleThreadedRandomSource {
         private final double roll;
-        private int draws;
 
         FixedRoll(double roll) {
             super(0L);
@@ -25,16 +24,14 @@ class HumusGrowthTest extends MinecraftTestEnvironment {
 
         @Override
         public double nextDouble() {
-            draws++;
             return roll;
         }
     }
 
     @Test
-    @DisplayName("config defaults: 25% boost chance, 50% degrade chance")
+    @DisplayName("config default: 25% boost chance")
     void configDefaults() {
         assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.HUMUS_GROWTH_CHANCE)).isEqualTo(0.25);
-        assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.HUMUS_DEGRADE_CHANCE)).isEqualTo(0.5);
     }
 
     @Test
@@ -64,24 +61,6 @@ class HumusGrowthTest extends MinecraftTestEnvironment {
             }
         }
         assertThat(boosts).isBetween(850, 1150);
-    }
-
-    @Test
-    @DisplayName("humus degrades only after a tree grew and the roll is under the degrade chance")
-    void degradeOnlyAfterGrowthAndChance() {
-        assertThat(HumusGrowth.shouldDegrade(true, new FixedRoll(0.1), 0.5)).isTrue();
-        assertThat(HumusGrowth.shouldDegrade(true, new FixedRoll(0.5), 0.5)).isFalse();
-        assertThat(HumusGrowth.shouldDegrade(false, new FixedRoll(0.0), 0.5)).isFalse();
-        assertThat(HumusGrowth.shouldDegrade(false, new FixedRoll(0.0), 1.0)).isFalse();
-        assertThat(HumusGrowth.shouldDegrade(true, new FixedRoll(0.0), 0.0)).isFalse();
-    }
-
-    @Test
-    @DisplayName("a sapling that only advanced a stage spends no degrade roll")
-    void noRollWithoutGrowth() {
-        FixedRoll random = new FixedRoll(0.0);
-        HumusGrowth.shouldDegrade(false, random, 0.5);
-        assertThat(random.draws).isZero();
     }
 
     @Test
