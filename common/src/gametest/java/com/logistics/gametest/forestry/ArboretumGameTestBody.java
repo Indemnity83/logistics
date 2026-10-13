@@ -257,14 +257,12 @@ public class ArboretumGameTestBody {
     }
 
     /**
-     * Every germling the Arboretum accepts can be planted on both of its soils, including the
+     * Every germling the Arboretum accepts can be planted on Humus, its only soil, including the
      * mangrove propagule, azalea and cherry; dark oak needs a 2×2 group.
      */
     public static void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
         FarmLogic logic = ((FarmMachineBlock) LogisticsForestry.BLOCK.ARBORETUM).logic();
-        BlockPos dirtCell = new BlockPos(2, 1, 2);
         BlockPos humusCell = new BlockPos(5, 1, 5);
-        context.setBlock(dirtCell.below(), Blocks.DIRT);
         context.setBlock(humusCell.below(), LogisticsForestry.BLOCK.HUMUS);
 
         List<Item> germlings = new ArrayList<>();
@@ -285,16 +283,14 @@ public class ArboretumGameTestBody {
                 context.fail("The Arboretum's germling check should accept " + germling);
                 return;
             }
-            for (BlockPos cell : List.of(dirtCell, humusCell)) {
-                BlockState plant = logic.plantState(stack, context.absolutePos(cell), null);
-                if (plant == null || !plant.canSurvive(context.getLevel(), context.absolutePos(cell))) {
-                    context.fail(germling + " should be plantable on " + context.getBlockState(cell.below()));
-                    return;
-                }
-                if (!logic.isOwnGrowth(plant)) {
-                    context.fail("A planted " + germling + " should be the Arboretum's own growth");
-                    return;
-                }
+            BlockState plant = logic.plantState(stack, context.absolutePos(humusCell), null);
+            if (plant == null || !plant.canSurvive(context.getLevel(), context.absolutePos(humusCell))) {
+                context.fail(germling + " should be plantable on Humus");
+                return;
+            }
+            if (!logic.isOwnGrowth(plant)) {
+                context.fail("A planted " + germling + " should be the Arboretum's own growth");
+                return;
             }
         }
         if (!new ItemStack(Items.DARK_OAK_SAPLING).is(LogisticsForestry.TAG.REQUIRES_2X2)
@@ -302,8 +298,8 @@ public class ArboretumGameTestBody {
             context.fail("Dark oak, and not oak, should need a 2×2 group");
             return;
         }
-        if (!logic.isSoil(new ItemStack(LogisticsForestry.BLOCK.HUMUS)) || !logic.isSoil(new ItemStack(Items.DIRT))) {
-            context.fail("Humus and dirt should be Arboretum soils");
+        if (!logic.isSoil(new ItemStack(LogisticsForestry.BLOCK.HUMUS)) || logic.isSoil(new ItemStack(Items.DIRT))) {
+            context.fail("Humus, and not dirt, should be the Arboretum's soil");
             return;
         }
         context.succeed();

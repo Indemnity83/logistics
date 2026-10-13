@@ -55,7 +55,7 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         if (logic == null) {
             logic = new ArboretumLogic(
                     stack -> stack.getItem() instanceof BlockItem item && item.getBlock() instanceof SaplingBlock,
-                    stack -> stack.is(Items.DIRT) || stack.is(LogisticsForestry.BLOCK.HUMUS.asItem()),
+                    stack -> stack.is(LogisticsForestry.BLOCK.HUMUS.asItem()),
                     stack -> stack.is(Items.DARK_OAK_SAPLING),
                     stack -> stack.is(LogisticsForestry.BLOCK.HUMUS.asItem()),
                     state -> state.getBlock() instanceof SaplingBlock || state.is(Blocks.OAK_LOG));
@@ -87,6 +87,7 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         assertThat(logic().isGermling(ItemStack.EMPTY)).isFalse();
         assertThat(logic().isSoil(new ItemStack(LogisticsForestry.BLOCK.HUMUS))).isTrue();
         assertThat(logic().isSoil(new ItemStack(Items.STONE))).isFalse();
+        assertThat(logic().isSoil(new ItemStack(Items.DIRT))).isFalse();
     }
 
     @Test
@@ -362,20 +363,16 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("with no Humus on hand, ground that is already the soil on hand counts as prepared")
-    void soilOnHandCountsWithoutHumus() {
-        TestWorld world = TestWorld.floor(RING, Blocks.DIRT.defaultBlockState());
-        world.set(cell(0, 4).below(), Blocks.GRASS_BLOCK.defaultBlockState());
-        TestInputs dirt = new TestInputs()
-                .germlings(new ItemStack(Items.OAK_SAPLING, 4))
-                .soil(new ItemStack(Items.DIRT));
+    @DisplayName("Humus is prepared soil even with no soil on hand")
+    void humusIsPrepared() {
+        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        TestInputs inputs = new TestInputs().germlings(new ItemStack(Items.OAK_SAPLING, 4));
 
-        assertThat(decide(world, 0, 2, dirt)).isInstanceOf(PlotAction.Plant.class);
-        assertThat(decide(world, 0, 4, dirt)).isEqualTo(new PlotAction.PlaceSoil(cell(0, 4).below()));
+        assertThat(decide(world, 0, 2, inputs)).isInstanceOf(PlotAction.Plant.class);
     }
 
     @Test
-    @DisplayName("with no soil at all, unprepared ground still asks for soil, which the farm reports as No soil")
+    @DisplayName("without Humus, dirt still asks for soil, which the farm reports as No soil, and nothing is planted")
     void noSoilAsksForSoil() {
         TestWorld world = TestWorld.floor(RING, Blocks.DIRT.defaultBlockState());
         TestInputs inputs = new TestInputs().germlings(new ItemStack(Items.OAK_SAPLING, 4));

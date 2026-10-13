@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -38,8 +37,8 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  *
  * At an anchor a 2×2 sapling is preferred over a single one. Each plot gets, in order: its tree
- * felled; its soil replaced when not prepared; a sapling planted. Soil is prepared when it is
- * Humus, or, with no Humus to lay, already the soil the farm would lay next.
+ * felled; its soil replaced with Humus unless it is Humus already; a sapling planted. Humus is the
+ * only soil the Arboretum lays, so without it unprepared plots report no soil and stay unplanted.
  */
 public final class ArboretumLogic implements FarmLogic {
 
@@ -144,7 +143,7 @@ public final class ArboretumLogic implements FarmLogic {
             return PlotAction.NONE;
         }
         BlockPos ground = plot.below();
-        if (world.isLoaded(ground) && !isPrepared(world.state(ground), inputs)) {
+        if (world.isLoaded(ground) && !isPrepared(world.state(ground))) {
             return new PlotAction.PlaceSoil(ground);
         }
 
@@ -154,7 +153,7 @@ public final class ArboretumLogic implements FarmLogic {
         }
         if (!planting.germling().isEmpty()) {
             for (BlockPos cell : planting.cells()) {
-                if (!isPrepared(world.state(cell.below()), inputs)) {
+                if (!isPrepared(world.state(cell.below()))) {
                     return new PlotAction.PlaceSoil(cell.below());
                 }
             }
@@ -243,13 +242,9 @@ public final class ArboretumLogic implements FarmLogic {
         return null;
     }
 
-    /** Humus, or, with no Humus to lay, ground that is already the soil the farm would lay next. */
-    private boolean isPrepared(BlockState ground, FarmInputs inputs) {
-        if (humus.test(new ItemStack(ground.getBlock()))) {
-            return true;
-        }
-        ItemStack next = inputs.soil();
-        return !next.isEmpty() && next.getItem() instanceof BlockItem item && ground.is(item.getBlock());
+    /** Only Humus is prepared soil. */
+    private boolean isPrepared(BlockState ground) {
+        return humus.test(new ItemStack(ground.getBlock()));
     }
 
     // ==================== Helpers ====================
