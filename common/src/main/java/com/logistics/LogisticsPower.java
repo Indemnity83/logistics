@@ -397,22 +397,22 @@ public final class LogisticsPower extends LogisticsMod implements DomainBootstra
             // iron — except the creative pair, which stays off-color the way its texture does.
             STIRLING_ENGINE = INSTANCE.registerBlockWithItem("stirling_engine",
                 props -> new StirlingEngineBlock(props.mapColor(MapColor.STONE)
-                    .strength(1.5f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
+                    .strength(1.5f).sound(SoundType.STONE).noOcclusion().isRedstoneConductor((s, w, p) -> false).requiresCorrectToolForDrops()));
             REACTION_ENGINE = INSTANCE.registerBlockWithItem("reaction_engine",
                 props -> new ReactionEngineBlock(props.mapColor(MapColor.COLOR_BLACK)
-                    .strength(50.0f).sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
+                    .strength(50.0f).sound(SoundType.STONE).noOcclusion().isRedstoneConductor((s, w, p) -> false).requiresCorrectToolForDrops()));
             MAGMATIC_ENGINE = INSTANCE.registerBlockWithItem("magmatic_engine",
                 props -> new MagmaticEngineBlock(props.mapColor(MapColor.NETHER)
-                    .strength(2.0f).sound(SoundType.NETHER_BRICKS).noOcclusion().requiresCorrectToolForDrops()));
+                    .strength(2.0f).sound(SoundType.NETHER_BRICKS).noOcclusion().isRedstoneConductor((s, w, p) -> false).requiresCorrectToolForDrops()));
             STEAM_ENGINE = INSTANCE.registerBlockWithItem("steam_engine",
                 props -> new SteamEngineBlock(props.mapColor(MapColor.COLOR_ORANGE)
-                    .strength(3.0f).sound(SoundType.COPPER).noOcclusion().requiresCorrectToolForDrops()));
+                    .strength(3.0f).sound(SoundType.COPPER).noOcclusion().isRedstoneConductor((s, w, p) -> false).requiresCorrectToolForDrops()));
             FUEL_ENGINE = INSTANCE.registerBlockWithItem("fuel_engine",
                 props -> new FuelEngineBlock(props.mapColor(MapColor.METAL)
-                    .strength(5.0f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
+                    .strength(5.0f).sound(SoundType.METAL).noOcclusion().isRedstoneConductor((s, w, p) -> false).requiresCorrectToolForDrops()));
             CREATIVE_ENGINE = INSTANCE.registerBlockWithItem("creative_engine",
                 props -> new CreativeEngineBlock(props.mapColor(MapColor.COLOR_MAGENTA)
-                    .strength(5.0f).sound(SoundType.STONE).noOcclusion()));
+                    .strength(5.0f).sound(SoundType.STONE).noOcclusion().isRedstoneConductor((s, w, p) -> false)));
             CREATIVE_SINK = INSTANCE.registerBlockWithItem("creative_sink",
                 props -> new CreativeSinkBlock(props.mapColor(MapColor.COLOR_PURPLE)
                     .strength(5.0f).sound(SoundType.STONE)));

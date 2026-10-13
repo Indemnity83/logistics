@@ -26,9 +26,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
@@ -321,6 +324,50 @@ public class CropFarmGameTestBody {
                 throw new GameTestAssertPosException("Farm should report No power, reports " + rig.farm().status(), context.absolutePos(FARM), FARM, context.getTick());
             }
             context.succeed();
+        });
+    }
+
+    /**
+     * An engine on top of the farm, switched on by a lever on the engine, powers the farm without
+     * relaying the lever's signal into it: the farm is not paused, and sows seeds fed in from a
+     * hopper behind it.
+     */
+    public static void testLeverOnEngineDoesNotPauseFarm(GameTestHelper context) {
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false, true);
+        if (rig == null) {
+            return;
+        }
+        BlockPos engineOnTop = INPUT_HOPPER;
+        BlockPos lever = engineOnTop.above();
+        context.setBlock(engineOnTop, LogisticsPower.BLOCK.CREATIVE_ENGINE.defaultBlockState()
+                .setValue(AbstractEngineBlock.FACING, Direction.DOWN));
+        CreativeEngineBlockEntity engine = (CreativeEngineBlockEntity) context.getBlockEntity(engineOnTop);
+        if (engine == null) {
+            context.fail("Expected a creative engine on top of the farm");
+            return;
+        }
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        engine.cycleOutputLevel();
+        context.setBlock(lever, Blocks.LEVER.defaultBlockState().setValue(LeverBlock.FACE, AttachFace.FLOOR));
+        context.pullLever(lever);
+
+        context.setBlock(ENGINE, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.EAST));
+        HopperBlockEntity feeder = (HopperBlockEntity) context.getBlockEntity(ENGINE);
+        if (feeder == null) {
+            context.fail("Expected the feeding hopper behind the farm");
+            return;
+        }
+        feeder.setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
+
+        context.succeedWhen(() -> {
+            if (!context.getBlockState(engineOnTop).getValue(AbstractEngineBlock.POWERED)) {
+                throw new GameTestAssertPosException("The lever should switch the engine on", context.absolutePos(engineOnTop), engineOnTop, context.getTick());
+            }
+            if (rig.farm().status() == FarmStatus.PAUSED) {
+                throw new GameTestAssertPosException("A lever on the engine should not pause the farm", context.absolutePos(FARM), FARM, context.getTick());
+            }
+            assertWheatEverywhere(context, PLOTS);
         });
     }
 

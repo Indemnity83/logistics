@@ -45,4 +45,9 @@ public final class CropFarmGameTestRegistration {
     public static void testLeavesTorchOnPlot(GameTestHelper context) {
         CropFarmGameTestBody.testLeavesTorchOnPlot(context);
     }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 800)
+    public static void testLeverOnEngineDoesNotPauseFarm(GameTestHelper context) {
+        CropFarmGameTestBody.testLeverOnEngineDoesNotPauseFarm(context);
+    }
 }
