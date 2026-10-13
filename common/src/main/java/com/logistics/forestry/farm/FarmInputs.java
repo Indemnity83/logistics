@@ -22,8 +22,8 @@ public interface FarmInputs {
     ItemStack soil();
 
     /**
-     * Whether the water tank holds at least one irrigation's worth; always false for a farm without
-     * a tank. A logic asks to irrigate only when this is true.
+     * Whether the water tank holds at least one till's worth; always false for a farm without a
+     * tank. A till asked for without it is refused and reported as no water.
      */
     boolean hasWater();
 }

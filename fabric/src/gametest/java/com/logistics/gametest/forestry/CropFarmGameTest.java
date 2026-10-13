@@ -17,8 +17,18 @@ public class CropFarmGameTest {
     }
 
     @GameTest(maxTicks = 1200)
-    public void testIrrigatesFarmlandFromItsTank(GameTestHelper context) {
-        CropFarmGameTestBody.testIrrigatesFarmlandFromItsTank(context);
+    public void testHoeingSpendsWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHoeingSpendsWater(context);
+    }
+
+    @GameTest(maxTicks = 2400)
+    public void testHarvestReturnsPlotToDirtAndRetillPaysWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestReturnsPlotToDirtAndRetillPaysWater(context);
+    }
+
+    @GameTest(maxTicks = 1200)
+    public void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testMoistensPlantedFarmlandWithoutWater(context);
     }
 
     @GameTest(maxTicks = 3000)
@@ -26,9 +36,9 @@ public class CropFarmGameTest {
         CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
     }
 
-    @GameTest(maxTicks = 1000)
-    public void testPlantsButReportsNoWater(GameTestHelper context) {
-        CropFarmGameTestBody.testPlantsButReportsNoWater(context);
+    @GameTest(maxTicks = 1200)
+    public void testHarvestsButStopsTillingWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestsButStopsTillingWithoutWater(context);
     }
 
     @GameTest(maxTicks = 300)

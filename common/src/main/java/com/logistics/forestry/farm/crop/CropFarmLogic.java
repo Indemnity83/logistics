@@ -5,6 +5,7 @@ import com.logistics.forestry.farm.FarmInputs;
 import com.logistics.forestry.farm.FarmLogic;
 import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.PlotAction;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -13,10 +14,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * The Crop Farm: keeps each plot's soil tilled to farmland and wet, plants field crops on it and
- * harvests them once mature, replanting from the harvest first.
+ * The Crop Farm: tills each plot's dirt into wet farmland, paying a till's worth of water, plants
+ * field crops on it, keeps it wet while the crop grows, and harvests the crop once mature, replanting
+ * from the harvest first. A harvest turns the farmland back into dirt, so every crop costs one till.
  *
  * <p>Crop blocks ({@link CropBlock}) are the farm's own growth; anything else above a plot is
  * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt or
@@ -30,11 +33,14 @@ public final class CropFarmLogic implements FarmLogic {
     public static final int MIN_LIGHT = 8;
 
     /**
-     * Farmland this dry or drier is irrigated. Crops grow at the wet rate at any moisture above 0,
-     * and vanilla dries farmland one step per random tick, so this leaves a margin without spending
-     * water and plot visits on farmland that is still wet.
+     * Farmland under a crop this dry or drier is moistened. Crops grow at the wet rate at any
+     * moisture above 0, and vanilla dries farmland one step per random tick, so this leaves a margin
+     * without spending plot visits on farmland that is still wet.
      */
-    public static final int IRRIGATE_AT_MOISTURE = 2;
+    public static final int MOISTEN_AT_MOISTURE = 2;
+
+    private static final BlockState WET_FARMLAND = Blocks.FARMLAND.defaultBlockState()
+            .setValue(BlockStateProperties.MOISTURE, Collections.max(BlockStateProperties.MOISTURE.getPossibleValues()));
 
     private final Predicate<BlockState> tillable;
 
@@ -112,7 +118,7 @@ public final class CropFarmLogic implements FarmLogic {
                 return new PlotAction.PlaceSoil(soilPos);
             }
             return tillable.test(soil)
-                    ? new PlotAction.Till(soilPos, Blocks.FARMLAND.defaultBlockState())
+                    ? new PlotAction.Till(soilPos, WET_FARMLAND)
                     : PlotAction.NONE;
         }
 
@@ -123,11 +129,16 @@ public final class CropFarmLogic implements FarmLogic {
             List<ItemStack> germlings = inputs.germlings();
             return PlotAction.plant(plot, germlings.isEmpty() ? ItemStack.EMPTY : germlings.get(0));
         }
-        if (inputs.hasWater()
-                && soil.hasProperty(BlockStateProperties.MOISTURE)
-                && soil.getValue(BlockStateProperties.MOISTURE) <= IRRIGATE_AT_MOISTURE) {
-            return new PlotAction.Irrigate(soilPos);
+        if (soil.hasProperty(BlockStateProperties.MOISTURE)
+                && soil.getValue(BlockStateProperties.MOISTURE) <= MOISTEN_AT_MOISTURE) {
+            return new PlotAction.Moisten(soilPos);
         }
         return PlotAction.NONE;
+    }
+
+    @Override
+    @Nullable
+    public BlockState soilAfterHarvest(BlockState soil) {
+        return soil.is(Blocks.FARMLAND) ? Blocks.DIRT.defaultBlockState() : null;
     }
 }
