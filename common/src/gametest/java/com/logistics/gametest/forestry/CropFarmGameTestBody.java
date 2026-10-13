@@ -18,9 +18,7 @@ import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -577,10 +575,10 @@ public class CropFarmGameTestBody {
     }
 
     /**
-     * A grass block under a plot is not prepared soil: it is broken, its drop reaches the chest, and
-     * dirt from the soil slots takes its place before it is tilled and sown.
+     * A grass block under a plot is tillable: it is hoed into farmland where it stands and sown, never
+     * broken, so no dirt reaches the output and none of the dirt in the soil slots is laid.
      */
-    public static void testReplacesGrassWithDirt(GameTestHelper context) {
+    public static void testTillsGrassInPlace(GameTestHelper context) {
         Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
         if (rig == null) {
             return;
@@ -591,8 +589,13 @@ public class CropFarmGameTestBody {
         rig.input().setItem(1, new ItemStack(Items.DIRT, PLOTS.size()));
 
         context.succeedWhen(() -> {
-            assertChestHolds(context, Items.DIRT, "The grass block's drop");
             assertWheatEverywhere(context, PLOTS);
+            assertNoDirtInOutput(context, rig);
+            int unlaid = count(rig.input(), Items.DIRT) + count(rig.farm(), Items.DIRT);
+            if (unlaid != PLOTS.size()) {
+                throw context.assertionException(grass, "No dirt should have been laid, " + (PLOTS.size() - unlaid)
+                        + " was");
+            }
         });
     }
 
@@ -601,8 +604,8 @@ public class CropFarmGameTestBody {
     /**
      * Placed on a grass floor, the farm lays its dirt level with itself, tills it and sows wheat on
      * top, leaving the floor below alone: grass, or dirt where vanilla kills grass under the laid soil,
-     * never tilled. The soil layer was air, so laying soil digs nothing out; dirt reaches the output
-     * only from grass that spreads onto laid dirt before it is tilled, which the farm replaces.
+     * never tilled. The soil layer was air, so laying soil digs nothing out, and grass that spreads
+     * onto laid dirt before it is tilled is hoed where it stands: no dirt ever reaches the output.
      */
     public static void testLaysSoilLevelWithFarmOnGrass(GameTestHelper context) {
         int floorY = FARM.getY() - 1;
@@ -616,11 +619,8 @@ public class CropFarmGameTestBody {
             return;
         }
         rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
-        // Spare dirt for plots grass grows back over before they are tilled.
-        rig.input().setItem(1, new ItemStack(Items.DIRT, 2 * PLOTS.size()));
+        rig.input().setItem(1, new ItemStack(Items.DIRT, PLOTS.size()));
 
-        Set<BlockPos> grassy = new HashSet<>();
-        int[] regrown = {0};
         context.onEachTick(() -> {
             for (BlockPos plot : PLOTS) {
                 BlockPos floor = plot.below(2);
@@ -628,25 +628,20 @@ public class CropFarmGameTestBody {
                 if (!below.is(Blocks.GRASS_BLOCK) && !below.is(Blocks.DIRT)) {
                     throw context.assertionException(floor, "The floor under the soil should be left alone, is " + below);
                 }
-                if (context.getBlockState(plot.below()).is(Blocks.GRASS_BLOCK)) {
-                    if (grassy.add(plot)) {
-                        regrown[0]++;
-                    }
-                } else {
-                    grassy.remove(plot);
-                }
             }
+            assertNoDirtInOutput(context, rig);
         });
-        context.succeedWhen(() -> {
-            assertWheatEverywhere(context, PLOTS);
-            int dug = count(context.getBlockEntity(CHEST, ChestBlockEntity.class), Items.DIRT)
-                    + count(context.getBlockEntity(OUTPUT_HOPPER, HopperBlockEntity.class), Items.DIRT)
-                    + outputCount(rig.farm(), Items.DIRT);
-            if (dug > regrown[0]) {
-                throw context.assertionException(CHEST, dug + " dirt reached the output, but only " + regrown[0]
-                        + " plots grew grass for the farm to dig out");
-            }
-        });
+        context.succeedWhen(() -> assertWheatEverywhere(context, PLOTS));
+    }
+
+    /** Throws if any dirt is in the farm's output, the output hopper or the chest. */
+    private static void assertNoDirtInOutput(GameTestHelper context, Rig rig) {
+        int dug = count(context.getBlockEntity(CHEST, ChestBlockEntity.class), Items.DIRT)
+                + count(context.getBlockEntity(OUTPUT_HOPPER, HopperBlockEntity.class), Items.DIRT)
+                + outputCount(rig.farm(), Items.DIRT);
+        if (dug > 0) {
+            throw context.assertionException(CHEST, "No dirt should be dug out of the soil layer, " + dug + " was");
+        }
     }
 
     private static int outputCount(FarmBlockEntity farm, Item item) {

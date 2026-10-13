@@ -161,11 +161,9 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("replaces any ground but dirt and farmland with its soil, grass and water included")
+    @DisplayName("replaces any ground that is not dirt, farmland or tillable with its soil, water included")
     void replacesUnpreparedGround() {
         for (BlockState ground : List.of(
-                Blocks.GRASS_BLOCK.defaultBlockState(),
-                Blocks.DIRT_PATH.defaultBlockState(),
                 Blocks.COARSE_DIRT.defaultBlockState(),
                 Blocks.STONE.defaultBlockState(),
                 Blocks.SAND.defaultBlockState(),
@@ -188,6 +186,25 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
         inputs.water = false;
         assertThat(decide()).as("the farm, not the logic, refuses a till without water")
                 .isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
+    }
+
+    @Test
+    @DisplayName("tills grass and dirt paths where they stand instead of replacing them")
+    void tillsTillableGroundInPlace() {
+        for (BlockState ground : List.of(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT_PATH.defaultBlockState())) {
+            world.set(SOIL, ground);
+
+            assertThat(decide()).as("over %s", ground).isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
+        }
+    }
+
+    @Test
+    @DisplayName("leaves dirt alone when the tillable tag leaves it out")
+    void untillableDirtIsLeftAlone() {
+        CropFarmLogic grassOnly = new CropFarmLogic(state -> state.is(Blocks.GRASS_BLOCK));
+        world.set(SOIL, Blocks.DIRT.defaultBlockState());
+
+        assertThat(grassOnly.decide(world, PLOT, inputs)).isEqualTo(PlotAction.NONE);
     }
 
     @Test
