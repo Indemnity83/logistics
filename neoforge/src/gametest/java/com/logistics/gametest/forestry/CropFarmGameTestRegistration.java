@@ -19,21 +19,27 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 public final class CropFarmGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
-        new GameTestCase("forestry/crop_farm_tills_and_plants_wheat", 800, CropFarmGameTestBody::testTillsAndPlantsWheat),
+        new GameTestCase("forestry/crop_farm_tills_and_plants_wheat", 1200, CropFarmGameTestBody::testTillsAndPlantsWheat),
         new GameTestCase(
-            "forestry/crop_farm_irrigates_farmland_from_its_tank", 800, CropFarmGameTestBody::testIrrigatesFarmlandFromItsTank),
+            "forestry/crop_farm_irrigates_farmland_from_its_tank", 1200, CropFarmGameTestBody::testIrrigatesFarmlandFromItsTank),
         new GameTestCase(
             "forestry/crop_farm_harvests_and_replants_from_returned_seeds",
-            2400,
+            3000,
             CropFarmGameTestBody::testHarvestsAndReplantsFromReturnedSeeds),
         new GameTestCase(
-            "forestry/crop_farm_plants_but_reports_no_water", 620, CropFarmGameTestBody::testPlantsButReportsNoWater),
+            "forestry/crop_farm_plants_but_reports_no_water", 1020, CropFarmGameTestBody::testPlantsButReportsNoWater),
         new GameTestCase("forestry/crop_farm_does_nothing_without_power", 300, CropFarmGameTestBody::testDoesNothingWithoutPower),
-        new GameTestCase("forestry/crop_farm_leaves_torch_on_plot", 800, CropFarmGameTestBody::testLeavesTorchOnPlot),
         new GameTestCase(
             "forestry/crop_farm_lever_on_engine_does_not_pause_farm",
-            800,
-            CropFarmGameTestBody::testLeverOnEngineDoesNotPauseFarm));
+            1200,
+            CropFarmGameTestBody::testLeverOnEngineDoesNotPauseFarm),
+        new GameTestCase("forestry/crop_farm_clears_torch_from_plot", 1200, CropFarmGameTestBody::testClearsTorchFromPlot),
+        new GameTestCase("forestry/crop_farm_clears_block_above_plot", 1200, CropFarmGameTestBody::testClearsBlockAbovePlot),
+        new GameTestCase("forestry/crop_farm_never_breaks_chest_in_ring", 1200, CropFarmGameTestBody::testNeverBreaksChestInRing),
+        new GameTestCase(
+            "forestry/crop_farm_leaves_inner_square_alone", 1200, CropFarmGameTestBody::testLeavesInnerSquareAlone),
+        new GameTestCase(
+            "forestry/crop_farm_replaces_grass_with_dirt", 1200, CropFarmGameTestBody::testReplacesGrassWithDirt));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

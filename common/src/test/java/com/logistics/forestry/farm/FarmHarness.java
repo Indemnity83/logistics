@@ -3,7 +3,7 @@ package com.logistics.forestry.farm;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
-import com.logistics.core.machine.area.WorkArea;
+import com.logistics.core.machine.area.RingArea;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -25,9 +25,9 @@ import org.jetbrains.annotations.Nullable;
  */
 final class FarmHarness {
 
-    /** A 3×3 plot worked one plot per tick, so tests can count steps in ticks. */
+    /** One plot per tick, so tests can count steps in ticks; clearing costs differ from harvesting. */
     static final FarmSettings SETTINGS =
-            new FarmSettings(3, 1, 10_000, 1_000, 40, 100, 60, 60, 20, 8_000, 50, 4, 20, 200);
+            new FarmSettings(1, 10_000, 1_000, 40, 30, 100, 60, 60, 20, 8_000, 50, 4, 20, 200);
 
     final ScriptedFarmLogic logic;
     final FakeFarmWorld world = new FakeFarmWorld();
@@ -52,9 +52,14 @@ final class FarmHarness {
         }
     }
 
-    /** Plot {@code index} of the host's area, in scan order. */
+    /** The ring the logic asks for around the host. */
+    RingArea area() {
+        return new RingArea(host.pos(), logic.ringInner(), logic.ringOuter());
+    }
+
+    /** Plot {@code index} of the host's ring, in scan order. */
     BlockPos plot(int index) {
-        return WorkArea.inFront(host.pos(), Direction.SOUTH, settings.areaSize()).plot(index);
+        return area().plot(index);
     }
 
     FarmComponent farm() {

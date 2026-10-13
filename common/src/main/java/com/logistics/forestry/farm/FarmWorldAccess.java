@@ -1,6 +1,7 @@
 package com.logistics.forestry.farm;
 
 import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,6 +18,9 @@ public interface FarmWorldAccess extends FarmWorld {
     /** Whether the block at {@code pos} receives a redstone signal. */
     boolean hasNeighborSignal(BlockPos pos);
 
+    /** Hardness of the block at {@code pos}, below 0 when unbreakable; 0 when not loaded. */
+    float destroySpeed(BlockPos pos);
+
     /** Whether the farm's owner may change the block at {@code pos} (claim protection). */
     boolean canModify(BlockPos pos);
 
@@ -32,6 +36,9 @@ public interface FarmWorldAccess extends FarmWorld {
 
     void setBlock(BlockPos pos, BlockState state, int flags);
 
-    /** Removes the loose item entities inside {@code box} and returns their stacks. */
-    List<ItemStack> collectItems(AABB box);
+    /**
+     * Removes the loose item entities inside {@code box} whose block position passes {@code where},
+     * and returns their stacks.
+     */
+    List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where);
 }

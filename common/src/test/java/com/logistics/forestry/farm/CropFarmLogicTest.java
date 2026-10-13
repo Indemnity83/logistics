@@ -75,11 +75,6 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
             public boolean canSurvive(BlockState state, BlockPos pos) {
                 return world.canSurvive(state, pos);
             }
-
-            @Override
-            public boolean isReplaceableSoil(BlockPos pos) {
-                return world.isReplaceableSoil(pos);
-            }
         };
         return logic.decide(lit, PLOT, inputs);
     }
@@ -92,6 +87,30 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
         assertThat(logic.usesWater()).isTrue();
         assertThat(logic.laysSoil()).isTrue();
         assertThat(logic.replantsFromOutput()).isTrue();
+    }
+
+    @Test
+    @DisplayName("works the ring from 9×9 out to 15×15, keeping five blocks clear above each plot")
+    void ringShape() {
+        assertThat(logic.ringInner()).isEqualTo(9);
+        assertThat(logic.ringOuter()).isEqualTo(15);
+        assertThat(logic.clearanceHeight()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("only crop blocks are its own growth; anything else on a plot is cleared")
+    void ownGrowth() {
+        assertThat(logic.isOwnGrowth(wheat(3))).isTrue();
+        assertThat(logic.isOwnGrowth(Blocks.CARROTS.defaultBlockState())).isTrue();
+        assertThat(logic.isOwnGrowth(Blocks.BEETROOTS.defaultBlockState())).isTrue();
+        for (BlockState other : List.of(
+                Blocks.PUMPKIN_STEM.defaultBlockState(),
+                Blocks.SHORT_GRASS.defaultBlockState(),
+                Blocks.TORCH.defaultBlockState(),
+                Blocks.OAK_SAPLING.defaultBlockState(),
+                Blocks.FARMLAND.defaultBlockState())) {
+            assertThat(logic.isOwnGrowth(other)).as("%s", other).isFalse();
+        }
     }
 
     @Test
@@ -142,36 +161,36 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("never lays soil into water, still or flowing, or over replaceable plants")
-    void neverFillsWater() {
+    @DisplayName("replaces any ground but dirt and farmland with its soil, grass and water included")
+    void replacesUnpreparedGround() {
         for (BlockState ground : List.of(
-                Blocks.WATER.defaultBlockState(),
-                Fluids.FLOWING_WATER.getFlowing(3, false).createLegacyBlock(),
-                Blocks.SHORT_GRASS.defaultBlockState())) {
-            world.set(SOIL, ground);
-
-            assertThat(decide()).as("over %s", ground).isEqualTo(PlotAction.NONE);
-        }
-    }
-
-    @Test
-    @DisplayName("tills dirt, grass and dirt path into dry farmland")
-    void tillsTillableGround() {
-        for (BlockState ground : List.of(
-                Blocks.DIRT.defaultBlockState(),
                 Blocks.GRASS_BLOCK.defaultBlockState(),
-                Blocks.DIRT_PATH.defaultBlockState())) {
+                Blocks.DIRT_PATH.defaultBlockState(),
+                Blocks.COARSE_DIRT.defaultBlockState(),
+                Blocks.STONE.defaultBlockState(),
+                Blocks.SAND.defaultBlockState(),
+                Blocks.SHORT_GRASS.defaultBlockState(),
+                Blocks.WATER.defaultBlockState(),
+                Fluids.FLOWING_WATER.getFlowing(3, false).createLegacyBlock())) {
             world.set(SOIL, ground);
 
-            assertThat(decide()).as("over %s", ground).isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
+            assertThat(decide()).as("over %s", ground).isEqualTo(new PlotAction.PlaceSoil(SOIL));
         }
     }
 
     @Test
-    @DisplayName("leaves ground that is not tillable alone")
-    void leavesOtherGroundAlone() {
-        for (BlockState ground : List.of(
-                Blocks.COARSE_DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(), Blocks.SAND.defaultBlockState())) {
+    @DisplayName("tills dirt into dry farmland")
+    void tillsDirt() {
+        world.set(SOIL, Blocks.DIRT.defaultBlockState());
+
+        assertThat(decide()).isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
+    }
+
+    @Test
+    @DisplayName("never digs up the ground under a growing crop")
+    void neverReplacesGroundUnderCrop() {
+        world.set(PLOT, wheat(3));
+        for (BlockState ground : List.of(Blocks.DIRT.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState())) {
             world.set(SOIL, ground);
 
             assertThat(decide()).as("over %s", ground).isEqualTo(PlotAction.NONE);
@@ -275,48 +294,16 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
         assertThat(decide()).isEqualTo(PlotAction.NONE);
     }
 
-    // ==================== Overgrowth and obstacles ====================
+    // ==================== Obstacles ====================
 
     @Test
-    @DisplayName("clears grass, ferns, snow and other replaceable overgrowth off a plot")
-    void clearsOvergrowth() {
-        for (BlockState overgrowth : List.of(
-                Blocks.SHORT_GRASS.defaultBlockState(),
-                Blocks.FERN.defaultBlockState(),
-                Blocks.SNOW.defaultBlockState(),
-                Blocks.DEAD_BUSH.defaultBlockState())) {
-            world.set(PLOT, overgrowth);
-            for (BlockState ground : List.of(Blocks.GRASS_BLOCK.defaultBlockState(), farmland(7))) {
-                world.set(SOIL, ground);
-
-                assertThat(decide()).as("%s over %s", overgrowth, ground).isEqualTo(PlotAction.harvest(PLOT));
-            }
-        }
-    }
-
-    @Test
-    @DisplayName("leaves water standing on a plot alone")
-    void leavesWaterOnPlot() {
-        inputs.germlings.add(new ItemStack(Items.WHEAT_SEEDS, 4));
-        for (BlockState water : List.of(
-                Blocks.WATER.defaultBlockState(), Fluids.FLOWING_WATER.getFlowing(3, false).createLegacyBlock())) {
-            world.set(PLOT, water);
-            for (BlockState ground : List.of(Blocks.DIRT.defaultBlockState(), farmland(0))) {
-                world.set(SOIL, ground);
-
-                assertThat(decide()).as("%s over %s", water, ground).isEqualTo(PlotAction.NONE);
-            }
-        }
-    }
-
-    @Test
-    @DisplayName("leaves a plot with something else on it alone, whatever the ground needs")
-    void obstaclesUntouched() {
+    @DisplayName("leaves anything but its own crops standing on a plot to the farm's clearing")
+    void obstaclesAreLeftToClearing() {
         inputs.germlings.add(new ItemStack(Items.WHEAT_SEEDS, 4));
         for (BlockState obstacle : List.of(
                 Blocks.TORCH.defaultBlockState(),
-                Blocks.OAK_FENCE.defaultBlockState(),
-                Blocks.STONE.defaultBlockState(),
+                Blocks.SHORT_GRASS.defaultBlockState(),
+                Blocks.WATER.defaultBlockState(),
                 Blocks.OAK_SAPLING.defaultBlockState())) {
             world.set(PLOT, obstacle);
             for (BlockState ground : List.of(

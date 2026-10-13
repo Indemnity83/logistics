@@ -20,20 +20,19 @@ public final class ArboretumGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase(
-            "forestry/arboretum_plants_saplings_on_lattice", 600, ArboretumGameTestBody::testPlantsSaplingsOnLattice),
+            "forestry/arboretum_plants_saplings_on_lattice", 1200, ArboretumGameTestBody::testPlantsSaplingsOnLattice),
         new GameTestCase(
-            "forestry/arboretum_fells_grown_tree_and_replants", 2000,
+            "forestry/arboretum_fells_grown_tree_and_replants", 3000,
             ArboretumGameTestBody::testFellsGrownTreeAndReplants),
         new GameTestCase(
             "forestry/arboretum_no_power_plants_nothing", 300, ArboretumGameTestBody::testNoPowerPlantsNothing),
         new GameTestCase(
             "forestry/arboretum_redstone_pauses_farm", 300, ArboretumGameTestBody::testRedstonePausesFarm),
         new GameTestCase(
-            "forestry/arboretum_leaves_stone_and_player_builds_alone", 300,
-            ArboretumGameTestBody::testLeavesStoneAndPlayerBuildsAlone),
+            "forestry/arboretum_clears_blocks_from_ring", 1200, ArboretumGameTestBody::testClearsBlocksFromRing),
         new GameTestCase(
-            "forestry/arboretum_humus_replaces_dirt_under_planting_corners", 600,
-            ArboretumGameTestBody::testHumusReplacesDirtUnderPlantingCorners),
+            "forestry/arboretum_humus_replaces_dirt_across_the_ring", 2000,
+            ArboretumGameTestBody::testHumusReplacesDirtAcrossTheRing),
         new GameTestCase(
             "forestry/arboretum_every_germling_grows_on_arboretum_soils", 40,
             ArboretumGameTestBody::testEveryGermlingGrowsOnArboretumSoils));

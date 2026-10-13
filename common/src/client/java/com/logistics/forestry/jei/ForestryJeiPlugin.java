@@ -3,18 +3,19 @@ package com.logistics.forestry.jei;
 import com.logistics.LogisticsForestry;
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.forestry.farm.FarmMachineBlock;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 
 /**
  * JEI plugin that adds info pages for the farms and Humus.
  * Discovered by JEI via the "jei_mod_plugin" Fabric entrypoint in fabric.mod.json.
  *
- * <p>Numbers come from the config defaults, not the live values: the client's config file need
- * not match the server's.
+ * <p>The plot size shown is the outer side of each farm's ring, fixed per farm type.
  */
 @JeiPlugin
 public class ForestryJeiPlugin implements IModPlugin {
@@ -29,11 +30,13 @@ public class ForestryJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        int area = LogisticsForestry.CONFIG.FARM_AREA_SIZE.definition().defaultValue();
-
-        info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm", area);
-        info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum", area);
+        info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm", ringOuter(LogisticsForestry.BLOCK.CROP_FARM));
+        info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum", ringOuter(LogisticsForestry.BLOCK.ARBORETUM));
         info(registration, LogisticsForestry.BLOCK.HUMUS, "humus");
+    }
+
+    private static int ringOuter(Block farm) {
+        return ((FarmMachineBlock) farm).logic().ringOuter();
     }
 
     /** Adds an info page for {@code item} from the lang key {@code jei.logistics.info.forestry.<key>}. */
