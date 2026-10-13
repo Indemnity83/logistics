@@ -22,8 +22,13 @@ public final class HumusGameTestRegistration {
     }
 
     @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
-    public static void testHumusGrowsSaplingIntoTree(GameTestHelper context) {
-        HumusGameTestBody.testHumusGrowsSaplingIntoTree(context);
+    public static void testHumusBoostGrowsTreeAndTurnsToSand(GameTestHelper context) {
+        HumusGameTestBody.testHumusBoostGrowsTreeAndTurnsToSand(context);
+    }
+
+    @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
+    public static void testHumusUnderLogTurnsToSand(GameTestHelper context) {
+        HumusGameTestBody.testHumusUnderLogTurnsToSand(context);
     }
 
     @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)

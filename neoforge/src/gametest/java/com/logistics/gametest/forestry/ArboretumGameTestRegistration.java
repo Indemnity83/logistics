@@ -46,6 +46,21 @@ public final class ArboretumGameTestRegistration {
         ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
     }
 
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 2000)
+    public static void testFelledTreeLeavesSandThatIsRelaidWithHumus(GameTestHelper context) {
+        ArboretumGameTestBody.testFelledTreeLeavesSandThatIsRelaidWithHumus(context);
+    }
+
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 2000)
+    public static void testFelled2x2TreeLeavesSandUnderAllFourCells(GameTestHelper context) {
+        ArboretumGameTestBody.testFelled2x2TreeLeavesSandUnderAllFourCells(context);
+    }
+
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 1200)
+    public static void testWithoutHumusSandIsLeftUnplanted(GameTestHelper context) {
+        ArboretumGameTestBody.testWithoutHumusSandIsLeftUnplanted(context);
+    }
+
     @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 40)
     public static void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
         ArboretumGameTestBody.testEveryGermlingGrowsOnArboretumSoils(context);

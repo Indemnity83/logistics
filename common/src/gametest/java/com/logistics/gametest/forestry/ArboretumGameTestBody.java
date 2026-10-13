@@ -21,6 +21,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestAssertPosException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -71,6 +72,12 @@ public class ArboretumGameTestBody {
     /** Hoppers move one item per 8 ticks: long after a few saplings are all in the farm. */
     private static final int SETTLE_TICKS = 250;
 
+    /** Logs in each column of a hand-set 2×2 trunk. */
+    private static final int TRUNK_HEIGHT = 4;
+
+    /** Bone meal applications that grow a sapling into a tree many times over. */
+    private static final int MAX_BONE_MEAL = 64;
+
     private static List<BlockPos> plots(boolean singlesOnly) {
         List<BlockPos> plots = new ArrayList<>();
         for (int i = 0; i < RING.plotCount(); i++) {
@@ -91,7 +98,7 @@ public class ArboretumGameTestBody {
         context.onEachTick(() -> assertOffLatticeUntouched(context));
         context.succeedWhen(() -> {
             for (BlockPos cell : SINGLES) {
-                context.assertBlockPresent(Blocks.OAK_SAPLING, cell);
+                assertOakPlanted(context, cell);
             }
         });
     }
@@ -101,15 +108,14 @@ public class ArboretumGameTestBody {
      * output hopper, and the cleared spot is planted again. The saplings fed fill every
      * single-sapling spot with some to spare for replanting; the test bone-meals those of the inner
      * lane, which the ring scans first, but never a spot that has already grown a tree, so a
-     * replanted sapling stays a sapling. A little Humus rides along for any soil a tree leaves to be
-     * relaid.
+     * replanted sapling stays a sapling. Humus rides along to relay the sand each felled tree leaves.
      */
     public static void testFellsGrownTreeAndReplants(GameTestHelper context) {
         rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         feed(
                 context,
                 new ItemStack(Items.BIRCH_SAPLING, SINGLES.size() + 8),
-                new ItemStack(LogisticsForestry.BLOCK.HUMUS, 4));
+                new ItemStack(LogisticsForestry.BLOCK.HUMUS, INNER_SINGLES.size()));
 
         Set<BlockPos> grown = new HashSet<>();
         context.onEachTick(() -> {
@@ -249,13 +255,100 @@ public class ArboretumGameTestBody {
         context.onEachTick(() -> assertOffLatticeUntouched(context));
         context.succeedWhen(() -> {
             for (BlockPos cell : PLOTS) {
-                context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, cell.below());
+                if (!spentByTree(context, cell)) {
+                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, cell.below());
+                }
             }
             for (BlockPos cell : SINGLES) {
-                context.assertBlockPresent(Blocks.OAK_SAPLING, cell);
+                assertOakPlanted(context, cell);
             }
             // Not assertContainerContains: on this version it demands exactly one.
             context.assertTrue(chestHolds(context, Items.DIRT), "The dug-out dirt should reach the chest");
+        });
+    }
+
+    /**
+     * A tree grown on Humus is felled into the chest; the Humus under it is spent and turns to sand,
+     * which the farm digs out into the chest before laying fresh Humus from its soil slots.
+     */
+    public static void testFelledTreeLeavesSandThatIsRelaidWithHumus(GameTestHelper context) {
+        rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        BlockPos spot = INNER_SINGLES.get(0);
+        if (!growTree(context, spot, Blocks.BIRCH_SAPLING.defaultBlockState())) {
+            context.fail("Bone meal should have grown the birch sapling into a tree");
+            return;
+        }
+        feed(context, new ItemStack(LogisticsForestry.BLOCK.HUMUS, 4));
+
+        context.succeedWhen(() -> {
+            if (!chestHolds(context, Items.BIRCH_LOG)) {
+                throw new GameTestAssertPosException("The felled birch logs should have reached the chest", context.absolutePos(spot), spot, context.getTick());
+            }
+            if (!chestHolds(context, Items.SAND)) {
+                throw new GameTestAssertPosException("The sand left under the felled tree should have reached the chest", context.absolutePos(spot.below()), spot.below(), context.getTick());
+            }
+            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, spot.below());
+        });
+    }
+
+    /**
+     * A dark oak's 2×2 trunk standing on Humus in the ring's north-west corner is felled into the
+     * chest, and every one of the four Humus blocks under it is left as sand. No Humus is fed, so the
+     * sand stays. Bone meal does not grow a dark oak in this corner of the test structure, so the
+     * trunk and a natural canopy over it are set by hand.
+     */
+    public static void testFelled2x2TreeLeavesSandUnderAllFourCells(GameTestHelper context) {
+        rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        List<BlockPos> trunk =
+                List.of(new BlockPos(0, 1, 0), new BlockPos(1, 1, 0), new BlockPos(0, 1, 1), new BlockPos(1, 1, 1));
+        BlockState canopy = Blocks.DARK_OAK_LEAVES
+                .defaultBlockState()
+                .setValue(LeavesBlock.PERSISTENT, false)
+                .setValue(LeavesBlock.DISTANCE, 1);
+        for (BlockPos cell : trunk) {
+            if (!PLOTS.contains(cell)) {
+                context.fail(cell + " should be a plot of the ring");
+                return;
+            }
+            for (int dy = 0; dy < TRUNK_HEIGHT; dy++) {
+                context.setBlock(cell.above(dy), Blocks.DARK_OAK_LOG);
+            }
+            context.setBlock(cell.above(TRUNK_HEIGHT), canopy);
+        }
+
+        context.succeedWhen(() -> {
+            if (!chestHolds(context, Items.DARK_OAK_LOG)) {
+                throw new GameTestAssertPosException("The felled dark oak logs should have reached the chest", context.absolutePos(trunk.get(0)), trunk.get(0), context.getTick());
+            }
+            for (BlockPos cell : trunk) {
+                context.assertBlockPresent(Blocks.AIR, cell);
+                context.assertBlockPresent(Blocks.SAND, cell.below());
+            }
+        });
+    }
+
+    /**
+     * With no Humus in its soil slots the farm leaves sand under a plot where it is and plants nothing
+     * on it, reporting No soil, while the Humus plots around it are planted.
+     */
+    public static void testWithoutHumusSandIsLeftUnplanted(GameTestHelper context) {
+        FarmBlockEntity farm = rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        BlockPos spot = INNER_SINGLES.get(0);
+        context.setBlock(spot.below(), Blocks.SAND);
+        feed(context, new ItemStack(Items.OAK_SAPLING, SINGLES.size()));
+
+        context.onEachTick(() -> {
+            context.assertBlockPresent(Blocks.SAND, spot.below());
+            context.assertBlockPresent(Blocks.AIR, spot);
+        });
+        context.succeedWhen(() -> {
+            for (BlockPos cell : SINGLES) {
+                if (!cell.equals(spot)) {
+                    assertOakPlanted(context, cell);
+                }
+            }
+            context.assertTrue(
+                    farm.status() == FarmStatus.NO_SOIL, "The farm should report No soil, was " + farm.status());
         });
     }
 
@@ -343,6 +436,20 @@ public class ArboretumGameTestBody {
         return farm;
     }
 
+    /** Plants {@code sapling} at {@code pos} and bone-meals it into a tree; false if it never grew. */
+    private static boolean growTree(GameTestHelper context, BlockPos pos, BlockState sapling) {
+        context.setBlock(pos, sapling);
+        BlockPos absolute = context.absolutePos(pos);
+        for (int i = 0; i < MAX_BONE_MEAL; i++) {
+            BlockState state = context.getBlockState(pos);
+            if (!state.is(sapling.getBlock())) {
+                return state.is(BlockTags.LOGS);
+            }
+            PlantCompat.fertilize(context.getLevel(), context.getLevel().getRandom(), absolute, state);
+        }
+        return false;
+    }
+
     /** Loads the input hopper, one stack per slot in order; it feeds the slots front to back. */
     private static void feed(GameTestHelper context, ItemStack... stacks) {
         HopperBlockEntity hopper = (HopperBlockEntity) context.getBlockEntity(INPUT_HOPPER);
@@ -363,6 +470,23 @@ public class ArboretumGameTestBody {
 
     private static HopperBlockEntity hopper(GameTestHelper context, BlockPos pos) {
         return (HopperBlockEntity) context.getBlockEntity(pos);
+    }
+
+    /**
+     * Throws unless {@code cell} holds an oak sapling, or that sapling has already grown into a tree.
+     * Humus random ticks can grow a planted sapling mid-test; the farm then fells it, leaving sand.
+     */
+    private static void assertOakPlanted(GameTestHelper context, BlockPos cell) {
+        BlockState state = context.getBlockState(cell);
+        if (state.is(Blocks.OAK_SAPLING) || state.is(Blocks.OAK_LOG) || spentByTree(context, cell)) {
+            return;
+        }
+        throw new GameTestAssertPosException("Expected an oak sapling, found " + state + " on " + context.getBlockState(cell.below()), context.absolutePos(cell), cell, context.getTick());
+    }
+
+    /** Whether {@code cell} grew an oak that the farm felled into the chest, spending its Humus to sand. */
+    private static boolean spentByTree(GameTestHelper context, BlockPos cell) {
+        return context.getBlockState(cell.below()).is(Blocks.SAND) && chestHolds(context, Items.OAK_LOG);
     }
 
     private static void assertOffLatticeUntouched(GameTestHelper context) {

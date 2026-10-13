@@ -15,7 +15,9 @@ import com.logistics.core.machine.component.ItemStoreComponent;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
@@ -99,6 +101,8 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private int clearanceOverride;
     // Only the harvest's plot persists; the blocks are re-planned from it after a reload.
     @Nullable private BlockPos harvestBase;
+    // Plots of the area the harvest has broken a block on, whose soil it restores once complete.
+    private final Set<BlockPos> harvestedPlots = new LinkedHashSet<>();
     private boolean replanHarvest;
     private FarmStatus status = FarmStatus.IDLE;
     // What the last NO_POWER / NO_GERMLINGS was short of, so the status clears as soon as it is there.
@@ -350,6 +354,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             return FarmStatus.IDLE;
         }
         harvestBase = plot.immutable();
+        harvestedPlots.clear();
         return continueHarvest(world, s, area);
     }
 
@@ -396,15 +401,15 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             energy.consume(cost);
             drops.forEach(output::accept);
             broken++;
+            if (harvestBase != null && target.pos().getY() == harvestBase.getY() && area.contains(target.pos())) {
+                harvestedPlots.add(target.pos().immutable());
+            }
         }
         if (harvest.size() != pending) {
             dirty = true;
         }
         if (harvest.isEmpty()) {
-            if (harvestBase != null) {
-                restoreSoil(world, harvestBase);
-            }
-            harvestBase = null;
+            completeHarvest(world);
             for (ItemStack stack : world.collectItems(sweepBox(area), area::contains)) {
                 output.accept(stack);
             }
@@ -417,6 +422,18 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             return stall;
         }
         return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
+    }
+
+    /** Restores the soil under the harvest's plot and every plot it broke a block on. */
+    private void completeHarvest(FarmWorldAccess world) {
+        if (harvestBase != null) {
+            harvestedPlots.add(harvestBase);
+        }
+        for (BlockPos plot : harvestedPlots) {
+            restoreSoil(world, plot);
+        }
+        harvestedPlots.clear();
+        harvestBase = null;
     }
 
     /** Turns the soil under {@code plot}, emptied by a completed harvest, into the logic's after-harvest soil. */
@@ -443,9 +460,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
         if (logic.decide(world, area, base, inputs) instanceof PlotAction.Harvest replanned) {
             queueHarvest(world, replanned.blocks());
-            if (!harvest.isEmpty()) {
-                harvestBase = base;
-            }
+        }
+        harvestBase = base;
+        if (harvest.isEmpty()) {
+            // Nothing left standing: the harvest finished as the farm unloaded.
+            completeHarvest(world);
         }
     }
 
@@ -716,6 +735,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (harvestBase != null) {
             tag.putBoolean("Harvesting", true);
             tag.putLong("HarvestBase", harvestBase.asLong());
+            tag.putLongArray(
+                    "HarvestedPlots",
+                    harvestedPlots.stream().mapToLong(BlockPos::asLong).toArray());
         }
         output.save(tag, "Overflow", registries);
     }
@@ -730,6 +752,12 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                 ? BlockPos.of(NbtCompat.getLong(tag, "HarvestBase", 0L))
                 : null;
         replanHarvest = harvestBase != null;
+        harvestedPlots.clear();
+        if (harvestBase != null) {
+            for (long plot : NbtCompat.getLongArray(tag, "HarvestedPlots", new long[0])) {
+                harvestedPlots.add(BlockPos.of(plot));
+            }
+        }
         output.load(tag, "Overflow", registries);
     }
 

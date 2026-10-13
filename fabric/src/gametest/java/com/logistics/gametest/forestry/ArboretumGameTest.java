@@ -41,6 +41,21 @@ public class ArboretumGameTest {
         ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
     }
 
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
+    public void testFelledTreeLeavesSandThatIsRelaidWithHumus(GameTestHelper context) {
+        ArboretumGameTestBody.testFelledTreeLeavesSandThatIsRelaidWithHumus(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
+    public void testFelled2x2TreeLeavesSandUnderAllFourCells(GameTestHelper context) {
+        ArboretumGameTestBody.testFelled2x2TreeLeavesSandUnderAllFourCells(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
+    public void testWithoutHumusSandIsLeftUnplanted(GameTestHelper context) {
+        ArboretumGameTestBody.testWithoutHumusSandIsLeftUnplanted(context);
+    }
+
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
     public void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
         ArboretumGameTestBody.testEveryGermlingGrowsOnArboretumSoils(context);

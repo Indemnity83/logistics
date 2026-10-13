@@ -17,8 +17,13 @@ public class HumusGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
-    public void testHumusGrowsSaplingIntoTree(GameTestHelper context) {
-        HumusGameTestBody.testHumusGrowsSaplingIntoTree(context);
+    public void testHumusBoostGrowsTreeAndTurnsToSand(GameTestHelper context) {
+        HumusGameTestBody.testHumusBoostGrowsTreeAndTurnsToSand(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testHumusUnderLogTurnsToSand(GameTestHelper context) {
+        HumusGameTestBody.testHumusUnderLogTurnsToSand(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)

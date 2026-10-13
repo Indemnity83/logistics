@@ -604,6 +604,23 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("with the output full, ground that must be broken for soil is left in place")
+    void soilWaitsForRoomInOutput() {
+        FarmHarness farm = new FarmHarness(layingPodzol());
+        farm.world.set(farm.plot(0).below(), Blocks.SAND.defaultBlockState());
+        farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.PODZOL, 2));
+        fillOutput(farm, new ItemStack(Items.STONE, 64));
+        farm.power(10_000);
+
+        farm.tick();
+
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.SAND.defaultBlockState());
+        assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).isEqualTo(2);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.OUTPUT_FULL);
+    }
+
+    @Test
     @DisplayName("soil never replaces a block entity or an unbreakable block")
     void soilNeverReplacesProtectedBlocks() {
         for (BlockState floor : List.of(Blocks.CHEST.defaultBlockState(), Blocks.BEDROCK.defaultBlockState())) {
@@ -790,6 +807,62 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.writeFlags).containsEntry(farm.plot(0).below(), Block.UPDATE_ALL);
         assertThat(farm.world.blocks).as("null leaves the soil").containsEntry(farm.plot(1).below(), Blocks.PODZOL.defaultBlockState());
         assertThat(farm.world.blocks).as("claim protection").containsEntry(farm.plot(2).below(), WET_FARMLAND);
+    }
+
+    @Test
+    @DisplayName("a felling restores the soil under every ring plot it broke a block on, and nowhere else")
+    void fellingRestoresSoilUnderEveryPlot() {
+        FarmHarness probe = new FarmHarness(new ScriptedFarmLogic());
+        BlockPos base = probe.plot(0);
+        BlockPos neighbour = probe.plot(1);
+        BlockPos outside = probe.area().min().west();
+        List<BlockPos> plan = new ArrayList<>(trunk(base, 3));
+        plan.add(neighbour);
+        plan.add(outside);
+        ScriptedFarmLogic logic = felling(base, plan);
+        logic.afterHarvest = soil -> soil.is(Blocks.DIRT) ? Blocks.SAND.defaultBlockState() : null;
+        FarmHarness farm = new FarmHarness(logic);
+        plan.forEach(pos -> farm.world.set(pos, LOG));
+        for (BlockPos plot : List.of(base, neighbour, outside)) {
+            farm.world.set(plot.below(), Blocks.DIRT.defaultBlockState());
+        }
+        farm.power(10_000);
+
+        farm.ticks(3);
+
+        assertThat(farm.world.broken).containsAll(plan);
+        assertThat(farm.world.blocks).containsEntry(base.below(), Blocks.SAND.defaultBlockState());
+        assertThat(farm.world.blocks).containsEntry(neighbour.below(), Blocks.SAND.defaultBlockState());
+        assertThat(farm.world.blocks).as("outside the ring").containsEntry(outside.below(), Blocks.DIRT.defaultBlockState());
+    }
+
+    @Test
+    @DisplayName("plots a felling broke before a reload still get their soil restored when it completes")
+    void fellingRestoresSoilAcrossReload() {
+        FarmHarness probe = new FarmHarness(new ScriptedFarmLogic());
+        BlockPos base = probe.plot(0);
+        BlockPos neighbour = probe.plot(1);
+        List<BlockPos> plan = new ArrayList<>(List.of(neighbour));
+        plan.addAll(trunk(base, 10));
+        ScriptedFarmLogic logic = felling(base, plan);
+        logic.afterHarvest = soil -> soil.is(Blocks.DIRT) ? Blocks.SAND.defaultBlockState() : null;
+        FarmHarness farm = new FarmHarness(logic);
+        plan.forEach(pos -> farm.world.set(pos, LOG));
+        farm.world.set(base.below(), Blocks.DIRT.defaultBlockState());
+        farm.world.set(neighbour.below(), Blocks.DIRT.defaultBlockState());
+        farm.power(10_000);
+        farm.tick();
+        assertThat(farm.world.broken).contains(neighbour);
+
+        FarmHarness reloaded = new FarmHarness(logic);
+        reloaded.world.blocks.putAll(farm.world.blocks);
+        reloaded.load(farm.save());
+        reloaded.power(10_000);
+        reloaded.ticks(5);
+
+        assertThat(reloaded.farm().isHarvesting()).isFalse();
+        assertThat(reloaded.world.blocks).containsEntry(base.below(), Blocks.SAND.defaultBlockState());
+        assertThat(reloaded.world.blocks).containsEntry(neighbour.below(), Blocks.SAND.defaultBlockState());
     }
 
     @Test
