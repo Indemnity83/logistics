@@ -40,17 +40,17 @@ import org.jetbrains.annotations.Nullable;
  * <p>Every rig is the real thing: a Creative Engine kept running by a redstone block powers the
  * farm, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest beside it.
  * The farm at the centre works the 40-plot ring between a 3×3 and a 7×7 square around it
- * ({@link FarmBlockEntity#setAreaOverride}) at y=1, one block above it, with the soil at y=0 level
- * with the farm, and keeps six blocks clear above each plot
- * ({@link FarmBlockEntity#setClearanceHeightOverride}) so the clearing stays inside the structure,
- * whose ceiling leaves a birch room to grow. The farm stands on the structure's floor, so the
- * output hopper, its chest and the floor under the soil sit one block below the structure. The
- * engine, hoppers and chest stand in the 3×3 inside the ring, which the farm never touches. Single
- * saplings go on every even step of each lane of the ring.
+ * ({@link FarmBlockEntity#setAreaOverride}) at y=2, one block above it, with the soil at y=1 level
+ * with the farm on a floor at y=0, and keeps six blocks clear above each plot
+ * ({@link FarmBlockEntity#setClearanceHeightOverride}) so the clearing stays inside the structure.
+ * The structure's ceiling, six blocks above the plots, leaves a birch too little headroom, so trees
+ * grown from saplings are oaks, whose shortest form fits. The engine, hoppers and chest stand in the 3×3
+ * inside the ring, which the farm never touches. Single saplings go on every even step of each lane
+ * of the ring.
  */
 public class ArboretumGameTestBody {
 
-    private static final BlockPos FARM = new BlockPos(3, 0, 3);
+    private static final BlockPos FARM = new BlockPos(3, 1, 3);
     private static final BlockPos ENGINE = FARM.west();
     private static final BlockPos ENGINE_SWITCH = ENGINE.south();
     private static final BlockPos INPUT_HOPPER = FARM.above();
@@ -116,29 +116,29 @@ public class ArboretumGameTestBody {
         rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         feed(
                 context,
-                new ItemStack(Items.BIRCH_SAPLING, SINGLES.size() + 8),
+                new ItemStack(Items.OAK_SAPLING, SINGLES.size() + 8),
                 new ItemStack(LogisticsForestry.BLOCK.HUMUS, INNER_SINGLES.size()));
 
         Set<BlockPos> grown = new HashSet<>();
         context.onEachTick(() -> {
             for (BlockPos cell : INNER_SINGLES) {
                 BlockState state = context.getBlockState(cell);
-                if (state.is(Blocks.BIRCH_LOG)) {
+                if (state.is(Blocks.OAK_LOG)) {
                     grown.add(cell);
-                } else if (state.is(Blocks.BIRCH_SAPLING) && !grown.contains(cell)) {
+                } else if (state.is(Blocks.OAK_SAPLING) && !grown.contains(cell)) {
                     BlockPos pos = context.absolutePos(cell);
                     PlantCompat.fertilize(context.getLevel(), context.getLevel().getRandom(), pos, state);
                 }
             }
         });
         context.succeedWhen(() -> {
-            if (!chestHolds(context, Items.BIRCH_LOG)) {
-                throw context.assertionException("Felled birch logs should reach the chest; farm is "
+            if (!chestHolds(context, Items.OAK_LOG)) {
+                throw context.assertionException("Felled oak logs should reach the chest; farm is "
                         + context.getBlockEntity(FARM, FarmBlockEntity.class).status() + ", spots hold "
                         + INNER_SINGLES.stream().map(cell -> context.getBlockState(cell).toString()).toList());
             }
             for (BlockPos cell : grown) {
-                if (context.getBlockState(cell).is(Blocks.BIRCH_SAPLING)) {
+                if (context.getBlockState(cell).is(Blocks.OAK_SAPLING)) {
                     return;
                 }
             }
@@ -318,15 +318,15 @@ public class ArboretumGameTestBody {
     public static void testFelledTreeLeavesSandThatIsRelaidWithHumus(GameTestHelper context) {
         rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         BlockPos spot = INNER_SINGLES.get(0);
-        if (!growTree(context, spot, Blocks.BIRCH_SAPLING.defaultBlockState())) {
-            context.fail("Bone meal should have grown the birch sapling into a tree");
+        if (!growTree(context, spot, Blocks.OAK_SAPLING.defaultBlockState())) {
+            context.fail("Bone meal should have grown the oak sapling into a tree");
             return;
         }
         feed(context, new ItemStack(LogisticsForestry.BLOCK.HUMUS, 4));
 
         context.succeedWhen(() -> {
-            if (!chestHolds(context, Items.BIRCH_LOG)) {
-                throw context.assertionException(spot, "The felled birch logs should have reached the chest");
+            if (!chestHolds(context, Items.OAK_LOG)) {
+                throw context.assertionException(spot, "The felled oak logs should have reached the chest");
             }
             if (!chestHolds(context, Items.SAND)) {
                 throw context.assertionException(
