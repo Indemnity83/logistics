@@ -38,7 +38,10 @@ public sealed interface PlotAction {
         }
     }
 
-    /** Turn the block at {@code pos} into {@code result} in place, e.g. dirt into farmland. */
+    /**
+     * Turn the block at {@code pos} into {@code result} in place, e.g. dirt into wet farmland. A farm
+     * with a water tank pays {@code water_per_till} for it and does not till without.
+     */
     record Till(BlockPos pos, BlockState result) implements PlotAction {
         public Till {
             pos = pos.immutable();
@@ -46,9 +49,12 @@ public sealed interface PlotAction {
         }
     }
 
-    /** Wet the block at {@code pos} (any block with a moisture property) to full moisture. */
-    record Irrigate(BlockPos pos) implements PlotAction {
-        public Irrigate {
+    /**
+     * Wet the block at {@code pos} (any block with a moisture property) to full moisture. Costs RF
+     * only: the water was paid when the plot was tilled.
+     */
+    record Moisten(BlockPos pos) implements PlotAction {
+        public Moisten {
             pos = pos.immutable();
         }
     }

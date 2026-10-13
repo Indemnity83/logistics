@@ -27,7 +27,7 @@ final class FarmHarness {
 
     /** One plot per tick, so tests can count steps in ticks; clearing costs differ from harvesting. */
     static final FarmSettings SETTINGS =
-            new FarmSettings(1, 10_000, 1_000, 40, 30, 100, 60, 60, 20, 8_000, 50, 4, 20, 200);
+            new FarmSettings(1, 10_000, 1_000, 40, 30, 100, 60, 60, 20, 8_000, 250, 4, 20, 200);
 
     final ScriptedFarmLogic logic;
     final FakeFarmWorld world = new FakeFarmWorld();

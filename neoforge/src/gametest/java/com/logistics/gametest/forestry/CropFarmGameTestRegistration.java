@@ -20,14 +20,23 @@ public final class CropFarmGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("forestry/crop_farm_tills_and_plants_wheat", 1200, CropFarmGameTestBody::testTillsAndPlantsWheat),
+        new GameTestCase("forestry/crop_farm_hoeing_spends_water", 1200, CropFarmGameTestBody::testHoeingSpendsWater),
         new GameTestCase(
-            "forestry/crop_farm_irrigates_farmland_from_its_tank", 1200, CropFarmGameTestBody::testIrrigatesFarmlandFromItsTank),
+            "forestry/crop_farm_harvest_returns_plot_to_dirt_and_retill_pays_water",
+            2400,
+            CropFarmGameTestBody::testHarvestReturnsPlotToDirtAndRetillPaysWater),
+        new GameTestCase(
+            "forestry/crop_farm_moistens_planted_farmland_without_water",
+            1200,
+            CropFarmGameTestBody::testMoistensPlantedFarmlandWithoutWater),
         new GameTestCase(
             "forestry/crop_farm_harvests_and_replants_from_returned_seeds",
             3000,
             CropFarmGameTestBody::testHarvestsAndReplantsFromReturnedSeeds),
         new GameTestCase(
-            "forestry/crop_farm_plants_but_reports_no_water", 1020, CropFarmGameTestBody::testPlantsButReportsNoWater),
+            "forestry/crop_farm_harvests_but_stops_tilling_without_water",
+            1200,
+            CropFarmGameTestBody::testHarvestsButStopsTillingWithoutWater),
         new GameTestCase("forestry/crop_farm_does_nothing_without_power", 300, CropFarmGameTestBody::testDoesNothingWithoutPower),
         new GameTestCase(
             "forestry/crop_farm_lever_on_engine_does_not_pause_farm",
