@@ -30,13 +30,21 @@ public class ForestryJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm", ringOuter(LogisticsForestry.BLOCK.CROP_FARM));
-        info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum", ringOuter(LogisticsForestry.BLOCK.ARBORETUM));
+        info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm",
+                ringOuter(LogisticsForestry.BLOCK.CROP_FARM),
+                ringInner(LogisticsForestry.BLOCK.CROP_FARM));
+        info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum",
+                ringOuter(LogisticsForestry.BLOCK.ARBORETUM),
+                ringInner(LogisticsForestry.BLOCK.ARBORETUM));
         info(registration, LogisticsForestry.BLOCK.HUMUS, "humus");
     }
 
     private static int ringOuter(Block farm) {
         return ((FarmMachineBlock) farm).logic().ringOuter();
+    }
+
+    private static int ringInner(Block farm) {
+        return ((FarmMachineBlock) farm).logic().ringInner();
     }
 
     /** Adds an info page for {@code item} from the lang key {@code jei.logistics.info.forestry.<key>}. */
