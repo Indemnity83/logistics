@@ -41,14 +41,15 @@ import org.jetbrains.annotations.Nullable;
  * afford it. The square inside the ring, the farm included, is never touched.
  *
  * <p>The farm-wide gates live here, not in the logic. A redstone signal pauses everything. Every op
- * costs RF and is skipped whole when the buffer cannot pay for it; irrigating also costs water,
- * planting needs germlings and laying soil needs soil. A full output buffer stops every op that
+ * costs RF and is skipped whole when the buffer cannot pay for it; tilling, on a farm with a tank,
+ * also costs water, planting needs germlings and laying soil needs soil. A full output buffer stops every op that
  * breaks a block. Nothing touches an unloaded position, every write first asks claim protection,
  * and a block entity or an unbreakable block is never broken.
  *
  * <p>A harvest of several blocks (a tree) is broken a few blocks per tick until done, ahead of the
- * scan. Drops and the loose items swept from the ring afterwards go to the output slots, and what
- * does not fit waits in an overflow list.
+ * scan. Once it completes and the plot stands empty, the soil under the plot becomes the logic's
+ * {@link FarmLogic#soilAfterHarvest}. Drops and the loose items swept from the ring afterwards go to
+ * the output slots, and what does not fit waits in an overflow list.
  */
 public final class FarmComponent implements MachineComponent, MachineComponent.HudContributor {
 
@@ -243,10 +244,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         BlockPos plot = area.plot(index);
         FarmStatus outcome = world.isLoaded(plot) ? workPlot(world, s, area, plot) : FarmStatus.IDLE;
         tracker.record(outcome);
-        // Logics only ask to irrigate when there is water, so a dry tank is reported here.
-        if (water != null && !inputs.hasWater()) {
-            tracker.record(FarmStatus.NO_WATER);
-        }
         if (outcome == FarmStatus.WORKING) {
             scanner.markWorked();
         }
@@ -328,7 +325,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             case PlotAction.Harvest harvestAction -> startHarvest(world, s, area, plot, harvestAction.blocks());
             case PlotAction.PlaceSoil placeSoil -> placeSoil(world, s, placeSoil.pos());
             case PlotAction.Till till -> till(world, s, till.pos(), till.result());
-            case PlotAction.Irrigate irrigate -> irrigate(world, s, irrigate.pos());
+            case PlotAction.Moisten moisten -> moisten(world, s, moisten.pos());
             case PlotAction.Plant plant -> plant(world, s, plant.positions(), plant.germling());
             case PlotAction.None none -> FarmStatus.IDLE;
             case PlotAction.Blocked blocked ->
@@ -404,6 +401,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             dirty = true;
         }
         if (harvest.isEmpty()) {
+            if (harvestBase != null) {
+                restoreSoil(world, harvestBase);
+            }
             harvestBase = null;
             for (ItemStack stack : world.collectItems(sweepBox(area), area::contains)) {
                 output.accept(stack);
@@ -417,6 +417,20 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             return stall;
         }
         return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
+    }
+
+    /** Turns the soil under {@code plot}, emptied by a completed harvest, into the logic's after-harvest soil. */
+    private void restoreSoil(FarmWorldAccess world, BlockPos plot) {
+        BlockPos soilPos = plot.below();
+        if (!world.isLoaded(plot) || !world.isLoaded(soilPos) || !world.state(plot).isAir()) {
+            return;
+        }
+        BlockState soil = world.state(soilPos);
+        BlockState after = logic.soilAfterHarvest(soil);
+        if (after == null || after == soil || !world.canModify(soilPos)) {
+            return;
+        }
+        world.setBlock(soilPos, after, Block.UPDATE_ALL);
     }
 
     private void replanHarvest(FarmWorldAccess world, PlotArea area) {
@@ -487,16 +501,25 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (energy.amount() < s.rfTill()) {
             return noPower(s.rfTill());
         }
+        long needed = water != null ? FluidUnits.mb(s.waterPerTillMb()) : 0;
+        if (water != null && water.tank().getAmount() < needed) {
+            return FarmStatus.NO_WATER;
+        }
         if (!world.canModify(pos)) {
             return FarmStatus.BLOCKED;
         }
         world.setBlock(pos, result, Block.UPDATE_ALL);
+        if (needed > 0) {
+            FluidTankComponent tank = water.tank();
+            tank.extract(tank.getFluidKey(), needed, false);
+        }
         energy.consume(s.rfTill());
+        tracker.clear(FarmStatus.NO_WATER);
         return FarmStatus.WORKING;
     }
 
-    private FarmStatus irrigate(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
-        if (water == null || !world.isLoaded(pos)) {
+    private FarmStatus moisten(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
+        if (!world.isLoaded(pos)) {
             return FarmStatus.IDLE;
         }
         BlockState state = world.state(pos);
@@ -504,24 +527,15 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                 || state.getValue(BlockStateProperties.MOISTURE) >= MAX_MOISTURE) {
             return FarmStatus.IDLE;
         }
-        if (energy.amount() < s.rfIrrigate()) {
-            return noPower(s.rfIrrigate());
-        }
-        FluidTankComponent tank = water.tank();
-        long needed = FluidUnits.mb(s.waterPerIrrigateMb());
-        if (tank.getAmount() < needed) {
-            return FarmStatus.NO_WATER;
+        if (energy.amount() < s.rfMoisten()) {
+            return noPower(s.rfMoisten());
         }
         if (!world.canModify(pos)) {
             return FarmStatus.BLOCKED;
         }
         // Moisture is a visual-only change, so neighbours are not updated.
         world.setBlock(pos, state.setValue(BlockStateProperties.MOISTURE, MAX_MOISTURE), Block.UPDATE_CLIENTS);
-        if (needed > 0) {
-            tank.extract(tank.getFluidKey(), needed, false);
-        }
-        energy.consume(s.rfIrrigate());
-        tracker.clear(FarmStatus.NO_WATER);
+        energy.consume(s.rfMoisten());
         return FarmStatus.WORKING;
     }
 
@@ -659,7 +673,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
         @Override
         public boolean hasWater() {
-            return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerIrrigateMb());
+            return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerTillMb());
         }
     }
 
@@ -677,7 +691,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private boolean stillApplies(FarmStatus problem, FarmSettings s) {
         return switch (problem) {
             case NO_POWER -> energy.amount() < powerNeeded;
-            case NO_WATER -> water == null || water.tank().getAmount() < FluidUnits.mb(s.waterPerIrrigateMb());
+            case NO_WATER -> water == null || water.tank().getAmount() < FluidUnits.mb(s.waterPerTillMb());
             case NO_GERMLINGS -> germlingNeeded.isEmpty() || inputs.germlingCount(germlingNeeded) < germlingCountNeeded;
             case NO_SOIL -> soilSlot() < 0;
             case OUTPUT_FULL -> output.isFull();

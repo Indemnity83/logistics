@@ -2,12 +2,14 @@ package com.logistics.forestry.farm;
 
 import com.logistics.core.machine.area.PlotArea;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A test farm: oak saplings and wheat seeds are germlings, dirt and podzol are soil, and each plot's action
@@ -23,6 +25,7 @@ final class ScriptedFarmLogic implements FarmLogic {
     int clearanceHeight = 1;
     Predicate<BlockState> ownGrowth =
             state -> state.is(Blocks.WHEAT) || state.is(Blocks.OAK_SAPLING) || state.is(Blocks.OAK_LOG);
+    Function<BlockState, BlockState> afterHarvest = soil -> null;
     int decisions;
     PlotArea lastArea;
     FarmInputs lastInputs;
@@ -79,6 +82,12 @@ final class ScriptedFarmLogic implements FarmLogic {
     @Override
     public boolean isSoil(ItemStack stack) {
         return stack.is(Items.DIRT) || stack.is(Items.PODZOL);
+    }
+
+    @Override
+    @Nullable
+    public BlockState soilAfterHarvest(BlockState soil) {
+        return afterHarvest.apply(soil);
     }
 
     @Override

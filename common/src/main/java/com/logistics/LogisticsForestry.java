@@ -134,20 +134,20 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("RF per soil block laid")
                 .register();
 
-        public static final ConfigKey<Long> FARM_RF_IRRIGATE = farm.defineLong("rf_irrigate", 20L)
+        public static final ConfigKey<Long> FARM_RF_MOISTEN = farm.defineLong("rf_moisten", 20L)
                 .min(0L)
                 .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per block irrigated")
+                .describe("RF per planted farmland block kept moist; spends no water")
                 .register();
 
         public static final ConfigKey<Integer> FARM_WATER_CAPACITY_MB = farm.defineInt("water_capacity_mb", 8_000)
                 .min(1)
-                .describe("Water tank capacity (mB) of farms that irrigate")
+                .describe("Water tank capacity (mB) of farms that till with water")
                 .register();
 
-        public static final ConfigKey<Integer> FARM_WATER_PER_IRRIGATE_MB = farm.defineInt("water_per_irrigate_mb", 50)
+        public static final ConfigKey<Integer> FARM_WATER_PER_TILL_MB = farm.defineInt("water_per_till_mb", 250)
                 .min(0)
-                .describe("Water (mB) per block irrigated")
+                .describe("Water (mB) per block tilled, which keeps it moist for the crop's whole life")
                 .register();
 
         public static final ConfigKey<Integer> FARM_HARVEST_BLOCKS_PER_TICK =
