@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Shared Arboretum GameTest bodies, compiled into both loaders' {@code gametest} source sets.
@@ -39,21 +40,24 @@ import net.minecraft.world.level.block.state.BlockState;
  * <p>Every rig is the real thing: a Creative Engine kept running by a redstone block powers the
  * farm, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest beside it.
  * The farm at the centre works the 40-plot ring between a 3×3 and a 7×7 square around it
- * ({@link FarmBlockEntity#setAreaOverride}) at y=1, soil at y=0, and keeps six blocks clear above
- * each plot ({@link FarmBlockEntity#setClearanceHeightOverride}) so the clearing stays inside the
- * structure. The engine, hoppers and chest stand in the 3×3 inside the ring, which the farm never
- * touches. Single saplings go on every even step of each lane of the ring.
+ * ({@link FarmBlockEntity#setAreaOverride}) at y=1, one block above it, with the soil at y=0 level
+ * with the farm, and keeps six blocks clear above each plot
+ * ({@link FarmBlockEntity#setClearanceHeightOverride}) so the clearing stays inside the structure,
+ * whose ceiling leaves a birch room to grow. The farm stands on the structure's floor, so the
+ * output hopper, its chest and the floor under the soil sit one block below the structure. The
+ * engine, hoppers and chest stand in the 3×3 inside the ring, which the farm never touches. Single
+ * saplings go on every even step of each lane of the ring.
  */
 public class ArboretumGameTestBody {
 
-    private static final BlockPos FARM = new BlockPos(3, 1, 3);
+    private static final BlockPos FARM = new BlockPos(3, 0, 3);
     private static final BlockPos ENGINE = FARM.west();
     private static final BlockPos ENGINE_SWITCH = ENGINE.south();
     private static final BlockPos INPUT_HOPPER = FARM.above();
     private static final BlockPos OUTPUT_HOPPER = FARM.below();
     private static final BlockPos CHEST = OUTPUT_HOPPER.north();
 
-    private static final RingArea RING = new RingArea(FARM, 3, 7);
+    private static final RingArea RING = new RingArea(FARM.above(), 3, 7);
     private static final int CLEARANCE = 6;
 
     /** Every plot of the ring, in scan order. */
@@ -265,6 +269,49 @@ public class ArboretumGameTestBody {
     }
 
     /**
+     * Placed on a grass floor, the farm lays Humus level with itself and plants saplings on top,
+     * leaving the floor below alone: grass, or dirt where vanilla kills grass under the Humus, never
+     * dug out. The soil layer was air, so no dirt reaches the chest.
+     */
+    public static void testLaysHumusLevelWithFarmOnGrass(GameTestHelper context) {
+        int floorY = FARM.getY() - 1;
+        for (int x = 0; x < 8; x++) {
+            for (int z = 0; z < 8; z++) {
+                context.setBlock(new BlockPos(x, floorY, z), Blocks.GRASS_BLOCK);
+            }
+        }
+        rig(context, true, null, null);
+        feed(
+                context,
+                new ItemStack(LogisticsForestry.BLOCK.HUMUS, PLOTS.size()),
+                new ItemStack(Items.OAK_SAPLING, SINGLES.size()));
+
+        context.onEachTick(() -> {
+            assertOffLatticeUntouched(context);
+            for (BlockPos cell : PLOTS) {
+                BlockPos floor = cell.below(2);
+                BlockState below = context.getBlockState(floor);
+                if (!below.is(Blocks.GRASS_BLOCK) && !below.is(Blocks.DIRT)) {
+                    throw context.assertionException(floor, "The floor under the soil should be left alone, is " + below);
+                }
+            }
+        });
+        context.succeedWhen(() -> {
+            for (BlockPos cell : PLOTS) {
+                if (!spentByTree(context, cell)) {
+                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, cell.below());
+                }
+            }
+            for (BlockPos cell : SINGLES) {
+                assertOakPlanted(context, cell);
+            }
+            if (chestHolds(context, Items.DIRT)) {
+                throw context.assertionException(CHEST, "Laying Humus on air should dig no dirt out");
+            }
+        });
+    }
+
+    /**
      * A tree grown on Humus is felled into the chest; the Humus under it is spent and turns to sand,
      * which the farm digs out into the chest before laying fresh Humus from its soil slots.
      */
@@ -297,8 +344,9 @@ public class ArboretumGameTestBody {
      */
     public static void testFelled2x2TreeLeavesSandUnderAllFourCells(GameTestHelper context) {
         rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        int y = RING.origin().getY();
         List<BlockPos> trunk =
-                List.of(new BlockPos(0, 1, 0), new BlockPos(1, 1, 0), new BlockPos(0, 1, 1), new BlockPos(1, 1, 1));
+                List.of(new BlockPos(0, y, 0), new BlockPos(1, y, 0), new BlockPos(0, y, 1), new BlockPos(1, y, 1));
         BlockState canopy = Blocks.DARK_OAK_LEAVES
                 .defaultBlockState()
                 .setValue(LeavesBlock.PERSISTENT, false)
@@ -401,14 +449,25 @@ public class ArboretumGameTestBody {
 
     // ==================== Rig ====================
 
-    /**
-     * {@code ground} under the ring, the farm at its centre, a hopper on top of and one below the
-     * farm, and a chest after the output hopper; with {@code powered}, a running Creative Engine
-     * beside it.
-     */
+    /** {@link #rig(GameTestHelper, boolean, BlockState, BlockState)} on a stone floor, which keeps sand from falling. */
     private static FarmBlockEntity rig(GameTestHelper context, boolean powered, BlockState ground) {
+        return rig(context, powered, ground, Blocks.STONE.defaultBlockState());
+    }
+
+    /**
+     * {@code ground} under the ring on {@code floor} ({@code null} lays none), the farm at its centre,
+     * a hopper on top of and one below the farm, and a chest after the output hopper; with
+     * {@code powered}, a running Creative Engine beside it.
+     */
+    private static FarmBlockEntity rig(
+            GameTestHelper context, boolean powered, @Nullable BlockState ground, @Nullable BlockState floor) {
         for (BlockPos cell : PLOTS) {
-            context.setBlock(cell.below(), ground);
+            if (floor != null) {
+                context.setBlock(cell.below(2), floor);
+            }
+            if (ground != null) {
+                context.setBlock(cell.below(), ground);
+            }
         }
         context.setBlock(FARM, LogisticsForestry.BLOCK.ARBORETUM.defaultBlockState());
         context.setBlock(CHEST, Blocks.CHEST);

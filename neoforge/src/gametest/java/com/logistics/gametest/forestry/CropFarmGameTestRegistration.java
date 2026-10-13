@@ -48,7 +48,11 @@ public final class CropFarmGameTestRegistration {
         new GameTestCase(
             "forestry/crop_farm_leaves_inner_square_alone", 1200, CropFarmGameTestBody::testLeavesInnerSquareAlone),
         new GameTestCase(
-            "forestry/crop_farm_replaces_grass_with_dirt", 1200, CropFarmGameTestBody::testReplacesGrassWithDirt));
+            "forestry/crop_farm_replaces_grass_with_dirt", 1200, CropFarmGameTestBody::testReplacesGrassWithDirt),
+        new GameTestCase(
+            "forestry/crop_farm_lays_soil_level_with_farm_on_grass",
+            2400,
+            CropFarmGameTestBody::testLaysSoilLevelWithFarmOnGrass));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

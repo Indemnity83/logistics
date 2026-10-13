@@ -10,6 +10,7 @@ import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.machine.area.RingArea;
 import com.logistics.forestry.farm.FarmBlockEntity;
+import com.logistics.forestry.farm.FarmMachine;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmStatus;
@@ -17,7 +18,9 @@ import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -42,12 +45,12 @@ import org.jetbrains.annotations.Nullable;
  * {@code CropFarmGameTestRegistration} references them as {@code Consumer<GameTestHelper>}.
  *
  * <p>Every test builds the same rig with real blocks: the farm at the centre works the 16-plot ring
- * between a 3×3 and a 5×5 square around it ({@link FarmBlockEntity#setAreaOverride}), at its Y,
- * with soil one block below. Everything else stands in the 3×3 inside the ring, which the farm never
- * touches: a Creative Engine held on by a redstone block powers the farm from the west, a hopper on
- * top feeds it, and a hopper underneath pulls its produce into a chest. Water comes from a Glass Tank
- * through a Fluid Extractor Pipe on the north side, driven by a second engine. Two glowstone lamps
- * above the inner square keep the ring bright whatever the sky does.
+ * between a 3×3 and a 5×5 square around it ({@link FarmBlockEntity#setAreaOverride}), one block
+ * above it, with the soil level with the farm. Everything else stands in the 3×3 inside the ring,
+ * which the farm never touches: a Creative Engine held on by a redstone block powers the farm from
+ * the west, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest. Water
+ * comes from a Glass Tank through a Fluid Extractor Pipe on the north side, driven by a second
+ * engine. Two glowstone lamps above the inner square keep the ring bright whatever the sky does.
  */
 public class CropFarmGameTestBody {
 
@@ -66,14 +69,14 @@ public class CropFarmGameTestBody {
     private static final int RING_INNER = 3;
     private static final int RING_OUTER = 5;
 
-    /** The ring's plots, at the farm's Y, in scan order; soil is one block below each. */
+    /** The ring's plots, one block above the farm, in scan order; each one's soil is level with the farm. */
     private static final List<BlockPos> PLOTS = plots();
 
     private static final int MAX_MOISTURE = 7;
     private static final long TANK_MB = 4_000;
 
     private static List<BlockPos> plots() {
-        RingArea ring = new RingArea(FARM, RING_INNER, RING_OUTER);
+        RingArea ring = new RingArea(FARM.above(), RING_INNER, RING_OUTER);
         List<BlockPos> plots = new ArrayList<>();
         for (int i = 0; i < ring.plotCount(); i++) {
             plots.add(ring.plot(i));
@@ -84,20 +87,22 @@ public class CropFarmGameTestBody {
     private record Rig(FarmBlockEntity farm, HopperBlockEntity input, @Nullable GlassTankBlockEntity tank) {}
 
     /**
-     * Builds the rig over {@code soil} (one block per plot, under it). Returns {@code null}, with
-     * the test failed, if a block entity is missing.
+     * Builds the rig over {@code soil} (one block per plot, under it; {@code null} lays none). Returns
+     * {@code null}, with the test failed, if a block entity is missing.
      */
     @Nullable
-    private static Rig build(GameTestHelper context, BlockState soil, boolean power, boolean water) {
+    private static Rig build(GameTestHelper context, @Nullable BlockState soil, boolean power, boolean water) {
         return build(context, soil, power, water ? TANK_MB : 0);
     }
 
     /** {@link #build(GameTestHelper, BlockState, boolean, boolean)} with {@code waterMb} in the source tank; 0 for no water rig. */
     @Nullable
-    private static Rig build(GameTestHelper context, BlockState soil, boolean power, long waterMb) {
+    private static Rig build(GameTestHelper context, @Nullable BlockState soil, boolean power, long waterMb) {
         boolean water = waterMb > 0;
-        for (BlockPos plot : PLOTS) {
-            context.setBlock(plot.below(), soil);
+        if (soil != null) {
+            for (BlockPos plot : PLOTS) {
+                context.setBlock(plot.below(), soil);
+            }
         }
         LAMPS.forEach(lamp -> context.setBlock(lamp, Blocks.GLOWSTONE));
 
@@ -589,5 +594,69 @@ public class CropFarmGameTestBody {
             assertChestHolds(context, Items.DIRT, "The grass block's drop");
             assertWheatEverywhere(context, PLOTS);
         });
+    }
+
+    // ==================== Levels ====================
+
+    /**
+     * Placed on a grass floor, the farm lays its dirt level with itself, tills it and sows wheat on
+     * top, leaving the floor below alone: grass, or dirt where vanilla kills grass under the laid soil,
+     * never tilled. The soil layer was air, so laying soil digs nothing out; dirt reaches the output
+     * only from grass that spreads onto laid dirt before it is tilled, which the farm replaces.
+     */
+    public static void testLaysSoilLevelWithFarmOnGrass(GameTestHelper context) {
+        int floorY = FARM.getY() - 1;
+        for (int x = 0; x < 8; x++) {
+            for (int z = 0; z < 8; z++) {
+                context.setBlock(new BlockPos(x, floorY, z), Blocks.GRASS_BLOCK);
+            }
+        }
+        Rig rig = build(context, null, true, true);
+        if (rig == null) {
+            return;
+        }
+        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
+        // Spare dirt for plots grass grows back over before they are tilled.
+        rig.input().setItem(1, new ItemStack(Items.DIRT, 2 * PLOTS.size()));
+
+        Set<BlockPos> grassy = new HashSet<>();
+        int[] regrown = {0};
+        context.onEachTick(() -> {
+            for (BlockPos plot : PLOTS) {
+                BlockPos floor = plot.below(2);
+                BlockState below = context.getBlockState(floor);
+                if (!below.is(Blocks.GRASS_BLOCK) && !below.is(Blocks.DIRT)) {
+                    throw context.assertionException(floor, "The floor under the soil should be left alone, is " + below);
+                }
+                if (context.getBlockState(plot.below()).is(Blocks.GRASS_BLOCK)) {
+                    if (grassy.add(plot)) {
+                        regrown[0]++;
+                    }
+                } else {
+                    grassy.remove(plot);
+                }
+            }
+        });
+        context.succeedWhen(() -> {
+            assertWheatEverywhere(context, PLOTS);
+            int dug = count(context.getBlockEntity(CHEST, ChestBlockEntity.class), Items.DIRT)
+                    + count(context.getBlockEntity(OUTPUT_HOPPER, HopperBlockEntity.class), Items.DIRT)
+                    + outputCount(rig.farm(), Items.DIRT);
+            if (dug > regrown[0]) {
+                throw context.assertionException(CHEST, dug + " dirt reached the output, but only " + regrown[0]
+                        + " plots grew grass for the farm to dig out");
+            }
+        });
+    }
+
+    private static int outputCount(FarmBlockEntity farm, Item item) {
+        int total = 0;
+        for (int slot = FarmMachine.OUTPUT_START; slot < FarmMachine.OUTPUT_END; slot++) {
+            ItemStack stack = farm.getItem(slot);
+            if (stack.is(item)) {
+                total += stack.getCount();
+            }
+        }
+        return total;
     }
 }

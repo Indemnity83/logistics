@@ -428,7 +428,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).containsEntry(farm.host.pos().above(), Blocks.COBBLESTONE.defaultBlockState());
         assertThat(farm.world.broken).isEmpty();
         assertThat(farm.world.writeFlags).hasSize(16);
-        assertThat(farm.world.writeFlags.keySet()).allMatch(new RingArea(farm.host.pos(), 3, 5)::contains);
+        assertThat(farm.world.writeFlags.keySet()).allMatch(new RingArea(farm.host.pos().above(), 3, 5)::contains);
     }
 
     // ==================== Multi-block harvests ====================
@@ -979,14 +979,15 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("the logic is handed the ring its plot belongs to")
+    @DisplayName("the logic is handed the ring its plot belongs to, one block above the farm so the soil is level with it")
     void logicSeesRing() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
         farm.power(10_000);
 
         farm.tick();
 
-        assertThat(farm.logic.lastArea).isEqualTo(new RingArea(farm.host.pos(), 1, 3));
+        assertThat(farm.logic.lastArea).isEqualTo(new RingArea(farm.host.pos().above(), 1, 3));
+        assertThat(farm.logic.lastArea.plot(0).below().getY()).isEqualTo(farm.host.pos().getY());
         assertThat(farm.logic.lastArea.plot(0)).isEqualTo(farm.plot(0));
     }
 
