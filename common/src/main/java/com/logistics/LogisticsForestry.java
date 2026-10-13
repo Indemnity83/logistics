@@ -145,7 +145,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("Water tank capacity (mB) of farms that till with water")
                 .register();
 
-        public static final ConfigKey<Integer> FARM_WATER_PER_TILL_MB = farm.defineInt("water_per_till", 250)
+        public static final ConfigKey<Integer> FARM_WATER_PER_TILL_MB = farm.defineInt("water_per_till_mb", 250)
                 .min(0)
                 .describe("Water (mB) per block tilled, which keeps it moist for the crop's whole life")
                 .register();
