@@ -3,6 +3,8 @@
 > **Status:** 🚧 Planned — wave 2 · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md), [`0203-arboretum.md`](0203-arboretum.md) (`TreeFeller`) · **Maps to (roadmap):** Phase 2 — Farms
 
+> **Area:** follows the centred-ring model from [0201](0201-farm-framework.md): the farm sits at the centre of a free 9×9 and works (and clears) a ring of plots around it; slots are germlings 0–3, soil 4–7, output 8–16. The ring size is settled when this farm is built.
+
 Grows and fells huge mushrooms and huge nether fungi (Forestry's shroom farm).
 
 ## Requirements
