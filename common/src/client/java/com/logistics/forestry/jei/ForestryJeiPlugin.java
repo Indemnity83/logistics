@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ItemLike;
 
 /**
- * JEI plugin that adds info pages for the farms, Fertilizer and Humus.
+ * JEI plugin that adds info pages for the farms and Humus.
  * Discovered by JEI via the "jei_mod_plugin" Fabric entrypoint in fabric.mod.json.
  *
  * <p>Numbers come from the config defaults, not the live values: the client's config file need
@@ -30,13 +30,9 @@ public class ForestryJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         int area = LogisticsForestry.CONFIG.FARM_AREA_SIZE.definition().defaultValue();
-        int fertilizerCharges = LogisticsForestry.CONFIG.FERTILIZER_CHARGES.definition().defaultValue();
-        int boneMealCharges = LogisticsForestry.CONFIG.BONE_MEAL_CHARGES.definition().defaultValue();
 
         info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm", area);
         info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum", area);
-        info(registration, LogisticsForestry.ITEM.FERTILIZER, "fertilizer",
-            Math.max(1, fertilizerCharges / boneMealCharges));
         info(registration, LogisticsForestry.BLOCK.HUMUS, "humus");
     }
 

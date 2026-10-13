@@ -68,25 +68,14 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
     }
 
     /**
-     * Farm consumables and soils ({@code fertilizer.json}, {@code humus.json}) and the shared farm
-     * machine ({@code farm.json}), all under {@code config/logistics/forestry/}.
+     * Farm soils ({@code humus.json}) and the shared farm machine ({@code farm.json}), both under
+     * {@code config/logistics/forestry/}.
      */
     public static final class CONFIG extends ConfigEntries {
-        private static final Config fertilizer = configFor(LogisticsConfigHost.MOD_ID, "forestry.fertilizer");
         private static final Config humus = configFor(LogisticsConfigHost.MOD_ID, "forestry.humus");
         private static final Config farm = configFor(LogisticsConfigHost.MOD_ID, "forestry.farm");
 
         private CONFIG() {}
-
-        public static final ConfigKey<Integer> FERTILIZER_CHARGES = fertilizer.defineInt("fertilizer_charges", 8)
-                .min(1)
-                .describe("Growth charges one Fertilizer gives a farm")
-                .register();
-
-        public static final ConfigKey<Integer> BONE_MEAL_CHARGES = fertilizer.defineInt("bone_meal_charges", 1)
-                .min(1)
-                .describe("Growth charges one Bone Meal gives a farm")
-                .register();
 
         public static final ConfigKey<Double> HUMUS_GROWTH_CHANCE = humus.defineDouble("humus_growth_chance", 0.25)
                 .finite()
@@ -150,12 +139,6 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("RF per block irrigated")
                 .register();
 
-        public static final ConfigKey<Long> FARM_RF_FERTILIZE = farm.defineLong("rf_fertilize", 120L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per growth step applied with fertilizer")
-                .register();
-
         public static final ConfigKey<Integer> FARM_WATER_CAPACITY_MB = farm.defineInt("water_capacity_mb", 8_000)
                 .min(1)
                 .describe("Water tank capacity (mB) of farms that irrigate")
@@ -191,7 +174,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
     public static final class TAG {
         private TAG() {}
 
-        /** Items a farm's fertilizer slot accepts. */
+        /** Items that count as fertilizer. */
         public static final TagKey<Item> FERTILIZERS =
                 TagKey.create(Registries.ITEM, resource("fertilizers").toIdentifier());
 
