@@ -604,6 +604,23 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("with the output full, ground that must be broken for soil is left in place")
+    void soilWaitsForRoomInOutput() {
+        FarmHarness farm = new FarmHarness(layingPodzol());
+        farm.world.set(farm.plot(0).below(), Blocks.SAND.defaultBlockState());
+        farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.PODZOL, 2));
+        fillOutput(farm, new ItemStack(Items.STONE, 64));
+        farm.power(10_000);
+
+        farm.tick();
+
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.SAND.defaultBlockState());
+        assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).isEqualTo(2);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.OUTPUT_FULL);
+    }
+
+    @Test
     @DisplayName("soil never replaces a block entity or an unbreakable block")
     void soilNeverReplacesProtectedBlocks() {
         for (BlockState floor : List.of(Blocks.CHEST.defaultBlockState(), Blocks.BEDROCK.defaultBlockState())) {

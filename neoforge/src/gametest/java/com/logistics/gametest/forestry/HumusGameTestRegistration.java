@@ -20,7 +20,10 @@ public final class HumusGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("forestry/humus_sapling_survives", 60, HumusGameTestBody::testSaplingSurvivesOnHumus),
-        new GameTestCase("forestry/humus_grows_sapling_into_tree", 60, HumusGameTestBody::testHumusGrowsSaplingIntoTree),
+        new GameTestCase(
+            "forestry/humus_boost_grows_tree_and_turns_to_sand", 60,
+            HumusGameTestBody::testHumusBoostGrowsTreeAndTurnsToSand),
+        new GameTestCase("forestry/humus_under_log_turns_to_sand", 60, HumusGameTestBody::testHumusUnderLogTurnsToSand),
         new GameTestCase(
             "forestry/humus_without_sapling_never_changes", 60, HumusGameTestBody::testHumusWithoutSaplingNeverChanges),
         new GameTestCase("forestry/humus_no_growth_in_darkness", 60, HumusGameTestBody::testNoGrowthInDarkness));

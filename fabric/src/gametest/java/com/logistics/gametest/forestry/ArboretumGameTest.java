@@ -41,6 +41,16 @@ public class ArboretumGameTest {
         ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
     }
 
+    @GameTest(maxTicks = 2000)
+    public void testFelledTreeLeavesSandThatIsRelaidWithHumus(GameTestHelper context) {
+        ArboretumGameTestBody.testFelledTreeLeavesSandThatIsRelaidWithHumus(context);
+    }
+
+    @GameTest(maxTicks = 1200)
+    public void testWithoutHumusSandIsLeftUnplanted(GameTestHelper context) {
+        ArboretumGameTestBody.testWithoutHumusSandIsLeftUnplanted(context);
+    }
+
     @GameTest(maxTicks = 40)
     public void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
         ArboretumGameTestBody.testEveryGermlingGrowsOnArboretumSoils(context);

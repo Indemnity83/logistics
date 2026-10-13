@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,11 +66,10 @@ public class HumusGameTestBody {
     }
 
     /**
-     * Random-ticking Humus in the light grows the oak sapling on it into a tree. The tree leaves the
-     * soil in place (it is in {@code #minecraft:dirt}), and the humus either survives or wears to
-     * dirt — never anything else.
+     * Random-ticking Humus in the light grows the oak sapling on it into a tree, and the tree its
+     * boost grew turns the Humus under it to sand.
      */
-    public static void testHumusGrowsSaplingIntoTree(GameTestHelper context) {
+    public static void testHumusBoostGrowsTreeAndTurnsToSand(GameTestHelper context) {
         BlockPos humus = new BlockPos(4, 1, 4);
         BlockPos sapling = humus.above();
         context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
@@ -84,13 +82,30 @@ public class HumusGameTestBody {
             }
 
             context.assertBlockPresent(Blocks.OAK_LOG, sapling);
-            Block soil = context.getBlockState(humus).getBlock();
-            if (soil != LogisticsForestry.BLOCK.HUMUS && soil != Blocks.DIRT) {
-                context.fail("Humus under a grown tree should be humus or dirt, was " + soil);
-                return;
-            }
+            context.assertBlockPresent(Blocks.SAND, humus);
             context.succeed();
         });
+    }
+
+    /**
+     * Humus under a log, or under mangrove roots, turns to sand on its next random tick, however the
+     * wood got there: a tree grown by vanilla ticks or bone meal is caught this way.
+     */
+    public static void testHumusUnderLogTurnsToSand(GameTestHelper context) {
+        BlockPos underLog = new BlockPos(1, 1, 1);
+        BlockPos underRoots = new BlockPos(5, 1, 5);
+        context.setBlock(underLog, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(underLog.above(), Blocks.OAK_LOG);
+        context.setBlock(underRoots, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(underRoots.above(), Blocks.MANGROVE_ROOTS);
+
+        context.randomTick(underLog);
+        context.randomTick(underRoots);
+
+        context.assertBlockPresent(Blocks.SAND, underLog);
+        context.assertBlockPresent(Blocks.OAK_LOG, underLog.above());
+        context.assertBlockPresent(Blocks.SAND, underRoots);
+        context.succeed();
     }
 
     /** Humus with nothing growing on it, or a plant that is not a sapling, never changes. */

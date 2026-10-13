@@ -392,6 +392,25 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("sand left by a felled tree is replaced with Humus before planting")
+    void sandIsReplacedWithHumus() {
+        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        world.set(cell(0, 2).below(), Blocks.SAND.defaultBlockState());
+        TestInputs inputs = humusAnd(new ItemStack(Items.OAK_SAPLING, 4));
+
+        assertThat(decide(world, 0, 2, inputs)).isEqualTo(new PlotAction.PlaceSoil(cell(0, 2).below()));
+    }
+
+    @Test
+    @DisplayName("a felled tree turns the Humus under it to sand and leaves other soil alone")
+    void soilAfterHarvest() {
+        assertThat(logic().soilAfterHarvest(LogisticsForestry.BLOCK.HUMUS.defaultBlockState()))
+                .isEqualTo(Blocks.SAND.defaultBlockState());
+        assertThat(logic().soilAfterHarvest(Blocks.DIRT.defaultBlockState())).isNull();
+        assertThat(logic().soilAfterHarvest(Blocks.SAND.defaultBlockState())).isNull();
+    }
+
+    @Test
     @DisplayName("soil is never dug out from under a planted sapling")
     void neverDigsUnderSapling() {
         TestWorld world = TestWorld.floor(RING, Blocks.DIRT.defaultBlockState());
