@@ -21,9 +21,9 @@ public record FarmSettings(
         long rfPlant,
         long rfTill,
         long rfSoil,
-        long rfIrrigate,
+        long rfMoisten,
         int waterCapacityMb,
-        int waterPerIrrigateMb,
+        int waterPerTillMb,
         int harvestBlocksPerTick,
         int idleBackoffBaseTicks,
         int idleBackoffMaxTicks) {
@@ -37,9 +37,9 @@ public record FarmSettings(
         rfPlant = Math.max(0, rfPlant);
         rfTill = Math.max(0, rfTill);
         rfSoil = Math.max(0, rfSoil);
-        rfIrrigate = Math.max(0, rfIrrigate);
+        rfMoisten = Math.max(0, rfMoisten);
         waterCapacityMb = Math.max(1, waterCapacityMb);
-        waterPerIrrigateMb = Math.max(0, waterPerIrrigateMb);
+        waterPerTillMb = Math.max(0, waterPerTillMb);
         harvestBlocksPerTick = Math.max(1, harvestBlocksPerTick);
         idleBackoffBaseTicks = Math.max(1, idleBackoffBaseTicks);
         idleBackoffMaxTicks = Math.max(idleBackoffBaseTicks, idleBackoffMaxTicks);
@@ -55,9 +55,9 @@ public record FarmSettings(
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_PLANT),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_TILL),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_SOIL),
-                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_IRRIGATE),
+                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_RF_MOISTEN),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_CAPACITY_MB),
-                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATE_MB),
+                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_TILL_MB),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_HARVEST_BLOCKS_PER_TICK),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_MAX_TICKS));

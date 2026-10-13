@@ -652,17 +652,76 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.PODZOL.defaultBlockState());
     }
 
+    private static final BlockState WET_FARMLAND = Blocks.FARMLAND.defaultBlockState().setValue(BlockStateProperties.MOISTURE, 7);
+
+    private static ScriptedFarmLogic tillingDirt(boolean usesWater) {
+        return new ScriptedFarmLogic(usesWater, false).script((world, plot) ->
+                world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), WET_FARMLAND) : PlotAction.NONE);
+    }
+
+    private static void fillWater(FarmHarness farm, long mb) {
+        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(mb), false);
+    }
+
+    private static long waterMb(FarmHarness farm) {
+        return FluidUnits.toMillibuckets(farm.machine.water().tank().getAmount());
+    }
+
     @Test
-    @DisplayName("a farm with a tank reports No water while it cannot cover one irrigation, even if no plot asked")
-    void reportsNoWaterWithoutIrrigating() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false));
+    @DisplayName("each till spends exactly water_per_till; without it the till is skipped and the farm reports No water")
+    void tillSpendsWaterPerTill() {
+        FarmHarness farm = new FarmHarness(tillingDirt(true));
+        for (int i = 0; i < 8; i++) {
+            farm.world.set(farm.plot(i).below(), Blocks.DIRT.defaultBlockState());
+        }
+        int perTill = FarmHarness.SETTINGS.waterPerTillMb();
+        fillWater(farm, 2L * perTill + perTill / 2);
+        farm.power(10_000);
+
+        farm.ticks(8);
+
+        assertThat(tilled(farm)).isEqualTo(2);
+        assertThat(waterMb(farm)).isEqualTo(perTill / 2);
+        assertThat(farm.energy()).isEqualTo(10_000 - 2 * FarmHarness.SETTINGS.rfTill());
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
+
+        fillWater(farm, perTill);
+        farm.ticks(100);
+        assertThat(tilled(farm)).isEqualTo(3);
+        assertThat(waterMb(farm)).isEqualTo(perTill / 2);
+    }
+
+    private static int tilled(FarmHarness farm) {
+        int tilled = 0;
+        for (int i = 0; i < 8; i++) {
+            if (farm.world.blocks.get(farm.plot(i).below()) == WET_FARMLAND) {
+                tilled++;
+            }
+        }
+        return tilled;
+    }
+
+    @Test
+    @DisplayName("a farm without a tank tills for RF alone")
+    void tillWithoutTankIsFree() {
+        FarmHarness farm = new FarmHarness(tillingDirt(false));
+        farm.world.set(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
         farm.power(10_000);
 
         farm.tick();
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
 
-        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(1_000), false);
-        farm.tick();
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), WET_FARMLAND);
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfTill());
+    }
+
+    @Test
+    @DisplayName("an idle farm with an empty tank does not report No water")
+    void emptyTankAloneIsNotNoWater() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false));
+        farm.power(10_000);
+
+        farm.ticks(3);
+
         assertThat(farm.farm().status()).isNotEqualTo(FarmStatus.NO_WATER);
     }
 
@@ -678,36 +737,80 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("irrigating wets farmland to full moisture without a neighbour update, spending water")
-    void irrigates() {
+    @DisplayName("moistening wets farmland to full moisture without a neighbour update, for RF and no water")
+    void moistensWithoutWater() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false).script((world, plot) -> {
             BlockState soil = world.state(plot.below());
             return soil.is(Blocks.FARMLAND) && soil.getValue(BlockStateProperties.MOISTURE) < 7
-                    ? new PlotAction.Irrigate(plot.below())
+                    ? new PlotAction.Moisten(plot.below())
                     : PlotAction.NONE;
         }));
         for (int i = 0; i < 8; i++) {
             farm.world.set(farm.plot(i).below(), Blocks.FARMLAND.defaultBlockState());
         }
+        fillWater(farm, 1_000);
         farm.power(10_000);
 
         farm.tick();
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
-        assertThat(farm.world.writeFlags).isEmpty();
 
-        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(1_000), false);
-        farm.tick();
-
-        BlockPos soil = farm.plot(1).below();
+        BlockPos soil = farm.plot(0).below();
         assertThat(farm.world.blocks.get(soil).getValue(BlockStateProperties.MOISTURE)).isEqualTo(7);
         assertThat(farm.world.writeFlags).containsEntry(soil, Block.UPDATE_CLIENTS);
-        assertThat(FluidUnits.toMillibuckets(farm.machine.water().tank().getAmount()))
-                .isEqualTo(1_000 - FarmHarness.SETTINGS.waterPerIrrigateMb());
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfIrrigate());
+        assertThat(waterMb(farm)).isEqualTo(1_000);
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfMoisten());
+
+        FarmHarness dry = new FarmHarness(farm.logic);
+        dry.world.set(dry.plot(0).below(), Blocks.FARMLAND.defaultBlockState());
+        dry.power(10_000);
+        dry.tick();
+        assertThat(dry.world.blocks.get(dry.plot(0).below()).getValue(BlockStateProperties.MOISTURE))
+                .as("an empty tank does not stop moistening")
+                .isEqualTo(7);
     }
 
     @Test
-    @DisplayName("only farms that irrigate get a water tank")
+    @DisplayName("a completed harvest turns the soil under the plot into the logic's after-harvest soil")
+    void harvestAppliesSoilAfterHarvest() {
+        ScriptedFarmLogic logic = harvestingWheat();
+        logic.afterHarvest = soil -> soil.is(Blocks.FARMLAND) ? Blocks.DIRT.defaultBlockState() : null;
+        FarmHarness farm = new FarmHarness(logic);
+        farm.world.set(farm.plot(0), WHEAT);
+        farm.world.set(farm.plot(0).below(), WET_FARMLAND);
+        farm.world.set(farm.plot(1), WHEAT);
+        farm.world.set(farm.plot(1).below(), Blocks.PODZOL.defaultBlockState());
+        farm.world.set(farm.plot(2), WHEAT);
+        farm.world.set(farm.plot(2).below(), WET_FARMLAND);
+        farm.world.claimed.add(farm.plot(2).below());
+        farm.power(10_000);
+
+        farm.ticks(3);
+
+        assertThat(farm.world.broken).containsExactly(farm.plot(0), farm.plot(1), farm.plot(2));
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
+        assertThat(farm.world.writeFlags).containsEntry(farm.plot(0).below(), Block.UPDATE_ALL);
+        assertThat(farm.world.blocks).as("null leaves the soil").containsEntry(farm.plot(1).below(), Blocks.PODZOL.defaultBlockState());
+        assertThat(farm.world.blocks).as("claim protection").containsEntry(farm.plot(2).below(), WET_FARMLAND);
+    }
+
+    @Test
+    @DisplayName("a harvest that leaves its plot standing keeps the soil")
+    void refusedHarvestKeepsSoil() {
+        ScriptedFarmLogic logic = harvestingWheat();
+        logic.afterHarvest = soil -> Blocks.DIRT.defaultBlockState();
+        FarmHarness farm = new FarmHarness(logic);
+        farm.world.set(farm.plot(0), WHEAT);
+        farm.world.set(farm.plot(0).below(), WET_FARMLAND);
+        farm.world.claimed.add(farm.plot(0));
+        farm.power(10_000);
+
+        farm.tick();
+
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0), WHEAT);
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), WET_FARMLAND);
+    }
+
+    @Test
+    @DisplayName("only farms that use water get a water tank")
     void waterTankOnlyWhenUsed() {
         assertThat(new FarmHarness(new ScriptedFarmLogic(false, false)).machine.water()).isNull();
         assertThat(new FarmHarness(new ScriptedFarmLogic(true, false)).machine.water()).isNotNull();
