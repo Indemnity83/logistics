@@ -40,4 +40,9 @@ public class CropFarmGameTest {
     public void testLeavesTorchOnPlot(GameTestHelper context) {
         CropFarmGameTestBody.testLeavesTorchOnPlot(context);
     }
+
+    @GameTest(maxTicks = 800)
+    public void testLeverOnEngineDoesNotPauseFarm(GameTestHelper context) {
+        CropFarmGameTestBody.testLeverOnEngineDoesNotPauseFarm(context);
+    }
 }
