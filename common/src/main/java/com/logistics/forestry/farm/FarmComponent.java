@@ -6,8 +6,9 @@ import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineHudModel;
+import com.logistics.core.machine.area.PlotArea;
 import com.logistics.core.machine.area.PlotScanner;
-import com.logistics.core.machine.area.WorkArea;
+import com.logistics.core.machine.area.RingArea;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -26,23 +26,28 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The farm's work loop. Every work interval it takes the next plot of its {@link WorkArea} from a
- * {@link PlotScanner}, asks the {@link FarmLogic} what the plot needs, and performs that one
- * {@link PlotAction} if the farm can afford it.
+ * The farm's work loop. Every work interval it takes the next plot of its {@link RingArea} from a
+ * {@link PlotScanner}. While the plot's column holds anything that is not the farm's own growth, it
+ * clears one block of it ({@link ColumnClearer}); once the column is clear, it asks the
+ * {@link FarmLogic} what the plot needs and performs that one {@link PlotAction} if the farm can
+ * afford it. The square inside the ring, the farm included, is never touched.
  *
  * <p>The farm-wide gates live here, not in the logic. A redstone signal pauses everything. Every op
  * costs RF and is skipped whole when the buffer cannot pay for it; irrigating also costs water,
- * planting needs germlings and laying soil needs soil. A full output buffer stops harvesting only.
- * Nothing touches an unloaded position, and every write first asks claim protection.
+ * planting needs germlings and laying soil needs soil. A full output buffer stops every op that
+ * breaks a block. Nothing touches an unloaded position, every write first asks claim protection,
+ * and a block entity or an unbreakable block is never broken.
  *
  * <p>A harvest of several blocks (a tree) is broken a few blocks per tick until done, ahead of the
- * scan. Drops and the loose items swept from the area afterwards go to the output slots, and what
+ * scan. Drops and the loose items swept from the ring afterwards go to the output slots, and what
  * does not fit waits in an overflow list.
  */
 public final class FarmComponent implements MachineComponent, MachineComponent.HudContributor {
@@ -88,7 +93,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private int stepsInPass;
     private int cooldown;
     @Nullable private UUID owner;
-    private int areaSizeOverride;
+    private int innerOverride;
+    private int outerOverride;
+    private int clearanceOverride;
     // Only the harvest's plot persists; the blocks are re-planned from it after a reload.
     @Nullable private BlockPos harvestBase;
     private boolean replanHarvest;
@@ -128,9 +135,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return status;
     }
 
-    /** Width of the square plot currently worked. */
+    /** Side of the square whose ring is worked: a 15 means the ring reaches 15×15. */
     public int areaSize() {
-        return areaSize(settings.get());
+        return outerOverride > 0 ? outerOverride : logic.ringOuter();
     }
 
     @Nullable
@@ -142,12 +149,28 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         this.owner = owner;
     }
 
-    /** Test seam: works a plot of {@code size} (odd) instead of the configured one; 0 or less restores it. */
-    public void setAreaSizeOverride(int size) {
-        if (size > 0 && size % 2 == 0) {
-            throw new IllegalArgumentException("area size must be odd: " + size);
+    /**
+     * Test seam: works the ring between squares of {@code inner} and {@code outer} (both odd,
+     * {@code inner >= 1}, {@code outer > inner}) instead of the logic's; 0 for both restores it.
+     */
+    public void setAreaOverride(int inner, int outer) {
+        if (inner <= 0 && outer <= 0) {
+            innerOverride = 0;
+            outerOverride = 0;
+            return;
         }
-        areaSizeOverride = Math.max(0, size);
+        new RingArea(BlockPos.ZERO, inner, outer); // validates
+        innerOverride = inner;
+        outerOverride = outer;
+    }
+
+    /** Test seam: keeps {@code height} blocks clear above each plot instead of the logic's; 0 or less restores it. */
+    public void setClearanceHeightOverride(int height) {
+        clearanceOverride = Math.max(0, height);
+    }
+
+    private int clearanceHeight() {
+        return clearanceOverride > 0 ? clearanceOverride : logic.clearanceHeight();
     }
 
     List<ItemStack> overflow() {
@@ -176,7 +199,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (output.drainOverflow()) {
             dirty = true;
         }
-        WorkArea area = area(ctx, s);
+        RingArea area = area(ctx);
         ensureScanner(area.plotCount(), s);
 
         boolean paused = world.hasNeighborSignal(ctx.pos());
@@ -191,7 +214,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
     }
 
-    private void work(FarmWorldAccess world, FarmSettings s, WorkArea area) {
+    private void work(FarmWorldAccess world, FarmSettings s, PlotArea area) {
         if (replanHarvest) {
             replanHarvest(world, area);
         }
@@ -211,16 +234,14 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         step(world, s, area);
     }
 
-    private void step(FarmWorldAccess world, FarmSettings s, WorkArea area) {
+    private void step(FarmWorldAccess world, FarmSettings s, PlotArea area) {
         tracker.step();
         int index = scanner.next();
         stepsInPass++;
         dirty = true;
 
         BlockPos plot = area.plot(index);
-        FarmStatus outcome = world.isLoaded(plot)
-                ? execute(world, s, area, plot, logic.decide(world, area, plot, inputs))
-                : FarmStatus.IDLE;
+        FarmStatus outcome = world.isLoaded(plot) ? workPlot(world, s, area, plot) : FarmStatus.IDLE;
         tracker.record(outcome);
         // Logics only ask to irrigate when there is water, so a dry tank is reported here.
         if (water != null && !inputs.hasWater()) {
@@ -248,20 +269,61 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
     }
 
-    private WorkArea area(MachineContext ctx, FarmSettings s) {
-        BlockState state = ctx.blockState();
-        Direction facing =
-                state.hasProperty(FarmMachineBlock.FACING) ? state.getValue(FarmMachineBlock.FACING) : Direction.NORTH;
-        return WorkArea.inFront(ctx.pos(), facing, areaSize(s));
-    }
-
-    private int areaSize(FarmSettings s) {
-        return areaSizeOverride > 0 ? areaSizeOverride : s.areaSize();
+    private RingArea area(MachineContext ctx) {
+        return outerOverride > 0
+                ? new RingArea(ctx.pos(), innerOverride, outerOverride)
+                : new RingArea(ctx.pos(), logic.ringInner(), logic.ringOuter());
     }
 
     // ==================== Ops ====================
 
-    private FarmStatus execute(FarmWorldAccess world, FarmSettings s, WorkArea area, BlockPos plot, PlotAction action) {
+    /** Clears one block from {@code plot}'s column, or, once it is clear, does what the logic asks. */
+    private FarmStatus workPlot(FarmWorldAccess world, FarmSettings s, PlotArea area, BlockPos plot) {
+        ColumnClearer.ColumnView column = pos -> {
+            BlockState state = world.state(pos);
+            return ColumnClearer.classify(state, world.destroySpeed(pos), logic.isOwnGrowth(state));
+        };
+        return switch (ColumnClearer.next(column, plot, clearanceHeight())) {
+            case ColumnClearer.Clearing.Clear clear ->
+                execute(world, s, area, plot, logic.decide(world, area, plot, inputs));
+            case ColumnClearer.Clearing.Break breakBlock -> clearBlock(world, s, breakBlock.pos());
+            case ColumnClearer.Clearing.Drain drain -> drain(world, s, drain.pos());
+            case ColumnClearer.Clearing.Blocked blocked -> FarmStatus.BLOCKED;
+        };
+    }
+
+    private FarmStatus clearBlock(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
+        if (output.isFull()) {
+            return FarmStatus.OUTPUT_FULL;
+        }
+        if (energy.amount() < s.rfClearPerBlock()) {
+            return noPower(s.rfClearPerBlock());
+        }
+        if (!world.canModify(pos)) {
+            return FarmStatus.BLOCKED;
+        }
+        List<ItemStack> drops = world.breakBlock(pos);
+        if (drops == null) {
+            return FarmStatus.BLOCKED;
+        }
+        drops.forEach(output::accept);
+        energy.consume(s.rfClearPerBlock());
+        return FarmStatus.WORKING;
+    }
+
+    private FarmStatus drain(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
+        if (energy.amount() < s.rfClearPerBlock()) {
+            return noPower(s.rfClearPerBlock());
+        }
+        if (!world.canModify(pos)) {
+            return FarmStatus.BLOCKED;
+        }
+        world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        energy.consume(s.rfClearPerBlock());
+        return FarmStatus.WORKING;
+    }
+
+    private FarmStatus execute(FarmWorldAccess world, FarmSettings s, PlotArea area, BlockPos plot, PlotAction action) {
         return switch (action) {
             case PlotAction.Harvest harvestAction -> startHarvest(world, s, area, plot, harvestAction.blocks());
             case PlotAction.PlaceSoil placeSoil -> placeSoil(world, s, placeSoil.pos());
@@ -275,7 +337,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     }
 
     private FarmStatus startHarvest(
-            FarmWorldAccess world, FarmSettings s, WorkArea area, BlockPos plot, List<BlockPos> blocks) {
+            FarmWorldAccess world, FarmSettings s, PlotArea area, BlockPos plot, List<BlockPos> blocks) {
         if (blocks.isEmpty()) {
             return FarmStatus.IDLE;
         }
@@ -306,7 +368,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     }
 
     /** Breaks up to {@code harvestBlocksPerTick} blocks of the pending harvest. */
-    private FarmStatus continueHarvest(FarmWorldAccess world, FarmSettings s, WorkArea area) {
+    private FarmStatus continueHarvest(FarmWorldAccess world, FarmSettings s, PlotArea area) {
         long cost = s.rfHarvestPerBlock();
         int pending = harvest.size();
         int broken = 0;
@@ -343,7 +405,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
         if (harvest.isEmpty()) {
             harvestBase = null;
-            for (ItemStack stack : world.collectItems(sweepBox(area))) {
+            for (ItemStack stack : world.collectItems(sweepBox(area), area::contains)) {
                 output.accept(stack);
             }
         }
@@ -357,7 +419,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
     }
 
-    private void replanHarvest(FarmWorldAccess world, WorkArea area) {
+    private void replanHarvest(FarmWorldAccess world, PlotArea area) {
         replanHarvest = false;
         BlockPos base = harvestBase;
         harvestBase = null;
@@ -373,7 +435,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
     }
 
-    private static AABB sweepBox(WorkArea area) {
+    private static AABB sweepBox(PlotArea area) {
         BlockPos min = area.min();
         BlockPos max = area.max();
         return new AABB(
@@ -396,16 +458,15 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (current.is(soil.getBlock())) {
             return FarmStatus.IDLE;
         }
-        // Never fill in water, a source, a flow or a waterlogged block.
-        if (!current.getFluidState().isEmpty()) {
+        if (!world.canModify(pos) || current.hasBlockEntity() || world.destroySpeed(pos) < 0) {
             return FarmStatus.BLOCKED;
         }
-        boolean open = current.isAir() || current.canBeReplaced();
-        // Soil goes only where there was nothing, or ground the farm may dig up; never a player's floor.
-        if (!world.canModify(pos) || current.hasBlockEntity() || !(open || world.isReplaceableSoil(pos))) {
-            return FarmStatus.BLOCKED;
-        }
-        if (!open) {
+        // Air and fluids are simply overwritten; anything else is broken first.
+        boolean overwrite = current.isAir() || current.getBlock() instanceof LiquidBlock;
+        if (!overwrite) {
+            if (output.isFull()) {
+                return FarmStatus.OUTPUT_FULL;
+            }
             List<ItemStack> drops = world.breakBlock(pos);
             if (drops == null) {
                 return FarmStatus.BLOCKED;
@@ -604,7 +665,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     // ==================== Status ====================
 
-    private void updateStatus(MachineContext ctx, FarmSettings s, WorkArea area, boolean paused) {
+    private void updateStatus(MachineContext ctx, FarmSettings s, PlotArea area, boolean paused) {
         status = paused ? FarmStatus.PAUSED : tracker.status(area.plotCount(), problem -> stillApplies(problem, s));
         BlockState state = ctx.blockState();
         boolean lit = status == FarmStatus.WORKING;

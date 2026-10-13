@@ -28,10 +28,9 @@ public sealed interface PlotAction {
     }
 
     /**
-     * Lay one soil item from the soil slots at {@code pos}. Only air, replaceable blocks and
-     * {@code logistics:forestry/replaceable_soil} ground are replaced (the latter's drops kept);
-     * anything else, and anything holding a fluid (water, or a waterlogged block), is left standing
-     * and reported as blocked.
+     * Lay one soil item from the soil slots at {@code pos}. Whatever stands there is broken first,
+     * its drops kept, and a fluid is simply overwritten; a block entity or an unbreakable block is
+     * left standing and reported as blocked.
      */
     record PlaceSoil(BlockPos pos) implements PlotAction {
         public PlaceSoil {

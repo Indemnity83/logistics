@@ -88,8 +88,13 @@ public class FarmBlockEntity extends MachineEntity {
         setChanged();
     }
 
-    /** Test seam: works a plot of {@code size} (odd) for this farm only; 0 or less restores the config value. */
-    public void setAreaSizeOverride(int size) {
-        parts.farm().setAreaSizeOverride(size);
+    /** Test seam: works the ring between squares of {@code inner} and {@code outer} for this farm only. */
+    public void setAreaOverride(int inner, int outer) {
+        parts.farm().setAreaOverride(inner, outer);
+    }
+
+    /** Test seam: keeps {@code height} blocks clear above each plot for this farm only. */
+    public void setClearanceHeightOverride(int height) {
+        parts.farm().setClearanceHeightOverride(height);
     }
 }

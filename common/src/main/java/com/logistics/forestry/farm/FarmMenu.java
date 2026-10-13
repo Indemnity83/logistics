@@ -33,7 +33,7 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@link #WATER} (wide): water in mB;</li>
  *   <li>{@link #WATER_CAPACITY} (wide): tank capacity in mB, 0 for a farm without water;</li>
  *   <li>{@link #STATUS}: {@link FarmStatus} ordinal;</li>
- *   <li>{@link #AREA_SIZE}: plot width (a 9 means 9×9);</li>
+ *   <li>{@link #AREA_SIZE}: outer side of the worked ring (a 15 means 15×15);</li>
  *   <li>{@link #FLAGS}: bit {@link #FLAG_USES_WATER}, bit {@link #FLAG_LAYS_SOIL};</li>
  * </ul>
  */

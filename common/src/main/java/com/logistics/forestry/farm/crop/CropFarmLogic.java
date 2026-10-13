@@ -18,11 +18,11 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * The Crop Farm: keeps each plot's soil tilled to farmland and wet, plants field crops on it and
  * harvests them once mature, replanting from the harvest first.
  *
- * <p>Crop blocks ({@link CropBlock}) are the farm's own. Overgrowth such as grass, ferns or snow
- * (replaceable blocks without fluid) is cleared so the plot can be farmed; any other block standing
- * on a plot, a torch or a fence, leaves that plot alone, and water is never filled in. Farmland is
- * {@link Blocks#FARMLAND} with {@link BlockStateProperties#MOISTURE}, never the farmland block
- * class, whose name differs between Minecraft versions.
+ * <p>Crop blocks ({@link CropBlock}) are the farm's own growth; anything else above a plot is
+ * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt or
+ * farmland; anything else under an empty plot, grass included, is replaced with the farm's soil.
+ * Farmland is {@link Blocks#FARMLAND} with {@link BlockStateProperties#MOISTURE}, never the farmland
+ * block class, whose name differs between Minecraft versions.
  */
 public final class CropFarmLogic implements FarmLogic {
 
@@ -45,6 +45,21 @@ public final class CropFarmLogic implements FarmLogic {
     /** Test seam: {@code tillable} stands in for the {@code logistics:forestry/tillable} tag. */
     public CropFarmLogic(Predicate<BlockState> tillable) {
         this.tillable = tillable;
+    }
+
+    @Override
+    public int ringOuter() {
+        return 15;
+    }
+
+    @Override
+    public int clearanceHeight() {
+        return 5;
+    }
+
+    @Override
+    public boolean isOwnGrowth(BlockState state) {
+        return state.getBlock() instanceof CropBlock;
     }
 
     @Override
@@ -81,7 +96,7 @@ public final class CropFarmLogic implements FarmLogic {
         }
         boolean empty = plant.isAir();
         if (!empty && crop == null) {
-            return isOvergrowth(plant) ? PlotAction.harvest(plot) : PlotAction.NONE;
+            return PlotAction.NONE; // the farm clears it first
         }
 
         BlockPos soilPos = plot.below();
@@ -89,14 +104,16 @@ public final class CropFarmLogic implements FarmLogic {
             return PlotAction.NONE;
         }
         BlockState soil = world.state(soilPos);
-        if (empty && soil.isAir()) {
-            return new PlotAction.PlaceSoil(soilPos);
-        }
-        if (empty && tillable.test(soil)) {
-            return new PlotAction.Till(soilPos, Blocks.FARMLAND.defaultBlockState());
-        }
         if (!soil.is(Blocks.FARMLAND)) {
-            return PlotAction.NONE;
+            if (!empty) {
+                return PlotAction.NONE;
+            }
+            if (!soil.is(Blocks.DIRT)) {
+                return new PlotAction.PlaceSoil(soilPos);
+            }
+            return tillable.test(soil)
+                    ? new PlotAction.Till(soilPos, Blocks.FARMLAND.defaultBlockState())
+                    : PlotAction.NONE;
         }
 
         if (empty) {
@@ -112,10 +129,5 @@ public final class CropFarmLogic implements FarmLogic {
             return new PlotAction.Irrigate(soilPos);
         }
         return PlotAction.NONE;
-    }
-
-    /** A replaceable block on a plot that holds no fluid: grass, a fern, a snow layer and the like. */
-    private static boolean isOvergrowth(BlockState state) {
-        return state.canBeReplaced() && state.getFluidState().isEmpty();
     }
 }
