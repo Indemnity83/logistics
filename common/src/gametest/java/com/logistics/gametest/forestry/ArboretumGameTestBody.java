@@ -70,6 +70,9 @@ public class ArboretumGameTestBody {
     /** Hoppers move one item per 8 ticks: long after a few saplings are all in the farm. */
     private static final int SETTLE_TICKS = 250;
 
+    /** Logs in each column of a hand-set 2×2 trunk. */
+    private static final int TRUNK_HEIGHT = 4;
+
     /** Bone meal applications that grow a sapling into a tree many times over. */
     private static final int MAX_BONE_MEAL = 64;
 
@@ -283,6 +286,42 @@ public class ArboretumGameTestBody {
                         spot.below(), "The sand left under the felled tree should have reached the chest");
             }
             context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, spot.below());
+        });
+    }
+
+    /**
+     * A dark oak's 2×2 trunk standing on Humus in the ring's north-west corner is felled into the
+     * chest, and every one of the four Humus blocks under it is left as sand. No Humus is fed, so the
+     * sand stays. Bone meal does not grow a dark oak in this corner of the test structure, so the
+     * trunk and a natural canopy over it are set by hand.
+     */
+    public static void testFelled2x2TreeLeavesSandUnderAllFourCells(GameTestHelper context) {
+        rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        List<BlockPos> trunk =
+                List.of(new BlockPos(0, 1, 0), new BlockPos(1, 1, 0), new BlockPos(0, 1, 1), new BlockPos(1, 1, 1));
+        BlockState canopy = Blocks.DARK_OAK_LEAVES
+                .defaultBlockState()
+                .setValue(LeavesBlock.PERSISTENT, false)
+                .setValue(LeavesBlock.DISTANCE, 1);
+        for (BlockPos cell : trunk) {
+            if (!PLOTS.contains(cell)) {
+                context.fail(cell + " should be a plot of the ring");
+                return;
+            }
+            for (int dy = 0; dy < TRUNK_HEIGHT; dy++) {
+                context.setBlock(cell.above(dy), Blocks.DARK_OAK_LOG);
+            }
+            context.setBlock(cell.above(TRUNK_HEIGHT), canopy);
+        }
+
+        context.succeedWhen(() -> {
+            if (!chestHolds(context, Items.DARK_OAK_LOG)) {
+                throw context.assertionException(trunk.get(0), "The felled dark oak logs should have reached the chest");
+            }
+            for (BlockPos cell : trunk) {
+                context.assertBlockPresent(Blocks.AIR, cell);
+                context.assertBlockPresent(Blocks.SAND, cell.below());
+            }
         });
     }
 

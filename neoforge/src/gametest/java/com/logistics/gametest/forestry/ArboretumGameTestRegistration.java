@@ -37,6 +37,9 @@ public final class ArboretumGameTestRegistration {
             "forestry/arboretum_felled_tree_leaves_sand_that_is_relaid_with_humus", 2000,
             ArboretumGameTestBody::testFelledTreeLeavesSandThatIsRelaidWithHumus),
         new GameTestCase(
+            "forestry/arboretum_felled_2x2_tree_leaves_sand_under_all_four_cells", 2000,
+            ArboretumGameTestBody::testFelled2x2TreeLeavesSandUnderAllFourCells),
+        new GameTestCase(
             "forestry/arboretum_without_humus_sand_is_left_unplanted", 1200,
             ArboretumGameTestBody::testWithoutHumusSandIsLeftUnplanted),
         new GameTestCase(
