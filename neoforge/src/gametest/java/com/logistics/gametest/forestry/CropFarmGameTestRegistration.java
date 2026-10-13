@@ -22,8 +22,18 @@ public final class CropFarmGameTestRegistration {
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testIrrigatesFarmlandFromItsTank(GameTestHelper context) {
-        CropFarmGameTestBody.testIrrigatesFarmlandFromItsTank(context);
+    public static void testHoeingSpendsWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHoeingSpendsWater(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 2400)
+    public static void testHarvestReturnsPlotToDirtAndRetillPaysWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestReturnsPlotToDirtAndRetillPaysWater(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
+    public static void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testMoistensPlantedFarmlandWithoutWater(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 3000)
@@ -31,9 +41,9 @@ public final class CropFarmGameTestRegistration {
         CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
     }
 
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1020)
-    public static void testPlantsButReportsNoWater(GameTestHelper context) {
-        CropFarmGameTestBody.testPlantsButReportsNoWater(context);
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
+    public static void testHarvestsButStopsTillingWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestsButStopsTillingWithoutWater(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 300)

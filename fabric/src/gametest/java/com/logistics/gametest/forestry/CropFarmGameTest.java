@@ -17,8 +17,18 @@ public class CropFarmGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testIrrigatesFarmlandFromItsTank(GameTestHelper context) {
-        CropFarmGameTestBody.testIrrigatesFarmlandFromItsTank(context);
+    public void testHoeingSpendsWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHoeingSpendsWater(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2400)
+    public void testHarvestReturnsPlotToDirtAndRetillPaysWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestReturnsPlotToDirtAndRetillPaysWater(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
+    public void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testMoistensPlantedFarmlandWithoutWater(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 3000)
@@ -26,9 +36,9 @@ public class CropFarmGameTest {
         CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
     }
 
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1000)
-    public void testPlantsButReportsNoWater(GameTestHelper context) {
-        CropFarmGameTestBody.testPlantsButReportsNoWater(context);
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
+    public void testHarvestsButStopsTillingWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestsButStopsTillingWithoutWater(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 300)

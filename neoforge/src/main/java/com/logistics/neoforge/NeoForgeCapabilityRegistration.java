@@ -123,7 +123,7 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsAutomation.ENTITY.TRANSPOSER_BLOCK_ENTITY);
         registerFluids(event, LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY);
         registerFluids(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
-        // Input-only water tank on farms that irrigate; farms without one expose no fluid handler.
+        // Input-only water tank on farms that till with water; farms without one expose no fluid handler.
         registerFluids(event, LogisticsForestry.ENTITY.FARM);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
