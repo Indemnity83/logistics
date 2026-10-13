@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>One stateless instance per farm block ({@link FarmMachineBlock#logic()}), shared by every farm
  * of that type. A logic only reads the world, through {@link FarmWorld}, and answers with a single
  * {@link PlotAction}; the {@link FarmComponent} carries it out and owns the farm-wide gates: power,
- * water, germlings, soil, fertilizer charges, a full output buffer, redstone and claim protection.
+ * water, germlings, soil, a full output buffer, redstone and claim protection.
  *
  * <p>{@link #usesWater()} and {@link #laysSoil()} shape the machine (its tank and soil slots), so
  * they must never change for a given farm type.
@@ -58,7 +58,7 @@ public interface FarmLogic {
     /**
      * The one thing {@code plot} needs next. {@code plot} is at the farm's Y level and its soil is
      * {@code plot.below()}. Expected priority: harvest, then soil or tilling, then planting, then
-     * irrigation (only while {@link FarmInputs#hasWater()}), then fertilizing.
+     * irrigation (only while {@link FarmInputs#hasWater()}).
      *
      * <p>Only called while {@code plot} is loaded. Must not change the world; reads beyond the plot
      * should check {@link FarmWorld#isLoaded}.

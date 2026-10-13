@@ -1,21 +1,18 @@
 package com.logistics.forestry.farm;
 
-import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.SlotRole;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * The components every farm is built from, and its slot layout. Inserting on any face routes an
- * item by role (germling, soil or fertilizer slots); every face extracts only from the output slots.
+ * item by role (germling or soil slots); every face extracts only from the output slots.
  *
  * <p>Registration order is load-bearing: the energy buffer ticks before the farm spends from it.
  */
@@ -30,10 +27,9 @@ public record FarmMachine(
     public static final int GERMLING_END = 4;
     public static final int SOIL_START = 4;
     public static final int SOIL_END = 8;
-    public static final int FERTILIZER_SLOT = 8;
-    public static final int OUTPUT_START = 9;
-    public static final int OUTPUT_END = 18;
-    public static final int SLOT_COUNT = 18;
+    public static final int OUTPUT_START = 8;
+    public static final int OUTPUT_END = 17;
+    public static final int SLOT_COUNT = 17;
 
     /**
      * Builds a farm's components on {@code machine}. Buffer sizes are read from {@code settings}
@@ -44,21 +40,6 @@ public record FarmMachine(
             FarmLogic logic,
             Supplier<FarmSettings> settings,
             FarmComponent.WorldFactory worlds) {
-        return assemble(machine, logic, settings, worlds, FarmMachine::isFertilizer);
-    }
-
-    /** What the fertilizer slot accepts: the {@code logistics:forestry/fertilizers} tag. */
-    public static boolean isFertilizer(ItemStack stack) {
-        return stack.is(LogisticsForestry.TAG.FERTILIZERS);
-    }
-
-    /** {@link #assemble} with the fertilizer-slot test supplied, for tests without bound tags. */
-    static FarmMachine assemble(
-            MachineBuilder machine,
-            FarmLogic logic,
-            Supplier<FarmSettings> settings,
-            FarmComponent.WorldFactory worlds,
-            Predicate<ItemStack> fertilizer) {
         FarmSettings initial = settings.get();
         EnergyStorageComponent energy = machine.energy("energy")
                 .capacity(initial.energyCapacity())
@@ -75,7 +56,6 @@ public record FarmMachine(
                 .anyFaceAccess()
                 .slotFilter(GERMLING_START, GERMLING_END, logic::isGermling)
                 .slotFilter(SOIL_START, SOIL_END, stack -> logic.laysSoil() && logic.isSoil(stack))
-                .slotFilter(FERTILIZER_SLOT, FERTILIZER_SLOT + 1, fertilizer)
                 .build();
         FarmComponent farm = machine.add(new FarmComponent("farm", logic, items, energy, water, settings, worlds));
         return new FarmMachine(logic, energy, water, items, farm);

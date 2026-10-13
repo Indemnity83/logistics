@@ -32,14 +32,6 @@ public interface FarmWorldAccess extends FarmWorld {
 
     void setBlock(BlockPos pos, BlockState state, int flags);
 
-    /**
-     * Applies one bone-meal step to the block at {@code pos}, with the usual growth particles when
-     * it takes.
-     *
-     * @return whether a growth step happened (the block's own success roll can fail)
-     */
-    boolean fertilize(BlockPos pos);
-
     /** Removes the loose item entities inside {@code box} and returns their stacks. */
     List<ItemStack> collectItems(AABB box);
 }

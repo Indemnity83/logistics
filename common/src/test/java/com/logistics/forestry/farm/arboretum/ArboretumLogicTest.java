@@ -246,8 +246,7 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         world.tree(offPattern, NATURAL_LEAVES);
         TestInputs inputs = new TestInputs()
                 .germlings(new ItemStack(Items.OAK_SAPLING, 4))
-                .soil(new ItemStack(LogisticsForestry.BLOCK.HUMUS))
-                .fertilizer(true);
+                .soil(new ItemStack(LogisticsForestry.BLOCK.HUMUS));
 
         PlotAction action = decide(world, area, 1, 1, inputs);
 
@@ -263,7 +262,7 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         WorkArea area = area(9);
         TestWorld world = TestWorld.dirtFloor(area);
         world.tree(cell(area, 0, 0), PLAYER_LEAVES);
-        TestInputs inputs = new TestInputs().germlings(new ItemStack(Items.OAK_SAPLING, 4)).fertilizer(true);
+        TestInputs inputs = new TestInputs().germlings(new ItemStack(Items.OAK_SAPLING, 4));
 
         assertThat(decide(world, area, 0, 0, inputs)).isEqualTo(PlotAction.NONE);
     }
@@ -339,63 +338,30 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         assertThat(decide(world, area, 0, 0, inputs)).isEqualTo(PlotAction.NONE);
     }
 
-    // ==================== Fertilize ====================
+    // ==================== Growing ====================
 
     @Test
-    @DisplayName("a single sapling on the lattice is fertilized when fertilizer is on hand")
-    void fertilizesSingle() {
+    @DisplayName("a planted sapling or 2×2 group is left to grow on its own")
+    void plantedSaplingsAreLeftAlone() {
         WorkArea area = area(3);
         TestWorld world = TestWorld.dirtFloor(area);
         world.set(cell(area, 0, 2), Blocks.BIRCH_SAPLING.defaultBlockState());
-        world.set(cell(area, 1, 1), Blocks.BIRCH_SAPLING.defaultBlockState());
-
-        TestInputs with = new TestInputs().fertilizer(true);
-        assertThat(decide(world, area, 0, 2, with)).isEqualTo(new PlotAction.Fertilize(cell(area, 0, 2)));
-        assertThat(decide(world, area, 0, 2, new TestInputs())).isEqualTo(PlotAction.NONE);
-        // Off the lattice: someone else's sapling.
-        assertThat(decide(world, area, 1, 1, with)).isEqualTo(PlotAction.NONE);
-        world.unfertilizable.add(cell(area, 0, 2));
-        assertThat(decide(world, area, 0, 2, with)).isEqualTo(PlotAction.NONE);
-    }
-
-    @Test
-    @DisplayName("a 2×2 group is fertilized at its anchor only, and only when all four match")
-    void fertilizesGroupOnlyWhenComplete() {
-        WorkArea area = area(3);
-        TestWorld world = TestWorld.dirtFloor(area);
-        List<BlockPos> group = ArboretumLogic.group(area, 0, 0);
-        TestInputs inputs = new TestInputs().fertilizer(true);
-
-        for (int i = 0; i < 3; i++) {
-            world.set(group.get(i), Blocks.DARK_OAK_SAPLING.defaultBlockState());
+        for (BlockPos cell : ArboretumLogic.group(area, 0, 0)) {
+            world.set(cell, Blocks.DARK_OAK_SAPLING.defaultBlockState());
         }
+        TestInputs inputs = new TestInputs()
+                .germlings(new ItemStack(Items.OAK_SAPLING, 4))
+                .soil(new ItemStack(LogisticsForestry.BLOCK.HUMUS));
+
+        assertThat(decide(world, area, 0, 2, inputs)).isEqualTo(PlotAction.NONE);
         assertThat(decide(world, area, 0, 0, inputs)).isEqualTo(PlotAction.NONE);
-
-        world.set(group.get(3), Blocks.OAK_SAPLING.defaultBlockState());
-        assertThat(decide(world, area, 0, 0, inputs)).isEqualTo(PlotAction.NONE);
-
-        world.set(group.get(3), Blocks.DARK_OAK_SAPLING.defaultBlockState());
-        assertThat(decide(world, area, 0, 0, inputs)).isEqualTo(new PlotAction.Fertilize(group.get(0)));
-        assertThat(decide(world, area, 0, 1, inputs)).isEqualTo(PlotAction.NONE);
-        assertThat(decide(world, area, 1, 1, inputs)).isEqualTo(PlotAction.NONE);
-    }
-
-    @Test
-    @DisplayName("a lone 2×2 sapling on a lattice point is never fertilized")
-    void loneDarkOakNotFertilized() {
-        WorkArea area = area(3);
-        TestWorld world = TestWorld.dirtFloor(area);
-        world.set(cell(area, 2, 2), Blocks.DARK_OAK_SAPLING.defaultBlockState());
-
-        assertThat(decide(world, area, 2, 2, new TestInputs().fertilizer(true))).isEqualTo(PlotAction.NONE);
     }
 
     // ==================== Fakes ====================
 
-    /** Air unless set; saplings survive on dirt, grass and Humus; any sapling takes bone meal. */
+    /** Air unless set; saplings survive on dirt, grass and Humus. */
     private static final class TestWorld implements FarmWorld {
         final Map<BlockPos, BlockState> blocks = new HashMap<>();
-        final Set<BlockPos> unfertilizable = new HashSet<>();
 
         static TestWorld dirtFloor(WorkArea area) {
             TestWorld world = new TestWorld();
@@ -443,11 +409,6 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         }
 
         @Override
-        public boolean canFertilize(BlockPos pos) {
-            return state(pos).getBlock() instanceof SaplingBlock && !unfertilizable.contains(pos);
-        }
-
-        @Override
         public boolean isReplaceableSoil(BlockPos pos) {
             return false;
         }
@@ -471,7 +432,6 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     private static final class TestInputs implements FarmInputs {
         private final List<ItemStack> germlings = new ArrayList<>();
         private ItemStack soil = ItemStack.EMPTY;
-        private boolean fertilizer;
 
         TestInputs germlings(ItemStack... stacks) {
             germlings.addAll(List.of(stacks));
@@ -480,11 +440,6 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
 
         TestInputs soil(ItemStack stack) {
             soil = stack;
-            return this;
-        }
-
-        TestInputs fertilizer(boolean available) {
-            fertilizer = available;
             return this;
         }
 
@@ -514,11 +469,6 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         @Override
         public boolean hasWater() {
             return false;
-        }
-
-        @Override
-        public boolean hasFertilizer() {
-            return fertilizer;
         }
     }
 }

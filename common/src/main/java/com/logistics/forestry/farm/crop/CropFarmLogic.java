@@ -111,9 +111,6 @@ public final class CropFarmLogic implements FarmLogic {
                 && soil.getValue(BlockStateProperties.MOISTURE) <= IRRIGATE_AT_MOISTURE) {
             return new PlotAction.Irrigate(soilPos);
         }
-        if (inputs.hasFertilizer() && world.canFertilize(plot)) {
-            return new PlotAction.Fertilize(plot);
-        }
         return PlotAction.NONE;
     }
 

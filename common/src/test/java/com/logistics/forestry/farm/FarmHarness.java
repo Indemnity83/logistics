@@ -1,6 +1,5 @@
 package com.logistics.forestry.farm;
 
-import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
@@ -13,8 +12,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -30,7 +27,7 @@ final class FarmHarness {
 
     /** A 3×3 plot worked one plot per tick, so tests can count steps in ticks. */
     static final FarmSettings SETTINGS =
-            new FarmSettings(3, 1, 10_000, 1_000, 40, 100, 60, 60, 20, 120, 8_000, 50, 4, 20, 200);
+            new FarmSettings(3, 1, 10_000, 1_000, 40, 100, 60, 60, 20, 8_000, 50, 4, 20, 200);
 
     final ScriptedFarmLogic logic;
     final FakeFarmWorld world = new FakeFarmWorld();
@@ -42,12 +39,7 @@ final class FarmHarness {
     FarmHarness(ScriptedFarmLogic logic) {
         this.logic = logic;
         this.machine = FarmMachine.assemble(
-                new MachineBuilder(components, () -> {}), logic, () -> settings, (ctx, owner) -> world, FarmHarness::isFertilizer);
-    }
-
-    /** Stands in for the fertilizer tag, which is not bound in unit tests. */
-    static boolean isFertilizer(ItemStack stack) {
-        return stack.is(Items.BONE_MEAL) || stack.is(LogisticsForestry.ITEM.FERTILIZER);
+                new MachineBuilder(components, () -> {}), logic, () -> settings, (ctx, owner) -> world);
     }
 
     void tick() {

@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The tree farm: plants saplings, lays soil, fertilizes, and fells grown trees whole.
+ * The tree farm: plants saplings, lays soil, and fells grown trees whole.
  *
  * <p>Planting pattern, by a plot's row and column in the {@link WorkArea} (0-based, rows from the
  * near edge outward, columns left to right looking along the farm's facing):
@@ -33,8 +33,8 @@ import org.jetbrains.annotations.Nullable;
  *
  * At an anchor a 2×2 sapling is preferred over a single one. Each plot gets, in order: its tree
  * felled; soil laid under a planting cell that cannot hold the sapling, or dirt and grass replaced
- * when Humus is the next soil to lay; a sapling planted; a sapling fertilized. Cells outside the
- * pattern are left alone except to fell a tree that grew into them.
+ * when Humus is the next soil to lay; a sapling planted. Cells outside the pattern are left alone
+ * except to fell a tree that grew into them.
  */
 public final class ArboretumLogic implements FarmLogic {
 
@@ -117,11 +117,10 @@ public final class ArboretumLogic implements FarmLogic {
             return PlotAction.NONE;
         }
 
-        BlockState current = world.state(plot);
-        if (isOpen(current)) {
-            return plantOrPrepare(world, area, row, column, lattice, anchor, inputs);
+        if (!isOpen(world.state(plot))) {
+            return PlotAction.NONE;
         }
-        return fertilize(world, area, plot, row, column, lattice, anchor, current, inputs);
+        return plantOrPrepare(world, area, row, column, lattice, anchor, inputs);
     }
 
     // ==================== Pattern ====================
@@ -228,37 +227,6 @@ public final class ArboretumLogic implements FarmLogic {
             }
         }
         return null;
-    }
-
-    // ==================== Fertilize ====================
-
-    private PlotAction fertilize(
-            FarmWorld world,
-            WorkArea area,
-            BlockPos plot,
-            int row,
-            int column,
-            boolean lattice,
-            boolean anchor,
-            BlockState current,
-            FarmInputs inputs) {
-        ItemStack sapling = new ItemStack(current.getBlock().asItem());
-        if (!isGermling(sapling) || !inputs.hasFertilizer() || !world.canFertilize(plot)) {
-            return PlotAction.NONE;
-        }
-        if (!requires2x2.test(sapling)) {
-            return lattice ? new PlotAction.Fertilize(plot) : PlotAction.NONE;
-        }
-        // A lone 2×2 sapling can pass as a bonemeal target and then never grow; check the group.
-        if (!anchor) {
-            return PlotAction.NONE;
-        }
-        for (BlockPos cell : group(area, row, column)) {
-            if (!world.isLoaded(cell) || !world.state(cell).is(current.getBlock())) {
-                return PlotAction.NONE;
-            }
-        }
-        return new PlotAction.Fertilize(plot);
     }
 
     // ==================== Helpers ====================
