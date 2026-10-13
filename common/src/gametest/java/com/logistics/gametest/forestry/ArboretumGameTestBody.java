@@ -4,6 +4,7 @@ import com.logistics.LogisticsForestry;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.compat.PlantCompat;
 import com.logistics.core.lib.power.AbstractEngineBlock;
+import com.logistics.core.machine.area.RingArea;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmLogic;
 import com.logistics.forestry.farm.FarmMachineBlock;
@@ -35,43 +36,59 @@ import net.minecraft.world.level.block.state.BlockState;
  * {@code ArboretumGameTestRegistration} references them as {@code Consumer<GameTestHelper>}.
  *
  * <p>Every rig is the real thing: a Creative Engine kept running by a redstone block powers the
- * farm, a hopper behind it feeds it, and a hopper underneath pulls its produce into a chest. The
- * farm faces south over a 3×3 plot ({@link FarmBlockEntity#setAreaSizeOverride}) at y=1, soil at
- * y=0. Its planting lattice is the plot's four corners; the anchor of its one 2×2 group is the
- * near-left corner, looking south. Nothing stands above y=1 next to the plot, where it would stop
- * a near-row tree from growing.
+ * farm, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest beside it.
+ * The farm at the centre works the 40-plot ring between a 3×3 and a 7×7 square around it
+ * ({@link FarmBlockEntity#setAreaOverride}) at y=1, soil at y=0, and keeps six blocks clear above
+ * each plot ({@link FarmBlockEntity#setClearanceHeightOverride}) so the clearing stays inside the
+ * structure. The engine, hoppers and chest stand in the 3×3 inside the ring, which the farm never
+ * touches. Single saplings go on every even step of each lane of the ring.
  */
 public class ArboretumGameTestBody {
 
-    private static final BlockPos FARM = new BlockPos(3, 1, 1);
-    private static final BlockPos ENGINE = new BlockPos(2, 1, 1);
-    private static final BlockPos ENGINE_SWITCH = new BlockPos(1, 1, 1);
-    private static final BlockPos INPUT_HOPPER = FARM.north();
+    private static final BlockPos FARM = new BlockPos(3, 1, 3);
+    private static final BlockPos ENGINE = FARM.west();
+    private static final BlockPos ENGINE_SWITCH = ENGINE.south();
+    private static final BlockPos INPUT_HOPPER = FARM.above();
     private static final BlockPos OUTPUT_HOPPER = FARM.below();
-    private static final BlockPos CHEST = new BlockPos(3, 0, 0);
+    private static final BlockPos CHEST = OUTPUT_HOPPER.north();
 
-    /** Plot cells, rows from the farm outward, columns left to right looking south. */
-    private static final BlockPos[][] PLOT = {
-        {new BlockPos(4, 1, 2), new BlockPos(3, 1, 2), new BlockPos(2, 1, 2)},
-        {new BlockPos(4, 1, 3), new BlockPos(3, 1, 3), new BlockPos(2, 1, 3)},
-        {new BlockPos(4, 1, 4), new BlockPos(3, 1, 4), new BlockPos(2, 1, 4)},
-    };
+    private static final RingArea RING = new RingArea(FARM, 3, 7);
+    private static final int CLEARANCE = 6;
 
-    private static final List<BlockPos> LATTICE = List.of(PLOT[0][0], PLOT[0][2], PLOT[2][0], PLOT[2][2]);
+    /** Every plot of the ring, in scan order. */
+    private static final List<BlockPos> PLOTS = plots(false);
 
-    /** Hoppers move one item per 8 ticks; a 3×3 pass at the default interval takes 90. */
+    /** The plots that take a single sapling: every even step of each lane. */
+    private static final List<BlockPos> SINGLES = plots(true);
+
+    /** The single-sapling spots of the inner lane, which the ring scans first. */
+    private static final List<BlockPos> INNER_SINGLES = SINGLES.stream()
+            .filter(plot -> RING.lane(RING.indexOf(plot)) == 0)
+            .toList();
+
+    /** Hoppers move one item per 8 ticks: long after a few saplings are all in the farm. */
     private static final int SETTLE_TICKS = 250;
+
+    private static List<BlockPos> plots(boolean singlesOnly) {
+        List<BlockPos> plots = new ArrayList<>();
+        for (int i = 0; i < RING.plotCount(); i++) {
+            if (!singlesOnly || RING.step(i) % 2 == 0) {
+                plots.add(RING.plot(i));
+            }
+        }
+        return List.copyOf(plots);
+    }
 
     // ==================== Planting ====================
 
-    /** Hopper-fed oak saplings go on the four lattice corners of the plot and nowhere else. */
+    /** Hopper-fed oak saplings go on the ring's single-sapling spots and nowhere else. */
     public static void testPlantsSaplingsOnLattice(GameTestHelper context) {
-        rig(context, true);
-        feed(context, new ItemStack(Items.OAK_SAPLING, 4));
+        rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        feed(context, new ItemStack(Items.OAK_SAPLING, SINGLES.size()));
 
         context.onEachTick(() -> assertOffLatticeUntouched(context));
         context.succeedWhen(() -> {
-            for (BlockPos cell : LATTICE) {
+            for (BlockPos cell : SINGLES) {
                 context.assertBlockPresent(Blocks.OAK_SAPLING, cell);
             }
         });
@@ -79,17 +96,22 @@ public class ArboretumGameTestBody {
 
     /**
      * A sapling grows into a tree; the farm fells it whole, its logs reach the chest through the
-     * output hopper, and the cleared corner is planted again. The test bone-meals the farm's first
-     * saplings to grow them quickly, but never a corner that has already grown a tree, so a
-     * replanted sapling stays a sapling.
+     * output hopper, and the cleared spot is planted again. The saplings fed fill every
+     * single-sapling spot with some to spare for replanting; the test bone-meals those of the inner
+     * lane, which the ring scans first, but never a spot that has already grown a tree, so a
+     * replanted sapling stays a sapling. A little Humus rides along for any soil a tree leaves to be
+     * relaid.
      */
     public static void testFellsGrownTreeAndReplants(GameTestHelper context) {
-        rig(context, true);
-        feed(context, new ItemStack(Items.BIRCH_SAPLING, 8));
+        rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        feed(
+                context,
+                new ItemStack(Items.BIRCH_SAPLING, SINGLES.size() + 8),
+                new ItemStack(LogisticsForestry.BLOCK.HUMUS, 4));
 
         Set<BlockPos> grown = new HashSet<>();
         context.onEachTick(() -> {
-            for (BlockPos cell : LATTICE) {
+            for (BlockPos cell : INNER_SINGLES) {
                 BlockState state = context.getBlockState(cell);
                 if (state.is(Blocks.BIRCH_LOG)) {
                     grown.add(cell);
@@ -102,15 +124,15 @@ public class ArboretumGameTestBody {
         context.succeedWhen(() -> {
             if (!chestHolds(context, Items.BIRCH_LOG)) {
                 throw context.assertionException("Felled birch logs should reach the chest; farm is "
-                        + context.getBlockEntity(FARM, FarmBlockEntity.class).status() + ", corners hold "
-                        + LATTICE.stream().map(cell -> context.getBlockState(cell).toString()).toList());
+                        + context.getBlockEntity(FARM, FarmBlockEntity.class).status() + ", spots hold "
+                        + INNER_SINGLES.stream().map(cell -> context.getBlockState(cell).toString()).toList());
             }
             for (BlockPos cell : grown) {
                 if (context.getBlockState(cell).is(Blocks.BIRCH_SAPLING)) {
                     return;
                 }
             }
-            throw context.assertionException("A felled tree's corner should be replanted, grown so far: " + grown);
+            throw context.assertionException("A felled tree's spot should be replanted, grown so far: " + grown);
         });
     }
 
@@ -118,7 +140,7 @@ public class ArboretumGameTestBody {
 
     /** Saplings reach the farm, but without power nothing is planted. */
     public static void testNoPowerPlantsNothing(GameTestHelper context) {
-        FarmBlockEntity farm = rig(context, false);
+        FarmBlockEntity farm = rig(context, false, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         feed(context, new ItemStack(Items.OAK_SAPLING, 4));
 
         context.runAfterDelay(SETTLE_TICKS, () -> {
@@ -126,7 +148,7 @@ public class ArboretumGameTestBody {
                 context.fail("The hopper should have fed its saplings into the farm");
                 return;
             }
-            if (!plotIsEmpty(context)) {
+            if (!ringIsEmpty(context)) {
                 return;
             }
             if (farm.status() != FarmStatus.NO_POWER) {
@@ -139,7 +161,7 @@ public class ArboretumGameTestBody {
 
     /** A redstone signal on the farm pauses it: powered and stocked, it still plants nothing. */
     public static void testRedstonePausesFarm(GameTestHelper context) {
-        FarmBlockEntity farm = rig(context, true);
+        FarmBlockEntity farm = rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         context.setBlock(FARM.east(), Blocks.REDSTONE_BLOCK);
         feed(context, new ItemStack(Items.OAK_SAPLING, 4));
 
@@ -148,7 +170,7 @@ public class ArboretumGameTestBody {
                 context.fail("The hopper should have fed its saplings into the farm");
                 return;
             }
-            if (!plotIsEmpty(context)) {
+            if (!ringIsEmpty(context)) {
                 return;
             }
             if (farm.status() != FarmStatus.PAUSED) {
@@ -159,19 +181,21 @@ public class ArboretumGameTestBody {
         });
     }
 
-    // ==================== Safety ====================
+    // ==================== Clearing ====================
 
     /**
-     * Stone under a planting corner is never dug up for soil, and logs dressed in player-placed
-     * leaves standing in the plot are a build, not a tree: neither is touched while the farm
-     * plants the other corners.
+     * Stone standing on a single-sapling spot and planks three blocks above another plot are cleared
+     * into the chest, and the spot is planted. Logs dressed in player-placed leaves are a build, not a
+     * tree, and the farm's own kind of block: they are neither felled nor cleared.
      */
-    public static void testLeavesStoneAndPlayerBuildsAlone(GameTestHelper context) {
-        rig(context, true);
-        BlockPos stoneCorner = PLOT[0][2];
-        context.setBlock(stoneCorner.below(), Blocks.STONE);
+    public static void testClearsBlocksFromRing(GameTestHelper context) {
+        rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        BlockPos stone = SINGLES.get(1);
+        BlockPos planks = PLOTS.get(1).above(3);
+        context.setBlock(stone, Blocks.STONE);
+        context.setBlock(planks, Blocks.OAK_PLANKS);
 
-        BlockPos pillar = PLOT[1][1];
+        BlockPos pillar = SINGLES.get(SINGLES.size() - 1);
         BlockState persistentLeaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
         List<BlockPos> build = new ArrayList<>();
         for (int dy = 0; dy < 4; dy++) {
@@ -180,66 +204,65 @@ public class ArboretumGameTestBody {
         }
         List<BlockPos> leaves = new ArrayList<>();
         for (Direction side : Direction.Plane.HORIZONTAL) {
-            leaves.add(pillar.above(3).relative(side));
+            BlockPos leaf = pillar.above(3).relative(side);
+            if (leaf.getX() >= 0 && leaf.getZ() >= 0) {
+                leaves.add(leaf); // the pillar stands on the ring's west edge
+            }
         }
         leaves.add(pillar.above(4));
         leaves.forEach(pos -> context.setBlock(pos, persistentLeaves));
 
-        feed(context, new ItemStack(Items.DIRT, 4), new ItemStack(Items.OAK_SAPLING, 4));
+        feed(context, new ItemStack(Items.OAK_SAPLING, SINGLES.size()));
 
         context.onEachTick(() -> {
-            context.assertBlockPresent(Blocks.STONE, stoneCorner.below());
             build.forEach(pos -> context.assertBlockPresent(Blocks.OAK_LOG, pos));
             leaves.forEach(pos -> context.assertBlockPresent(Blocks.OAK_LEAVES, pos));
         });
-        context.runAfterDelay(SETTLE_TICKS, () -> {
-            for (BlockPos cell : LATTICE) {
-                if (cell.equals(stoneCorner)) {
-                    context.assertBlockPresent(Blocks.AIR, cell);
-                } else {
-                    context.assertBlockPresent(Blocks.OAK_SAPLING, cell);
-                }
+        context.succeedWhen(() -> {
+            context.assertBlockPresent(Blocks.OAK_SAPLING, stone);
+            context.assertBlockPresent(Blocks.AIR, planks);
+            if (!chestHolds(context, Items.STONE) && !chestHolds(context, Items.COBBLESTONE)) {
+                throw context.assertionException(stone, "The cleared stone should have reached the chest");
             }
-            context.succeed();
+            if (!chestHolds(context, Items.OAK_PLANKS)) {
+                throw context.assertionException(planks, "The cleared planks should have reached the chest");
+            }
         });
     }
 
     // ==================== Soil ====================
 
     /**
-     * Humus in the soil slots replaces the dirt under each planting corner before it is planted,
-     * and the dirt dug out arrives in the chest.
+     * Humus in the soil slots replaces the dirt under every plot of the ring, and the dirt dug out
+     * arrives in the chest; the single-sapling spots are planted on the Humus.
      */
-    public static void testHumusReplacesDirtUnderPlantingCorners(GameTestHelper context) {
-        rig(context, true);
+    public static void testHumusReplacesDirtAcrossTheRing(GameTestHelper context) {
+        rig(context, true, Blocks.DIRT.defaultBlockState());
         // Humus first, so it is all in the farm before the saplings that let it plant.
         feed(
                 context,
-                new ItemStack(LogisticsForestry.BLOCK.HUMUS, 4),
-                new ItemStack(Items.OAK_SAPLING, 4));
+                new ItemStack(LogisticsForestry.BLOCK.HUMUS, PLOTS.size()),
+                new ItemStack(Items.OAK_SAPLING, SINGLES.size()));
 
         context.onEachTick(() -> assertOffLatticeUntouched(context));
         context.succeedWhen(() -> {
-            for (BlockPos cell : LATTICE) {
+            for (BlockPos cell : PLOTS) {
                 context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, cell.below());
-                context.assertBlockPresent(Blocks.OAK_SAPLING, cell);
             }
-            for (BlockPos[] row : PLOT) {
-                context.assertBlockPresent(Blocks.DIRT, row[1].below());
+            for (BlockPos cell : SINGLES) {
+                context.assertBlockPresent(Blocks.OAK_SAPLING, cell);
             }
             context.assertContainerContains(CHEST, Items.DIRT);
         });
     }
 
     /**
-     * Every germling the Arboretum accepts can be planted on both of its soils, including the
+     * Every germling the Arboretum accepts can be planted on Humus, its only soil, including the
      * mangrove propagule, azalea and cherry; dark oak needs a 2×2 group.
      */
     public static void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
         FarmLogic logic = ((FarmMachineBlock) LogisticsForestry.BLOCK.ARBORETUM).logic();
-        BlockPos dirtCell = new BlockPos(2, 1, 2);
         BlockPos humusCell = new BlockPos(5, 1, 5);
-        context.setBlock(dirtCell.below(), Blocks.DIRT);
         context.setBlock(humusCell.below(), LogisticsForestry.BLOCK.HUMUS);
 
         List<Item> germlings = new ArrayList<>();
@@ -260,12 +283,14 @@ public class ArboretumGameTestBody {
                 context.fail("The Arboretum's germling check should accept " + germling);
                 return;
             }
-            for (BlockPos cell : List.of(dirtCell, humusCell)) {
-                BlockState plant = logic.plantState(stack, context.absolutePos(cell), null);
-                if (plant == null || !plant.canSurvive(context.getLevel(), context.absolutePos(cell))) {
-                    context.fail(germling + " should be plantable on " + context.getBlockState(cell.below()));
-                    return;
-                }
+            BlockState plant = logic.plantState(stack, context.absolutePos(humusCell), null);
+            if (plant == null || !plant.canSurvive(context.getLevel(), context.absolutePos(humusCell))) {
+                context.fail(germling + " should be plantable on Humus");
+                return;
+            }
+            if (!logic.isOwnGrowth(plant)) {
+                context.fail("A planted " + germling + " should be the Arboretum's own growth");
+                return;
             }
         }
         if (!new ItemStack(Items.DARK_OAK_SAPLING).is(LogisticsForestry.TAG.REQUIRES_2X2)
@@ -273,8 +298,8 @@ public class ArboretumGameTestBody {
             context.fail("Dark oak, and not oak, should need a 2×2 group");
             return;
         }
-        if (!logic.isSoil(new ItemStack(LogisticsForestry.BLOCK.HUMUS)) || !logic.isSoil(new ItemStack(Items.DIRT))) {
-            context.fail("Humus and dirt should be Arboretum soils");
+        if (!logic.isSoil(new ItemStack(LogisticsForestry.BLOCK.HUMUS)) || logic.isSoil(new ItemStack(Items.DIRT))) {
+            context.fail("Humus, and not dirt, should be the Arboretum's soil");
             return;
         }
         context.succeed();
@@ -283,24 +308,22 @@ public class ArboretumGameTestBody {
     // ==================== Rig ====================
 
     /**
-     * Dirt under the plot, the farm facing south over it, a hopper behind and one below the farm,
-     * and a chest after the output hopper; with {@code powered}, a running Creative Engine beside it.
+     * {@code ground} under the ring, the farm at its centre, a hopper on top of and one below the
+     * farm, and a chest after the output hopper; with {@code powered}, a running Creative Engine
+     * beside it.
      */
-    private static FarmBlockEntity rig(GameTestHelper context, boolean powered) {
-        for (BlockPos[] row : PLOT) {
-            for (BlockPos cell : row) {
-                context.setBlock(cell.below(), Blocks.DIRT);
-            }
+    private static FarmBlockEntity rig(GameTestHelper context, boolean powered, BlockState ground) {
+        for (BlockPos cell : PLOTS) {
+            context.setBlock(cell.below(), ground);
         }
-        context.setBlock(
-                FARM,
-                LogisticsForestry.BLOCK.ARBORETUM.defaultBlockState().setValue(FarmMachineBlock.FACING, Direction.SOUTH));
+        context.setBlock(FARM, LogisticsForestry.BLOCK.ARBORETUM.defaultBlockState());
         context.setBlock(CHEST, Blocks.CHEST);
         context.setBlock(OUTPUT_HOPPER, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.NORTH));
-        context.setBlock(INPUT_HOPPER, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.SOUTH));
+        context.setBlock(INPUT_HOPPER, Blocks.HOPPER);
 
         FarmBlockEntity farm = context.getBlockEntity(FARM, FarmBlockEntity.class);
-        farm.setAreaSizeOverride(3);
+        farm.setAreaOverride(RING.inner(), RING.outer());
+        farm.setClearanceHeightOverride(CLEARANCE);
 
         if (powered) {
             context.setBlock(ENGINE_SWITCH, Blocks.REDSTONE_BLOCK);
@@ -340,24 +363,20 @@ public class ArboretumGameTestBody {
     }
 
     private static void assertOffLatticeUntouched(GameTestHelper context) {
-        for (BlockPos[] row : PLOT) {
-            for (BlockPos cell : row) {
-                if (!LATTICE.contains(cell)) {
-                    context.assertBlockPresent(Blocks.AIR, cell);
-                }
+        for (BlockPos cell : PLOTS) {
+            if (!SINGLES.contains(cell)) {
+                context.assertBlockPresent(Blocks.AIR, cell);
             }
         }
     }
 
-    /** Fails the test and returns false when anything stands in the plot. */
-    private static boolean plotIsEmpty(GameTestHelper context) {
-        for (BlockPos[] row : PLOT) {
-            for (BlockPos cell : row) {
-                Block block = context.getBlockState(cell).getBlock();
-                if (block != Blocks.AIR) {
-                    context.fail("Nothing should have been planted, found " + block + " at " + cell);
-                    return false;
-                }
+    /** Fails the test and returns false when anything stands in the ring. */
+    private static boolean ringIsEmpty(GameTestHelper context) {
+        for (BlockPos cell : PLOTS) {
+            Block block = context.getBlockState(cell).getBlock();
+            if (block != Blocks.AIR) {
+                context.fail("Nothing should have been planted, found " + block + " at " + cell);
+                return false;
             }
         }
         return true;
