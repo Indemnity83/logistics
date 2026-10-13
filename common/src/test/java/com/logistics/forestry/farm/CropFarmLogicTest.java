@@ -82,7 +82,7 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     // ==================== Shape ====================
 
     @Test
-    @DisplayName("irrigates, lays soil and replants from its own harvest")
+    @DisplayName("uses water, lays soil and replants from its own harvest")
     void machineShape() {
         assertThat(logic.usesWater()).isTrue();
         assertThat(logic.laysSoil()).isTrue();
@@ -179,11 +179,15 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("tills dirt into dry farmland")
+    @DisplayName("tills dirt into fully wet farmland, with or without water on hand")
     void tillsDirt() {
         world.set(SOIL, Blocks.DIRT.defaultBlockState());
 
-        assertThat(decide()).isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
+        assertThat(decide()).isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
+
+        inputs.water = false;
+        assertThat(decide()).as("the farm, not the logic, refuses a till without water")
+                .isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
     }
 
     @Test
@@ -254,22 +258,22 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     @DisplayName("still tills in the dark; only planting waits for light")
     void darkStillTills() {
         world.set(SOIL, Blocks.DIRT.defaultBlockState());
-        assertThat(decideInLight(0)).isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
+        assertThat(decideInLight(0)).isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
 
         world.set(SOIL, farmland(0));
         assertThat(decideInLight(0)).isEqualTo(PlotAction.blocked(PlotAction.Reason.TOO_DARK));
     }
 
-    // ==================== Water ====================
+    // ==================== Moisture ====================
 
     @Test
-    @DisplayName("irrigates farmland under a growing crop once it is nearly dry")
-    void irrigatesNearlyDryFarmland() {
+    @DisplayName("moistens farmland under a growing crop once it is nearly dry")
+    void moistensNearlyDryFarmland() {
         world.set(PLOT, wheat(3));
-        for (int moisture = 0; moisture <= CropFarmLogic.IRRIGATE_AT_MOISTURE; moisture++) {
+        for (int moisture = 0; moisture <= CropFarmLogic.MOISTEN_AT_MOISTURE; moisture++) {
             world.set(SOIL, farmland(moisture));
 
-            assertThat(decide()).as("moisture %s", moisture).isEqualTo(new PlotAction.Irrigate(SOIL));
+            assertThat(decide()).as("moisture %s", moisture).isEqualTo(new PlotAction.Moisten(SOIL));
         }
     }
 
@@ -277,7 +281,7 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     @DisplayName("leaves farmland that is still wet alone: crops grow as fast at any moisture above 0")
     void skipsWetFarmland() {
         world.set(PLOT, wheat(3));
-        for (int moisture = CropFarmLogic.IRRIGATE_AT_MOISTURE + 1; moisture <= 7; moisture++) {
+        for (int moisture = CropFarmLogic.MOISTEN_AT_MOISTURE + 1; moisture <= 7; moisture++) {
             world.set(SOIL, farmland(moisture));
 
             assertThat(decide()).as("moisture %s", moisture).isEqualTo(PlotAction.NONE);
@@ -285,13 +289,23 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("without water it does not ask to irrigate")
-    void noIrrigationWithoutWater() {
+    @DisplayName("moistens without water on hand: the till paid for the crop's water")
+    void moistensWithoutWater() {
         world.set(PLOT, wheat(3));
         world.set(SOIL, farmland(0));
         inputs.water = false;
 
-        assertThat(decide()).isEqualTo(PlotAction.NONE);
+        assertThat(decide()).isEqualTo(new PlotAction.Moisten(SOIL));
+    }
+
+    @Test
+    @DisplayName("a harvest returns farmland to dirt and leaves other soil alone")
+    void soilAfterHarvest() {
+        for (int moisture = 0; moisture <= 7; moisture++) {
+            assertThat(logic.soilAfterHarvest(farmland(moisture))).isEqualTo(Blocks.DIRT.defaultBlockState());
+        }
+        assertThat(logic.soilAfterHarvest(Blocks.DIRT.defaultBlockState())).isNull();
+        assertThat(logic.soilAfterHarvest(Blocks.GRASS_BLOCK.defaultBlockState())).isNull();
     }
 
     // ==================== Obstacles ====================

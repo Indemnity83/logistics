@@ -29,9 +29,9 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         assertThat(LogisticsForestry.CONFIG.FARM_RF_PLANT.definition().defaultValue()).isEqualTo(100L);
         assertThat(LogisticsForestry.CONFIG.FARM_RF_TILL.definition().defaultValue()).isEqualTo(60L);
         assertThat(LogisticsForestry.CONFIG.FARM_RF_SOIL.definition().defaultValue()).isEqualTo(60L);
-        assertThat(LogisticsForestry.CONFIG.FARM_RF_IRRIGATE.definition().defaultValue()).isEqualTo(20L);
+        assertThat(LogisticsForestry.CONFIG.FARM_RF_MOISTEN.definition().defaultValue()).isEqualTo(20L);
         assertThat(LogisticsForestry.CONFIG.FARM_WATER_CAPACITY_MB.definition().defaultValue()).isEqualTo(8_000);
-        assertThat(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATE_MB.definition().defaultValue()).isEqualTo(50);
+        assertThat(LogisticsForestry.CONFIG.FARM_WATER_PER_TILL_MB.definition().defaultValue()).isEqualTo(250);
         assertThat(LogisticsForestry.CONFIG.FARM_HARVEST_BLOCKS_PER_TICK.definition().defaultValue()).isEqualTo(4);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS.definition().defaultValue()).isEqualTo(20);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_MAX_TICKS.definition().defaultValue()).isEqualTo(200);
@@ -46,7 +46,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         assertThat(settings.energyCapacity()).isEqualTo(1);
         assertThat(settings.rfPlant()).isZero();
         assertThat(settings.rfClearPerBlock()).isZero();
-        assertThat(settings.waterPerIrrigateMb()).isZero();
+        assertThat(settings.waterPerTillMb()).isZero();
         assertThat(settings.harvestBlocksPerTick()).isEqualTo(1);
         assertThat(settings.idleBackoffBaseTicks()).isEqualTo(1);
         assertThat(settings.idleBackoffMaxTicks()).isEqualTo(1);

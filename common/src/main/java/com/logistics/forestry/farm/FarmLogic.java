@@ -45,7 +45,7 @@ public interface FarmLogic {
         return false;
     }
 
-    /** Whether the farm has an input-only water tank and irrigates. */
+    /** Whether the farm has an input-only water tank, which every till draws on. */
     default boolean usesWater() {
         return false;
     }
@@ -83,13 +83,22 @@ public interface FarmLogic {
     /**
      * The one thing {@code plot} needs next. {@code plot} is at the farm's Y level and its soil is
      * {@code plot.below()}; above the soil the column holds only air and own growth. Expected
-     * priority: harvest, then soil or tilling, then planting, then irrigation (only while
-     * {@link FarmInputs#hasWater()}).
+     * priority: harvest, then soil or tilling, then planting, then moistening.
      *
      * <p>Only called while {@code plot} is loaded. Must not change the world; reads beyond the plot
      * should check {@link FarmWorld#isLoaded}.
      */
     PlotAction decide(FarmWorld world, BlockPos plot, FarmInputs inputs);
+
+    /**
+     * The block a harvest leaves under its plot in place of {@code soil}, e.g. farmland back to dirt;
+     * {@code null} leaves the soil as it is. Applied once a harvest has fully completed and the plot
+     * stands empty.
+     */
+    @Nullable
+    default BlockState soilAfterHarvest(BlockState soil) {
+        return null;
+    }
 
     /**
      * {@link #decide(FarmWorld, BlockPos, FarmInputs)} for a plot of {@code area}; the farm calls
