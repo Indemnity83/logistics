@@ -22,9 +22,6 @@ public interface FarmWorld {
     /** Whether {@code state} could stand at {@code pos}; false when not loaded. */
     boolean canSurvive(BlockState state, BlockPos pos);
 
-    /** Whether bone meal would do anything to the block at {@code pos}; false when not loaded. */
-    boolean canFertilize(BlockPos pos);
-
     /**
      * Whether the block at {@code pos} is ground a farm may dig up to lay its own soil
      * ({@code logistics:forestry/replaceable_soil}); false when not loaded.

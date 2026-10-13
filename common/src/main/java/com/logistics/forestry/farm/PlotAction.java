@@ -66,13 +66,6 @@ public sealed interface PlotAction {
         }
     }
 
-    /** Apply one bonemeal-equivalent growth step at {@code pos}, spending a fertilizer charge. */
-    record Fertilize(BlockPos pos) implements PlotAction {
-        public Fertilize {
-            pos = pos.immutable();
-        }
-    }
-
     /** See {@link #NONE}. */
     record None() implements PlotAction {}
 
