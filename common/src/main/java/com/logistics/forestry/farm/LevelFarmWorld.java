@@ -1,7 +1,6 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.LogisticsForestry;
-import com.logistics.core.lib.compat.PlantCompat;
 import com.logistics.core.lib.compat.ProtectionCompat;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +11,12 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /** {@link FarmWorldAccess} over a live server level. Never loads a chunk. */
 public final class LevelFarmWorld implements FarmWorldAccess {
-
-    /** Particle count vanilla bone meal passes with the growth level event. */
-    private static final int GROWTH_PARTICLES = 15;
 
     private final ServerLevel level;
     @Nullable private final UUID owner;
@@ -49,11 +44,6 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     @Override
     public boolean canSurvive(BlockState state, BlockPos pos) {
         return isLoaded(pos) && state.canSurvive(level, pos);
-    }
-
-    @Override
-    public boolean canFertilize(BlockPos pos) {
-        return isLoaded(pos) && PlantCompat.canFertilize(level, pos, level.getBlockState(pos));
     }
 
     @Override
@@ -94,18 +84,6 @@ public final class LevelFarmWorld implements FarmWorldAccess {
         if (isLoaded(pos)) {
             level.setBlock(pos, state, flags);
         }
-    }
-
-    @Override
-    public boolean fertilize(BlockPos pos) {
-        if (!isLoaded(pos)) {
-            return false;
-        }
-        boolean grew = PlantCompat.fertilize(level, level.getRandom(), pos, level.getBlockState(pos));
-        if (grew) {
-            level.levelEvent(LevelEvent.PARTICLES_AND_SOUND_PLANT_GROWTH, pos, GROWTH_PARTICLES);
-        }
-        return grew;
     }
 
     @Override

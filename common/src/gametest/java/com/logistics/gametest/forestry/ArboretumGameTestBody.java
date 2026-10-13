@@ -2,6 +2,7 @@ package com.logistics.gametest.forestry;
 
 import com.logistics.LogisticsForestry;
 import com.logistics.LogisticsPower;
+import com.logistics.core.lib.compat.PlantCompat;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmLogic;
@@ -78,21 +79,24 @@ public class ArboretumGameTestBody {
     }
 
     /**
-     * A fertilized sapling grows into a tree; the farm fells it whole, its logs reach the chest
-     * through the output hopper, and the cleared corner is planted again.
+     * A sapling grows into a tree; the farm fells it whole, its logs reach the chest through the
+     * output hopper, and the cleared corner is planted again. The test bone-meals the farm's first
+     * saplings to grow them quickly, but never a corner that has already grown a tree, so a
+     * replanted sapling stays a sapling.
      */
     public static void testFellsGrownTreeAndReplants(GameTestHelper context) {
         rig(context, true);
-        feed(
-                context,
-                new ItemStack(Items.BIRCH_SAPLING, 8),
-                new ItemStack(LogisticsForestry.ITEM.FERTILIZER, 8));
+        feed(context, new ItemStack(Items.BIRCH_SAPLING, 8));
 
         Set<BlockPos> grown = new HashSet<>();
         context.onEachTick(() -> {
             for (BlockPos cell : LATTICE) {
-                if (context.getBlockState(cell).is(Blocks.BIRCH_LOG)) {
+                BlockState state = context.getBlockState(cell);
+                if (state.is(Blocks.BIRCH_LOG)) {
                     grown.add(cell);
+                } else if (state.is(Blocks.BIRCH_SAPLING) && !grown.contains(cell)) {
+                    BlockPos pos = context.absolutePos(cell);
+                    PlantCompat.fertilize(context.getLevel(), context.getLevel().getRandom(), pos, state);
                 }
             }
         });

@@ -30,7 +30,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
 
     private static final ResourceId GERMLING_GHOST = LogisticsMod.modId("forestry/germling_slot");
     private static final ResourceId SOIL_GHOST = LogisticsMod.modId("forestry/soil_slot");
-    private static final ResourceId FERTILIZER_GHOST = LogisticsMod.modId("forestry/fertilizer_slot");
     private static final float GHOST_ALPHA = 0.3f;
 
     // Vertical gauges (screen-local interiors); both 12x52.
@@ -39,12 +38,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     private static final int GAUGE_TOP = 17;
     private static final int ENERGY_LEFT = 8;
     private static final int WATER_LEFT = 24;
-
-    // Fertilizer charge bar interior.
-    private static final int CHARGE_BAR_LEFT = 62;
-    private static final int CHARGE_BAR_TOP = 57;
-    private static final int CHARGE_BAR_WIDTH = 30;
-    private static final int CHARGE_BAR_HEIGHT = 6;
 
     private static final int LAMP_LEFT = 100;
     private static final int LAMP_TOP = 56;
@@ -55,7 +48,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     private static final int SOIL_ROW_X = 41, SOIL_ROW_Y = 34;
     private static final int TANK_FRAME_U = 176, TANK_FRAME_V = 20;
     private static final int TANK_TICKS_U = 192, TANK_TICKS_V = 21;
-    private static final int CHARGE_FILL_U = 206, CHARGE_FILL_V = 20;
     private static final int LAMP_U = 206, LAMP_V = 30, LAMP_U_STEP = 10;
 
     public FarmScreen(FarmMenu menu, Inventory inventory, Component title) {
@@ -78,8 +70,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
             hoverTooltip(graphics, mouseX, mouseY, WATER_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT,
                     Component.translatable("tooltip.logistics.farm.water", menu.waterMb(), menu.waterCapacityMb()));
         }
-        hoverTooltip(graphics, mouseX, mouseY, CHARGE_BAR_LEFT, CHARGE_BAR_TOP, CHARGE_BAR_WIDTH, CHARGE_BAR_HEIGHT,
-                Component.translatable("tooltip.logistics.farm.fertilizer", menu.fertilizerCharges()));
         hoverTooltip(graphics, mouseX, mouseY, LAMP_LEFT, LAMP_TOP, LAMP_SIZE, LAMP_SIZE,
                 Component.translatable("tooltip.logistics.farm.status",
                         Component.translatable(menu.status().translationKey()), menu.areaSize()));
@@ -108,12 +98,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
             renderWater(graphics);
         }
 
-        int chargeFill = FarmGauges.fillPixels(
-                menu.fertilizerCharges(), menu.fertilizerChargeCapacity(), CHARGE_BAR_WIDTH);
-        if (chargeFill > 0) {
-            blitTexture(graphics, CHARGE_BAR_LEFT, CHARGE_BAR_TOP, CHARGE_FILL_U, CHARGE_FILL_V, chargeFill, CHARGE_BAR_HEIGHT);
-        }
-
         int lampU = LAMP_U + FarmGauges.lamp(menu.status()).ordinal() * LAMP_U_STEP;
         blitTexture(graphics, LAMP_LEFT, LAMP_TOP, lampU, LAMP_V, LAMP_SIZE, LAMP_SIZE);
 
@@ -121,7 +105,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
             renderGhost(graphics, menu.getSlot(FarmMachine.GERMLING_START + i), GERMLING_GHOST);
             renderGhost(graphics, menu.getSlot(FarmMachine.SOIL_START + i), SOIL_GHOST);
         }
-        renderGhost(graphics, menu.getSlot(FarmMachine.FERTILIZER_SLOT), FERTILIZER_GHOST);
     }
 
     private void blitTexture(GuiGraphics graphics, int x, int y, int u, int v, int w, int h) {
