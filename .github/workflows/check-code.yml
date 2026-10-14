@@ -238,7 +238,7 @@ jobs:
 
       - name: Upload test reports
         if: needs.changes.outputs.code_changed == 'true' && failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: test-reports-${{ matrix.module }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.module }}/build/reports/tests/test/
@@ -308,14 +308,14 @@ jobs:
 
       - name: Upload game test logs
         if: needs.changes.outputs.code_changed == 'true' && failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: gametest-logs-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.logs }}
 
       - name: Upload game test report
         if: needs.changes.outputs.code_changed == 'true' && !cancelled()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: gametest-report-${{ matrix.loader }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ matrix.report }}
@@ -375,14 +375,14 @@ jobs:
       - name: Upload client feature test screenshots
         # Uploaded on success too: these are review artifacts, not just failure diagnostics.
         if: needs.changes.outputs.client_changed == 'true' && !cancelled()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: client-screenshots-${{ github.run_id }}-${{ github.run_attempt }}
           path: fabric/build/run/clientGameTest/screenshots/
 
       - name: Upload client feature test logs
         if: needs.changes.outputs.client_changed == 'true' && failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: client-logs-${{ github.run_id }}-${{ github.run_attempt }}
           path: fabric/build/run/clientGameTest/logs/
