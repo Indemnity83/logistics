@@ -100,7 +100,7 @@ class SideTabHostTest {
 
             assertThat(host.isFullyOpen("b")).isTrue();
             assertThat(host.isFullyOpen("a")).isFalse();
-            assertThat(host.tabRect("a")).isEqualTo(new TabRect(326, 71, COLLAPSED, COLLAPSED));
+            assertThat(host.tabRect("a")).isEqualTo(new TabRect(328, 71, COLLAPSED, COLLAPSED));
             assertThat(host.isFullyOpen("left")).isTrue();
         }
 
@@ -154,7 +154,7 @@ class SideTabHostTest {
             assertThat(mid.w()).isStrictlyBetween(COLLAPSED, 100);
             assertThat(host.isMouseOver(mid.right() - 1, mid.y() + 1)).isTrue();
             assertThat(host.isMouseOver(mid.right(), mid.y() + 1)).isFalse();
-            assertThat(host.isMouseOver(326 + 99, 72)).as("inside the final rect only").isFalse();
+            assertThat(host.isMouseOver(325 + 99, 72)).as("inside the final rect only").isFalse();
             assertThat(host.tabRect("b").y()).isEqualTo(mid.bottom() + GAP).isGreaterThan(collapsedBY);
             assertThat(host.exclusionAreas()).contains(mid, host.tabRect("b"));
         }
@@ -464,8 +464,8 @@ class SideTabHostTest {
             b.contentHeight = 80;
             SideTabHost host = attached();
             int collapsedStack = 2 * COLLAPSED + GAP;
-            TabRect right = new TabRect(326, 71, 100, collapsedStack + (HEADER + 80 + 6) - COLLAPSED);
-            TabRect leftEnvelope = new TabRect(154 - 100, 71, 100, HEADER + 40 + 6);
+            TabRect right = new TabRect(325, 71, 100, collapsedStack + (HEADER + 80 + 6) - COLLAPSED);
+            TabRect leftEnvelope = new TabRect(155 - 100, 71, 100, HEADER + 40 + 6);
             assertThat(host.envelope()).containsExactly(leftEnvelope, right);
 
             clickCollapsed(host, "a");
@@ -491,7 +491,7 @@ class SideTabHostTest {
             a.minOpenWidth = 500;
             b.minOpenWidth = 500;
             SideTabHost host = attached();
-            assertThat(host.envelope()).contains(new TabRect(326, 71, COLLAPSED, 2 * COLLAPSED + GAP));
+            assertThat(host.envelope()).contains(new TabRect(328, 71, COLLAPSED, 2 * COLLAPSED + GAP));
         }
     }
 
@@ -682,7 +682,7 @@ class SideTabHostTest {
             settle(host);
             assertThat(host.isFullyOpen("a")).isFalse();
             assertThat(host.anyAnimating()).isFalse();
-            assertThat(host.tabRect("a")).isEqualTo(new TabRect(326, 71, COLLAPSED, COLLAPSED));
+            assertThat(host.tabRect("a")).isEqualTo(new TabRect(328, 71, COLLAPSED, COLLAPSED));
         }
 
         @Test

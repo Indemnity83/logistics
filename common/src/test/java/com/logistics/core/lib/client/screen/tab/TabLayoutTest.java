@@ -2,9 +2,10 @@ package com.logistics.core.lib.client.screen.tab;
 
 import static com.logistics.core.lib.client.screen.tab.SideTabHost.COLLAPSED;
 import static com.logistics.core.lib.client.screen.tab.SideTabHost.CONTENT_PAD;
-import static com.logistics.core.lib.client.screen.tab.SideTabHost.EDGE_OVERLAP;
+import static com.logistics.core.lib.client.screen.tab.SideTabHost.COLLAPSED_OVERLAP;
 import static com.logistics.core.lib.client.screen.tab.SideTabHost.GAP;
 import static com.logistics.core.lib.client.screen.tab.SideTabHost.HEADER;
+import static com.logistics.core.lib.client.screen.tab.SideTabHost.OPEN_OVERLAP;
 import static com.logistics.core.lib.client.screen.tab.SideTabHost.BOTTOM_PAD;
 import static com.logistics.core.lib.client.screen.tab.SideTabHost.TOP_OFFSET;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,26 +57,36 @@ class TabLayoutTest {
         }
 
         @Test
-        @DisplayName("a side fits exactly when a collapsed tab fits, counting the edge overlap")
+        @DisplayName("a side fits exactly when a collapsed tab, which does not overlap the GUI, fits")
         void sideFitsBoundary() {
-            assertThat(TabLayout.sideFits(COLLAPSED - EDGE_OVERLAP)).isTrue();
-            assertThat(TabLayout.sideFits(COLLAPSED - EDGE_OVERLAP - 1)).isFalse();
+            assertThat(TabLayout.sideFits(COLLAPSED)).isTrue();
+            assertThat(TabLayout.sideFits(COLLAPSED - 1)).isFalse();
         }
 
         @Test
-        @DisplayName("right tabs start inside the right border; left tabs end inside the left border")
+        @DisplayName("the overlap runs from none when collapsed to the full border when open")
+        void overlapFollowsOpenness() {
+            assertThat(COLLAPSED_OVERLAP).isZero();
+            assertThat(OPEN_OVERLAP).isEqualTo(3);
+            assertThat(TabLayout.overlap(0.0)).isEqualTo(COLLAPSED_OVERLAP);
+            assertThat(TabLayout.overlap(1.0)).isEqualTo(OPEN_OVERLAP);
+            assertThat(TabLayout.overlap(0.5)).isEqualTo(TabLayout.lerp(COLLAPSED_OVERLAP, OPEN_OVERLAP, 0.5));
+        }
+
+        @Test
+        @DisplayName("right tabs start the overlap inside the right edge; left tabs end it inside the left edge")
         void tabX() {
-            assertThat(TabLayout.tabX(TabSide.RIGHT, geometry.anchor(), 24)).isEqualTo(152 + 176 - EDGE_OVERLAP);
-            assertThat(TabLayout.tabX(TabSide.RIGHT, geometry.anchor(), 100)).isEqualTo(152 + 176 - EDGE_OVERLAP);
-            assertThat(TabLayout.tabX(TabSide.LEFT, geometry.anchor(), 24)).isEqualTo(152 + EDGE_OVERLAP - 24);
-            assertThat(TabLayout.tabX(TabSide.LEFT, geometry.anchor(), 100)).isEqualTo(152 + EDGE_OVERLAP - 100);
+            assertThat(TabLayout.tabX(TabSide.RIGHT, geometry.anchor(), 24, 0)).isEqualTo(152 + 176);
+            assertThat(TabLayout.tabX(TabSide.RIGHT, geometry.anchor(), 100, 3)).isEqualTo(152 + 176 - 3);
+            assertThat(TabLayout.tabX(TabSide.LEFT, geometry.anchor(), 24, 0)).isEqualTo(152 - 24);
+            assertThat(TabLayout.tabX(TabSide.LEFT, geometry.anchor(), 100, 3)).isEqualTo(152 + 3 - 100);
         }
 
         @Test
-        @DisplayName("the open width is clamped to the margin plus the edge overlap")
+        @DisplayName("the open width is clamped to the margin plus the open overlap")
         void openWidthClamp() {
             assertThat(TabLayout.openWidth(100, 150)).isEqualTo(100);
-            assertThat(TabLayout.openWidth(100, 60)).isEqualTo(62);
+            assertThat(TabLayout.openWidth(100, 60)).isEqualTo(63);
         }
     }
 
@@ -86,9 +97,67 @@ class TabLayoutTest {
                 new TestTab("l1", TabSide.LEFT));
         int top = 67 + TOP_OFFSET;
 
-        assertThat(host.tabRect("r1")).isEqualTo(new TabRect(326, top, COLLAPSED, COLLAPSED));
-        assertThat(host.tabRect("r2")).isEqualTo(new TabRect(326, top + COLLAPSED + GAP, COLLAPSED, COLLAPSED));
-        assertThat(host.tabRect("l1")).isEqualTo(new TabRect(130, top, COLLAPSED, COLLAPSED));
+        assertThat(host.tabRect("r1")).isEqualTo(new TabRect(328, top, COLLAPSED, COLLAPSED));
+        assertThat(host.tabRect("r2")).isEqualTo(new TabRect(328, top + COLLAPSED + GAP, COLLAPSED, COLLAPSED));
+        assertThat(host.tabRect("l1")).isEqualTo(new TabRect(128, top, COLLAPSED, COLLAPSED));
+    }
+
+    @Test
+    @DisplayName("collapsed tabs abut the GUI's outer edge on both sides without overlapping it")
+    void collapsedAbutsEdge() {
+        SideTabHost host = host(new TestTab("r1", TabSide.RIGHT), new TestTab("l1", TabSide.LEFT));
+
+        assertThat(host.tabRect("r1").x()).isEqualTo(152 + 176);
+        assertThat(host.tabRect("l1").right()).isEqualTo(152);
+        assertThat(overlap(TabSide.RIGHT, host.tabRect("r1"))).isEqualTo(COLLAPSED_OVERLAP);
+        assertThat(overlap(TabSide.LEFT, host.tabRect("l1"))).isEqualTo(COLLAPSED_OVERLAP);
+    }
+
+    @Test
+    @DisplayName("fully open tabs overlap the GUI's outer border by exactly the open overlap on both sides")
+    void openOverlapsBorder() {
+        TabMemory.set("layout", TabSide.RIGHT, "r1");
+        TabMemory.set("layout", TabSide.LEFT, "l1");
+        SideTabHost host = host(new TestTab("r1", TabSide.RIGHT), new TestTab("l1", TabSide.LEFT));
+
+        assertThat(host.isFullyOpen("r1")).isTrue();
+        assertThat(host.isFullyOpen("l1")).isTrue();
+        assertThat(overlap(TabSide.RIGHT, host.tabRect("r1"))).isEqualTo(OPEN_OVERLAP);
+        assertThat(overlap(TabSide.LEFT, host.tabRect("l1"))).isEqualTo(OPEN_OVERLAP);
+    }
+
+    @Test
+    @DisplayName("the overlap grows monotonically from none to the open overlap while a tab opens")
+    void animatedOverlapIsMonotonic() {
+        SideTabHost host = host(new TestTab("r1", TabSide.RIGHT), new TestTab("l1", TabSide.LEFT));
+        host.render(canvas, -1000, -1000);
+        host.mouseClicked(330, 75, true);
+        host.mouseClicked(140, 75, true);
+
+        int previousRight = COLLAPSED_OVERLAP;
+        int previousLeft = COLLAPSED_OVERLAP;
+        boolean sawIntermediate = false;
+        for (int t = 0; t < TabAnimation.DURATION_MS; t += 10) {
+            clock.advance(10);
+            int right = overlap(TabSide.RIGHT, host.tabRect("r1"));
+            int left = overlap(TabSide.LEFT, host.tabRect("l1"));
+            assertThat(right).as("right at %dms", t).isBetween(COLLAPSED_OVERLAP, OPEN_OVERLAP)
+                    .isGreaterThanOrEqualTo(previousRight);
+            assertThat(left).as("left at %dms", t).isEqualTo(right).isGreaterThanOrEqualTo(previousLeft);
+            sawIntermediate |= right > COLLAPSED_OVERLAP && right < OPEN_OVERLAP;
+            previousRight = right;
+            previousLeft = left;
+        }
+        assertThat(sawIntermediate).as("an intermediate overlap is drawn").isTrue();
+        assertThat(previousRight).isEqualTo(OPEN_OVERLAP);
+    }
+
+    /** How many px {@code rect} reaches over the GUI image's {@code side} edge; negative when it stops short. */
+    private static int overlap(TabSide side, TabRect rect) {
+        return switch (side) {
+            case RIGHT -> 152 + 176 - rect.x();
+            case LEFT -> rect.right() - 152;
+        };
     }
 
     @Test
@@ -98,7 +167,7 @@ class TabLayoutTest {
         TabMemory.set("layout", TabSide.LEFT, "l1");
         SideTabHost host = host(new TestTab("r1", TabSide.RIGHT), new TestTab("l1", TabSide.LEFT));
         TabRect image = new TabRect(152, 67, 176, 166);
-        TabRect inner = new TabRect(152 + EDGE_OVERLAP, 67, 176 - 2 * EDGE_OVERLAP, 166);
+        TabRect inner = new TabRect(152 + OPEN_OVERLAP, 67, 176 - 2 * OPEN_OVERLAP, 166);
 
         for (String id : new String[] {"r1", "l1"}) {
             TabRect rect = host.tabRect(id);
@@ -117,8 +186,8 @@ class TabLayoutTest {
         SideTabHost host = host(right, left);
         int height = HEADER + 40 + BOTTOM_PAD;
 
-        assertThat(host.tabRect("r1")).isEqualTo(new TabRect(326, 71, 100, height));
-        assertThat(host.tabRect("l1")).isEqualTo(new TabRect(154 - 100, 71, 100, height));
+        assertThat(host.tabRect("r1")).isEqualTo(new TabRect(325, 71, 100, height));
+        assertThat(host.tabRect("l1")).isEqualTo(new TabRect(155 - 100, 71, 100, height));
         assertThat(right.measuredWidths).contains(100 - 2 * CONTENT_PAD);
     }
 
@@ -162,9 +231,10 @@ class TabLayoutTest {
         TestTab tab = new TestTab("a", TabSide.RIGHT).size(100, 50, 40);
         SideTabHost host = host(tab);
 
-        assertThat(host.tabRect("a").w()).isEqualTo(60 + EDGE_OVERLAP);
+        assertThat(host.tabRect("a").w()).isEqualTo(60 + OPEN_OVERLAP);
+        assertThat(host.tabRect("a").right()).as("the open tab stops at the screen margin").isEqualTo(390 - 2);
         assertThat(host.isFullyOpen("a")).isTrue();
-        assertThat(tab.measuredWidths).contains(60 + EDGE_OVERLAP - 2 * CONTENT_PAD);
+        assertThat(tab.measuredWidths).contains(60 + OPEN_OVERLAP - 2 * CONTENT_PAD);
     }
 
     @Test
@@ -172,12 +242,22 @@ class TabLayoutTest {
     void sideHiddenUnderMinimumMargin() {
         SideTabHost host = host(new TestTab("r", TabSide.RIGHT), new TestTab("l", TabSide.LEFT));
 
-        geometry.screenWidth = 152 + 176 + 2 + (COLLAPSED - EDGE_OVERLAP);
-        assertThat(host.tabRect("r")).isNotNull();
+        geometry.screenWidth = 152 + 176 + 2 + COLLAPSED;
+        assertThat(TabLayout.margin(TabSide.RIGHT, geometry.anchor())).isEqualTo(24);
+        assertThat(host.tabRect("r")).as("visible at a margin of exactly 24").isNotNull();
+        assertThat(host.tabRect("r").right()).isEqualTo(geometry.screenWidth - 2);
 
         geometry.screenWidth--;
-        assertThat(host.tabRect("r")).isNull();
+        assertThat(TabLayout.margin(TabSide.RIGHT, geometry.anchor())).isEqualTo(23);
+        assertThat(host.tabRect("r")).as("hidden at a margin of 23").isNull();
         assertThat(host.tabRect("l")).isNotNull();
+
+        geometry.left = 2 + COLLAPSED;
+        assertThat(TabLayout.margin(TabSide.LEFT, geometry.anchor())).isEqualTo(24);
+        assertThat(host.tabRect("l")).as("left visible at a margin of exactly 24").isNotNull();
+        assertThat(host.tabRect("l").x()).isEqualTo(2);
+        geometry.left--;
+        assertThat(host.tabRect("l")).as("left hidden at a margin of 23").isNull();
     }
 
     @Test
@@ -188,7 +268,7 @@ class TabLayoutTest {
         SideTabHost host = host(new TestTab("a", TabSide.RIGHT).size(100, 76, 40));
 
         assertThat(host.isFullyOpen("a")).isFalse();
-        assertThat(host.tabRect("a")).isEqualTo(new TabRect(326, 71, COLLAPSED, COLLAPSED));
+        assertThat(host.tabRect("a")).isEqualTo(new TabRect(328, 71, COLLAPSED, COLLAPSED));
     }
 
     @Test
