@@ -83,6 +83,8 @@ final class TabFixtures {
     record PanelCall(TabSide side, TabRect rect, int tint) {
     }
 
+    record FillCall(int x0, int y0, int x1, int y1, int argb) {}
+
     record SpriteCall(ResourceId sprite, int x, int y, int w, int h) {
     }
 
@@ -92,13 +94,27 @@ final class TabFixtures {
     record TooltipCall(List<Component> lines, int x, int y) {
     }
 
+    record WrappedCall(Component text, int x, int y, int maxWidth, int argb, boolean shadow) {
+    }
+
     static final class RecordingCanvas implements TabCanvas {
         final List<PanelCall> panels = new ArrayList<>();
         final List<SpriteCall> sprites = new ArrayList<>();
+        final List<FillCall> fills = new ArrayList<>();
         final List<TextCall> texts = new ArrayList<>();
         final List<TooltipCall> tooltips = new ArrayList<>();
+        final List<WrappedCall> wrapped = new ArrayList<>();
         int clickSounds;
-        private final TabText text = new FakeText();
+        private final TabText text;
+
+        RecordingCanvas() {
+            this(new FakeText());
+        }
+
+        /** A canvas that measures wrapped text with {@code text}. */
+        RecordingCanvas(TabText text) {
+            this.text = text;
+        }
 
         @Override
         public void panel(TabSide side, int x, int y, int w, int h, int argbTint) {
@@ -117,6 +133,7 @@ final class TabFixtures {
 
         @Override
         public void fill(int x0, int y0, int x1, int y1, int argb) {
+            fills.add(new FillCall(x0, y0, x1, y1, argb));
         }
 
         @Override
@@ -125,7 +142,8 @@ final class TabFixtures {
         }
 
         @Override
-        public int wrappedText(Component text, int x, int y, int maxWidth, int argb) {
+        public int wrappedText(Component text, int x, int y, int maxWidth, int argb, boolean shadow) {
+            wrapped.add(new WrappedCall(text, x, y, maxWidth, argb, shadow));
             return this.text.wrappedLineCount(text, maxWidth) * this.text.lineHeight();
         }
 
@@ -149,6 +167,7 @@ final class TabFixtures {
             sprites.clear();
             texts.clear();
             tooltips.clear();
+            wrapped.clear();
             clickSounds = 0;
         }
     }

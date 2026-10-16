@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -27,10 +28,19 @@ final class EnglishLang {
         return translations;
     }
 
-    /** The English text of {@code text}: a translatable component's entry, otherwise its plain string. */
+    /** The English text of {@code text}: a translatable component's entry with its arguments filled in, otherwise its plain string. */
     static String resolve(Component text) {
         if (text.getContents() instanceof TranslatableContents translatable) {
-            return translations().getOrDefault(translatable.getKey(), translatable.getKey());
+            String template = translations().getOrDefault(translatable.getKey(), translatable.getKey());
+            Object[] args = translatable.getArgs();
+            if (args.length == 0) {
+                return template;
+            }
+            Object[] resolved = new Object[args.length];
+            for (int i = 0; i < args.length; i++) {
+                resolved[i] = args[i] instanceof Component component ? resolve(component) : String.valueOf(args[i]);
+            }
+            return String.format(Locale.ROOT, template, resolved);
         }
         return text.getString();
     }

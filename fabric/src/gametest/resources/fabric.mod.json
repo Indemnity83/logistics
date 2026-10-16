@@ -70,7 +70,8 @@
 		"fabric-client-gametest": [
 			"com.logistics.gametest.client.ClientBootstrapGameTest",
 			"com.logistics.gametest.client.ShowcaseClientGameTest",
-			"com.logistics.gametest.client.SideTabsClientGameTest"
+			"com.logistics.gametest.client.SideTabsClientGameTest",
+			"com.logistics.gametest.client.MachineSideTabsClientGameTest"
 		]
 	}
 }

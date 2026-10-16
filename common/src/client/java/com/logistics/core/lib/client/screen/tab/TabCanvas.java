@@ -18,8 +18,13 @@ public interface TabCanvas {
 
     void text(Component text, int x, int y, int argb, boolean shadow);
 
+    /** Draws {@code text} word-wrapped to {@code maxWidth} with a shadow and returns the height it used. */
+    default int wrappedText(Component text, int x, int y, int maxWidth, int argb) {
+        return wrappedText(text, x, y, maxWidth, argb, true);
+    }
+
     /** Draws {@code text} word-wrapped to {@code maxWidth} and returns the height it used. */
-    int wrappedText(Component text, int x, int y, int maxWidth, int argb);
+    int wrappedText(Component text, int x, int y, int maxWidth, int argb, boolean shadow);
 
     /** Queues a tooltip for this frame. */
     void tooltip(List<Component> lines, int mouseX, int mouseY);
