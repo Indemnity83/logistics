@@ -108,6 +108,7 @@ public class CrucibleBlockEntity extends MachineEntity {
                 .fluids(fluidStore)
                 .lit(this::setLit)
                 .build();
+        machine.redstoneControl("redstone").build();
 
         // Sync the tank to clients on change so the front-face fluid gauge stays current (the menu's
         // ContainerData only reaches a player with the GUI open).

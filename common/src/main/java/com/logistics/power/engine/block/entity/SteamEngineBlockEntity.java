@@ -163,7 +163,7 @@ public class SteamEngineBlockEntity extends EngineEntity
         // buffer, no piston-cycle component). SteamEngineComponent supplies PistonState for animation.
         steamSim = engine.add(new SteamEngineComponent(
                 "steamSim", this::offerEnergy, waterTank, fuelSource(), profile,
-                this::isPowered, this::setLit, this::setChanged));
+                this::isEnabled, this::setLit, this::setChanged));
     }
 
     /** Offer freshly generated RF directly to the output-face neighbor; returns accepted. */

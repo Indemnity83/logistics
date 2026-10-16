@@ -114,7 +114,7 @@ public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngine
      */
     private String statusKey() {
         boolean lit = menu.isLit();
-        if (!menu.isPowered()) {
+        if (!menu.isEnabled()) {
             return lit
                     ? "tooltip.logistics.magmatic_engine.status.paused"
                     : "tooltip.logistics.magmatic_engine.status.redstone_disabled";

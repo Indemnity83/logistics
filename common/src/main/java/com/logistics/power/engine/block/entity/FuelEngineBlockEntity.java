@@ -128,11 +128,11 @@ public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStora
         engine.add(new FluidSyncComponent(fuelTank, coolantTank));
         fuelSim = engine.add(new FuelEngineComponent(
                 "fuelSim", energy, fuelTank, coolantTank,
-                FuelEngineFuels::lookup, FuelEngineCoolants::lookup, this::isPowered, profile, this::setChanged));
+                FuelEngineFuels::lookup, FuelEngineCoolants::lookup, this::isEnabled, profile, this::setChanged));
         engine.pistonCycle("cycle")
                 .energy(energy)
                 .overheated(fuelSim::isOverheated)
-                .powered(this::isPowered)
+                .powered(this::isEnabled)
                 .pistonSpeed(this::pistonSpeed)
                 .outputPower(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.FUEL_MAX_OUTPUT))
                 .outputFace(() -> FuelEngineBlock.getOutputDirection(getBlockState()))
