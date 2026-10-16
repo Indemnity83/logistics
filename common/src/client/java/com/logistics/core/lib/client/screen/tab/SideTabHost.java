@@ -33,8 +33,10 @@ public final class SideTabHost {
     public static final int TOP_OFFSET = 4;
     /** Vertical gap between stacked tabs. */
     public static final int GAP = 1;
-    /** How far a tab tucks over the GUI image's outer border. */
-    public static final int EDGE_OVERLAP = 2;
+    /** How far a collapsed tab reaches over the GUI image: none, so the GUI's outline stays in front. */
+    public static final int COLLAPSED_OVERLAP = 0;
+    /** How far a fully open tab reaches over the GUI image: its outline and both bevel columns. */
+    public static final int OPEN_OVERLAP = 3;
     /** Minimum distance kept from the screen edges. */
     public static final int SCREEN_MARGIN = 2;
     /** Horizontal content inset on each side. */
@@ -250,16 +252,20 @@ public final class SideTabHost {
             int margin = TabLayout.margin(side, anchor);
             int count = entries.size();
             int collapsedHeight = count * COLLAPSED + (count - 1) * GAP;
-            int width = COLLAPSED;
+            int overlap = COLLAPSED_OVERLAP;
+            int outward = COLLAPSED - COLLAPSED_OVERLAP;
             int height = collapsedHeight;
             for (int i = 0; i < count; i++) {
                 Measure measure = measure(entries.get(i).tab, margin, i);
                 if (measure.fits) {
-                    width = Math.max(width, measure.width);
+                    overlap = OPEN_OVERLAP;
+                    outward = Math.max(outward, measure.width - OPEN_OVERLAP);
                     height = Math.max(height, collapsedHeight + measure.height - COLLAPSED);
                 }
             }
-            envelope.add(new TabRect(TabLayout.tabX(side, anchor, width), TabLayout.stackTop(anchor), width, height));
+            int width = overlap + outward;
+            envelope.add(new TabRect(
+                    TabLayout.tabX(side, anchor, width, overlap), TabLayout.stackTop(anchor), width, height));
         }
         return envelope;
     }
@@ -352,7 +358,7 @@ public final class SideTabHost {
                 double eased = TabAnimation.ease(progress);
                 int w = TabLayout.lerp(COLLAPSED, Math.max(COLLAPSED, measure.width), eased);
                 int h = TabLayout.lerp(COLLAPSED, Math.max(COLLAPSED, measure.height), eased);
-                TabRect rect = new TabRect(TabLayout.tabX(side, anchor, w), y, w, h);
+                TabRect rect = new TabRect(TabLayout.tabX(side, anchor, w, TabLayout.overlap(eased)), y, w, h);
                 placed.add(new Placed(entry, rect, measure, open, open && progress == 1.0));
                 y += h + GAP;
             }
