@@ -10,6 +10,7 @@ import com.logistics.core.machine.component.RecipeProcessorComponent.LitControll
 import com.logistics.core.machine.component.RecipeResolver;
 import com.logistics.core.machine.component.SidedLayout;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.tier.TierComponent;
 import com.logistics.core.machine.upgrade.UpgradeComponent;
 import java.util.function.Predicate;
 import net.minecraft.server.level.TicketType;
@@ -25,10 +26,17 @@ public final class MachineBuilder {
 
     private final MachineComponentContainer components;
     private final Runnable onChanged;
+    private final Runnable onSync;
 
     public MachineBuilder(MachineComponentContainer components, Runnable onChanged) {
+        this(components, onChanged, onChanged);
+    }
+
+    /** {@code onSync} marks the host changed and pushes a block update to clients. */
+    public MachineBuilder(MachineComponentContainer components, Runnable onChanged, Runnable onSync) {
         this.components = components;
         this.onChanged = onChanged;
+        this.onSync = onSync;
     }
 
     public EnergyBuilder energy(String id) {
@@ -50,6 +58,14 @@ public final class MachineBuilder {
     /** Registers an {@link UpgradeComponent} (no configuration) and returns it for wiring. */
     public UpgradeComponent upgrades(String id) {
         return components.add(new UpgradeComponent(id));
+    }
+
+    /**
+     * Registers a {@link TierComponent} and returns it for wiring. Register it before any buffer its
+     * listeners resize, so the resize lands before that buffer loads and clamps its stored amount.
+     */
+    public TierComponent tier(String id) {
+        return components.add(new TierComponent(id, onSync));
     }
 
     public ChunkLoaderBuilder chunkLoader(String id) {
