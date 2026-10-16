@@ -31,8 +31,8 @@ public class SideTabsClientGameTest implements FabricClientGameTest {
     private static final Logger LOGGER = LoggerFactory.getLogger("Logistics/SideTabsClientGameTest");
 
     /** Surface of the flat preset: bedrock, two dirt, and grass from -64, so blocks go at +1. */
-    private static final int GROUND = -61;
-    private static final BlockPos TRANSPOSER = new BlockPos(0, GROUND + 1, 0);
+    static final int GROUND = -61;
+    static final BlockPos TRANSPOSER = new BlockPos(0, GROUND + 1, 0);
     /** How long after the click the mid-animation frame is captured. */
     private static final long OPENING_CAPTURE_MS = 80L;
 
@@ -62,7 +62,8 @@ public class SideTabsClientGameTest implements FabricClientGameTest {
         }
     }
 
-    private void openTransposer(ClientGameTestContext context, TestServerContext server) {
+    /** Opens the Transposer at {@link #TRANSPOSER}, half charged, through the server's menu path. */
+    static void openTransposer(ClientGameTestContext context, TestServerContext server) {
         server.runOnServer(minecraftServer -> {
             ServerPlayer player = minecraftServer.getPlayerList().getPlayers().get(0);
             BlockEntity blockEntity = player.level().getBlockEntity(TRANSPOSER);

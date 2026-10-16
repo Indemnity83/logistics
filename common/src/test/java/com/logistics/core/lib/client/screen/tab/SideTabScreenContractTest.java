@@ -21,6 +21,16 @@ import com.logistics.automation.transposer.TransposerScreenHandler;
 import com.logistics.core.lib.client.screen.tab.TabFixtures.FakeClock;
 import com.logistics.core.lib.client.screen.tab.TabFixtures.RecordingCanvas;
 import com.logistics.core.machine.control.MachineControls;
+import com.logistics.power.engine.ui.FuelEngineScreenHandler;
+import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
+import com.logistics.power.engine.ui.ReactionEngineScreenHandler;
+import com.logistics.power.engine.ui.SteamEngineScreenHandler;
+import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
+import com.logistics.power.screen.FuelEngineScreen;
+import com.logistics.power.screen.MagmaticEngineScreen;
+import com.logistics.power.screen.ReactionEngineScreen;
+import com.logistics.power.screen.SteamEngineScreen;
+import com.logistics.power.screen.StirlingEngineScreen;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -72,7 +82,17 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
                         inventory -> new SequentialFabricatorScreenHandler(1, inventory),
                         SequentialFabricatorScreenHandler::controls),
                 machine("transposer", TransposerScreen.class, 176, 166,
-                        inventory -> new TransposerScreenHandler(1, inventory), TransposerScreenHandler::controls));
+                        inventory -> new TransposerScreenHandler(1, inventory), TransposerScreenHandler::controls),
+                engine("stirling_engine", StirlingEngineScreen.class, 176, 166,
+                        inventory -> new StirlingEngineScreenHandler(1, inventory), StirlingEngineScreenHandler::controls),
+                engine("fuel_engine", FuelEngineScreen.class, 176, 166,
+                        inventory -> new FuelEngineScreenHandler(1, inventory), FuelEngineScreenHandler::controls),
+                engine("magmatic_engine", MagmaticEngineScreen.class, 176, 166,
+                        inventory -> new MagmaticEngineScreenHandler(1, inventory), MagmaticEngineScreenHandler::controls),
+                engine("steam_engine", SteamEngineScreen.class, 176, 166,
+                        inventory -> new SteamEngineScreenHandler(1, inventory), SteamEngineScreenHandler::controls),
+                engine("reaction_engine", ReactionEngineScreen.class, 176, 166,
+                        inventory -> new ReactionEngineScreenHandler(1, inventory), ReactionEngineScreenHandler::controls));
     }
 
     @BeforeEach
@@ -170,6 +190,17 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
             Function<M, MachineControls> controls) {
         return new ScreenCase(key, screenClass, menu::apply, imageWidth, imageHeight, (m, anchor, clock) ->
                 MachineTabs.machine(key, m, controls.apply(cast(m)), anchor, new EnglishLang.Text(), clock));
+    }
+
+    private static <M extends AbstractContainerMenu> ScreenCase engine(
+            String key,
+            Class<? extends AbstractContainerScreen<?>> screenClass,
+            int imageWidth,
+            int imageHeight,
+            Function<Inventory, M> menu,
+            Function<M, MachineControls> controls) {
+        return new ScreenCase(key, screenClass, menu::apply, imageWidth, imageHeight, (m, anchor, clock) ->
+                MachineTabs.engine(key, m, controls.apply(cast(m)), anchor, new EnglishLang.Text(), clock));
     }
 
     @SuppressWarnings("unchecked")
