@@ -13,6 +13,8 @@ import com.logistics.core.lib.menu.MenuValidity;
 import com.logistics.core.lib.power.EnergyDemandProvider;
 import com.logistics.core.lib.storage.ContainerItemStorage;
 import com.logistics.core.lib.storage.IItemStorage;
+import com.logistics.core.machine.component.EnergyStorageComponent;
+import com.logistics.core.machine.control.MachineStatus;
 import com.logistics.core.machine.control.RedstoneControlComponent;
 import com.logistics.core.machine.control.RedstoneMode;
 import net.minecraft.core.BlockPos;
@@ -45,7 +47,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class MachineEntity extends BaseBlockEntity
         implements MachineContext, HasItemStorage, HasEnergyStorage, HasFluidStorage,
-                HasExperienceStorage, WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider, ProcessingMachine {
+                HasExperienceStorage, WorldlyContainer, MenuBehavior.HasMenu, EnergyDemandProvider, ProcessingMachine,
+                MachineStatus {
 
     private static final int[] NO_SLOTS = new int[0];
 
@@ -119,23 +122,64 @@ public abstract class MachineEntity extends BaseBlockEntity
     // ==================== Redstone control ====================
 
     /** The machine's redstone control, or {@code null} when it has none. */
+    @Override
     @Nullable
     public RedstoneControlComponent redstoneControl() {
         return redstone;
     }
 
     /** Whether the machine receives a redstone signal from any neighbor (vanilla rule). */
+    @Override
     public boolean hasRedstoneSignal() {
         return level != null && level.hasNeighborSignal(worldPosition);
     }
 
+    @Override
+    public boolean isEnabled() {
+        return workEnabled();
+    }
+
     /** Sets the redstone mode and syncs it to clients; a no-op without a control or when unchanged. */
+    @Override
     public void setRedstoneMode(RedstoneMode mode) {
         if (redstone == null || redstone.mode() == mode) {
             return;
         }
         redstone.setMode(mode);
         markDirtyAndSync();
+    }
+
+    // ==================== Energy telemetry ====================
+
+    private java.util.Optional<EnergyStorageComponent> energyBuffer() {
+        return components.find(EnergyStorageComponent.class);
+    }
+
+    @Override
+    public boolean hasEnergyBuffer() {
+        return energyBuffer().isPresent();
+    }
+
+    @Override
+    public long energyStored() {
+        return energyBuffer().map(EnergyStorageComponent::amount).orElse(0L);
+    }
+
+    @Override
+    public long energyCapacity() {
+        return energyBuffer().map(EnergyStorageComponent::capacity).orElse(0L);
+    }
+
+    /** RF the machine spent on its own work during the last completed tick. */
+    @Override
+    public long energyRate() {
+        return energyBuffer().map(EnergyStorageComponent::consumedLastTick).orElse(0L);
+    }
+
+    /** The buffer's configured maximum input per tick. */
+    @Override
+    public long energyMaxRate() {
+        return energyBuffer().map(EnergyStorageComponent::maxInput).orElse(0L);
     }
 
     private java.util.Optional<MachineComponent.SidedItems> sidedItems() {

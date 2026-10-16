@@ -22,6 +22,7 @@ import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.ReactionEngineBlock;
 import com.logistics.power.engine.reaction.ReactionEngineComponent;
 import com.logistics.power.engine.reaction.ReactionEngineReactions;
@@ -172,6 +173,18 @@ public class ReactionEngineBlockEntity extends EngineEntity
     @Override
     public boolean isRunning() {
         return reactionSim.isReacting();
+    }
+
+    /** RF the network accepted last tick; unaccepted output is discarded, so it is not generation. */
+    @Override
+    public long energyRate() {
+        return reactionSim.lastAccepted();
+    }
+
+    /** The running reaction's recipe rate, or 0 while idle: no reaction, no ceiling. */
+    @Override
+    public long maxGeneration() {
+        return reactionSim.activeOutputPerTick();
     }
 
     // ==================== HasFluidStorage (reactant, insert-only, filtered) ====================
@@ -351,7 +364,8 @@ public class ReactionEngineBlockEntity extends EngineEntity
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
                 return new ReactionEngineScreenHandler(
-                        syncId, playerInventory, ReactionEngineBlockEntity.this, containerData);
+                        syncId, playerInventory, ReactionEngineBlockEntity.this, containerData,
+                        MachineControls.server(ReactionEngineBlockEntity.this));
             }
         };
     }

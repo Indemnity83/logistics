@@ -9,6 +9,7 @@ import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineHudModel;
+import com.logistics.core.machine.control.MachineStatus;
 import com.logistics.core.machine.control.RedstoneControlComponent;
 import com.logistics.core.machine.control.RedstoneMode;
 import java.util.Optional;
@@ -37,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
  * Item storage and menus are engine-specific (only the Stirling Engine has them), so those
  * interfaces are declared by the concrete engine rather than here.
  */
-public abstract class EngineEntity extends BaseBlockEntity implements MachineContext, HasEnergyStorage {
+public abstract class EngineEntity extends BaseBlockEntity implements MachineContext, HasEnergyStorage, MachineStatus {
 
     /** Client-side callback for cleanup when an engine is removed. Set by client bootstrap. */
     private static Consumer<BlockPos> onRemovedCallback;
@@ -110,17 +111,26 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
     }
 
     /** Whether the engine is permitted to run: its redstone mode applied to {@link #isPowered()}. */
+    @Override
     public boolean isEnabled() {
         return redstone == null ? isPowered() : redstone.allows(this::isPowered);
     }
 
+    /** The physical signal, {@link #isPowered()}. */
+    @Override
+    public boolean hasRedstoneSignal() {
+        return isPowered();
+    }
+
     /** The engine's redstone control, or {@code null} when it has none. */
+    @Override
     @Nullable
     public RedstoneControlComponent redstoneControl() {
         return redstone;
     }
 
     /** Sets the redstone mode and syncs it to clients; a no-op without a control or when unchanged. */
+    @Override
     public void setRedstoneMode(RedstoneMode mode) {
         if (redstone == null || redstone.mode() == mode) {
             return;
@@ -173,6 +183,42 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
 
     public float getProgress() {
         return components.find(EnginePistonCycleComponent.class).map(EnginePistonCycleComponent::progress).orElse(0f);
+    }
+
+    // ==================== Energy telemetry ====================
+
+    /** Whether the engine has an output buffer; bufferless engines hand RF straight to the consumer. */
+    @Override
+    public boolean hasEnergyBuffer() {
+        return components.find(EngineEnergyOutputComponent.class).isPresent();
+    }
+
+    @Override
+    public long energyStored() {
+        return getEnergy();
+    }
+
+    @Override
+    public long energyCapacity() {
+        return getMaxEnergy();
+    }
+
+    /** RF generated and retained during the last completed tick; by default, what entered the output buffer. */
+    @Override
+    public long energyRate() {
+        return components.find(EngineEnergyOutputComponent.class)
+                .map(EngineEnergyOutputComponent::generatedLastTick)
+                .orElse(0L);
+    }
+
+    @Override
+    public long energyMaxRate() {
+        return maxGeneration();
+    }
+
+    /** The engine's generation ceiling at its current tuning; by default its current output power. */
+    public long maxGeneration() {
+        return getCurrentOutputPower();
     }
 
     private Optional<EngineComponent.HeatState> heat() {

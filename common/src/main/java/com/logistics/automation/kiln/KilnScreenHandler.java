@@ -3,6 +3,7 @@ package com.logistics.automation.kiln;
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.lib.block.MachineResultSlot;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import net.minecraft.recipebook.ServerPlaceRecipe;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -34,14 +35,17 @@ public class KilnScreenHandler extends RecipeBookMenu {
 
     private final Container inventory;
     private final ContainerData data;
+    private final MachineControls controls;
 
     /** Client-side constructor. */
     public KilnScreenHandler(int syncId, Inventory playerInventory) {
-        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT), new SimpleContainerData(MachineData.COUNT));
+        this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT),
+                new SimpleContainerData(MachineData.COUNT), MachineControls.client());
     }
 
     /** Server-side constructor. */
-    public KilnScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
+    public KilnScreenHandler(
+            int syncId, Inventory playerInventory, Container inventory, ContainerData data, MachineControls controls) {
         super(LogisticsAutomation.MENU.KILN, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, MachineData.COUNT);
@@ -70,6 +74,9 @@ public class KilnScreenHandler extends RecipeBookMenu {
         }
 
         this.addDataSlots(data);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        this.addDataSlots(controls.data());
     }
 
     // ==================== RecipeBookMenu ====================
@@ -163,6 +170,16 @@ public class KilnScreenHandler extends RecipeBookMenu {
     @Override
     public boolean stillValid(Player player) {
         return this.inventory.stillValid(player);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     // ==================== Data Getters for GUI Rendering ====================

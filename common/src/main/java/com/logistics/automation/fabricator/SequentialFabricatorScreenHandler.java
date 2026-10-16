@@ -4,6 +4,7 @@ import com.logistics.LogisticsAutomation;
 import com.logistics.automation.fabricator.FabricatorProcessorComponent.Output;
 import com.logistics.core.lib.platform.ServerNetworking;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -33,6 +34,7 @@ public class SequentialFabricatorScreenHandler extends AbstractContainerMenu {
 
     private final Container inventory;
     private final ContainerData data;
+    private final MachineControls controls;
 
     // Server-side sync state.
     @Nullable private final SequentialFabricatorBlockEntity blockEntity;
@@ -46,13 +48,17 @@ public class SequentialFabricatorScreenHandler extends AbstractContainerMenu {
     /** Client-side constructor. */
     public SequentialFabricatorScreenHandler(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT),
-                new SimpleContainerData(MachineData.COUNT), null);
+                new SimpleContainerData(MachineData.COUNT), MachineControls.client(), null);
     }
 
     /** Server-side constructor. */
     public SequentialFabricatorScreenHandler(
-            int syncId, Inventory playerInventory, SequentialFabricatorBlockEntity blockEntity, ContainerData data) {
-        this(syncId, playerInventory, blockEntity, data, blockEntity);
+            int syncId,
+            Inventory playerInventory,
+            SequentialFabricatorBlockEntity blockEntity,
+            ContainerData data,
+            MachineControls controls) {
+        this(syncId, playerInventory, blockEntity, data, controls, blockEntity);
     }
 
     private SequentialFabricatorScreenHandler(
@@ -60,6 +66,7 @@ public class SequentialFabricatorScreenHandler extends AbstractContainerMenu {
             Inventory playerInventory,
             Container inventory,
             ContainerData data,
+            MachineControls controls,
             @Nullable SequentialFabricatorBlockEntity blockEntity) {
         super(LogisticsAutomation.MENU.SEQUENTIAL_FABRICATOR, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
@@ -94,6 +101,9 @@ public class SequentialFabricatorScreenHandler extends AbstractContainerMenu {
         }
 
         this.addDataSlots(data);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        this.addDataSlots(controls.data());
     }
 
     @Override
@@ -130,6 +140,16 @@ public class SequentialFabricatorScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return this.inventory.stillValid(player);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     @Override

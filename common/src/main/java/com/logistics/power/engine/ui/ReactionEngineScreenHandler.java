@@ -1,6 +1,7 @@
 package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.entity.ReactionEngineBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
@@ -31,6 +32,7 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
 
     private final Container inventory;
     private final ContainerData propertyDelegate;
+    private final MachineControls controls;
 
     // Client constructor (called from MenuType on screen open)
     public ReactionEngineScreenHandler(int syncId, Inventory playerInventory) {
@@ -38,7 +40,8 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
                 syncId,
                 playerInventory,
                 new SimpleContainer(1),
-                new SimpleContainerData(ReactionEngineBlockEntity.DATA_COUNT));
+                new SimpleContainerData(ReactionEngineBlockEntity.DATA_COUNT),
+                MachineControls.client());
     }
 
     // Server constructor
@@ -46,12 +49,17 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
             int syncId,
             Inventory playerInventory,
             ReactionEngineBlockEntity entity,
-            ContainerData propertyDelegate) {
-        this(syncId, playerInventory, (Container) entity, propertyDelegate);
+            ContainerData propertyDelegate,
+            MachineControls controls) {
+        this(syncId, playerInventory, (Container) entity, propertyDelegate, controls);
     }
 
     private ReactionEngineScreenHandler(
-            int syncId, Inventory playerInventory, Container inventory, ContainerData propertyDelegate) {
+            int syncId,
+            Inventory playerInventory,
+            Container inventory,
+            ContainerData propertyDelegate,
+            MachineControls controls) {
         super(LogisticsPower.SCREEN.REACTION_ENGINE, syncId);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
@@ -64,6 +72,9 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
         addSlot(new Slot(inventory, 0, CATALYST_SLOT_X, CATALYST_SLOT_Y));
         addInventorySlots(playerInventory);
         addDataSlots(propertyDelegate);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        addDataSlots(controls.data());
     }
 
     private void addInventorySlots(Inventory playerInventory) {
@@ -84,6 +95,16 @@ public class ReactionEngineScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return inventory.stillValid(player);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     @Override

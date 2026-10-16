@@ -10,6 +10,7 @@ import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.SlotRole;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.machine.control.MachineControls;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -117,7 +118,8 @@ public class SequentialFabricatorBlockEntity extends MachineEntity {
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
                 return new SequentialFabricatorScreenHandler(
-                        syncId, playerInventory, SequentialFabricatorBlockEntity.this, containerData);
+                        syncId, playerInventory, SequentialFabricatorBlockEntity.this, containerData,
+                        MachineControls.server(SequentialFabricatorBlockEntity.this));
             }
         };
     }

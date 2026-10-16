@@ -23,6 +23,7 @@
 			"com.logistics.gametest.ServerDataLoadingGameTest",
 			"com.logistics.gametest.core.OreGenerationGameTest",
 			"com.logistics.gametest.core.MaceratorGameTest",
+			"com.logistics.gametest.core.MachineControlsGameTest",
 			"com.logistics.gametest.core.MarkerGameTest",
 			"com.logistics.gametest.core.PlantCompatGameTest",
 			"com.logistics.gametest.core.SolidFuelGameTest",
