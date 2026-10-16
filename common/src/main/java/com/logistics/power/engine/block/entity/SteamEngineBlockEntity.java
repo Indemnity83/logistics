@@ -22,6 +22,7 @@ import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.SteamEngineBlock;
 import com.logistics.power.engine.steam.SteamEngineComponent;
 import com.logistics.power.engine.steam.SteamEngineProfile;
@@ -313,6 +314,18 @@ public class SteamEngineBlockEntity extends EngineEntity
         return steamSim;
     }
 
+    /** RF/t the output-face consumer accepted (the turbine draws pressure only for what is accepted). */
+    @Override
+    public long energyRate() {
+        return steamSim.lastGenerationRate();
+    }
+
+    /** The turbine's configured maximum output. */
+    @Override
+    public long maxGeneration() {
+        return steamSim.maxOutput();
+    }
+
     public ContainerData getContainerData() {
         return containerData;
     }
@@ -393,7 +406,8 @@ public class SteamEngineBlockEntity extends EngineEntity
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
                 return new SteamEngineScreenHandler(
-                        syncId, playerInventory, SteamEngineBlockEntity.this, containerData);
+                        syncId, playerInventory, SteamEngineBlockEntity.this, containerData,
+                        MachineControls.server(SteamEngineBlockEntity.this));
             }
         };
     }

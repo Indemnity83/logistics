@@ -356,6 +356,11 @@ public final class SteamEngineComponent
         return lastGenerationRate;
     }
 
+    /** The turbine's configured maximum RF/t, reached at or above operating pressure. */
+    public long maxOutput() {
+        return profile.maxOutput();
+    }
+
     public int committedBurnTicks() {
         return committedBurnTicks;
     }

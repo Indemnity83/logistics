@@ -13,6 +13,7 @@ import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.MagmaticEngineBlock;
 import com.logistics.power.engine.magmatic.MagmaticEngineComponent;
 import com.logistics.power.engine.magmatic.MagmaticEngineFuels;
@@ -171,7 +172,8 @@ public class MagmaticEngineBlockEntity extends EngineEntity implements HasFluidS
                 ContainerLevelAccess accessor = level == null
                         ? ContainerLevelAccess.NULL
                         : ContainerLevelAccess.create(level, getBlockPos());
-                return new MagmaticEngineScreenHandler(syncId, playerInventory, containerData, accessor);
+                return new MagmaticEngineScreenHandler(
+                        syncId, playerInventory, containerData, accessor, MachineControls.server(MagmaticEngineBlockEntity.this));
             }
         };
     }

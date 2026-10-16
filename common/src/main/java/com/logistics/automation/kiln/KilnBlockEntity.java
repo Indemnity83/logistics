@@ -9,6 +9,7 @@ import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.MachineControls;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -97,7 +98,8 @@ public class KilnBlockEntity extends MachineEntity {
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new KilnScreenHandler(syncId, playerInventory, KilnBlockEntity.this, containerData);
+                return new KilnScreenHandler(syncId, playerInventory, KilnBlockEntity.this, containerData,
+                        MachineControls.server(KilnBlockEntity.this));
             }
         };
     }

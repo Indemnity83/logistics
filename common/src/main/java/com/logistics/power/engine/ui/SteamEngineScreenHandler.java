@@ -2,6 +2,7 @@ package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.FuelHelper;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.entity.SteamEngineBlockEntity;
 import com.logistics.power.engine.steam.SteamEngineStatus;
 import com.logistics.power.engine.steam.SteamFireboxState;
@@ -31,20 +32,26 @@ public class SteamEngineScreenHandler extends AbstractContainerMenu {
 
     private final Container inventory;
     private final ContainerData data;
+    private final MachineControls controls;
 
     /** Client-side constructor. */
     public SteamEngineScreenHandler(int syncId, Inventory playerInventory) {
-        this(syncId, playerInventory, new SimpleContainer(1), new SimpleContainerData(SteamEngineBlockEntity.DATA_COUNT));
+        this(syncId, playerInventory, new SimpleContainer(1), new SimpleContainerData(SteamEngineBlockEntity.DATA_COUNT),
+                MachineControls.client());
     }
 
     /** Server-side constructor. */
     public SteamEngineScreenHandler(
-            int syncId, Inventory playerInventory, SteamEngineBlockEntity entity, ContainerData data) {
-        this(syncId, playerInventory, (Container) entity, data);
+            int syncId,
+            Inventory playerInventory,
+            SteamEngineBlockEntity entity,
+            ContainerData data,
+            MachineControls controls) {
+        this(syncId, playerInventory, (Container) entity, data, controls);
     }
 
     private SteamEngineScreenHandler(
-            int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
+            int syncId, Inventory playerInventory, Container inventory, ContainerData data, MachineControls controls) {
         super(LogisticsPower.SCREEN.STEAM_ENGINE, syncId);
         checkContainerSize(inventory, 1);
         checkContainerDataCount(data, SteamEngineBlockEntity.DATA_COUNT);
@@ -56,6 +63,9 @@ public class SteamEngineScreenHandler extends AbstractContainerMenu {
         addSlot(new FuelSlot(inventory, 0, FUEL_SLOT_X, FUEL_SLOT_Y));
         addInventorySlots(playerInventory);
         addDataSlots(data);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        addDataSlots(controls.data());
     }
 
     private void addInventorySlots(Inventory playerInventory) {
@@ -76,6 +86,16 @@ public class SteamEngineScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return inventory.stillValid(player);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     @Override

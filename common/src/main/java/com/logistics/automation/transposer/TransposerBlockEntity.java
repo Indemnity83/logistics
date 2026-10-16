@@ -14,6 +14,7 @@ import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.MachineControls;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -143,7 +144,8 @@ public class TransposerBlockEntity extends MachineEntity {
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new TransposerScreenHandler(syncId, playerInventory, TransposerBlockEntity.this, containerData);
+                return new TransposerScreenHandler(syncId, playerInventory, TransposerBlockEntity.this, containerData,
+                        MachineControls.server(TransposerBlockEntity.this));
             }
         };
     }

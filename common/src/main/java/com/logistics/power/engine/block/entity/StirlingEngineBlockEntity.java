@@ -20,6 +20,7 @@ import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.core.BlockPos;
@@ -371,7 +372,8 @@ public class StirlingEngineBlockEntity extends EngineEntity
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
                 return new StirlingEngineScreenHandler(
-                        syncId, playerInventory, StirlingEngineBlockEntity.this, propertyDelegate);
+                        syncId, playerInventory, StirlingEngineBlockEntity.this, propertyDelegate,
+                        MachineControls.server(StirlingEngineBlockEntity.this));
             }
         };
     }

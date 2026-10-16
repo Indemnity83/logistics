@@ -9,6 +9,7 @@ import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.MachineControls;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -134,7 +135,8 @@ public class SawmillBlockEntity extends MachineEntity {
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new SawmillScreenHandler(syncId, playerInventory, SawmillBlockEntity.this, containerData);
+                return new SawmillScreenHandler(syncId, playerInventory, SawmillBlockEntity.this, containerData,
+                        MachineControls.server(SawmillBlockEntity.this));
             }
         };
     }

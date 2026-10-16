@@ -10,6 +10,7 @@ import com.logistics.gametest.automation.RefineryGameTestRegistration;
 import com.logistics.gametest.automation.SawmillGameTestRegistration;
 import com.logistics.gametest.automation.SequentialFabricatorGameTestRegistration;
 import com.logistics.gametest.automation.TransposerGameTestRegistration;
+import com.logistics.gametest.core.MachineControlsGameTestRegistration;
 import com.logistics.gametest.core.MaceratorGameTestRegistration;
 import com.logistics.gametest.core.MarkerGameTestRegistration;
 import com.logistics.gametest.core.OreGenerationGameTestRegistration;
@@ -82,6 +83,7 @@ public final class LogisticsGameTestMod {
         TransposerGameTestRegistration.bootstrap();
 
         MaceratorGameTestRegistration.bootstrap();
+        MachineControlsGameTestRegistration.bootstrap();
         MarkerGameTestRegistration.bootstrap();
         OreGenerationGameTestRegistration.bootstrap();
         PlantCompatGameTestRegistration.bootstrap();

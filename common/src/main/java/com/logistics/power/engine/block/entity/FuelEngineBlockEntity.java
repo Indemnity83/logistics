@@ -13,6 +13,7 @@ import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.FuelEngineBlock;
 import com.logistics.power.engine.fuel.FuelEngineComponent;
 import com.logistics.power.engine.fuel.FuelEngineCoolants;
@@ -196,7 +197,8 @@ public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStora
                 ContainerLevelAccess accessor = level == null
                         ? ContainerLevelAccess.NULL
                         : ContainerLevelAccess.create(level, getBlockPos());
-                return new FuelEngineScreenHandler(syncId, playerInventory, containerData, accessor);
+                return new FuelEngineScreenHandler(
+                        syncId, playerInventory, containerData, accessor, MachineControls.server(FuelEngineBlockEntity.this));
             }
         };
     }
