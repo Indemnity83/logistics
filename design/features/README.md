@@ -12,7 +12,7 @@ Files are prefixed **`PPSS-`** — two digits of **phase**, two digits of **step
 
 - `01xx` = Phase 1 (Automation core), `02xx` = Phase 2 (Forestry), `03xx` = Phase 3 (Transport).
 - The step is the **suggested build order** within the phase, dependency-aware (a feature's prerequisites have lower step numbers). It's a guide, not a contract — parallel tracks exist (see below).
-- New briefs in a batch continue the sequence (this batch ends at `0110`; the deferred fluid-blocked items become `0111+`). `0111` is reserved for the tiered machine-frame brief. When build order changes, briefs are renumbered so the ids keep tracking it.
+- New briefs in a batch continue the sequence (this batch ends at `0110`; the deferred fluid-blocked items become `0111+`). `0111` is the machine tier contract ([Machine Frame Tiers](0111-machine-frame-tiers.md)). When build order changes, briefs are renumbered so the ids keep tracking it.
 
 ## This batch: Phase 1 keystone + ready-now
 
@@ -30,6 +30,7 @@ The first batch covers the **[Fluids foundation](0101-fluids-foundation.md)** (t
 | 0108 | [Obsidian Vacuum Pipe](0108-obsidian-vacuum-pipe.md) ❌ *not planned — hoppers cover it* | Pipes | Skip | — |
 | 0109 | [Remote Orderer](0109-remote-orderer.md) 🔍 *exploratory — not committed* | Logistics QoL | Modernize | — |
 | 0110 | [Firewall Pipe](0110-firewall-pipe.md) ⏸️ *deferred — no use case yet* | Logistics advanced | Port | — |
+| 0111 | [Machine Frame Tiers](0111-machine-frame-tiers.md) 🚧 *planned — farms adopt first* | Machines (cross-cutting) | Modernize | the machine framework |
 | 0112 | [Infused Alloys](0112-infused-alloys.md) 🚧 *materials shipped* | Materials | Modernize | the Transposer; the Crucible's charged fluids |
 
 ### Reading the order
@@ -51,19 +52,25 @@ Not written yet — they wait on the keystone or on an open decision, and will t
 
 ## Phase 2 batch: Forestry farms
 
-The Phase 2 batch covers the **farms, soils and fertilizer** (design settled; see [`../mods/forestry.md`](../mods/forestry.md)). It is post-1.0 work: farms ship as later 1.x minors, and the maintainer decides when wave 1 starts. One block per farm type, each sitting at the centre of a free 9×9 and working a ring of plots around it; work-area upgrades will come with the machine-wide upgrade design ([0106](0106-machine-upgrades.md)). The processing chain (Squeezer/Fermenter/Still/Bottler) and peat/biofuel engines are deferred beyond this batch.
+The Phase 2 batch covers the **farms, soils and fertilizer** (design settled; see [`../mods/forestry.md`](../mods/forestry.md)). It is post-1.0 work: farms ship as later 1.x minors, and the maintainer decides when wave 1 starts. One block per farm type, each sitting at the centre of a protected 7×7 courtyard and working a ring of plots around it, from 11×11 at Basic to 23×23 at Infernal; tiers come from the machine-wide tier contract and its Upgrade Kits ([0111](0111-machine-frame-tiers.md)). The processing chain (Squeezer/Fermenter/Still/Bottler) and peat/biofuel engines are deferred beyond this batch.
 
-| # | Brief | Area | Wave | Depends on |
+The *Plan phase* column is the farm plan's build order: 1 = the tiered framework (Cropland and Arboretum adopt it), 2 = ground farms, 3 = advanced farms.
+
+| # | Brief | Area | Plan phase | Depends on |
 |---|---|---|---|---|
-| 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, centred ring around a free 9×9, farm screen ✅ | 0 | the machine framework; Provider-pipe extractable-slot fix |
-| 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer ✅ (item only, for a future augmentation), Humus ✅ (turns to sand under trees), bog-earth maturity | 1 (maturity: 2) | 0201 |
-| 0203 | [Arboretum](0203-arboretum.md) | Tree farm on a 13×13 ring + `TreeFeller` ✅ | 1 | 0201, 0202 (Humus) |
-| 0204 | [Crop Farm](0204-crop-farm.md) | Field crops on a 15×15 ring ✅ (+ gourd row pattern in wave 3) | 1 | 0201 |
-| 0205 | [Peat Bog](0205-peat-bog.md) | Bog Earth → Peat | 2 | 0201, 0202 (maturity) |
-| 0206 | [Mushroom Farm](0206-mushroom-farm.md) | Huge mushrooms + fungi | 2 | 0201, 0203 (`TreeFeller`) |
-| 0207 | [Stalk Farm](0207-stalk-farm.md) *(name TBD)* | Sugar cane, cactus, bamboo | 2 | 0201 |
-| 0208 | [Infernal Farm](0208-infernal-farm.md) | Nether wart | 3 | 0201 |
-| 0209 | [Orchard](0209-orchard.md) | Berries + cocoa | 3 | 0201 |
+| 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, 7×7 courtyard + tiered ring, scheduler, survey + Start, farm screen ✅ | 1 | the machine framework; 0111; Provider-pipe extractable-slot fix |
+| 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer ✅ (item only, for a future augmentation), Humus ✅ (turns to sand under trees), bog-earth maturity | — (maturity: 3) | 0201 |
+| 0203 | [Arboretum](0203-arboretum.md) | Tree farm + `TreeFeller` ✅; spaced lane-stable pattern | 1 | 0201, 0202 (Humus) |
+| 0204 | [Cropland (Crop Farm)](0204-crop-farm.md) | Field crops ✅; water per till × climate | 1 | 0201 |
+| 0205 | [Peat Bog](0205-peat-bog.md) | Bog Earth → Peat | 3 | 0201, 0202 (maturity) |
+| 0206 | [Mushroom Farm](0206-mushroom-farm.md) | Giant mushrooms + huge fungi, grown with bone meal / Fertilizer | 3 | 0201, 0203 (`TreeFeller`) |
+| 0207 | [Plantation](0207-plantation.md) | Sugar cane + bamboo beside water channels | 2 | 0201 |
+| 0208 | [Nether Wart Farm](0208-nether-wart-farm.md) | Nether wart | 2 | 0201 |
+| 0209 | [Berry Farm](0209-berry-farm.md) | Sweet berries, picked | 2 | 0201 |
+| 0210 | [Cocoa Plantation](0210-cocoa-plantation.md) | Cocoa on jungle-log supports | 3 | 0201 |
+| 0211 | [Cave Vine Farm](0211-cave-vine-farm.md) | Glow berries under a built ceiling | 3 | 0201 |
+| 0212 | [Gourd Farm](0212-gourd-farm.md) | Pumpkins + melons, fruit only | 2 | 0201, 0204 |
+| 0213 | [Desert Farm](0213-desert-farm.md) | Cactus on sand | 2 | 0201 |
 
 ## Brief template
 
