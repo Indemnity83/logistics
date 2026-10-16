@@ -258,7 +258,7 @@ public class MachineSideTabsClientGameTest implements FabricClientGameTest {
     }
 
     /** Clicks a collapsed tab and waits until it is fully open. */
-    private static void openTab(ClientGameTestContext context, String id) {
+    static void openTab(ClientGameTestContext context, String id) {
         if (!context.computeOnClient(client -> host(client).isFullyOpen(id))) {
             click(context, tabRect(context, id));
         }
@@ -266,7 +266,7 @@ public class MachineSideTabsClientGameTest implements FabricClientGameTest {
     }
 
     /** Clicks the fully open redstone tab's button for {@code mode}. */
-    private static void clickRedstoneButton(ClientGameTestContext context, RedstoneMode mode) {
+    static void clickRedstoneButton(ClientGameTestContext context, RedstoneMode mode) {
         TabRect rect = tabRect(context, RedstoneTab.ID);
         int index = RedstoneTab.BUTTON_ORDER.indexOf(mode);
         double x = rect.x() + SideTabHost.CONTENT_PAD + index * RedstoneTab.BUTTON_STRIDE + RedstoneTab.BUTTON_SIZE / 2.0;
@@ -275,7 +275,7 @@ public class MachineSideTabsClientGameTest implements FabricClientGameTest {
         context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
     }
 
-    private static TabRect tabRect(ClientGameTestContext context, String id) {
+    static TabRect tabRect(ClientGameTestContext context, String id) {
         TabRect rect = context.computeOnClient(client -> host(client).tabRect(id));
         if (rect == null) {
             throw new AssertionError("The " + id + " tab's side is hidden");
@@ -326,7 +326,7 @@ public class MachineSideTabsClientGameTest implements FabricClientGameTest {
         });
     }
 
-    private static ServerPlayer player(MinecraftServer server) {
+    static ServerPlayer player(MinecraftServer server) {
         return server.getPlayerList().getPlayers().get(0);
     }
 
