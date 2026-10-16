@@ -81,6 +81,18 @@ final class ScriptedFarmLogic implements FarmLogic {
         return afterHarvest.apply(soil);
     }
 
+    /** Oak logs are logs and oak leaves are leaves, as the tags would have them; anything else a crop. */
+    @Override
+    public FarmCost harvestCost(BlockState state) {
+        if (state.is(Blocks.OAK_LOG)) {
+            return FarmCost.HARVEST_LOG;
+        }
+        if (state.is(Blocks.OAK_LEAVES)) {
+            return FarmCost.HARVEST_LEAVES;
+        }
+        return FarmCost.HARVEST_CROP;
+    }
+
     @Override
     public PlotAction decide(FarmWorld world, PlotLayout region, BlockPos plot, FarmInputs inputs) {
         lastArea = region;

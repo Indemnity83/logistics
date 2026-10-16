@@ -80,7 +80,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         assertThat(farm.world.blocks).containsEntry(farm.plot(0), SAPLING);
         assertThat(farm.items().getItem(0).getCount()).isEqualTo(4);
-        assertThat(farm.energy()).isEqualTo(1_000 - FarmHarness.SETTINGS.rfPlant());
+        assertThat(farm.energy()).isEqualTo(1_000 - FarmHarness.SETTINGS.cost(FarmCost.PLANT));
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
         assertThat(farm.host.lit()).isTrue();
     }
@@ -91,13 +91,13 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic()
                 .script((world, plot) -> new PlotAction.Plant(List.of(plot, plot.east()), new ItemStack(Items.OAK_SAPLING))));
         farm.items().setItem(0, new ItemStack(Items.OAK_SAPLING, 5));
-        farm.power(FarmHarness.SETTINGS.rfPlant()); // pays for one sapling, the group needs two
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.PLANT)); // pays for one sapling, the group needs two
 
         farm.tick();
 
         assertThat(farm.world.blocks).isEmpty();
         assertThat(farm.items().getItem(0).getCount()).isEqualTo(5);
-        assertThat(farm.energy()).isEqualTo(FarmHarness.SETTINGS.rfPlant());
+        assertThat(farm.energy()).isEqualTo(FarmHarness.SETTINGS.cost(FarmCost.PLANT));
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
     }
 
@@ -305,7 +305,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         assertThat(farm.world.broken).containsExactly(plot.above(2));
         assertThat(farm.logic.decisions).isZero();
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfClearPerBlock());
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.CLEAR));
         assertThat(output(farm)).anySatisfy(stack -> assertThat(stack.is(Items.COBBLESTONE)).isTrue());
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
 
@@ -377,7 +377,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
             assertThat(farm.world.blocks).as("%s", fluid).containsEntry(plot, Blocks.AIR.defaultBlockState());
             assertThat(farm.world.broken).as("%s", fluid).isEmpty();
             assertThat(output(farm)).as("%s", fluid).allSatisfy(stack -> assertThat(stack.isEmpty()).isTrue());
-            assertThat(farm.energy()).as("%s", fluid).isEqualTo(10_000 - FarmHarness.SETTINGS.rfClearPerBlock());
+            assertThat(farm.energy()).as("%s", fluid).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.CLEAR));
         }
     }
 
@@ -394,7 +394,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         FarmHarness unpowered = new FarmHarness(new ScriptedFarmLogic());
         unpowered.world.set(unpowered.plot(0), Blocks.COBBLESTONE.defaultBlockState());
-        unpowered.power(FarmHarness.SETTINGS.rfClearPerBlock() - 1);
+        unpowered.power(FarmHarness.SETTINGS.cost(FarmCost.CLEAR) - 1);
         unpowered.tick();
         assertThat(unpowered.world.broken).isEmpty();
         assertThat(unpowered.farm().status()).isEqualTo(FarmStatus.NO_POWER);
@@ -447,44 +447,56 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("a tree is felled in plan order, at most harvest_blocks_per_tick blocks a tick")
-    void fellsAFewBlocksPerTick() {
+    @DisplayName("a tree is felled in plan order, one block per action, each charged as a log")
+    void fellsOneBlockPerAction() {
         BlockPos base = new FarmHarness(new ScriptedFarmLogic()).plot(0);
         List<BlockPos> plan = trunk(base, 10);
         FarmHarness farm = new FarmHarness(felling(base, plan));
         plan.forEach(pos -> farm.world.set(pos, LOG));
         farm.power(10_000);
-        int perTick = FarmHarness.SETTINGS.harvestBlocksPerTick();
 
         farm.tick();
-        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, perTick));
+        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, 1));
         assertThat(farm.farm().isHarvesting()).isTrue();
 
-        farm.tick();
-        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, 2 * perTick));
-
-        farm.tick();
+        for (int tick = 0; tick < 20 && farm.farm().isHarvesting(); tick++) {
+            int before = farm.world.broken.size();
+            farm.tick();
+            assertThat(farm.world.broken.size() - before).as("one action a tick").isLessThanOrEqualTo(1);
+        }
         assertThat(farm.world.broken).containsExactlyElementsOf(plan);
         assertThat(farm.farm().isHarvesting()).isFalse();
-        assertThat(farm.energy()).isEqualTo(10_000 - plan.size() * FarmHarness.SETTINGS.rfHarvestPerBlock());
-        assertThat(farm.logic.decisions).as("felling holds the scan").isEqualTo(1);
+        assertThat(farm.energy()).isEqualTo(10_000 - plan.size() * FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
     }
 
     @Test
-    @DisplayName("a block changed since the plan was made is left standing")
-    void skipsBlocksChangedSincePlanned() {
+    @DisplayName("a block changed since the plan was made is never broken: the rest of the plan is dropped and made again")
+    void dropsThePlanWhenATargetChanged() {
         BlockPos base = new FarmHarness(new ScriptedFarmLogic()).plot(0);
         List<BlockPos> plan = trunk(base, 6);
-        FarmHarness farm = new FarmHarness(felling(base, plan));
+        // Plans the logs standing on the base, top-down, as they are when asked.
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic().script((world, plot) -> {
+            if (!plot.equals(base) || !world.state(plot).is(Blocks.OAK_LOG)) {
+                return PlotAction.NONE;
+            }
+            int height = 0;
+            while (world.state(plot.above(height)).is(Blocks.OAK_LOG)) {
+                height++;
+            }
+            return new PlotAction.Harvest(trunk(base, height));
+        }));
         plan.forEach(pos -> farm.world.set(pos, LOG));
         farm.power(10_000);
 
         farm.tick();
-        farm.world.set(plan.get(5), Blocks.STONE.defaultBlockState());
-        farm.tick();
+        BlockPos changed = plan.get(2);
+        farm.world.set(changed, Blocks.STONE.defaultBlockState());
+        farm.ticks(30);
 
-        assertThat(farm.world.blocks).containsEntry(plan.get(5), Blocks.STONE.defaultBlockState());
-        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, 5));
+        assertThat(farm.world.blocks).containsEntry(changed, Blocks.STONE.defaultBlockState());
+        assertThat(farm.world.broken).doesNotContain(changed);
+        assertThat(farm.world.broken).containsExactly(plan.get(0), plan.get(1), plan.get(3), plan.get(4), plan.get(5));
+        assertThat(farm.farm().isHarvesting()).isFalse();
     }
 
     @Test
@@ -503,8 +515,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         reloaded.power(10_000);
         reloaded.tick();
 
-        int perTick = FarmHarness.SETTINGS.harvestBlocksPerTick();
-        assertThat(reloaded.world.broken).containsExactlyElementsOf(plan.subList(perTick, 2 * perTick));
+        assertThat(reloaded.world.broken).containsExactly(plan.get(1));
         assertThat(reloaded.farm().isHarvesting()).isTrue();
     }
 
@@ -515,16 +526,16 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         List<BlockPos> plan = trunk(base, 6);
         FarmHarness farm = new FarmHarness(felling(base, plan));
         plan.forEach(pos -> farm.world.set(pos, LOG));
-        farm.power(2 * FarmHarness.SETTINGS.rfHarvestPerBlock());
+        farm.power(2 * FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
 
-        farm.ticks(3);
+        farm.ticks(5);
 
         assertThat(farm.world.broken).hasSize(2);
         assertThat(farm.farm().isHarvesting()).isTrue();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
 
         farm.power(10_000);
-        farm.tick();
+        farm.ticks(8);
 
         assertThat(farm.world.broken).containsExactlyElementsOf(plan);
     }
@@ -547,7 +558,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         assertThat(farm.world.blocks).containsEntry(farm.plot(1).below(), Blocks.DIRT.defaultBlockState());
         assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).isEqualTo(1);
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfSoil());
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.SOIL));
     }
 
     /** Lays podzol under every plot that has none yet. */
@@ -699,7 +710,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         assertThat(tilled(farm)).isEqualTo(2);
         assertThat(waterMb(farm)).isEqualTo(perTill / 2);
-        assertThat(farm.energy()).isEqualTo(10_000 - 2 * FarmHarness.SETTINGS.rfTill());
+        assertThat(farm.energy()).isEqualTo(10_000 - 2 * FarmHarness.SETTINGS.cost(FarmCost.TILL));
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
 
         fillWater(farm, perTill);
@@ -728,7 +739,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         farm.tick();
 
         assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), WET_FARMLAND);
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfTill());
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.TILL));
     }
 
     @Test
@@ -774,7 +785,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks.get(soil).getValue(BlockStateProperties.MOISTURE)).isEqualTo(7);
         assertThat(farm.world.writeFlags).containsEntry(soil, Block.UPDATE_CLIENTS);
         assertThat(waterMb(farm)).isEqualTo(1_000);
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfMoisten());
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.MOISTEN));
 
         FarmHarness dry = new FarmHarness(farm.logic);
         dry.world.set(dry.plot(0).below(), Blocks.FARMLAND.defaultBlockState());
@@ -828,7 +839,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         }
         farm.power(10_000);
 
-        farm.ticks(3);
+        farm.ticks(10);
 
         assertThat(farm.world.broken).containsAll(plan);
         assertThat(farm.world.blocks).containsEntry(base.below(), Blocks.SAND.defaultBlockState());
@@ -858,7 +869,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         reloaded.world.blocks.putAll(farm.world.blocks);
         reloaded.load(farm.save());
         reloaded.power(10_000);
-        reloaded.ticks(5);
+        reloaded.ticks(20);
 
         assertThat(reloaded.farm().isHarvesting()).isFalse();
         assertThat(reloaded.world.blocks).containsEntry(base.below(), Blocks.SAND.defaultBlockState());
@@ -905,7 +916,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.logic.decisions).as("backing off").isEqualTo(8);
 
         farm.tick();
-        assertThat(farm.logic.decisions).isEqualTo(9);
+        assertThat(farm.logic.decisions).as("the checks saved while backing off, two ticks' worth").isEqualTo(10);
     }
 
     @Test
@@ -958,10 +969,10 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         farm.areaOverride(1, 5);
         farm.power(10_000);
-        farm.ticks(24 + FarmHarness.SETTINGS.idleBackoffBaseTicks() + 1);
+        farm.ticks(24 + FarmHarness.SETTINGS.idleBackoffBaseTicks());
 
         assertThat(farm.farm().areaSize()).isEqualTo(5);
-        assertThat(farm.logic.decisions).as("one 24-plot pass, the back-off, then the next pass").isEqualTo(25);
+        assertThat(farm.logic.decisions).as("one 24-plot pass, then the back-off").isEqualTo(24);
 
         farm.areaOverride(0, 0);
         assertThat(farm.farm().areaSize()).isEqualTo(FarmHarness.PROFILE.outerSize());
