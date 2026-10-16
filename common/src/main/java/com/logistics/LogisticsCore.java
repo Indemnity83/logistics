@@ -14,6 +14,7 @@ import com.logistics.core.engine.block.RedstoneEngineBlock;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.core.worldgen.BogPatchFeature;
 import com.logistics.core.worldgen.OilSeepFeature;
 import com.logistics.core.worldgen.OilSandsFeature;
@@ -21,6 +22,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -170,6 +172,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        DATA.register();
         BLOCK.register();
         ITEM.register();
         BUCKET.register();
@@ -245,6 +248,22 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("oil_sands").toIdentifier(),
                 OilSandsFeature.CODEC);
+        }
+    }
+
+    public static final class DATA {
+        /** A machine's tier on its item form, as the tier's string id. */
+        public static DataComponentType<MachineTier> MACHINE_TIER;
+
+        private DATA() {}
+
+        static void register() {
+            MACHINE_TIER = Registry.register(
+                    BuiltInRegistries.DATA_COMPONENT_TYPE,
+                    LogisticsMod.modId("machine_tier").toIdentifier(),
+                    DataComponentType.<MachineTier>builder()
+                            .persistent(MachineTier.LENIENT_CODEC)
+                            .build());
         }
     }
 
