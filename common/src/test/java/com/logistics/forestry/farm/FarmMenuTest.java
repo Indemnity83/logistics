@@ -281,8 +281,8 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @DisplayName("the synced data decodes to the farm's energy, water, status, plot and flags")
     void syncedData() {
         // Values above a short's range, so the wide slot pairs are exercised.
-        FarmSettings settings = new FarmSettings(10, 40, 40, 100, 60, 60, 20, 50, 4, 20, 200,
-                FarmSettings.everyTier(new FarmTierProfile(15, 100_000, 128, 40_000)));
+        FarmSettings settings = FarmSettings.defaults()
+                .withTiers(FarmSettings.everyTier(new FarmTierProfile(15, 16, 4, 100_000, 128, 40_000)));
         TestFarm farm = farm(new ScriptedFarmLogic(true, false), settings);
         farm.parts.energy().setAmount(70_000);
         farm.parts.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(33_000), false);

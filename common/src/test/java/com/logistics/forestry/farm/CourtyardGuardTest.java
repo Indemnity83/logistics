@@ -142,11 +142,11 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
         FarmHarness farm = farm(logic);
         blocks.forEach(pos -> farm.world.set(pos, Blocks.OAK_LOG.defaultBlockState()));
 
-        farm.ticks(2);
+        farm.ticks(10);
 
         assertThat(farm.world.broken).containsExactly(plot.above(2), plot.above(), plot);
         assertThat(farm.world.blocks).containsEntry(inside, Blocks.OAK_LOG.defaultBlockState());
-        assertThat(farm.energy()).isEqualTo(RF - 3 * FarmHarness.SETTINGS.rfHarvestPerBlock());
+        assertThat(farm.energy()).isEqualTo(RF - 3 * FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
     }
 
     // ==================== The guard itself: clearing, draining, restoring soil ====================

@@ -132,7 +132,7 @@ public final class ArboretumLogic implements FarmLogic {
         TreeFeller.Limits limits = TreeFeller.Limits.within(region.bounds(), region.keepOut());
         int index = region.indexOf(plot);
         if (index < 0) {
-            FellPlan tree = TreeFeller.plan(world.treeView(), plot, limits);
+            FellPlan tree = world.fellPlan(plot, limits);
             return tree.isFound() ? new PlotAction.Harvest(tree.blocks()) : PlotAction.NONE;
         }
         int lane = region.lane(index);
@@ -147,7 +147,7 @@ public final class ArboretumLogic implements FarmLogic {
             @Nullable List<BlockPos> group,
             TreeFeller.Limits limits,
             FarmInputs inputs) {
-        FellPlan tree = TreeFeller.plan(world.treeView(), plot, limits);
+        FellPlan tree = world.fellPlan(plot, limits);
         if (tree.isFound()) {
             return new PlotAction.Harvest(tree.blocks());
         }

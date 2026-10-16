@@ -22,8 +22,7 @@ import org.junit.jupiter.api.Test;
 class FarmTierTest extends MinecraftTestEnvironment {
 
     /** One plot per tick, with the shipped tier profiles. */
-    private static final FarmSettings TIERED = new FarmSettings(
-            1, 40, 30, 100, 60, 60, 20, 250, 4, 20, 200, FarmSettings.defaultTiers());
+    private static final FarmSettings TIERED = FarmHarness.SETTINGS.withTiers(FarmHarness.shippedTiersAtTestRate());
 
     @BeforeAll
     static void registerDomains() {

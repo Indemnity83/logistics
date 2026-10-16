@@ -10,8 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The world as {@link FarmComponent} works it: {@link FarmWorld}'s reads plus the writes the farm
- * performs. Writes to an unloaded position do nothing; callers still check
- * {@link #isLoaded(BlockPos)} and {@link #canModify(BlockPos)} first.
+ * performs. Writes to an unloaded position do nothing and report failure; callers still check
+ * {@link #isLoaded(BlockPos)} and {@link #canModify(BlockPos)} first, and charge for a write only
+ * once it reports success.
  */
 public interface FarmWorldAccess extends FarmWorld {
 
@@ -26,7 +27,7 @@ public interface FarmWorldAccess extends FarmWorld {
 
     /**
      * Breaks the block at {@code pos} as if mined with no tool and returns its drops instead of
-     * spawning them.
+     * spawning them. The drops are rolled before the block is removed and returned only if it was.
      *
      * @return the drops, or {@code null} when nothing was broken (unloaded, unbreakable, or the
      *     removal was refused)
@@ -34,7 +35,12 @@ public interface FarmWorldAccess extends FarmWorld {
     @Nullable
     List<ItemStack> breakBlock(BlockPos pos);
 
-    void setBlock(BlockPos pos, BlockState state, int flags);
+    /**
+     * Places {@code state} at {@code pos}.
+     *
+     * @return whether the world now holds the change; false when unloaded or refused
+     */
+    boolean setBlock(BlockPos pos, BlockState state, int flags);
 
     /**
      * Removes the loose item entities inside {@code box} whose block position passes {@code where},

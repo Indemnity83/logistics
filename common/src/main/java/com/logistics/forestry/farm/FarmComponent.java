@@ -13,6 +13,10 @@ import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.tier.MachineTier;
+import com.logistics.forestry.logic.FellPlan;
+import com.logistics.forestry.logic.FellPlanner;
+import com.logistics.forestry.logic.TreeFeller;
+import com.logistics.forestry.logic.TreeView;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,29 +44,42 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The farm's work loop. Every work interval it takes the next plot of its {@link RingArea} from a
- * {@link PlotScanner}. While the plot's column holds anything that is not the farm's own growth, it
- * clears one block of it ({@link ColumnClearer}); once the column is clear, it asks the
- * {@link FarmLogic} what the plot needs and performs that one {@link PlotAction} if the farm can
- * afford it. Every per-plot question goes to the logic its {@link FarmPlan} assigns to that plot.
+ * The farm's work loop over the plots of its {@link RingArea}, bounded every tick by a
+ * {@link WorkBudget}: its tier's actions and checks per second.
  *
- * <p>The ring surrounds the {@link FarmGeometry#COURTYARD}, the farm included, and reaches out to
- * the outer size of the farm's tier. The courtyard is never touched: every world write goes through
- * a {@link CourtyardGuard}, which refuses any in a courtyard column at any Y.
+ * <p>Two lanes share the actions. The <b>cultivate lane</b> inspects the next plot from a
+ * {@link PlotScanner}, for one check: while the plot's column holds anything that is not the farm's
+ * own growth it clears one block of it ({@link ColumnClearer}); once the column is clear it asks
+ * the {@link FarmLogic} what the plot needs and performs that one {@link PlotAction} at once, if the
+ * farm can afford it. Nothing is queued: a plot with work is only inspected while an action is
+ * there to spend on it. The <b>harvest lane</b> breaks the active multi-block harvest (a tree), one
+ * block per action, top-down. While both have work they take turns by {@code harvest_share};
+ * either takes every action while the other has none. A full pass that finds no work backs the
+ * cultivate lane off ({@link PlotScanner#idleTicks()}).
  *
- * <p>The plots are one block above the farm, so their soil, {@code plot.below()}, is level with the
- * farm block and crops grow on top of it. A column is cleared from the plot upward.
+ * <p>Block reads are charged to the check bucket: a plot inspection costs at least one check, and
+ * a tree's plan ({@link FellPlanner}) spends checks as it reads, over as many ticks as it takes.
+ * Only one tree is planned and one harvested at a time; a tree found while another is being
+ * harvested is passed over until a later pass. Every target is re-checked as it is broken: a block
+ * that has changed since it was planned drops the rest of the plan, which is made again from the
+ * harvest's plot.
  *
- * <p>The farm-wide gates live here, not in the logic. A redstone signal pauses everything. Every op
- * costs RF and is skipped whole when the buffer cannot pay for it; tilling, on a farm with a tank,
- * also costs water, planting needs germlings and laying soil needs soil. A full output buffer stops every op that
- * breaks a block. Nothing touches an unloaded position, every write first asks claim protection,
- * and a block entity or an unbreakable block is never broken.
+ * <p>Every per-plot question goes to the logic its {@link FarmPlan} assigns to that plot. The ring
+ * surrounds the {@link FarmGeometry#COURTYARD}, the farm included, and reaches out to the outer
+ * size of the farm's tier. The courtyard is never touched: every world write goes through a
+ * {@link CourtyardGuard}, which refuses any in a courtyard column at any Y. The plots are one block
+ * above the farm, so their soil, {@code plot.below()}, is level with the farm block.
  *
- * <p>A harvest of several blocks (a tree) is broken a few blocks per tick until done, ahead of the
- * scan. Once it completes and the plot stands empty, the soil under the plot becomes the logic's
- * {@link FarmLogic#soilAfterHarvest}. Drops and the loose items swept from the ring afterwards go to
- * the output slots, and what does not fit waits in an overflow list.
+ * <p>The farm-wide gates live here, not in the logic. A redstone signal pauses everything. Every
+ * action first checks everything it needs without side effects (loaded, claim protection, RF,
+ * water, germlings, soil, room for drops), then changes the world, and charges only once the world
+ * reports the change; a failed action costs nothing. A full output buffer stops every op that
+ * breaks a block. Nothing touches an unloaded position, and a block entity or an unbreakable block
+ * is never broken.
+ *
+ * <p>Once a harvest completes and its plot stands empty, the soil under every ring plot it broke a
+ * block on becomes its logic's {@link FarmLogic#soilAfterHarvest}. Drops and the loose items swept
+ * from the ring afterwards go to the output slots, and what does not fit waits in an overflow list.
  */
 public final class FarmComponent implements MachineComponent, MachineComponent.HudContributor {
 
@@ -84,9 +101,18 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     /** Loose items are swept from the soil layer to this far above the plots. */
     private static final int SWEEP_HEIGHT = 32;
 
+    /** Reads a tree's seed probe needs: the plot and the blocks above it it may grow from. */
+    private static final int SEED_PROBE_READS = TreeFeller.SEED_SEARCH_HEIGHT + 1;
+
+    /** Reads a visit keeps back from tree planning for the rest of the logic's decision. */
+    private static final int DECISION_READS = 16;
+
     private static final int MAX_MOISTURE = Collections.max(BlockStateProperties.MOISTURE.getPossibleValues());
 
     private record HarvestTarget(BlockPos pos, Block block) {}
+
+    /** What one tick works with. */
+    private record Tick(FarmWorldAccess world, FarmSettings settings, RingArea area, FarmPlan plan) {}
 
     private final String id;
     // The block's own logic: the plan's default, never asked about a plot directly.
@@ -101,6 +127,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private final Map<FarmLogic, Inputs> inputs = new IdentityHashMap<>();
     private final FarmStatusTracker tracker = new FarmStatusTracker();
     private final ArrayDeque<HarvestTarget> harvest = new ArrayDeque<>();
+    private final WorkBudget budget = new WorkBudget();
+    private final CountingWorld counted = new CountingWorld();
+    // The current tick's guarded world as a tree view, which a planner reads through across ticks.
+    private TreeView trees = pos -> TreeView.Kind.UNLOADED;
+    private final TreeView plannerView = pos -> trees.kind(pos);
 
     @Nullable private PlotScanner scanner;
     private int scannerBase;
@@ -118,14 +149,28 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     // Plots of the area the harvest has broken a block on, whose soil it restores once complete.
     private final Set<BlockPos> harvestedPlots = new LinkedHashSet<>();
     private boolean replanHarvest;
+    // The one tree being planned, and the plot inspection or harvest re-plan waiting on it.
+    @Nullable private FellPlanner planner;
+    private int plannerIndex = -1;
+    private boolean plannerReplans;
+    // Set while a plot is inspected: its tree plan is still in progress, or must wait for the harvest.
+    private boolean visitPending;
+    private boolean visitDeferred;
+    private boolean inVisit;
+    // Set while the plot of an interrupted harvest is asked again: its canopy may be gone already.
+    private boolean replanning;
+    private long visitMark;
     private FarmStatus status = FarmStatus.IDLE;
-    // What the last NO_POWER / NO_GERMLINGS / NO_SOIL was short of, so the status clears as soon as it is there.
+    // What the last NO_POWER / NO_WATER / NO_GERMLINGS / NO_SOIL was short of, so the status clears as soon as it is there.
     private long powerNeeded;
+    private long waterNeeded;
     private ItemStack germlingNeeded = ItemStack.EMPTY;
     private int germlingCountNeeded;
     private FarmLogic germlingLogic;
     private FarmLogic soilLogic;
     private boolean dirty;
+    private long harvestActions;
+    private long cultivateActions;
 
     public FarmComponent(
             String id,
@@ -212,12 +257,31 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return !harvest.isEmpty();
     }
 
+    /** Blocks still to break in the active harvest. */
+    int harvestRemaining() {
+        return harvest.size();
+    }
+
+    boolean isPlanning() {
+        return planner != null && !planner.isDone();
+    }
+
+    /** Actions the harvest lane has taken since this component was built. */
+    long harvestActions() {
+        return harvestActions;
+    }
+
+    /** Actions the cultivate lane has taken since this component was built. */
+    long cultivateActions() {
+        return cultivateActions;
+    }
+
     // ==================== Tick ====================
 
     @Override
     public void onLoad(MachineContext ctx) {
-        // Spread farms loaded together across the work interval.
-        cooldown = Math.floorMod(ctx.pos().asLong(), settings.get().workIntervalTicks());
+        // Farms loaded together reach their first action on different ticks.
+        budget.stagger(ctx.pos().asLong());
     }
 
     @Override
@@ -231,13 +295,17 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             dirty = true;
         }
         RingArea area = area(ctx, s);
-        FarmWorldAccess world = new CourtyardGuard(opened, area.keepOut());
+        counted.attach(opened);
+        FarmWorldAccess world = new CourtyardGuard(counted, area.keepOut());
+        trees = world.treeView();
         FarmPlan plan = plan(area);
-        ensureScanner(area.plotCount(), s);
+        ensureScanner(area, s);
 
         boolean paused = world.hasNeighborSignal(ctx.pos());
         if (!paused) {
-            work(world, s, area, plan);
+            FarmTierProfile profile = s.profile(tier.get());
+            budget.refill(profile.actionsPerSecond(), profile.checksPerSecond(), s.readsPerCheck());
+            work(new Tick(world, s, area, plan));
         }
         updateStatus(ctx, s, area, paused);
 
@@ -247,45 +315,67 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
     }
 
-    private void work(FarmWorldAccess world, FarmSettings s, PlotArea area, FarmPlan plan) {
-        if (replanHarvest) {
-            replanHarvest(world, area, plan);
-        }
-        if (!harvest.isEmpty()) {
-            FarmStatus outcome = continueHarvest(world, s, area, plan);
-            tracker.record(outcome);
-            if (outcome == FarmStatus.WORKING) {
-                return;
-            }
-            // A stalled harvest leaves the rest of the plot to be worked.
-        }
+    /**
+     * Spends this tick's budget. Each round, an unfinished tree plan reads on first; then, while an
+     * action is left, the lane whose turn it is acts, or the other one when it cannot.
+     */
+    private void work(Tick t) {
+        boolean harvestOpen = true;
+        boolean cultivateOpen = true;
         if (cooldown > 0) {
             cooldown--;
-            return;
+            cultivateOpen = planner != null || replanHarvest;
         }
-        cooldown = s.workIntervalTicks() - 1;
-        step(world, s, area, plan);
+        double share = t.settings().harvestShare();
+        // A lane that had the turn but could not use it, while it still had work: the other lane's
+        // action then counts against the turns, so the shares hold.
+        boolean turnLost = false;
+        while (true) {
+            boolean harvestReady = harvestOpen && !harvest.isEmpty();
+            boolean cultivateReady = cultivateOpen;
+            if (!harvestReady && !cultivateReady) {
+                return;
+            }
+            if (cultivateReady && isPlanning()) {
+                advancePlanner();
+                if (isPlanning()) {
+                    cultivateOpen = false;
+                    continue;
+                }
+            }
+            if (!budget.hasAction()) {
+                return;
+            }
+            boolean contended = harvestReady && cultivateReady;
+            WorkBudget.Lane lane = contended
+                    ? budget.turn(share)
+                    : harvestReady ? WorkBudget.Lane.HARVEST : WorkBudget.Lane.CULTIVATE;
+            boolean acted = lane == WorkBudget.Lane.HARVEST ? harvestStep(t) : cultivateStep(t);
+            if (acted) {
+                budget.spendAction();
+                if (lane == WorkBudget.Lane.HARVEST) {
+                    harvestActions++;
+                } else {
+                    cultivateActions++;
+                }
+                if (contended || turnLost) {
+                    budget.took(lane, share);
+                }
+                turnLost = false;
+            } else {
+                // A cultivate lane whose pass came up empty is idle, not short of its turn.
+                turnLost = contended && (lane == WorkBudget.Lane.HARVEST || cooldown <= 0);
+                if (lane == WorkBudget.Lane.HARVEST) {
+                    harvestOpen = false;
+                } else {
+                    cultivateOpen = false;
+                }
+            }
+        }
     }
 
-    private void step(FarmWorldAccess world, FarmSettings s, PlotArea area, FarmPlan plan) {
-        tracker.step();
-        int index = scanner.next();
-        stepsInPass++;
-        dirty = true;
-
-        BlockPos plot = area.plot(index);
-        FarmStatus outcome = world.isLoaded(plot) ? workPlot(world, s, area, plan, index, plot) : FarmStatus.IDLE;
-        tracker.record(outcome);
-        if (outcome == FarmStatus.WORKING) {
-            scanner.markWorked();
-        }
-        if (stepsInPass >= scanner.plotCount()) {
-            stepsInPass = 0;
-            cooldown += scanner.idleTicks();
-        }
-    }
-
-    private void ensureScanner(int plotCount, FarmSettings s) {
+    private void ensureScanner(RingArea area, FarmSettings s) {
+        int plotCount = area.plotCount();
         if (scanner == null || scannerBase != s.idleBackoffBaseTicks() || scannerMax != s.idleBackoffMaxTicks()) {
             int cursor = scanner != null ? scanner.cursor() : savedCursor;
             scannerBase = s.idleBackoffBaseTicks();
@@ -295,6 +385,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         } else if (scanner.plotCount() != plotCount) {
             scanner.resize(plotCount);
             stepsInPass = 0;
+        }
+        if (planner != null
+                && !plannerReplans
+                && (plannerIndex < 0 || plannerIndex >= plotCount || !area.plot(plannerIndex).equals(planner.plot()))) {
+            dropPlanner(); // the ring changed under it
         }
     }
 
@@ -313,231 +408,241 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return planOverride != null ? planOverride.apply(area) : new SingleLogicPlan(logic, area);
     }
 
-    // ==================== Ops ====================
+    // ==================== Cultivate lane ====================
+
+    /**
+     * Inspects plots until one has work the farm can do, does it, and returns true. Returns false,
+     * having changed nothing more, once the checks run out, a tree plan has to wait for more reads,
+     * or a pass found nothing to do.
+     */
+    private boolean cultivateStep(Tick t) {
+        int readsPerCheck = t.settings().readsPerCheck();
+        // Inspections leave the harvest lane the reads for its next break.
+        while (budget.reads() >= readsPerCheck + harvestReserve()) {
+            if (isPlanning()) {
+                return false;
+            }
+            if (planner == null && replanHarvest && !output.isFull()) {
+                FarmStatus outcome = replan(t);
+                if (visitPending) {
+                    return false;
+                }
+                if (outcome == FarmStatus.WORKING) {
+                    return true;
+                }
+                continue;
+            }
+            if (planner != null) {
+                // The tree plan is done: inspect again what was waiting on it.
+                FarmStatus outcome = plannerReplans ? replan(t) : revisit(t, plannerIndex);
+                if (outcome == FarmStatus.WORKING) {
+                    return true;
+                }
+                continue;
+            }
+            if (cooldown > 0) {
+                return false;
+            }
+            int index = scanner.next();
+            stepsInPass++;
+            tracker.step();
+            dirty = true;
+            FarmStatus outcome = visit(t, index);
+            boolean worked = outcome == FarmStatus.WORKING;
+            if (worked) {
+                scanner.markWorked();
+            }
+            if (stepsInPass >= scanner.plotCount()) {
+                stepsInPass = 0;
+                cooldown += scanner.idleTicks();
+            }
+            if (visitPending) {
+                return false;
+            }
+            if (worked) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Re-inspects the plot a finished tree plan was made for; the plan is used up either way. */
+    private FarmStatus revisit(Tick t, int index) {
+        FarmStatus outcome = visit(t, index);
+        if (outcome == FarmStatus.WORKING) {
+            scanner.markWorked();
+        }
+        return outcome;
+    }
+
+    /** Inspects plot {@code index} and does what it needs; records the outcome unless it has to wait. */
+    private FarmStatus visit(Tick t, int index) {
+        beginVisit();
+        BlockPos plot = t.area().plot(index);
+        FarmStatus outcome =
+                t.world().isLoaded(plot) ? workPlot(t, index, plot) : FarmStatus.IDLE;
+        endVisit(t.settings());
+        if (visitPending) {
+            plannerIndex = index;
+            plannerReplans = false;
+            return FarmStatus.IDLE;
+        }
+        if (visitDeferred) {
+            return FarmStatus.IDLE;
+        }
+        tracker.record(outcome);
+        return outcome;
+    }
+
+    private void beginVisit() {
+        visitPending = false;
+        visitDeferred = false;
+        inVisit = true;
+        visitMark = counted.reads();
+        if (planner == null) {
+            counted.forget();
+        }
+    }
+
+    /** Charges the visit's reads, at least one check, and lets go of a plan it has used. */
+    private void endVisit(FarmSettings s) {
+        inVisit = false;
+        budget.spendReads(Math.max(s.readsPerCheck(), counted.reads() - visitMark));
+        if (!visitPending && planner != null && planner.isDone()) {
+            dropPlanner();
+        }
+    }
+
+    /** Reads left to the visit in progress. */
+    private int visitReads() {
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(0, budget.reads() - (counted.reads() - visitMark)));
+    }
+
+    private void advancePlanner() {
+        long mark = counted.reads();
+        planner.step((int) Math.min(Integer.MAX_VALUE, budget.reads()));
+        chargeReads(mark);
+    }
+
+    /** Charges the reads made since {@code mark}; a visit charges its own reads when it ends. */
+    private void chargeReads(long mark) {
+        if (!inVisit) {
+            budget.spendReads(counted.reads() - mark);
+        }
+    }
+
+    private void dropPlanner() {
+        planner = null;
+        plannerIndex = -1;
+        plannerReplans = false;
+    }
+
+    /**
+     * The tree at {@code plot}, for the logic deciding in the visit in progress. A finished plan
+     * for it is handed over; otherwise planning starts with the visit's reads. A plan that needs
+     * more, or a tree found while another is being harvested, marks the visit to be discarded.
+     */
+    private FellPlan fellPlan(BlockPos plot, TreeFeller.Limits limits) {
+        if (planner != null && planner.isDone() && planner.plot().equals(plot) && planner.limits().equals(limits)) {
+            return planner.result();
+        }
+        if (planner != null) {
+            // One plan at a time.
+            visitDeferred = true;
+            return FellPlan.skip(FellPlan.Reason.NO_TREE);
+        }
+        boolean harvesting = !harvest.isEmpty();
+        FellPlanner started = new FellPlanner(plannerView, plot, limits, !replanning);
+        int reads = Math.max(0, visitReads() - DECISION_READS);
+        FellPlan plan = started.step(harvesting ? Math.min(reads, SEED_PROBE_READS) : reads);
+        if (plan != null && (!harvesting || !plan.isFound())) {
+            return plan;
+        }
+        if (harvesting) {
+            visitDeferred = true;
+        } else {
+            planner = started;
+            visitPending = true;
+        }
+        return FellPlan.skip(FellPlan.Reason.NO_TREE);
+    }
 
     /** Clears one block from {@code plot}'s column, or, once it is clear, does what its logic asks. */
-    private FarmStatus workPlot(
-            FarmWorldAccess world, FarmSettings s, PlotArea area, FarmPlan plan, int index, BlockPos plot) {
-        FarmLogic plotLogic = plan.logicFor(index);
+    private FarmStatus workPlot(Tick t, int index, BlockPos plot) {
+        FarmWorldAccess world = t.world();
+        FarmLogic plotLogic = t.plan().logicFor(index);
         ColumnClearer.ColumnView column = pos -> {
             BlockState state = world.state(pos);
-            return ColumnClearer.classify(state, world.destroySpeed(pos), plotLogic.isOwnGrowth(state));
+            return state.isAir()
+                    ? ColumnClearer.Kind.EMPTY
+                    : ColumnClearer.classify(state, world.destroySpeed(pos), plotLogic.isOwnGrowth(state));
         };
         return switch (ColumnClearer.next(column, plot, clearanceHeight(plotLogic))) {
             case ColumnClearer.Clearing.Clear clear -> {
-                PlotAction action = plotLogic.decide(world, plan.regionFor(index), plot, inputsFor(plotLogic));
-                yield execute(world, s, area, plan, plotLogic, plot, action);
+                PlotAction action =
+                        plotLogic.decide(new PlanningWorld(world), t.plan().regionFor(index), plot, inputsFor(plotLogic));
+                yield visitPending || visitDeferred ? FarmStatus.IDLE : execute(t, plotLogic, plot, action);
             }
-            case ColumnClearer.Clearing.Break breakBlock -> clearBlock(world, s, breakBlock.pos());
-            case ColumnClearer.Clearing.Drain drain -> drain(world, s, drain.pos());
+            case ColumnClearer.Clearing.Break breakBlock -> clearBlock(t, breakBlock.pos());
+            case ColumnClearer.Clearing.Drain drain -> drain(t, drain.pos());
             case ColumnClearer.Clearing.Blocked blocked -> FarmStatus.BLOCKED;
         };
     }
 
-    private FarmStatus clearBlock(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
-        if (output.isFull()) {
-            return FarmStatus.OUTPUT_FULL;
-        }
-        if (energy.amount() < s.rfClearPerBlock()) {
-            return noPower(s.rfClearPerBlock());
-        }
-        if (!world.canModify(pos)) {
-            return FarmStatus.BLOCKED;
-        }
-        List<ItemStack> drops = world.breakBlock(pos);
-        if (drops == null) {
-            return FarmStatus.BLOCKED;
-        }
-        drops.forEach(output::accept);
-        energy.consume(s.rfClearPerBlock());
-        return FarmStatus.WORKING;
-    }
-
-    private FarmStatus drain(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
-        if (energy.amount() < s.rfClearPerBlock()) {
-            return noPower(s.rfClearPerBlock());
-        }
-        if (!world.canModify(pos)) {
-            return FarmStatus.BLOCKED;
-        }
-        world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-        energy.consume(s.rfClearPerBlock());
-        return FarmStatus.WORKING;
-    }
-
-    private FarmStatus execute(
-            FarmWorldAccess world,
-            FarmSettings s,
-            PlotArea area,
-            FarmPlan plan,
-            FarmLogic plotLogic,
-            BlockPos plot,
-            PlotAction action) {
+    private FarmStatus execute(Tick t, FarmLogic plotLogic, BlockPos plot, PlotAction action) {
         return switch (action) {
-            case PlotAction.Harvest harvestAction -> startHarvest(world, s, area, plan, plot, harvestAction.blocks());
-            case PlotAction.PlaceSoil placeSoil -> placeSoil(world, s, plotLogic, placeSoil.pos());
-            case PlotAction.Till till -> till(world, s, till.pos(), till.result());
-            case PlotAction.Moisten moisten -> moisten(world, s, moisten.pos());
-            case PlotAction.Plant plant -> plant(world, s, plotLogic, plant.positions(), plant.germling());
+            case PlotAction.Harvest harvestAction -> startHarvest(t, plot, harvestAction.blocks(), false);
+            case PlotAction.PlaceSoil placeSoil -> placeSoil(t, plotLogic, placeSoil.pos());
+            case PlotAction.Till till -> till(t, till.pos(), till.result());
+            case PlotAction.Moisten moisten -> moisten(t, moisten.pos());
+            case PlotAction.Plant plant -> plant(t, plotLogic, plant.positions(), plant.germling());
             case PlotAction.None none -> FarmStatus.IDLE;
             case PlotAction.Blocked blocked ->
                 blocked.reason() == PlotAction.Reason.TOO_DARK ? FarmStatus.TOO_DARK : FarmStatus.BLOCKED;
         };
     }
 
-    private FarmStatus startHarvest(
-            FarmWorldAccess world, FarmSettings s, PlotArea area, FarmPlan plan, BlockPos plot, List<BlockPos> blocks) {
-        if (blocks.isEmpty()) {
-            return FarmStatus.IDLE;
+    private FarmStatus clearBlock(Tick t, BlockPos pos) {
+        long cost = t.settings().cost(FarmCost.CLEAR);
+        if (output.isFull()) {
+            return FarmStatus.OUTPUT_FULL;
         }
-        // One harvest at a time; one still waiting means it stalled on output or power.
-        if (!harvest.isEmpty() || output.isFull()) {
-            return output.isFull() ? FarmStatus.OUTPUT_FULL : noPower(s.rfHarvestPerBlock());
+        if (energy.amount() < cost) {
+            return noPower(cost);
         }
-        if (energy.amount() < s.rfHarvestPerBlock()) {
-            return noPower(s.rfHarvestPerBlock());
+        if (!t.world().canModify(pos)) {
+            return FarmStatus.BLOCKED;
         }
-        queueHarvest(world, blocks);
-        if (harvest.isEmpty()) {
-            return FarmStatus.IDLE;
+        List<ItemStack> drops = t.world().breakBlock(pos);
+        if (drops == null) {
+            return FarmStatus.BLOCKED;
         }
-        harvestBase = plot.immutable();
-        harvestedPlots.clear();
-        return continueHarvest(world, s, area, plan);
+        drops.forEach(output::accept);
+        energy.consume(cost);
+        return FarmStatus.WORKING;
     }
 
-    private void queueHarvest(FarmWorld world, List<BlockPos> blocks) {
-        for (BlockPos pos : blocks) {
-            if (world.isLoaded(pos)) {
-                BlockState state = world.state(pos);
-                if (!state.isAir()) {
-                    harvest.add(new HarvestTarget(pos, state.getBlock()));
-                }
-            }
+    private FarmStatus drain(Tick t, BlockPos pos) {
+        long cost = t.settings().cost(FarmCost.CLEAR);
+        if (energy.amount() < cost) {
+            return noPower(cost);
         }
-    }
-
-    /** Breaks up to {@code harvestBlocksPerTick} blocks of the pending harvest. */
-    private FarmStatus continueHarvest(FarmWorldAccess world, FarmSettings s, PlotArea area, FarmPlan plan) {
-        long cost = s.rfHarvestPerBlock();
-        int pending = harvest.size();
-        int broken = 0;
-        boolean refused = false;
-        FarmStatus stall = null;
-        while (broken < s.harvestBlocksPerTick() && !harvest.isEmpty()) {
-            if (output.isFull()) {
-                stall = FarmStatus.OUTPUT_FULL;
-                break;
-            }
-            if (energy.amount() < cost) {
-                stall = noPower(cost);
-                break;
-            }
-            HarvestTarget target = harvest.poll();
-            if (!world.isLoaded(target.pos()) || world.state(target.pos()).getBlock() != target.block()) {
-                continue; // gone or replaced since it was planned
-            }
-            if (!world.canModify(target.pos())) {
-                refused = true;
-                continue;
-            }
-            List<ItemStack> drops = world.breakBlock(target.pos());
-            if (drops == null) {
-                refused = true;
-                continue;
-            }
-            energy.consume(cost);
-            drops.forEach(output::accept);
-            broken++;
-            if (harvestBase != null && target.pos().getY() == harvestBase.getY() && area.contains(target.pos())) {
-                harvestedPlots.add(target.pos().immutable());
-            }
+        if (!t.world().canModify(pos) || !t.world().setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL)) {
+            return FarmStatus.BLOCKED;
         }
-        if (harvest.size() != pending) {
-            dirty = true;
-        }
-        if (harvest.isEmpty()) {
-            completeHarvest(world, area, plan);
-            for (ItemStack stack : world.collectItems(sweepBox(area), area::contains)) {
-                output.accept(stack);
-            }
-        }
-        if (broken > 0) {
-            tracker.clear(FarmStatus.OUTPUT_FULL);
-            return FarmStatus.WORKING;
-        }
-        if (stall != null) {
-            return stall;
-        }
-        return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
-    }
-
-    /** Restores the soil under the harvest's plot and every plot it broke a block on. */
-    private void completeHarvest(FarmWorldAccess world, PlotArea area, FarmPlan plan) {
-        if (harvestBase != null) {
-            harvestedPlots.add(harvestBase);
-        }
-        for (BlockPos plot : harvestedPlots) {
-            restoreSoil(world, area, plan, plot);
-        }
-        harvestedPlots.clear();
-        harvestBase = null;
+        energy.consume(cost);
+        return FarmStatus.WORKING;
     }
 
     /**
-     * Turns the soil under {@code plot}, emptied by a completed harvest, into its logic's
-     * after-harvest soil. A position that is not a plot of the ring is left alone.
+     * Lays one soil item at {@code pos}. Ground in the way is broken first, as a clear: its drops
+     * kept and its RF charged. The soil and its RF are only spent once it is laid, so a placement
+     * refused after the break leaves the cell empty for a later pass.
      */
-    private void restoreSoil(FarmWorldAccess world, PlotArea area, FarmPlan plan, BlockPos plot) {
-        int index = area.indexOf(plot);
-        BlockPos soilPos = plot.below();
-        if (index < 0 || !world.isLoaded(plot) || !world.isLoaded(soilPos) || !world.state(plot).isAir()) {
-            return;
-        }
-        BlockState soil = world.state(soilPos);
-        BlockState after = plan.logicFor(index).soilAfterHarvest(soil);
-        if (after == null || after == soil || !world.canModify(soilPos)) {
-            return;
-        }
-        world.setBlock(soilPos, after, Block.UPDATE_ALL);
-    }
-
-    private void replanHarvest(FarmWorldAccess world, PlotArea area, FarmPlan plan) {
-        replanHarvest = false;
-        BlockPos base = harvestBase;
-        harvestBase = null;
-        dirty = true;
-        if (base == null || !harvest.isEmpty() || !world.isLoaded(base)) {
-            return;
-        }
-        int index = area.indexOf(base);
-        if (index >= 0) {
-            FarmLogic baseLogic = plan.logicFor(index);
-            if (baseLogic.decide(world, plan.regionFor(index), base, inputsFor(baseLogic))
-                    instanceof PlotAction.Harvest replanned) {
-                queueHarvest(world, replanned.blocks());
-            }
-        }
-        harvestBase = base;
-        if (harvest.isEmpty()) {
-            // Nothing left standing: the harvest finished as the farm unloaded.
-            completeHarvest(world, area, plan);
-        }
-    }
-
-    private static AABB sweepBox(PlotArea area) {
-        BlockPos min = area.min();
-        BlockPos max = area.max();
-        return new AABB(
-                min.getX(), min.getY() - 1, min.getZ(), max.getX() + 1, max.getY() + SWEEP_HEIGHT + 1, max.getZ() + 1);
-    }
-
-    private FarmStatus placeSoil(FarmWorldAccess world, FarmSettings s, FarmLogic plotLogic, BlockPos pos) {
+    private FarmStatus placeSoil(Tick t, FarmLogic plotLogic, BlockPos pos) {
+        FarmWorldAccess world = t.world();
         if (!world.isLoaded(pos)) {
             return FarmStatus.IDLE;
-        }
-        if (energy.amount() < s.rfSoil()) {
-            return noPower(s.rfSoil());
         }
         int slot = soilSlot(plotLogic);
         if (slot < 0) {
@@ -554,6 +659,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
         // Air and fluids are simply overwritten; anything else is broken first.
         boolean overwrite = current.isAir() || current.getBlock() instanceof LiquidBlock;
+        long soilCost = t.settings().cost(FarmCost.SOIL);
+        long breakCost = overwrite ? 0 : t.settings().cost(FarmCost.CLEAR);
+        if (energy.amount() < soilCost + breakCost) {
+            return noPower(soilCost + breakCost);
+        }
         if (!overwrite) {
             if (output.isFull()) {
                 return FarmStatus.OUTPUT_FULL;
@@ -563,39 +673,50 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                 return FarmStatus.BLOCKED;
             }
             drops.forEach(output::accept);
+            energy.consume(breakCost);
         }
-        world.setBlock(pos, soil, Block.UPDATE_ALL);
+        if (!world.setBlock(pos, soil, Block.UPDATE_ALL)) {
+            return overwrite ? FarmStatus.BLOCKED : FarmStatus.WORKING;
+        }
         items.removeItem(slot, 1);
-        energy.consume(s.rfSoil());
+        energy.consume(soilCost);
         tracker.clear(FarmStatus.NO_SOIL);
         return FarmStatus.WORKING;
     }
 
-    private FarmStatus till(FarmWorldAccess world, FarmSettings s, BlockPos pos, BlockState result) {
+    private FarmStatus till(Tick t, BlockPos pos, BlockState result) {
+        FarmWorldAccess world = t.world();
         if (!world.isLoaded(pos) || world.state(pos) == result) {
             return FarmStatus.IDLE;
         }
-        if (energy.amount() < s.rfTill()) {
-            return noPower(s.rfTill());
+        long cost = t.settings().cost(FarmCost.TILL);
+        if (energy.amount() < cost) {
+            return noPower(cost);
         }
-        long needed = water != null ? FluidUnits.mb(s.waterPerTillMb()) : 0;
+        long needed = water != null ? tillWater(t, pos) : 0;
         if (water != null && water.tank().getAmount() < needed) {
+            waterNeeded = needed;
             return FarmStatus.NO_WATER;
         }
-        if (!world.canModify(pos)) {
+        if (!world.canModify(pos) || !world.setBlock(pos, result, Block.UPDATE_ALL)) {
             return FarmStatus.BLOCKED;
         }
-        world.setBlock(pos, result, Block.UPDATE_ALL);
         if (needed > 0) {
             FluidTankComponent tank = water.tank();
             tank.extract(tank.getFluidKey(), needed, false);
         }
-        energy.consume(s.rfTill());
+        energy.consume(cost);
         tracker.clear(FarmStatus.NO_WATER);
         return FarmStatus.WORKING;
     }
 
-    private FarmStatus moisten(FarmWorldAccess world, FarmSettings s, BlockPos pos) {
+    /** The water tilling {@code pos} costs: {@code water_per_till_mb} scaled by its climate. */
+    private long tillWater(Tick t, BlockPos pos) {
+        return FluidUnits.mb(Hydration.waterMb(t.settings().waterPerTillMb(), t.world().climate(pos)));
+    }
+
+    private FarmStatus moisten(Tick t, BlockPos pos) {
+        FarmWorldAccess world = t.world();
         if (!world.isLoaded(pos)) {
             return FarmStatus.IDLE;
         }
@@ -604,20 +725,25 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                 || state.getValue(BlockStateProperties.MOISTURE) >= MAX_MOISTURE) {
             return FarmStatus.IDLE;
         }
-        if (energy.amount() < s.rfMoisten()) {
-            return noPower(s.rfMoisten());
-        }
-        if (!world.canModify(pos)) {
-            return FarmStatus.BLOCKED;
+        long cost = t.settings().cost(FarmCost.MOISTEN);
+        if (energy.amount() < cost) {
+            return noPower(cost);
         }
         // Moisture is a visual-only change, so neighbours are not updated.
-        world.setBlock(pos, state.setValue(BlockStateProperties.MOISTURE, MAX_MOISTURE), Block.UPDATE_CLIENTS);
-        energy.consume(s.rfMoisten());
+        if (!world.canModify(pos)
+                || !world.setBlock(pos, state.setValue(BlockStateProperties.MOISTURE, MAX_MOISTURE), Block.UPDATE_CLIENTS)) {
+            return FarmStatus.BLOCKED;
+        }
+        energy.consume(cost);
         return FarmStatus.WORKING;
     }
 
-    private FarmStatus plant(
-            FarmWorldAccess world, FarmSettings s, FarmLogic plotLogic, List<BlockPos> positions, ItemStack germling) {
+    /**
+     * Plants one {@code germling} in every cell, all or none: every cell is checked first, and if a
+     * cell still refuses its plant, the cells already planted are cleared again and nothing is spent.
+     */
+    private FarmStatus plant(Tick t, FarmLogic plotLogic, List<BlockPos> positions, ItemStack germling) {
+        FarmWorldAccess world = t.world();
         if (positions.isEmpty()) {
             return FarmStatus.IDLE;
         }
@@ -626,7 +752,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                 return FarmStatus.IDLE;
             }
         }
-        long cost = s.rfPlant() * positions.size();
+        long cost = t.settings().cost(FarmCost.PLANT) * positions.size();
         if (energy.amount() < cost) {
             return noPower(cost);
         }
@@ -639,17 +765,22 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         List<BlockState> plants = new ArrayList<>(positions.size());
         for (BlockPos pos : positions) {
             BlockState plant = plotLogic.plantState(germling, pos, world);
+            if (plant == null || !world.canModify(pos)) {
+                return FarmStatus.BLOCKED;
+            }
             BlockState current = world.state(pos);
-            if (plant == null
-                    || !world.canModify(pos)
-                    || !(current.isAir() || current.canBeReplaced())
-                    || !world.canSurvive(plant, pos)) {
+            if (!(current.isAir() || current.canBeReplaced()) || !world.canSurvive(plant, pos)) {
                 return FarmStatus.BLOCKED;
             }
             plants.add(plant);
         }
         for (int i = 0; i < positions.size(); i++) {
-            world.setBlock(positions.get(i), plants.get(i), Block.UPDATE_ALL);
+            if (!world.setBlock(positions.get(i), plants.get(i), Block.UPDATE_ALL)) {
+                for (int j = 0; j < i; j++) {
+                    world.setBlock(positions.get(j), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                }
+                return FarmStatus.BLOCKED;
+            }
         }
         takeGermlings(plotLogic, germling, positions.size());
         energy.consume(cost);
@@ -660,6 +791,273 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private FarmStatus noPower(long needed) {
         powerNeeded = needed;
         return FarmStatus.NO_POWER;
+    }
+
+    // ==================== Harvest lane ====================
+
+    /**
+     * Takes {@code blocks} as the farm's harvest and breaks the first of them as this action; the
+     * harvest lane breaks the rest, and holds the harvest while it stalls on power or output room.
+     * A harvest asked for while another is under way waits for a later pass. {@code resumed} keeps
+     * the plots the interrupted harvest already broke.
+     */
+    private FarmStatus startHarvest(Tick t, BlockPos plot, List<BlockPos> blocks, boolean resumed) {
+        if (blocks.isEmpty()) {
+            return FarmStatus.IDLE;
+        }
+        if (!harvest.isEmpty()) {
+            visitDeferred = true;
+            return FarmStatus.IDLE;
+        }
+        if (output.isFull()) {
+            return FarmStatus.OUTPUT_FULL;
+        }
+        List<HarvestTarget> targets = targets(t.world(), blocks);
+        if (targets.isEmpty()) {
+            return FarmStatus.IDLE;
+        }
+        harvest.addAll(targets);
+        harvestBase = plot.immutable();
+        if (!resumed) {
+            harvestedPlots.clear();
+        }
+        dirty = true;
+        return breakNext(t);
+    }
+
+    /** The blocks of a harvest as they stood when planned; air and unloaded positions are left out. */
+    private List<HarvestTarget> targets(FarmWorldAccess world, List<BlockPos> blocks) {
+        List<HarvestTarget> targets = new ArrayList<>(blocks.size());
+        for (BlockPos pos : blocks) {
+            BlockState state = counted.seen(pos);
+            if (state == null) {
+                if (!world.isLoaded(pos)) {
+                    continue;
+                }
+                state = world.state(pos);
+            }
+            if (!state.isAir()) {
+                targets.add(new HarvestTarget(pos, state.getBlock()));
+            }
+        }
+        return targets;
+    }
+
+    /** One harvest-lane action: breaks the next block of the harvest; false if none was broken. */
+    private boolean harvestStep(Tick t) {
+        FarmStatus outcome = breakNext(t);
+        tracker.record(outcome);
+        return outcome == FarmStatus.WORKING;
+    }
+
+    /**
+     * Breaks the next block of the harvest. Before breaking, the target must still be loaded, still
+     * the block that was planned, and modifiable. One already gone is passed over and one claim
+     * protection refuses is left standing; any other change drops the rest of the plan, which is
+     * made again from the harvest's plot.
+     */
+    private FarmStatus breakNext(Tick t) {
+        FarmWorldAccess world = t.world();
+        boolean refused = false;
+        while (!harvest.isEmpty()) {
+            if (output.isFull()) {
+                return FarmStatus.OUTPUT_FULL;
+            }
+            if ((inVisit ? visitReads() : budget.reads()) < nextBreakReads()) {
+                return FarmStatus.IDLE;
+            }
+            long mark = counted.reads();
+            HarvestTarget target = harvest.peek();
+            BlockPos pos = target.pos();
+            BlockState state = world.isLoaded(pos) ? world.state(pos) : null;
+            FarmStatus outcome = breakTarget(t, target, state);
+            chargeReads(mark);
+            if (outcome == FarmStatus.WORKING) {
+                tracker.clear(FarmStatus.OUTPUT_FULL);
+                if (harvest.isEmpty()) {
+                    finishHarvest(t);
+                }
+                return outcome;
+            }
+            if (outcome == FarmStatus.BLOCKED) {
+                refused = true;
+            } else if (outcome != null) {
+                return outcome;
+            }
+            if (harvest.isEmpty() && !replanHarvest) {
+                finishHarvest(t);
+            }
+        }
+        return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
+    }
+
+    /**
+     * Breaks {@code target}, standing as {@code state} (null when unloaded). Returns WORKING when
+     * broken, BLOCKED when refused and passed over, null when gone and passed over or when the plan
+     * was dropped, or the problem that stalls the harvest with the target still in place.
+     */
+    @Nullable
+    private FarmStatus breakTarget(Tick t, HarvestTarget target, @Nullable BlockState state) {
+        FarmWorldAccess world = t.world();
+        if (state != null && state.isAir()) {
+            harvest.poll();
+            return null;
+        }
+        if (state == null || state.getBlock() != target.block()) {
+            // Changed since planned: never break on a stale plan.
+            harvest.clear();
+            replanHarvest = true;
+            dirty = true;
+            return null;
+        }
+        if (!world.canModify(target.pos())) {
+            harvest.poll();
+            return FarmStatus.BLOCKED;
+        }
+        long cost = t.settings().cost(harvestLogic(t, harvestBase).harvestCost(state));
+        if (energy.amount() < cost) {
+            return noPower(cost);
+        }
+        List<ItemStack> drops = world.breakBlock(target.pos());
+        harvest.poll();
+        dirty = true;
+        if (drops == null) {
+            return FarmStatus.BLOCKED;
+        }
+        energy.consume(cost);
+        drops.forEach(output::accept);
+        if (harvestBase != null
+                && target.pos().getY() == harvestBase.getY()
+                && t.area().contains(target.pos())) {
+            harvestedPlots.add(target.pos().immutable());
+        }
+        return FarmStatus.WORKING;
+    }
+
+    /** Reads kept back for the harvest lane while a harvest is under way. */
+    private int harvestReserve() {
+        return harvest.isEmpty() ? 0 : nextBreakReads();
+    }
+
+    /**
+     * Reads the next break may make: the target's check, and for the last one the soil restored
+     * under every plot the harvest broke a block on.
+     */
+    private int nextBreakReads() {
+        return harvest.size() > 1 ? 1 : 1 + 2 * (harvestedPlots.size() + 1);
+    }
+
+    /** The logic that pays for the harvest standing on {@code plot}. */
+    private FarmLogic harvestLogic(Tick t, @Nullable BlockPos plot) {
+        int index = plot != null ? t.area().indexOf(plot) : -1;
+        return index >= 0 ? t.plan().logicFor(index) : logic;
+    }
+
+    /** Restores the harvest's soil, sweeps the ring, and lets cultivation carry on straight away. */
+    private void finishHarvest(Tick t) {
+        long mark = counted.reads();
+        completeHarvest(t);
+        chargeReads(mark);
+        for (ItemStack stack : t.world().collectItems(sweepBox(t.area()), t.area()::contains)) {
+            output.accept(stack);
+        }
+        scanner.markWorked();
+        cooldown = 0;
+    }
+
+    /** Restores the soil under the harvest's plot and every plot it broke a block on. */
+    private void completeHarvest(Tick t) {
+        if (harvestBase != null) {
+            harvestedPlots.add(harvestBase);
+        }
+        for (BlockPos plot : harvestedPlots) {
+            restoreSoil(t, plot);
+        }
+        harvestedPlots.clear();
+        harvestBase = null;
+        replanHarvest = false;
+        dirty = true;
+    }
+
+    /**
+     * Turns the soil under {@code plot}, emptied by a completed harvest, into its logic's
+     * after-harvest soil. A position that is not a plot of the ring is left alone.
+     */
+    private void restoreSoil(Tick t, BlockPos plot) {
+        FarmWorldAccess world = t.world();
+        int index = t.area().indexOf(plot);
+        BlockPos soilPos = plot.below();
+        if (index < 0 || !world.isLoaded(plot) || !world.isLoaded(soilPos) || !world.state(plot).isAir()) {
+            return;
+        }
+        BlockState soil = world.state(soilPos);
+        BlockState after = t.plan().logicFor(index).soilAfterHarvest(soil);
+        if (after == null || after == soil || !world.canModify(soilPos)) {
+            return;
+        }
+        world.setBlock(soilPos, after, Block.UPDATE_ALL);
+    }
+
+    /**
+     * Plans the interrupted harvest again from its plot, after a reload or a changed target: the
+     * plot's logic is asked again, and a harvest it answers resumes; anything else completes the
+     * harvest as it stands.
+     */
+    private FarmStatus replan(Tick t) {
+        BlockPos base = harvestBase;
+        int index = base != null ? t.area().indexOf(base) : -1;
+        if (base == null || !harvest.isEmpty() || index < 0 || !t.world().isLoaded(base)) {
+            visitPending = false;
+            visitDeferred = false;
+            replanHarvest = false;
+            harvestBase = null;
+            harvestedPlots.clear();
+            dropPlanner();
+            dirty = true;
+            return FarmStatus.IDLE;
+        }
+        beginVisit();
+        FarmLogic baseLogic = t.plan().logicFor(index);
+        replanning = true;
+        PlotAction action;
+        try {
+            action = baseLogic.decide(new PlanningWorld(t.world()), t.plan().regionFor(index), base, inputsFor(baseLogic));
+        } finally {
+            replanning = false;
+        }
+        FarmStatus outcome = FarmStatus.IDLE;
+        if (!visitPending && !visitDeferred) {
+            replanHarvest = false;
+            if (action instanceof PlotAction.Harvest replanned && !replanned.blocks().isEmpty()) {
+                outcome = startHarvest(t, base, replanned.blocks(), true);
+                if (harvest.isEmpty() && harvestBase != null && !replanHarvest) {
+                    // Nothing of it left to take up again.
+                    completeHarvest(t);
+                }
+            } else {
+                // Nothing left standing: the harvest is complete.
+                completeHarvest(t);
+            }
+        }
+        endVisit(t.settings());
+        if (visitPending) {
+            plannerIndex = index;
+            plannerReplans = true;
+            return FarmStatus.IDLE;
+        }
+        if (visitDeferred) {
+            replanHarvest = true;
+            return FarmStatus.IDLE;
+        }
+        tracker.record(outcome);
+        return outcome;
+    }
+
+    private static AABB sweepBox(PlotArea area) {
+        BlockPos min = area.min();
+        BlockPos max = area.max();
+        return new AABB(
+                min.getX(), min.getY() - 1, min.getZ(), max.getX() + 1, max.getY() + SWEEP_HEIGHT + 1, max.getZ() + 1);
     }
 
     // ==================== Inventory ====================
@@ -770,6 +1168,56 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
     }
 
+    /** The world a logic decides from in a visit: reads pass through, trees are planned by the farm. */
+    private final class PlanningWorld implements FarmWorld {
+
+        private final FarmWorld world;
+
+        PlanningWorld(FarmWorld world) {
+            this.world = world;
+        }
+
+        @Override
+        public boolean isLoaded(BlockPos pos) {
+            return world.isLoaded(pos);
+        }
+
+        @Override
+        public BlockState state(BlockPos pos) {
+            return world.state(pos);
+        }
+
+        @Override
+        public int light(BlockPos pos) {
+            return world.light(pos);
+        }
+
+        @Override
+        public boolean canSurvive(BlockState state, BlockPos pos) {
+            return world.canSurvive(state, pos);
+        }
+
+        @Override
+        public FarmClimate climate(BlockPos pos) {
+            return world.climate(pos);
+        }
+
+        @Override
+        public TreeView.Kind treeKind(BlockState state) {
+            return world.treeKind(state);
+        }
+
+        @Override
+        public TreeView treeView() {
+            return world.treeView();
+        }
+
+        @Override
+        public FellPlan fellPlan(BlockPos plot, TreeFeller.Limits limits) {
+            return FarmComponent.this.fellPlan(plot, limits);
+        }
+    }
+
     // ==================== Status ====================
 
     private void updateStatus(MachineContext ctx, FarmSettings s, PlotArea area, boolean paused) {
@@ -784,7 +1232,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private boolean stillApplies(FarmStatus problem, FarmSettings s) {
         return switch (problem) {
             case NO_POWER -> energy.amount() < powerNeeded;
-            case NO_WATER -> water == null || water.tank().getAmount() < FluidUnits.mb(s.waterPerTillMb());
+            case NO_WATER -> water == null || water.tank().getAmount() < waterNeeded;
             case NO_GERMLINGS ->
                 germlingNeeded.isEmpty() || inputsFor(germlingLogic).germlingCount(germlingNeeded) < germlingCountNeeded;
             case NO_SOIL -> soilSlot(soilLogic) < 0;
@@ -823,6 +1271,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         scanner = null;
         owner = parseUuid(NbtCompat.getString(tag, "Owner", ""));
         harvest.clear();
+        dropPlanner();
         harvestBase = NbtCompat.getBoolean(tag, "Harvesting", false)
                 ? BlockPos.of(NbtCompat.getLong(tag, "HarvestBase", 0L))
                 : null;

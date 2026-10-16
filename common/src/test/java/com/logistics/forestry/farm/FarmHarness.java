@@ -4,6 +4,8 @@ import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.area.RingArea;
+import com.logistics.core.machine.tier.MachineTier;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -25,12 +27,32 @@ import org.jetbrains.annotations.Nullable;
  */
 final class FarmHarness {
 
-    /** A 10 000 RF buffer taking 1 000 RF/t and an 8 000 mB tank, at every tier. */
-    static final FarmTierProfile PROFILE = new FarmTierProfile(11, 10_000, 1_000, 8_000);
+    /**
+     * 20 checks and 20 actions a second, one of each a tick, with a 10 000 RF buffer taking
+     * 1 000 RF/t and an 8 000 mB tank, at every tier.
+     */
+    static final FarmTierProfile PROFILE = new FarmTierProfile(11, 20, 20, 10_000, 1_000, 8_000);
 
-    /** One plot per tick, so tests can count steps in ticks; clearing costs differ from harvesting. */
-    static final FarmSettings SETTINGS =
-            new FarmSettings(1, 40, 30, 100, 60, 60, 20, 250, 4, 20, 200, FarmSettings.everyTier(PROFILE));
+    /** Every cost different, so tests can tell which was charged. */
+    static final Map<FarmCost, Long> COSTS = Map.of(
+            FarmCost.CLEAR, 30L,
+            FarmCost.HARVEST_CROP, 40L,
+            FarmCost.HARVEST_LOG, 45L,
+            FarmCost.HARVEST_LEAVES, 7L,
+            FarmCost.TILL, 60L,
+            FarmCost.SOIL, 65L,
+            FarmCost.PLANT, 100L,
+            FarmCost.MOISTEN, 20L);
+
+    /** One plot and one action per tick while busy, so tests can count steps in ticks. */
+    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 250, 0.5, 64, 20, 200, FarmSettings.everyTier(PROFILE));
+
+    /** The shipped tier profiles, each at the test rate of one check and one action a tick. */
+    static Map<MachineTier, FarmTierProfile> shippedTiersAtTestRate() {
+        Map<MachineTier, FarmTierProfile> tiers = FarmSettings.defaultTiers();
+        tiers.replaceAll((tier, profile) -> profile.withRates(PROFILE.checksPerSecond(), PROFILE.actionsPerSecond()));
+        return tiers;
+    }
 
     final ScriptedFarmLogic logic;
     final FakeFarmWorld world = new FakeFarmWorld();
@@ -48,7 +70,12 @@ final class FarmHarness {
 
     /** A farm working the 8-plot ring around a 1×1 centre, its buffers sized from {@code settings}. */
     FarmHarness(ScriptedFarmLogic logic, FarmSettings settings) {
-        this.logic = logic;
+        this((FarmLogic) logic, settings);
+    }
+
+    /** A farm of any logic; {@link #logic} is then null unless it is scripted. */
+    FarmHarness(FarmLogic logic, FarmSettings settings) {
+        this.logic = logic instanceof ScriptedFarmLogic scripted ? scripted : null;
         this.settings = settings;
         this.machine = FarmMachine.assemble(
                 new MachineBuilder(components, () -> {}), logic, () -> settings, (ctx, owner) -> world);
@@ -64,6 +91,11 @@ final class FarmHarness {
 
     void tick() {
         components.serverTick(host);
+    }
+
+    /** RF one {@code cost} action takes. */
+    long cost(FarmCost cost) {
+        return settings.cost(cost);
     }
 
     void ticks(int count) {
