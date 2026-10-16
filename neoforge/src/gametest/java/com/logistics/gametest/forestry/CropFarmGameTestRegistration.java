@@ -60,7 +60,15 @@ public final class CropFarmGameTestRegistration {
         new GameTestCase(
             "forestry/crop_farm_raising_tier_grows_energy_buffer",
             600,
-            CropFarmGameTestBody::testRaisingTierGrowsEnergyBuffer));
+            CropFarmGameTestBody::testRaisingTierGrowsEnergyBuffer),
+        new GameTestCase(
+            "forestry/crop_farm_survey_changes_nothing_until_start",
+            1200,
+            CropFarmGameTestBody::testSurveyChangesNothingUntilStart),
+        new GameTestCase(
+            "forestry/crop_farm_upgrade_works_new_lanes_immediately",
+            600,
+            CropFarmGameTestBody::testUpgradeWorksNewLanesImmediately));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

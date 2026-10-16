@@ -14,8 +14,11 @@ import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachine;
 import com.logistics.forestry.farm.FarmMachineBlock;
+import com.logistics.forestry.farm.FarmMenu;
 import com.logistics.forestry.farm.FarmSettings;
+import com.logistics.forestry.farm.FarmState;
 import com.logistics.forestry.farm.FarmStatus;
+import com.logistics.forestry.farm.FarmSurvey;
 import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.Hydration;
 import com.logistics.forestry.farm.LevelFarmWorld;
@@ -23,10 +26,14 @@ import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -59,6 +66,7 @@ import org.jetbrains.annotations.Nullable;
  * the west, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest. Water
  * comes from a Glass Tank through a Fluid Extractor Pipe on the north side, driven by a second
  * engine. Two glowstone lamps above the inner square keep the ring bright whatever the sky does.
+ * The farm is started, except in the survey tests, which press Start themselves.
  */
 public class CropFarmGameTestBody {
 
@@ -106,6 +114,16 @@ public class CropFarmGameTestBody {
     /** {@link #build(GameTestHelper, BlockState, boolean, boolean)} with {@code waterMb} in the source tank; 0 for no water rig. */
     @Nullable
     private static Rig build(GameTestHelper context, @Nullable BlockState soil, boolean power, long waterMb) {
+        Rig rig = placeRig(context, soil, power, waterMb);
+        if (rig != null) {
+            rig.farm().start();
+        }
+        return rig;
+    }
+
+    /** The rig as {@link #build(GameTestHelper, BlockState, boolean, long)} builds it, with the farm left surveying. */
+    @Nullable
+    private static Rig placeRig(GameTestHelper context, @Nullable BlockState soil, boolean power, long waterMb) {
         boolean water = waterMb > 0;
         if (soil != null) {
             for (BlockPos plot : PLOTS) {
@@ -608,6 +626,152 @@ public class CropFarmGameTestBody {
             if (unlaid != PLOTS.size()) {
                 throw context.assertionException(grass, "No dirt should have been laid, " + (PLOTS.size() - unlaid)
                         + " was");
+            }
+        });
+    }
+
+    // ==================== Survey and Start ====================
+
+    private static final int SURVEY_TICKS = 120;
+
+    /**
+     * On grass, a placed farm only surveys: for {@value #SURVEY_TICKS} ticks the torch, the planks,
+     * the short grass, the chest and the ground in its ring stay as they are (grass may die back to
+     * dirt under the planks by itself) and its energy only ever rises,
+     * while the survey flags the torch and planks and protects the chest. Start, pressed through
+     * the farm's menu, then clears the torch, planks and grass, and never the chest or its diamonds.
+     */
+    public static void testSurveyChangesNothingUntilStart(GameTestHelper context) {
+        Rig rig = placeRig(context, Blocks.GRASS_BLOCK.defaultBlockState(), true, TANK_MB);
+        if (rig == null) {
+            return;
+        }
+        FarmBlockEntity farm = rig.farm();
+        BlockPos torch = PLOTS.get(2);
+        BlockPos planks = PLOTS.get(6);
+        BlockPos stash = PLOTS.get(10);
+        BlockPos grass = PLOTS.get(13);
+        context.setBlock(torch, Blocks.TORCH);
+        context.setBlock(planks, Blocks.OAK_PLANKS);
+        context.setBlock(grass, Blocks.SHORT_GRASS);
+        context.setBlock(stash, Blocks.CHEST);
+        ChestBlockEntity chest = context.getBlockEntity(stash, ChestBlockEntity.class);
+        if (chest == null) {
+            context.fail("Expected the chest in the ring");
+            return;
+        }
+        chest.setItem(0, new ItemStack(Items.DIAMOND, 5));
+
+        // Every column the farm would clear; the grass under it may die back to dirt by itself.
+        Map<BlockPos, BlockState> ring = new HashMap<>();
+        for (BlockPos plot : PLOTS) {
+            for (int dy = 0; dy < 5; dy++) {
+                ring.put(plot.above(dy), context.getBlockState(plot.above(dy)));
+            }
+        }
+        long[] lastEnergy = {farm.energyStorage(null).getAmount()};
+
+        context.onEachTick(() -> {
+            if (farm.state() != FarmState.SURVEY) {
+                return;
+            }
+            ring.forEach((pos, state) -> {
+                if (context.getBlockState(pos) != state) {
+                    throw context.assertionException(pos, "Surveying should change nothing, but " + state
+                            + " became " + context.getBlockState(pos));
+                }
+            });
+            long energy = farm.energyStorage(null).getAmount();
+            if (energy < lastEnergy[0]) {
+                throw context.assertionException(FARM, "Surveying should draw no RF, the farm went from "
+                        + lastEnergy[0] + " to " + energy);
+            }
+            lastEnergy[0] = energy;
+            for (BlockPos plot : PLOTS) {
+                BlockState soil = context.getBlockState(plot.below());
+                if (!soil.is(Blocks.GRASS_BLOCK) && !soil.is(Blocks.DIRT)) {
+                    throw context.assertionException(plot.below(), "Surveying should leave the ground, it is " + soil);
+                }
+            }
+            if (context.getTick() > 2 && farm.status() != FarmStatus.SURVEYING) {
+                throw context.assertionException(FARM, "The farm should report Surveying, reports " + farm.status());
+            }
+        });
+        context.runAtTickTime(SURVEY_TICKS, () -> {
+            FarmSurvey survey = farm.survey();
+            if (!survey.flaggedAt().contains(context.absolutePos(torch))
+                    || !survey.flaggedAt().contains(context.absolutePos(planks))) {
+                throw context.assertionException(torch, "The survey should flag the torch and planks, found " + survey);
+            }
+            if (!survey.protectedAt().contains(context.absolutePos(stash))) {
+                throw context.assertionException(stash, "The survey should protect the chest, found " + survey);
+            }
+            if (survey.toClear() < 3) {
+                throw context.assertionException(grass, "The survey should count torch, planks and grass, found "
+                        + survey);
+            }
+            Player player = context.makeMockPlayer(GameType.SURVIVAL);
+            FarmMenu menu = (FarmMenu) farm.createMenuProvider().createMenu(0, player.getInventory(), player);
+            if (!menu.clickMenuButton(player, FarmMenu.BUTTON_START) || farm.state() != FarmState.ACTIVE) {
+                throw context.assertionException(FARM, "Start should set the farm working");
+            }
+        });
+        context.onEachTick(() -> context.assertBlockPresent(Blocks.CHEST, stash));
+        context.succeedWhen(() -> {
+            if (farm.state() != FarmState.ACTIVE) {
+                throw context.assertionException(FARM, "Waiting for Start");
+            }
+            context.assertBlockPresent(Blocks.AIR, torch);
+            context.assertBlockPresent(Blocks.AIR, planks);
+            context.assertBlockPresent(Blocks.AIR, grass);
+            if (count(context.getBlockEntity(stash, ChestBlockEntity.class), Items.DIAMOND) != 5) {
+                throw context.assertionException(stash, "The chest in the ring should still hold its 5 diamonds");
+            }
+        });
+    }
+
+    /**
+     * A working farm raised a tier, its ring widened from 5×5 to 7×7 to fit the test structure, at once
+     * shows the new lanes' torch as flagged and reports it, then clears it without any confirmation.
+     */
+    public static void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
+        Rig rig = build(context, Blocks.GRASS_BLOCK.defaultBlockState(), true, true);
+        if (rig == null) {
+            return;
+        }
+        FarmBlockEntity farm = rig.farm();
+        BlockPos torch = new BlockPos(0, FARM.getY() + 1, FARM.getZ());
+        context.setBlock(torch.below(), Blocks.GRASS_BLOCK);
+        context.setBlock(torch, Blocks.TORCH);
+        long[] upgradedAt = {-1};
+
+        context.runAtTickTime(20, () -> {
+            context.assertBlockPresent(Blocks.TORCH, torch);
+            // The tier's own ring reaches past the structure, so the wider 7×7 stands in for it.
+            farm.setAreaOverride(RING_INNER, RING_OUTER + 2);
+            if (!farm.tierComponent().setTier(MachineTier.INDUSTRIAL)) {
+                throw context.assertionException(FARM, "The farm should take the Industrial tier");
+            }
+            Optional<Component> feedback = farm.upgradeFeedback(MachineTier.INDUSTRIAL);
+            FarmSurvey lanes = farm.survey();
+            if (feedback.isEmpty() || lanes.flagged() != 1
+                    || !lanes.flaggedAt().contains(context.absolutePos(torch))) {
+                throw context.assertionException(torch, "The upgrade should report the new lanes' torch, found "
+                        + lanes + " and " + feedback);
+            }
+            if (!farm.previewShown()) {
+                throw context.assertionException(FARM, "The upgrade should show the preview");
+            }
+            upgradedAt[0] = context.getTick();
+        });
+        context.succeedWhen(() -> {
+            if (upgradedAt[0] < 0) {
+                throw context.assertionException(FARM, "Waiting for the upgrade");
+            }
+            context.assertBlockPresent(Blocks.AIR, torch);
+            if (context.getTick() - upgradedAt[0] > 100) {
+                context.fail("The new lane should be worked straight away, took " + (context.getTick() - upgradedAt[0])
+                        + " ticks");
             }
         });
     }

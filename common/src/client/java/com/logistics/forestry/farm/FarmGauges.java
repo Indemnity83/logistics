@@ -26,7 +26,7 @@ public final class FarmGauges {
     public static Lamp lamp(FarmStatus status) {
         return switch (status) {
             case WORKING -> Lamp.GREEN;
-            case IDLE, PAUSED -> Lamp.AMBER;
+            case IDLE, PAUSED, SURVEYING -> Lamp.AMBER;
             default -> Lamp.RED;
         };
     }

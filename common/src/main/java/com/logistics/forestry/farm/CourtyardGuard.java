@@ -57,6 +57,16 @@ final class CourtyardGuard implements FarmWorldAccess {
     }
 
     @Override
+    public boolean neverClear(BlockState state) {
+        return world.neverClear(state);
+    }
+
+    @Override
+    public boolean naturalClearable(BlockState state) {
+        return world.naturalClearable(state);
+    }
+
+    @Override
     public TreeView treeView() {
         TreeView inner = world.treeView();
         return pos -> courtyard.contains(pos) ? TreeView.Kind.NEVER_TOUCH : inner.kind(pos);

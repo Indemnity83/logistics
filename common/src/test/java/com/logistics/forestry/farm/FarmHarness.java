@@ -21,7 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A farm's real components ({@link FarmMachine#assemble}) on a fake host and a {@link FakeFarmWorld}.
+ * A farm's real components ({@link FarmMachine#assemble}) on a fake host and a {@link FakeFarmWorld},
+ * started ({@link FarmComponent#start}) unless built with {@link #surveying}.
  * The host is a furnace block state, which carries the same horizontal {@code facing} and
  * {@code lit} properties as a farm block, facing south at the origin.
  */
@@ -75,11 +76,23 @@ final class FarmHarness {
 
     /** A farm of any logic; {@link #logic} is then null unless it is scripted. */
     FarmHarness(FarmLogic logic, FarmSettings settings) {
+        this(logic, settings, true);
+    }
+
+    private FarmHarness(FarmLogic logic, FarmSettings settings, boolean start) {
         this.logic = logic instanceof ScriptedFarmLogic scripted ? scripted : null;
         this.settings = settings;
         this.machine = FarmMachine.assemble(
                 new MachineBuilder(components, () -> {}), logic, () -> settings, (ctx, owner) -> world);
         areaOverride(inner, outer);
+        if (start) {
+            farm().start();
+        }
+    }
+
+    /** A farm as placed: surveying, not started. */
+    static FarmHarness surveying(FarmLogic logic, FarmSettings settings) {
+        return new FarmHarness(logic, settings, false);
     }
 
     /** Works the ring between squares of {@code inner} and {@code outer}; 0 for both works the tier's. */

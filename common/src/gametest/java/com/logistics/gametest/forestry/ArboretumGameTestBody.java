@@ -457,7 +457,7 @@ public class ArboretumGameTestBody {
     /**
      * {@code ground} under the ring on {@code floor} ({@code null} lays none), the farm at its centre,
      * a hopper on top of and one below the farm, and a chest after the output hopper; with
-     * {@code powered}, a running Creative Engine beside it.
+     * {@code powered}, a running Creative Engine beside it. The farm is started.
      */
     private static FarmBlockEntity rig(
             GameTestHelper context, boolean powered, @Nullable BlockState ground, @Nullable BlockState floor) {
@@ -477,6 +477,7 @@ public class ArboretumGameTestBody {
         FarmBlockEntity farm = context.getBlockEntity(FARM, FarmBlockEntity.class);
         farm.setAreaOverride(RING.inner(), RING.outer());
         farm.setClearanceHeightOverride(CLEARANCE);
+        farm.start();
 
         if (powered) {
             context.setBlock(ENGINE_SWITCH, Blocks.REDSTONE_BLOCK);

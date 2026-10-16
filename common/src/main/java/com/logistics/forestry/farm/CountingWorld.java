@@ -87,6 +87,16 @@ final class CountingWorld implements FarmWorldAccess {
     }
 
     @Override
+    public boolean neverClear(BlockState state) {
+        return world().neverClear(state);
+    }
+
+    @Override
+    public boolean naturalClearable(BlockState state) {
+        return world().naturalClearable(state);
+    }
+
+    @Override
     public boolean hasNeighborSignal(BlockPos pos) {
         return world().hasNeighborSignal(pos);
     }

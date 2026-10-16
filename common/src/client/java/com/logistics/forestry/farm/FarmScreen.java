@@ -6,6 +6,8 @@ import com.logistics.core.lib.resource.ResourceId;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * The screen every farm opens. Soil slot frames and the water gauge are drawn from the spare region
  * of the GUI texture only when the farm lays soil or has a tank; otherwise those areas stay plain.
+ * One button under the soil row starts a surveying farm, then shows a working farm's area.
  */
 public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
 
@@ -46,6 +49,11 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
 
     private static final int LABEL_COLOR = 0xFF404040;
 
+    private static final int BUTTON_LEFT = 42;
+    private static final int BUTTON_TOP = 54;
+    private static final int BUTTON_WIDTH = 54;
+    private static final int BUTTON_HEIGHT = 14;
+
     // Spare-region UVs in the GUI texture.
     private static final int SOIL_ROW_U = 176, SOIL_ROW_V = 0, SOIL_ROW_WIDTH = 72, SOIL_ROW_HEIGHT = 18;
     private static final int SOIL_ROW_X = 41, SOIL_ROW_Y = 34;
@@ -53,8 +61,55 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     private static final int TANK_TICKS_U = 192, TANK_TICKS_V = 21;
     private static final int LAMP_U = 206, LAMP_V = 30, LAMP_U_STEP = 10;
 
+    private Button stateButton;
+    private FarmState shownState;
+    private int shownClear = -1;
+    private int shownFlagged = -1;
+    private int shownProtected = -1;
+
     public FarmScreen(FarmMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        stateButton = Button.builder(FarmScreenText.buttonLabel(menu.state()), button -> {
+                    if (minecraft != null && minecraft.gameMode != null) {
+                        minecraft.gameMode.handleInventoryButtonClick(
+                                menu.containerId, FarmScreenText.buttonId(menu.state()));
+                    }
+                })
+                .bounds(leftPos + BUTTON_LEFT, topPos + BUTTON_TOP, BUTTON_WIDTH, BUTTON_HEIGHT)
+                .build();
+        shownState = null;
+        updateButton();
+        addRenderableWidget(stateButton);
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        updateButton();
+    }
+
+    /** The label and tooltip follow the synced state and survey; rebuilt only when they change. */
+    private void updateButton() {
+        FarmState state = menu.state();
+        int clear = menu.surveyClear();
+        int flagged = menu.surveyFlagged();
+        int skipped = menu.surveyProtected();
+        if (state == shownState && clear == shownClear && flagged == shownFlagged && skipped == shownProtected) {
+            return;
+        }
+        shownState = state;
+        shownClear = clear;
+        shownFlagged = flagged;
+        shownProtected = skipped;
+        stateButton.setMessage(FarmScreenText.buttonLabel(state));
+        stateButton.setTooltip(state == FarmState.SURVEY
+                ? Tooltip.create(FarmScreenText.startTooltip(clear, flagged, skipped))
+                : null);
     }
 
     /** The title carries the tier, which arrives with the synced data, so it is centred each frame. */

@@ -11,7 +11,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * <p>A column runs from the plot up {@code height} blocks. The highest block in it that is neither
  * air nor the farm's own growth goes first, one per call, so clearing works top-down and never
  * leaves a gravity block unsupported. A fluid, source or flowing, is drained rather than broken.
- * A block entity or an unbreakable block is never cleared: the column stays blocked until it goes.
+ * A block entity, an unbreakable block or a {@code logistics:forestry/never_clear} block is never
+ * cleared: the column stays blocked until it goes.
  * Own growth is passed over; the farm's logic harvests it.
  */
 public final class ColumnClearer {
@@ -26,7 +27,7 @@ public final class ColumnClearer {
         FLUID,
         /** Anything else that may be broken, its drops kept. */
         BREAKABLE,
-        /** A block entity or an unbreakable block; never cleared. */
+        /** A block entity, an unbreakable block or a never-clear block; never cleared. */
         PROTECTED
     }
 
@@ -93,13 +94,18 @@ public final class ColumnClearer {
      * 0 for unbreakable blocks; {@code ownGrowth} is whether the farm's logic claims it.
      */
     public static Kind classify(BlockState state, float destroySpeed, boolean ownGrowth) {
+        return classify(state, destroySpeed, ownGrowth, false);
+    }
+
+    /** {@link #classify(BlockState, float, boolean)}, where {@code neverClear} also makes the block protected. */
+    public static Kind classify(BlockState state, float destroySpeed, boolean ownGrowth, boolean neverClear) {
         if (state.isAir()) {
             return Kind.EMPTY;
         }
         if (ownGrowth) {
             return Kind.OWN_GROWTH;
         }
-        if (state.hasBlockEntity() || destroySpeed < 0) {
+        if (state.hasBlockEntity() || destroySpeed < 0 || neverClear) {
             return Kind.PROTECTED;
         }
         if (state.getBlock() instanceof LiquidBlock) {

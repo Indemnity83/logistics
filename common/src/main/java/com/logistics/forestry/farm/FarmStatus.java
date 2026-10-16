@@ -19,7 +19,9 @@ public enum FarmStatus {
     /** Stopped by a redstone signal. */
     PAUSED,
     TOO_DARK,
-    BLOCKED;
+    BLOCKED,
+    /** Placed, not started: surveying the ring until Start is pressed. */
+    SURVEYING;
 
     private static final FarmStatus[] VALUES = values();
 

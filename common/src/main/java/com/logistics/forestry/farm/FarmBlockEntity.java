@@ -3,10 +3,14 @@ package com.logistics.forestry.farm;
 import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.core.machine.tier.TierComponent;
 import com.logistics.core.machine.tier.TieredMachine;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,7 +27,9 @@ import org.jetbrains.annotations.Nullable;
  * is comes from its block's {@link FarmMachineBlock#logic()}; the components are built by
  * {@link FarmMachine#assemble}.
  */
-public class FarmBlockEntity extends MachineEntity implements TieredMachine {
+public class FarmBlockEntity extends MachineEntity implements TieredMachine, FarmMenu.Controls {
+
+    public static final String MESSAGE_EXPANDED = "message.logistics.farm.expanded";
 
     /** Logic for a block entity found on a block that is not a farm; accepts and does nothing. */
     private static final FarmLogic UNKNOWN_FARM = new FarmLogic() {
@@ -67,7 +73,7 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine {
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new FarmMenu(syncId, playerInventory, FarmBlockEntity.this, containerData);
+                return new FarmMenu(syncId, playerInventory, FarmBlockEntity.this, containerData, FarmBlockEntity.this);
             }
         };
     }
@@ -88,6 +94,63 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine {
 
     public FarmStatus status() {
         return parts.farm().status();
+    }
+
+    public FarmState state() {
+        return parts.farm().state();
+    }
+
+    /** What the farm's survey found, or what Show area or the last upgrade found once it works. */
+    public FarmSurvey survey() {
+        return parts.farm().survey();
+    }
+
+    /** Whether the area preview shows now; the server's view of what {@link #preview()} carries. */
+    public boolean previewShown() {
+        return level != null && parts.farm().previewShown(level.getGameTime());
+    }
+
+    /** The area preview as the last update tag carried it; what the client draws. */
+    public FarmPreview preview() {
+        return parts.farm().syncedPreview();
+    }
+
+    /** Starts a surveying farm; false, changing nothing, once it works. Also the tests' way to start a farm. */
+    @Override
+    public boolean start() {
+        if (!parts.farm().start()) {
+            return false;
+        }
+        sync();
+        return true;
+    }
+
+    /** Shows a working farm's area preview for a while; false, changing nothing, while it surveys. */
+    @Override
+    public boolean showArea() {
+        if (level == null || !parts.farm().showArea(this, level.getGameTime())) {
+            return false;
+        }
+        sync();
+        return true;
+    }
+
+    /** Shows the widened ring and what working its new lanes will clear, which starts straight away. */
+    @Override
+    public Optional<Component> upgradeFeedback(MachineTier newTier) {
+        if (level == null) {
+            return Optional.empty();
+        }
+        FarmSurvey lanes = parts.farm().expanded(this, level.getGameTime());
+        sync();
+        return Optional.of(Component.translatable(MESSAGE_EXPANDED, areaSize(), lanes.toClear(), lanes.flagged()));
+    }
+
+    /** The update tag also carries the area preview, which is never saved. */
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        long now = level != null ? level.getGameTime() : 0;
+        return parts.farm().withPreview(this, now, () -> super.getUpdateTag(registries));
     }
 
     @Nullable

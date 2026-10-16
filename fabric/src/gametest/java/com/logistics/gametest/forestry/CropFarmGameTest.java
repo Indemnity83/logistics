@@ -90,4 +90,14 @@ public class CropFarmGameTest {
     public void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
         CropFarmGameTestBody.testRaisingTierGrowsEnergyBuffer(context);
     }
+
+    @GameTest(maxTicks = 1200)
+    public void testSurveyChangesNothingUntilStart(GameTestHelper context) {
+        CropFarmGameTestBody.testSurveyChangesNothingUntilStart(context);
+    }
+
+    @GameTest(maxTicks = 600)
+    public void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
+        CropFarmGameTestBody.testUpgradeWorksNewLanesImmediately(context);
+    }
 }

@@ -317,7 +317,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.FLAGS + 1);
         assertThat(FarmMenu.PLOTS_TOTAL).isEqualTo(FarmMenu.TIER + 1);
         assertThat(FarmMenu.PLOTS_BLOCKED).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
-        assertThat(FarmMenu.DATA_COUNT).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
+        assertThat(FarmMenu.STATE).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
 
         SimpleContainerData data = new SimpleContainerData(FarmMenu.DATA_COUNT);
         FarmMenu menu = new FarmMenu(1, playerInventory(), new SimpleContainer(FarmMachine.SLOT_COUNT), data);
