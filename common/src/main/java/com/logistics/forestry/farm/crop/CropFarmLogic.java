@@ -55,11 +55,6 @@ public final class CropFarmLogic implements FarmLogic {
     }
 
     @Override
-    public int ringOuter() {
-        return 15;
-    }
-
-    @Override
     public int clearanceHeight() {
         return 5;
     }

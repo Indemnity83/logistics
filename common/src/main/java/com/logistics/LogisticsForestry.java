@@ -3,19 +3,26 @@ package com.logistics;
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigEntries;
 import com.indemnity83.configory.ConfigKey;
+import com.indemnity83.configory.ValidationResult;
+import com.indemnity83.configory.builder.IntConfigBuilder;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.machine.tier.MachineTier;
+import com.logistics.core.machine.tier.TieredBlockItem;
 import com.logistics.forestry.farm.FarmBlockEntity;
+import com.logistics.forestry.farm.FarmGeometry;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmMenu;
+import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
 import com.logistics.forestry.humus.HumusBlock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
@@ -27,6 +34,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import org.jetbrains.annotations.Nullable;
 
 public final class LogisticsForestry extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsForestry INSTANCE = new LogisticsForestry();
@@ -88,55 +96,94 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("Ticks between plots; a farm works at most one plot per interval")
                 .register();
 
-        public static final ConfigKey<Long> FARM_ENERGY_CAPACITY = farm.defineLong("energy_capacity", 20_000L)
-                .min(1L)
-                .describe("Internal RF buffer capacity")
-                .register();
+        /** One tier's farm profile keys, {@code tier.<id>.*}; see {@link FarmTierProfile}. */
+        public record FarmTierKeys(
+                ConfigKey<Integer> outerSize,
+                ConfigKey<Long> energyCapacity,
+                ConfigKey<Long> maxEnergyInput,
+                ConfigKey<Integer> waterCapacityMb) {}
 
-        public static final ConfigKey<Long> FARM_MAX_ENERGY_INPUT = farm.defineLong("max_energy_input", 128L)
-                .min(1L)
-                .describe("Maximum RF accepted per tick")
-                .register();
+        public static final FarmTierKeys FARM_TIER_BASIC = farmTierKeys(MachineTier.BASIC, null);
+        public static final FarmTierKeys FARM_TIER_INDUSTRIAL =
+                farmTierKeys(MachineTier.INDUSTRIAL, () -> CONFIG.FARM_TIER_BASIC.outerSize());
+        public static final FarmTierKeys FARM_TIER_PRECISION =
+                farmTierKeys(MachineTier.PRECISION, () -> CONFIG.FARM_TIER_INDUSTRIAL.outerSize());
+        public static final FarmTierKeys FARM_TIER_INFERNAL =
+                farmTierKeys(MachineTier.INFERNAL, () -> CONFIG.FARM_TIER_PRECISION.outerSize());
+
+        public static FarmTierKeys farmTier(MachineTier tier) {
+            return switch (tier) {
+                case BASIC -> FARM_TIER_BASIC;
+                case INDUSTRIAL -> FARM_TIER_INDUSTRIAL;
+                case PRECISION -> FARM_TIER_PRECISION;
+                case INFERNAL -> FARM_TIER_INFERNAL;
+            };
+        }
+
+        private static FarmTierKeys farmTierKeys(
+                MachineTier tier, @Nullable Supplier<ConfigKey<Integer>> previousOuter) {
+            FarmTierProfile defaults = FarmTierProfile.defaults(tier);
+            String prefix = "tier." + tier.id() + ".";
+            IntConfigBuilder outer = farm.defineInt(prefix + "outer_size", defaults.outerSize())
+                    .greaterThan(FarmGeometry.COURTYARD)
+                    .validator((value, config) ->
+                            value % 2 != 0 ? ValidationResult.ok() : ValidationResult.error("must be odd"))
+                    .describe("Side of the square the farm works out to at this tier: odd, wider than the "
+                            + FarmGeometry.COURTYARD + "x" + FarmGeometry.COURTYARD
+                            + " courtyard, and at least the previous tier's");
+            if (previousOuter != null) {
+                outer.minValueOf(previousOuter);
+            }
+            return new FarmTierKeys(
+                    outer.register(),
+                    farm.defineLong(prefix + "energy_capacity", defaults.energyCapacity())
+                            .min(1L)
+                            .describe("Internal RF buffer capacity at this tier")
+                            .register(),
+                    farm.defineLong(prefix + "max_energy_input", defaults.maxEnergyInput())
+                            .min(1L)
+                            .describe("Maximum RF accepted per tick at this tier")
+                            .register(),
+                    farm.defineInt(prefix + "water_capacity_mb", defaults.waterCapacityMb())
+                            .min(1)
+                            .describe("Water tank capacity (mB) at this tier, for farms that till with water")
+                            .register());
+        }
 
         public static final ConfigKey<Long> FARM_RF_HARVEST_PER_BLOCK = farm.defineLong("rf_harvest_per_block", 40L)
                 .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
                 .describe("RF per block harvested")
                 .register();
 
         public static final ConfigKey<Long> FARM_RF_CLEAR_PER_BLOCK = farm.defineLong("rf_clear_per_block", 40L)
                 .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
                 .describe("RF per block or fluid cleared from above a plot")
                 .register();
 
         public static final ConfigKey<Long> FARM_RF_PLANT = farm.defineLong("rf_plant", 100L)
                 .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
                 .describe("RF per germling planted")
                 .register();
 
         public static final ConfigKey<Long> FARM_RF_TILL = farm.defineLong("rf_till", 60L)
                 .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
                 .describe("RF per block tilled")
                 .register();
 
         public static final ConfigKey<Long> FARM_RF_SOIL = farm.defineLong("rf_soil", 60L)
                 .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
                 .describe("RF per soil block laid")
                 .register();
 
         public static final ConfigKey<Long> FARM_RF_MOISTEN = farm.defineLong("rf_moisten", 20L)
                 .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
+                .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
                 .describe("RF per planted farmland block kept moist; spends no water")
-                .register();
-
-        public static final ConfigKey<Integer> FARM_WATER_CAPACITY_MB = farm.defineInt("water_capacity_mb", 8_000)
-                .min(1)
-                .describe("Water tank capacity (mB) of farms that till with water")
                 .register();
 
         public static final ConfigKey<Integer> FARM_WATER_PER_TILL_MB = farm.defineInt("water_per_till_mb", 250)
@@ -226,7 +273,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
          * valid for it. Call from {@link #register()}, which runs before {@link ENTITY#register()}.
          */
         static Block registerFarm(String name, Function<BlockBehaviour.Properties, FarmMachineBlock> factory) {
-            Block block = INSTANCE.registerBlockWithItem(name, factory::apply);
+            Block block = INSTANCE.registerBlockWithItem(name, factory::apply, TieredBlockItem::new);
             FARMS.add(block);
             return block;
         }

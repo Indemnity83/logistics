@@ -90,10 +90,8 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("works the ring from 9×9 out to 15×15, keeping five blocks clear above each plot")
-    void ringShape() {
-        assertThat(logic.ringInner()).isEqualTo(9);
-        assertThat(logic.ringOuter()).isEqualTo(15);
+    @DisplayName("keeps five blocks clear above each plot")
+    void clearance() {
         assertThat(logic.clearanceHeight()).isEqualTo(5);
     }
 

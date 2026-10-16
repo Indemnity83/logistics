@@ -1,5 +1,6 @@
 package com.logistics.forestry.logic;
 
+import com.logistics.core.machine.area.Columns;
 import com.logistics.forestry.logic.TreeView.Kind;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -38,16 +39,47 @@ public final class TreeFeller {
     private static final int[][] ALL_OFFSETS = allOffsets();
 
     /**
-     * Search bounds and size cap. Bounds are measured from the seed log: {@code horizontalRadius}
-     * on x and z, {@code below} and {@code above} on y.
+     * Search bounds and size cap. Wood must lie in the {@code wood} columns and canopy in the
+     * {@code canopy} columns, and nothing is ever taken from or walked through the {@code keepOut}
+     * columns. Vertically, bounds are measured from the seed log: {@code below} and {@code above}.
      */
-    public record Limits(int horizontalRadius, int below, int above, int cap) {
-        public static final Limits DEFAULT = new Limits(8, 3, 32, 1024);
+    public record Limits(Columns wood, Columns canopy, Columns keepOut, int below, int above, int cap) {
+        public static final int BELOW = 3;
+        public static final int ABOVE = 32;
+        public static final int CAP = 1024;
+
+        /** How far canopy may reach beyond the wood bounds, e.g. leaves hanging past a farm's edge. */
+        public static final int CANOPY_MARGIN = 3;
 
         public Limits {
-            if (horizontalRadius < 0 || below < 0 || above < 0 || cap < 1) {
+            if (wood == null || canopy == null || keepOut == null || below < 0 || above < 0 || cap < 1) {
                 throw new IllegalArgumentException("invalid tree felling limits: " + this);
             }
+        }
+
+        /**
+         * A tree worked from a region: wood inside {@code bounds}, canopy inside them widened by
+         * {@link #CANOPY_MARGIN}, never anything in {@code keepOut}.
+         */
+        public static Limits within(Columns bounds, Columns keepOut) {
+            return new Limits(bounds, bounds.grow(CANOPY_MARGIN), keepOut, BELOW, ABOVE, CAP);
+        }
+
+        /** A free-standing tree: wood and canopy within {@code radius} columns of {@code plot}. */
+        public static Limits around(BlockPos plot, int radius) {
+            if (radius < 0) {
+                throw new IllegalArgumentException("radius must be >= 0: " + radius);
+            }
+            Columns square = Columns.square(plot, 2 * radius + 1);
+            return new Limits(square, square, Columns.EMPTY, BELOW, ABOVE, CAP);
+        }
+
+        public Limits withCap(int cap) {
+            return new Limits(wood, canopy, keepOut, below, above, cap);
+        }
+
+        public Limits withHeight(int below, int above) {
+            return new Limits(wood, canopy, keepOut, below, above, cap);
         }
     }
 
@@ -58,7 +90,7 @@ public final class TreeFeller {
         TreeView cached = pos -> kinds.computeIfAbsent(pos, view::kind);
 
         BlockPos seed = findSeed(cached, plot.immutable());
-        if (seed == null) {
+        if (seed == null || !limits.wood().contains(seed) || limits.keepOut().contains(seed)) {
             return FellPlan.skip(FellPlan.Reason.NO_TREE);
         }
 
@@ -104,7 +136,9 @@ public final class TreeFeller {
             BlockPos pos = queue.poll();
             for (int[] offset : ALL_OFFSETS) {
                 BlockPos next = pos.offset(offset[0], offset[1], offset[2]);
-                if (wood.contains(next) || !inBounds(next, seed, limits) || view.kind(next) != Kind.WOOD) {
+                if (wood.contains(next)
+                        || !inBounds(next, seed, limits, limits.wood())
+                        || view.kind(next) != Kind.WOOD) {
                     continue;
                 }
                 wood.add(next);
@@ -132,7 +166,7 @@ public final class TreeFeller {
                 BlockPos next = pos.offset(offset[0], offset[1], offset[2]);
                 if (wood.contains(next)
                         || canopy.contains(next)
-                        || !inBounds(next, seed, limits)
+                        || !inBounds(next, seed, limits, limits.canopy())
                         || view.kind(next) != Kind.CANOPY) {
                     continue;
                 }
@@ -147,9 +181,9 @@ public final class TreeFeller {
         return true;
     }
 
-    private static boolean inBounds(BlockPos pos, BlockPos seed, Limits limits) {
-        return Math.abs(pos.getX() - seed.getX()) <= limits.horizontalRadius()
-                && Math.abs(pos.getZ() - seed.getZ()) <= limits.horizontalRadius()
+    private static boolean inBounds(BlockPos pos, BlockPos seed, Limits limits, Columns columns) {
+        return columns.contains(pos)
+                && !limits.keepOut().contains(pos)
                 && pos.getY() >= seed.getY() - limits.below()
                 && pos.getY() <= seed.getY() + limits.above();
     }

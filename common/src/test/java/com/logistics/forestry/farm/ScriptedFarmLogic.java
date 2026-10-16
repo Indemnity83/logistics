@@ -1,6 +1,6 @@
 package com.logistics.forestry.farm;
 
-import com.logistics.core.machine.area.PlotArea;
+import com.logistics.core.machine.area.PlotLayout;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A test farm: oak saplings and wheat seeds are germlings, dirt and podzol are soil, and each plot's action
- * comes from a script. It works the 8-plot ring around a 1×1 centre, keeps one block clear above each plot
+ * comes from a script. It keeps one block clear above each plot
  * unless told otherwise, and counts wheat, oak saplings and oak logs as its own growth. Counts its decisions
  * and remembers the area and inputs of the last one.
  */
@@ -26,8 +26,9 @@ final class ScriptedFarmLogic implements FarmLogic {
     Predicate<BlockState> ownGrowth =
             state -> state.is(Blocks.WHEAT) || state.is(Blocks.OAK_SAPLING) || state.is(Blocks.OAK_LOG);
     Function<BlockState, BlockState> afterHarvest = soil -> null;
+    Predicate<ItemStack> germlings = stack -> stack.is(Items.OAK_SAPLING) || stack.is(Items.WHEAT_SEEDS);
     int decisions;
-    PlotArea lastArea;
+    PlotLayout lastArea;
     FarmInputs lastInputs;
 
     ScriptedFarmLogic() {
@@ -42,16 +43,6 @@ final class ScriptedFarmLogic implements FarmLogic {
     ScriptedFarmLogic script(BiFunction<FarmWorld, BlockPos, PlotAction> script) {
         this.script = script;
         return this;
-    }
-
-    @Override
-    public int ringInner() {
-        return 1;
-    }
-
-    @Override
-    public int ringOuter() {
-        return 3;
     }
 
     @Override
@@ -76,7 +67,7 @@ final class ScriptedFarmLogic implements FarmLogic {
 
     @Override
     public boolean isGermling(ItemStack stack) {
-        return stack.is(Items.OAK_SAPLING) || stack.is(Items.WHEAT_SEEDS);
+        return germlings.test(stack);
     }
 
     @Override
@@ -91,10 +82,10 @@ final class ScriptedFarmLogic implements FarmLogic {
     }
 
     @Override
-    public PlotAction decide(FarmWorld world, PlotArea area, BlockPos plot, FarmInputs inputs) {
-        lastArea = area;
+    public PlotAction decide(FarmWorld world, PlotLayout region, BlockPos plot, FarmInputs inputs) {
+        lastArea = region;
         lastInputs = inputs;
-        return FarmLogic.super.decide(world, area, plot, inputs);
+        return FarmLogic.super.decide(world, region, plot, inputs);
     }
 
     @Override
