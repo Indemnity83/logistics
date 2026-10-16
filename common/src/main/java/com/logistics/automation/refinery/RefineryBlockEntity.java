@@ -142,6 +142,7 @@ public class RefineryBlockEntity extends MachineEntity {
                 .fluids(outputTank)
                 .lit(this::setLit)
                 .build();
+        machine.redstoneControl("redstone").build();
 
         // Sync both tanks to clients on change so the GUI gauges stay current (the menu's ContainerData
         // only reaches a player with the GUI open).

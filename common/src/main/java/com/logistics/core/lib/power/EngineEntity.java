@@ -9,6 +9,8 @@ import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineHudModel;
+import com.logistics.core.machine.control.RedstoneControlComponent;
+import com.logistics.core.machine.control.RedstoneMode;
 import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
@@ -42,14 +44,27 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
 
     protected final MachineComponentContainer components = new MachineComponentContainer();
     private boolean loaded = false;
+    @Nullable
+    private final RedstoneControlComponent redstone;
 
     protected EngineEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         configure(new EngineBuilder(components, this::setChanged));
+        redstone = hasRedstoneControl()
+                ? components.add(new RedstoneControlComponent("redstone", RedstoneMode.HIGH, this::setChanged))
+                : null;
     }
 
     /** Compose this engine's components via the fluent builder. Called once from the constructor. */
     protected abstract void configure(EngineBuilder engine);
+
+    /**
+     * Whether this engine has a configurable redstone mode (default {@link RedstoneMode#HIGH}). Called
+     * from the constructor, so overrides must return a constant.
+     */
+    protected boolean hasRedstoneControl() {
+        return true;
+    }
 
     public static void tick(Level level, BlockPos pos, BlockState state, EngineEntity engine) {
         if (level.isClientSide()) {
@@ -75,9 +90,9 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
 
     // ==================== Engine getters (block + renderer facing) ====================
 
-    /** Running when powered, not overheated, and every running gate is satisfied. */
+    /** Running when enabled, not overheated, and every running gate is satisfied. */
     public boolean isRunning() {
-        if (!isPowered() || isOverheated()) {
+        if (!isEnabled() || isOverheated()) {
             return false;
         }
         boolean[] running = {true};
@@ -89,8 +104,29 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
         return running[0];
     }
 
+    /** The physical redstone signal (the {@code POWERED} block state). */
     public boolean isPowered() {
         return getBlockState().getValue(AbstractEngineBlock.POWERED);
+    }
+
+    /** Whether the engine is permitted to run: its redstone mode applied to {@link #isPowered()}. */
+    public boolean isEnabled() {
+        return redstone == null ? isPowered() : redstone.allows(this::isPowered);
+    }
+
+    /** The engine's redstone control, or {@code null} when it has none. */
+    @Nullable
+    public RedstoneControlComponent redstoneControl() {
+        return redstone;
+    }
+
+    /** Sets the redstone mode and syncs it to clients; a no-op without a control or when unchanged. */
+    public void setRedstoneMode(RedstoneMode mode) {
+        if (redstone == null || redstone.mode() == mode) {
+            return;
+        }
+        redstone.setMode(mode);
+        markDirtyAndSync();
     }
 
     public float getPistonSpeed() {

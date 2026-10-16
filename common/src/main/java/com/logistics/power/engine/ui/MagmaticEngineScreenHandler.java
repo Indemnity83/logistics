@@ -121,8 +121,8 @@ public class MagmaticEngineScreenHandler extends AbstractContainerMenu {
         return Math.min(1f, amount / (float) capacity);
     }
 
-    public boolean isPowered() {
-        return data.get(MagmaticEngineBlockEntity.DATA_POWERED) != 0;
+    public boolean isEnabled() {
+        return data.get(MagmaticEngineBlockEntity.DATA_ENABLED) != 0;
     }
 
     public boolean isLit() {

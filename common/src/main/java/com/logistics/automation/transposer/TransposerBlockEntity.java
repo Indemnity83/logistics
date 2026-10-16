@@ -115,6 +115,7 @@ public class TransposerBlockEntity extends MachineEntity {
                 .fluids(fluidStore)
                 .lit(this::setLit)
                 .build();
+        machine.redstoneControl("redstone").build();
 
         // Sync the tank to clients on change so the GUI fluid gauge stays current.
         machine.add(new FluidSyncComponent(fluidStore));

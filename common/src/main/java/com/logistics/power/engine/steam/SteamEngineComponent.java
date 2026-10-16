@@ -307,7 +307,7 @@ public final class SteamEngineComponent
 
     @Override
     public boolean isRunning(MachineContext ctx) {
-        return lastGenerationRate > 0; // host ANDs isPowered(); reflects actual accepted RF, synced to the client
+        return lastGenerationRate > 0; // host ANDs isEnabled(); reflects actual accepted RF, synced to the client
     }
 
     /** Piston speed tracks the accepted RF/t (0.02..0.08 over 0..maxOutput), synced via lastGenerationRate. */

@@ -60,6 +60,7 @@ public class SequentialFabricatorBlockEntity extends MachineEntity {
                 "processor", items, energy,
                 LogisticsConfigHost.get(LogisticsAutomation.CONFIG.FABRICATOR_ENERGY_PER_TICK),
                 this::setLit, this::setChanged));
+        machine.redstoneControl("redstone").build();
 
         containerData = new ContainerData() {
             @Override

@@ -62,6 +62,7 @@ public class MaceratorBlockEntity extends MachineEntity {
                 .energy(energy)
                 .lit(this::setLit)
                 .build();
+        machine.redstoneControl("redstone").build();
 
         containerData = MachineData.source(processor, energy, capacity);
     }

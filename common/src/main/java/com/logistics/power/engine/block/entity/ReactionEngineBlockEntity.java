@@ -152,7 +152,7 @@ public class ReactionEngineBlockEntity extends EngineEntity
         // it up via ReactionEngineReactions against the level's RecipeManager).
         reactionSim = engine.add(new ReactionEngineComponent(
                 "reactionSim", this::pushEnergy, reactantTank, catalystInventory,
-                ReactionEngineReactions::find, this::isPowered, this::setChanged));
+                ReactionEngineReactions::find, this::isEnabled, this::setChanged));
     }
 
     /** Push generated RF straight into the output-face network via a throwaway conduit; discard the rest. */
