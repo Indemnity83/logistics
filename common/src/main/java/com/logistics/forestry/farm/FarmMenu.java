@@ -3,6 +3,7 @@ package com.logistics.forestry.farm;
 import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.tier.MachineTier;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -35,6 +36,9 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@link #STATUS}: {@link FarmStatus} ordinal;</li>
  *   <li>{@link #AREA_SIZE}: outer side of the worked ring (a 15 means 15×15);</li>
  *   <li>{@link #FLAGS}: bit {@link #FLAG_USES_WATER}, bit {@link #FLAG_LAYS_SOIL};</li>
+ *   <li>{@link #TIER}: {@link MachineTier#rank()} of the farm's tier;</li>
+ *   <li>{@link #PLOTS_TOTAL}: plots in the worked ring;</li>
+ *   <li>{@link #PLOTS_BLOCKED}: ring plots blocked on their most recent visit.</li>
  * </ul>
  */
 public class FarmMenu extends AbstractContainerMenu {
@@ -46,7 +50,10 @@ public class FarmMenu extends AbstractContainerMenu {
     public static final int STATUS = 8;
     public static final int AREA_SIZE = 9;
     public static final int FLAGS = 10;
-    public static final int DATA_COUNT = 11;
+    public static final int TIER = 11;
+    public static final int PLOTS_TOTAL = 12;
+    public static final int PLOTS_BLOCKED = 13;
+    public static final int DATA_COUNT = 14;
 
     public static final int FLAG_USES_WATER = 1;
     public static final int FLAG_LAYS_SOIL = 1 << 1;
@@ -117,6 +124,9 @@ public class FarmMenu extends AbstractContainerMenu {
                     case AREA_SIZE -> farm.farm().areaSize();
                     case FLAGS -> (farm.logic().usesWater() ? FLAG_USES_WATER : 0)
                             | (farm.logic().laysSoil() ? FLAG_LAYS_SOIL : 0);
+                    case TIER -> farm.tier().tier().rank();
+                    case PLOTS_TOTAL -> farm.farm().plotsTotal();
+                    case PLOTS_BLOCKED -> farm.farm().plotsBlocked();
                     default -> 0;
                 };
             }
@@ -208,6 +218,22 @@ public class FarmMenu extends AbstractContainerMenu {
 
     public int areaSize() {
         return data.get(AREA_SIZE);
+    }
+
+    public MachineTier tier() {
+        return MachineTier.byRank(data.get(TIER)).orElse(MachineTier.BASIC);
+    }
+
+    public int plotsTotal() {
+        return data.get(PLOTS_TOTAL);
+    }
+
+    public int plotsBlocked() {
+        return data.get(PLOTS_BLOCKED);
+    }
+
+    public int plotsUsable() {
+        return Math.max(0, plotsTotal() - plotsBlocked());
     }
 
     public boolean usesWater() {

@@ -44,6 +44,8 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     private static final int LAMP_TOP = 56;
     private static final int LAMP_SIZE = 8;
 
+    private static final int LABEL_COLOR = 0xFF404040;
+
     // Spare-region UVs in the GUI texture.
     private static final int SOIL_ROW_U = 176, SOIL_ROW_V = 0, SOIL_ROW_WIDTH = 72, SOIL_ROW_HEIGHT = 18;
     private static final int SOIL_ROW_X = 41, SOIL_ROW_Y = 34;
@@ -55,10 +57,13 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
         super(menu, inventory, title);
     }
 
+    /** The title carries the tier, which arrives with the synced data, so it is centred each frame. */
     @Override
-    protected void init() {
-        super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        Component tieredTitle = FarmScreenText.title(this.title, menu.tier());
+        this.titleLabelX = (this.imageWidth - this.font.width(tieredTitle)) / 2;
+        graphics.text(this.font, tieredTitle, this.titleLabelX, this.titleLabelY, LABEL_COLOR, false);
+        graphics.text(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, LABEL_COLOR, false);
     }
 
     @Override
@@ -71,13 +76,18 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
                     Component.translatable("tooltip.logistics.farm.water", menu.waterMb(), menu.waterCapacityMb()));
         }
         hoverTooltip(graphics, mouseX, mouseY, LAMP_LEFT, LAMP_TOP, LAMP_SIZE, LAMP_SIZE,
-                Component.translatable("tooltip.logistics.farm.status",
-                        Component.translatable(menu.status().translationKey()), menu.areaSize()));
+                FarmScreenText.statusTooltip(
+                        menu.status(), menu.tier(), menu.areaSize(), menu.plotsUsable(), menu.plotsBlocked()));
     }
 
     private void hoverTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y, int w, int h, Component line) {
+        hoverTooltip(graphics, mouseX, mouseY, x, y, w, h, List.of(line));
+    }
+
+    private void hoverTooltip(
+            GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y, int w, int h, List<Component> lines) {
         if (mouseX >= leftPos + x && mouseX < leftPos + x + w && mouseY >= topPos + y && mouseY < topPos + y + h) {
-            graphics.setTooltipForNextFrame(this.font, List.of(line), Optional.empty(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, lines, Optional.empty(), mouseX, mouseY);
         }
     }
 
