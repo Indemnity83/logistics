@@ -1,9 +1,11 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.core.machine.area.PlotLayout;
+import com.logistics.forestry.logic.LevelTreeView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
  *       per lane from the inside out, so widening the ring only adds lanes. A logic never depends
  *       on how many plots the whole ring has.
  *   <li>Every cell of a multi-cell placement (a 2×2 tree group) satisfies {@code region.contains}.
+ *   <li>Trees are planned through {@link FarmWorld#fellPlan}, never with {@code TreeFeller}
+ *       directly, so the farm can spread a large tree's planning over its check budget.
  *   <li>Trees are felled within the region's bounds
  *       ({@link com.logistics.forestry.logic.TreeFeller.Limits#within}), never in
  *       its {@link PlotLayout#keepOut()}.
@@ -104,6 +108,24 @@ public interface FarmLogic {
     @Nullable
     default BlockState soilAfterHarvest(BlockState soil) {
         return null;
+    }
+
+    /**
+     * What harvesting {@code state} costs. Defaults to a crop for a {@link CropBlock}, a log for
+     * {@code logistics:forestry/fellable_wood}, leaves for {@code logistics:forestry/fellable_canopy},
+     * and a crop for anything else.
+     */
+    default FarmCost harvestCost(BlockState state) {
+        if (state.getBlock() instanceof CropBlock) {
+            return FarmCost.HARVEST_CROP;
+        }
+        if (state.is(LevelTreeView.FELLABLE_WOOD)) {
+            return FarmCost.HARVEST_LOG;
+        }
+        if (state.is(LevelTreeView.FELLABLE_CANOPY)) {
+            return FarmCost.HARVEST_LEAVES;
+        }
+        return FarmCost.HARVEST_CROP;
     }
 
     /**

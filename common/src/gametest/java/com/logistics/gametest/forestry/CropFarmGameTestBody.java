@@ -17,6 +17,8 @@ import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmStatus;
 import com.logistics.forestry.farm.FarmTierProfile;
+import com.logistics.forestry.farm.Hydration;
+import com.logistics.forestry.farm.LevelFarmWorld;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
@@ -181,8 +183,11 @@ public class CropFarmGameTestBody {
         return total;
     }
 
-    private static long perTillMb() {
-        return FarmSettings.fromConfig().waterPerTillMb();
+    /** The water one till of the ring costs where the test runs: the configured base scaled by its climate. */
+    private static long perTillMb(GameTestHelper context) {
+        BlockPos soil = context.absolutePos(PLOTS.get(0).below());
+        return Hydration.waterMb(
+                FarmSettings.fromConfig().waterPerTillMb(), LevelFarmWorld.climate(context.getLevel(), soil));
     }
 
     /**
@@ -239,7 +244,7 @@ public class CropFarmGameTestBody {
      */
     public static void testHoeingSpendsWater(GameTestHelper context) {
         int tills = 5;
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, tills * perTillMb());
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, tills * perTillMb(context));
         if (rig == null) {
             return;
         }
@@ -305,7 +310,7 @@ public class CropFarmGameTestBody {
             if (!context.getBlockState(target.below()).is(Blocks.FARMLAND)) {
                 throw context.assertionException(target.below(), "The plot should have been tilled again");
             }
-            assertFarmWater(context, rig, TANK_MB - perTillMb(), "Re-tilling should have paid one till's water");
+            assertFarmWater(context, rig, TANK_MB - perTillMb(context), "Re-tilling should have paid one till's water");
         });
     }
 

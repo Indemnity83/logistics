@@ -47,6 +47,16 @@ final class CourtyardGuard implements FarmWorldAccess {
     }
 
     @Override
+    public FarmClimate climate(BlockPos pos) {
+        return world.climate(pos);
+    }
+
+    @Override
+    public TreeView.Kind treeKind(BlockState state) {
+        return world.treeKind(state);
+    }
+
+    @Override
     public TreeView treeView() {
         TreeView inner = world.treeView();
         return pos -> courtyard.contains(pos) ? TreeView.Kind.NEVER_TOUCH : inner.kind(pos);
@@ -74,10 +84,8 @@ final class CourtyardGuard implements FarmWorldAccess {
     }
 
     @Override
-    public void setBlock(BlockPos pos, BlockState state, int flags) {
-        if (!courtyard.contains(pos)) {
-            world.setBlock(pos, state, flags);
-        }
+    public boolean setBlock(BlockPos pos, BlockState state, int flags) {
+        return !courtyard.contains(pos) && world.setBlock(pos, state, flags);
     }
 
     @Override
