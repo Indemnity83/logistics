@@ -1,6 +1,7 @@
 package com.logistics.core.lib.client.screen.tab;
 
-import static com.logistics.core.lib.client.screen.tab.SideTabHost.EDGE_OVERLAP;
+import static com.logistics.core.lib.client.screen.tab.SideTabHost.COLLAPSED_OVERLAP;
+import static com.logistics.core.lib.client.screen.tab.SideTabHost.OPEN_OVERLAP;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
@@ -52,7 +53,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 /**
  * Every screen carrying side tabs honours the integration contract: it exposes its host, it treats
  * the tab rects as inside the GUI when a carried item is released, and no tab, collapsed, animating
- * or fully open, ever lies over a slot or reaches further into the GUI than its outer border.
+ * or fully open, ever lies over a slot or reaches further into the GUI than its outer border. Collapsed
+ * tabs do not reach into the GUI at all.
  *
  * <p>Tabs draw below slots and do not stop a slot from being hovered, so a tab over a slot would
  * show a highlight and take key presses through the tab. Adding a screen is one line in
@@ -128,6 +130,10 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
             List<TabRect> collapsed = frame(screen, menu, geometry, new FakeClock());
             assertThat(collapsed).as(where + ": visible tabs").isNotEmpty();
             assertClear(collapsed, slots, geometry, where + ", collapsed");
+            for (TabRect tab : collapsed) {
+                assertThat(intrusion(tab, geometry.image())).as(where + ": collapsed tab " + tab + " reaches into the GUI")
+                        .isEqualTo(COLLAPSED_OVERLAP);
+            }
 
             int opened = 0;
             for (int i = 0; i < collapsed.size(); i++) {
@@ -169,12 +175,17 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
             for (TabRect slot : slots) {
                 assertThat(tab.intersects(slot)).as(where + ": tab " + tab + " over slot " + slot).isFalse();
             }
-            if (tab.intersects(image)) {
-                int overlap = Math.min(tab.right(), image.right()) - Math.max(tab.x(), image.x());
-                assertThat(overlap).as(where + ": tab " + tab + " reaches into the GUI " + image)
-                        .isLessThanOrEqualTo(EDGE_OVERLAP);
-            }
+            assertThat(intrusion(tab, image)).as(where + ": tab " + tab + " reaches into the GUI " + image)
+                    .isLessThanOrEqualTo(OPEN_OVERLAP);
         }
+    }
+
+    /** How many columns of {@code image} the tab covers; 0 when they do not intersect. */
+    private static int intrusion(TabRect tab, TabRect image) {
+        if (!tab.intersects(image)) {
+            return 0;
+        }
+        return Math.min(tab.right(), image.right()) - Math.max(tab.x(), image.x());
     }
 
     /** Each slot's hover area, {@code isHovering(x, y, 16, 16)}: one pixel beyond the item on every side. */
