@@ -88,7 +88,7 @@ public enum MachineTier implements StringRepresentable {
         });
     }
 
-    private static Optional<MachineTier> byRank(int rank) {
+    public static Optional<MachineTier> byRank(int rank) {
         for (MachineTier tier : VALUES) {
             if (tier.rank == rank) {
                 return Optional.of(tier);

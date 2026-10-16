@@ -191,11 +191,19 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         assertThat(lang.has(FarmComponent.HUD_STATUS)).isTrue();
         assertThat(lang.has(FarmComponent.HUD_PLOT)).isTrue();
         assertThat(lang.has(FarmComponent.HUD_PLOT_SIZE)).isTrue();
+        assertThat(lang.has(FarmComponent.HUD_PLOTS)).isTrue();
+        assertThat(lang.has(FarmComponent.HUD_PLOTS_VALUE)).isTrue();
+        assertThat(lang.has(FarmScreenText.TITLE)).isTrue();
+        assertThat(lang.has(FarmScreenText.TOOLTIP_AREA)).isTrue();
+        assertThat(lang.has(FarmScreenText.TOOLTIP_PLOTS)).isTrue();
+        for (MachineTier tier : MachineTier.values()) {
+            assertThat(lang.has(tier.translationKey())).as(tier.translationKey()).isTrue();
+        }
         assertThat(lang.has(TieredBlockItem.TOOLTIP_TIER)).isTrue();
     }
 
     @Test
-    @DisplayName("the Jade HUD carries the status and the plot size")
+    @DisplayName("the Jade HUD carries the status, the plot size and the plot counts")
     void hudLines() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
         MachineHudModel hud = new MachineHudModel();
@@ -205,7 +213,25 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
 
         assertThat(MachineHudModel.entries(data)).containsExactly(
                 new MachineHudModel.LineEntry(FarmComponent.HUD_STATUS, FarmStatus.IDLE.translationKey(), java.util.List.of()),
-                new MachineHudModel.LineEntry(FarmComponent.HUD_PLOT, FarmComponent.HUD_PLOT_SIZE, java.util.List.of("3")));
+                new MachineHudModel.LineEntry(FarmComponent.HUD_PLOT, FarmComponent.HUD_PLOT_SIZE, java.util.List.of("3")),
+                new MachineHudModel.LineEntry(
+                        FarmComponent.HUD_PLOTS, FarmComponent.HUD_PLOTS_VALUE, java.util.List.of("8", "0")));
+    }
+
+    @Test
+    @DisplayName("the Jade plot counts subtract the blocked plots from the ring")
+    void hudPlotCounts() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic()
+                .script((world, plot) -> PlotAction.blocked(PlotAction.Reason.OBSTRUCTED)));
+        farm.ticks(400);
+        MachineHudModel hud = new MachineHudModel();
+        farm.farm().contributeHud(hud);
+        CompoundTag data = new CompoundTag();
+        hud.save(data);
+
+        assertThat(MachineHudModel.entries(data)).contains(
+                new MachineHudModel.LineEntry(
+                        FarmComponent.HUD_PLOTS, FarmComponent.HUD_PLOTS_VALUE, java.util.List.of("0", "8")));
     }
 
     @Test

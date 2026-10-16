@@ -97,6 +97,8 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     public static final String HUD_STATUS = "jade.logistics.machine.status";
     public static final String HUD_PLOT = "jade.logistics.farm.plot";
     public static final String HUD_PLOT_SIZE = "jade.logistics.farm.plot_size";
+    public static final String HUD_PLOTS = "jade.logistics.farm.plots";
+    public static final String HUD_PLOTS_VALUE = "jade.logistics.farm.plots_value";
 
     /** Loose items are swept from the soil layer to this far above the plots. */
     private static final int SWEEP_HEIGHT = 32;
@@ -126,6 +128,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private final FarmOutput output;
     private final Map<FarmLogic, Inputs> inputs = new IdentityHashMap<>();
     private final FarmStatusTracker tracker = new FarmStatusTracker();
+    private final BlockedPlots blockedPlots = new BlockedPlots();
     private final ArrayDeque<HarvestTarget> harvest = new ArrayDeque<>();
     private final WorkBudget budget = new WorkBudget();
     private final CountingWorld counted = new CountingWorld();
@@ -208,6 +211,18 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     /** Side of the square whose ring is worked: a 15 means the ring reaches 15×15. */
     public int areaSize() {
         return outerOverride > 0 ? outerOverride : settings.get().profile(tier.get()).outerSize();
+    }
+
+    /** Plots in the worked ring. */
+    public int plotsTotal() {
+        int outer = areaSize();
+        int inner = outerOverride > 0 ? innerOverride : FarmGeometry.COURTYARD;
+        return outer * outer - inner * inner;
+    }
+
+    /** Ring plots that came back blocked on their most recent visit; see {@link BlockedPlots}. */
+    public int plotsBlocked() {
+        return Math.min(blockedPlots.count(), plotsTotal());
     }
 
     @Nullable
@@ -376,6 +391,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     private void ensureScanner(RingArea area, FarmSettings s) {
         int plotCount = area.plotCount();
+        blockedPlots.resize(plotCount);
         if (scanner == null || scannerBase != s.idleBackoffBaseTicks() || scannerMax != s.idleBackoffMaxTicks()) {
             int cursor = scanner != null ? scanner.cursor() : savedCursor;
             scannerBase = s.idleBackoffBaseTicks();
@@ -491,6 +507,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             return FarmStatus.IDLE;
         }
         tracker.record(outcome);
+        blockedPlots.record(index, outcome);
         return outcome;
     }
 
@@ -1245,6 +1262,8 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     public void contributeHud(MachineHudModel hud) {
         hud.line(HUD_STATUS, status.translationKey());
         hud.line(HUD_PLOT, HUD_PLOT_SIZE, Integer.toString(areaSize()));
+        int blocked = plotsBlocked();
+        hud.line(HUD_PLOTS, HUD_PLOTS_VALUE, Integer.toString(plotsTotal() - blocked), Integer.toString(blocked));
     }
 
     // ==================== Persistence ====================

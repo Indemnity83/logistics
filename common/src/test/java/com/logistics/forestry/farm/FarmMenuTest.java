@@ -8,12 +8,15 @@ import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -298,6 +301,35 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.areaSize()).as("the ring's outer side at the farm's tier").isEqualTo(15);
         assertThat(menu.usesWater()).isTrue();
         assertThat(menu.laysSoil()).isFalse();
+        assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
+        assertThat(menu.plotsTotal()).as("15×15 around the 7×7 courtyard").isEqualTo(176);
+        assertThat(menu.plotsBlocked()).isZero();
+        assertThat(menu.plotsUsable()).isEqualTo(176);
+
+        farm.parts.tier().setTier(MachineTier.PRECISION);
+        assertThat(data.get(FarmMenu.TIER)).isEqualTo(MachineTier.PRECISION.rank());
+        assertThat(menu.tier()).isEqualTo(MachineTier.PRECISION);
+    }
+
+    @Test
+    @DisplayName("the tier and plot counts follow the earlier indices, and an unknown tier rank reads as Basic")
+    void tierAndPlotIndices() {
+        assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.FLAGS + 1);
+        assertThat(FarmMenu.PLOTS_TOTAL).isEqualTo(FarmMenu.TIER + 1);
+        assertThat(FarmMenu.PLOTS_BLOCKED).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
+        assertThat(FarmMenu.DATA_COUNT).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
+
+        SimpleContainerData data = new SimpleContainerData(FarmMenu.DATA_COUNT);
+        FarmMenu menu = new FarmMenu(1, playerInventory(), new SimpleContainer(FarmMachine.SLOT_COUNT), data);
+        data.set(FarmMenu.TIER, MachineTier.INFERNAL.rank());
+        data.set(FarmMenu.PLOTS_TOTAL, 72);
+        data.set(FarmMenu.PLOTS_BLOCKED, 5);
+        assertThat(menu.tier()).isEqualTo(MachineTier.INFERNAL);
+        assertThat(menu.plotsUsable()).isEqualTo(67);
+        assertThat(menu.plotsBlocked()).isEqualTo(5);
+
+        data.set(FarmMenu.TIER, 99);
+        assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
     }
 
     @Test
