@@ -52,7 +52,15 @@ public final class CropFarmGameTestRegistration {
         new GameTestCase(
             "forestry/crop_farm_lays_soil_level_with_farm_on_grass",
             2400,
-            CropFarmGameTestBody::testLaysSoilLevelWithFarmOnGrass));
+            CropFarmGameTestBody::testLaysSoilLevelWithFarmOnGrass),
+        new GameTestCase(
+            "forestry/crop_farm_tier_survives_break_and_replace",
+            100,
+            CropFarmGameTestBody::testTierSurvivesBreakAndReplace),
+        new GameTestCase(
+            "forestry/crop_farm_raising_tier_grows_energy_buffer",
+            600,
+            CropFarmGameTestBody::testRaisingTierGrowsEnergyBuffer));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

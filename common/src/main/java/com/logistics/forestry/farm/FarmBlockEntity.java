@@ -3,6 +3,8 @@ package com.logistics.forestry.farm;
 import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.tier.TierComponent;
+import com.logistics.core.machine.tier.TieredMachine;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -21,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * is comes from its block's {@link FarmMachineBlock#logic()}; the components are built by
  * {@link FarmMachine#assemble}.
  */
-public class FarmBlockEntity extends MachineEntity {
+public class FarmBlockEntity extends MachineEntity implements TieredMachine {
 
     /** Logic for a block entity found on a block that is not a farm; accepts and does nothing. */
     private static final FarmLogic UNKNOWN_FARM = new FarmLogic() {
@@ -74,6 +76,16 @@ public class FarmBlockEntity extends MachineEntity {
         return parts.logic();
     }
 
+    @Override
+    public TierComponent tierComponent() {
+        return parts.tier();
+    }
+
+    /** Side of the square the farm works out to. */
+    public int areaSize() {
+        return parts.farm().areaSize();
+    }
+
     public FarmStatus status() {
         return parts.farm().status();
     }
@@ -88,7 +100,10 @@ public class FarmBlockEntity extends MachineEntity {
         setChanged();
     }
 
-    /** Test seam: works the ring between squares of {@code inner} and {@code outer} for this farm only. */
+    /**
+     * Test seam: works the ring between squares of {@code inner} and {@code outer} for this farm
+     * only, instead of the courtyard and the tier's ring; 0 for both restores them.
+     */
     public void setAreaOverride(int inner, int outer) {
         parts.farm().setAreaOverride(inner, outer);
     }

@@ -84,7 +84,8 @@ public class TreeFellerGameTestBody {
             return;
         }
 
-        FellPlan plan = TreeFeller.plan(view, context.absolutePos(plot), TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(
+                view, context.absolutePos(plot), TreeFeller.Limits.around(context.absolutePos(plot), 8));
 
         List<BlockPos> expected = List.of(
                         new BlockPos(2, 6, 2),

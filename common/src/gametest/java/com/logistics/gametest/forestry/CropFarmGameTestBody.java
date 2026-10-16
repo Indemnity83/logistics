@@ -1,5 +1,6 @@
 package com.logistics.gametest.forestry;
 
+import com.logistics.LogisticsCore;
 import com.logistics.LogisticsForestry;
 import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
@@ -9,11 +10,13 @@ import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.machine.area.RingArea;
+import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachine;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmStatus;
+import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
@@ -23,9 +26,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.LeverBlock;
@@ -35,6 +42,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -632,6 +640,104 @@ public class CropFarmGameTestBody {
             assertNoDirtInOutput(context, rig);
         });
         context.succeedWhen(() -> assertWheatEverywhere(context, PLOTS));
+    }
+
+    // ==================== Tiers ====================
+
+    /**
+     * A farm raised to Industrial and mined drops an item carrying its tier; placing that item again
+     * gives an Industrial farm, with the Industrial ring and buffers.
+     */
+    public static void testTierSurvivesBreakAndReplace(GameTestHelper context) {
+        context.setBlock(FARM.below(), Blocks.STONE);
+        context.setBlock(FARM, LogisticsForestry.BLOCK.CROP_FARM.defaultBlockState()
+                .setValue(FarmMachineBlock.FACING, Direction.EAST));
+        FarmBlockEntity placed = context.getBlockEntity(FARM, FarmBlockEntity.class);
+        if (placed == null) {
+            context.fail("Expected the farm block entity");
+            return;
+        }
+        placed.tierComponent().setTier(MachineTier.INDUSTRIAL);
+
+        context.getLevel().destroyBlock(context.absolutePos(FARM), true);
+        AABB around = new AABB(context.absolutePos(FARM)).inflate(2.0);
+        List<ItemEntity> dropped = context.getLevel().getEntitiesOfClass(ItemEntity.class, around).stream()
+                .filter(item -> item.getItem().is(LogisticsForestry.BLOCK.CROP_FARM.asItem()))
+                .toList();
+        if (dropped.size() != 1) {
+            context.fail("Breaking the farm should drop exactly one farm item, dropped " + dropped.size());
+            return;
+        }
+        ItemStack item = dropped.get(0).getItem().copy();
+        dropped.get(0).discard();
+        if (item.get(LogisticsCore.DATA.MACHINE_TIER) != MachineTier.INDUSTRIAL) {
+            context.fail("The dropped farm should carry its tier, carries " + item.get(LogisticsCore.DATA.MACHINE_TIER));
+            return;
+        }
+
+        // Clicking the top of the stone below, item in hand, places the farm back where it was.
+        Player player = context.makeMockPlayer(GameType.SURVIVAL);
+        player.setItemInHand(InteractionHand.MAIN_HAND, item);
+        context.placeAt(player, item, FARM.below(2), Direction.UP);
+        FarmBlockEntity replaced = context.getBlockEntity(FARM, FarmBlockEntity.class);
+        if (replaced == null) {
+            context.fail("Placing the dropped item should put a farm back");
+            return;
+        }
+        FarmTierProfile industrial = FarmSettings.fromConfig().profile(MachineTier.INDUSTRIAL);
+        if (replaced.tier() != MachineTier.INDUSTRIAL) {
+            context.fail("The replaced farm should be Industrial, is " + replaced.tier());
+            return;
+        }
+        if (replaced.areaSize() != industrial.outerSize()
+                || replaced.energyStorage(null).getCapacity() != industrial.energyCapacity()) {
+            context.fail("The replaced farm should work the Industrial ring with the Industrial buffer, works "
+                    + replaced.areaSize() + " with " + replaced.energyStorage(null).getCapacity() + " RF");
+            return;
+        }
+        context.succeed();
+    }
+
+    /**
+     * Raising a powered farm's tier grows its ring and its energy buffer: the engine keeps filling it
+     * past the Basic capacity, at the Industrial input rate.
+     */
+    public static void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, false);
+        if (rig == null) {
+            return;
+        }
+        FarmSettings settings = FarmSettings.fromConfig();
+        FarmTierProfile basic = settings.profile(MachineTier.BASIC);
+        FarmTierProfile industrial = settings.profile(MachineTier.INDUSTRIAL);
+        FarmBlockEntity farm = rig.farm();
+        // The tier's own ring reaches past the test structure, so it is only measured, never worked.
+        farm.setAreaOverride(0, 0);
+        int basicRing = farm.areaSize();
+        long basicCapacity = farm.energyStorage(null).getCapacity();
+        farm.tierComponent().setTier(MachineTier.INDUSTRIAL);
+        int industrialRing = farm.areaSize();
+        farm.setAreaOverride(RING_INNER, RING_OUTER);
+        if (basicRing != basic.outerSize() || basicCapacity != basic.energyCapacity()) {
+            context.fail("A new farm should be Basic, works " + basicRing + " with " + basicCapacity + " RF");
+            return;
+        }
+        if (industrialRing != industrial.outerSize()) {
+            context.fail("The ring should reach " + industrial.outerSize() + ", reaches " + industrialRing);
+            return;
+        }
+        context.succeedWhen(() -> {
+            long capacity = farm.energyStorage(null).getCapacity();
+            if (capacity != industrial.energyCapacity()) {
+                throw context.assertionException(FARM, "The buffer should hold " + industrial.energyCapacity()
+                        + " RF, holds " + capacity);
+            }
+            long stored = farm.energyStorage(null).getAmount();
+            if (stored <= basic.energyCapacity()) {
+                throw context.assertionException(FARM, "The engine should fill the buffer past the Basic "
+                        + basic.energyCapacity() + " RF, has " + stored);
+            }
+        });
     }
 
     /** Throws if any dirt is in the farm's output, the output hopper or the chest. */

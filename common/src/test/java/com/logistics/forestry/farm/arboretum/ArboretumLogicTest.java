@@ -91,10 +91,8 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("works the ring from 9×9 out to 13×13, keeping ten blocks clear above each plot")
-    void ringShape() {
-        assertThat(logic().ringInner()).isEqualTo(9);
-        assertThat(logic().ringOuter()).isEqualTo(13);
+    @DisplayName("keeps ten blocks clear above each plot")
+    void clearance() {
         assertThat(logic().clearanceHeight()).isEqualTo(10);
     }
 
@@ -102,6 +100,7 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
 
     static Stream<Arguments> rings() {
         return Stream.of(
+                Arguments.of(new RingArea(BlockPos.ZERO, 7, 11), 12),
                 Arguments.of(new RingArea(BlockPos.ZERO, 9, 13), 12),
                 Arguments.of(new RingArea(BlockPos.ZERO, 3, 7), 4),
                 Arguments.of(new RingArea(BlockPos.ZERO, 1, 5), 4));

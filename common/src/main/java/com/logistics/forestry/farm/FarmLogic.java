@@ -1,6 +1,6 @@
 package com.logistics.forestry.farm;
 
-import com.logistics.core.machine.area.PlotArea;
+import com.logistics.core.machine.area.PlotLayout;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -18,23 +18,28 @@ import org.jetbrains.annotations.Nullable;
  * <p>{@link #usesWater()} and {@link #laysSoil()} shape the machine (its tank and soil slots), so
  * they must never change for a given farm type.
  *
- * <p>A farm works the ring of plots between two squares centred on it, {@link #ringInner()} and
- * {@link #ringOuter()} wide, one block above the farm so that their soil is level with it. Before
- * the logic is asked about a plot, the farm clears every block from the plot's column,
+ * <p>A farm works the ring of plots around its {@link FarmGeometry#COURTYARD}, out to its tier's
+ * outer size, one block above the farm so that their soil is level with it. Before the logic is
+ * asked about a plot, the farm clears every block from the plot's column,
  * {@link #clearanceHeight()} tall, that is not {@link #isOwnGrowth own growth}; the logic only
  * decides once that column is clear.
+ *
+ * <p>Contract, so that one farm may later split its ring between several logics ({@link FarmPlan}):
+ *
+ * <ul>
+ *   <li>A logic is stateless; it decides only from the world, its region, the plot and its inputs.
+ *   <li>Every per-plot question (deciding, clearance height, own growth, soil after harvest, which
+ *       germlings and soil it accepts) is asked of the logic that works that plot.
+ *   <li>Patterns use region-relative lane and step coordinates through {@link PlotLayout}, defined
+ *       per lane from the inside out, so widening the ring only adds lanes. A logic never depends
+ *       on how many plots the whole ring has.
+ *   <li>Every cell of a multi-cell placement (a 2×2 tree group) satisfies {@code region.contains}.
+ *   <li>Trees are felled within the region's bounds
+ *       ({@link com.logistics.forestry.logic.TreeFeller.Limits#within}), never in
+ *       its {@link PlotLayout#keepOut()}.
+ * </ul>
  */
 public interface FarmLogic {
-
-    /** Side of the square around the farm, the farm included, that is never worked (odd). */
-    default int ringInner() {
-        return 9;
-    }
-
-    /** Side of the square whose ring outside {@link #ringInner()} is worked (odd, larger). */
-    default int ringOuter() {
-        return 13;
-    }
 
     /** Blocks the farm keeps clear above each plot, counting the plot itself. */
     default int clearanceHeight() {
@@ -102,11 +107,11 @@ public interface FarmLogic {
     }
 
     /**
-     * {@link #decide(FarmWorld, BlockPos, FarmInputs)} for a plot of {@code area}; the farm calls
+     * {@link #decide(FarmWorld, BlockPos, FarmInputs)} for a plot of {@code region}; the farm calls
      * this one. Override it when the planting pattern depends on where {@code plot} lies in the
-     * area. Defaults to ignoring the area.
+     * region. Defaults to ignoring the region.
      */
-    default PlotAction decide(FarmWorld world, PlotArea area, BlockPos plot, FarmInputs inputs) {
+    default PlotAction decide(FarmWorld world, PlotLayout region, BlockPos plot, FarmInputs inputs) {
         return decide(world, plot, inputs);
     }
 }

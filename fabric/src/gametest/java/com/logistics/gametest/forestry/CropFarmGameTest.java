@@ -80,4 +80,14 @@ public class CropFarmGameTest {
     public void testLaysSoilLevelWithFarmOnGrass(GameTestHelper context) {
         CropFarmGameTestBody.testLaysSoilLevelWithFarmOnGrass(context);
     }
+
+    @GameTest(maxTicks = 100)
+    public void testTierSurvivesBreakAndReplace(GameTestHelper context) {
+        CropFarmGameTestBody.testTierSurvivesBreakAndReplace(context);
+    }
+
+    @GameTest(maxTicks = 600)
+    public void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
+        CropFarmGameTestBody.testRaisingTierGrowsEnergyBuffer(context);
+    }
 }

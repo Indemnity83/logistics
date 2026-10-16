@@ -25,9 +25,12 @@ import org.jetbrains.annotations.Nullable;
  */
 final class FarmHarness {
 
+    /** A 10 000 RF buffer taking 1 000 RF/t and an 8 000 mB tank, at every tier. */
+    static final FarmTierProfile PROFILE = new FarmTierProfile(11, 10_000, 1_000, 8_000);
+
     /** One plot per tick, so tests can count steps in ticks; clearing costs differ from harvesting. */
     static final FarmSettings SETTINGS =
-            new FarmSettings(1, 10_000, 1_000, 40, 30, 100, 60, 60, 20, 8_000, 250, 4, 20, 200);
+            new FarmSettings(1, 40, 30, 100, 60, 60, 20, 250, 4, 20, 200, FarmSettings.everyTier(PROFILE));
 
     final ScriptedFarmLogic logic;
     final FakeFarmWorld world = new FakeFarmWorld();
@@ -35,11 +38,28 @@ final class FarmHarness {
     final MachineComponentContainer components = new MachineComponentContainer();
     final FarmMachine machine;
     FarmSettings settings = SETTINGS;
+    private int inner = 1;
+    private int outer = 3;
 
+    /** A farm working the 8-plot ring around a 1×1 centre. */
     FarmHarness(ScriptedFarmLogic logic) {
+        this(logic, SETTINGS);
+    }
+
+    /** A farm working the 8-plot ring around a 1×1 centre, its buffers sized from {@code settings}. */
+    FarmHarness(ScriptedFarmLogic logic, FarmSettings settings) {
         this.logic = logic;
+        this.settings = settings;
         this.machine = FarmMachine.assemble(
                 new MachineBuilder(components, () -> {}), logic, () -> settings, (ctx, owner) -> world);
+        areaOverride(inner, outer);
+    }
+
+    /** Works the ring between squares of {@code inner} and {@code outer}; 0 for both works the tier's. */
+    void areaOverride(int inner, int outer) {
+        farm().setAreaOverride(inner, outer);
+        this.inner = inner;
+        this.outer = outer;
     }
 
     void tick() {
@@ -52,9 +72,12 @@ final class FarmHarness {
         }
     }
 
-    /** The ring the logic asks for around the host, one block above it. */
+    /** The ring the farm works around the host, one block above it. */
     RingArea area() {
-        return new RingArea(host.pos().above(), logic.ringInner(), logic.ringOuter());
+        BlockPos origin = host.pos().above();
+        return outer > 0
+                ? new RingArea(origin, inner, outer)
+                : FarmGeometry.ring(origin, settings.profile(machine.tier().tier()).outerSize());
     }
 
     /** Plot {@code index} of the host's ring, in scan order. */

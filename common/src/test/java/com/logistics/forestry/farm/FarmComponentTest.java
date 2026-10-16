@@ -415,7 +415,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         ScriptedFarmLogic logic = plantingEverywhere();
         logic.clearanceHeight = 3;
         FarmHarness farm = new FarmHarness(logic);
-        farm.farm().setAreaOverride(3, 5);
+        farm.areaOverride(3, 5);
         BlockPos inner = farm.host.pos().offset(1, 1, 0);
         farm.world.set(inner, Blocks.COBBLESTONE.defaultBlockState());
         farm.world.set(farm.host.pos().above(), Blocks.COBBLESTONE.defaultBlockState());
@@ -951,20 +951,20 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("the area override works a different ring, and restores the logic's")
+    @DisplayName("the area override works a different ring, and restores the tier's")
     void areaOverride() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
         assertThat(farm.farm().areaSize()).isEqualTo(3);
 
-        farm.farm().setAreaOverride(1, 5);
+        farm.areaOverride(1, 5);
         farm.power(10_000);
         farm.ticks(24 + FarmHarness.SETTINGS.idleBackoffBaseTicks() + 1);
 
         assertThat(farm.farm().areaSize()).isEqualTo(5);
         assertThat(farm.logic.decisions).as("one 24-plot pass, the back-off, then the next pass").isEqualTo(25);
 
-        farm.farm().setAreaOverride(0, 0);
-        assertThat(farm.farm().areaSize()).isEqualTo(3);
+        farm.areaOverride(0, 0);
+        assertThat(farm.farm().areaSize()).isEqualTo(FarmHarness.PROFILE.outerSize());
     }
 
     @Test
@@ -972,9 +972,9 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     void invalidAreaOverride() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.farm().setAreaOverride(3, 3))
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.areaOverride(3, 3))
                 .isInstanceOf(IllegalArgumentException.class);
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.farm().setAreaOverride(2, 5))
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.areaOverride(2, 5))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -987,8 +987,8 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         farm.tick();
 
         assertThat(farm.logic.lastArea).isEqualTo(new RingArea(farm.host.pos().above(), 1, 3));
-        assertThat(farm.logic.lastArea.plot(0).below().getY()).isEqualTo(farm.host.pos().getY());
-        assertThat(farm.logic.lastArea.plot(0)).isEqualTo(farm.plot(0));
+        assertThat(farm.logic.lastArea.plot(0, 0).below().getY()).isEqualTo(farm.host.pos().getY());
+        assertThat(farm.logic.lastArea.plot(0, 0)).isEqualTo(farm.plot(0));
     }
 
     @Test
