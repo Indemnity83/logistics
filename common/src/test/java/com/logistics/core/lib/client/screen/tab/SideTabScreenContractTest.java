@@ -3,6 +3,20 @@ package com.logistics.core.lib.client.screen.tab;
 import static com.logistics.core.lib.client.screen.tab.SideTabHost.EDGE_OVERLAP;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.logistics.automation.alloysmelter.AlloySmelterScreen;
+import com.logistics.automation.alloysmelter.AlloySmelterScreenHandler;
+import com.logistics.automation.crucible.CrucibleScreen;
+import com.logistics.automation.crucible.CrucibleScreenHandler;
+import com.logistics.automation.fabricator.SequentialFabricatorScreen;
+import com.logistics.automation.fabricator.SequentialFabricatorScreenHandler;
+import com.logistics.automation.kiln.KilnScreen;
+import com.logistics.automation.kiln.KilnScreenHandler;
+import com.logistics.automation.macerator.MaceratorScreen;
+import com.logistics.automation.macerator.MaceratorScreenHandler;
+import com.logistics.automation.refinery.RefineryScreen;
+import com.logistics.automation.refinery.RefineryScreenHandler;
+import com.logistics.automation.sawmill.SawmillScreen;
+import com.logistics.automation.sawmill.SawmillScreenHandler;
 import com.logistics.automation.transposer.TransposerScreen;
 import com.logistics.automation.transposer.TransposerScreenHandler;
 import com.logistics.core.lib.client.screen.tab.TabFixtures.FakeClock;
@@ -43,7 +57,22 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
 
     static Stream<ScreenCase> screens() {
         return Stream.of(
-                machine("transposer", TransposerScreen.class,
+                machine("macerator", MaceratorScreen.class, 176, 166,
+                        inventory -> new MaceratorScreenHandler(1, inventory), MaceratorScreenHandler::controls),
+                machine("kiln", KilnScreen.class, 176, 166,
+                        inventory -> new KilnScreenHandler(1, inventory), KilnScreenHandler::controls),
+                machine("sawmill", SawmillScreen.class, 176, 166,
+                        inventory -> new SawmillScreenHandler(1, inventory), SawmillScreenHandler::controls),
+                machine("alloy_smelter", AlloySmelterScreen.class, 176, 166,
+                        inventory -> new AlloySmelterScreenHandler(1, inventory), AlloySmelterScreenHandler::controls),
+                machine("crucible", CrucibleScreen.class, 176, 166,
+                        inventory -> new CrucibleScreenHandler(1, inventory), CrucibleScreenHandler::controls),
+                machine("refinery", RefineryScreen.class, 176, 166,
+                        inventory -> new RefineryScreenHandler(1, inventory), RefineryScreenHandler::controls),
+                machine("sequential_fabricator", SequentialFabricatorScreen.class, 176, 186,
+                        inventory -> new SequentialFabricatorScreenHandler(1, inventory),
+                        SequentialFabricatorScreenHandler::controls),
+                machine("transposer", TransposerScreen.class, 176, 166,
                         inventory -> new TransposerScreenHandler(1, inventory), TransposerScreenHandler::controls));
     }
 
@@ -140,9 +169,11 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
     private static <M extends AbstractContainerMenu> ScreenCase machine(
             String key,
             Class<? extends AbstractContainerScreen<?>> screenClass,
+            int imageWidth,
+            int imageHeight,
             Function<Inventory, M> menu,
             Function<M, MachineControls> controls) {
-        return new ScreenCase(key, screenClass, menu::apply, 176, 166, (m, anchor, clock) ->
+        return new ScreenCase(key, screenClass, menu::apply, imageWidth, imageHeight, (m, anchor, clock) ->
                 MachineTabs.machine(key, m, controls.apply(cast(m)), anchor, new EnglishLang.Text(), clock));
     }
 

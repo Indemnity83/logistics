@@ -144,8 +144,8 @@ public final class SideTabsWidget implements Renderable, GuiEventListener, Narra
         }
 
         @Override
-        public int wrappedText(Component text, int x, int y, int maxWidth, int argb) {
-            return graphics.textWithWordWrap(font(), text, x, y, maxWidth, argb) - y;
+        public int wrappedText(Component text, int x, int y, int maxWidth, int argb, boolean shadow) {
+            return graphics.textWithWordWrap(font(), text, x, y, maxWidth, argb, shadow) - y;
         }
 
         @Override

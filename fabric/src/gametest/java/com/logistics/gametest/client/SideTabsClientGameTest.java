@@ -135,7 +135,7 @@ public class SideTabsClientGameTest implements FabricClientGameTest {
         screenshot(context, "tabs-scale4-hover");
     }
 
-    private static SideTabHost host(Minecraft client) {
+    static SideTabHost host(Minecraft client) {
         Screen current = ClientScreenCompat.currentScreen();
         if (!(current instanceof SideTabScreen screen)) {
             throw new AssertionError("Expected a side-tab screen, found " + current);
@@ -156,7 +156,7 @@ public class SideTabsClientGameTest implements FabricClientGameTest {
     }
 
     /** Moves the cursor to a point in GUI-scaled coordinates, converted to window coordinates. */
-    private static void hover(ClientGameTestContext context, double guiX, double guiY) {
+    static void hover(ClientGameTestContext context, double guiX, double guiY) {
         double[] window = context.computeOnClient(client -> {
             Window w = client.getWindow();
             double perX = (double) w.getScreenWidth() / w.getGuiScaledWidth();
@@ -168,11 +168,11 @@ public class SideTabsClientGameTest implements FabricClientGameTest {
     }
 
     /** Parks the cursor in the top-left corner, clear of the GUI and of every tab. */
-    private static void moveAway(ClientGameTestContext context) {
+    static void moveAway(ClientGameTestContext context) {
         hover(context, 1, 1);
     }
 
-    private static void screenshot(ClientGameTestContext context, String name) {
+    static void screenshot(ClientGameTestContext context, String name) {
         context.takeScreenshot(TestScreenshotOptions.of(name).disableCounterPrefix());
     }
 }

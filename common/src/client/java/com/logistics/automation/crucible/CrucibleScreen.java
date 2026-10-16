@@ -1,6 +1,11 @@
 package com.logistics.automation.crucible;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.resource.ResourceId;
@@ -20,7 +25,7 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * Client-side GUI screen for the Crucible.
  */
-public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandler> {
+public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandler> implements SideTabScreen {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/crucible.png");
     private static final int TEXTURE_WIDTH = 256;
@@ -47,14 +52,29 @@ public class CrucibleScreen extends AbstractContainerScreen<CrucibleScreenHandle
     // The overlay (glass/frame drawn over the fluid) sits 64px to the right of the tank in the texture.
     private static final int OVERLAY_U = TANK_LEFT + 64;
 
+    private final SideTabHost tabs;
+
     public CrucibleScreen(CrucibleScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
+        this.tabs = MachineTabs.machine("crucible", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
     }
 
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override
