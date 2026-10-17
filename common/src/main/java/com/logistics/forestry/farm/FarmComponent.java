@@ -180,6 +180,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     @Nullable private FarmSurvey surveyed;
     // What the preview shows while working: the ring after Show area, or the new lanes after an upgrade.
     private FarmSurvey previewSurvey = FarmSurvey.EMPTY;
+    // Shown by the toggle until toggled off; a placed or loaded surveying farm starts shown. Never saved.
+    private boolean previewToggled = true;
+    // The end of an upgrade's flash, which shows whatever the toggle says.
     private long previewUntil;
     // The outer side of the ring the last tick worked.
     private int workedOuter;
@@ -239,30 +242,34 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return state;
     }
 
-    /** Starts working the ring. Returns false, changing nothing, unless the farm is surveying. */
+    /** Starts working the ring and hides the preview. Returns false, changing nothing, unless the farm is surveying. */
     public boolean start() {
         if (state != FarmState.SURVEY) {
             return false;
         }
         state = FarmState.ACTIVE;
+        previewToggled = false;
+        previewUntil = 0;
         cooldown = 0;
         dirty = true;
         return true;
     }
 
     /**
-     * Shows the area preview for {@link FarmPreview#SHOW_TICKS} from {@code now}, surveying the ring
-     * as it stands unless the preview is showing already. Returns false, changing nothing, unless
-     * the farm is working.
+     * Hides the area preview if it shows at {@code now}, cutting an upgrade's flash short; otherwise
+     * shows it until toggled off, surveying a working farm's ring as it stands. A surveying farm
+     * keeps surveying either way.
      */
-    public boolean showArea(MachineContext ctx, long now) {
-        if (state != FarmState.ACTIVE) {
-            return false;
+    public boolean toggleArea(MachineContext ctx, long now) {
+        if (previewShown(now)) {
+            previewToggled = false;
+            previewUntil = 0;
+        } else {
+            if (state == FarmState.ACTIVE) {
+                previewSurvey = surveyNow(ctx, 0);
+            }
+            previewToggled = true;
         }
-        if (now >= previewUntil) {
-            previewSurvey = surveyNow(ctx, 0);
-        }
-        previewUntil = now + FarmPreview.SHOW_TICKS;
         return true;
     }
 
@@ -294,14 +301,14 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return previewSurvey;
     }
 
-    /** Game time the preview shows until, outside a survey. */
+    /** Game time an upgrade's flash of the preview shows until. */
     long previewUntil() {
         return previewUntil;
     }
 
-    /** Whether the preview shows at {@code now}: while surveying, or until {@link #previewUntil()}. */
+    /** Whether the preview shows at {@code now}: while toggled on, or during an upgrade's flash. */
     public boolean previewShown(long now) {
-        return state == FarmState.SURVEY || now < previewUntil;
+        return previewToggled || now < previewUntil;
     }
 
     /** The preview as the last update tag carried it; on the client, what to draw. */
@@ -314,12 +321,13 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         RingArea area = area(ctx, settings.get());
         FarmSurvey found = survey();
         int height = clearanceHeight(logic);
-        FarmPreview preview = new FarmPreview(state, previewUntil, area.inner(), area.outer(), height, found);
+        FarmPreview preview =
+                new FarmPreview(state, previewToggled, previewUntil, area.inner(), area.outer(), height, found);
         if (!preview.visible(now)) {
             // Positions only while they are drawn.
             FarmSurvey counts =
                     FarmSurvey.of(found.natural(), found.flagged(), found.protectedCount(), List.of(), List.of());
-            preview = new FarmPreview(state, previewUntil, area.inner(), area.outer(), height, counts);
+            preview = new FarmPreview(state, previewToggled, previewUntil, area.inner(), area.outer(), height, counts);
         }
         pendingPreview = preview;
         try {
@@ -1656,6 +1664,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     private static CompoundTag savePreview(FarmPreview preview) {
         CompoundTag tag = new CompoundTag();
+        tag.putBoolean("Shown", preview.shown());
         tag.putLong("Until", preview.until());
         tag.putInt("Inner", preview.inner());
         tag.putInt("Outer", preview.outer());
@@ -1678,6 +1687,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                 positions(NbtCompat.getLongArray(tag, "ProtectedAt", new long[0])));
         return new FarmPreview(
                 state,
+                NbtCompat.getBoolean(tag, "Shown", false),
                 NbtCompat.getLong(tag, "Until", 0L),
                 NbtCompat.getInt(tag, "Inner", 0),
                 NbtCompat.getInt(tag, "Outer", 0),
@@ -1712,6 +1722,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
         output.load(tag, "Overflow", registries);
         state = FarmState.fromId(NbtCompat.getString(tag, "State", ""));
+        previewToggled = state == FarmState.SURVEY;
         // Only an update tag carries the preview; it is never saved.
         syncedPreview = NbtCompat.hasCompound(tag, "Preview")
                 ? loadPreview(state, NbtCompat.getCompoundOrEmpty(tag, "Preview"))

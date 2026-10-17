@@ -49,11 +49,16 @@ class FarmScreenTextTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("the button reads Start and presses Start while surveying, Show area once working")
+    @DisplayName("the button reads Start and presses Start while surveying, then Show area or Hide area once working")
     void button() {
-        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.SURVEY)).getKey()).isEqualTo(FarmScreenText.BUTTON_START);
-        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.ACTIVE)).getKey())
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.SURVEY, true)).getKey())
+                .isEqualTo(FarmScreenText.BUTTON_START);
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.SURVEY, false)).getKey())
+                .isEqualTo(FarmScreenText.BUTTON_START);
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.ACTIVE, false)).getKey())
                 .isEqualTo(FarmScreenText.BUTTON_SHOW_AREA);
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.ACTIVE, true)).getKey())
+                .isEqualTo(FarmScreenText.BUTTON_HIDE_AREA);
         assertThat(FarmScreenText.buttonId(FarmState.SURVEY)).isEqualTo(FarmMenu.BUTTON_START);
         assertThat(FarmScreenText.buttonId(FarmState.ACTIVE)).isEqualTo(FarmMenu.BUTTON_SHOW_AREA);
 

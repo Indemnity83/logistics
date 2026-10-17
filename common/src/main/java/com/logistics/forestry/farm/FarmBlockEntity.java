@@ -56,7 +56,7 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
     protected void configure(MachineBuilder machine) {
         FarmLogic logic = getBlockState().getBlock() instanceof FarmMachineBlock farm ? farm.logic() : UNKNOWN_FARM;
         parts = FarmMachine.assemble(machine, logic, FarmSettings::fromConfig, FarmComponent.LEVEL);
-        containerData = FarmMenu.dataSource(parts);
+        containerData = FarmMenu.dataSource(parts, this::previewShown);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, FarmBlockEntity farm) {
@@ -132,10 +132,10 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
         return true;
     }
 
-    /** Shows a working farm's area preview for a while; false, changing nothing, while it surveys. */
+    /** Shows the area preview until toggled off, or hides it. */
     @Override
-    public boolean showArea() {
-        if (level == null || !parts.farm().showArea(this, level.getGameTime())) {
+    public boolean toggleArea() {
+        if (level == null || !parts.farm().toggleArea(this, level.getGameTime())) {
             return false;
         }
         sync();

@@ -19,7 +19,7 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * The screen every farm opens. Soil slot frames and the water gauge are drawn from the spare region
  * of the GUI texture only when the farm lays soil or has a tank; otherwise those areas stay plain.
- * One button under the soil row starts a surveying farm, then shows a working farm's area.
+ * One button under the soil row starts a surveying farm, then shows or hides a working farm's area.
  */
 public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
 
@@ -63,6 +63,7 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
 
     private Button stateButton;
     private FarmState shownState;
+    private boolean shownPreview;
     private int shownClear = -1;
     private int shownFlagged = -1;
     private int shownProtected = -1;
@@ -74,7 +75,7 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     @Override
     protected void init() {
         super.init();
-        stateButton = Button.builder(FarmScreenText.buttonLabel(menu.state()), button -> {
+        stateButton = Button.builder(FarmScreenText.buttonLabel(menu.state(), menu.previewShown()), button -> {
                     if (minecraft != null && minecraft.gameMode != null) {
                         minecraft.gameMode.handleInventoryButtonClick(
                                 menu.containerId, FarmScreenText.buttonId(menu.state()));
@@ -93,20 +94,26 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
         updateButton();
     }
 
-    /** The label and tooltip follow the synced state and survey; rebuilt only when they change. */
+    /** The label and tooltip follow the synced state, preview and survey; rebuilt only when they change. */
     private void updateButton() {
         FarmState state = menu.state();
+        boolean preview = menu.previewShown();
         int clear = menu.surveyClear();
         int flagged = menu.surveyFlagged();
         int skipped = menu.surveyProtected();
-        if (state == shownState && clear == shownClear && flagged == shownFlagged && skipped == shownProtected) {
+        if (state == shownState
+                && preview == shownPreview
+                && clear == shownClear
+                && flagged == shownFlagged
+                && skipped == shownProtected) {
             return;
         }
         shownState = state;
+        shownPreview = preview;
         shownClear = clear;
         shownFlagged = flagged;
         shownProtected = skipped;
-        stateButton.setMessage(FarmScreenText.buttonLabel(state));
+        stateButton.setMessage(FarmScreenText.buttonLabel(state, preview));
         stateButton.setTooltip(state == FarmState.SURVEY
                 ? Tooltip.create(FarmScreenText.startTooltip(clear, flagged, skipped))
                 : null);

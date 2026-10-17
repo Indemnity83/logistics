@@ -13,6 +13,7 @@ final class FarmScreenText {
     static final String TOOLTIP_PLOTS = "tooltip.logistics.farm.plots";
     static final String BUTTON_START = "gui.logistics.farm.start";
     static final String BUTTON_SHOW_AREA = "gui.logistics.farm.show_area";
+    static final String BUTTON_HIDE_AREA = "gui.logistics.farm.hide_area";
     static final String TOOLTIP_START = "tooltip.logistics.farm.start";
 
     private FarmScreenText() {}
@@ -35,9 +36,12 @@ final class FarmScreenText {
                 Component.translatable(TOOLTIP_PLOTS, usable, blocked).withStyle(ChatFormatting.GRAY));
     }
 
-    /** "Start" while surveying, "Show area" once working. */
-    static Component buttonLabel(FarmState state) {
-        return Component.translatable(state == FarmState.SURVEY ? BUTTON_START : BUTTON_SHOW_AREA);
+    /** "Start" while surveying; once working, "Hide area" while the preview shows and "Show area" otherwise. */
+    static Component buttonLabel(FarmState state, boolean previewShown) {
+        if (state == FarmState.SURVEY) {
+            return Component.translatable(BUTTON_START);
+        }
+        return Component.translatable(previewShown ? BUTTON_HIDE_AREA : BUTTON_SHOW_AREA);
     }
 
     /** The button id {@link FarmMenu#clickMenuButton} expects in {@code state}. */

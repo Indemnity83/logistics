@@ -4,6 +4,7 @@ import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.tier.MachineTier;
+import java.util.function.BooleanSupplier;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -46,7 +47,7 @@ import net.minecraft.world.item.ItemStack;
  * </ul>
  *
  * <p>Buttons, through {@link #clickMenuButton}: {@link #BUTTON_START} starts a surveying farm,
- * {@link #BUTTON_SHOW_AREA} shows a working farm's area preview.
+ * {@link #BUTTON_SHOW_AREA} toggles the area preview.
  */
 public class FarmMenu extends AbstractContainerMenu {
 
@@ -64,7 +65,8 @@ public class FarmMenu extends AbstractContainerMenu {
     public static final int SURVEY_CLEAR = 15;
     public static final int SURVEY_FLAGGED = 16;
     public static final int SURVEY_PROTECTED = 17;
-    public static final int DATA_COUNT = 18;
+    public static final int PREVIEW_SHOWN = 18;
+    public static final int DATA_COUNT = 19;
 
     public static final int BUTTON_START = 0;
     public static final int BUTTON_SHOW_AREA = 1;
@@ -85,14 +87,14 @@ public class FarmMenu extends AbstractContainerMenu {
             }
 
             @Override
-            public boolean showArea() {
+            public boolean toggleArea() {
                 return false;
             }
         };
 
         boolean start();
 
-        boolean showArea();
+        boolean toggleArea();
     }
 
     private final Container container;
@@ -149,8 +151,11 @@ public class FarmMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    /** Server-side data source over a farm's components; see the class comment for the indices. */
-    public static ContainerData dataSource(FarmMachine farm) {
+    /**
+     * Server-side data source over a farm's components and whether its area preview shows now; see
+     * the class comment for the indices.
+     */
+    public static ContainerData dataSource(FarmMachine farm, BooleanSupplier previewShown) {
         return new ContainerData() {
             @Override
             public int get(int index) {
@@ -172,6 +177,7 @@ public class FarmMenu extends AbstractContainerMenu {
                     case SURVEY_CLEAR -> clampToShort(farm.farm().survey().toClear());
                     case SURVEY_FLAGGED -> clampToShort(farm.farm().survey().flagged());
                     case SURVEY_PROTECTED -> clampToShort(farm.farm().survey().protectedCount());
+                    case PREVIEW_SHOWN -> previewShown.getAsBoolean() ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -208,7 +214,7 @@ public class FarmMenu extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int id) {
         return switch (id) {
             case BUTTON_START -> controls.start();
-            case BUTTON_SHOW_AREA -> controls.showArea();
+            case BUTTON_SHOW_AREA -> controls.toggleArea();
             default -> false;
         };
     }
@@ -317,6 +323,11 @@ public class FarmMenu extends AbstractContainerMenu {
     /** Blocks the survey found the farm would skip. */
     public int surveyProtected() {
         return data.get(SURVEY_PROTECTED);
+    }
+
+    /** Whether the area preview shows now: what {@link #BUTTON_SHOW_AREA} would hide. */
+    public boolean previewShown() {
+        return data.get(PREVIEW_SHOWN) != 0;
     }
 
     public boolean usesWater() {

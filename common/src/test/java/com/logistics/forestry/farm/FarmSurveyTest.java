@@ -231,19 +231,60 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("Show area does nothing while surveying, and once working shows the preview for 30 s")
-    void showArea() {
+    @DisplayName("a surveying farm shows its preview until hidden; Start hides it; once working the toggle shows it until toggled off")
+    void toggleArea() {
         FarmHarness farm = surveying();
         fixture(farm);
 
-        assertThat(farm.farm().showArea(farm.host, 100)).isFalse();
-        assertThat(farm.farm().previewUntil()).isZero();
+        assertThat(farm.farm().previewShown(100)).as("placed: shown").isTrue();
+        assertThat(farm.farm().toggleArea(farm.host, 100)).isTrue();
+        assertThat(farm.farm().previewShown(100)).as("hidden while surveying").isFalse();
+        farm.ticks(farm.area().plotCount());
+        assertThat(farm.farm().survey().flagged()).as("the survey keeps running").isEqualTo(4);
+        farm.farm().toggleArea(farm.host, 100);
+        assertThat(farm.farm().previewShown(100)).isTrue();
 
         farm.farm().start();
-        assertThat(farm.farm().showArea(farm.host, 100)).isTrue();
-        assertThat(farm.farm().previewUntil()).isEqualTo(100 + FarmPreview.SHOW_TICKS);
+        assertThat(farm.farm().previewShown(100)).as("Start hides it").isFalse();
+
+        assertThat(farm.farm().toggleArea(farm.host, 100)).isTrue();
+        assertThat(farm.farm().previewShown(100 + 10 * FarmPreview.SHOW_TICKS)).as("no timeout").isTrue();
         assertThat(farm.farm().survey().flagged()).as("the ring surveyed as it stands").isEqualTo(4);
+        farm.farm().toggleArea(farm.host, 200);
+        assertThat(farm.farm().previewShown(200)).isFalse();
         assertThat(farm.world.mutations).isEmpty();
+    }
+
+    @Test
+    @DisplayName("toggling off cuts an upgrade's flash short; with the toggle off the flash still shows for 30 s")
+    void toggleCancelsUpgradeFlash() {
+        FarmHarness farm = new FarmHarness(dirtLayer());
+        farm.tick();
+        assertThat(farm.farm().previewShown(1_000)).isFalse();
+
+        farm.farm().expanded(farm.host, 1_000);
+        assertThat(farm.farm().previewShown(1_000 + FarmPreview.SHOW_TICKS - 1)).isTrue();
+        assertThat(farm.farm().previewShown(1_000 + FarmPreview.SHOW_TICKS)).isFalse();
+
+        farm.farm().toggleArea(farm.host, 1_100);
+        assertThat(farm.farm().previewShown(1_100)).as("hidden at once").isFalse();
+        assertThat(farm.farm().previewUntil()).isZero();
+    }
+
+    @Test
+    @DisplayName("on load a working farm's preview starts hidden and a surveying farm's shown")
+    void toggleOnLoad() {
+        FarmHarness working = new FarmHarness(dirtLayer());
+        working.farm().toggleArea(working.host, 0);
+        assertThat(working.farm().previewShown(0)).isTrue();
+        working.load(working.save());
+        assertThat(working.farm().previewShown(0)).isFalse();
+
+        FarmHarness surveying = surveying();
+        surveying.farm().toggleArea(surveying.host, 0);
+        assertThat(surveying.farm().previewShown(0)).isFalse();
+        surveying.load(surveying.save());
+        assertThat(surveying.farm().previewShown(0)).isTrue();
     }
 
     @Test
@@ -258,25 +299,36 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
             }
 
             @Override
-            public boolean showArea() {
-                return farm.farm().showArea(farm.host, now[0]);
+            public boolean toggleArea() {
+                return farm.farm().toggleArea(farm.host, now[0]);
             }
         };
+        var data = FarmMenu.dataSource(farm.machine, () -> farm.farm().previewShown(now[0]));
         FarmMenu menu = new FarmMenu(
-                1, new Inventory(null, new EntityEquipment()), new SimpleContainer(FarmMachine.SLOT_COUNT),
-                new SimpleContainerData(FarmMenu.DATA_COUNT), controls);
+                1, new Inventory(null, new EntityEquipment()), new SimpleContainer(FarmMachine.SLOT_COUNT), data, controls);
 
-        assertThat(menu.clickMenuButton(null, FarmMenu.BUTTON_SHOW_AREA)).isFalse();
         assertThat(menu.clickMenuButton(null, -1)).isFalse();
         assertThat(menu.clickMenuButton(null, 99)).isFalse();
         assertThat(farm.farm().state()).isEqualTo(FarmState.SURVEY);
+        assertThat(menu.previewShown()).as("surveying: shown").isTrue();
+
+        assertThat(menu.clickMenuButton(null, FarmMenu.BUTTON_SHOW_AREA)).isTrue();
+        assertThat(menu.previewShown()).as("hidden while surveying").isFalse();
+        assertThat(farm.farm().state()).isEqualTo(FarmState.SURVEY);
+        assertThat(menu.clickMenuButton(null, FarmMenu.BUTTON_SHOW_AREA)).isTrue();
+        assertThat(menu.previewShown()).isTrue();
 
         assertThat(menu.clickMenuButton(null, FarmMenu.BUTTON_START)).isTrue();
         assertThat(farm.farm().state()).isEqualTo(FarmState.ACTIVE);
+        assertThat(menu.previewShown()).as("Start hides it").isFalse();
         assertThat(menu.clickMenuButton(null, FarmMenu.BUTTON_START)).isFalse();
 
         assertThat(menu.clickMenuButton(null, FarmMenu.BUTTON_SHOW_AREA)).isTrue();
-        assertThat(farm.farm().previewUntil()).isEqualTo(200 + FarmPreview.SHOW_TICKS);
+        assertThat(menu.previewShown()).as("toggled on").isTrue();
+        now[0] += 10 * FarmPreview.SHOW_TICKS;
+        assertThat(menu.previewShown()).as("until toggled off").isTrue();
+        assertThat(menu.clickMenuButton(null, FarmMenu.BUTTON_SHOW_AREA)).isTrue();
+        assertThat(menu.previewShown()).as("toggled off").isFalse();
     }
 
     @Test
@@ -285,7 +337,7 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
         FarmHarness farm = surveying();
         Fixture fixture = fixture(farm);
         farm.ticks(farm.area().plotCount());
-        var data = FarmMenu.dataSource(farm.machine);
+        var data = FarmMenu.dataSource(farm.machine, () -> false);
 
         assertThat(data.get(FarmMenu.STATE)).isEqualTo(FarmState.SURVEY.ordinal());
         assertThat(data.get(FarmMenu.SURVEY_CLEAR)).isEqualTo(fixture.natural().size() + fixture.flagged().size());
@@ -405,11 +457,16 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
         assertThat(preview.survey().flaggedAt()).isEmpty();
         assertThat(preview.survey().protectedAt()).isEmpty();
 
-        farm.farm().showArea(farm.host, 60);
+        farm.farm().toggleArea(farm.host, 60);
         client.load(farm.farm().withPreview(farm.host, 61, farm::save));
         preview = client.farm().syncedPreview();
+        assertThat(preview.shown()).isTrue();
         assertThat(preview.visible(61)).isTrue();
-        assertThat(preview.visible(60 + FarmPreview.SHOW_TICKS)).isFalse();
+        assertThat(preview.visible(60 + 10 * FarmPreview.SHOW_TICKS)).as("until toggled off").isTrue();
+
+        farm.farm().toggleArea(farm.host, 70);
+        client.load(farm.farm().withPreview(farm.host, 71, farm::save));
+        assertThat(client.farm().syncedPreview().visible(71)).isFalse();
         assertThat(preview.survey().flaggedAt()).containsExactlyInAnyOrderElementsOf(fixture.flagged());
 
         client.load(farm.save());

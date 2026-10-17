@@ -80,7 +80,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     }
 
     private static FarmMenu serverMenu(TestFarm farm, Inventory inventory) {
-        return new FarmMenu(1, inventory, farm, FarmMenu.dataSource(farm.parts));
+        return new FarmMenu(1, inventory, farm, FarmMenu.dataSource(farm.parts, () -> false));
     }
 
     private static Inventory playerInventory() {
@@ -289,7 +289,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         TestFarm farm = farm(new ScriptedFarmLogic(true, false), settings);
         farm.parts.energy().setAmount(70_000);
         farm.parts.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(33_000), false);
-        ContainerData data = FarmMenu.dataSource(farm.parts);
+        ContainerData data = FarmMenu.dataSource(farm.parts, () -> false);
         FarmMenu menu = new FarmMenu(1, playerInventory(), farm, data);
 
         assertThat(data.getCount()).isEqualTo(FarmMenu.DATA_COUNT);
