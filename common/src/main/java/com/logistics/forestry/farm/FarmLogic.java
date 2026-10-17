@@ -19,9 +19,10 @@ import org.jetbrains.annotations.Nullable;
  * they must never change for a given farm type.
  *
  * <p>A farm works the ring of plots between two squares centred on it, {@link #ringInner()} and
- * {@link #ringOuter()} wide. Before the logic is asked about a plot, the farm clears every block
- * from the plot's column, {@link #clearanceHeight()} tall, that is not {@link #isOwnGrowth own
- * growth}; the logic only decides once that column is clear.
+ * {@link #ringOuter()} wide, one block above the farm so that their soil is level with it. Before
+ * the logic is asked about a plot, the farm clears every block from the plot's column,
+ * {@link #clearanceHeight()} tall, that is not {@link #isOwnGrowth own growth}; the logic only
+ * decides once that column is clear.
  */
 public interface FarmLogic {
 
@@ -81,9 +82,9 @@ public interface FarmLogic {
     }
 
     /**
-     * The one thing {@code plot} needs next. {@code plot} is at the farm's Y level and its soil is
-     * {@code plot.below()}; above the soil the column holds only air and own growth. Expected
-     * priority: harvest, then soil or tilling, then planting, then moistening.
+     * The one thing {@code plot} needs next. {@code plot} is one block above the farm and its soil,
+     * {@code plot.below()}, is level with the farm; from the plot up, the column holds only air and
+     * own growth. Expected priority: harvest, then soil or tilling, then planting, then moistening.
      *
      * <p>Only called while {@code plot} is loaded. Must not change the world; reads beyond the plot
      * should check {@link FarmWorld#isLoaded}.

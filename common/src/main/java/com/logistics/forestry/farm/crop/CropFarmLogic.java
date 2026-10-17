@@ -22,8 +22,9 @@ import org.jetbrains.annotations.Nullable;
  * from the harvest first. A harvest turns the farmland back into dirt, so every crop costs one till.
  *
  * <p>Crop blocks ({@link CropBlock}) are the farm's own growth; anything else above a plot is
- * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt or
- * farmland; anything else under an empty plot, grass included, is replaced with the farm's soil.
+ * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt, farmland
+ * or tillable ({@code logistics:forestry/tillable}, grass included), and a tillable block is tilled
+ * where it stands; anything else under an empty plot is replaced with the farm's soil.
  * Farmland is {@link Blocks#FARMLAND} with {@link BlockStateProperties#MOISTURE}, never the farmland
  * block class, whose name differs between Minecraft versions.
  */
@@ -114,12 +115,10 @@ public final class CropFarmLogic implements FarmLogic {
             if (!empty) {
                 return PlotAction.NONE;
             }
-            if (!soil.is(Blocks.DIRT)) {
-                return new PlotAction.PlaceSoil(soilPos);
+            if (tillable.test(soil)) {
+                return new PlotAction.Till(soilPos, WET_FARMLAND);
             }
-            return tillable.test(soil)
-                    ? new PlotAction.Till(soilPos, WET_FARMLAND)
-                    : PlotAction.NONE;
+            return soil.is(Blocks.DIRT) ? PlotAction.NONE : new PlotAction.PlaceSoil(soilPos);
         }
 
         if (empty) {

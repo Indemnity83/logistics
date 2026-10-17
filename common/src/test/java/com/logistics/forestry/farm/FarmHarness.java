@@ -52,9 +52,9 @@ final class FarmHarness {
         }
     }
 
-    /** The ring the logic asks for around the host. */
+    /** The ring the logic asks for around the host, one block above it. */
     RingArea area() {
-        return new RingArea(host.pos(), logic.ringInner(), logic.ringOuter());
+        return new RingArea(host.pos().above(), logic.ringInner(), logic.ringOuter());
     }
 
     /** Plot {@code index} of the host's ring, in scan order. */

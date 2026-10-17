@@ -42,6 +42,11 @@ public class ArboretumGameTest {
     }
 
     @GameTest(maxTicks = 2000)
+    public void testLaysHumusLevelWithFarmOnGrass(GameTestHelper context) {
+        ArboretumGameTestBody.testLaysHumusLevelWithFarmOnGrass(context);
+    }
+
+    @GameTest(maxTicks = 2000)
     public void testFelledTreeLeavesSandThatIsRelaidWithHumus(GameTestHelper context) {
         ArboretumGameTestBody.testFelledTreeLeavesSandThatIsRelaidWithHumus(context);
     }

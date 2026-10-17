@@ -34,6 +34,9 @@ public final class ArboretumGameTestRegistration {
             "forestry/arboretum_humus_replaces_dirt_across_the_ring", 2000,
             ArboretumGameTestBody::testHumusReplacesDirtAcrossTheRing),
         new GameTestCase(
+            "forestry/arboretum_lays_humus_level_with_farm_on_grass", 2000,
+            ArboretumGameTestBody::testLaysHumusLevelWithFarmOnGrass),
+        new GameTestCase(
             "forestry/arboretum_felled_tree_leaves_sand_that_is_relaid_with_humus", 2000,
             ArboretumGameTestBody::testFelledTreeLeavesSandThatIsRelaidWithHumus),
         new GameTestCase(

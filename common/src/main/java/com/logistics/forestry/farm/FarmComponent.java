@@ -42,6 +42,9 @@ import org.jetbrains.annotations.Nullable;
  * {@link FarmLogic} what the plot needs and performs that one {@link PlotAction} if the farm can
  * afford it. The square inside the ring, the farm included, is never touched.
  *
+ * <p>The plots are one block above the farm, so their soil, {@code plot.below()}, is level with the
+ * farm block and crops grow on top of it. A column is cleared from the plot upward.
+ *
  * <p>The farm-wide gates live here, not in the logic. A redstone signal pauses everything. Every op
  * costs RF and is skipped whole when the buffer cannot pay for it; tilling, on a farm with a tank,
  * also costs water, planting needs germlings and laying soil needs soil. A full output buffer stops every op that
@@ -70,7 +73,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     public static final String HUD_PLOT = "jade.logistics.farm.plot";
     public static final String HUD_PLOT_SIZE = "jade.logistics.farm.plot_size";
 
-    /** Loose items are swept from one block below the plot to this far above it. */
+    /** Loose items are swept from the soil layer to this far above the plots. */
     private static final int SWEEP_HEIGHT = 32;
 
     private static final int MAX_MOISTURE = Collections.max(BlockStateProperties.MOISTURE.getPossibleValues());
@@ -270,10 +273,12 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
     }
 
+    /** The ring of plots, one block above the farm: their soil is level with it. */
     private RingArea area(MachineContext ctx) {
+        BlockPos origin = ctx.pos().above();
         return outerOverride > 0
-                ? new RingArea(ctx.pos(), innerOverride, outerOverride)
-                : new RingArea(ctx.pos(), logic.ringInner(), logic.ringOuter());
+                ? new RingArea(origin, innerOverride, outerOverride)
+                : new RingArea(origin, logic.ringInner(), logic.ringOuter());
     }
 
     // ==================== Ops ====================

@@ -12,10 +12,10 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 ## Requirements
 
 ### Functional
-- **Area:** the farm sits at the centre of a free **9×9** and works the 2-wide ring out to **13×13** (88 plots). It clears each plot's column up to Y+9 ([0201](0201-farm-framework.md)).
+- **Area:** the farm sits at the centre of a free **9×9** and works the 2-wide ring out to **13×13** (88 plots). It lays Humus level with itself and clears each plot's column from Y+1 up to Y+10 ([0201](0201-farm-framework.md)).
 - **Slots:** saplings 0–3, Humus 4–7, output 8–16.
 - **Germlings:** `#minecraft:saplings`, including mangrove propagule and azalea. Single saplings go on every even step of each lane; 2×2 saplings go in aligned groups across both lanes, a group at every corner and two-cell groups along each edge.
-- **Soil:** **Humus only.** Anything else at Y-1, dirt and grass included, is replaced with Humus. Without Humus it neither replaces soil nor plants.
+- **Soil:** **Humus only.** Anything else in the soil layer (the farm's own Y), dirt and grass included, is replaced with Humus. Without Humus it neither replaces soil nor plants.
 - **Humus → sand:** a grown tree turns the Humus under it to sand, and a felling turns every trunk cell's Humus to sand (all four for a 2×2 tree). The next pass digs the sand into the output and lays fresh Humus. The output never voids: when full, the farm stalls with *Output full*.
 - **Harvest:** whole trees — logs, leaves (→ saplings / sticks / apples), mangrove roots.
 - **Water:** none.

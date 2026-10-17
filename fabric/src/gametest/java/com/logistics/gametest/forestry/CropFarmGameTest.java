@@ -72,7 +72,12 @@ public class CropFarmGameTest {
     }
 
     @GameTest(maxTicks = 1200)
-    public void testReplacesGrassWithDirt(GameTestHelper context) {
-        CropFarmGameTestBody.testReplacesGrassWithDirt(context);
+    public void testTillsGrassInPlace(GameTestHelper context) {
+        CropFarmGameTestBody.testTillsGrassInPlace(context);
+    }
+
+    @GameTest(maxTicks = 2400)
+    public void testLaysSoilLevelWithFarmOnGrass(GameTestHelper context) {
+        CropFarmGameTestBody.testLaysSoilLevelWithFarmOnGrass(context);
     }
 }
