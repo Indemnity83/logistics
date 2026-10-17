@@ -540,6 +540,129 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.broken).containsExactlyElementsOf(plan);
     }
 
+    // ==================== Waiting for power ====================
+
+    /** Every plot's dirt waiting to be tilled, with less RF than one till. */
+    private static FarmHarness tillingShortOfPower() {
+        FarmHarness farm = new FarmHarness(tillingDirt(false));
+        for (int i = 0; i < 8; i++) {
+            farm.world.set(farm.plot(i).below(), Blocks.DIRT.defaultBlockState());
+        }
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL) - 1);
+        return farm;
+    }
+
+    @Test
+    @DisplayName("work the buffer cannot pay for holds the scan on that plot: no later plot is read or touched")
+    void lowPowerHoldsThePlot() {
+        FarmHarness farm = tillingShortOfPower();
+
+        farm.tick();
+        assertThat(farm.farm().heldPlot()).isZero();
+        assertThat(farm.farm().scanCursor()).as("the cursor stays put").isZero();
+        long reads = farm.world.readCount;
+        int decisions = farm.logic.decisions;
+
+        farm.ticks(500);
+
+        assertThat(farm.farm().scanCursor()).isZero();
+        assertThat(farm.world.readCount).as("nothing read while waiting").isEqualTo(reads);
+        assertThat(farm.logic.decisions).as("no plot asked about").isEqualTo(decisions);
+        assertThat(farm.world.mutations).isEmpty();
+        assertThat(farm.energy()).isEqualTo(FarmHarness.SETTINGS.cost(FarmCost.TILL) - 1);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
+    }
+
+    @Test
+    @DisplayName("once the RF arrives the held plot is worked first, at once, and the scan moves on")
+    void powerReleasesTheHeldPlot() {
+        FarmHarness farm = tillingShortOfPower();
+        farm.ticks(500); // far past a pass and any idle back-off
+
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        farm.tick();
+
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(0));
+        assertThat(farm.world.mutations).hasSize(1);
+        assertThat(farm.farm().scanCursor()).isEqualTo(1);
+        assertThat(farm.farm().heldPlot()).as("out of RF again, on the next plot").isEqualTo(1);
+
+        farm.power(10_000);
+        farm.ticks(8);
+        for (int i = 0; i < 8; i++) {
+            assertThat(farm.world.blocks).as("plot %s", i).containsEntry(farm.plot(i).below(), farmland(0));
+        }
+        assertThat(farm.farm().heldPlot()).isEqualTo(-1);
+    }
+
+    @Test
+    @DisplayName("the held plot is inspected again when the RF arrives: work it no longer needs is not done")
+    void heldPlotIsInspectedAgain() {
+        FarmHarness farm = tillingShortOfPower();
+        farm.tick();
+        farm.world.set(farm.plot(0).below(), farmland(3)); // tilled by hand meanwhile
+
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        farm.ticks(2);
+
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(3));
+        assertThat(farm.world.blocks).as("the RF went to the next plot").containsEntry(farm.plot(1).below(), farmland(0));
+        assertThat(farm.farm().scanCursor()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("a reload while held resumes on the held plot")
+    void heldPlotSurvivesReload() {
+        FarmHarness farm = tillingShortOfPower();
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL) * 2);
+        farm.ticks(3); // tills plots 0 and 1, then holds on 2
+        assertThat(farm.farm().heldPlot()).isEqualTo(2);
+
+        FarmHarness reloaded = new FarmHarness(tillingDirt(false));
+        reloaded.world.blocks.putAll(farm.world.blocks);
+        reloaded.load(farm.save());
+        assertThat(reloaded.farm().scanCursor()).isEqualTo(2);
+        reloaded.power(FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        reloaded.tick();
+
+        assertThat(reloaded.world.mutations).hasSize(1);
+        assertThat(reloaded.world.mutations.get(0).pos()).isEqualTo(reloaded.plot(2).below());
+    }
+
+    @Test
+    @DisplayName("other shortages do not hold the scan: with no germlings it moves on to the next plot")
+    void otherShortagesMoveOn() {
+        FarmHarness farm = new FarmHarness(plantingEverywhere());
+        farm.power(10_000);
+
+        farm.ticks(3);
+
+        assertThat(farm.farm().heldPlot()).isEqualTo(-1);
+        assertThat(farm.farm().scanCursor()).isEqualTo(3);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_GERMLINGS);
+    }
+
+    @Test
+    @DisplayName("the harvest lane waits on its current block for RF, then breaks that same block")
+    void harvestWaitsOnItsBlock() {
+        BlockPos base = new FarmHarness(new ScriptedFarmLogic()).plot(0);
+        List<BlockPos> plan = trunk(base, 6);
+        FarmHarness farm = new FarmHarness(felling(base, plan));
+        plan.forEach(pos -> farm.world.set(pos, LOG));
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
+        farm.ticks(3);
+        assertThat(farm.world.broken).containsExactly(plan.get(0));
+        int remaining = farm.farm().harvestRemaining();
+
+        farm.ticks(200);
+        assertThat(farm.farm().harvestRemaining()).isEqualTo(remaining);
+        assertThat(farm.world.broken).hasSize(1);
+
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
+        farm.tick();
+        assertThat(farm.world.broken).containsExactly(plan.get(0), plan.get(1));
+    }
+
     // ==================== Soil and water ====================
 
     @Test

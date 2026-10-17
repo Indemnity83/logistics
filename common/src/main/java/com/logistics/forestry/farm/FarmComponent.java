@@ -152,6 +152,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private int savedCursor;
     private int stepsInPass;
     private int cooldown;
+    // The plot the cultivate lane waits on until the buffer holds heldPower RF; -1 when not waiting.
+    private int heldIndex = -1;
+    private long heldPower;
     @Nullable private UUID owner;
     private int innerOverride;
     private int outerOverride;
@@ -540,6 +543,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             stepsInPass = 0;
             surveyPass = new FarmSurvey();
         }
+        if (heldIndex >= plotCount) {
+            heldIndex = -1;
+        }
         if (planner != null
                 && !plannerReplans
                 && (plannerIndex < 0 || plannerIndex >= plotCount || !area.plot(plannerIndex).equals(planner.plot()))) {
@@ -671,11 +677,18 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
      * Inspects plots until one has work the farm can do, does it, and returns true. Returns false,
      * having changed nothing more, once the checks run out, a tree plan has to wait for more reads,
      * or a pass found nothing to do.
+     *
+     * <p>A plot whose work the buffer cannot pay for holds the lane: the scan stays on it, reading
+     * nothing, until the buffer holds that much RF, then inspects it again. The wait is not a step
+     * of the pass, so it never backs the lane off.
      */
     private boolean cultivateStep(Tick t) {
         int readsPerCheck = t.settings().readsPerCheck();
         // Inspections leave the harvest lane the reads for its next break.
         while (budget.reads() >= readsPerCheck + harvestReserve()) {
+            if (heldIndex >= 0 && energy.amount() < heldPower) {
+                return false;
+            }
             if (isPlanning()) {
                 return false;
             }
@@ -700,12 +713,28 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             if (cooldown > 0) {
                 return false;
             }
-            int index = scanner.next();
-            stepsInPass++;
+            int index = heldIndex >= 0 ? heldIndex : scanner.cursor();
+            boolean scanned = index == scanner.cursor();
+            heldIndex = -1;
             tracker.step();
             dirty = true;
             FarmStatus outcome = visit(t, index);
             boolean worked = outcome == FarmStatus.WORKING;
+            if (outcome == FarmStatus.NO_POWER && !visitPending) {
+                heldIndex = index;
+                heldPower = powerNeeded;
+                return false;
+            }
+            if (!scanned) {
+                // A plot a finished tree plan was waiting on, out of scan order.
+                if (worked) {
+                    scanner.markWorked();
+                    return true;
+                }
+                continue;
+            }
+            scanner.next();
+            stepsInPass++;
             if (worked) {
                 scanner.markWorked();
             }
@@ -723,13 +752,29 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return false;
     }
 
-    /** Re-inspects the plot a finished tree plan was made for; the plan is used up either way. */
+    /**
+     * Re-inspects the plot a finished tree plan was made for; the plan is used up either way. Work
+     * the buffer cannot pay for holds the lane on that plot.
+     */
     private FarmStatus revisit(Tick t, int index) {
         FarmStatus outcome = visit(t, index);
         if (outcome == FarmStatus.WORKING) {
             scanner.markWorked();
+        } else if (outcome == FarmStatus.NO_POWER && !visitPending) {
+            heldIndex = index;
+            heldPower = powerNeeded;
         }
         return outcome;
+    }
+
+    /** The plot the cultivate lane is waiting on for RF, or -1. */
+    int heldPlot() {
+        return heldIndex;
+    }
+
+    /** Where the scan stands: the next plot it inspects. */
+    int scanCursor() {
+        return scanner != null ? scanner.cursor() : savedCursor;
     }
 
     /** Inspects plot {@code index} and does what it needs; records the outcome unless it has to wait. */
@@ -1707,6 +1752,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
         savedCursor = NbtCompat.getInt(tag, "Cursor", 0);
         scanner = null;
+        heldIndex = -1;
         owner = parseUuid(NbtCompat.getString(tag, "Owner", ""));
         harvest.clear();
         dropPlanner();
