@@ -82,8 +82,24 @@ final class CountingWorld implements FarmWorldAccess {
     }
 
     @Override
+    public boolean rainingAt(BlockPos pos) {
+        reads++;
+        return world().rainingAt(pos);
+    }
+
+    @Override
     public TreeView.Kind treeKind(BlockState state) {
         return world().treeKind(state);
+    }
+
+    @Override
+    public boolean neverClear(BlockState state) {
+        return world().neverClear(state);
+    }
+
+    @Override
+    public boolean naturalClearable(BlockState state) {
+        return world().naturalClearable(state);
     }
 
     @Override

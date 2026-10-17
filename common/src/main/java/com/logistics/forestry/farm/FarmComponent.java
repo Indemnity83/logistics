@@ -1,6 +1,8 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.farmland.FarmlandHydration;
+import com.logistics.core.lib.farmland.HydrationSource;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineComponent;
@@ -19,7 +21,7 @@ import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,7 +41,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,6 +82,16 @@ import org.jetbrains.annotations.Nullable;
  * <p>Once a harvest completes and its plot stands empty, the soil under every ring plot it broke a
  * block on becomes its logic's {@link FarmLogic#soilAfterHarvest}. Drops and the loose items swept
  * from the ring afterwards go to the output slots, and what does not fit waits in an overflow list.
+ *
+ * <p>A placed farm starts in {@link FarmState#SURVEY}: it changes nothing and spends nothing, but
+ * inspects the ring at the same pace and back-off, through the same check budget, recording in a
+ * {@link FarmSurvey} what working each plot would clear: its column, and the soil its logic would
+ * replace. {@link #start} makes it {@link FarmState#ACTIVE}.
+ *
+ * <p>A working farm with a water tank irrigates its ring: while it is loaded, vanilla farmland on a
+ * ring plot's soil cell that finds no water nearby asks the farm instead ({@link FarmlandHydration}),
+ * once per random tick, and the farm keeps it wet for {@code water_per_irrigation_mb} scaled by the
+ * {@link Hydration climate}; see {@link #irrigate}. Tilling, planting and harvesting never need water.
  */
 public final class FarmComponent implements MachineComponent, MachineComponent.HudContributor {
 
@@ -108,8 +120,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     /** Reads a visit keeps back from tree planning for the rest of the logic's decision. */
     private static final int DECISION_READS = 16;
-
-    private static final int MAX_MOISTURE = Collections.max(BlockStateProperties.MOISTURE.getPossibleValues());
 
     private record HarvestTarget(BlockPos pos, Block block) {}
 
@@ -142,6 +152,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private int savedCursor;
     private int stepsInPass;
     private int cooldown;
+    // The plot the cultivate lane waits on until the buffer holds heldPower RF; -1 when not waiting.
+    private int heldIndex = -1;
+    private long heldPower;
     @Nullable private UUID owner;
     private int innerOverride;
     private int outerOverride;
@@ -164,14 +177,34 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private boolean replanning;
     private long visitMark;
     private FarmStatus status = FarmStatus.IDLE;
-    // What the last NO_POWER / NO_WATER / NO_GERMLINGS / NO_SOIL was short of, so the status clears as soon as it is there.
+    private FarmState state = FarmState.SURVEY;
+    // The survey pass in progress, and the last one completed.
+    private FarmSurvey surveyPass = new FarmSurvey();
+    @Nullable private FarmSurvey surveyed;
+    // What the preview shows while working: the ring after Show area, or the new lanes after an upgrade.
+    private FarmSurvey previewSurvey = FarmSurvey.EMPTY;
+    // Shown by the toggle until toggled off; a placed or loaded surveying farm starts shown. Never saved.
+    private boolean previewToggled = true;
+    // The end of an upgrade's flash, which shows whatever the toggle says.
+    private long previewUntil;
+    // The outer side of the ring the last tick worked.
+    private int workedOuter;
+    // Set while an update tag is written; read back from one on the client.
+    @Nullable private FarmPreview pendingPreview;
+    private FarmPreview syncedPreview = FarmPreview.NONE;
+    // What the last NO_POWER / NO_GERMLINGS / NO_SOIL was short of, so the status clears as soon as it is there.
     private long powerNeeded;
-    private long waterNeeded;
     private ItemStack germlingNeeded = ItemStack.EMPTY;
     private int germlingCountNeeded;
     private FarmLogic germlingLogic;
     private FarmLogic soilLogic;
     private boolean dirty;
+    // The ring irrigated as of the last tick: working, with a tank and no redstone signal; else null.
+    @Nullable private RingArea irrigated;
+    private int irrigationMb;
+    @Nullable private FarmlandHydration.Registration irrigation;
+    @Nullable private ServerLevel irrigationLevel;
+    @Nullable private RingArea irrigationArea;
     private long harvestActions;
     private long cultivateActions;
 
@@ -206,6 +239,105 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     public FarmStatus status() {
         return status;
+    }
+
+    public FarmState state() {
+        return state;
+    }
+
+    /** Starts working the ring and hides the preview. Returns false, changing nothing, unless the farm is surveying. */
+    public boolean start() {
+        if (state != FarmState.SURVEY) {
+            return false;
+        }
+        state = FarmState.ACTIVE;
+        previewToggled = false;
+        previewUntil = 0;
+        cooldown = 0;
+        dirty = true;
+        return true;
+    }
+
+    /**
+     * Hides the area preview if it shows at {@code now}, cutting an upgrade's flash short; otherwise
+     * shows it until toggled off, surveying a working farm's ring as it stands. A surveying farm
+     * keeps surveying either way.
+     */
+    public boolean toggleArea(MachineContext ctx, long now) {
+        if (previewShown(now)) {
+            previewToggled = false;
+            previewUntil = 0;
+        } else {
+            if (state == FarmState.ACTIVE) {
+                previewSurvey = surveyNow(ctx, 0);
+            }
+            previewToggled = true;
+        }
+        return true;
+    }
+
+    /**
+     * After the tier has widened the ring: surveys the lanes it added, all at once, shows the preview
+     * of them from {@code now}, and lets the scan reach them straight away.
+     */
+    public FarmSurvey expanded(MachineContext ctx, long now) {
+        RingArea area = area(ctx, settings.get());
+        int from = area.plotCount();
+        if (workedOuter > area.inner() && workedOuter < area.outer()) {
+            from = new RingArea(area.origin(), area.inner(), workedOuter).plotCount();
+        }
+        previewSurvey = surveyNow(ctx, from);
+        previewUntil = now + FarmPreview.SHOW_TICKS;
+        cooldown = 0;
+        dirty = true;
+        return previewSurvey;
+    }
+
+    /**
+     * What the preview reports: while surveying, the last full pass, or the pass so far before one
+     * completes; while working, what Show area or the last upgrade found.
+     */
+    public FarmSurvey survey() {
+        if (state == FarmState.SURVEY) {
+            return surveyed != null ? surveyed : surveyPass;
+        }
+        return previewSurvey;
+    }
+
+    /** Game time an upgrade's flash of the preview shows until. */
+    long previewUntil() {
+        return previewUntil;
+    }
+
+    /** Whether the preview shows at {@code now}: while toggled on, or during an upgrade's flash. */
+    public boolean previewShown(long now) {
+        return previewToggled || now < previewUntil;
+    }
+
+    /** The preview as the last update tag carried it; on the client, what to draw. */
+    public FarmPreview syncedPreview() {
+        return syncedPreview;
+    }
+
+    /** Writes an update tag through {@code save}, carrying the preview as it stands at {@code now}. */
+    public <T> T withPreview(MachineContext ctx, long now, Supplier<T> save) {
+        RingArea area = area(ctx, settings.get());
+        FarmSurvey found = survey();
+        int height = clearanceHeight(logic);
+        FarmPreview preview =
+                new FarmPreview(state, previewToggled, previewUntil, area.inner(), area.outer(), height, found);
+        if (!preview.visible(now)) {
+            // Positions only while they are drawn.
+            FarmSurvey counts =
+                    FarmSurvey.of(found.natural(), found.flagged(), found.protectedCount(), List.of(), List.of());
+            preview = new FarmPreview(state, previewToggled, previewUntil, area.inner(), area.outer(), height, counts);
+        }
+        pendingPreview = preview;
+        try {
+            return save.get();
+        } finally {
+            pendingPreview = null;
+        }
     }
 
     /** Side of the square whose ring is worked: a 15 means the ring reaches 15×15. */
@@ -306,10 +438,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             return;
         }
         FarmSettings s = settings.get();
-        if (output.drainOverflow()) {
+        if (state == FarmState.ACTIVE && output.drainOverflow()) {
             dirty = true;
         }
         RingArea area = area(ctx, s);
+        workedOuter = area.outer();
         counted.attach(opened);
         FarmWorldAccess world = new CourtyardGuard(counted, area.keepOut());
         trees = world.treeView();
@@ -317,10 +450,16 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         ensureScanner(area, s);
 
         boolean paused = world.hasNeighborSignal(ctx.pos());
+        updateIrrigation(ctx, area, paused, s);
         if (!paused) {
             FarmTierProfile profile = s.profile(tier.get());
             budget.refill(profile.actionsPerSecond(), profile.checksPerSecond(), s.readsPerCheck());
-            work(new Tick(world, s, area, plan));
+            Tick tick = new Tick(world, s, area, plan);
+            if (state == FarmState.ACTIVE) {
+                work(tick);
+            } else {
+                survey(ctx, tick);
+            }
         }
         updateStatus(ctx, s, area, paused);
 
@@ -398,9 +537,14 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             scannerMax = s.idleBackoffMaxTicks();
             scanner = PlotScanner.restore(plotCount, cursor, scannerBase, scannerMax);
             stepsInPass = 0;
+            surveyPass = new FarmSurvey();
         } else if (scanner.plotCount() != plotCount) {
             scanner.resize(plotCount);
             stepsInPass = 0;
+            surveyPass = new FarmSurvey();
+        }
+        if (heldIndex >= plotCount) {
+            heldIndex = -1;
         }
         if (planner != null
                 && !plannerReplans
@@ -424,17 +568,127 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return planOverride != null ? planOverride.apply(area) : new SingleLogicPlan(logic, area);
     }
 
+    // ==================== Survey ====================
+
+    /**
+     * Inspects plots while the checks last, as the cultivate lane does, and records what working
+     * each would clear. A completed pass becomes the survey and backs off like an idle one.
+     */
+    private void survey(MachineContext ctx, Tick t) {
+        if (cooldown > 0) {
+            cooldown--;
+            return;
+        }
+        int readsPerCheck = t.settings().readsPerCheck();
+        while (budget.reads() >= readsPerCheck) {
+            int index = scanner.next();
+            stepsInPass++;
+            dirty = true;
+            counted.forget();
+            long mark = counted.reads();
+            boolean blocked = surveyPlot(t.world(), t.area(), t.plan(), index, surveyPass);
+            budget.spendReads(Math.max(readsPerCheck, counted.reads() - mark));
+            blockedPlots.record(index, blocked ? FarmStatus.BLOCKED : FarmStatus.IDLE);
+            if (stepsInPass >= scanner.plotCount()) {
+                stepsInPass = 0;
+                cooldown += scanner.idleTicks();
+                FarmSurvey done = surveyPass;
+                surveyPass = new FarmSurvey();
+                if (!done.equals(surveyed)) {
+                    surveyed = done;
+                    ctx.sync();
+                }
+                return;
+            }
+        }
+    }
+
+    /** Surveys the ring's plots from {@code from} to its end now, all at once, outside the budget. */
+    private FarmSurvey surveyNow(MachineContext ctx, int from) {
+        FarmWorldAccess opened = worlds.open(ctx, owner);
+        if (opened == null) {
+            return FarmSurvey.EMPTY;
+        }
+        RingArea area = area(ctx, settings.get());
+        FarmWorldAccess world = new CourtyardGuard(opened, area.keepOut());
+        FarmPlan plan = plan(area);
+        FarmSurvey found = new FarmSurvey();
+        for (int index = Math.max(0, from); index < area.plotCount(); index++) {
+            surveyPlot(world, area, plan, index, found);
+        }
+        return found;
+    }
+
+    /**
+     * Records into {@code into} what working plot {@code index} would clear, changing nothing: its
+     * column from the top down to the first block it could never clear, then the soil its logic
+     * would replace once the column is clear. Returns whether such a block blocks the plot.
+     */
+    private boolean surveyPlot(FarmWorldAccess world, RingArea area, FarmPlan plan, int index, FarmSurvey into) {
+        BlockPos plot = area.plot(index);
+        if (!world.isLoaded(plot)) {
+            return false;
+        }
+        FarmLogic plotLogic = plan.logicFor(index);
+        Set<BlockPos> cleared = new HashSet<>();
+        for (int dy = clearanceHeight(plotLogic) - 1; dy >= 0; dy--) {
+            BlockPos pos = plot.above(dy);
+            BlockState block = world.state(pos);
+            if (block.isAir() || plotLogic.isOwnGrowth(block)) {
+                continue;
+            }
+            ClearClassifier.Kind kind = classify(world, pos, block);
+            if (kind == ClearClassifier.Kind.PROTECTED) {
+                into.skipped(pos);
+                return true;
+            }
+            into.cleared(pos, kind);
+            cleared.add(pos);
+        }
+        PlotAction action =
+                plotLogic.decide(new SurveyWorld(world, cleared), plan.regionFor(index), plot, inputsFor(plotLogic));
+        BlockPos soilPos = plot.below();
+        if (action instanceof PlotAction.PlaceSoil soil && soil.pos().equals(soilPos) && world.isLoaded(soilPos)) {
+            BlockState ground = world.state(soilPos);
+            if (!ground.isAir()) {
+                ClearClassifier.Kind kind = classify(world, soilPos, ground);
+                if (kind == ClearClassifier.Kind.PROTECTED) {
+                    into.skipped(soilPos);
+                    return true;
+                }
+                into.cleared(soilPos, kind);
+            }
+        }
+        return false;
+    }
+
+    /** {@link ClearClassifier#classify} where the block stands; one claim protection refuses is protected too. */
+    private static ClearClassifier.Kind classify(FarmWorldAccess world, BlockPos pos, BlockState state) {
+        if (!world.canModify(pos)) {
+            return ClearClassifier.Kind.PROTECTED;
+        }
+        return ClearClassifier.classify(
+                state, world.destroySpeed(pos), world.naturalClearable(state), world.neverClear(state));
+    }
+
     // ==================== Cultivate lane ====================
 
     /**
      * Inspects plots until one has work the farm can do, does it, and returns true. Returns false,
      * having changed nothing more, once the checks run out, a tree plan has to wait for more reads,
      * or a pass found nothing to do.
+     *
+     * <p>A plot whose work the buffer cannot pay for holds the lane: the scan stays on it, reading
+     * nothing, until the buffer holds that much RF, then inspects it again. The wait is not a step
+     * of the pass, so it never backs the lane off.
      */
     private boolean cultivateStep(Tick t) {
         int readsPerCheck = t.settings().readsPerCheck();
         // Inspections leave the harvest lane the reads for its next break.
         while (budget.reads() >= readsPerCheck + harvestReserve()) {
+            if (heldIndex >= 0 && energy.amount() < heldPower) {
+                return false;
+            }
             if (isPlanning()) {
                 return false;
             }
@@ -459,12 +713,28 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             if (cooldown > 0) {
                 return false;
             }
-            int index = scanner.next();
-            stepsInPass++;
+            int index = heldIndex >= 0 ? heldIndex : scanner.cursor();
+            boolean scanned = index == scanner.cursor();
+            heldIndex = -1;
             tracker.step();
             dirty = true;
             FarmStatus outcome = visit(t, index);
             boolean worked = outcome == FarmStatus.WORKING;
+            if (outcome == FarmStatus.NO_POWER && !visitPending) {
+                heldIndex = index;
+                heldPower = powerNeeded;
+                return false;
+            }
+            if (!scanned) {
+                // A plot a finished tree plan was waiting on, out of scan order.
+                if (worked) {
+                    scanner.markWorked();
+                    return true;
+                }
+                continue;
+            }
+            scanner.next();
+            stepsInPass++;
             if (worked) {
                 scanner.markWorked();
             }
@@ -482,13 +752,29 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return false;
     }
 
-    /** Re-inspects the plot a finished tree plan was made for; the plan is used up either way. */
+    /**
+     * Re-inspects the plot a finished tree plan was made for; the plan is used up either way. Work
+     * the buffer cannot pay for holds the lane on that plot.
+     */
     private FarmStatus revisit(Tick t, int index) {
         FarmStatus outcome = visit(t, index);
         if (outcome == FarmStatus.WORKING) {
             scanner.markWorked();
+        } else if (outcome == FarmStatus.NO_POWER && !visitPending) {
+            heldIndex = index;
+            heldPower = powerNeeded;
         }
         return outcome;
+    }
+
+    /** The plot the cultivate lane is waiting on for RF, or -1. */
+    int heldPlot() {
+        return heldIndex;
+    }
+
+    /** Where the scan stands: the next plot it inspects. */
+    int scanCursor() {
+        return scanner != null ? scanner.cursor() : savedCursor;
     }
 
     /** Inspects plot {@code index} and does what it needs; records the outcome unless it has to wait. */
@@ -592,7 +878,8 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             BlockState state = world.state(pos);
             return state.isAir()
                     ? ColumnClearer.Kind.EMPTY
-                    : ColumnClearer.classify(state, world.destroySpeed(pos), plotLogic.isOwnGrowth(state));
+                    : ColumnClearer.classify(
+                            state, world.destroySpeed(pos), plotLogic.isOwnGrowth(state), world.neverClear(state));
         };
         return switch (ColumnClearer.next(column, plot, clearanceHeight(plotLogic))) {
             case ColumnClearer.Clearing.Clear clear -> {
@@ -611,7 +898,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             case PlotAction.Harvest harvestAction -> startHarvest(t, plot, harvestAction.blocks(), false);
             case PlotAction.PlaceSoil placeSoil -> placeSoil(t, plotLogic, placeSoil.pos());
             case PlotAction.Till till -> till(t, till.pos(), till.result());
-            case PlotAction.Moisten moisten -> moisten(t, moisten.pos());
             case PlotAction.Plant plant -> plant(t, plotLogic, plant.positions(), plant.germling());
             case PlotAction.None none -> FarmStatus.IDLE;
             case PlotAction.Blocked blocked ->
@@ -671,7 +957,10 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (current.is(soil.getBlock())) {
             return FarmStatus.IDLE;
         }
-        if (!world.canModify(pos) || current.hasBlockEntity() || world.destroySpeed(pos) < 0) {
+        if (!world.canModify(pos)
+                || current.hasBlockEntity()
+                || world.destroySpeed(pos) < 0
+                || world.neverClear(current)) {
             return FarmStatus.BLOCKED;
         }
         // Air and fluids are simply overwritten; anything else is broken first.
@@ -701,6 +990,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return FarmStatus.WORKING;
     }
 
+    /** Tills {@code pos} into {@code result}, for RF only: irrigation wets it later. */
     private FarmStatus till(Tick t, BlockPos pos, BlockState result) {
         FarmWorldAccess world = t.world();
         if (!world.isLoaded(pos) || world.state(pos) == result) {
@@ -710,45 +1000,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (energy.amount() < cost) {
             return noPower(cost);
         }
-        long needed = water != null ? tillWater(t, pos) : 0;
-        if (water != null && water.tank().getAmount() < needed) {
-            waterNeeded = needed;
-            return FarmStatus.NO_WATER;
-        }
         if (!world.canModify(pos) || !world.setBlock(pos, result, Block.UPDATE_ALL)) {
-            return FarmStatus.BLOCKED;
-        }
-        if (needed > 0) {
-            FluidTankComponent tank = water.tank();
-            tank.extract(tank.getFluidKey(), needed, false);
-        }
-        energy.consume(cost);
-        tracker.clear(FarmStatus.NO_WATER);
-        return FarmStatus.WORKING;
-    }
-
-    /** The water tilling {@code pos} costs: {@code water_per_till_mb} scaled by its climate. */
-    private long tillWater(Tick t, BlockPos pos) {
-        return FluidUnits.mb(Hydration.waterMb(t.settings().waterPerTillMb(), t.world().climate(pos)));
-    }
-
-    private FarmStatus moisten(Tick t, BlockPos pos) {
-        FarmWorldAccess world = t.world();
-        if (!world.isLoaded(pos)) {
-            return FarmStatus.IDLE;
-        }
-        BlockState state = world.state(pos);
-        if (!state.hasProperty(BlockStateProperties.MOISTURE)
-                || state.getValue(BlockStateProperties.MOISTURE) >= MAX_MOISTURE) {
-            return FarmStatus.IDLE;
-        }
-        long cost = t.settings().cost(FarmCost.MOISTEN);
-        if (energy.amount() < cost) {
-            return noPower(cost);
-        }
-        // Moisture is a visual-only change, so neighbours are not updated.
-        if (!world.canModify(pos)
-                || !world.setBlock(pos, state.setValue(BlockStateProperties.MOISTURE, MAX_MOISTURE), Block.UPDATE_CLIENTS)) {
             return FarmStatus.BLOCKED;
         }
         energy.consume(cost);
@@ -1178,11 +1430,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             int slot = soilSlot(logic);
             return slot >= 0 ? items.getItem(slot).copyWithCount(1) : ItemStack.EMPTY;
         }
-
-        @Override
-        public boolean hasWater() {
-            return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerTillMb());
-        }
     }
 
     /** The world a logic decides from in a visit: reads pass through, trees are planned by the farm. */
@@ -1220,6 +1467,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
 
         @Override
+        public boolean rainingAt(BlockPos pos) {
+            return world.rainingAt(pos);
+        }
+
+        @Override
         public TreeView.Kind treeKind(BlockState state) {
             return world.treeKind(state);
         }
@@ -1235,12 +1487,180 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
     }
 
+    /** The world a logic decides from in a survey: what the farm would clear reads as air, and no tree is planned. */
+    private static final class SurveyWorld implements FarmWorld {
+
+        private final FarmWorld world;
+        private final Set<BlockPos> cleared;
+
+        SurveyWorld(FarmWorld world, Set<BlockPos> cleared) {
+            this.world = world;
+            this.cleared = cleared;
+        }
+
+        @Override
+        public boolean isLoaded(BlockPos pos) {
+            return world.isLoaded(pos);
+        }
+
+        @Override
+        public BlockState state(BlockPos pos) {
+            return cleared.contains(pos) ? Blocks.AIR.defaultBlockState() : world.state(pos);
+        }
+
+        @Override
+        public int light(BlockPos pos) {
+            return world.light(pos);
+        }
+
+        @Override
+        public boolean canSurvive(BlockState state, BlockPos pos) {
+            return world.canSurvive(state, pos);
+        }
+
+        @Override
+        public FarmClimate climate(BlockPos pos) {
+            return world.climate(pos);
+        }
+
+        @Override
+        public boolean rainingAt(BlockPos pos) {
+            return world.rainingAt(pos);
+        }
+
+        @Override
+        public TreeView.Kind treeKind(BlockState state) {
+            return world.treeKind(state);
+        }
+
+        @Override
+        public boolean neverClear(BlockState state) {
+            return world.neverClear(state);
+        }
+
+        @Override
+        public boolean naturalClearable(BlockState state) {
+            return world.naturalClearable(state);
+        }
+
+        @Override
+        public FellPlan fellPlan(BlockPos plot, TreeFeller.Limits limits) {
+            // A tree is the farm's own growth, harvested rather than cleared.
+            return FellPlan.skip(FellPlan.Reason.NO_TREE);
+        }
+    }
+
+    // ==================== Irrigation ====================
+
+    /**
+     * Vanilla asking whether the farmland at {@code pos} is near water, once it found none. True,
+     * paying {@code water_per_irrigation_mb} scaled by the climate at {@code pos}, for a soil cell of
+     * the ring of a working farm whose tank holds that much and that sees no redstone signal. Rain
+     * wets farmland for free, so a plot in the rain is answered false and costs nothing; so is one the
+     * tank cannot pay for in full, which then dries a level.
+     */
+    boolean irrigate(FarmWorld world, BlockPos pos) {
+        RingArea area = irrigated;
+        if (area == null || water == null || pos.getY() != area.origin().getY() - 1 || !area.contains(pos)) {
+            return false;
+        }
+        if (world.rainingAt(pos.above())) {
+            return false;
+        }
+        long needed = FluidUnits.mb(Hydration.waterMb(irrigationMb, world.climate(pos)));
+        FluidTankComponent tank = water.tank();
+        if (tank.getAmount() < needed) {
+            return false;
+        }
+        if (needed > 0) {
+            tank.extract(tank.getFluidKey(), needed, false);
+        }
+        return true;
+    }
+
+    /** The ring {@link #irrigate} wets now, or null; as of the last tick. */
+    @Nullable
+    RingArea irrigatedArea() {
+        return irrigated;
+    }
+
+    /** Stops irrigating until the next tick finds the farm working; for a block entity being removed or unloaded. */
+    public void detach() {
+        irrigated = null;
+        unregisterIrrigation();
+    }
+
+    /** Registers the ring with {@link FarmlandHydration} while working with a tank, again whenever the ring or level changes. */
+    private void updateIrrigation(MachineContext ctx, RingArea area, boolean paused, FarmSettings s) {
+        boolean working = state == FarmState.ACTIVE && water != null;
+        irrigated = working && !paused ? area : null;
+        irrigationMb = s.waterPerIrrigationMb();
+        if (!working || !(ctx.level() instanceof ServerLevel level)) {
+            unregisterIrrigation();
+            return;
+        }
+        if (irrigation != null && level == irrigationLevel && area.equals(irrigationArea)) {
+            return;
+        }
+        unregisterIrrigation();
+        irrigation = FarmlandHydration.register(level, new Irrigation(level, ctx.pos(), area));
+        irrigationLevel = level;
+        irrigationArea = area;
+    }
+
+    private void unregisterIrrigation() {
+        if (irrigation != null) {
+            irrigation.unregister();
+        }
+        irrigation = null;
+        irrigationLevel = null;
+        irrigationArea = null;
+    }
+
+    /** The ring's soil layer as a {@link HydrationSource}. */
+    private final class Irrigation implements HydrationSource {
+
+        private final BlockPos anchor;
+        private final BoundingBox bounds;
+        private final FarmWorld world;
+
+        Irrigation(ServerLevel level, BlockPos anchor, RingArea area) {
+            this.anchor = anchor.immutable();
+            int soilY = area.origin().getY() - 1;
+            BlockPos min = area.min();
+            BlockPos max = area.max();
+            this.bounds = new BoundingBox(min.getX(), soilY, min.getZ(), max.getX(), soilY, max.getZ());
+            this.world = new LevelFarmWorld(level, owner);
+        }
+
+        @Override
+        public BlockPos anchor() {
+            return anchor;
+        }
+
+        @Override
+        public BoundingBox bounds() {
+            return bounds;
+        }
+
+        @Override
+        public boolean hydrate(ServerLevel level, BlockPos pos) {
+            return irrigate(world, pos);
+        }
+    }
+
     // ==================== Status ====================
 
     private void updateStatus(MachineContext ctx, FarmSettings s, PlotArea area, boolean paused) {
-        status = paused ? FarmStatus.PAUSED : tracker.status(area.plotCount(), problem -> stillApplies(problem, s));
+        if (paused) {
+            status = FarmStatus.PAUSED;
+        } else if (state == FarmState.SURVEY) {
+            status = FarmStatus.SURVEYING;
+        } else {
+            status = tracker.status(area.plotCount(), problem -> stillApplies(problem, s));
+        }
         BlockState state = ctx.blockState();
-        boolean lit = status == FarmStatus.WORKING;
+        boolean lit = energy.amount() > 0;
         if (state.hasProperty(FarmMachineBlock.LIT) && state.getValue(FarmMachineBlock.LIT) != lit) {
             ctx.setBlockState(state.setValue(FarmMachineBlock.LIT, lit), Block.UPDATE_ALL);
         }
@@ -1249,7 +1669,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private boolean stillApplies(FarmStatus problem, FarmSettings s) {
         return switch (problem) {
             case NO_POWER -> energy.amount() < powerNeeded;
-            case NO_WATER -> water == null || water.tank().getAmount() < waterNeeded;
             case NO_GERMLINGS ->
                 germlingNeeded.isEmpty() || inputsFor(germlingLogic).germlingCount(germlingNeeded) < germlingCountNeeded;
             case NO_SOIL -> soilSlot(soilLogic) < 0;
@@ -1282,12 +1701,58 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
                     harvestedPlots.stream().mapToLong(BlockPos::asLong).toArray());
         }
         output.save(tag, "Overflow", registries);
+        tag.putString("State", state.id());
+        if (pendingPreview != null) {
+            tag.put("Preview", savePreview(pendingPreview));
+        }
+    }
+
+    private static CompoundTag savePreview(FarmPreview preview) {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("Shown", preview.shown());
+        tag.putLong("Until", preview.until());
+        tag.putInt("Inner", preview.inner());
+        tag.putInt("Outer", preview.outer());
+        tag.putInt("Height", preview.height());
+        FarmSurvey survey = preview.survey();
+        tag.putInt("Natural", survey.natural());
+        tag.putInt("Flagged", survey.flagged());
+        tag.putInt("Protected", survey.protectedCount());
+        tag.putLongArray("FlaggedAt", survey.flaggedAt().stream().mapToLong(BlockPos::asLong).toArray());
+        tag.putLongArray("ProtectedAt", survey.protectedAt().stream().mapToLong(BlockPos::asLong).toArray());
+        return tag;
+    }
+
+    private static FarmPreview loadPreview(FarmState state, CompoundTag tag) {
+        FarmSurvey survey = FarmSurvey.of(
+                NbtCompat.getInt(tag, "Natural", 0),
+                NbtCompat.getInt(tag, "Flagged", 0),
+                NbtCompat.getInt(tag, "Protected", 0),
+                positions(NbtCompat.getLongArray(tag, "FlaggedAt", new long[0])),
+                positions(NbtCompat.getLongArray(tag, "ProtectedAt", new long[0])));
+        return new FarmPreview(
+                state,
+                NbtCompat.getBoolean(tag, "Shown", false),
+                NbtCompat.getLong(tag, "Until", 0L),
+                NbtCompat.getInt(tag, "Inner", 0),
+                NbtCompat.getInt(tag, "Outer", 0),
+                NbtCompat.getInt(tag, "Height", 0),
+                survey);
+    }
+
+    private static List<BlockPos> positions(long[] packed) {
+        List<BlockPos> positions = new ArrayList<>(Math.min(packed.length, FarmSurvey.MAX_LISTED));
+        for (int i = 0; i < packed.length && i < FarmSurvey.MAX_LISTED; i++) {
+            positions.add(BlockPos.of(packed[i]));
+        }
+        return positions;
     }
 
     @Override
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
         savedCursor = NbtCompat.getInt(tag, "Cursor", 0);
         scanner = null;
+        heldIndex = -1;
         owner = parseUuid(NbtCompat.getString(tag, "Owner", ""));
         harvest.clear();
         dropPlanner();
@@ -1302,6 +1767,12 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             }
         }
         output.load(tag, "Overflow", registries);
+        state = FarmState.fromId(NbtCompat.getString(tag, "State", ""));
+        previewToggled = state == FarmState.SURVEY;
+        // Only an update tag carries the preview; it is never saved.
+        syncedPreview = NbtCompat.hasCompound(tag, "Preview")
+                ? loadPreview(state, NbtCompat.getCompoundOrEmpty(tag, "Preview"))
+                : FarmPreview.NONE;
     }
 
     @Nullable

@@ -80,7 +80,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     }
 
     private static FarmMenu serverMenu(TestFarm farm, Inventory inventory) {
-        return new FarmMenu(1, inventory, farm, FarmMenu.dataSource(farm.parts));
+        return new FarmMenu(1, inventory, farm, FarmMenu.dataSource(farm.parts, () -> false));
     }
 
     private static Inventory playerInventory() {
@@ -289,7 +289,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         TestFarm farm = farm(new ScriptedFarmLogic(true, false), settings);
         farm.parts.energy().setAmount(70_000);
         farm.parts.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(33_000), false);
-        ContainerData data = FarmMenu.dataSource(farm.parts);
+        ContainerData data = FarmMenu.dataSource(farm.parts, () -> false);
         FarmMenu menu = new FarmMenu(1, playerInventory(), farm, data);
 
         assertThat(data.getCount()).isEqualTo(FarmMenu.DATA_COUNT);
@@ -317,7 +317,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.FLAGS + 1);
         assertThat(FarmMenu.PLOTS_TOTAL).isEqualTo(FarmMenu.TIER + 1);
         assertThat(FarmMenu.PLOTS_BLOCKED).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
-        assertThat(FarmMenu.DATA_COUNT).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
+        assertThat(FarmMenu.STATE).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
 
         SimpleContainerData data = new SimpleContainerData(FarmMenu.DATA_COUNT);
         FarmMenu menu = new FarmMenu(1, playerInventory(), new SimpleContainer(FarmMachine.SLOT_COUNT), data);

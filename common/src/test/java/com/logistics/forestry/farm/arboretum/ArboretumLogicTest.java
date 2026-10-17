@@ -545,10 +545,5 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         public ItemStack soil() {
             return soil.copyWithCount(1);
         }
-
-        @Override
-        public boolean hasWater() {
-            return false;
-        }
     }
 }

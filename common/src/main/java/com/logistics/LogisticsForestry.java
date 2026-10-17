@@ -144,7 +144,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                             .register(),
                     farm.defineInt(prefix + "actions_per_second", defaults.actionsPerSecond())
                             .min(1)
-                            .describe("World-changing actions (clear, harvest, till, soil, plant, moisten) per "
+                            .describe("World-changing actions (clear, harvest, till, soil, plant) per "
                                     + "second at this tier; each costs RF")
                             .register(),
                     farm.defineLong(prefix + "energy_capacity", defaults.energyCapacity())
@@ -157,7 +157,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                             .register(),
                     farm.defineInt(prefix + "water_capacity_mb", defaults.waterCapacityMb())
                             .min(1)
-                            .describe("Water tank capacity (mB) at this tier, for farms that till with water")
+                            .describe("Water tank capacity (mB) at this tier, for farms that irrigate their farmland")
                             .register());
         }
 
@@ -180,11 +180,12 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             return Collections.unmodifiableMap(keys);
         }
 
-        public static final ConfigKey<Integer> FARM_WATER_PER_TILL_MB = farm.defineInt(
-                        "water_per_till_mb", FarmSettings.DEFAULT_WATER_PER_TILL_MB)
+        public static final ConfigKey<Integer> FARM_WATER_PER_IRRIGATION_MB = farm.defineInt(
+                        "water_per_irrigation_mb", FarmSettings.DEFAULT_WATER_PER_IRRIGATION_MB)
                 .min(0)
-                .describe("Water (mB) per block tilled in a temperate biome, which keeps it moist for the crop's "
-                        + "whole life; hot or dry biomes cost up to twice this, rain halves it")
+                .describe("Water (mB) a working farm pays in a temperate biome each time a farmland plot of its "
+                        + "ring checks for water (a random tick) and the farm keeps it wet; hot or dry biomes "
+                        + "cost up to twice this. Rain and nearby water wet farmland for free")
                 .register();
 
         public static final ConfigKey<Double> FARM_HARVEST_SHARE = farm.defineDouble(
@@ -240,6 +241,14 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Ground the Crop Farm tills into farmland. */
         public static final TagKey<Block> TILLABLE =
                 TagKey.create(Registries.BLOCK, resource("tillable").toIdentifier());
+
+        /** Blocks a farm's survey counts as natural ground to clear; anything else it would clear looks player-built. */
+        public static final TagKey<Block> NATURAL_CLEARABLE =
+                TagKey.create(Registries.BLOCK, resource("natural_clearable").toIdentifier());
+
+        /** Blocks a farm never clears or replaces, like a block entity. */
+        public static final TagKey<Block> NEVER_CLEAR =
+                TagKey.create(Registries.BLOCK, resource("never_clear").toIdentifier());
 
         /** Seeds and crop items the Crop Farm plants. */
         public static final TagKey<Item> CROP_GERMLINGS =

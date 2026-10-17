@@ -14,8 +14,11 @@ import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachine;
 import com.logistics.forestry.farm.FarmMachineBlock;
+import com.logistics.forestry.farm.FarmMenu;
 import com.logistics.forestry.farm.FarmSettings;
+import com.logistics.forestry.farm.FarmState;
 import com.logistics.forestry.farm.FarmStatus;
+import com.logistics.forestry.farm.FarmSurvey;
 import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.Hydration;
 import com.logistics.forestry.farm.LevelFarmWorld;
@@ -23,10 +26,15 @@ import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -59,6 +67,7 @@ import org.jetbrains.annotations.Nullable;
  * the west, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest. Water
  * comes from a Glass Tank through a Fluid Extractor Pipe on the north side, driven by a second
  * engine. Two glowstone lamps above the inner square keep the ring bright whatever the sky does.
+ * The farm is started, except in the survey tests, which press Start themselves.
  */
 public class CropFarmGameTestBody {
 
@@ -106,6 +115,16 @@ public class CropFarmGameTestBody {
     /** {@link #build(GameTestHelper, BlockState, boolean, boolean)} with {@code waterMb} in the source tank; 0 for no water rig. */
     @Nullable
     private static Rig build(GameTestHelper context, @Nullable BlockState soil, boolean power, long waterMb) {
+        Rig rig = placeRig(context, soil, power, waterMb);
+        if (rig != null) {
+            rig.farm().start();
+        }
+        return rig;
+    }
+
+    /** The rig as {@link #build(GameTestHelper, BlockState, boolean, long)} builds it, with the farm left surveying. */
+    @Nullable
+    private static Rig placeRig(GameTestHelper context, @Nullable BlockState soil, boolean power, long waterMb) {
         boolean water = waterMb > 0;
         if (soil != null) {
             for (BlockPos plot : PLOTS) {
@@ -183,25 +202,40 @@ public class CropFarmGameTestBody {
         return total;
     }
 
-    /** The water one till of the ring costs where the test runs: the configured base scaled by its climate. */
-    private static long perTillMb(GameTestHelper context) {
-        BlockPos soil = context.absolutePos(PLOTS.get(0).below());
+    /** The water one irrigation of {@code soil} costs where the test runs, in mB. */
+    private static long irrigationMb(GameTestHelper context, BlockPos soil) {
         return Hydration.waterMb(
-                FarmSettings.fromConfig().waterPerTillMb(), LevelFarmWorld.climate(context.getLevel(), soil));
+                FarmSettings.fromConfig().waterPerIrrigationMb(),
+                LevelFarmWorld.climate(context.getLevel(), context.absolutePos(soil)));
     }
 
     /**
-     * Asserts all of the rig's water has left the source tank and the farm holds {@code expectedMb},
-     * so none is still in the pipe.
+     * Glass over {@code soil}'s column, just above what the farm keeps clear, so rain never reaches
+     * the plot and only irrigation can wet it.
      */
-    private static void assertFarmWater(GameTestHelper context, Rig rig, long expectedMb, String why) {
-        if (rig.tank().tank().getAmount() > 0) {
-            throw context.assertionException(WATER_TANK, "All the tank's water should have reached the farm");
+    private static BlockPos roof(GameTestHelper context, Rig rig, BlockPos soil) {
+        BlockPos roof = soil.above(1 + rig.farm().logic().clearanceHeight());
+        context.setBlock(roof, Blocks.GLASS);
+        return roof;
+    }
+
+    /** {@code soil} as farmland of {@code moisture}, given one vanilla random tick; returns the moisture after it. */
+    private static int randomTick(GameTestHelper context, BlockPos soil, int moisture) {
+        context.setBlock(soil, farmland(moisture));
+        ServerLevel level = context.getLevel();
+        BlockPos pos = context.absolutePos(soil);
+        level.getBlockState(pos).randomTick(level, pos, level.getRandom());
+        BlockState after = context.getBlockState(soil);
+        if (!after.is(Blocks.FARMLAND)) {
+            throw context.assertionException(soil, "The farmland should still be farmland, is " + after);
         }
-        long left = farmWater(rig.farm());
-        if (left != FluidUnits.mb(expectedMb)) {
-            throw context.assertionException(FARM, why + ": the farm should hold " + expectedMb + " mB, has "
-                    + FluidUnits.toMillibuckets(left) + " mB");
+        return after.getValue(BlockStateProperties.MOISTURE);
+    }
+
+    /** Fails until every drop of the source tank has reached the farm. */
+    private static void assertTankDrained(GameTestHelper context, Rig rig) {
+        if (rig.tank() != null && rig.tank().tank().getAmount() > 0) {
+            throw context.assertionException(WATER_TANK, "All the tank's water should have reached the farm");
         }
     }
 
@@ -237,111 +271,198 @@ public class CropFarmGameTestBody {
         context.succeedWhen(() -> assertWheatEverywhere(context, PLOTS));
     }
 
-    /**
-     * The farm's water pays for exactly as many tills as it covers: with water for {@code N} tills
-     * and more dirt plots than that, exactly {@code N} become farmland, the water is gone, and the
-     * farm reports No water.
-     */
-    public static void testHoeingSpendsWater(GameTestHelper context) {
-        int tills = 5;
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, tills * perTillMb(context));
+    /** With no water at all, the farm still tills the whole ring and sows it, never reporting No water. */
+    public static void testTillsAndPlantsWithoutWater(GameTestHelper context) {
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, false);
         if (rig == null) {
             return;
         }
         rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
 
         context.succeedWhen(() -> {
-            assertFarmWater(context, rig, 0, "Every till should have been paid for");
-            int farmland = 0;
-            for (BlockPos plot : PLOTS) {
-                if (context.getBlockState(plot.below()).is(Blocks.FARMLAND)) {
-                    farmland++;
-                }
+            assertWheatEverywhere(context, PLOTS);
+            if (farmWater(rig.farm()) != 0) {
+                throw context.assertionException(FARM, "The farm should have no water");
             }
-            if (farmland != tills) {
-                throw context.assertionException(FARM, "Water for " + tills + " tills should till exactly " + tills
-                        + " plots, tilled " + farmland);
-            }
-            if (rig.farm().status() != FarmStatus.NO_WATER) {
-                throw context.assertionException(FARM, "Farm should report No water, reports " + rig.farm().status());
+            if (rig.farm().status() == FarmStatus.NO_WATER) {
+                throw context.assertionException(FARM, "Farm should not report No water");
             }
         });
     }
 
     /**
-     * Mature wheat is harvested, which returns its plot to dirt; the farm tills it again, paying
-     * another till's worth of water, and replants it. The test bone-meals that one plot's wheat
-     * until it is harvested; young wheat on every other plot keeps the rest of the ring idle.
+     * Mature wheat is harvested and replanted on the same farmland: the harvest leaves the plot's
+     * farmland, at the moisture it had, and the plot is never dirt. The test bone-meals that one
+     * plot's wheat until it is harvested; young wheat on every other plot keeps the rest of the ring
+     * idle.
      */
-    public static void testHarvestReturnsPlotToDirtAndRetillPaysWater(GameTestHelper context) {
+    public static void testHarvestKeepsFarmland(GameTestHelper context) {
         Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
         if (rig == null) {
             return;
         }
         BlockPos target = PLOTS.get(PLOTS.size() / 2);
+        BlockPos soil = target.below();
         for (BlockPos plot : PLOTS) {
             context.setBlock(plot, Blocks.WHEAT);
         }
         // The output hopper may carry the harvest's seeds off before they are replanted.
         rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 4));
-        boolean[] sawDirt = {false};
+        boolean[] harvested = {false};
+        BlockState[] soilBefore = {context.getBlockState(soil)};
+        String[] problem = {null};
 
         context.onEachTick(() -> {
-            if (sawDirt[0]) {
-                return;
+            BlockState ground = context.getBlockState(soil);
+            if (!ground.is(Blocks.FARMLAND) && problem[0] == null) {
+                problem[0] = "The plot's soil should stay farmland, became " + ground;
             }
-            if (context.getBlockState(target.below()).is(Blocks.DIRT)) {
-                sawDirt[0] = true;
+            if (harvested[0]) {
                 return;
             }
             BlockState state = context.getBlockState(target);
-            if (state.is(Blocks.WHEAT)) {
-                PlantCompat.fertilize(
-                        context.getLevel(), context.getLevel().getRandom(), context.absolutePos(target), state);
+            if (!state.is(Blocks.WHEAT) || state.getValue(BlockStateProperties.AGE_7) < 7 && hasHarvest(context, rig)) {
+                harvested[0] = true;
+                if (ground != soilBefore[0] && problem[0] == null) {
+                    problem[0] = "The harvest should leave the farmland as it was, " + soilBefore[0] + ", is " + ground;
+                }
+                return;
             }
+            soilBefore[0] = ground;
+            PlantCompat.fertilize(context.getLevel(), context.getLevel().getRandom(), context.absolutePos(target), state);
         });
         context.succeedWhen(() -> {
-            if (!sawDirt[0]) {
-                throw context.assertionException(target.below(), "The harvest should have returned the plot to dirt");
+            if (problem[0] != null) {
+                throw context.assertionException(soil, problem[0]);
+            }
+            if (!harvested[0]) {
+                throw context.assertionException(target, "The ripe wheat should have been harvested");
             }
             if (!context.getBlockState(target).is(Blocks.WHEAT)) {
                 throw context.assertionException(target, "The plot should have been replanted");
             }
-            if (!context.getBlockState(target.below()).is(Blocks.FARMLAND)) {
-                throw context.assertionException(target.below(), "The plot should have been tilled again");
-            }
-            assertFarmWater(context, rig, TANK_MB - perTillMb(context), "Re-tilling should have paid one till's water");
         });
     }
 
+    /** Whether any wheat has been harvested: in the chest, the output hopper or the farm. */
+    private static boolean hasHarvest(GameTestHelper context, Rig rig) {
+        return count(context.getBlockEntity(CHEST, ChestBlockEntity.class), Items.WHEAT)
+                        + count(context.getBlockEntity(OUTPUT_HOPPER, HopperBlockEntity.class), Items.WHEAT)
+                        + count(rig.farm(), Items.WHEAT)
+                > 0;
+    }
+
     /**
-     * Farmland under growing wheat that dries out is moistened back to full without spending water:
-     * the till paid for it.
+     * A working farm irrigates dry farmland of its ring through vanilla's own random tick: the
+     * farmland goes to full moisture and the farm's tank drops by exactly one irrigation's water.
      */
-    public static void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
+    public static void testIrrigatesRingFarmlandFromTank(GameTestHelper context) {
         Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
         if (rig == null) {
             return;
         }
-        for (BlockPos plot : PLOTS) {
-            context.setBlock(plot, Blocks.WHEAT);
-        }
-        BlockPos dry = PLOTS.get(PLOTS.size() / 2).below();
-        context.setBlock(dry, farmland(0));
-        boolean[] moistened = {false};
+        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
+        BlockPos soil = PLOTS.get(PLOTS.size() / 2).below();
+        BlockPos roof = roof(context, rig, soil);
 
-        context.onEachTick(() -> {
-            BlockState soil = context.getBlockState(dry);
-            if (soil.is(Blocks.FARMLAND) && soil.getValue(BlockStateProperties.MOISTURE) == MAX_MOISTURE) {
-                moistened[0] = true;
-            }
-        });
         context.succeedWhen(() -> {
-            if (!moistened[0]) {
-                throw context.assertionException(dry, "Dry farmland under wheat should have been moistened to "
-                        + MAX_MOISTURE + ", is " + context.getBlockState(dry));
+            assertTankDrained(context, rig);
+            long before = farmWater(rig.farm());
+            int moisture = randomTick(context, soil, 0);
+            long spent = before - farmWater(rig.farm());
+            if (moisture != MAX_MOISTURE) {
+                throw context.assertionException(soil, "Irrigated farmland should be fully wet, is " + moisture);
             }
-            assertFarmWater(context, rig, TANK_MB, "Moistening should spend no water");
+            long charge = FluidUnits.mb(irrigationMb(context, soil));
+            if (spent != charge) {
+                throw context.assertionException(FARM, "The irrigation should cost " + FluidUnits.toMillibuckets(charge)
+                        + " mB, cost " + FluidUnits.toMillibuckets(spent) + " mB");
+            }
+            context.setBlock(roof, Blocks.AIR);
+        });
+    }
+
+    /** With an empty tank the farm cannot irrigate: a random tick dries its farmland one level and nothing is spent. */
+    public static void testFarmlandDriesWithoutWater(GameTestHelper context) {
+        Rig rig = build(context, farmland(MAX_MOISTURE), true, false);
+        if (rig == null) {
+            return;
+        }
+        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
+        BlockPos soil = PLOTS.get(PLOTS.size() / 2).below();
+        BlockPos roof = roof(context, rig, soil);
+
+        context.runAfterDelay(40, () -> {
+            int moisture = randomTick(context, soil, 5);
+            if (moisture != 4) {
+                throw context.assertionException(soil, "Unirrigated farmland should dry from 5 to 4, is " + moisture);
+            }
+            if (farmWater(rig.farm()) != 0) {
+                throw context.assertionException(FARM, "The farm should have spent no water");
+            }
+            context.setBlock(roof, Blocks.AIR);
+            context.succeed();
+        });
+    }
+
+    /** A farm that is still surveying never irrigates: its farmland dries and its water stays in the tank. */
+    public static void testSurveyingFarmDoesNotIrrigate(GameTestHelper context) {
+        Rig rig = placeRig(context, farmland(MAX_MOISTURE), true, TANK_MB);
+        if (rig == null) {
+            return;
+        }
+        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
+        BlockPos soil = PLOTS.get(PLOTS.size() / 2).below();
+        BlockPos roof = roof(context, rig, soil);
+
+        context.succeedWhen(() -> {
+            assertTankDrained(context, rig);
+            long before = farmWater(rig.farm());
+            int moisture = randomTick(context, soil, 5);
+            if (moisture != 4) {
+                throw context.assertionException(soil, "A surveying farm's farmland should dry from 5 to 4, is " + moisture);
+            }
+            if (farmWater(rig.farm()) != before) {
+                throw context.assertionException(FARM, "A surveying farm should spend no water");
+            }
+            if (rig.farm().state() != FarmState.SURVEY) {
+                throw context.assertionException(FARM, "The farm should still be surveying");
+            }
+            context.setBlock(roof, Blocks.AIR);
+        });
+    }
+
+    /**
+     * Farmland in the courtyard or outside the ring is never irrigated by a working farm with water:
+     * a random tick dries both and the farm spends nothing.
+     */
+    public static void testNeverIrrigatesOutsideRing(GameTestHelper context) {
+        Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
+        if (rig == null) {
+            return;
+        }
+        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
+        // Under a lamp, which keeps the rain off.
+        BlockPos courtyard = new BlockPos(4, FARM.getY(), 4);
+        BlockPos outside = new BlockPos(0, FARM.getY(), FARM.getZ());
+        BlockPos outsideRoof = outside.above(2);
+        context.setBlock(outsideRoof, Blocks.GLASS);
+
+        context.succeedWhen(() -> {
+            assertTankDrained(context, rig);
+            long before = farmWater(rig.farm());
+            for (BlockPos soil : List.of(courtyard, outside)) {
+                int moisture = randomTick(context, soil, 5);
+                if (moisture != 4) {
+                    throw context.assertionException(soil, "Farmland off the ring should dry from 5 to 4, is " + moisture);
+                }
+            }
+            if (farmWater(rig.farm()) != before) {
+                throw context.assertionException(FARM, "Farmland off the ring should cost the farm nothing");
+            }
+            context.setBlock(courtyard, Blocks.AIR);
+            context.setBlock(outside, Blocks.AIR);
+            context.setBlock(outsideRoof, Blocks.AIR);
         });
     }
 
@@ -402,37 +523,7 @@ public class CropFarmGameTestBody {
         return total;
     }
 
-    /**
-     * Without water the farm still harvests: mature wheat is cut, its plots return to dirt, and they
-     * stay dirt while the farm reports No water.
-     */
-    public static void testHarvestsButStopsTillingWithoutWater(GameTestHelper context) {
-        Rig rig = build(context, farmland(MAX_MOISTURE), true, false);
-        if (rig == null) {
-            return;
-        }
-        BlockState ripe = Blocks.WHEAT.defaultBlockState().setValue(BlockStateProperties.AGE_7, 7);
-        for (BlockPos plot : PLOTS) {
-            context.setBlock(plot, ripe);
-        }
-
-        context.succeedWhen(() -> {
-            for (BlockPos plot : PLOTS) {
-                if (!context.getBlockState(plot).isAir()) {
-                    throw context.assertionException(plot, "Ripe wheat should be harvested without water");
-                }
-                if (!context.getBlockState(plot.below()).is(Blocks.DIRT)) {
-                    throw context.assertionException(plot.below(), "A harvested plot should be dirt and stay untilled");
-                }
-            }
-            assertChestHolds(context, Items.WHEAT, "The harvested wheat");
-            if (rig.farm().status() != FarmStatus.NO_WATER) {
-                throw context.assertionException(FARM, "Farm should report No water, reports " + rig.farm().status());
-            }
-        });
-    }
-
-    /** Without power the farm tills, waters and plants nothing, and reports No power. */
+    /** Without power the farm tills and plants nothing, and reports No power. */
     public static void testDoesNothingWithoutPower(GameTestHelper context) {
         Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false, true);
         if (rig == null) {
@@ -608,6 +699,152 @@ public class CropFarmGameTestBody {
             if (unlaid != PLOTS.size()) {
                 throw context.assertionException(grass, "No dirt should have been laid, " + (PLOTS.size() - unlaid)
                         + " was");
+            }
+        });
+    }
+
+    // ==================== Survey and Start ====================
+
+    private static final int SURVEY_TICKS = 120;
+
+    /**
+     * On grass, a placed farm only surveys: for {@value #SURVEY_TICKS} ticks the torch, the planks,
+     * the short grass, the chest and the ground in its ring stay as they are (grass may die back to
+     * dirt under the planks by itself) and its energy only ever rises,
+     * while the survey flags the torch and planks and protects the chest. Start, pressed through
+     * the farm's menu, then clears the torch, planks and grass, and never the chest or its diamonds.
+     */
+    public static void testSurveyChangesNothingUntilStart(GameTestHelper context) {
+        Rig rig = placeRig(context, Blocks.GRASS_BLOCK.defaultBlockState(), true, TANK_MB);
+        if (rig == null) {
+            return;
+        }
+        FarmBlockEntity farm = rig.farm();
+        BlockPos torch = PLOTS.get(2);
+        BlockPos planks = PLOTS.get(6);
+        BlockPos stash = PLOTS.get(10);
+        BlockPos grass = PLOTS.get(13);
+        context.setBlock(torch, Blocks.TORCH);
+        context.setBlock(planks, Blocks.OAK_PLANKS);
+        context.setBlock(grass, Blocks.SHORT_GRASS);
+        context.setBlock(stash, Blocks.CHEST);
+        ChestBlockEntity chest = context.getBlockEntity(stash, ChestBlockEntity.class);
+        if (chest == null) {
+            context.fail("Expected the chest in the ring");
+            return;
+        }
+        chest.setItem(0, new ItemStack(Items.DIAMOND, 5));
+
+        // Every column the farm would clear; the grass under it may die back to dirt by itself.
+        Map<BlockPos, BlockState> ring = new HashMap<>();
+        for (BlockPos plot : PLOTS) {
+            for (int dy = 0; dy < 5; dy++) {
+                ring.put(plot.above(dy), context.getBlockState(plot.above(dy)));
+            }
+        }
+        long[] lastEnergy = {farm.energyStorage(null).getAmount()};
+
+        context.onEachTick(() -> {
+            if (farm.state() != FarmState.SURVEY) {
+                return;
+            }
+            ring.forEach((pos, state) -> {
+                if (context.getBlockState(pos) != state) {
+                    throw context.assertionException(pos, "Surveying should change nothing, but " + state
+                            + " became " + context.getBlockState(pos));
+                }
+            });
+            long energy = farm.energyStorage(null).getAmount();
+            if (energy < lastEnergy[0]) {
+                throw context.assertionException(FARM, "Surveying should draw no RF, the farm went from "
+                        + lastEnergy[0] + " to " + energy);
+            }
+            lastEnergy[0] = energy;
+            for (BlockPos plot : PLOTS) {
+                BlockState soil = context.getBlockState(plot.below());
+                if (!soil.is(Blocks.GRASS_BLOCK) && !soil.is(Blocks.DIRT)) {
+                    throw context.assertionException(plot.below(), "Surveying should leave the ground, it is " + soil);
+                }
+            }
+            if (context.getTick() > 2 && farm.status() != FarmStatus.SURVEYING) {
+                throw context.assertionException(FARM, "The farm should report Surveying, reports " + farm.status());
+            }
+        });
+        context.runAtTickTime(SURVEY_TICKS, () -> {
+            FarmSurvey survey = farm.survey();
+            if (!survey.flaggedAt().contains(context.absolutePos(torch))
+                    || !survey.flaggedAt().contains(context.absolutePos(planks))) {
+                throw context.assertionException(torch, "The survey should flag the torch and planks, found " + survey);
+            }
+            if (!survey.protectedAt().contains(context.absolutePos(stash))) {
+                throw context.assertionException(stash, "The survey should protect the chest, found " + survey);
+            }
+            if (survey.toClear() < 3) {
+                throw context.assertionException(grass, "The survey should count torch, planks and grass, found "
+                        + survey);
+            }
+            Player player = context.makeMockPlayer(GameType.SURVIVAL);
+            FarmMenu menu = (FarmMenu) farm.createMenuProvider().createMenu(0, player.getInventory(), player);
+            if (!menu.clickMenuButton(player, FarmMenu.BUTTON_START) || farm.state() != FarmState.ACTIVE) {
+                throw context.assertionException(FARM, "Start should set the farm working");
+            }
+        });
+        context.onEachTick(() -> context.assertBlockPresent(Blocks.CHEST, stash));
+        context.succeedWhen(() -> {
+            if (farm.state() != FarmState.ACTIVE) {
+                throw context.assertionException(FARM, "Waiting for Start");
+            }
+            context.assertBlockPresent(Blocks.AIR, torch);
+            context.assertBlockPresent(Blocks.AIR, planks);
+            context.assertBlockPresent(Blocks.AIR, grass);
+            if (count(context.getBlockEntity(stash, ChestBlockEntity.class), Items.DIAMOND) != 5) {
+                throw context.assertionException(stash, "The chest in the ring should still hold its 5 diamonds");
+            }
+        });
+    }
+
+    /**
+     * A working farm raised a tier, its ring widened from 5×5 to 7×7 to fit the test structure, at once
+     * shows the new lanes' torch as flagged and reports it, then clears it without any confirmation.
+     */
+    public static void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
+        Rig rig = build(context, Blocks.GRASS_BLOCK.defaultBlockState(), true, true);
+        if (rig == null) {
+            return;
+        }
+        FarmBlockEntity farm = rig.farm();
+        BlockPos torch = new BlockPos(0, FARM.getY() + 1, FARM.getZ());
+        context.setBlock(torch.below(), Blocks.GRASS_BLOCK);
+        context.setBlock(torch, Blocks.TORCH);
+        long[] upgradedAt = {-1};
+
+        context.runAtTickTime(20, () -> {
+            context.assertBlockPresent(Blocks.TORCH, torch);
+            // The tier's own ring reaches past the structure, so the wider 7×7 stands in for it.
+            farm.setAreaOverride(RING_INNER, RING_OUTER + 2);
+            if (!farm.tierComponent().setTier(MachineTier.INDUSTRIAL)) {
+                throw context.assertionException(FARM, "The farm should take the Industrial tier");
+            }
+            Optional<Component> feedback = farm.upgradeFeedback(MachineTier.INDUSTRIAL);
+            FarmSurvey lanes = farm.survey();
+            if (feedback.isEmpty() || lanes.flagged() != 1
+                    || !lanes.flaggedAt().contains(context.absolutePos(torch))) {
+                throw context.assertionException(torch, "The upgrade should report the new lanes' torch, found "
+                        + lanes + " and " + feedback);
+            }
+            if (!farm.previewShown()) {
+                throw context.assertionException(FARM, "The upgrade should show the preview");
+            }
+            upgradedAt[0] = context.getTick();
+        });
+        context.succeedWhen(() -> {
+            if (upgradedAt[0] < 0) {
+                throw context.assertionException(FARM, "Waiting for the upgrade");
+            }
+            context.assertBlockPresent(Blocks.AIR, torch);
+            if (context.getTick() - upgradedAt[0] > 100) {
+                context.fail("The new lane should be worked straight away, took " + (context.getTick() - upgradedAt[0])
+                        + " ticks");
             }
         });
     }

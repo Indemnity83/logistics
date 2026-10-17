@@ -16,9 +16,10 @@ Field crops are the most common thing players automate. **Goal:** a single block
 - **Area:** the farm sits at the centre of a free **9×9** and works the 3-wide ring out to **15×15** (144 plots). It lays dirt level with itself and clears each plot's column from Y+1 up to Y+5 ([0201](0201-farm-framework.md)).
 - **Slots:** seeds 0–3, dirt 4–7, output 8–16.
 - **Soil:** dirt, farmland and the blocks in `logistics:forestry/tillable` (grass and dirt paths) count as prepared; tillable blocks are hoed into farmland where they stand, so grass that spreads onto laid dirt is simply hoed. Anything else in the soil layer (the farm's own Y) is broken into the output and replaced with dirt from the soil slots.
-- **Cycle:** lay dirt → **hoe**, spending `water_per_till_mb` (250 mB) from the tank and setting moisture to 7 → plant → keep planted farmland at moisture 7 for `rf_moisten` RF only (the water paid at hoeing covers the whole crop) → harvest. **A harvest turns the plot back to plain dirt**, so the next hoe costs water again.
+- **Cycle:** lay dirt → **hoe** into dry farmland for `rf_till` RF, no water → plant → harvest → replant on the same farmland. **A harvest leaves the farmland as it is**, at its moisture; only empty farmland that dries out back to dirt is hoed again.
+- **Irrigation:** while the farm works, each random tick of a ring plot's farmland that finds no water nearby asks the farm, which keeps it wet for `water_per_irrigation_mb` (100 mB) × climate factor (0.8–2: hot or dry biomes up to twice). Vanilla's moisture is all-or-nothing for growth (any level above 0 grows crops at the wet rate) and only level 7 looks wet, so the farm pays per check rather than per level. Rain and real water are free. Upkeep is about one charge per plot per 68 s: roughly 100 mB/s × climate for a 72-plot Basic ring and 700 mB/s × climate for a 480-plot Infernal one.
 - **Harvest:** mature crops only; replants from the drops before using the germling slots.
-- **Water:** **yes** — an input-only tank, spent per hoe. With no water the farm still harvests but stops tilling and reports *No water*. No water-source placement.
+- **Water:** **yes** — an input-only tank, spent only on irrigation. With no water the farm still tills, plants and harvests; its farmland dries and its crops grow at the dry rate. No water-source placement.
 - **States:** reports *Too dark* (crops need light ≥ 8) and *Blocked* (a protected block in the column) instead of retrying forever.
 - **Gourds (wave 3):** pumpkin / melon seeds planted in a row pattern on farmland; harvests the fruit blocks only, the stems stay.
 - **Recipe:** standard farm recipe with the **tin valve**.
@@ -26,12 +27,12 @@ Field crops are the most common thing players automate. **Goal:** a single block
 ## Design sketch
 
 - A `FarmLogic` implementation (e.g. `CropFarmLogic`) on the shared `FarmBlockEntity` with `FluidBuilder.inputOnly(c:water)`.
-- Farmland via `Blocks.FARMLAND` + `BlockStateProperties.MOISTURE`, moisture written with flag 2; never reference the farmland class (`FarmBlock` on 1.21.1, `FarmlandBlock` on 26.x).
+- Farmland via `Blocks.FARMLAND` + `BlockStateProperties.MOISTURE`; the farm never writes moisture, vanilla does on its random ticks. Never reference the farmland class (`FarmBlock` on 1.21.1, `FarmlandBlock` on 26.x).
 - Our own `logistics:forestry/tillable` tag, because 1.21.1 has no `#turns_into_farmland`.
 
 ## Scope & non-goals
 
-- **In:** dirt laying, tilling with water, moistening, planting, harvest + replant, the light / blocked states, the later gourd row pattern.
+- **In:** dirt laying, tilling, irrigation, planting, harvest + replant, the light / blocked states, the later gourd row pattern.
 - **Out:** a separate gourd farm, stalk crops (see [0207](0207-stalk-farm.md)), berries and cocoa (see [0209](0209-orchard.md)), nether wart (see [0208](0208-infernal-farm.md)).
 
 ## Open questions

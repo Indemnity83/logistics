@@ -91,13 +91,18 @@ public final class LevelFarmWorld implements FarmWorldAccess {
         return climate(level, pos);
     }
 
-    /** The climate at {@code pos} in {@code level}: its biome's, and whether rain falls on it. */
+    /** The climate of the biome at {@code pos} in {@code level}. */
     public static FarmClimate climate(Level level, BlockPos pos) {
         if (!level.isLoaded(pos)) {
             return FarmClimate.NEUTRAL;
         }
         Biome biome = level.getBiome(pos).value();
-        return new FarmClimate(biome.getBaseTemperature(), biome.hasPrecipitation(), level.isRainingAt(pos.above()));
+        return new FarmClimate(biome.getBaseTemperature(), biome.hasPrecipitation());
+    }
+
+    @Override
+    public boolean rainingAt(BlockPos pos) {
+        return isLoaded(pos) && level.isRainingAt(pos);
     }
 
     @Override

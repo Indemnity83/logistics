@@ -74,7 +74,8 @@ public class UpgradeKitItem extends Item {
         if (outcome == Outcome.APPLY && machine.tierComponent().setTier(target)) {
             context.getItemInHand().consume(1, player);
             level.playSound(null, context.getClickedPos(), SoundEvents.SMITHING_TABLE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-            notify(player, Component.translatable(MESSAGE_UPGRADED, tierName(target)));
+            notify(player, machine.upgradeFeedback(target)
+                    .orElseGet(() -> Component.translatable(MESSAGE_UPGRADED, tierName(target))));
             return InteractionResult.SUCCESS_SERVER;
         }
         notify(player, outcome == Outcome.NEEDS_PREVIOUS

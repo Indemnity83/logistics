@@ -23,9 +23,7 @@ public enum FarmCost implements OperationKey {
     /** Laying one soil block. */
     SOIL("soil", "rf_soil", 50, "RF per soil block laid"),
     /** Planting one cell: a 2×2 tree group costs four. */
-    PLANT("plant", "rf_plant", 25, "RF per germling planted"),
-    /** Wetting planted farmland back to full moisture; spends no water. */
-    MOISTEN("moisten", "rf_moisten", 5, "RF per planted farmland block kept moist; spends no water");
+    PLANT("plant", "rf_plant", 25, "RF per germling planted");
 
     private final String namespace;
     private final String configName;

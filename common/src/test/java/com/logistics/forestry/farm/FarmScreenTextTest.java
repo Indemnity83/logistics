@@ -48,6 +48,25 @@ class FarmScreenTextTest extends MinecraftTestEnvironment {
         assertThat(lines.get(2).getStyle().getColor()).isEqualTo(lines.get(1).getStyle().getColor());
     }
 
+    @Test
+    @DisplayName("the button reads Start and presses Start while surveying, then Show area or Hide area once working")
+    void button() {
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.SURVEY, true)).getKey())
+                .isEqualTo(FarmScreenText.BUTTON_START);
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.SURVEY, false)).getKey())
+                .isEqualTo(FarmScreenText.BUTTON_START);
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.ACTIVE, false)).getKey())
+                .isEqualTo(FarmScreenText.BUTTON_SHOW_AREA);
+        assertThat(translatable(FarmScreenText.buttonLabel(FarmState.ACTIVE, true)).getKey())
+                .isEqualTo(FarmScreenText.BUTTON_HIDE_AREA);
+        assertThat(FarmScreenText.buttonId(FarmState.SURVEY)).isEqualTo(FarmMenu.BUTTON_START);
+        assertThat(FarmScreenText.buttonId(FarmState.ACTIVE)).isEqualTo(FarmMenu.BUTTON_SHOW_AREA);
+
+        TranslatableContents tooltip = translatable(FarmScreenText.startTooltip(40, 3, 2));
+        assertThat(tooltip.getKey()).isEqualTo(FarmScreenText.TOOLTIP_START);
+        assertThat(tooltip.getArgs()).containsExactly(40, 3, 2);
+    }
+
     private static TranslatableContents translatable(Component component) {
         assertThat(component.getContents()).isInstanceOf(TranslatableContents.class);
         return (TranslatableContents) component.getContents();

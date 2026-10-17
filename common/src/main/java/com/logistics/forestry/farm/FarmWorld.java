@@ -1,5 +1,6 @@
 package com.logistics.forestry.farm;
 
+import com.logistics.LogisticsForestry;
 import com.logistics.forestry.logic.FellPlan;
 import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeFeller;
@@ -24,9 +25,24 @@ public interface FarmWorld {
     /** Whether {@code state} could stand at {@code pos}; false when not loaded. */
     boolean canSurvive(BlockState state, BlockPos pos);
 
-    /** The climate at {@code pos}, which scales the water a till costs; neutral by default. */
+    /** The climate at {@code pos}, which scales the water irrigating it costs; neutral by default. */
     default FarmClimate climate(BlockPos pos) {
         return FarmClimate.NEUTRAL;
+    }
+
+    /** Whether rain falls on {@code pos} now; false when not loaded, and by default. */
+    default boolean rainingAt(BlockPos pos) {
+        return false;
+    }
+
+    /** Whether {@code state} is in {@code logistics:forestry/never_clear}: never cleared or replaced. */
+    default boolean neverClear(BlockState state) {
+        return state.is(LogisticsForestry.TAG.NEVER_CLEAR);
+    }
+
+    /** Whether {@code state} is in {@code logistics:forestry/natural_clearable}; see {@link ClearClassifier}. */
+    default boolean naturalClearable(BlockState state) {
+        return state.is(LogisticsForestry.TAG.NATURAL_CLEARABLE);
     }
 
     /** What {@code state} is as far as felling goes; never asked about an unloaded position. */

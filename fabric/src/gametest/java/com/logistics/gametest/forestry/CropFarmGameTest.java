@@ -17,28 +17,38 @@ public class CropFarmGameTest {
     }
 
     @GameTest(maxTicks = 1200)
-    public void testHoeingSpendsWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHoeingSpendsWater(context);
+    public void testTillsAndPlantsWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testTillsAndPlantsWithoutWater(context);
     }
 
     @GameTest(maxTicks = 2400)
-    public void testHarvestReturnsPlotToDirtAndRetillPaysWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestReturnsPlotToDirtAndRetillPaysWater(context);
+    public void testHarvestKeepsFarmland(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestKeepsFarmland(context);
     }
 
     @GameTest(maxTicks = 1200)
-    public void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testMoistensPlantedFarmlandWithoutWater(context);
+    public void testIrrigatesRingFarmlandFromTank(GameTestHelper context) {
+        CropFarmGameTestBody.testIrrigatesRingFarmlandFromTank(context);
+    }
+
+    @GameTest(maxTicks = 200)
+    public void testFarmlandDriesWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testFarmlandDriesWithoutWater(context);
+    }
+
+    @GameTest(maxTicks = 1200)
+    public void testSurveyingFarmDoesNotIrrigate(GameTestHelper context) {
+        CropFarmGameTestBody.testSurveyingFarmDoesNotIrrigate(context);
+    }
+
+    @GameTest(maxTicks = 1200)
+    public void testNeverIrrigatesOutsideRing(GameTestHelper context) {
+        CropFarmGameTestBody.testNeverIrrigatesOutsideRing(context);
     }
 
     @GameTest(maxTicks = 3000)
     public void testHarvestsAndReplantsFromReturnedSeeds(GameTestHelper context) {
         CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
-    }
-
-    @GameTest(maxTicks = 1200)
-    public void testHarvestsButStopsTillingWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestsButStopsTillingWithoutWater(context);
     }
 
     @GameTest(maxTicks = 300)
@@ -89,5 +99,15 @@ public class CropFarmGameTest {
     @GameTest(maxTicks = 600)
     public void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
         CropFarmGameTestBody.testRaisingTierGrowsEnergyBuffer(context);
+    }
+
+    @GameTest(maxTicks = 1200)
+    public void testSurveyChangesNothingUntilStart(GameTestHelper context) {
+        CropFarmGameTestBody.testSurveyChangesNothingUntilStart(context);
+    }
+
+    @GameTest(maxTicks = 600)
+    public void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
+        CropFarmGameTestBody.testUpgradeWorksNewLanesImmediately(context);
     }
 }

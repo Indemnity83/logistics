@@ -50,7 +50,11 @@ final class FakeFarmWorld implements FarmWorldAccess {
     final List<LooseItem> loose = new ArrayList<>();
     Function<BlockState, List<ItemStack>> drops = state -> List.of(new ItemStack(state.getBlock().asItem()));
     Function<BlockState, TreeView.Kind> trees = NO_TREES;
+    /** Stand in for the unbound {@code natural_clearable} and {@code never_clear} tags. */
+    Predicate<BlockState> natural = state -> false;
+    Predicate<BlockState> neverClear = state -> false;
     FarmClimate climate = FarmClimate.NEUTRAL;
+    boolean raining;
     /** A write of a state at a position this refuses reports failure and changes nothing. */
     BiPredicate<BlockPos, BlockState> refuseSet = (pos, state) -> false;
     /** A break at a position this refuses reports failure and changes nothing. */
@@ -113,8 +117,24 @@ final class FakeFarmWorld implements FarmWorldAccess {
     }
 
     @Override
+    public boolean rainingAt(BlockPos pos) {
+        readCount++;
+        return raining && isLoaded(pos);
+    }
+
+    @Override
     public TreeView.Kind treeKind(BlockState state) {
         return trees.apply(state);
+    }
+
+    @Override
+    public boolean naturalClearable(BlockState state) {
+        return natural.test(state);
+    }
+
+    @Override
+    public boolean neverClear(BlockState state) {
+        return neverClear.test(state);
     }
 
     @Override

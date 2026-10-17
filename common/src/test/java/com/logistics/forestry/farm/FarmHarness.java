@@ -21,7 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A farm's real components ({@link FarmMachine#assemble}) on a fake host and a {@link FakeFarmWorld}.
+ * A farm's real components ({@link FarmMachine#assemble}) on a fake host and a {@link FakeFarmWorld},
+ * started ({@link FarmComponent#start}) unless built with {@link #surveying}.
  * The host is a furnace block state, which carries the same horizontal {@code facing} and
  * {@code lit} properties as a farm block, facing south at the origin.
  */
@@ -41,11 +42,10 @@ final class FarmHarness {
             FarmCost.HARVEST_LEAVES, 7L,
             FarmCost.TILL, 60L,
             FarmCost.SOIL, 65L,
-            FarmCost.PLANT, 100L,
-            FarmCost.MOISTEN, 20L);
+            FarmCost.PLANT, 100L);
 
-    /** One plot and one action per tick while busy, so tests can count steps in ticks. */
-    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 250, 0.5, 64, 20, 200, FarmSettings.everyTier(PROFILE));
+    /** One plot and one action per tick while busy, so tests can count steps in ticks; 25 mB per irrigation. */
+    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 25, 0.5, 64, 20, 200, FarmSettings.everyTier(PROFILE));
 
     /** The shipped tier profiles, each at the test rate of one check and one action a tick. */
     static Map<MachineTier, FarmTierProfile> shippedTiersAtTestRate() {
@@ -75,11 +75,23 @@ final class FarmHarness {
 
     /** A farm of any logic; {@link #logic} is then null unless it is scripted. */
     FarmHarness(FarmLogic logic, FarmSettings settings) {
+        this(logic, settings, true);
+    }
+
+    private FarmHarness(FarmLogic logic, FarmSettings settings, boolean start) {
         this.logic = logic instanceof ScriptedFarmLogic scripted ? scripted : null;
         this.settings = settings;
         this.machine = FarmMachine.assemble(
                 new MachineBuilder(components, () -> {}), logic, () -> settings, (ctx, owner) -> world);
         areaOverride(inner, outer);
+        if (start) {
+            farm().start();
+        }
+    }
+
+    /** A farm as placed: surveying, not started. */
+    static FarmHarness surveying(FarmLogic logic, FarmSettings settings) {
+        return new FarmHarness(logic, settings, false);
     }
 
     /** Works the ring between squares of {@code inner} and {@code outer}; 0 for both works the tier's. */
@@ -149,6 +161,7 @@ final class FarmHarness {
         private final RandomSource random = RandomSource.create(42L);
         BlockState state = Blocks.FURNACE.defaultBlockState().setValue(FarmMachineBlock.FACING, Direction.SOUTH);
         int changes;
+        int stateWrites;
 
         boolean lit() {
             return state.getValue(FarmMachineBlock.LIT);
@@ -185,6 +198,7 @@ final class FarmHarness {
 
         @Override
         public void setBlockState(BlockState state, int flags) {
+            stateWrites++;
             this.state = state;
         }
 

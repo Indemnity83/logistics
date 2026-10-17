@@ -15,7 +15,8 @@ import org.jetbrains.annotations.Nullable;
  * <p>One stateless instance per farm block ({@link FarmMachineBlock#logic()}), shared by every farm
  * of that type. A logic only reads the world, through {@link FarmWorld}, and answers with a single
  * {@link PlotAction}; the {@link FarmComponent} carries it out and owns the farm-wide gates: power,
- * water, germlings, soil, a full output buffer, redstone and claim protection.
+ * germlings, soil, a full output buffer, redstone and claim protection, and the irrigation of its
+ * ring's farmland.
  *
  * <p>{@link #usesWater()} and {@link #laysSoil()} shape the machine (its tank and soil slots), so
  * they must never change for a given farm type.
@@ -55,7 +56,10 @@ public interface FarmLogic {
         return false;
     }
 
-    /** Whether the farm has an input-only water tank, which every till draws on. */
+    /**
+     * Whether the farm has an input-only water tank, from which it irrigates its ring's farmland while
+     * working; see {@link FarmComponent}.
+     */
     default boolean usesWater() {
         return false;
     }
@@ -93,7 +97,7 @@ public interface FarmLogic {
     /**
      * The one thing {@code plot} needs next. {@code plot} is one block above the farm and its soil,
      * {@code plot.below()}, is level with the farm; from the plot up, the column holds only air and
-     * own growth. Expected priority: harvest, then soil or tilling, then planting, then moistening.
+     * own growth. Expected priority: harvest, then soil or tilling, then planting.
      *
      * <p>Only called while {@code plot} is loaded. Must not change the world; reads beyond the plot
      * should check {@link FarmWorld#isLoaded}.
@@ -101,8 +105,8 @@ public interface FarmLogic {
     PlotAction decide(FarmWorld world, BlockPos plot, FarmInputs inputs);
 
     /**
-     * The block a harvest leaves under its plot in place of {@code soil}, e.g. farmland back to dirt;
-     * {@code null} leaves the soil as it is. Applied once a harvest has fully completed and the plot
+     * The block a harvest leaves under its plot in place of {@code soil}, e.g. a spent soil back to
+     * dirt; {@code null} leaves the soil as it is. Applied once a harvest has fully completed and the plot
      * stands empty.
      */
     @Nullable

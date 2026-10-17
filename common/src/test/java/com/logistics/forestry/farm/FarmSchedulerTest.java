@@ -151,17 +151,15 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         }
     }
 
-    /** Fells any tree it finds through the farm's planner, and moistens dry farmland. */
-    private static ScriptedFarmLogic treesAndMoisture() {
+    /** Fells any tree it finds through the farm's planner, and tills dry farmland into wet. */
+    private static ScriptedFarmLogic treesAndTilling() {
         ScriptedFarmLogic logic = new ScriptedFarmLogic().script((world, plot) -> {
             FellPlan tree = world.fellPlan(plot, TreeFeller.Limits.around(plot, 8));
             if (tree.isFound()) {
                 return new PlotAction.Harvest(tree.blocks());
             }
             BlockState soil = world.state(plot.below());
-            return soil.is(Blocks.FARMLAND) && soil.getValue(BlockStateProperties.MOISTURE) < 7
-                    ? new PlotAction.Moisten(plot.below())
-                    : PlotAction.NONE;
+            return soil == DRY_FARMLAND ? new PlotAction.Till(plot.below(), WET_FARMLAND) : PlotAction.NONE;
         });
         logic.ownGrowth = state -> state.is(Blocks.OAK_LOG) || state.is(Blocks.OAK_LEAVES);
         return logic;
@@ -258,7 +256,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     /** A Basic farm felling a ~800-block tree while every other plot's farmland keeps drying out. */
     private static double cultivateShareWhileFelling(double harvestShare) {
         FarmHarness farm =
-                shipped(treesAndMoisture(), MachineTier.BASIC, FarmSettings.defaults().withHarvestShare(harvestShare));
+                shipped(treesAndTilling(), MachineTier.BASIC, FarmSettings.defaults().withHarvestShare(harvestShare));
         farm.world.trees = FakeFarmWorld.OAK_TREES;
         RingArea ring = farm.area();
         BlockPos base = new BlockPos(0, 1, -5);
@@ -304,7 +302,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("felling alone takes every action: four a second at Basic")
     void harvestTakesTheWholeBudgetAlone() {
-        FarmHarness farm = shipped(treesAndMoisture(), MachineTier.BASIC);
+        FarmHarness farm = shipped(treesAndTilling(), MachineTier.BASIC);
         farm.world.trees = FakeFarmWorld.OAK_TREES;
         RingArea ring = farm.area();
         bigTree(farm.world, new BlockPos(0, 1, -5), pos -> ring.keepOut().contains(pos));
@@ -321,7 +319,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("cultivation alone takes every action: four a second at Basic")
     void cultivationTakesTheWholeBudgetAlone() {
-        FarmHarness farm = shipped(treesAndMoisture(), MachineTier.BASIC);
+        FarmHarness farm = shipped(treesAndTilling(), MachineTier.BASIC);
         RingArea ring = farm.area();
         for (int i = 0; i < ring.plotCount(); i++) {
             farm.world.set(ring.plot(i).below(), DRY_FARMLAND);
@@ -372,7 +370,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("a tree is planned over several ticks within the read budget, then felled exactly as planned in one go")
     void plansIncrementally() {
-        FarmHarness farm = shipped(treesAndMoisture(), MachineTier.BASIC);
+        FarmHarness farm = shipped(treesAndTilling(), MachineTier.BASIC);
         farm.world.trees = FakeFarmWorld.OAK_TREES;
         BlockPos base = new BlockPos(0, 1, -5);
         oak(farm.world, base);
@@ -396,7 +394,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("a planned block changed before it is broken drops the plan; the tree is planned again without it")
     void changedBlockInvalidatesThePlan() {
-        FarmHarness farm = shipped(treesAndMoisture(), MachineTier.BASIC);
+        FarmHarness farm = shipped(treesAndTilling(), MachineTier.BASIC);
         farm.world.trees = FakeFarmWorld.OAK_TREES;
         BlockPos base = new BlockPos(0, 1, -5);
         List<BlockPos> tree = oak(farm.world, base);
@@ -416,7 +414,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("a second tree found while one is felled waits: one harvest at a time, both felled in the end")
     void secondTreeIsDeferred() {
-        FarmHarness farm = shipped(treesAndMoisture(), MachineTier.BASIC);
+        FarmHarness farm = shipped(treesAndTilling(), MachineTier.BASIC);
         farm.world.trees = FakeFarmWorld.OAK_TREES;
         List<BlockPos> first = oak(farm.world, new BlockPos(-3, 1, -5));
         List<BlockPos> second = oak(farm.world, new BlockPos(3, 1, -5)).stream()
@@ -449,6 +447,25 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         return new Measured(ticks, energy - farm.energy(), water - waterMb(farm));
     }
 
+    @Test
+    @DisplayName("a harvest leaves each plot's farmland at the moisture it had, and replants on it without a till")
+    void harvestKeepsFarmlandMoisture() {
+        FarmHarness farm = shipped(new Cropland(), MachineTier.BASIC);
+        RingArea ring = farm.area();
+        for (int i = 0; i < ring.plotCount(); i++) {
+            farm.world.set(ring.plot(i).below(), WET_FARMLAND.setValue(BlockStateProperties.MOISTURE, i % 8));
+            farm.world.set(ring.plot(i), RIPE_WHEAT);
+        }
+
+        runUntil(farm, () -> replanted(farm, ring), 10_000);
+
+        for (int i = 0; i < ring.plotCount(); i++) {
+            assertThat(farm.world.blocks.get(ring.plot(i).below()))
+                    .as("plot %s", i)
+                    .isEqualTo(WET_FARMLAND.setValue(BlockStateProperties.MOISTURE, i % 8));
+        }
+    }
+
     private static boolean replanted(FarmHarness farm, RingArea ring) {
         for (int i = 0; i < ring.plotCount(); i++) {
             BlockPos plot = ring.plot(i);
@@ -460,31 +477,42 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("mature cropland, Basic: 72 plots harvested, tilled and replanted in ~54 s for 7 200 RF and 7 200 mB")
+    @DisplayName("mature cropland, Basic: 72 plots harvested and replanted on their farmland in 36 s for 5 400 RF and no water")
     void matureCroplandBasic() {
         Measured measured = matureCropland(MachineTier.BASIC);
 
-        assertThat(measured.rf()).isEqualTo(7_200);
-        assertThat(measured.waterMb()).isEqualTo(7_200);
-        assertThat(measured.ticks()).isBetween(972, 1188);
-        assertThat(measured.ticks()).isEqualTo(1_080);
+        assertThat(measured.rf()).isEqualTo(5_400);
+        assertThat(measured.waterMb()).as("working never spends water").isZero();
+        // A harvest and a replant a plot, one action per 5 ticks.
+        assertThat(measured.ticks()).isEqualTo(720);
     }
 
     @Test
-    @DisplayName("mature cropland, Infernal: 480 plots in ~45 s for 48 000 RF")
+    @DisplayName("mature cropland, Infernal: 480 plots in 30 s for 36 000 RF")
     void matureCroplandInfernal() {
         Measured measured = matureCropland(MachineTier.INFERNAL);
 
-        assertThat(measured.rf()).isEqualTo(48_000);
-        assertThat(measured.waterMb()).isEqualTo(48_000);
-        assertThat(measured.ticks()).isBetween(810, 990);
-        assertThat(measured.ticks()).isEqualTo(900);
+        assertThat(measured.rf()).isEqualTo(36_000);
+        assertThat(measured.waterMb()).isZero();
+        assertThat(measured.ticks()).isEqualTo(600);
     }
 
     @Test
-    @DisplayName("first preparation on grass, Basic: half the plots cleared of tall grass, all tilled and planted in ~45 s for 4 500 RF")
+    @DisplayName("first preparation on grass, Basic: half the plots cleared of tall grass, all tilled and planted in ~47 s for 4 500 RF and no water")
     void grassPrepBasic() {
+        assertGrassPrep(shipped(new Cropland(), MachineTier.BASIC));
+    }
+
+    @Test
+    @DisplayName("an empty tank prepares the same field just as fast: tilling and planting never wait for water")
+    void grassPrepWithoutWater() {
         FarmHarness farm = shipped(new Cropland(), MachineTier.BASIC);
+        farm.machine.water().tank().setContents(SimpleFluidKey.of(Fluids.WATER), 0);
+
+        assertGrassPrep(farm);
+    }
+
+    private static void assertGrassPrep(FarmHarness farm) {
         RingArea ring = farm.area();
         for (int i = 0; i < ring.plotCount(); i++) {
             farm.world.set(ring.plot(i).below(), Blocks.GRASS_BLOCK.defaultBlockState());
@@ -500,17 +528,15 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         int ticks = runUntil(farm, () -> replanted(farm, ring), 10_000);
 
         assertThat(energy - farm.energy()).isEqualTo(4_500);
-        assertThat(water - waterMb(farm)).isEqualTo(7_200);
-        assertThat(ticks).isBetween(810, 990);
-        // 2.5 actions a plot is 900 ticks; the last pass, every other plot already planted, spends
-        // checks on plots with nothing to do while an action waits.
+        assertThat(water - waterMb(farm)).isZero();
+        // 2.5 actions a plot is 180 actions, one per 5 ticks, plus the scan reaching them.
         assertThat(ticks).isEqualTo(935);
     }
 
     @Test
     @DisplayName("an oak of 5 logs and 60 leaves on an idle Basic farm: felled in ~16 s for 425 RF")
     void oakFellingBasic() {
-        FarmHarness farm = shipped(treesAndMoisture(), MachineTier.BASIC);
+        FarmHarness farm = shipped(treesAndTilling(), MachineTier.BASIC);
         farm.world.trees = FakeFarmWorld.OAK_TREES;
         BlockPos base = new BlockPos(0, 1, -5);
         oak(farm.world, base);
