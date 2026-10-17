@@ -6,8 +6,8 @@ import net.minecraft.core.BlockPos;
 
 /**
  * The line segments of a farm's area preview, relative to the farm block's corner: the courtyard
- * square in white and the ring's outer square in green, each at the plot level (the top of the
- * soil, one block above the farm's base) with a post at every corner up to the height kept clear,
+ * square in white and the ring's outer square in green, each at the soil plane (the bottom face of
+ * the farm block's own layer) with a post at every corner up to the top of the height kept clear,
  * then a box around each flagged block in amber and each protected block in red.
  */
 public final class FarmPreviewLines {
@@ -47,7 +47,7 @@ public final class FarmPreviewLines {
         }
         float min = -(side / 2);
         float max = side / 2 + 1;
-        float y = 1 + LIFT;
+        float y = LIFT;
         lines.add(new Line(min, y, min, max, y, min, color));
         lines.add(new Line(max, y, min, max, y, max, color));
         lines.add(new Line(max, y, max, min, y, max, color));

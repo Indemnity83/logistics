@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class FarmPreviewLinesTest extends MinecraftTestEnvironment {
 
     @Test
-    @DisplayName("two squares at the plot level with corner posts, then a box per flagged and protected block")
+    @DisplayName("two squares at the soil plane with corner posts, then a box per flagged and protected block")
     void lines() {
         List<FarmPreviewLines.Line> lines =
                 FarmPreviewLines.of(7, 11, 5, List.of(new BlockPos(4, 1, 0)), List.of(new BlockPos(-5, 2, 5)));
@@ -30,7 +30,7 @@ class FarmPreviewLinesTest extends MinecraftTestEnvironment {
         assertThat(outer).filteredOn(l -> l.y0() != l.y1())
                 .hasSize(4)
                 .allSatisfy(post -> assertThat(post.y1()).as("posts reach the clearance height").isEqualTo(6f));
-        assertThat(outer).allSatisfy(l -> assertThat(l.y0()).isEqualTo(1 + FarmPreviewLines.LIFT));
+        assertThat(outer).allSatisfy(l -> assertThat(l.y0()).as("squares sit on the soil plane").isEqualTo(FarmPreviewLines.LIFT));
 
         List<FarmPreviewLines.Line> flagged =
                 lines.stream().filter(l -> l.color() == FarmPreviewLines.FLAGGED_COLOR).toList();
