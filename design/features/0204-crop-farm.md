@@ -16,7 +16,7 @@ Field crops are the most common thing players automate. **Goal:** a single block
 - **Area:** the farm sits at the centre of a free **9×9** and works the 3-wide ring out to **15×15** (144 plots). It lays dirt level with itself and clears each plot's column from Y+1 up to Y+5 ([0201](0201-farm-framework.md)).
 - **Slots:** seeds 0–3, dirt 4–7, output 8–16.
 - **Soil:** dirt, farmland and the blocks in `logistics:forestry/tillable` (grass and dirt paths) count as prepared; tillable blocks are hoed into farmland where they stand, so grass that spreads onto laid dirt is simply hoed. Anything else in the soil layer (the farm's own Y) is broken into the output and replaced with dirt from the soil slots.
-- **Cycle:** lay dirt → **hoe**, spending `water_per_till_mb` (250 mB) from the tank and setting moisture to 7 → plant → keep planted farmland at moisture 7 for `rf_moisten` RF only (the water paid at hoeing covers the whole crop) → harvest. **A harvest turns the plot back to plain dirt**, so the next hoe costs water again.
+- **Cycle:** lay dirt → **hoe**, spending `water_per_till_mb` (250 mB) from the tank and setting moisture to 7 → plant → keep all farmland, planted or not, at moisture 7 for `rf_moisten` RF only (the water paid at hoeing covers the whole crop) → harvest. **A harvest turns the plot back to plain dirt**, so the next hoe costs water again.
 - **Harvest:** mature crops only; replants from the drops before using the germling slots.
 - **Water:** **yes** — an input-only tank, spent per hoe. With no water the farm still harvests but stops tilling and reports *No water*. No water-source placement.
 - **States:** reports *Too dark* (crops need light ≥ 8) and *Blocked* (a protected block in the column) instead of retrying forever.

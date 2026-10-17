@@ -249,9 +249,9 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("asks to plant with nothing to plant, which the farm reports as no germlings")
+    @DisplayName("asks to plant with nothing to plant on wet farmland, which the farm reports as no germlings")
     void plantsWithoutGermlings() {
-        world.set(SOIL, farmland(0));
+        world.set(SOIL, farmland(7));
 
         PlotAction action = decide();
 
@@ -275,17 +275,20 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
         world.set(SOIL, Blocks.DIRT.defaultBlockState());
         assertThat(decideInLight(0)).isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
 
-        world.set(SOIL, farmland(0));
+        world.set(SOIL, farmland(7));
         assertThat(decideInLight(0)).isEqualTo(PlotAction.blocked(PlotAction.Reason.TOO_DARK));
+
+        world.set(SOIL, farmland(6));
+        assertThat(decideInLight(0)).as("dark farmland is still kept wet").isEqualTo(new PlotAction.Moisten(SOIL));
     }
 
     // ==================== Moisture ====================
 
     @Test
-    @DisplayName("moistens farmland under a growing crop once it is nearly dry")
-    void moistensNearlyDryFarmland() {
+    @DisplayName("moistens farmland under a growing crop at any moisture below full")
+    void moistensPlantedFarmlandBelowFull() {
         world.set(PLOT, wheat(3));
-        for (int moisture = 0; moisture <= CropFarmLogic.MOISTEN_AT_MOISTURE; moisture++) {
+        for (int moisture = 0; moisture < CropFarmLogic.MAX_MOISTURE; moisture++) {
             world.set(SOIL, farmland(moisture));
 
             assertThat(decide()).as("moisture %s", moisture).isEqualTo(new PlotAction.Moisten(SOIL));
@@ -293,14 +296,29 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("leaves farmland that is still wet alone: crops grow as fast at any moisture above 0")
+    @DisplayName("leaves fully wet farmland under a growing crop alone")
     void skipsWetFarmland() {
         world.set(PLOT, wheat(3));
-        for (int moisture = CropFarmLogic.MOISTEN_AT_MOISTURE + 1; moisture <= 7; moisture++) {
-            world.set(SOIL, farmland(moisture));
+        world.set(SOIL, farmland(CropFarmLogic.MAX_MOISTURE));
 
-            assertThat(decide()).as("moisture %s", moisture).isEqualTo(PlotAction.NONE);
-        }
+        assertThat(decide()).isEqualTo(PlotAction.NONE);
+    }
+
+    @Test
+    @DisplayName("moistens empty farmland with nothing to plant, so it never dries back to dirt")
+    void moistensEmptyFarmlandWithoutGermlings() {
+        world.set(SOIL, farmland(6));
+
+        assertThat(decide()).isEqualTo(new PlotAction.Moisten(SOIL));
+    }
+
+    @Test
+    @DisplayName("plants empty farmland before moistening it")
+    void plantsBeforeMoistening() {
+        world.set(SOIL, farmland(6));
+        inputs.germlings.add(new ItemStack(Items.WHEAT_SEEDS, 4));
+
+        assertPlants(decide(), Items.WHEAT_SEEDS);
     }
 
     @Test

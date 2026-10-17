@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Crop Farm: tills each plot's dirt into wet farmland, paying a till's worth of water, plants
- * field crops on it, keeps it wet while the crop grows, and harvests the crop once mature, replanting
- * from the harvest first. A harvest turns the farmland back into dirt, so every crop costs one till.
+ * field crops on it, keeps all its farmland fully wet, planted or not, and harvests the crop once
+ * mature, replanting from the harvest first. A harvest turns the farmland back into dirt, so every crop costs one till.
  *
  * <p>Crop blocks ({@link CropBlock}) are the farm's own growth; anything else above a plot is
  * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt, farmland
@@ -33,15 +33,11 @@ public final class CropFarmLogic implements FarmLogic {
     /** Crops need this much light to be planted and to grow. */
     public static final int MIN_LIGHT = 8;
 
-    /**
-     * Farmland under a crop this dry or drier is moistened. Crops grow at the wet rate at any
-     * moisture above 0, and vanilla dries farmland one step per random tick, so this leaves a margin
-     * without spending plot visits on farmland that is still wet.
-     */
-    public static final int MOISTEN_AT_MOISTURE = 2;
+    /** Farmland is kept at this moisture, planted or not; only it shows the wet texture. */
+    public static final int MAX_MOISTURE = Collections.max(BlockStateProperties.MOISTURE.getPossibleValues());
 
-    private static final BlockState WET_FARMLAND = Blocks.FARMLAND.defaultBlockState()
-            .setValue(BlockStateProperties.MOISTURE, Collections.max(BlockStateProperties.MOISTURE.getPossibleValues()));
+    private static final BlockState WET_FARMLAND =
+            Blocks.FARMLAND.defaultBlockState().setValue(BlockStateProperties.MOISTURE, MAX_MOISTURE);
 
     private final Predicate<BlockState> tillable;
 
@@ -116,18 +112,20 @@ public final class CropFarmLogic implements FarmLogic {
             return soil.is(Blocks.DIRT) ? PlotAction.NONE : new PlotAction.PlaceSoil(soilPos);
         }
 
+        boolean dry = soil.hasProperty(BlockStateProperties.MOISTURE)
+                && soil.getValue(BlockStateProperties.MOISTURE) < MAX_MOISTURE;
         if (empty) {
-            if (world.light(plot) < MIN_LIGHT) {
-                return PlotAction.blocked(PlotAction.Reason.TOO_DARK);
-            }
+            boolean bright = world.light(plot) >= MIN_LIGHT;
             List<ItemStack> germlings = inputs.germlings();
-            return PlotAction.plant(plot, germlings.isEmpty() ? ItemStack.EMPTY : germlings.get(0));
+            if (bright && !germlings.isEmpty()) {
+                return PlotAction.plant(plot, germlings.get(0));
+            }
+            if (dry) {
+                return new PlotAction.Moisten(soilPos);
+            }
+            return bright ? PlotAction.plant(plot, ItemStack.EMPTY) : PlotAction.blocked(PlotAction.Reason.TOO_DARK);
         }
-        if (soil.hasProperty(BlockStateProperties.MOISTURE)
-                && soil.getValue(BlockStateProperties.MOISTURE) <= MOISTEN_AT_MOISTURE) {
-            return new PlotAction.Moisten(soilPos);
-        }
-        return PlotAction.NONE;
+        return dry ? new PlotAction.Moisten(soilPos) : PlotAction.NONE;
     }
 
     @Override

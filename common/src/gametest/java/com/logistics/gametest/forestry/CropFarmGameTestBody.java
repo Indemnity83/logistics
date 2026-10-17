@@ -333,8 +333,8 @@ public class CropFarmGameTestBody {
     }
 
     /**
-     * Farmland under growing wheat that dries out is moistened back to full without spending water:
-     * the till paid for it.
+     * Farmland under growing wheat that has dried a single step is moistened back to full without
+     * spending water: the till paid for it.
      */
     public static void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
         Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
@@ -345,7 +345,7 @@ public class CropFarmGameTestBody {
             context.setBlock(plot, Blocks.WHEAT);
         }
         BlockPos dry = PLOTS.get(PLOTS.size() / 2).below();
-        context.setBlock(dry, farmland(0));
+        context.setBlock(dry, farmland(MAX_MOISTURE - 1));
         boolean[] moistened = {false};
 
         context.onEachTick(() -> {
@@ -356,8 +356,8 @@ public class CropFarmGameTestBody {
         });
         context.succeedWhen(() -> {
             if (!moistened[0]) {
-                throw context.assertionException(dry, "Dry farmland under wheat should have been moistened to "
-                        + MAX_MOISTURE + ", is " + context.getBlockState(dry));
+                throw context.assertionException(dry, "Farmland under wheat should have been moistened from "
+                        + (MAX_MOISTURE - 1) + " to " + MAX_MOISTURE + ", is " + context.getBlockState(dry));
             }
             assertFarmWater(context, rig, TANK_MB, "Moistening should spend no water");
         });
