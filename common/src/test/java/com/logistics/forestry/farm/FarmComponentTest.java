@@ -132,7 +132,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).isEmpty();
         assertThat(farm.logic.decisions).isZero();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.PAUSED);
-        assertThat(farm.host.lit()).isFalse();
+        assertThat(farm.host.lit()).as("paused, with RF in the buffer").isTrue();
 
         farm.world.signal = false;
         farm.tick();
@@ -1157,7 +1157,34 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         farm.tick();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.IDLE);
+        assertThat(farm.host.lit()).as("idle, with RF in the buffer").isTrue();
+    }
+
+    @Test
+    @DisplayName("the farm is lit whenever its buffer holds RF, whatever its status, and only updates on a change")
+    void litFollowsTheBuffer() {
+        FarmHarness farm = new FarmHarness(plantingEverywhere());
+        farm.tick();
+        assertThat(farm.host.lit()).as("empty buffer").isFalse();
+
+        farm.power(1);
+        farm.tick();
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
+        assertThat(farm.host.lit()).as("one RF, not enough for anything").isTrue();
+
+        int writes = farm.host.stateWrites;
+        farm.ticks(3);
+        assertThat(farm.host.stateWrites).as("no write while nothing changes").isEqualTo(writes);
+
+        farm.power(0);
+        farm.tick();
         assertThat(farm.host.lit()).isFalse();
+
+        FarmHarness surveying = FarmHarness.surveying(plantingEverywhere(), FarmHarness.SETTINGS);
+        surveying.power(10);
+        surveying.tick();
+        assertThat(surveying.farm().status()).isEqualTo(FarmStatus.SURVEYING);
+        assertThat(surveying.host.lit()).as("surveying, with RF in the buffer").isTrue();
     }
 
     @Test

@@ -147,7 +147,7 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
         assertThat(farm.machine.water().tank().getAmount()).isEqualTo(water);
         assertThat(sameItems(stacks, items(farm))).as("inventory unchanged").isTrue();
         assertThat(farm.farm().harvestActions() + farm.farm().cultivateActions()).isZero();
-        assertThat(farm.host.lit()).isFalse();
+        assertThat(farm.host.lit()).as("its buffer holds RF").isTrue();
     }
 
     @Test

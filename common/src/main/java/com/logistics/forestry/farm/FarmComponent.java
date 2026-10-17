@@ -1660,7 +1660,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             status = tracker.status(area.plotCount(), problem -> stillApplies(problem, s));
         }
         BlockState state = ctx.blockState();
-        boolean lit = status == FarmStatus.WORKING;
+        boolean lit = energy.amount() > 0;
         if (state.hasProperty(FarmMachineBlock.LIT) && state.getValue(FarmMachineBlock.LIT) != lit) {
             ctx.setBlockState(state.setValue(FarmMachineBlock.LIT, lit), Block.UPDATE_ALL);
         }

@@ -161,6 +161,7 @@ final class FarmHarness {
         private final RandomSource random = RandomSource.create(42L);
         BlockState state = Blocks.FURNACE.defaultBlockState().setValue(FarmMachineBlock.FACING, Direction.SOUTH);
         int changes;
+        int stateWrites;
 
         boolean lit() {
             return state.getValue(FarmMachineBlock.LIT);
@@ -197,6 +198,7 @@ final class FarmHarness {
 
         @Override
         public void setBlockState(BlockState state, int flags) {
+            stateWrites++;
             this.state = state;
         }
 
