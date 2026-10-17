@@ -62,7 +62,6 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
     private static final List<Case> CASES = List.of(
             new Case("place soil", STONE, PlotAction.PlaceSoil::new),
             new Case("till", Blocks.DIRT.defaultBlockState(), pos -> new PlotAction.Till(pos, DRY_FARMLAND)),
-            new Case("moisten", DRY_FARMLAND, PlotAction.Moisten::new),
             new Case("plant", Blocks.AIR.defaultBlockState(),
                     pos -> PlotAction.plant(pos, new ItemStack(Items.OAK_SAPLING))),
             new Case("harvest", Blocks.OAK_LOG.defaultBlockState(), PlotAction::harvest));

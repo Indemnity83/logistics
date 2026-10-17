@@ -15,9 +15,8 @@ import java.util.Map;
  * cap never below its base, every tier has a profile, and no tier's ring is narrower than the tier
  * below it.
  *
- * <p>{@code waterPerMoistureMb} is the water one level of farmland moisture costs in a temperate
- * biome; a till wets new farmland to {@code tilledMoisture}, and later visits top it off one level
- * at a time up to {@link #MAX_MOISTURE}.
+ * <p>{@code waterPerIrrigationMb} is the water an active farm pays, in a temperate biome, each time
+ * one of its ring's farmland plots checks for water and the farm keeps it wet.
  *
  * <p>{@code harvestShare} is the share of actions a multi-block harvest gets while cultivation also
  * has work. {@code readsPerCheck} is how many block reads one check buys; a plot inspection costs
@@ -28,8 +27,7 @@ import java.util.Map;
  */
 public record FarmSettings(
         Map<FarmCost, Long> costs,
-        int waterPerMoistureMb,
-        int tilledMoisture,
+        int waterPerIrrigationMb,
         double harvestShare,
         int readsPerCheck,
         int idleBackoffBaseTicks,
@@ -39,11 +37,7 @@ public record FarmSettings(
     /** Cultivation always keeps at least a quarter of the actions while it has work. */
     public static final double MAX_HARVEST_SHARE = 0.75;
 
-    /** Farmland's wettest moisture, the only one that shows the wet texture. */
-    public static final int MAX_MOISTURE = 7;
-
-    public static final int DEFAULT_WATER_PER_MOISTURE_MB = 10;
-    public static final int DEFAULT_TILLED_MOISTURE = 4;
+    public static final int DEFAULT_WATER_PER_IRRIGATION_MB = 100;
     public static final double DEFAULT_HARVEST_SHARE = 0.5;
     public static final int DEFAULT_READS_PER_CHECK = 64;
     public static final int DEFAULT_IDLE_BACKOFF_BASE_TICKS = 20;
@@ -51,8 +45,7 @@ public record FarmSettings(
 
     public FarmSettings {
         costs = normaliseCosts(costs);
-        waterPerMoistureMb = Math.max(0, waterPerMoistureMb);
-        tilledMoisture = Math.clamp(tilledMoisture, 1, MAX_MOISTURE);
+        waterPerIrrigationMb = Math.max(0, waterPerIrrigationMb);
         harvestShare = Double.isFinite(harvestShare) ? Math.clamp(harvestShare, 0.0, MAX_HARVEST_SHARE) : 0.5;
         readsPerCheck = Math.max(1, readsPerCheck);
         idleBackoffBaseTicks = Math.max(1, idleBackoffBaseTicks);
@@ -64,8 +57,7 @@ public record FarmSettings(
     public static FarmSettings defaults() {
         return new FarmSettings(
                 FarmCost.defaults(),
-                DEFAULT_WATER_PER_MOISTURE_MB,
-                DEFAULT_TILLED_MOISTURE,
+                DEFAULT_WATER_PER_IRRIGATION_MB,
                 DEFAULT_HARVEST_SHARE,
                 DEFAULT_READS_PER_CHECK,
                 DEFAULT_IDLE_BACKOFF_BASE_TICKS,
@@ -87,37 +79,30 @@ public record FarmSettings(
         Map<FarmCost, Long> changed = new EnumMap<>(costs);
         changed.put(cost, rf);
         return new FarmSettings(
-                changed, waterPerMoistureMb, tilledMoisture, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+                changed, waterPerIrrigationMb, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
-    public FarmSettings withWaterPerMoistureMb(int mb) {
-        return new FarmSettings(
-                costs, mb, tilledMoisture, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
-    }
-
-    public FarmSettings withTilledMoisture(int moisture) {
-        return new FarmSettings(
-                costs, waterPerMoistureMb, moisture, harvestShare, readsPerCheck, idleBackoffBaseTicks,
-                idleBackoffMaxTicks, tiers);
+    public FarmSettings withWaterPerIrrigationMb(int mb) {
+        return new FarmSettings(costs, mb, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     public FarmSettings withHarvestShare(double share) {
         return new FarmSettings(
-                costs, waterPerMoistureMb, tilledMoisture, share, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+                costs, waterPerIrrigationMb, share, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     public FarmSettings withReadsPerCheck(int reads) {
         return new FarmSettings(
-                costs, waterPerMoistureMb, tilledMoisture, harvestShare, reads, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+                costs, waterPerIrrigationMb, harvestShare, reads, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     public FarmSettings withIdleBackoff(int baseTicks, int maxTicks) {
-        return new FarmSettings(costs, waterPerMoistureMb, tilledMoisture, harvestShare, readsPerCheck, baseTicks, maxTicks, tiers);
+        return new FarmSettings(costs, waterPerIrrigationMb, harvestShare, readsPerCheck, baseTicks, maxTicks, tiers);
     }
 
     public FarmSettings withTiers(Map<MachineTier, FarmTierProfile> tiers) {
         return new FarmSettings(
-                costs, waterPerMoistureMb, tilledMoisture, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+                costs, waterPerIrrigationMb, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     /** {@code profile} at every tier. */
@@ -149,8 +134,7 @@ public record FarmSettings(
         }
         return new FarmSettings(
                 costs,
-                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_MOISTURE_MB),
-                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_TILLED_MOISTURE),
+                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS),

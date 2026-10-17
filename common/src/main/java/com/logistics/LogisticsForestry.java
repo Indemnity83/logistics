@@ -144,7 +144,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                             .register(),
                     farm.defineInt(prefix + "actions_per_second", defaults.actionsPerSecond())
                             .min(1)
-                            .describe("World-changing actions (clear, harvest, till, soil, plant, top-off) per "
+                            .describe("World-changing actions (clear, harvest, till, soil, plant) per "
                                     + "second at this tier; each costs RF")
                             .register(),
                     farm.defineLong(prefix + "energy_capacity", defaults.energyCapacity())
@@ -157,7 +157,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                             .register(),
                     farm.defineInt(prefix + "water_capacity_mb", defaults.waterCapacityMb())
                             .min(1)
-                            .describe("Water tank capacity (mB) at this tier, for farms that till with water")
+                            .describe("Water tank capacity (mB) at this tier, for farms that irrigate their farmland")
                             .register());
         }
 
@@ -180,18 +180,12 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             return Collections.unmodifiableMap(keys);
         }
 
-        public static final ConfigKey<Integer> FARM_WATER_PER_MOISTURE_MB = farm.defineInt(
-                        "water_per_moisture_mb", FarmSettings.DEFAULT_WATER_PER_MOISTURE_MB)
+        public static final ConfigKey<Integer> FARM_WATER_PER_IRRIGATION_MB = farm.defineInt(
+                        "water_per_irrigation_mb", FarmSettings.DEFAULT_WATER_PER_IRRIGATION_MB)
                 .min(0)
-                .describe("Water (mB) per level of moisture added to farmland in a temperate biome, by a till "
-                        + "or a top-off; hot or dry biomes cost up to twice this, rain halves it")
-                .register();
-
-        public static final ConfigKey<Integer> FARM_TILLED_MOISTURE = farm.defineInt(
-                        "tilled_moisture", FarmSettings.DEFAULT_TILLED_MOISTURE)
-                .range(1, FarmSettings.MAX_MOISTURE)
-                .describe("Moisture new farmland is tilled to (1-7); later visits top it off one level at a "
-                        + "time up to 7")
+                .describe("Water (mB) a working farm pays in a temperate biome each time a farmland plot of its "
+                        + "ring checks for water (a random tick) and the farm keeps it wet; hot or dry biomes "
+                        + "cost up to twice this. Rain and nearby water wet farmland for free")
                 .register();
 
         public static final ConfigKey<Double> FARM_HARVEST_SHARE = farm.defineDouble(

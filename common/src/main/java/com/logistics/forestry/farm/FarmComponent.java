@@ -1,6 +1,8 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.lib.farmland.FarmlandHydration;
+import com.logistics.core.lib.farmland.HydrationSource;
 import com.logistics.core.lib.fluids.FluidTankComponent;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineComponent;
@@ -19,7 +21,6 @@ import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
@@ -40,7 +41,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,6 +87,11 @@ import org.jetbrains.annotations.Nullable;
  * inspects the ring at the same pace and back-off, through the same check budget, recording in a
  * {@link FarmSurvey} what working each plot would clear: its column, and the soil its logic would
  * replace. {@link #start} makes it {@link FarmState#ACTIVE}.
+ *
+ * <p>A working farm with a water tank irrigates its ring: while it is loaded, vanilla farmland on a
+ * ring plot's soil cell that finds no water nearby asks the farm instead ({@link FarmlandHydration}),
+ * once per random tick, and the farm keeps it wet for {@code water_per_irrigation_mb} scaled by the
+ * {@link Hydration climate}; see {@link #irrigate}. Tilling, planting and harvesting never need water.
  */
 public final class FarmComponent implements MachineComponent, MachineComponent.HudContributor {
 
@@ -114,8 +120,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     /** Reads a visit keeps back from tree planning for the rest of the logic's decision. */
     private static final int DECISION_READS = 16;
-
-    private static final int MAX_MOISTURE = Collections.max(BlockStateProperties.MOISTURE.getPossibleValues());
 
     private record HarvestTarget(BlockPos pos, Block block) {}
 
@@ -182,14 +186,19 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     // Set while an update tag is written; read back from one on the client.
     @Nullable private FarmPreview pendingPreview;
     private FarmPreview syncedPreview = FarmPreview.NONE;
-    // What the last NO_POWER / NO_WATER / NO_GERMLINGS / NO_SOIL was short of, so the status clears as soon as it is there.
+    // What the last NO_POWER / NO_GERMLINGS / NO_SOIL was short of, so the status clears as soon as it is there.
     private long powerNeeded;
-    private long waterNeeded;
     private ItemStack germlingNeeded = ItemStack.EMPTY;
     private int germlingCountNeeded;
     private FarmLogic germlingLogic;
     private FarmLogic soilLogic;
     private boolean dirty;
+    // The ring irrigated as of the last tick: working, with a tank and no redstone signal; else null.
+    @Nullable private RingArea irrigated;
+    private int irrigationMb;
+    @Nullable private FarmlandHydration.Registration irrigation;
+    @Nullable private ServerLevel irrigationLevel;
+    @Nullable private RingArea irrigationArea;
     private long harvestActions;
     private long cultivateActions;
 
@@ -430,6 +439,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         ensureScanner(area, s);
 
         boolean paused = world.hasNeighborSignal(ctx.pos());
+        updateIrrigation(ctx, area, paused, s);
         if (!paused) {
             FarmTierProfile profile = s.profile(tier.get());
             budget.refill(profile.actionsPerSecond(), profile.checksPerSecond(), s.readsPerCheck());
@@ -835,7 +845,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             case PlotAction.Harvest harvestAction -> startHarvest(t, plot, harvestAction.blocks(), false);
             case PlotAction.PlaceSoil placeSoil -> placeSoil(t, plotLogic, placeSoil.pos());
             case PlotAction.Till till -> till(t, till.pos(), till.result());
-            case PlotAction.Moisten moisten -> moisten(t, moisten.pos());
             case PlotAction.Plant plant -> plant(t, plotLogic, plant.positions(), plant.germling());
             case PlotAction.None none -> FarmStatus.IDLE;
             case PlotAction.Blocked blocked ->
@@ -928,13 +937,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return FarmStatus.WORKING;
     }
 
+    /** Tills {@code pos} into {@code result}, for RF only: irrigation wets it later. */
     private FarmStatus till(Tick t, BlockPos pos, BlockState result) {
         FarmWorldAccess world = t.world();
-        int levels = 0;
-        if (result.hasProperty(BlockStateProperties.MOISTURE)) {
-            levels = t.settings().tilledMoisture();
-            result = result.setValue(BlockStateProperties.MOISTURE, levels);
-        }
         if (!world.isLoaded(pos) || world.state(pos) == result) {
             return FarmStatus.IDLE;
         }
@@ -942,59 +947,10 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (energy.amount() < cost) {
             return noPower(cost);
         }
-        long needed = water != null ? moistureWater(t, pos, levels) : 0;
-        if (water != null && water.tank().getAmount() < needed) {
-            waterNeeded = needed;
-            return FarmStatus.NO_WATER;
-        }
         if (!world.canModify(pos) || !world.setBlock(pos, result, Block.UPDATE_ALL)) {
             return FarmStatus.BLOCKED;
         }
-        if (needed > 0) {
-            FluidTankComponent tank = water.tank();
-            tank.extract(tank.getFluidKey(), needed, false);
-        }
         energy.consume(cost);
-        tracker.clear(FarmStatus.NO_WATER);
-        return FarmStatus.WORKING;
-    }
-
-    /** The water {@code levels} of moisture at {@code pos} cost: {@code water_per_moisture_mb} each, scaled by its climate. */
-    private long moistureWater(Tick t, BlockPos pos, int levels) {
-        return FluidUnits.mb(Hydration.waterMb(levels * t.settings().waterPerMoistureMb(), t.world().climate(pos)));
-    }
-
-    private FarmStatus moisten(Tick t, BlockPos pos) {
-        FarmWorldAccess world = t.world();
-        if (!world.isLoaded(pos)) {
-            return FarmStatus.IDLE;
-        }
-        BlockState state = world.state(pos);
-        if (!state.hasProperty(BlockStateProperties.MOISTURE)
-                || state.getValue(BlockStateProperties.MOISTURE) >= MAX_MOISTURE) {
-            return FarmStatus.IDLE;
-        }
-        long cost = t.settings().cost(FarmCost.MOISTEN);
-        if (energy.amount() < cost) {
-            return noPower(cost);
-        }
-        long needed = water != null ? moistureWater(t, pos, 1) : 0;
-        if (water != null && water.tank().getAmount() < needed) {
-            waterNeeded = needed;
-            return FarmStatus.NO_WATER;
-        }
-        int moisture = state.getValue(BlockStateProperties.MOISTURE) + 1;
-        // Moisture is a visual-only change, so neighbours are not updated.
-        if (!world.canModify(pos)
-                || !world.setBlock(pos, state.setValue(BlockStateProperties.MOISTURE, moisture), Block.UPDATE_CLIENTS)) {
-            return FarmStatus.BLOCKED;
-        }
-        if (needed > 0) {
-            FluidTankComponent tank = water.tank();
-            tank.extract(tank.getFluidKey(), needed, false);
-        }
-        energy.consume(cost);
-        tracker.clear(FarmStatus.NO_WATER);
         return FarmStatus.WORKING;
     }
 
@@ -1421,11 +1377,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             int slot = soilSlot(logic);
             return slot >= 0 ? items.getItem(slot).copyWithCount(1) : ItemStack.EMPTY;
         }
-
-        @Override
-        public boolean hasWater() {
-            return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerMoistureMb());
-        }
     }
 
     /** The world a logic decides from in a visit: reads pass through, trees are planned by the farm. */
@@ -1460,6 +1411,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         @Override
         public FarmClimate climate(BlockPos pos) {
             return world.climate(pos);
+        }
+
+        @Override
+        public boolean rainingAt(BlockPos pos) {
+            return world.rainingAt(pos);
         }
 
         @Override
@@ -1515,6 +1471,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
 
         @Override
+        public boolean rainingAt(BlockPos pos) {
+            return world.rainingAt(pos);
+        }
+
+        @Override
         public TreeView.Kind treeKind(BlockState state) {
             return world.treeKind(state);
         }
@@ -1533,6 +1494,105 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         public FellPlan fellPlan(BlockPos plot, TreeFeller.Limits limits) {
             // A tree is the farm's own growth, harvested rather than cleared.
             return FellPlan.skip(FellPlan.Reason.NO_TREE);
+        }
+    }
+
+    // ==================== Irrigation ====================
+
+    /**
+     * Vanilla asking whether the farmland at {@code pos} is near water, once it found none. True,
+     * paying {@code water_per_irrigation_mb} scaled by the climate at {@code pos}, for a soil cell of
+     * the ring of a working farm whose tank holds that much and that sees no redstone signal. Rain
+     * wets farmland for free, so a plot in the rain is answered false and costs nothing; so is one the
+     * tank cannot pay for in full, which then dries a level.
+     */
+    boolean irrigate(FarmWorld world, BlockPos pos) {
+        RingArea area = irrigated;
+        if (area == null || water == null || pos.getY() != area.origin().getY() - 1 || !area.contains(pos)) {
+            return false;
+        }
+        if (world.rainingAt(pos.above())) {
+            return false;
+        }
+        long needed = FluidUnits.mb(Hydration.waterMb(irrigationMb, world.climate(pos)));
+        FluidTankComponent tank = water.tank();
+        if (tank.getAmount() < needed) {
+            return false;
+        }
+        if (needed > 0) {
+            tank.extract(tank.getFluidKey(), needed, false);
+        }
+        return true;
+    }
+
+    /** The ring {@link #irrigate} wets now, or null; as of the last tick. */
+    @Nullable
+    RingArea irrigatedArea() {
+        return irrigated;
+    }
+
+    /** Stops irrigating until the next tick finds the farm working; for a block entity being removed or unloaded. */
+    public void detach() {
+        irrigated = null;
+        unregisterIrrigation();
+    }
+
+    /** Registers the ring with {@link FarmlandHydration} while working with a tank, again whenever the ring or level changes. */
+    private void updateIrrigation(MachineContext ctx, RingArea area, boolean paused, FarmSettings s) {
+        boolean working = state == FarmState.ACTIVE && water != null;
+        irrigated = working && !paused ? area : null;
+        irrigationMb = s.waterPerIrrigationMb();
+        if (!working || !(ctx.level() instanceof ServerLevel level)) {
+            unregisterIrrigation();
+            return;
+        }
+        if (irrigation != null && level == irrigationLevel && area.equals(irrigationArea)) {
+            return;
+        }
+        unregisterIrrigation();
+        irrigation = FarmlandHydration.register(level, new Irrigation(level, ctx.pos(), area));
+        irrigationLevel = level;
+        irrigationArea = area;
+    }
+
+    private void unregisterIrrigation() {
+        if (irrigation != null) {
+            irrigation.unregister();
+        }
+        irrigation = null;
+        irrigationLevel = null;
+        irrigationArea = null;
+    }
+
+    /** The ring's soil layer as a {@link HydrationSource}. */
+    private final class Irrigation implements HydrationSource {
+
+        private final BlockPos anchor;
+        private final BoundingBox bounds;
+        private final FarmWorld world;
+
+        Irrigation(ServerLevel level, BlockPos anchor, RingArea area) {
+            this.anchor = anchor.immutable();
+            int soilY = area.origin().getY() - 1;
+            BlockPos min = area.min();
+            BlockPos max = area.max();
+            this.bounds = new BoundingBox(min.getX(), soilY, min.getZ(), max.getX(), soilY, max.getZ());
+            this.world = new LevelFarmWorld(level, owner);
+        }
+
+        @Override
+        public BlockPos anchor() {
+            return anchor;
+        }
+
+        @Override
+        public BoundingBox bounds() {
+            return bounds;
+        }
+
+        @Override
+        public boolean hydrate(ServerLevel level, BlockPos pos) {
+            return irrigate(world, pos);
         }
     }
 
@@ -1556,7 +1616,6 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private boolean stillApplies(FarmStatus problem, FarmSettings s) {
         return switch (problem) {
             case NO_POWER -> energy.amount() < powerNeeded;
-            case NO_WATER -> water == null || water.tank().getAmount() < waterNeeded;
             case NO_GERMLINGS ->
                 germlingNeeded.isEmpty() || inputsFor(germlingLogic).germlingCount(germlingNeeded) < germlingCountNeeded;
             case NO_SOIL -> soilSlot(soilLogic) < 0;

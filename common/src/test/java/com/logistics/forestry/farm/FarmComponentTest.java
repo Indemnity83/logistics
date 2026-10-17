@@ -686,10 +686,10 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         return Blocks.FARMLAND.defaultBlockState().setValue(BlockStateProperties.MOISTURE, moisture);
     }
 
-    /** Asks for fully wet farmland; the farm tills to {@code tilled_moisture} regardless. */
+    /** Tills dirt into dry farmland. */
     private static ScriptedFarmLogic tillingDirt(boolean usesWater) {
         return new ScriptedFarmLogic(usesWater, false).script((world, plot) ->
-                world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), WET_FARMLAND) : PlotAction.NONE);
+                world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), farmland(0)) : PlotAction.NONE);
     }
 
     private static void fillWater(FarmHarness farm, long mb) {
@@ -700,57 +700,38 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         return FluidUnits.toMillibuckets(farm.machine.water().tank().getAmount());
     }
 
-    private static int tillWaterMb() {
-        return FarmHarness.SETTINGS.tilledMoisture() * FarmHarness.SETTINGS.waterPerMoistureMb();
-    }
-
     @Test
-    @DisplayName("each till wets to tilled_moisture for that many levels of water; without it the till is skipped and the farm reports No water")
-    void tillSpendsWaterPerLevel() {
+    @DisplayName("a till costs RF only: an empty tank tills every plot to dry farmland")
+    void tillNeedsNoWater() {
         FarmHarness farm = new FarmHarness(tillingDirt(true));
         for (int i = 0; i < 8; i++) {
             farm.world.set(farm.plot(i).below(), Blocks.DIRT.defaultBlockState());
         }
-        int perTill = tillWaterMb();
-        fillWater(farm, 2L * perTill + perTill / 2);
         farm.power(10_000);
 
         farm.ticks(8);
 
-        assertThat(tilled(farm)).isEqualTo(2);
-        assertThat(waterMb(farm)).isEqualTo(perTill / 2);
-        assertThat(farm.energy()).isEqualTo(10_000 - 2 * FarmHarness.SETTINGS.cost(FarmCost.TILL));
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
-
-        fillWater(farm, perTill);
-        farm.ticks(100);
-        assertThat(tilled(farm)).isEqualTo(3);
-        assertThat(waterMb(farm)).isEqualTo(perTill / 2);
+        for (int i = 0; i < 8; i++) {
+            assertThat(farm.world.blocks).containsEntry(farm.plot(i).below(), farmland(0));
+        }
+        assertThat(waterMb(farm)).isZero();
+        assertThat(farm.energy()).isEqualTo(10_000 - 8 * FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        assertThat(farm.farm().status()).isNotEqualTo(FarmStatus.NO_WATER);
     }
 
     @Test
-    @DisplayName("a till's water scales with the climate and with tilled_moisture")
-    void tillWaterScales() {
-        FarmHarness farm = new FarmHarness(tillingDirt(true), FarmHarness.SETTINGS.withTilledMoisture(2));
-        farm.world.climate = new FarmClimate(2f, false, false); // h = 2
+    @DisplayName("a till leaves the tank alone and lays the logic's result as asked")
+    void tillSpendsNoWater() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false).script((world, plot) ->
+                world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), farmland(5)) : PlotAction.NONE));
         farm.world.set(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
         fillWater(farm, 1_000);
         farm.power(10_000);
 
         farm.tick();
 
-        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(2));
-        assertThat(waterMb(farm)).isEqualTo(1_000 - 2 * 2 * FarmHarness.SETTINGS.waterPerMoistureMb());
-    }
-
-    private static int tilled(FarmHarness farm) {
-        int tilled = 0;
-        for (int i = 0; i < 8; i++) {
-            if (farm.world.blocks.get(farm.plot(i).below()) == farmland(FarmHarness.SETTINGS.tilledMoisture())) {
-                tilled++;
-            }
-        }
-        return tilled;
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(5));
+        assertThat(waterMb(farm)).isEqualTo(1_000);
     }
 
     @Test
@@ -762,7 +743,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         farm.tick();
 
-        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(FarmHarness.SETTINGS.tilledMoisture()));
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(0));
         assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.TILL));
     }
 
@@ -788,81 +769,126 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.farm().status()).isNotEqualTo(FarmStatus.NO_WATER);
     }
 
-    /** Tops off the first plot's farmland whenever it is below full. */
-    private static FarmHarness toppingOff(int moisture) {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false).script((world, plot) -> {
-            BlockState soil = world.state(plot.below());
-            return soil.is(Blocks.FARMLAND) && soil.getValue(BlockStateProperties.MOISTURE) < 7
-                    ? new PlotAction.Moisten(plot.below())
-                    : PlotAction.NONE;
-        }));
-        farm.world.set(farm.plot(0).below(), farmland(moisture));
+    // ==================== Irrigation ====================
+
+    /** A working farm with a tank of {@code mb}, ticked once so it irrigates its 8-plot ring. */
+    private static FarmHarness irrigating(long mb) {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false));
+        fillWater(farm, mb);
+        farm.tick();
         return farm;
     }
 
-    private static int moisture(FarmHarness farm) {
-        return farm.world.blocks.get(farm.plot(0).below()).getValue(BlockStateProperties.MOISTURE);
-    }
-
     @Test
-    @DisplayName("a top-off adds exactly one moisture level for one level of water and RF, without a neighbour update")
-    void topOffAddsOneLevel() {
-        for (int from : new int[] {4, 6}) {
-            FarmHarness farm = toppingOff(from);
-            fillWater(farm, 1_000);
-            farm.power(10_000);
+    @DisplayName("every soil cell of the ring is irrigated, each check charging water_per_irrigation_mb and no RF")
+    void irrigatesRingSoil() {
+        FarmHarness farm = irrigating(1_000);
+        long energy = farm.energy();
+        int perCheck = FarmHarness.SETTINGS.waterPerIrrigationMb();
 
-            farm.tick();
-
-            assertThat(moisture(farm)).as("from %s", from).isEqualTo(from + 1);
-            assertThat(farm.world.writeFlags).containsEntry(farm.plot(0).below(), Block.UPDATE_CLIENTS);
-            assertThat(waterMb(farm)).isEqualTo(1_000 - FarmHarness.SETTINGS.waterPerMoistureMb());
-            assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.MOISTEN));
+        for (int i = 0; i < 8; i++) {
+            assertThat(farm.farm().irrigate(farm.world, farm.plot(i).below())).as("plot %s", i).isTrue();
         }
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("charged again per check").isTrue();
+
+        assertThat(waterMb(farm)).isEqualTo(1_000 - 9L * perCheck);
+        assertThat(farm.energy()).isEqualTo(energy);
     }
 
     @Test
-    @DisplayName("three passes soak tilled farmland from 4 to 7, then it is left alone")
-    void topOffSoaksToFull() {
-        FarmHarness farm = toppingOff(4);
-        fillWater(farm, 1_000);
-        farm.power(10_000);
+    @DisplayName("irrigation scales with the climate: a hot, dry biome pays twice")
+    void irrigationScalesWithClimate() {
+        FarmHarness farm = irrigating(1_000);
+        farm.world.climate = new FarmClimate(2f, false);
 
-        farm.ticks(200);
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isTrue();
 
-        assertThat(moisture(farm)).isEqualTo(7);
-        assertThat(waterMb(farm)).isEqualTo(1_000 - 3 * FarmHarness.SETTINGS.waterPerMoistureMb());
-        assertThat(farm.energy()).isEqualTo(10_000 - 3 * FarmHarness.SETTINGS.cost(FarmCost.MOISTEN));
+        assertThat(waterMb(farm)).isEqualTo(1_000 - 2L * FarmHarness.SETTINGS.waterPerIrrigationMb());
     }
 
     @Test
-    @DisplayName("a top-off the tank cannot pay one level of changes nothing and reports No water")
-    void topOffWithoutWater() {
-        FarmHarness farm = toppingOff(4);
-        fillWater(farm, FarmHarness.SETTINGS.waterPerMoistureMb() - 1);
-        farm.power(10_000);
+    @DisplayName("the courtyard, outside the ring and any layer but the soil are never irrigated, and cost nothing")
+    void irrigatesOnlyRingSoil() {
+        FarmHarness farm = irrigating(1_000);
+        BlockPos soil = farm.plot(0).below();
 
-        farm.tick();
-
-        assertThat(moisture(farm)).isEqualTo(4);
-        assertThat(waterMb(farm)).isEqualTo(FarmHarness.SETTINGS.waterPerMoistureMb() - 1);
-        assertThat(farm.energy()).isEqualTo(10_000);
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
-    }
-
-    @Test
-    @DisplayName("a top-off without the RF for one level changes nothing and reports No power")
-    void topOffWithoutPower() {
-        FarmHarness farm = toppingOff(4);
-        fillWater(farm, 1_000);
-        farm.power(FarmHarness.SETTINGS.cost(FarmCost.MOISTEN) - 1);
-
-        farm.tick();
-
-        assertThat(moisture(farm)).isEqualTo(4);
+        assertThat(farm.farm().irrigate(farm.world, new BlockPos(0, soil.getY(), 0))).as("courtyard").isFalse();
+        assertThat(farm.farm().irrigate(farm.world, new BlockPos(2, soil.getY(), 0))).as("outside").isFalse();
+        assertThat(farm.farm().irrigate(farm.world, soil.above())).as("the plot itself").isFalse();
+        assertThat(farm.farm().irrigate(farm.world, soil.below())).as("under the soil").isFalse();
         assertThat(waterMb(farm)).isEqualTo(1_000);
-        assertThat(farm.energy()).isEqualTo(FarmHarness.SETTINGS.cost(FarmCost.MOISTEN) - 1);
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
+    }
+
+    @Test
+    @DisplayName("a tank short of one check's water irrigates nothing and is not charged")
+    void irrigationNeedsTheFullCharge() {
+        FarmHarness farm = irrigating(FarmHarness.SETTINGS.waterPerIrrigationMb() - 1);
+
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isFalse();
+
+        assertThat(waterMb(farm)).isEqualTo(FarmHarness.SETTINGS.waterPerIrrigationMb() - 1);
+    }
+
+    @Test
+    @DisplayName("farmland in the rain is not irrigated, and costs nothing: the rain wets it")
+    void rainIsFree() {
+        FarmHarness farm = irrigating(1_000);
+        farm.world.raining = true;
+
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isFalse();
+
+        assertThat(waterMb(farm)).isEqualTo(1_000);
+    }
+
+    @Test
+    @DisplayName("a surveying farm irrigates nothing until started")
+    void surveyingFarmDoesNotIrrigate() {
+        FarmHarness farm = FarmHarness.surveying(new ScriptedFarmLogic(true, false), FarmHarness.SETTINGS);
+        fillWater(farm, 1_000);
+        farm.tick();
+
+        assertThat(farm.farm().irrigatedArea()).isNull();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isFalse();
+
+        farm.farm().start();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("from its next tick").isFalse();
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isTrue();
+    }
+
+    @Test
+    @DisplayName("a farm without a tank, a paused one and a detached one irrigate nothing")
+    void irrigationGates() {
+        FarmHarness dryFarm = new FarmHarness(new ScriptedFarmLogic(false, false));
+        dryFarm.tick();
+        assertThat(dryFarm.farm().irrigate(dryFarm.world, dryFarm.plot(0).below())).as("no tank").isFalse();
+
+        FarmHarness farm = irrigating(1_000);
+        farm.world.signal = true;
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("redstone").isFalse();
+        farm.world.signal = false;
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isTrue();
+
+        farm.farm().detach();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("detached").isFalse();
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("loaded again").isTrue();
+    }
+
+    @Test
+    @DisplayName("a widened ring is irrigated from the next tick, out to its new edge")
+    void irrigationFollowsTheRing() {
+        FarmHarness farm = irrigating(1_000);
+        BlockPos outer = new BlockPos(2, farm.plot(0).below().getY(), 2);
+        assertThat(farm.farm().irrigate(farm.world, outer)).isFalse();
+
+        farm.areaOverride(1, 5);
+        farm.tick();
+
+        assertThat(farm.farm().irrigatedArea()).isEqualTo(farm.area());
+        assertThat(farm.farm().irrigate(farm.world, outer)).isTrue();
     }
 
     @Test

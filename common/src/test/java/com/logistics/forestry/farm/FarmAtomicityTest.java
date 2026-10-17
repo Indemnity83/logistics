@@ -209,7 +209,7 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
         assertThat(farm.energy()).isEqualTo(RF - 4 * cost(FarmCost.PLANT));
     }
 
-    // ==================== Soil, tilling, moisture, clearing ====================
+    // ==================== Soil, tilling, clearing ====================
 
     @Test
     @DisplayName("soil refused after the floor was broken: the break is charged and its drops kept, no soil or soil RF spent")
@@ -271,33 +271,7 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("a till short of its climate's water changes nothing; rain halves what it needs")
-    void waterShortAtTill() {
-        FarmHarness farm = new FarmHarness(tillingDirt());
-        BlockPos soil = farm.plot(0).below();
-        farm.world.set(soil, Blocks.DIRT.defaultBlockState());
-        farm.world.climate = new FarmClimate(2.0f, false, false); // twice the base: 4 levels of 50 mB
-        fillWater(farm, 150);
-        farm.power(RF);
-
-        farm.tick();
-
-        assertThat(farm.world.blocks).containsEntry(soil, Blocks.DIRT.defaultBlockState());
-        assertThat(waterMb(farm)).isEqualTo(150);
-        assertThat(farm.energy()).isEqualTo(RF);
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
-
-        farm.world.climate = new FarmClimate(2.0f, false, true); // raining: 100 mB
-        farm.ticks(40);
-
-        assertThat(farm.world.blocks)
-                .containsEntry(soil, WET_FARMLAND.setValue(BlockStateProperties.MOISTURE, FarmHarness.SETTINGS.tilledMoisture()));
-        assertThat(waterMb(farm)).isEqualTo(50);
-        assertThat(farm.energy()).isEqualTo(RF - cost(FarmCost.TILL));
-    }
-
-    @Test
-    @DisplayName("a till, a moistening or a drain the world refuses spends no RF and no water")
+    @DisplayName("a till or a drain the world refuses spends no RF and no water")
     void refusedWritesCostNothing() {
         FarmHarness farm = new FarmHarness(tillingDirt());
         farm.world.set(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
@@ -309,15 +283,6 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
         assertThat(waterMb(farm)).isEqualTo(1_000);
         assertThat(farm.energy()).isEqualTo(RF);
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.BLOCKED);
-
-        FarmHarness moist = new FarmHarness(new ScriptedFarmLogic().script((world, plot) ->
-                new PlotAction.Moisten(plot.below())));
-        moist.world.set(moist.plot(0).below(), Blocks.FARMLAND.defaultBlockState());
-        moist.world.refuseSet = (pos, state) -> true;
-        moist.power(RF);
-        moist.tick();
-        assertThat(moist.world.blocks).containsEntry(moist.plot(0).below(), Blocks.FARMLAND.defaultBlockState());
-        assertThat(moist.energy()).isEqualTo(RF);
 
         FarmHarness drain = new FarmHarness(new ScriptedFarmLogic());
         drain.world.set(drain.plot(0), Blocks.WATER.defaultBlockState());
@@ -381,9 +346,6 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
                 boolean pair = (plot.getX() + plot.getZ()) % 2 == 0;
                 List<BlockPos> cells = pair ? List.of(plot, plot.above(4)) : List.of(plot);
                 return new PlotAction.Plant(cells, new ItemStack((plot.getX() & 1) == 0 ? Items.OAK_SAPLING : Items.WHEAT_SEEDS));
-            }
-            if (soil.is(Blocks.FARMLAND) && soil.getValue(BlockStateProperties.MOISTURE) < 7) {
-                return new PlotAction.Moisten(plot.below());
             }
             return PlotAction.NONE;
         });
@@ -459,17 +421,9 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
             List<FakeFarmWorld.Mutation> changes = world.mutations.subList(mutations, world.mutations.size());
             rollbacks += changes.stream().filter(change -> unplacedItem(change) != null).count();
             long expectedRf = 0;
-            long expectedWater = 0;
             Map<Item, Integer> expectedItems = new HashMap<>(items);
             for (FakeFarmWorld.Mutation change : changes) {
                 expectedRf += rf(change);
-                if (change.after() != null && change.after().is(Blocks.FARMLAND)) {
-                    int levels = change.before().is(Blocks.FARMLAND)
-                            ? change.after().getValue(BlockStateProperties.MOISTURE)
-                                    - change.before().getValue(BlockStateProperties.MOISTURE)
-                            : change.after().getValue(BlockStateProperties.MOISTURE);
-                    expectedWater += (long) levels * FarmHarness.SETTINGS.waterPerMoistureMb();
-                }
                 change.drops().forEach(drop -> expectedItems.merge(drop.getItem(), drop.getCount(), Integer::sum));
                 Item placed = placedItem(change);
                 if (placed != null) {
@@ -482,7 +436,7 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
             }
             String context = "seed " + seed + ", tick " + tick + ", changes " + changes;
             assertThat(energy - farm.energy()).as("RF, %s", context).isEqualTo(expectedRf);
-            assertThat(water - waterMb(farm)).as("water, %s", context).isEqualTo(expectedWater);
+            assertThat(waterMb(farm)).as("working never spends water, %s", context).isEqualTo(water);
             expectedItems.values().removeIf(count -> count == 0);
             assertThat(inventory(farm)).as("items, %s", context).isEqualTo(expectedItems);
         }
@@ -545,7 +499,7 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
             return cost(FarmCost.SOIL);
         }
         if (after.is(Blocks.FARMLAND)) {
-            return before.is(Blocks.FARMLAND) ? cost(FarmCost.MOISTEN) : cost(FarmCost.TILL);
+            return cost(FarmCost.TILL);
         }
         if (after.is(Blocks.DIRT) && before.is(Blocks.FARMLAND)) {
             return 0;

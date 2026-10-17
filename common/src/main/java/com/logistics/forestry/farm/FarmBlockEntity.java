@@ -63,6 +63,13 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
         MachineEntity.tick(level, pos, state, farm);
     }
 
+    /** Removed or unloaded: the ring stops being irrigated until a loaded farm ticks again. */
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        parts.farm().detach();
+    }
+
     @Override
     public MenuProvider createMenuProvider() {
         return new MenuProvider() {

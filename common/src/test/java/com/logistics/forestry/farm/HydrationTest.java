@@ -8,30 +8,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@DisplayName("Moisture water by climate")
+@DisplayName("Irrigation water by climate")
 class HydrationTest {
 
-    @ParameterizedTest(name = "temperature {0}, precipitation {1}, raining {2} -> {3}")
+    @ParameterizedTest(name = "temperature {0}, precipitation {1} -> {2}")
     @CsvSource({
         // temperate biomes pay the temperature, floored at 0.8
-        "1.0, true, false, 1.0",
-        "0.8, true, false, 0.8",
-        "0.5, true, false, 0.8",
-        "-0.5, true, false, 0.8",
-        "0.95, true, false, 0.95",
+        "1.0, true, 1.0",
+        "0.8, true, 0.8",
+        "0.5, true, 0.8",
+        "-0.5, true, 0.8",
+        "0.95, true, 0.95",
         // biomes without precipitation pay half again, capped at twice the base
-        "0.8, false, false, 1.2",
-        "1.2, false, false, 1.8",
-        "2.0, false, false, 2.0",
-        "2.0, true, false, 2.0",
-        // rain halves it, after the cap
-        "1.0, true, true, 0.5",
-        "0.5, true, true, 0.4",
-        "2.0, false, true, 1.0"
+        "0.8, false, 1.2",
+        "1.2, false, 1.8",
+        "2.0, false, 2.0",
+        "2.0, true, 2.0",
+        "3.0, false, 2.0"
     })
-    void factor(float temperature, boolean precipitation, boolean raining, double expected) {
-        assertThat(Hydration.factor(new FarmClimate(temperature, precipitation, raining)))
-                .isCloseTo(expected, within(1e-6));
+    void factor(float temperature, boolean precipitation, double expected) {
+        assertThat(Hydration.factor(new FarmClimate(temperature, precipitation))).isCloseTo(expected, within(1e-6));
     }
 
     @Test
@@ -45,14 +41,14 @@ class HydrationTest {
     @DisplayName("the charged water is rounded to the nearest mB, never negative")
     void rounding() {
         // plains: 0.8
-        assertThat(Hydration.waterMb(100, new FarmClimate(0.8f, true, false))).isEqualTo(80);
+        assertThat(Hydration.waterMb(100, new FarmClimate(0.8f, true))).isEqualTo(80);
         // 0.95 x 33 = 31.35
-        assertThat(Hydration.waterMb(33, new FarmClimate(0.95f, true, false))).isEqualTo(31);
-        // 0.8 x 0.5 x 5 = 2.0; 0.95 x 0.5 x 5 = 2.375
-        assertThat(Hydration.waterMb(5, new FarmClimate(0.95f, true, true))).isEqualTo(2);
+        assertThat(Hydration.waterMb(33, new FarmClimate(0.95f, true))).isEqualTo(31);
         // 1.5 x 1 = 1.5 rounds half up
-        assertThat(Hydration.waterMb(1, new FarmClimate(1.5f, true, false))).isEqualTo(2);
+        assertThat(Hydration.waterMb(1, new FarmClimate(1.5f, true))).isEqualTo(2);
+        // a hot, dry biome pays twice the shipped 100 mB
+        assertThat(Hydration.waterMb(100, new FarmClimate(2f, false))).isEqualTo(200);
         assertThat(Hydration.waterMb(-10, FarmClimate.NEUTRAL)).isZero();
-        assertThat(Hydration.waterMb(0, new FarmClimate(2f, false, false))).isZero();
+        assertThat(Hydration.waterMb(0, new FarmClimate(2f, false))).isZero();
     }
 }
