@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class FarmSettingsTest extends MinecraftTestEnvironment {
 
     @Test
-    @DisplayName("config defaults: per-action RF, 100 mB per till, an even harvest share, 64 reads a check")
+    @DisplayName("config defaults: per-action RF, 10 mB per moisture level tilled to 4, an even harvest share, 64 reads a check")
     void configDefaults() {
         Map<FarmCost, Long> expected = Map.of(
                 FarmCost.CLEAR, 25L,
@@ -37,7 +37,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
                 FarmCost.TILL, 25L,
                 FarmCost.SOIL, 50L,
                 FarmCost.PLANT, 25L,
-                FarmCost.MOISTEN, 5L);
+                FarmCost.MOISTEN, 2L);
         for (FarmCost cost : FarmCost.values()) {
             ConfigKey<Long> key = LogisticsForestry.CONFIG.farmCost(cost);
             assertThat(key.definition().path().fullPath()).as("%s", cost).isEqualTo(cost.configName());
@@ -45,8 +45,9 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         }
         assertThat(FarmCost.values()).extracting(FarmCost::configName).containsExactly(
                 "rf_clear_per_block", "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves",
-                "rf_till", "rf_soil", "rf_plant", "rf_moisten");
-        assertThat(LogisticsForestry.CONFIG.FARM_WATER_PER_TILL_MB.definition().defaultValue()).isEqualTo(100);
+                "rf_till", "rf_soil", "rf_plant", "rf_moisture_per_level");
+        assertThat(LogisticsForestry.CONFIG.FARM_WATER_PER_MOISTURE_MB.definition().defaultValue()).isEqualTo(10);
+        assertThat(LogisticsForestry.CONFIG.FARM_TILLED_MOISTURE.definition().defaultValue()).isEqualTo(4);
         assertThat(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE.definition().defaultValue()).isEqualTo(0.5);
         assertThat(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK.definition().defaultValue()).isEqualTo(64);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS.definition().defaultValue()).isEqualTo(20);
@@ -57,11 +58,25 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("the dropped keys are gone from the farm config")
     void droppedKeys() {
-        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_WATER_PER_TILL_MB.configId());
+        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_WATER_PER_MOISTURE_MB.configId());
         assertThat(config.definitions())
                 .extracting(definition -> definition.path().fullPath())
-                .contains("water_per_till_mb", "harvest_share", "reads_per_check", "tier.basic.checks_per_second")
-                .doesNotContain("work_interval_ticks", "harvest_blocks_per_tick", "rf_harvest_per_block");
+                .contains("water_per_moisture_mb", "tilled_moisture", "rf_moisture_per_level", "harvest_share",
+                        "reads_per_check", "tier.basic.checks_per_second")
+                .doesNotContain("work_interval_ticks", "harvest_blocks_per_tick", "rf_harvest_per_block",
+                        "water_per_till_mb", "rf_moisten");
+    }
+
+    @Test
+    @DisplayName("tilled moisture must be 1-7; water per moisture level must not be negative")
+    void moistureValidation() {
+        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_TILLED_MOISTURE.configId());
+
+        assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_TILLED_MOISTURE, 0)).isFalse();
+        assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_TILLED_MOISTURE, 8)).isFalse();
+        assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_WATER_PER_MOISTURE_MB, -1)).isFalse();
+        assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_TILLED_MOISTURE)).isEqualTo(4);
+        assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_MOISTURE_MB)).isEqualTo(10);
     }
 
     @Test
@@ -142,11 +157,13 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("out-of-range settings are normalised into a workable farm")
     void normalises() {
-        FarmSettings settings = new FarmSettings(Map.of(FarmCost.PLANT, -5L), -1, Double.NaN, 0, 0, -3, Map.of());
+        FarmSettings settings = new FarmSettings(Map.of(FarmCost.PLANT, -5L), -1, 0, Double.NaN, 0, 0, -3, Map.of());
 
         assertThat(settings.cost(FarmCost.PLANT)).isZero();
         assertThat(settings.cost(FarmCost.CLEAR)).as("missing costs take their defaults").isEqualTo(25);
-        assertThat(settings.waterPerTillMb()).isZero();
+        assertThat(settings.waterPerMoistureMb()).isZero();
+        assertThat(settings.tilledMoisture()).isEqualTo(1);
+        assertThat(settings.withTilledMoisture(9).tilledMoisture()).isEqualTo(FarmSettings.MAX_MOISTURE);
         assertThat(settings.harvestShare()).isEqualTo(0.5);
         assertThat(settings.readsPerCheck()).isEqualTo(1);
         assertThat(settings.idleBackoffBaseTicks()).isEqualTo(1);

@@ -144,7 +144,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                             .register(),
                     farm.defineInt(prefix + "actions_per_second", defaults.actionsPerSecond())
                             .min(1)
-                            .describe("World-changing actions (clear, harvest, till, soil, plant, moisten) per "
+                            .describe("World-changing actions (clear, harvest, till, soil, plant, top-off) per "
                                     + "second at this tier; each costs RF")
                             .register(),
                     farm.defineLong(prefix + "energy_capacity", defaults.energyCapacity())
@@ -180,11 +180,18 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             return Collections.unmodifiableMap(keys);
         }
 
-        public static final ConfigKey<Integer> FARM_WATER_PER_TILL_MB = farm.defineInt(
-                        "water_per_till_mb", FarmSettings.DEFAULT_WATER_PER_TILL_MB)
+        public static final ConfigKey<Integer> FARM_WATER_PER_MOISTURE_MB = farm.defineInt(
+                        "water_per_moisture_mb", FarmSettings.DEFAULT_WATER_PER_MOISTURE_MB)
                 .min(0)
-                .describe("Water (mB) per block tilled in a temperate biome, which keeps it moist for the crop's "
-                        + "whole life; hot or dry biomes cost up to twice this, rain halves it")
+                .describe("Water (mB) per level of moisture added to farmland in a temperate biome, by a till "
+                        + "or a top-off; hot or dry biomes cost up to twice this, rain halves it")
+                .register();
+
+        public static final ConfigKey<Integer> FARM_TILLED_MOISTURE = farm.defineInt(
+                        "tilled_moisture", FarmSettings.DEFAULT_TILLED_MOISTURE)
+                .range(1, FarmSettings.MAX_MOISTURE)
+                .describe("Moisture new farmland is tilled to (1-7); later visits top it off one level at a "
+                        + "time up to 7")
                 .register();
 
         public static final ConfigKey<Double> FARM_HARVEST_SHARE = farm.defineDouble(

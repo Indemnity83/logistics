@@ -276,22 +276,23 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
         FarmHarness farm = new FarmHarness(tillingDirt());
         BlockPos soil = farm.plot(0).below();
         farm.world.set(soil, Blocks.DIRT.defaultBlockState());
-        farm.world.climate = new FarmClimate(2.0f, false, false); // twice the base: 500 mB
-        fillWater(farm, 400);
+        farm.world.climate = new FarmClimate(2.0f, false, false); // twice the base: 4 levels of 50 mB
+        fillWater(farm, 150);
         farm.power(RF);
 
         farm.tick();
 
         assertThat(farm.world.blocks).containsEntry(soil, Blocks.DIRT.defaultBlockState());
-        assertThat(waterMb(farm)).isEqualTo(400);
+        assertThat(waterMb(farm)).isEqualTo(150);
         assertThat(farm.energy()).isEqualTo(RF);
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
 
-        farm.world.climate = new FarmClimate(2.0f, false, true); // raining: 250 mB
+        farm.world.climate = new FarmClimate(2.0f, false, true); // raining: 100 mB
         farm.ticks(40);
 
-        assertThat(farm.world.blocks).containsEntry(soil, WET_FARMLAND);
-        assertThat(waterMb(farm)).isEqualTo(150);
+        assertThat(farm.world.blocks)
+                .containsEntry(soil, WET_FARMLAND.setValue(BlockStateProperties.MOISTURE, FarmHarness.SETTINGS.tilledMoisture()));
+        assertThat(waterMb(farm)).isEqualTo(50);
         assertThat(farm.energy()).isEqualTo(RF - cost(FarmCost.TILL));
     }
 
@@ -462,8 +463,12 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
             Map<Item, Integer> expectedItems = new HashMap<>(items);
             for (FakeFarmWorld.Mutation change : changes) {
                 expectedRf += rf(change);
-                if (change.after() != null && change.after().is(Blocks.FARMLAND) && change.before().is(Blocks.DIRT)) {
-                    expectedWater += FarmHarness.SETTINGS.waterPerTillMb();
+                if (change.after() != null && change.after().is(Blocks.FARMLAND)) {
+                    int levels = change.before().is(Blocks.FARMLAND)
+                            ? change.after().getValue(BlockStateProperties.MOISTURE)
+                                    - change.before().getValue(BlockStateProperties.MOISTURE)
+                            : change.after().getValue(BlockStateProperties.MOISTURE);
+                    expectedWater += (long) levels * FarmHarness.SETTINGS.waterPerMoistureMb();
                 }
                 change.drops().forEach(drop -> expectedItems.merge(drop.getItem(), drop.getCount(), Integer::sum));
                 Item placed = placedItem(change);

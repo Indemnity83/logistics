@@ -460,12 +460,13 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("mature cropland, Basic: 72 plots harvested, tilled and replanted in ~54 s for 7 200 RF and 7 200 mB")
+    @DisplayName("mature cropland, Basic: 72 plots harvested, tilled and replanted in ~54 s for 7 200 RF and 2 880 mB")
     void matureCroplandBasic() {
         Measured measured = matureCropland(MachineTier.BASIC);
 
         assertThat(measured.rf()).isEqualTo(7_200);
-        assertThat(measured.waterMb()).isEqualTo(7_200);
+        // 4 levels of 10 mB per till.
+        assertThat(measured.waterMb()).isEqualTo(2_880);
         assertThat(measured.ticks()).isBetween(972, 1188);
         assertThat(measured.ticks()).isEqualTo(1_080);
     }
@@ -476,13 +477,13 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         Measured measured = matureCropland(MachineTier.INFERNAL);
 
         assertThat(measured.rf()).isEqualTo(48_000);
-        assertThat(measured.waterMb()).isEqualTo(48_000);
+        assertThat(measured.waterMb()).isEqualTo(19_200);
         assertThat(measured.ticks()).isBetween(810, 990);
         assertThat(measured.ticks()).isEqualTo(900);
     }
 
     @Test
-    @DisplayName("first preparation on grass, Basic: half the plots cleared of tall grass, all tilled and planted in ~45 s for 4 500 RF")
+    @DisplayName("first preparation on grass, Basic: half the plots cleared of tall grass, all tilled and planted in ~54 s for 4 570 RF and 3 230 mB")
     void grassPrepBasic() {
         FarmHarness farm = shipped(new Cropland(), MachineTier.BASIC);
         RingArea ring = farm.area();
@@ -499,12 +500,13 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
 
         int ticks = runUntil(farm, () -> replanted(farm, ring), 10_000);
 
-        assertThat(energy - farm.energy()).isEqualTo(4_500);
-        assertThat(water - waterMb(farm)).isEqualTo(7_200);
-        assertThat(ticks).isBetween(810, 990);
-        // 2.5 actions a plot is 900 ticks; the last pass, every other plot already planted, spends
-        // checks on plots with nothing to do while an action waits.
-        assertThat(ticks).isEqualTo(935);
+        // 72 tills at 4 levels of 10 mB; the 35 plots planted before the last pass reached them are
+        // topped off one level there, 2 RF and 10 mB each.
+        assertThat(energy - farm.energy()).isEqualTo(4_570);
+        assertThat(water - waterMb(farm)).isEqualTo(3_230);
+        assertThat(ticks).isBetween(968, 1182);
+        // 2.5 actions a plot plus the 35 top-offs is 215 actions, one per 5 ticks.
+        assertThat(ticks).isEqualTo(1_075);
     }
 
     @Test

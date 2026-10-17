@@ -27,8 +27,8 @@ public class CropFarmGameTest {
     }
 
     @GameTest(maxTicks = 1200)
-    public void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testMoistensPlantedFarmlandWithoutWater(context);
+    public void testSoaksTilledFarmlandToFullWithWater(GameTestHelper context) {
+        CropFarmGameTestBody.testSoaksTilledFarmlandToFullWithWater(context);
     }
 
     @GameTest(maxTicks = 3000)

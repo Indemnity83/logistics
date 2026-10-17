@@ -45,8 +45,11 @@ final class FarmHarness {
             FarmCost.PLANT, 100L,
             FarmCost.MOISTEN, 20L);
 
-    /** One plot and one action per tick while busy, so tests can count steps in ticks. */
-    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 250, 0.5, 64, 20, 200, FarmSettings.everyTier(PROFILE));
+    /**
+     * One plot and one action per tick while busy, so tests can count steps in ticks; 25 mB per
+     * moisture level, tilled to 4.
+     */
+    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 25, 4, 0.5, 64, 20, 200, FarmSettings.everyTier(PROFILE));
 
     /** The shipped tier profiles, each at the test rate of one check and one action a tick. */
     static Map<MachineTier, FarmTierProfile> shippedTiersAtTestRate() {

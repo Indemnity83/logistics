@@ -1,7 +1,7 @@
 package com.logistics.forestry.farm;
 
 /**
- * How much water a till costs in a given climate:
+ * How much water farmland moisture costs in a given climate:
  * {@code h = clamp(max(temperature, 0.8) × (hasPrecipitation ? 1 : 1.5), 0.5, 2) × (raining ? 0.5 : 1)}.
  * Hot and dry biomes cost up to twice the base, rain halves it.
  */

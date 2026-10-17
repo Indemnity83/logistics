@@ -201,11 +201,35 @@ public class CropFarmGameTestBody {
         return total;
     }
 
-    /** The water one till of the ring costs where the test runs: the configured base scaled by its climate. */
+    /** The water one till of the ring costs where the test runs: its moisture levels, scaled by its climate. */
     private static long perTillMb(GameTestHelper context) {
+        FarmSettings settings = FarmSettings.fromConfig();
+        return moistureMb(context, settings.tilledMoisture() * settings.waterPerMoistureMb());
+    }
+
+    /** The water one top-off level costs where the test runs. */
+    private static long perLevelMb(GameTestHelper context) {
+        return moistureMb(context, FarmSettings.fromConfig().waterPerMoistureMb());
+    }
+
+    private static long moistureMb(GameTestHelper context, int baseMb) {
         BlockPos soil = context.absolutePos(PLOTS.get(0).below());
-        return Hydration.waterMb(
-                FarmSettings.fromConfig().waterPerTillMb(), LevelFarmWorld.climate(context.getLevel(), soil));
+        return Hydration.waterMb(baseMb, LevelFarmWorld.climate(context.getLevel(), soil));
+    }
+
+    /**
+     * Asserts all of the rig's water has reached the farm and it holds at most {@code maxMb}: random
+     * ticks dry the other plots too, and their top-offs draw water as well.
+     */
+    private static void assertFarmWaterAtMost(GameTestHelper context, Rig rig, long maxMb, String why) {
+        if (rig.tank().tank().getAmount() > 0) {
+            throw context.assertionException(WATER_TANK, "All the tank's water should have reached the farm");
+        }
+        long left = farmWater(rig.farm());
+        if (left > FluidUnits.mb(maxMb)) {
+            throw context.assertionException(FARM, why + ": the farm should hold at most " + maxMb + " mB, has "
+                    + FluidUnits.toMillibuckets(left) + " mB");
+        }
     }
 
     /**
@@ -328,38 +352,51 @@ public class CropFarmGameTestBody {
             if (!context.getBlockState(target.below()).is(Blocks.FARMLAND)) {
                 throw context.assertionException(target.below(), "The plot should have been tilled again");
             }
-            assertFarmWater(context, rig, TANK_MB - perTillMb(context), "Re-tilling should have paid one till's water");
+            assertFarmWaterAtMost(context, rig, TANK_MB - perTillMb(context), "Re-tilling should have paid one till's water");
         });
     }
 
     /**
-     * Farmland under growing wheat that has dried a single step is moistened back to full without
-     * spending water: the till paid for it.
+     * A plot tilled from dirt is wetted only to {@code tilled_moisture}, sown, then soaked one level
+     * per visit up to full, each level paid in water from the tank.
      */
-    public static void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
+    public static void testSoaksTilledFarmlandToFullWithWater(GameTestHelper context) {
         Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
         if (rig == null) {
             return;
         }
+        BlockPos target = PLOTS.get(PLOTS.size() / 2);
         for (BlockPos plot : PLOTS) {
-            context.setBlock(plot, Blocks.WHEAT);
+            if (!plot.equals(target)) {
+                context.setBlock(plot, Blocks.WHEAT);
+            }
         }
-        BlockPos dry = PLOTS.get(PLOTS.size() / 2).below();
-        context.setBlock(dry, farmland(MAX_MOISTURE - 1));
-        boolean[] moistened = {false};
+        BlockPos soil = target.below();
+        context.setBlock(soil, Blocks.DIRT);
+        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 1));
+        int tilled = FarmSettings.fromConfig().tilledMoisture();
+        boolean[] sawTilled = {false};
 
         context.onEachTick(() -> {
-            BlockState soil = context.getBlockState(dry);
-            if (soil.is(Blocks.FARMLAND) && soil.getValue(BlockStateProperties.MOISTURE) == MAX_MOISTURE) {
-                moistened[0] = true;
+            BlockState state = context.getBlockState(soil);
+            if (state.is(Blocks.FARMLAND) && state.getValue(BlockStateProperties.MOISTURE) == tilled) {
+                sawTilled[0] = true;
             }
         });
         context.succeedWhen(() -> {
-            if (!moistened[0]) {
-                throw context.assertionException(dry, "Farmland under wheat should have been moistened from "
-                        + (MAX_MOISTURE - 1) + " to " + MAX_MOISTURE + ", is " + context.getBlockState(dry));
+            if (!sawTilled[0]) {
+                throw context.assertionException(soil, "The till should have wetted the farmland to " + tilled);
             }
-            assertFarmWater(context, rig, TANK_MB, "Moistening should spend no water");
+            BlockState state = context.getBlockState(soil);
+            if (!state.is(Blocks.FARMLAND) || state.getValue(BlockStateProperties.MOISTURE) != MAX_MOISTURE) {
+                throw context.assertionException(soil, "The tilled farmland should have soaked up to "
+                        + MAX_MOISTURE + ", is " + state);
+            }
+            if (!context.getBlockState(target).is(Blocks.WHEAT)) {
+                throw context.assertionException(target, "The tilled plot should have been sown");
+            }
+            long spent = perTillMb(context) + (MAX_MOISTURE - tilled) * perLevelMb(context);
+            assertFarmWaterAtMost(context, rig, TANK_MB - spent, "The till and every top-off should have drawn water");
         });
     }
 

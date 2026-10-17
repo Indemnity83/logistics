@@ -175,15 +175,15 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("tills dirt into fully wet farmland, with or without water on hand")
+    @DisplayName("tills dirt into farmland, which the farm wets, with or without water on hand")
     void tillsDirt() {
         world.set(SOIL, Blocks.DIRT.defaultBlockState());
 
-        assertThat(decide()).isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
+        assertThat(decide()).isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
 
         inputs.water = false;
         assertThat(decide()).as("the farm, not the logic, refuses a till without water")
-                .isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
+                .isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
     }
 
     @Test
@@ -192,7 +192,7 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
         for (BlockState ground : List.of(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT_PATH.defaultBlockState())) {
             world.set(SOIL, ground);
 
-            assertThat(decide()).as("over %s", ground).isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
+            assertThat(decide()).as("over %s", ground).isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
         }
     }
 
@@ -273,7 +273,7 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     @DisplayName("still tills in the dark; only planting waits for light")
     void darkStillTills() {
         world.set(SOIL, Blocks.DIRT.defaultBlockState());
-        assertThat(decideInLight(0)).isEqualTo(new PlotAction.Till(SOIL, farmland(7)));
+        assertThat(decideInLight(0)).isEqualTo(new PlotAction.Till(SOIL, farmland(0)));
 
         world.set(SOIL, farmland(7));
         assertThat(decideInLight(0)).isEqualTo(PlotAction.blocked(PlotAction.Reason.TOO_DARK));
@@ -285,7 +285,7 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     // ==================== Moisture ====================
 
     @Test
-    @DisplayName("moistens farmland under a growing crop at any moisture below full")
+    @DisplayName("tops off farmland under a growing crop at any moisture below full")
     void moistensPlantedFarmlandBelowFull() {
         world.set(PLOT, wheat(3));
         for (int moisture = 0; moisture < CropFarmLogic.MAX_MOISTURE; moisture++) {
@@ -305,7 +305,7 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("moistens empty farmland with nothing to plant, so it never dries back to dirt")
+    @DisplayName("tops off empty farmland with nothing to plant, so it never dries back to dirt")
     void moistensEmptyFarmlandWithoutGermlings() {
         world.set(SOIL, farmland(6));
 
@@ -313,16 +313,16 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("plants empty farmland before moistening it")
+    @DisplayName("plants empty farmland before topping it off")
     void plantsBeforeMoistening() {
-        world.set(SOIL, farmland(6));
+        world.set(SOIL, farmland(4));
         inputs.germlings.add(new ItemStack(Items.WHEAT_SEEDS, 4));
 
         assertPlants(decide(), Items.WHEAT_SEEDS);
     }
 
     @Test
-    @DisplayName("moistens without water on hand: the till paid for the crop's water")
+    @DisplayName("asks to top off without water on hand: the farm, not the logic, refuses it")
     void moistensWithoutWater() {
         world.set(PLOT, wheat(3));
         world.set(SOIL, farmland(0));

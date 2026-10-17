@@ -39,8 +39,10 @@ public sealed interface PlotAction {
     }
 
     /**
-     * Turn the block at {@code pos} into {@code result} in place, e.g. dirt into wet farmland. A farm
-     * with a water tank pays {@code water_per_till} for it and does not till without.
+     * Turn the block at {@code pos} into {@code result} in place, e.g. dirt into farmland. A result
+     * with a moisture property is tilled to {@code tilled_moisture}, whatever moisture it carries, and
+     * a farm with a water tank pays {@code water_per_moisture_mb} per level for it and does not till
+     * without.
      */
     record Till(BlockPos pos, BlockState result) implements PlotAction {
         public Till {
@@ -50,8 +52,9 @@ public sealed interface PlotAction {
     }
 
     /**
-     * Wet the block at {@code pos} (any block with a moisture property) to full moisture. Costs RF
-     * only: the water was paid when the plot was tilled.
+     * Top off the block at {@code pos} (any block with a moisture property) by one moisture level, up
+     * to full. Costs {@code rf_moisture_per_level} and, on a farm with a water tank,
+     * {@code water_per_moisture_mb}; without either nothing changes.
      */
     record Moisten(BlockPos pos) implements PlotAction {
         public Moisten {

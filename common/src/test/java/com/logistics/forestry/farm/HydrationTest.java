@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@DisplayName("Till water by climate")
+@DisplayName("Moisture water by climate")
 class HydrationTest {
 
     @ParameterizedTest(name = "temperature {0}, precipitation {1}, raining {2} -> {3}")

@@ -26,9 +26,9 @@ public final class CropFarmGameTestRegistration {
             2400,
             CropFarmGameTestBody::testHarvestReturnsPlotToDirtAndRetillPaysWater),
         new GameTestCase(
-            "forestry/crop_farm_moistens_planted_farmland_without_water",
+            "forestry/crop_farm_soaks_tilled_farmland_to_full_with_water",
             1200,
-            CropFarmGameTestBody::testMoistensPlantedFarmlandWithoutWater),
+            CropFarmGameTestBody::testSoaksTilledFarmlandToFullWithWater),
         new GameTestCase(
             "forestry/crop_farm_harvests_and_replants_from_returned_seeds",
             3000,

@@ -17,9 +17,14 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The Crop Farm: tills each plot's dirt into wet farmland, paying a till's worth of water, plants
- * field crops on it, keeps all its farmland fully wet, planted or not, and harvests the crop once
- * mature, replanting from the harvest first. A harvest turns the farmland back into dirt, so every crop costs one till.
+ * The Crop Farm: tills each plot's dirt into farmland, plants field crops on it, and harvests the
+ * crop once mature, replanting from the harvest first. A harvest turns the farmland back into dirt,
+ * so every crop costs one till.
+ *
+ * <p>A till only half-wets the farmland ({@code tilled_moisture}); the field then soaks up to full
+ * moisture one level per visit, planted or not, each level paid in water and RF, so a farm in a hot
+ * or dry biome keeps paying for its fields. The farm, not this logic, sets the tilled moisture and
+ * prices each level.
  *
  * <p>Crop blocks ({@link CropBlock}) are the farm's own growth; anything else above a plot is
  * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt, farmland
@@ -33,11 +38,11 @@ public final class CropFarmLogic implements FarmLogic {
     /** Crops need this much light to be planted and to grow. */
     public static final int MIN_LIGHT = 8;
 
-    /** Farmland is kept at this moisture, planted or not; only it shows the wet texture. */
+    /** Farmland is topped off up to this moisture, planted or not; only it shows the wet texture. */
     public static final int MAX_MOISTURE = Collections.max(BlockStateProperties.MOISTURE.getPossibleValues());
 
-    private static final BlockState WET_FARMLAND =
-            Blocks.FARMLAND.defaultBlockState().setValue(BlockStateProperties.MOISTURE, MAX_MOISTURE);
+    /** The till's result; the farm wets it to {@code tilled_moisture}. */
+    private static final BlockState FARMLAND = Blocks.FARMLAND.defaultBlockState();
 
     private final Predicate<BlockState> tillable;
 
@@ -107,7 +112,7 @@ public final class CropFarmLogic implements FarmLogic {
                 return PlotAction.NONE;
             }
             if (tillable.test(soil)) {
-                return new PlotAction.Till(soilPos, WET_FARMLAND);
+                return new PlotAction.Till(soilPos, FARMLAND);
             }
             return soil.is(Blocks.DIRT) ? PlotAction.NONE : new PlotAction.PlaceSoil(soilPos);
         }

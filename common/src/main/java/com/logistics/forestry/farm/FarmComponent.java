@@ -930,6 +930,11 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     private FarmStatus till(Tick t, BlockPos pos, BlockState result) {
         FarmWorldAccess world = t.world();
+        int levels = 0;
+        if (result.hasProperty(BlockStateProperties.MOISTURE)) {
+            levels = t.settings().tilledMoisture();
+            result = result.setValue(BlockStateProperties.MOISTURE, levels);
+        }
         if (!world.isLoaded(pos) || world.state(pos) == result) {
             return FarmStatus.IDLE;
         }
@@ -937,7 +942,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (energy.amount() < cost) {
             return noPower(cost);
         }
-        long needed = water != null ? tillWater(t, pos) : 0;
+        long needed = water != null ? moistureWater(t, pos, levels) : 0;
         if (water != null && water.tank().getAmount() < needed) {
             waterNeeded = needed;
             return FarmStatus.NO_WATER;
@@ -954,9 +959,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         return FarmStatus.WORKING;
     }
 
-    /** The water tilling {@code pos} costs: {@code water_per_till_mb} scaled by its climate. */
-    private long tillWater(Tick t, BlockPos pos) {
-        return FluidUnits.mb(Hydration.waterMb(t.settings().waterPerTillMb(), t.world().climate(pos)));
+    /** The water {@code levels} of moisture at {@code pos} cost: {@code water_per_moisture_mb} each, scaled by its climate. */
+    private long moistureWater(Tick t, BlockPos pos, int levels) {
+        return FluidUnits.mb(Hydration.waterMb(levels * t.settings().waterPerMoistureMb(), t.world().climate(pos)));
     }
 
     private FarmStatus moisten(Tick t, BlockPos pos) {
@@ -973,12 +978,23 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (energy.amount() < cost) {
             return noPower(cost);
         }
+        long needed = water != null ? moistureWater(t, pos, 1) : 0;
+        if (water != null && water.tank().getAmount() < needed) {
+            waterNeeded = needed;
+            return FarmStatus.NO_WATER;
+        }
+        int moisture = state.getValue(BlockStateProperties.MOISTURE) + 1;
         // Moisture is a visual-only change, so neighbours are not updated.
         if (!world.canModify(pos)
-                || !world.setBlock(pos, state.setValue(BlockStateProperties.MOISTURE, MAX_MOISTURE), Block.UPDATE_CLIENTS)) {
+                || !world.setBlock(pos, state.setValue(BlockStateProperties.MOISTURE, moisture), Block.UPDATE_CLIENTS)) {
             return FarmStatus.BLOCKED;
         }
+        if (needed > 0) {
+            FluidTankComponent tank = water.tank();
+            tank.extract(tank.getFluidKey(), needed, false);
+        }
         energy.consume(cost);
+        tracker.clear(FarmStatus.NO_WATER);
         return FarmStatus.WORKING;
     }
 
@@ -1408,7 +1424,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
         @Override
         public boolean hasWater() {
-            return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerTillMb());
+            return water != null && water.tank().getAmount() >= FluidUnits.mb(settings.get().waterPerMoistureMb());
         }
     }
 
