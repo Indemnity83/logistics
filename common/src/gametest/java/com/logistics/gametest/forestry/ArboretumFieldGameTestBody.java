@@ -14,6 +14,7 @@ import com.logistics.forestry.logic.FellPlan;
 import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -35,6 +37,8 @@ import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,9 +54,10 @@ import org.slf4j.LoggerFactory;
  * ({@link FarmBlockEntity#setRateOverride}) so that whole fell-and-replant cycles fit a test; its
  * energy input is still the tier's.
  *
- * <p>Glass fills every courtyard column above the rig: markers where a canopy could reach, which the
- * farm must never break. Saplings are grown with bone meal on a seeded random, so each run grows the
- * same trees.
+ * <p>The courtyard columns are open air, so the lane-1 canopies grow into them; the farm may break
+ * those leaves, and nothing else there. Planks and stone stand in a few of them as markers it must
+ * never break. Saplings are grown with bone meal on a seeded random, so each run grows the same
+ * trees.
  */
 public class ArboretumFieldGameTestBody {
 
@@ -76,6 +81,20 @@ public class ArboretumFieldGameTestBody {
     private static final List<BlockPos> SPOTS = spots();
 
     private static final int HEIGHT = 18;
+
+    /**
+     * Non-leaf blocks in the courtyard's outer row, where lane-1 canopies reach, which the farm must
+     * never break: planks and stone at the middle of each side.
+     */
+    private static final Map<BlockPos, Block> MARKERS = Map.of(
+            FARM.offset(0, 3, -3), Blocks.OAK_PLANKS,
+            FARM.offset(0, 4, -3), Blocks.STONE,
+            FARM.offset(3, 3, 0), Blocks.OAK_PLANKS,
+            FARM.offset(3, 4, 0), Blocks.STONE,
+            FARM.offset(0, 3, 3), Blocks.OAK_PLANKS,
+            FARM.offset(0, 4, 3), Blocks.STONE,
+            FARM.offset(-3, 3, 0), Blocks.OAK_PLANKS,
+            FARM.offset(-3, 4, 0), Blocks.STONE);
 
     /** Fast enough that energy, not the work budget, paces the farm. */
     private static final int CHECKS_PER_SECOND = 400;
@@ -119,8 +138,9 @@ public class ArboretumFieldGameTestBody {
      * Fed oak saplings and Humus through its hopper, the farm plants every spot; the saplings are
      * grown into trees, the farm fells them and replants, three times over. Every sapling grows, no
      * straight trunk touches another tree, at least 90% of the spot-cycles produce a tree, every
-     * felled tree is replanted, logs, saplings and sticks come out, and nothing in the courtyard
-     * changes. A fancy oak's branch may join two trees; the farm fells them together.
+     * felled tree is replanted, logs, saplings and sticks come out, and after each felling no leaf or
+     * item is left in the courtyard, whose other blocks never change. A fancy oak's branch may join
+     * two trees; the farm fells them together.
      */
     public static void testBasicRingStaysProductive(GameTestHelper context) {
         FarmBlockEntity farm = rig(context);
@@ -137,6 +157,8 @@ public class ArboretumFieldGameTestBody {
         int[] branched = new int[CYCLES];
         int[] joined = new int[CYCLES];
         int[] replanted = new int[CYCLES];
+        int[] courtyardLeaves = new int[CYCLES];
+        List<Leftovers> leftovers = new ArrayList<>();
         long[] cycleTicks = new long[CYCLES];
         int[] cycle = {0};
         long[] phaseStart = {context.getTick()};
@@ -158,6 +180,7 @@ public class ArboretumFieldGameTestBody {
             if (cycle[0] > 0) {
                 replanted[cycle[0] - 1] = planted.size();
                 cycleTicks[cycle[0] - 1] = elapsed;
+                leftovers.add(assertCourtyardClear(context));
             }
             if (cycle[0] == CYCLES) {
                 done[0] = true;
@@ -174,6 +197,7 @@ public class ArboretumFieldGameTestBody {
                     .filter(tree -> !isStraight(tree.getKey(), tree.getValue()))
                     .count();
             grown[cycle[0]] = planted.size();
+            courtyardLeaves[cycle[0]] = courtyardLeaves(context).size();
             cycle[0]++;
             phaseStart[0] = context.getTick();
         });
@@ -186,7 +210,7 @@ public class ArboretumFieldGameTestBody {
             for (BlockPos spot : SPOTS) {
                 if (!context.getBlockState(spot).is(Blocks.OAK_SAPLING)) {
                     throw context.assertionException(spot, "Every felled tree should be replanted, found "
-                            + context.getBlockState(spot) + " on " + context.getBlockState(spot.below()) + "; farm is " + farm.status() + ", produce " + produce(context, farm));
+                            + context.getBlockState(spot) + " on " + context.getBlockState(spot.below()) + "; farm is " + farm.status() + ", its plan " + plan(context, spot).reason() + ", produce " + produce(context, farm));
                 }
             }
             int productive = 0;
@@ -196,11 +220,17 @@ public class ArboretumFieldGameTestBody {
             int possible = CYCLES * SPOTS.size();
             Map<Item, Integer> produce = produce(context, farm);
             LOGGER.info(
-                    "Basic arboretum: {} spots; per cycle grown {} (branched {}, joined by a branch {}), "
-                            + "replanted {} in {} ticks; {}/{} spot-cycles productive; produce {}",
+                    "Basic arboretum: {} spots; per cycle grown {} (branched {}, joined by a branch {}, "
+                            + "leaves into the courtyard {}), replanted {} in {} ticks; {}/{} spot-cycles productive; "
+                            + "left in the courtyard per cycle {}; produce {}",
                     SPOTS.size(), List.of(grown[0], grown[1], grown[2]), List.of(branched[0], branched[1], branched[2]),
-                    List.of(joined[0], joined[1], joined[2]), List.of(replanted[0], replanted[1], replanted[2]),
-                    List.of(cycleTicks[0], cycleTicks[1], cycleTicks[2]), productive, possible, produce);
+                    List.of(joined[0], joined[1], joined[2]),
+                    List.of(courtyardLeaves[0], courtyardLeaves[1], courtyardLeaves[2]),
+                    List.of(replanted[0], replanted[1], replanted[2]),
+                    List.of(cycleTicks[0], cycleTicks[1], cycleTicks[2]), productive, possible, leftovers, produce);
+            if (courtyardLeaves[0] + courtyardLeaves[1] + courtyardLeaves[2] == 0) {
+                throw context.assertionException(FARM, "The canopies should have grown into the courtyard");
+            }
             if (productive * 10 < possible * 9) {
                 throw context.assertionException(FARM, "Only " + productive + " of " + possible
                         + " spot-cycles grew a tree that was felled and replanted");
@@ -216,9 +246,9 @@ public class ArboretumFieldGameTestBody {
     // ==================== Felling bounds ====================
 
     /**
-     * Two neighbouring farm trees whose canopies overlap are both felled whole. A log just outside the
-     * ring, touching both trunks diagonally, is outside the wood bounds and is never taken; nothing in
-     * the courtyard changes.
+     * Two neighbouring farm trees whose canopies overlap are both felled whole, their leaves over the
+     * courtyard included. A log just outside the ring, touching both trunks diagonally, is outside the
+     * wood bounds and is never taken; nothing else in the courtyard changes.
      */
     public static void testFellsNeighbouringCanopies(GameTestHelper context) {
         FarmBlockEntity farm = rig(context);
@@ -260,6 +290,7 @@ public class ArboretumFieldGameTestBody {
                     }
                 }
             }
+            assertCourtyardClear(context);
             int felled = produce(context, farm).getOrDefault(Items.OAK_LOG, 0);
             if (felled < logs) {
                 throw context.assertionException(CHEST, "All " + logs + " logs should reach the output, found " + felled);
@@ -269,9 +300,10 @@ public class ArboretumFieldGameTestBody {
 
     /**
      * A natural oak standing just outside the ring, its canopy over the ring and its trunk touching
-     * two farm trunks diagonally. The farm plants under it and fells its own trees beside it, but
-     * never plans or breaks its wood. Its leaves all lie within the felling bounds, which reach past
-     * the ring; how many the farm takes is logged.
+     * two farm trunks diagonally. The farm plants every spot, those under its canopy too, and leaves
+     * all its leaves over the ring standing: clearing a plot's column never takes leaves. Then the
+     * two farm trees beside it are grown and felled, and the farm never plans or breaks its wood nor
+     * any leaf whose nearest log is its own.
      */
     public static void testForeignTreeWoodIsNeverFelled(GameTestHelper context) {
         BlockPos foreign = new BlockPos(RING.min().getX() - 1, RING.origin().getY(), FARM.getZ());
@@ -316,15 +348,24 @@ public class ArboretumFieldGameTestBody {
         assertNeverPlanned(context, foreignWood);
 
         Set<BlockPos> grown = new HashSet<>();
+        Set<BlockPos> foreignOwned = new HashSet<>(foreignLeaves);
+        long overRing = foreignLeaves.stream().filter(RING::contains).count();
         context.onEachTick(() -> {
             assertCourtyardUnchanged(context, courtyard);
             foreignWood.forEach(pos -> context.assertBlockPresent(Blocks.OAK_LOG, pos));
+            for (BlockPos leaf : foreignOwned) {
+                if (!context.getBlockState(leaf).is(Blocks.OAK_LEAVES)) {
+                    throw context.assertionException(leaf, "A leaf nearest the foreign trunk was broken");
+                }
+            }
             if (grown.isEmpty() && SPOTS.stream().allMatch(spot -> context.getBlockState(spot).is(Blocks.OAK_SAPLING))) {
                 grow(context, south, 4);
                 grow(context, north, 5);
                 grown.add(south);
                 grown.add(north);
                 assertNeverPlanned(context, foreignWood);
+                foreignOwned.clear();
+                foreignOwned.addAll(nearestTo(context, foreignWood));
             }
         });
         context.succeedWhen(() -> {
@@ -338,18 +379,13 @@ public class ArboretumFieldGameTestBody {
             if (produce(context, farm).getOrDefault(Items.OAK_LOG, 0) == 0) {
                 throw context.assertionException(CHEST, "The farm trees beside the foreign oak should be felled");
             }
-            long overRing = foreignLeaves.stream()
-                    .filter(RING::contains)
-                    .filter(pos -> context.getBlockState(pos).is(Blocks.OAK_LEAVES))
-                    .count();
-            long beyondRing = foreignLeaves.stream()
-                    .filter(pos -> !RING.contains(pos))
-                    .filter(pos -> !context.getBlockState(pos).is(Blocks.OAK_LEAVES))
-                    .count();
             LOGGER.info(
-                    "Foreign oak: {} logs untouched; {} of {} leaves over the ring remain; {} of {} leaves beyond it broken",
-                    foreignWood.size(), overRing, foreignLeaves.stream().filter(RING::contains).count(), beyondRing,
-                    foreignLeaves.stream().filter(pos -> !RING.contains(pos)).count());
+                    "Foreign oak: {} logs kept; all {} leaves over the ring kept through planting; all {} leaves "
+                            + "nearest it after the farm trees grew kept, {} of them over the ring; "
+                            + "{} of its {} first leaves are gone",
+                    foreignWood.size(), overRing, foreignOwned.size(), foreignOwned.stream().filter(RING::contains).count(),
+                    foreignLeaves.stream().filter(pos -> !context.getBlockState(pos).is(Blocks.OAK_LEAVES)).count(),
+                    foreignLeaves.size());
         });
     }
 
@@ -357,21 +393,14 @@ public class ArboretumFieldGameTestBody {
 
     /**
      * Humus under every plot of the Basic ring on a stone floor, the farm at its centre with its
-     * hoppers, chest and a running Creative Engine, and glass markers above the courtyard. Started.
+     * hoppers, chest and a running Creative Engine, and {@link #MARKERS} in the courtyard. Started.
      */
     private static FarmBlockEntity rig(GameTestHelper context) {
         for (BlockPos plot : PLOTS) {
             context.setBlock(plot.below(2), Blocks.STONE);
             context.setBlock(plot.below(), LogisticsForestry.BLOCK.HUMUS);
         }
-        for (BlockPos column : courtyardColumns()) {
-            for (int y = INPUT_HOPPER.getY(); y < HEIGHT; y++) {
-                BlockPos pos = column.atY(y);
-                if (!pos.equals(INPUT_HOPPER)) {
-                    context.setBlock(pos, Blocks.GLASS);
-                }
-            }
-        }
+        MARKERS.forEach((pos, block) -> context.setBlock(pos, block));
         context.setBlock(FARM, LogisticsForestry.BLOCK.ARBORETUM.defaultBlockState());
         context.setBlock(CHEST, Blocks.CHEST);
         context.setBlock(OUTPUT_HOPPER, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.NORTH));
@@ -539,13 +568,122 @@ public class ArboretumFieldGameTestBody {
         return blocks;
     }
 
+    /**
+     * Throws unless every block the courtyard held is still there, the markers among them, and every
+     * cell that was air holds air, natural leaves grown into it, or a log a tree grew into it, which
+     * from then on is held too: the farm never breaks wood there.
+     */
     private static void assertCourtyardUnchanged(GameTestHelper context, Map<BlockPos, Block> courtyard) {
-        courtyard.forEach((pos, block) -> {
-            Block now = context.getBlockState(pos).getBlock();
-            if (now != block) {
+        courtyard.replaceAll((pos, block) -> {
+            BlockState now = context.getBlockState(pos);
+            if (block == Blocks.AIR && now.is(BlockTags.LOGS)) {
+                return now.getBlock();
+            }
+            boolean grown = block == Blocks.AIR && LevelTreeView.isNaturalLeaves(now);
+            if (now.getBlock() != block && !grown) {
                 throw context.assertionException(pos, "The courtyard should never change: " + block + " became " + now);
             }
+            return block;
         });
+    }
+
+    /** The leaves standing in the courtyard's columns. */
+    private static List<BlockPos> courtyardLeaves(GameTestHelper context) {
+        List<BlockPos> leaves = new ArrayList<>();
+        for (BlockPos column : courtyardColumns()) {
+            for (int y = 0; y < HEIGHT; y++) {
+                BlockPos pos = column.atY(y);
+                if (context.getBlockState(pos).is(BlockTags.LEAVES)) {
+                    leaves.add(pos);
+                }
+            }
+        }
+        return leaves;
+    }
+
+    /** What a felling left in the courtyard: logs a tree grew into it, and the leaves and items beside them. */
+    private record Leftovers(int logs, int leaves, int items) {}
+
+    /**
+     * Throws if a leaf or loose item is left in the courtyard, unless a tree grew wood into it, which
+     * the farm never breaks: then only leaves within {@link TreeFeller#CANOPY_REACH} of that wood,
+     * and the items their decay drops, may be left.
+     */
+    private static Leftovers assertCourtyardClear(GameTestHelper context) {
+        Set<BlockPos> logs = new HashSet<>();
+        for (BlockPos column : courtyardColumns()) {
+            for (int y = INPUT_HOPPER.getY(); y < HEIGHT; y++) {
+                if (context.getBlockState(column.atY(y)).is(BlockTags.LOGS)) {
+                    logs.add(column.atY(y));
+                }
+            }
+        }
+        List<BlockPos> leaves = courtyardLeaves(context);
+        for (BlockPos leaf : leaves) {
+            boolean besideWood = logs.stream().anyMatch(log -> log.distManhattan(leaf) <= TreeFeller.CANOPY_REACH);
+            if (!besideWood) {
+                throw context.assertionException(leaf, "No leaf should be left in the courtyard, found " + leaves
+                        + " beside courtyard wood " + logs);
+            }
+        }
+        int half = FarmGeometry.COURTYARD / 2;
+        AABB box = new AABB(
+                Vec3.atLowerCornerOf(context.absolutePos(FARM.offset(-half, -FARM.getY(), -half))),
+                Vec3.atLowerCornerOf(context.absolutePos(FARM.offset(half + 1, HEIGHT - FARM.getY(), half + 1))));
+        List<ItemEntity> litter = context.getLevel().getEntitiesOfClass(ItemEntity.class, box);
+        if (!litter.isEmpty() && logs.isEmpty()) {
+            throw context.assertionException(FARM, "No item should litter the courtyard, found "
+                    + litter.stream().map(item -> item.getItem().toString()).toList());
+        }
+        return new Leftovers(logs.size(), leaves.size(), litter.size());
+    }
+
+    /**
+     * The natural leaves whose nearest log, in face steps through natural leaves, is one of
+     * {@code wood} and no other, at most {@link TreeFeller#CANOPY_REACH} away.
+     */
+    private static Set<BlockPos> nearestTo(GameTestHelper context, Set<BlockPos> wood) {
+        Map<BlockPos, Integer> steps = new HashMap<>();
+        Map<BlockPos, Boolean> owner = new HashMap<>();
+        Set<BlockPos> tied = new HashSet<>();
+        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+        int margin = TreeFeller.CANOPY_REACH + 2;
+        for (BlockPos pos : BlockPos.betweenClosed(new BlockPos(-margin, 0, -margin), new BlockPos(14 + margin, HEIGHT + margin, 14 + margin))) {
+            if (context.getBlockState(pos).is(BlockTags.LOGS)) {
+                BlockPos log = pos.immutable();
+                steps.put(log, 0);
+                owner.put(log, wood.contains(log));
+                queue.add(log);
+            }
+        }
+        while (!queue.isEmpty()) {
+            BlockPos pos = queue.poll();
+            int next = steps.get(pos) + 1;
+            for (Direction side : Direction.values()) {
+                BlockPos beside = pos.relative(side);
+                if (!LevelTreeView.isNaturalLeaves(context.getBlockState(beside))) {
+                    continue;
+                }
+                Integer known = steps.get(beside);
+                if (known == null) {
+                    steps.put(beside, next);
+                    owner.put(beside, owner.get(pos));
+                    if (tied.contains(pos)) {
+                        tied.add(beside);
+                    }
+                    queue.add(beside);
+                } else if (known == next && !owner.get(beside).equals(owner.get(pos))) {
+                    tied.add(beside);
+                }
+            }
+        }
+        Set<BlockPos> nearest = new HashSet<>();
+        owner.forEach((pos, foreign) -> {
+            if (foreign && !wood.contains(pos) && !tied.contains(pos) && steps.get(pos) <= TreeFeller.CANOPY_REACH) {
+                nearest.add(pos);
+            }
+        });
+        return nearest;
     }
 
     /** Everything the farm has put out, in its output slots and the chest after them. */
