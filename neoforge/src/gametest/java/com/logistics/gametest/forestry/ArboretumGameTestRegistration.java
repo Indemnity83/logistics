@@ -1,5 +1,6 @@
 package com.logistics.gametest.forestry;
 
+import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.gametest.GameTestCase;
 import com.logistics.gametest.GameTestRegistrationSupport;
 import java.util.List;
@@ -49,8 +50,25 @@ public final class ArboretumGameTestRegistration {
             "forestry/arboretum_every_germling_grows_on_arboretum_soils", 40,
             ArboretumGameTestBody::testEveryGermlingGrowsOnArboretumSoils));
 
+    /** Real Basic-tier tests, in the larger structure they need. */
+    private static final List<GameTestCase> FIELD_TESTS = List.of(
+        new GameTestCase(
+            "forestry/arboretum_basic_ring_stays_productive", 6020,
+            ArboretumFieldGameTestBody::testBasicRingStaysProductive),
+        new GameTestCase(
+            "forestry/arboretum_fells_neighbouring_canopies", 1220,
+            ArboretumFieldGameTestBody::testFellsNeighbouringCanopies),
+        new GameTestCase(
+            "forestry/arboretum_foreign_tree_wood_is_never_felled", 2420,
+            ArboretumFieldGameTestBody::testForeignTreeWoodIsNeverFelled));
+
+    private static final ResourceId FIELD = ResourceId.in("logistics_gametest", "arboretum_field");
+
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
+
+    private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FIELD_FUNCTIONS =
+        GameTestRegistrationSupport.registerFunctions(FIELD_TESTS);
 
     private ArboretumGameTestRegistration() {}
 
@@ -60,5 +78,7 @@ public final class ArboretumGameTestRegistration {
     @SubscribeEvent
     static void onRegisterGameTests(RegisterGameTestsEvent event) {
         GameTestRegistrationSupport.registerInstances(event, "forestry/arboretum", TESTS, FUNCTIONS);
+        GameTestRegistrationSupport.registerInstances(
+            event, "forestry/arboretum_field", FIELD_TESTS, FIELD_FUNCTIONS, FIELD);
     }
 }

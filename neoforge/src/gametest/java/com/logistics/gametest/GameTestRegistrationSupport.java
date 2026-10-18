@@ -60,6 +60,16 @@ public final class GameTestRegistrationSupport {
             String environmentId,
             List<GameTestCase> tests,
             Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> functions) {
+        registerInstances(event, environmentId, tests, functions, EMPTY_STRUCTURE);
+    }
+
+    /** {@link #registerInstances} in {@code structure} instead of the shared 8x8x8 one. */
+    public static void registerInstances(
+            RegisterGameTestsEvent event,
+            String environmentId,
+            List<GameTestCase> tests,
+            Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> functions,
+            ResourceId structure) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
             ResourceId.in("logistics_gametest", environmentId).toIdentifier(), new TestEnvironmentDefinition.AllOf());
 
@@ -67,7 +77,7 @@ public final class GameTestRegistrationSupport {
             ResourceId id = ResourceId.in("logistics_gametest", test.path());
             ResourceKey<Consumer<GameTestHelper>> functionKey = functions.get(test.path()).getKey();
             TestData<Holder<TestEnvironmentDefinition<?>>> data =
-                new TestData<>(environment, EMPTY_STRUCTURE.toIdentifier(), test.maxTicks(), 0, true);
+                new TestData<>(environment, structure.toIdentifier(), test.maxTicks(), 0, true);
             event.registerTest(id.toIdentifier(), new FunctionGameTestInstance(functionKey, data));
         }
     }
