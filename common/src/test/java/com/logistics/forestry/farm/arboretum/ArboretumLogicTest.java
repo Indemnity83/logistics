@@ -313,6 +313,23 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("off the spots, a branch hanging over a plot is not felled from it; on a spot it is")
+    void branchOverhangFelledOnlyFromItsTrunk() {
+        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        TestInputs inputs = humusAnd(new ItemStack(Items.OAK_SAPLING, 4));
+        for (int lane = 0; lane < 2; lane++) {
+            BlockPos plot = cell(lane, 1);
+            world.tree(plot.above(2), NATURAL_LEAVES);
+        }
+
+        assertThat(decide(world, 0, 1, inputs)).as("lane 0, off the spots").isNotInstanceOf(PlotAction.Harvest.class);
+        assertThat(decide(world, 1, 1, inputs)).as("lane 1, off the spots").isNotInstanceOf(PlotAction.Harvest.class);
+
+        world.tree(cell(1, 2).above(2), NATURAL_LEAVES);
+        assertThat(decide(world, 1, 2, inputs)).as("a spot").isInstanceOf(PlotAction.Harvest.class);
+    }
+
+    @Test
     @DisplayName("logs under player-placed leaves are a build, not a tree: never felled")
     void playerBuildIsNeverFelled() {
         TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());

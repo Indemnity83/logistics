@@ -9,6 +9,7 @@ import com.logistics.forestry.farm.PlotAction;
 import com.logistics.forestry.logic.FellPlan;
 import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeFeller;
+import com.logistics.forestry.logic.TreeView;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>Saplings that only grow as a 2×2 group ({@code logistics:forestry/requires_2x2}, e.g. dark
  * oak) are not germlings here; a 2×2 tree that grows in the ring anyway is felled like any other.
  *
- * <p>Each plot gets, in order: its tree felled; its soil replaced with Humus unless it is Humus
+ * <p>Each plot gets, in order: its tree felled, off the spots only one standing on the plot itself; its soil replaced with Humus unless it is Humus
  * already; on a spot, a sapling planted. Humus is the only soil the Arboretum lays, so without it
  * unprepared plots report no soil and stay unplanted. A felled tree leaves sand where its Humus
  * was, which the next pass digs out and relays.
@@ -157,7 +158,9 @@ public final class ArboretumLogic implements FarmLogic {
     private PlotAction decide(
             FarmWorld world, BlockPos plot, boolean spot, TreeFeller.Limits limits, FarmInputs inputs) {
         FellPlan tree = world.fellPlan(plot, limits);
-        if (tree.isFound()) {
+        // Off the spots only a tree standing on the plot is felled: a plan seeded at a branch hanging
+        // over it would miss the trunk below and strand it without a canopy.
+        if (tree.isFound() && (spot || world.treeView().kind(plot) == TreeView.Kind.WOOD)) {
             return new PlotAction.Harvest(tree.blocks());
         }
         if (!isOpen(world.state(plot))) {
