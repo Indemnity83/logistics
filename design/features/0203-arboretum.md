@@ -18,7 +18,9 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 - **Planting pattern:** one sapling per spot, and any two spots at least 2 apart in Chebyshev distance, so there is always a block between trunks, diagonals included. Spots are chosen greedily from lane 1 outward, walking each lane in step order; a plot becomes a spot iff it keeps that spacing from every spot already chosen, measured on real positions, so the ring's corners are handled too. That works out as every other step of every odd lane: **20 trees at Basic**, 48, 84 and 128 at the higher tiers.
 - **Lane 0 stays bare:** the lane beside the courtyard is never planted at any tier. It still gets Humus, and its column is still cleared and felled.
 - **Upgrades move no tree:** a lane's spots depend only on the lanes inside it, and a higher tier only adds outer lanes, so each tier's spots include every spot of the tier below.
-- **Canopy:** an oak's canopy reaches 2 blocks from its trunk, so at Basic it overhangs the outside of the farm by 1–2 blocks, and the lane-1 trees' lowest leaves reach the courtyard's outermost row, which the farm never touches. Canopies of neighbouring trees overlap; felling one leaves every leaf that touches another tree's wood (by the leaves' own distance), so its neighbour keeps a canopy and is still felled as a tree. A fancy oak's branches can still reach across to a neighbour; the two are then felled as one.
+- **Canopy:** an oak's canopy reaches 2 blocks from its trunk, so at Basic it overhangs the outside of the farm by 1–2 blocks, and the lane-1 trees' lowest leaves reach the courtyard's outermost row. Felling a tree takes the leaves whose nearest log is that tree's, as vanilla judges a leaf's distance (face steps through leaves to any log), ties going with the tree felled first; a leaf nearer another log is left to it and never crawled through. So of two trees whose canopies overlap, each loses only its own leaves and the other is still felled as a tree, and a natural tree beside the ring keeps every leaf nearest its own trunk. The distances are worked out from the logs found while planning, not read from the leaves' `distance`, which vanilla updates only ticks after a nearby block changes.
+- **Courtyard exception:** the farm breaks a felled tree's own natural leaves that hang into the courtyard, so they never decay into it. Nothing else there is ever touched: no wood, no player-placed leaves, no other block, no placement.
+- **Trees off the spots:** from a plot it does not plant, the farm fells only a tree standing on that plot. A plan seeded at a branch hanging over a plot would miss the trunk below and leave it bare.
 - **Soil:** **Humus only.** Anything else in the soil layer (the farm's own Y), dirt and grass included, is replaced with Humus. Without Humus it neither replaces soil nor plants.
 - **Humus → sand:** a grown tree turns the Humus under it to sand, and a felling turns every trunk cell's Humus to sand (all four for a 2×2 tree). The next pass digs the sand into the output and lays fresh Humus. The output never voids: when full, the farm stalls with *Output full*.
 - **Harvest:** whole trees — logs, leaves (→ saplings / sticks / apples), mangrove roots.
@@ -36,7 +38,7 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 - **`forestry/logic/TreeFeller`** — pure code over a tiny `TreeView` (`state`, `isLoaded`), unit-tested with a HashMap:
   1. **Seed:** the plot, or the first wood within 4 above it.
   2. **Wood:** `#logs` plus `mangrove_roots` through the 26 surrounding blocks, excluding `muddy_mangrove_roots`.
-  3. **Canopy:** only from wood or other canopy, through the 6 face neighbours, at most 6 steps. Covers non-`PERSISTENT` `#leaves`, `#wart_blocks`, shroomlight, vines, cocoa and hanging propagules. Never steps from canopy back to wood, and leaves a leaf touching other wood (distance 1, reached in more than one step) to that wood.
+  3. **Canopy:** only from wood or other canopy, through the 6 face neighbours, at most 6 steps. Covers non-`PERSISTENT` `#leaves`, `#wart_blocks`, shroomlight, vines, cocoa and hanging propagules. Never steps from canopy back to wood. The canopy is explored twice as far, any other wood met is noted, and each canopy block goes to its nearest wood; only this tree's are taken. In the keep-out columns (the courtyard) only natural leaves may be taken.
   4. **Never touch:** the `logistics:forestry/never_fell` tag (beehives, creaking heart) and any block entity.
   5. **Bounds:** plot ±8 horizontally, y−3 to y+32.
   6. **Cap:** 1024 blocks. If the cap is hit or there are no natural leaves, it's a player build: skip it.
@@ -51,6 +53,7 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 ## Open questions
 
 - K (blocks broken per tick) and the canopy step limit — tune against large jungle / dark oak trees.
+- **Fancy oaks reaching into the courtyard:** about one oak in ten grows fancy, and its branches can reach over lane 0 into the courtyard. The farm fells the rest of the tree but never wood in the courtyard, so the branch logs stay there with the leaves nearest them, and those leaves can later decay into litter. In the Basic GameTest this happened in one of three cycles (10 logs, about 44 leaves).
 
 ## Done when
 
