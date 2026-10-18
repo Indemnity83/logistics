@@ -33,13 +33,13 @@ public final class LevelTreeView implements TreeView {
     }
 
     @Override
-    public int canopyDistance(BlockPos pos) {
-        return level.isLoaded(pos) ? canopyDistance(level.getBlockState(pos)) : Integer.MAX_VALUE;
+    public boolean isLeaves(BlockPos pos) {
+        return level.isLoaded(pos) && isNaturalLeaves(level.getBlockState(pos));
     }
 
-    /** A leaf's distance to the nearest log; {@link Integer#MAX_VALUE} for canopy that has none. */
-    public static int canopyDistance(BlockState state) {
-        return state.hasProperty(LeavesBlock.DISTANCE) ? state.getValue(LeavesBlock.DISTANCE) : Integer.MAX_VALUE;
+    /** Whether {@code state} is natural leaves: leaves no player placed. */
+    public static boolean isNaturalLeaves(BlockState state) {
+        return state.getBlock() instanceof LeavesBlock && !state.getValue(LeavesBlock.PERSISTENT);
     }
 
     public static Kind classify(BlockState state) {

@@ -52,8 +52,8 @@ public interface FarmWorld {
     }
 
     /**
-     * This world classified for {@link com.logistics.forestry.logic.TreeFeller}. A canopy distance is
-     * taken from the state just read for its kind, so it costs no second read.
+     * This world classified for {@link com.logistics.forestry.logic.TreeFeller}. Whether canopy is
+     * leaves is taken from the state just read for its kind, so it costs no second read.
      */
     default TreeView treeView() {
         return new TreeView() {
@@ -71,11 +71,11 @@ public interface FarmWorld {
             }
 
             @Override
-            public int canopyDistance(BlockPos pos) {
+            public boolean isLeaves(BlockPos pos) {
                 if (pos.equals(lastPos)) {
-                    return LevelTreeView.canopyDistance(lastState);
+                    return LevelTreeView.isNaturalLeaves(lastState);
                 }
-                return isLoaded(pos) ? LevelTreeView.canopyDistance(state(pos)) : Integer.MAX_VALUE;
+                return isLoaded(pos) && LevelTreeView.isNaturalLeaves(state(pos));
             }
         };
     }

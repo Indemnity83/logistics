@@ -17,6 +17,7 @@ import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.logic.FellPlan;
 import com.logistics.forestry.logic.FellPlanner;
+import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
 import java.util.ArrayDeque;
@@ -151,8 +152,8 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         }
 
         @Override
-        public int canopyDistance(BlockPos pos) {
-            return trees.canopyDistance(pos);
+        public boolean isLeaves(BlockPos pos) {
+            return trees.isLeaves(pos);
         }
     };
 
@@ -1208,7 +1209,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             dirty = true;
             return null;
         }
-        if (!world.canModify(target.pos())) {
+        // Natural leaves go through their own narrow path, the only one into the courtyard.
+        boolean leaves = LevelTreeView.isNaturalLeaves(state);
+        if (leaves ? !world.canBreakLeaves(target.pos()) : !world.canModify(target.pos())) {
             harvest.poll();
             return FarmStatus.BLOCKED;
         }
@@ -1216,7 +1219,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (energy.amount() < cost) {
             return noPower(cost);
         }
-        List<ItemStack> drops = world.breakBlock(target.pos());
+        List<ItemStack> drops = leaves ? world.breakLeaves(target.pos()) : world.breakBlock(target.pos());
         harvest.poll();
         dirty = true;
         if (drops == null) {

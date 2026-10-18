@@ -38,6 +38,12 @@ public final class FellPlanner {
 
     private static final int[][] ALL_OFFSETS = allOffsets();
 
+    /**
+     * How far from this tree's wood the canopy is explored: far enough to meet any other wood nearer
+     * to a leaf within {@link TreeFeller#CANOPY_REACH}.
+     */
+    static final int EXPLORE_REACH = 2 * TreeFeller.CANOPY_REACH - 2;
+
     private final TreeView view;
     private final BlockPos plot;
     private final TreeFeller.Limits limits;
@@ -46,7 +52,11 @@ public final class FellPlanner {
     private final Set<BlockPos> wood = new HashSet<>();
     private final Set<BlockPos> canopy = new HashSet<>();
     private final Map<BlockPos, Integer> steps = new HashMap<>();
-    private final Map<BlockPos, Integer> canopyDistances = new HashMap<>();
+    // Canopy explored with its steps from this tree's wood, other wood beside it, and which of the
+    // canopy read is leaves.
+    private final Map<BlockPos, Integer> explored = new HashMap<>();
+    private final Set<BlockPos> otherWood = new HashSet<>();
+    private final Set<BlockPos> leaves = new HashSet<>();
     private final ArrayDeque<BlockPos> queue = new ArrayDeque<>();
 
     private Phase phase = Phase.SEED;
@@ -139,8 +149,8 @@ public final class FellPlanner {
         reads++;
         Kind kind = view.kind(pos);
         kinds.put(pos.immutable(), kind);
-        if (kind == Kind.CANOPY) {
-            canopyDistances.put(pos.immutable(), view.canopyDistance(pos));
+        if (kind == Kind.CANOPY && view.isLeaves(pos)) {
+            leaves.add(pos.immutable());
         }
         return kind;
     }
@@ -207,19 +217,21 @@ public final class FellPlanner {
         }
     }
 
-    /** Fills the canopy breadth-first from all wood at once; false when the budget ran out first. */
+    /**
+     * Explores the canopy breadth-first from all of this tree's wood, through face neighbours, far
+     * enough to find any other wood nearer to a leaf within reach; false when the budget ran out
+     * first. Then keeps the canopy whose nearest wood is this tree's.
+     */
     private boolean fillCanopy() {
         while (true) {
             if (current == null) {
                 current = queue.poll();
                 offset = 0;
                 if (current == null) {
-                    finish(canopy.isEmpty() && requireCanopy
-                            ? FellPlan.skip(FellPlan.Reason.NO_CANOPY)
-                            : FellPlan.found(ordered()));
+                    claimCanopy();
                     return true;
                 }
-                if (steps.getOrDefault(current, 0) >= TreeFeller.CANOPY_REACH) {
+                if (steps.getOrDefault(current, 0) > EXPLORE_REACH) {
                     current = null;
                     continue;
                 }
@@ -228,7 +240,8 @@ public final class FellPlanner {
             while (offset < FACE_OFFSETS.length) {
                 int[] o = FACE_OFFSETS[offset];
                 BlockPos next = current.offset(o[0], o[1], o[2]);
-                if (wood.contains(next) || canopy.contains(next) || !inBounds(next, limits.canopy())) {
+                if (wood.contains(next) || explored.containsKey(next) || otherWood.contains(next)
+                        || !inCanopyBounds(next)) {
                     offset++;
                     continue;
                 }
@@ -237,28 +250,73 @@ public final class FellPlanner {
                     return false;
                 }
                 offset++;
-                if (kind != Kind.CANOPY || touchesOtherWood(next, step + 1)) {
+                if (kind == Kind.WOOD) {
+                    otherWood.add(next.immutable());
                     continue;
                 }
-                canopy.add(next);
-                if (wood.size() + canopy.size() > limits.cap()) {
-                    finish(FellPlan.skip(FellPlan.Reason.CAP_EXCEEDED));
-                    return true;
+                if (kind != Kind.CANOPY || (limits.keepOut().contains(next) && !leaves.contains(next))) {
+                    continue;
                 }
-                steps.put(next, step + 1);
-                queue.add(next);
+                explored.put(next.immutable(), step + 1);
+                if (explored.size() <= limits.cap()) {
+                    steps.put(next, step + 1);
+                    queue.add(next);
+                }
             }
             current = null;
         }
     }
 
     /**
-     * Whether canopy reached {@code steps} from this tree's wood touches other wood. The fill is
-     * breadth first, so canopy beside this tree's wood is reached in one step; canopy the world
-     * records as one step from wood but reached later touches another tree's, which keeps it.
+     * Gives each explored canopy block to its nearest wood, in face steps through canopy, this
+     * tree's winning ties, and takes this tree's within {@link TreeFeller#CANOPY_REACH}. Reads nothing.
      */
-    private boolean touchesOtherWood(BlockPos pos, int steps) {
-        return steps > 1 && canopyDistances.getOrDefault(pos, Integer.MAX_VALUE) == 1;
+    private void claimCanopy() {
+        Map<BlockPos, Integer> distance = new HashMap<>();
+        Set<BlockPos> own = new HashSet<>();
+        ArrayDeque<BlockPos> frontier = new ArrayDeque<>();
+        for (BlockPos log : wood) {
+            distance.put(log, 0);
+            own.add(log);
+            frontier.add(log);
+        }
+        for (BlockPos log : otherWood) {
+            distance.put(log, 0);
+            frontier.add(log);
+        }
+        while (!frontier.isEmpty()) {
+            BlockPos pos = frontier.poll();
+            int next = distance.get(pos) + 1;
+            boolean ours = own.contains(pos);
+            for (int[] o : FACE_OFFSETS) {
+                BlockPos beside = pos.offset(o[0], o[1], o[2]);
+                if (!explored.containsKey(beside)) {
+                    continue;
+                }
+                Integer known = distance.get(beside);
+                if (known == null) {
+                    distance.put(beside, next);
+                    if (ours) {
+                        own.add(beside);
+                    }
+                    frontier.add(beside);
+                } else if (ours && known == next) {
+                    own.add(beside);
+                }
+            }
+        }
+        for (BlockPos pos : explored.keySet()) {
+            if (own.contains(pos) && distance.get(pos) <= TreeFeller.CANOPY_REACH) {
+                canopy.add(pos);
+            }
+        }
+        if (wood.size() + canopy.size() > limits.cap()) {
+            finish(FellPlan.skip(FellPlan.Reason.CAP_EXCEEDED));
+        } else if (canopy.isEmpty() && requireCanopy) {
+            finish(FellPlan.skip(FellPlan.Reason.NO_CANOPY));
+        } else {
+            finish(FellPlan.found(ordered()));
+        }
     }
 
     private List<BlockPos> ordered() {
@@ -278,15 +336,25 @@ public final class FellPlanner {
         current = null;
         queue.clear();
         steps.clear();
-        canopyDistances.clear();
+        explored.clear();
+        otherWood.clear();
+        leaves.clear();
         kinds.clear();
         wood.clear();
         canopy.clear();
     }
 
     private boolean inBounds(BlockPos pos, Columns columns) {
+        return !limits.keepOut().contains(pos) && inCanopyBounds(pos, columns);
+    }
+
+    /** Canopy may lie in the keep-out columns; {@link #isOwn} decides whether it is taken. */
+    private boolean inCanopyBounds(BlockPos pos) {
+        return inCanopyBounds(pos, limits.canopy());
+    }
+
+    private boolean inCanopyBounds(BlockPos pos, Columns columns) {
         return columns.contains(pos)
-                && !limits.keepOut().contains(pos)
                 && pos.getY() >= seed.getY() - limits.below()
                 && pos.getY() <= seed.getY() + limits.above();
     }

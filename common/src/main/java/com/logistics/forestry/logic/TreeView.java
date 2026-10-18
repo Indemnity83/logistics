@@ -9,12 +9,11 @@ public interface TreeView {
     Kind kind(BlockPos pos);
 
     /**
-     * Face steps from the canopy at {@code pos} to the nearest wood as the world records it, e.g. a
-     * leaf's distance, or {@link Integer#MAX_VALUE} when it records none. Only asked right after
-     * {@link #kind} answered {@link Kind#CANOPY} for {@code pos}.
+     * Whether the canopy at {@code pos} is natural leaves. Only asked right after {@link #kind}
+     * answered {@link Kind#CANOPY} for {@code pos}.
      */
-    default int canopyDistance(BlockPos pos) {
-        return Integer.MAX_VALUE;
+    default boolean isLeaves(BlockPos pos) {
+        return false;
     }
 
     enum Kind {
