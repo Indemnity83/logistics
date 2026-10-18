@@ -4,13 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
 import com.logistics.LogisticsForestry;
+import com.logistics.core.machine.area.PlotLayout;
 import com.logistics.core.machine.area.RingArea;
+import com.logistics.core.machine.tier.MachineTier;
+import com.logistics.forestry.farm.FarmGeometry;
 import com.logistics.forestry.farm.FarmInputs;
 import com.logistics.forestry.farm.FarmWorld;
+import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.PlotAction;
 import com.logistics.forestry.logic.TreeView;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -98,118 +103,127 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
 
     // ==================== Pattern ====================
 
-    static Stream<Arguments> rings() {
+    /** Each tier with its spot count. */
+    static Stream<Arguments> tiers() {
         return Stream.of(
-                Arguments.of(new RingArea(BlockPos.ZERO, 7, 11), 12),
-                Arguments.of(new RingArea(BlockPos.ZERO, 9, 13), 12),
-                Arguments.of(new RingArea(BlockPos.ZERO, 3, 7), 4),
-                Arguments.of(new RingArea(BlockPos.ZERO, 1, 5), 4));
+                Arguments.of(MachineTier.BASIC, 20),
+                Arguments.of(MachineTier.INDUSTRIAL, 48),
+                Arguments.of(MachineTier.PRECISION, 84),
+                Arguments.of(MachineTier.INFERNAL, 128));
     }
 
-    private static Set<BlockPos> singles(RingArea ring) {
-        Set<BlockPos> singles = new HashSet<>();
+    /** A farm away from the origin, so nothing depends on where it stands. */
+    private static final BlockPos FARM = new BlockPos(-123, 64, 457);
+
+    private static RingArea tierRing(MachineTier tier) {
+        return FarmGeometry.ring(FARM.above(), FarmTierProfile.defaults(tier).outerSize());
+    }
+
+    private Set<BlockPos> spots(PlotLayout region) {
+        Set<BlockPos> spots = new HashSet<>();
+        BitSet indices = logic().spots(region);
+        for (int i = indices.nextSetBit(0); i >= 0; i = indices.nextSetBit(i + 1)) {
+            BlockPos plot = region.plot(region.lane(i), region.step(i));
+            assertThat(spots.add(plot)).as("spot %s listed once", plot).isTrue();
+        }
+        return spots;
+    }
+
+    private static int chebyshev(BlockPos a, BlockPos b) {
+        return Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getZ() - b.getZ()));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("tiers")
+    @DisplayName("every two spots stand at least two apart, diagonals and ring corners included")
+    void spotsKeepSpacing(MachineTier tier, int count) {
+        List<BlockPos> spots = new ArrayList<>(spots(tierRing(tier)));
+        for (int a = 0; a < spots.size(); a++) {
+            for (int b = a + 1; b < spots.size(); b++) {
+                assertThat(chebyshev(spots.get(a), spots.get(b)))
+                        .as("%s and %s", spots.get(a), spots.get(b))
+                        .isGreaterThanOrEqualTo(ArboretumLogic.SPOT_SPACING);
+            }
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("tiers")
+    @DisplayName("no spot is in lane 0 or the courtyard")
+    void spotsSkipLaneZeroAndCourtyard(MachineTier tier, int count) {
+        RingArea ring = tierRing(tier);
+        for (BlockPos spot : spots(ring)) {
+            assertThat(ring.lane(ring.indexOf(spot))).as("lane of %s", spot).isGreaterThan(0);
+            assertThat(ring.keepOut().contains(spot)).as("%s in the courtyard", spot).isFalse();
+            assertThat(chebyshev(spot, ring.origin()))
+                    .as("%s beside the courtyard", spot)
+                    .isGreaterThan(FarmGeometry.COURTYARD / 2 + 1);
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("tiers")
+    @DisplayName("each tier has its spot count, and no plot past lane 0 has room for another")
+    void spotsFillTheRing(MachineTier tier, int count) {
+        RingArea ring = tierRing(tier);
+        Set<BlockPos> spots = spots(ring);
+
+        assertThat(spots).hasSize(count);
         for (int i = 0; i < ring.plotCount(); i++) {
-            if (ArboretumLogic.isSingleSpot(ring.lane(i), ring.step(i))) {
-                singles.add(ring.plot(i));
-            }
-        }
-        return singles;
-    }
-
-    private static List<List<BlockPos>> groups(RingArea ring) {
-        List<List<BlockPos>> groups = new ArrayList<>();
-        for (int i = 0; i < ring.plotCount(); i++) {
-            List<BlockPos> group = ArboretumLogic.group(ring, ring.lane(i), ring.step(i));
-            if (group != null) {
-                assertThat(group.get(0)).as("a group's anchor comes first").isEqualTo(ring.plot(i));
-                groups.add(group);
-            }
-        }
-        return groups;
-    }
-
-    private static boolean touches(BlockPos a, BlockPos b) {
-        return a.getY() == b.getY() && Math.abs(a.getX() - b.getX()) + Math.abs(a.getZ() - b.getZ()) == 1;
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("rings")
-    @DisplayName("no two single-sapling spots are orthogonally adjacent")
-    void singlesNeverTouch(RingArea ring, int groupCount) {
-        Set<BlockPos> singles = singles(ring);
-        for (BlockPos single : singles) {
-            for (Direction side : Direction.Plane.HORIZONTAL) {
-                assertThat(singles).as("beside %s", single).doesNotContain(single.relative(side));
-            }
-        }
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("rings")
-    @DisplayName("at least a third of the plots are single-sapling spots")
-    void singlesCoverAThird(RingArea ring, int groupCount) {
-        assertThat(singles(ring).size() * 3).isGreaterThanOrEqualTo(ring.plotCount());
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("rings")
-    @DisplayName("every group is an axis-aligned 2×2 square inside the ring, and every corner holds one")
-    void groupsAreAlignedSquares(RingArea ring, int groupCount) {
-        List<List<BlockPos>> groups = groups(ring);
-        assertThat(groups).hasSize(groupCount);
-        for (List<BlockPos> group : groups) {
-            assertThat(new HashSet<>(group)).as("%s", group).hasSize(4);
-            assertThat(group).as("%s", group).allMatch(ring::contains);
-            int minX = group.stream().mapToInt(BlockPos::getX).min().orElseThrow();
-            int minZ = group.stream().mapToInt(BlockPos::getZ).min().orElseThrow();
-            assertThat(new HashSet<>(group))
-                    .as("%s", group)
-                    .containsExactlyInAnyOrder(
-                            new BlockPos(minX, 0, minZ),
-                            new BlockPos(minX + 1, 0, minZ),
-                            new BlockPos(minX, 0, minZ + 1),
-                            new BlockPos(minX + 1, 0, minZ + 1));
-        }
-        int far = ring.outer() / 2;
-        for (BlockPos corner : List.of(
-                new BlockPos(-far, 0, -far), new BlockPos(far, 0, -far), new BlockPos(far, 0, far), new BlockPos(-far, 0, far))) {
-            assertThat(groups).as("corner %s", corner).anyMatch(group -> group.contains(corner));
-        }
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("rings")
-    @DisplayName("groups never overlap and never touch each other")
-    void groupsKeepApart(RingArea ring, int groupCount) {
-        List<List<BlockPos>> groups = groups(ring);
-        for (int a = 0; a < groups.size(); a++) {
-            for (int b = a + 1; b < groups.size(); b++) {
-                for (BlockPos cellA : groups.get(a)) {
-                    for (BlockPos cellB : groups.get(b)) {
-                        assertThat(cellA).as("%s and %s", groups.get(a), groups.get(b)).isNotEqualTo(cellB);
-                        assertThat(touches(cellA, cellB))
-                                .as("%s and %s", groups.get(a), groups.get(b))
-                                .isFalse();
-                    }
-                }
+            BlockPos plot = ring.plot(i);
+            if (ring.lane(i) > 0 && !spots.contains(plot)) {
+                assertThat(spots).as("a spot beside %s", plot).anyMatch(spot -> chebyshev(spot, plot) < 2);
             }
         }
     }
 
     @Test
-    @DisplayName("a ring one lane wide has no room for a group, at the corners or anywhere else")
-    void narrowRingHasNoGroups() {
-        RingArea narrow = new RingArea(BlockPos.ZERO, 3, 5);
+    @DisplayName("each tier's spots include every spot of the tier below: an upgrade moves no tree")
+    void spotsAreLaneStable() {
+        List<MachineTier> tiers =
+                List.of(MachineTier.BASIC, MachineTier.INDUSTRIAL, MachineTier.PRECISION, MachineTier.INFERNAL);
+        for (int i = 1; i < tiers.size(); i++) {
+            assertThat(spots(tierRing(tiers.get(i))))
+                    .as("%s over %s", tiers.get(i), tiers.get(i - 1))
+                    .containsAll(spots(tierRing(tiers.get(i - 1))));
+        }
+    }
 
-        assertThat(groups(narrow)).isEmpty();
-        assertThat(singles(narrow).size() * 3).isGreaterThanOrEqualTo(narrow.plotCount());
+    @Test
+    @DisplayName("Basic plants lane 1 on every other step")
+    void basicIsEveryOtherStepOfLaneOne() {
+        RingArea ring = tierRing(MachineTier.BASIC);
+        Set<BlockPos> expected = new HashSet<>();
+        for (int step = 0; step < ring.laneLength(1); step += 2) {
+            expected.add(ring.plot(1, step));
+        }
+
+        assertThat(spots(ring)).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("spots are the same wherever the farm stands")
+    void spotsFollowTheFarm() {
+        RingArea here = FarmGeometry.ring(BlockPos.ZERO, 23);
+        RingArea there = FarmGeometry.ring(FARM.above(), 23);
+
+        assertThat(logic().spots(here)).isEqualTo(logic().spots(there));
     }
 
     // ==================== Planting ====================
 
+    /** The spots of the test ring: lane 1, every even step. */
+    private static Set<BlockPos> testRingSpots() {
+        Set<BlockPos> spots = new HashSet<>();
+        for (int step = 0; step < RING.laneLength(1); step += 2) {
+            spots.add(cell(1, step));
+        }
+        return spots;
+    }
+
     @Test
-    @DisplayName("single saplings go only on the single-sapling spots")
-    void singlesOnTheirSpots() {
+    @DisplayName("saplings go only on the spots, one cell each")
+    void saplingsOnTheirSpots() {
         TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         TestInputs inputs = humusAnd(new ItemStack(Items.OAK_SAPLING, 64));
 
@@ -224,86 +238,48 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
                 assertThat(action).isEqualTo(PlotAction.NONE);
             }
         }
-        assertThat(planted).isEqualTo(singles(RING));
+        assertThat(planted).isEqualTo(testRingSpots());
     }
 
     @Test
-    @DisplayName("2×2 saplings go only in whole groups, at their anchors, never singly")
-    void groupsAtAnchors() {
-        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
-        TestInputs inputs = humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 64));
+    @DisplayName("2×2 saplings are not germlings, and nothing plants them or any group")
+    void no2x2Planting() {
+        assertThat(logic().isGermling(new ItemStack(Items.DARK_OAK_SAPLING))).isFalse();
+        assertThat(logic().isGermling(new ItemStack(Items.OAK_SAPLING))).isTrue();
 
-        List<List<BlockPos>> planted = new ArrayList<>();
-        for (int i = 0; i < RING.plotCount(); i++) {
-            PlotAction action = logic().decide(world, RING, RING.plot(i), inputs);
-            if (action instanceof PlotAction.Plant plant) {
-                assertThat(plant.germling().is(Items.DARK_OAK_SAPLING)).isTrue();
-                planted.add(plant.positions());
-            } else {
-                assertThat(action).isEqualTo(PlotAction.NONE);
+        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        for (TestInputs inputs : List.of(
+                humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 64)),
+                humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 64), new ItemStack(Items.OAK_SAPLING, 64)))) {
+            for (int i = 0; i < RING.plotCount(); i++) {
+                PlotAction action = logic().decide(world, RING, RING.plot(i), inputs);
+                if (action instanceof PlotAction.Plant plant) {
+                    assertThat(plant.positions()).containsExactly(RING.plot(i));
+                    assertThat(plant.germling().is(Items.DARK_OAK_SAPLING)).isFalse();
+                }
             }
         }
-        assertThat(planted).containsExactlyInAnyOrderElementsOf(groups(RING));
+        assertThat(decide(world, 1, 0, humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 64))))
+                .isInstanceOfSatisfying(
+                        PlotAction.Plant.class, plant -> assertThat(plant.germling().isEmpty()).isTrue());
     }
 
     @Test
-    @DisplayName("an anchor prefers a 2×2 group; other single spots take the single sapling")
-    void prefersGroupAtAnchor() {
-        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
-        TestInputs inputs =
-                humusAnd(new ItemStack(Items.OAK_SAPLING, 64), new ItemStack(Items.DARK_OAK_SAPLING, 4));
-
-        assertThat(decide(world, 0, 0, inputs)).isInstanceOfSatisfying(PlotAction.Plant.class, plant -> {
-            assertThat(plant.positions()).hasSize(4);
-            assertThat(plant.germling().is(Items.DARK_OAK_SAPLING)).isTrue();
-        });
-        assertThat(decide(world, 0, 2, inputs)).isInstanceOfSatisfying(PlotAction.Plant.class, plant -> {
-            assertThat(plant.positions()).containsExactly(cell(0, 2));
-            assertThat(plant.germling().is(Items.OAK_SAPLING)).isTrue();
-        });
-    }
-
-    @Test
-    @DisplayName("a blocked group falls back to a single sapling at an anchor that is also a single spot")
-    void blockedGroupFallsBackToSingle() {
-        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
-        world.set(cell(1, 0), Blocks.STONE.defaultBlockState());
-        TestInputs inputs = humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 4), new ItemStack(Items.OAK_SAPLING, 4));
-
-        assertThat(decide(world, 0, 0, inputs)).isInstanceOfSatisfying(PlotAction.Plant.class, plant -> {
-            assertThat(plant.positions()).containsExactly(cell(0, 0));
-            assertThat(plant.germling().is(Items.OAK_SAPLING)).isTrue();
-        });
-    }
-
-    @Test
-    @DisplayName("fewer than four 2×2 saplings ask for the whole group, and never plant one alone")
-    void shortGroupAsksForAllFour() {
-        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
-        TestInputs inputs = humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 3));
-
-        assertThat(decide(world, 0, 0, inputs))
-                .isInstanceOfSatisfying(PlotAction.Plant.class, plant -> assertThat(plant.positions()).hasSize(4));
-        assertThat(decide(world, 0, 2, inputs)).isEqualTo(PlotAction.NONE);
-        assertThat(decide(world, 1, 2, inputs)).isEqualTo(PlotAction.NONE);
-    }
-
-    @Test
-    @DisplayName("with no germlings at all, single spots ask for one and other plots stay quiet")
+    @DisplayName("with no germlings at all, spots ask for one and other plots stay quiet")
     void noGermlings() {
         TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         TestInputs inputs = humusAnd();
 
-        assertThat(decide(world, 0, 2, inputs)).isInstanceOfSatisfying(PlotAction.Plant.class, plant -> {
-            assertThat(plant.positions()).containsExactly(cell(0, 2));
+        assertThat(decide(world, 1, 2, inputs)).isInstanceOfSatisfying(PlotAction.Plant.class, plant -> {
+            assertThat(plant.positions()).containsExactly(cell(1, 2));
             assertThat(plant.germling().isEmpty()).isTrue();
         });
-        assertThat(decide(world, 0, 1, inputs)).isEqualTo(PlotAction.NONE);
-        assertThat(decide(world, 1, 3, inputs)).isEqualTo(PlotAction.NONE);
+        assertThat(decide(world, 1, 1, inputs)).isEqualTo(PlotAction.NONE);
+        assertThat(decide(world, 0, 2, inputs)).isEqualTo(PlotAction.NONE);
     }
 
     @Test
-    @DisplayName("without its ring a plot stands alone: singles only")
+    @DisplayName("without its ring a plot stands alone: a spot")
     void withoutAreaPlotStandsAlone() {
         TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         BlockPos plot = cell(0, 1);
@@ -311,9 +287,13 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         PlotAction oak = logic().decide(world, plot, humusAnd(new ItemStack(Items.OAK_SAPLING, 4)));
         PlotAction darkOak = logic().decide(world, plot, humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 4)));
 
-        assertThat(oak).isInstanceOfSatisfying(
-                PlotAction.Plant.class, plant -> assertThat(plant.positions()).containsExactly(plot));
-        assertThat(darkOak).isEqualTo(PlotAction.NONE);
+        assertThat(oak).isInstanceOfSatisfying(PlotAction.Plant.class, plant -> {
+            assertThat(plant.positions()).containsExactly(plot);
+            assertThat(plant.germling().is(Items.OAK_SAPLING)).isTrue();
+        });
+        assertThat(darkOak)
+                .isInstanceOfSatisfying(
+                        PlotAction.Plant.class, plant -> assertThat(plant.germling().isEmpty()).isTrue());
     }
 
     // ==================== Priority ====================
@@ -345,7 +325,7 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     // ==================== Soil ====================
 
     @Test
-    @DisplayName("any open plot gets its soil replaced unless it is Humus, on the pattern or off it")
+    @DisplayName("any open plot gets its soil replaced unless it is Humus, on a spot or off it, lane 0 included")
     void replacesUnpreparedSoil() {
         for (BlockState ground : List.of(
                 Blocks.AIR.defaultBlockState(),
@@ -356,8 +336,11 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
             TestWorld world = TestWorld.floor(RING, ground);
             TestInputs inputs = humusAnd(new ItemStack(Items.OAK_SAPLING, 4));
 
-            assertThat(decide(world, 0, 2, inputs)).as("over %s", ground).isEqualTo(new PlotAction.PlaceSoil(cell(0, 2).below()));
-            assertThat(decide(world, 0, 1, inputs)).as("over %s", ground).isEqualTo(new PlotAction.PlaceSoil(cell(0, 1).below()));
+            for (BlockPos plot : List.of(cell(1, 2), cell(1, 1), cell(0, 2))) {
+                assertThat(logic().decide(world, RING, plot, inputs))
+                        .as("%s over %s", plot, ground)
+                        .isEqualTo(new PlotAction.PlaceSoil(plot.below()));
+            }
         }
     }
 
@@ -367,7 +350,7 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         TestInputs inputs = new TestInputs().germlings(new ItemStack(Items.OAK_SAPLING, 4));
 
-        assertThat(decide(world, 0, 2, inputs)).isInstanceOf(PlotAction.Plant.class);
+        assertThat(decide(world, 1, 2, inputs)).isInstanceOf(PlotAction.Plant.class);
     }
 
     @Test
@@ -376,28 +359,17 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
         TestWorld world = TestWorld.floor(RING, Blocks.DIRT.defaultBlockState());
         TestInputs inputs = new TestInputs().germlings(new ItemStack(Items.OAK_SAPLING, 4));
 
-        assertThat(decide(world, 0, 2, inputs)).isEqualTo(new PlotAction.PlaceSoil(cell(0, 2).below()));
-    }
-
-    @Test
-    @DisplayName("a 2×2 group lays soil under each of its cells before planting all four")
-    void groupLaysSoilUnderEveryCell() {
-        TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
-        BlockPos bare = cell(1, 1);
-        world.set(bare.below(), Blocks.DIRT.defaultBlockState());
-        TestInputs inputs = humusAnd(new ItemStack(Items.DARK_OAK_SAPLING, 4));
-
-        assertThat(decide(world, 0, 0, inputs)).isEqualTo(new PlotAction.PlaceSoil(bare.below()));
+        assertThat(decide(world, 1, 2, inputs)).isEqualTo(new PlotAction.PlaceSoil(cell(1, 2).below()));
     }
 
     @Test
     @DisplayName("sand left by a felled tree is replaced with Humus before planting")
     void sandIsReplacedWithHumus() {
         TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
-        world.set(cell(0, 2).below(), Blocks.SAND.defaultBlockState());
+        world.set(cell(1, 2).below(), Blocks.SAND.defaultBlockState());
         TestInputs inputs = humusAnd(new ItemStack(Items.OAK_SAPLING, 4));
 
-        assertThat(decide(world, 0, 2, inputs)).isEqualTo(new PlotAction.PlaceSoil(cell(0, 2).below()));
+        assertThat(decide(world, 1, 2, inputs)).isEqualTo(new PlotAction.PlaceSoil(cell(1, 2).below()));
     }
 
     @Test
@@ -413,26 +385,22 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     @DisplayName("soil is never dug out from under a planted sapling")
     void neverDigsUnderSapling() {
         TestWorld world = TestWorld.floor(RING, Blocks.DIRT.defaultBlockState());
-        world.set(cell(0, 2), Blocks.OAK_SAPLING.defaultBlockState());
+        world.set(cell(1, 2), Blocks.OAK_SAPLING.defaultBlockState());
         TestInputs inputs = humusAnd(new ItemStack(Items.OAK_SAPLING, 4));
 
-        assertThat(decide(world, 0, 2, inputs)).isEqualTo(PlotAction.NONE);
+        assertThat(decide(world, 1, 2, inputs)).isEqualTo(PlotAction.NONE);
     }
 
     // ==================== Growing ====================
 
     @Test
-    @DisplayName("a planted sapling or 2×2 group is left to grow on its own")
+    @DisplayName("a planted sapling is left to grow on its own")
     void plantedSaplingsAreLeftAlone() {
         TestWorld world = TestWorld.floor(RING, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
-        world.set(cell(0, 2), Blocks.BIRCH_SAPLING.defaultBlockState());
-        for (BlockPos cell : ArboretumLogic.group(RING, 0, 0)) {
-            world.set(cell, Blocks.DARK_OAK_SAPLING.defaultBlockState());
-        }
+        world.set(cell(1, 2), Blocks.BIRCH_SAPLING.defaultBlockState());
         TestInputs inputs = humusAnd(new ItemStack(Items.OAK_SAPLING, 4));
 
-        assertThat(decide(world, 0, 2, inputs)).isEqualTo(PlotAction.NONE);
-        assertThat(decide(world, 0, 0, inputs)).isEqualTo(PlotAction.NONE);
+        assertThat(decide(world, 1, 2, inputs)).isEqualTo(PlotAction.NONE);
     }
 
     @Test
