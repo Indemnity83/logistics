@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
@@ -168,6 +169,22 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
         assertThat(world.broken).isEmpty();
         assertThat(world.writeFlags).isEmpty();
         assertThat(guard.state(target)).isEqualTo(STONE);
+    }
+
+    @Test
+    @DisplayName("the guard's tree view gives a leaf's distance from the one read of its kind")
+    void guardTreeViewGivesCanopyDistance() {
+        FakeFarmWorld world = new FakeFarmWorld();
+        world.trees = FakeFarmWorld.OAK_TREES;
+        BlockPos leaf = new BlockPos(FarmGeometry.COURTYARD, 1, 0);
+        world.set(leaf, Blocks.OAK_LEAVES.defaultBlockState()
+                .setValue(LeavesBlock.PERSISTENT, false)
+                .setValue(LeavesBlock.DISTANCE, 3));
+        TreeView view = new CourtyardGuard(world, Columns.square(BlockPos.ZERO, FarmGeometry.COURTYARD)).treeView();
+
+        assertThat(view.kind(leaf)).isEqualTo(TreeView.Kind.CANOPY);
+        assertThat(view.canopyDistance(leaf)).isEqualTo(3);
+        assertThat(world.reads).containsExactly(leaf);
     }
 
     @Test

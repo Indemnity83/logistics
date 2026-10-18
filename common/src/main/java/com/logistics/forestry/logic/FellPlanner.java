@@ -46,6 +46,7 @@ public final class FellPlanner {
     private final Set<BlockPos> wood = new HashSet<>();
     private final Set<BlockPos> canopy = new HashSet<>();
     private final Map<BlockPos, Integer> steps = new HashMap<>();
+    private final Map<BlockPos, Integer> canopyDistances = new HashMap<>();
     private final ArrayDeque<BlockPos> queue = new ArrayDeque<>();
 
     private Phase phase = Phase.SEED;
@@ -138,6 +139,9 @@ public final class FellPlanner {
         reads++;
         Kind kind = view.kind(pos);
         kinds.put(pos.immutable(), kind);
+        if (kind == Kind.CANOPY) {
+            canopyDistances.put(pos.immutable(), view.canopyDistance(pos));
+        }
         return kind;
     }
 
@@ -233,7 +237,7 @@ public final class FellPlanner {
                     return false;
                 }
                 offset++;
-                if (kind != Kind.CANOPY) {
+                if (kind != Kind.CANOPY || touchesOtherWood(next, step + 1)) {
                     continue;
                 }
                 canopy.add(next);
@@ -246,6 +250,15 @@ public final class FellPlanner {
             }
             current = null;
         }
+    }
+
+    /**
+     * Whether canopy reached {@code steps} from this tree's wood touches other wood. The fill is
+     * breadth first, so canopy beside this tree's wood is reached in one step; canopy the world
+     * records as one step from wood but reached later touches another tree's, which keeps it.
+     */
+    private boolean touchesOtherWood(BlockPos pos, int steps) {
+        return steps > 1 && canopyDistances.getOrDefault(pos, Integer.MAX_VALUE) == 1;
     }
 
     private List<BlockPos> ordered() {
@@ -265,6 +278,7 @@ public final class FellPlanner {
         current = null;
         queue.clear();
         steps.clear();
+        canopyDistances.clear();
         kinds.clear();
         wood.clear();
         canopy.clear();

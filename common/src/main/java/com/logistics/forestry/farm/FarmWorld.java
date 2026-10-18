@@ -7,6 +7,7 @@ import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The read-only world a {@link FarmLogic} decides from. No read ever loads a chunk: an unloaded
@@ -50,9 +51,33 @@ public interface FarmWorld {
         return LevelTreeView.classify(state);
     }
 
-    /** This world classified for {@link com.logistics.forestry.logic.TreeFeller}. */
+    /**
+     * This world classified for {@link com.logistics.forestry.logic.TreeFeller}. A canopy distance is
+     * taken from the state just read for its kind, so it costs no second read.
+     */
     default TreeView treeView() {
-        return pos -> isLoaded(pos) ? treeKind(state(pos)) : TreeView.Kind.UNLOADED;
+        return new TreeView() {
+            @Nullable private BlockPos lastPos;
+            @Nullable private BlockState lastState;
+
+            @Override
+            public Kind kind(BlockPos pos) {
+                if (!isLoaded(pos)) {
+                    return Kind.UNLOADED;
+                }
+                lastState = state(pos);
+                lastPos = pos.immutable();
+                return treeKind(lastState);
+            }
+
+            @Override
+            public int canopyDistance(BlockPos pos) {
+                if (pos.equals(lastPos)) {
+                    return LevelTreeView.canopyDistance(lastState);
+                }
+                return isLoaded(pos) ? LevelTreeView.canopyDistance(state(pos)) : Integer.MAX_VALUE;
+            }
+        };
     }
 
     /**

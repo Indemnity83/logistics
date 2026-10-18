@@ -144,7 +144,17 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private final CountingWorld counted = new CountingWorld();
     // The current tick's guarded world as a tree view, which a planner reads through across ticks.
     private TreeView trees = pos -> TreeView.Kind.UNLOADED;
-    private final TreeView plannerView = pos -> trees.kind(pos);
+    private final TreeView plannerView = new TreeView() {
+        @Override
+        public Kind kind(BlockPos pos) {
+            return trees.kind(pos);
+        }
+
+        @Override
+        public int canopyDistance(BlockPos pos) {
+            return trees.canopyDistance(pos);
+        }
+    };
 
     @Nullable private PlotScanner scanner;
     private int scannerBase;

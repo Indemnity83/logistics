@@ -32,6 +32,16 @@ public final class LevelTreeView implements TreeView {
         return classify(level.getBlockState(pos));
     }
 
+    @Override
+    public int canopyDistance(BlockPos pos) {
+        return level.isLoaded(pos) ? canopyDistance(level.getBlockState(pos)) : Integer.MAX_VALUE;
+    }
+
+    /** A leaf's distance to the nearest log; {@link Integer#MAX_VALUE} for canopy that has none. */
+    public static int canopyDistance(BlockState state) {
+        return state.hasProperty(LeavesBlock.DISTANCE) ? state.getValue(LeavesBlock.DISTANCE) : Integer.MAX_VALUE;
+    }
+
     public static Kind classify(BlockState state) {
         if (state.hasBlockEntity() || state.is(NEVER_FELL)) {
             return Kind.NEVER_TOUCH;

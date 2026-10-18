@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.core.machine.area.Columns;
 import com.logistics.forestry.logic.TreeView.Kind;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import org.junit.jupiter.api.Test;
 
 class TreeFellerTest {
@@ -188,6 +191,37 @@ class TreeFellerTest {
                 .toList();
         assertThat(wood).containsExactlyInAnyOrderElementsOf(columnPositions(0, 0, 0, 4));
         assertThat(plan.blocks()).doesNotContain(fenceLow, fenceHigh);
+    }
+
+    @Test
+    void neighbouringTrees_eachKeepsTheCanopyTouchingItsOwnTrunk() {
+        FakeView view = smallOak(smallOak(new FakeView(), 0, 0), 2, 0);
+        view.recordCanopyDistances();
+        BlockPos between = new BlockPos(1, 3, 0);
+        BlockPos besideEast = new BlockPos(3, 3, 0);
+
+        FellPlan west = TreeFeller.plan(view, ORIGIN, LIMITS);
+
+        assertThat(west.isFound()).isTrue();
+        assertThat(west.blocks()).as("a leaf as near both trunks").contains(between);
+        assertThat(west.blocks()).as("a leaf touching only the east trunk").doesNotContain(besideEast);
+        assertThat(west.blocks()).doesNotContainAnyElementsOf(columnPositions(2, 0, 0, 4));
+
+        west.blocks().forEach(view.blocks::remove);
+        view.recordCanopyDistances();
+        FellPlan east = TreeFeller.plan(view, new BlockPos(2, 0, 0), LIMITS);
+
+        assertThat(east.isFound()).as("the east tree keeps a canopy: %s", east.reason()).isTrue();
+        assertThat(east.blocks()).containsAll(columnPositions(2, 0, 0, 4)).contains(besideEast);
+    }
+
+    @Test
+    void canopyWithoutRecordedDistance_isTakenAsBefore() {
+        FakeView view = smallOak(smallOak(new FakeView(), 0, 0), 2, 0);
+
+        FellPlan west = TreeFeller.plan(view, ORIGIN, LIMITS);
+
+        assertThat(west.blocks()).contains(new BlockPos(3, 3, 0));
     }
 
     // --- never touch, unloaded ---
@@ -510,8 +544,44 @@ class TreeFellerTest {
     /** A world of OTHER except for the positions set; records every position read. */
     private static final class FakeView implements TreeView {
         final Map<BlockPos, Kind> blocks = new LinkedHashMap<>();
+        final Map<BlockPos, Integer> distances = new HashMap<>();
         final Set<BlockPos> queried = new HashSet<>();
         Predicate<BlockPos> unloaded = pos -> false;
+
+        @Override
+        public int canopyDistance(BlockPos pos) {
+            return distances.getOrDefault(pos, Integer.MAX_VALUE);
+        }
+
+        /** Gives every canopy block its face-step distance to the nearest wood, as leaves track it, at most 7. */
+        void recordCanopyDistances() {
+            distances.clear();
+            ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+            blocks.forEach((pos, kind) -> {
+                if (kind == Kind.WOOD) {
+                    distances.put(pos, 0);
+                    queue.add(pos);
+                }
+            });
+            while (!queue.isEmpty()) {
+                BlockPos pos = queue.poll();
+                int next = distances.get(pos) + 1;
+                for (Direction side : Direction.values()) {
+                    BlockPos beside = pos.relative(side);
+                    if (next <= 7 && blocks.get(beside) == Kind.CANOPY && !distances.containsKey(beside)) {
+                        distances.put(beside, next);
+                        queue.add(beside);
+                    }
+                }
+            }
+            blocks.forEach((pos, kind) -> {
+                if (kind == Kind.WOOD) {
+                    distances.remove(pos);
+                } else if (kind == Kind.CANOPY) {
+                    distances.putIfAbsent(pos, 7);
+                }
+            });
+        }
 
         @Override
         public Kind kind(BlockPos pos) {

@@ -9,8 +9,11 @@ import net.minecraft.core.BlockPos;
  * <p>Wood is flood-filled from a seed log through all 26 neighbours, so diagonal trunks and
  * branches stay connected. Canopy is then filled from that wood through face neighbours only, up
  * to {@link #CANOPY_REACH} steps, and never steps from canopy into wood: touching leaves cannot
- * pull in a neighbouring trunk or a log building. Wood with no canopy at all is a player build
- * and is skipped, as is anything larger than {@link Limits#cap()}.
+ * pull in a neighbouring trunk or a log building. Canopy touching other wood, which the world
+ * records as one step from wood ({@link TreeView#canopyDistance}) but the fill reaches later, is
+ * left to that wood, so felling one of two trees whose canopies touch leaves the other a canopy and
+ * it is still felled as a tree. Wood with no canopy at all is a player build and is skipped, as is
+ * anything larger than {@link Limits#cap()}.
  *
  * <p>The result is ordered top-down, so breaking it in order never leaves a block unsupported.
  */
