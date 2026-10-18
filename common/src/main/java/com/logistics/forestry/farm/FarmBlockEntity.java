@@ -182,4 +182,9 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
     public void setClearanceHeightOverride(int height) {
         parts.farm().setClearanceHeightOverride(height);
     }
+
+    /** Test seam: works at {@code checksPerSecond} and {@code actionsPerSecond} for this farm only; 0 for both restores the tier's. */
+    public void setRateOverride(int checksPerSecond, int actionsPerSecond) {
+        parts.farm().setRateOverride(checksPerSecond, actionsPerSecond);
+    }
 }

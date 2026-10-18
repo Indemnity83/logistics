@@ -159,6 +159,8 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private int innerOverride;
     private int outerOverride;
     private int clearanceOverride;
+    private int checksOverride;
+    private int actionsOverride;
     @Nullable private Function<RingArea, FarmPlan> planOverride;
     // Only the harvest's plot persists; the blocks are re-planned from it after a reload.
     @Nullable private BlockPos harvestBase;
@@ -387,6 +389,20 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         clearanceOverride = Math.max(0, height);
     }
 
+    /**
+     * Test seam: inspects {@code checksPerSecond} plots and performs {@code actionsPerSecond}
+     * actions a second instead of the tier's; 0 or less for both restores them.
+     */
+    public void setRateOverride(int checksPerSecond, int actionsPerSecond) {
+        if (checksPerSecond <= 0 && actionsPerSecond <= 0) {
+            checksOverride = 0;
+            actionsOverride = 0;
+            return;
+        }
+        checksOverride = Math.max(1, checksPerSecond);
+        actionsOverride = Math.max(1, actionsPerSecond);
+    }
+
     /** Test seam: assigns the ring's plots to logics through {@code plans} instead of the block's one logic; null restores it. */
     void setPlanOverride(@Nullable Function<RingArea, FarmPlan> plans) {
         planOverride = plans;
@@ -453,6 +469,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         updateIrrigation(ctx, area, paused, s);
         if (!paused) {
             FarmTierProfile profile = s.profile(tier.get());
+            if (actionsOverride > 0) {
+                profile = profile.withRates(checksOverride, actionsOverride);
+            }
             budget.refill(profile.actionsPerSecond(), profile.checksPerSecond(), s.readsPerCheck());
             Tick tick = new Tick(world, s, area, plan);
             if (state == FarmState.ACTIVE) {
