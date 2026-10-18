@@ -1,25 +1,29 @@
 # Arboretum
 
-> **Status:** ✅ **Shipped** (#1409) — tree farm working a 13×13 ring around a free 9×9 · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
+> **Status:** ✅ **Shipped** (#1409) — tree farm working the ring around a free 7×7, 11×11 at Basic · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block); Tree products) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md), [`0202-fertilizer-and-soils.md`](0202-fertilizer-and-soils.md) (Humus) · **Maps to (roadmap):** Phase 2 — Farms
 
 The tree farm (Forestry's Arboretum / Lumberjack): clears a ring around itself, lays Humus, plants saplings and fells whole grown trees into its output — logs, leaf drops (saplings, sticks, apples), mangrove roots, and the sand its trees leave behind. Wood only; no tree breeding.
 
 ## Problem & goal
 
-Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree farming today means a vanilla contraption. **Goal:** a single block that keeps the ring around it planted and felled, safely — it must never chew through a player's build or the 9×9 the player builds in around it.
+Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree farming today means a vanilla contraption. **Goal:** a single block that keeps the ring around it planted and felled, safely — it must never chew through a player's build or the 7×7 courtyard the player builds in around it.
 
 ## Requirements
 
 ### Functional
-- **Area:** the farm sits at the centre of a free **9×9** and works the 2-wide ring out to **13×13** (88 plots). It lays Humus level with itself and clears each plot's column from Y+1 up to Y+10 ([0201](0201-farm-framework.md)).
+- **Area:** the farm sits at the centre of a free **7×7** courtyard and works the ring around it out to its tier's size: **11×11** at Basic, 15×15, 19×19 and 23×23 above ([0201](0201-farm-framework.md)). Lanes are numbered from the courtyard out. It lays Humus level with itself and clears each plot's column from Y+1 up to Y+10.
 - **Slots:** saplings 0–3, Humus 4–7, output 8–16.
-- **Germlings:** `#minecraft:saplings`, including mangrove propagule and azalea. Single saplings go on every even step of each lane; 2×2 saplings go in aligned groups across both lanes, a group at every corner and two-cell groups along each edge.
+- **Germlings:** `#minecraft:saplings`, including mangrove propagule and azalea, but not the `logistics:forestry/requires_2x2` ones (dark oak, pale oak), which the germling slots refuse.
+- **Planting pattern:** one sapling per spot, and any two spots at least 2 apart in Chebyshev distance, so there is always a block between trunks, diagonals included. Spots are chosen greedily from lane 1 outward, walking each lane in step order; a plot becomes a spot iff it keeps that spacing from every spot already chosen, measured on real positions, so the ring's corners are handled too. That works out as every other step of every odd lane: **20 trees at Basic**, 48, 84 and 128 at the higher tiers.
+- **Lane 0 stays bare:** the lane beside the courtyard is never planted at any tier. It still gets Humus, and its column is still cleared and felled.
+- **Upgrades move no tree:** a lane's spots depend only on the lanes inside it, and a higher tier only adds outer lanes, so each tier's spots include every spot of the tier below.
+- **Canopy:** an oak's canopy reaches 2 blocks from its trunk, so at Basic it overhangs the outside of the farm by 1–2 blocks, and the lane-1 trees' lowest leaves reach the courtyard's outermost row, which the farm never touches. Canopies of neighbouring trees overlap; felling one leaves every leaf that touches another tree's wood (by the leaves' own distance), so its neighbour keeps a canopy and is still felled as a tree. A fancy oak's branches can still reach across to a neighbour; the two are then felled as one.
 - **Soil:** **Humus only.** Anything else in the soil layer (the farm's own Y), dirt and grass included, is replaced with Humus. Without Humus it neither replaces soil nor plants.
 - **Humus → sand:** a grown tree turns the Humus under it to sand, and a felling turns every trunk cell's Humus to sand (all four for a 2×2 tree). The next pass digs the sand into the output and lays fresh Humus. The output never voids: when full, the farm stalls with *Output full*.
 - **Harvest:** whole trees — logs, leaves (→ saplings / sticks / apples), mangrove roots.
 - **Water:** none.
-- **2×2 saplings:** planted as aligned 2×2 groups from the `logistics:forestry/requires_2x2` tag. A group is planted all or none, only once four of the same sapling are on hand; a 2×2 sapling is never planted alone.
+- **No 2×2 trees for now:** 2×2 saplings are not accepted and nothing plants a 2×2 group. The `logistics:forestry/requires_2x2` tag stays for later. A 2×2 tree that grows in the ring anyway, naturally or by a player, is felled like any other.
 - **Recipe:** standard farm recipe with the **copper valve**.
 
 ### Balance
@@ -32,7 +36,7 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 - **`forestry/logic/TreeFeller`** — pure code over a tiny `TreeView` (`state`, `isLoaded`), unit-tested with a HashMap:
   1. **Seed:** the plot, or the first wood within 4 above it.
   2. **Wood:** `#logs` plus `mangrove_roots` through the 26 surrounding blocks, excluding `muddy_mangrove_roots`.
-  3. **Canopy:** only from wood or other canopy, through the 6 face neighbours, at most 6 steps. Covers non-`PERSISTENT` `#leaves`, `#wart_blocks`, shroomlight, vines, cocoa and hanging propagules. Never steps from canopy back to wood.
+  3. **Canopy:** only from wood or other canopy, through the 6 face neighbours, at most 6 steps. Covers non-`PERSISTENT` `#leaves`, `#wart_blocks`, shroomlight, vines, cocoa and hanging propagules. Never steps from canopy back to wood, and leaves a leaf touching other wood (distance 1, reached in more than one step) to that wood.
   4. **Never touch:** the `logistics:forestry/never_fell` tag (beehives, creaking heart) and any block entity.
   5. **Bounds:** plot ±8 horizontally, y−3 to y+32.
   6. **Cap:** 1024 blocks. If the cap is hit or there are no natural leaves, it's a player build: skip it.
@@ -41,8 +45,8 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 
 ## Scope & non-goals
 
-- **In:** the Arboretum block, logic, 2×2 planting, `TreeFeller`, tags, recipe, textures (`front` `_off` / `_on` on the shared machine shell), GameTests.
-- **Out:** tree breeding, specialty woods, resin tapping (separate), an area preview.
+- **In:** the Arboretum block, logic, the spaced planting pattern, `TreeFeller`, tags, recipe, textures (`front` `_off` / `_on` on the shared machine shell), GameTests.
+- **Out:** tree breeding, specialty woods, resin tapping (separate), an area preview, planting 2×2 trees.
 
 ## Open questions
 
@@ -52,6 +56,7 @@ Wood is the base of the Sawmill, Kiln and biomass chains, but automated tree far
 
 - JUnit covers `TreeFeller`: 2×2 trees, mangroves (roots in, muddy roots out), persistent leaves left alone, `never_fell` and block entities skipped, the 1024 cap, and the no-natural-leaves "player build" case.
 - A GameTest grows and fells a tree in a `setAreaOverride(1, 5)` ring with real power, hopper-fed saplings and Humus and hopper-to-chest output, turns the trunk's Humus to sand, then swaps the sand for Humus and replants.
+- In the 15×18×15 `logistics_gametest:arboretum_field` structure, a real Basic farm keeps all 20 spots productive over three fell-and-replant cycles without touching its courtyard, fells two neighbouring trees whose canopies overlap, and never plans or breaks the wood of a natural tree just outside its ring.
 
 ## References
 
