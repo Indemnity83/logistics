@@ -124,9 +124,9 @@ Then: confirm **NeoForge parity**, run a **balance pass**, refresh docs, and gat
 
 *Industrial Forestry — farms, processing, power, and electronics. Derived from [`mods/forestry.md`](mods/forestry.md). Apatite (fertilizer) and the logic-chip/core/valve "electronics" are already seeded. The genetics/biology axis (bees, tree-breeding, butterflies) is **out of scope** — see [RFC 0002](rfcs/0002-forestry-bees.md).*
 
-**Farms** *(headline — design settled; briefs [`0201`–`0209`](features/README.md#phase-2-batch-forestry-farms))*
-- Single-block farms (the older Forestry design, **not** the later multiblock multifarm), **one block per farm type**: Arboretum ✅ and Crop Farm ✅ first, then Peat Bog, Mushroom Farm and Stalk Farm *(name TBD)*, then Infernal Farm and Orchard; gourds are a Crop Farm row pattern
-- Each farm sits at the centre of a free **9×9** and works a ring around it (15×15 Crop Farm, 13×13 Arboretum; work-area upgrades will come with the machine-wide upgrade design, [`0106`](features/0106-machine-upgrades.md)); redstone pauses it; no fake players, no chunk loading
+**Farms** *(headline — design settled; briefs [`0201`–`0213`](features/README.md#phase-2-batch-forestry-farms))*
+- Single-block farms (the older Forestry design, **not** the later multiblock multifarm), **one block per farm type**: Cropland (Crop Farm) ✅ and Arboretum ✅ first, adopting the tiered framework; then the ground farms (Berry Farm, Nether Wart Farm, Gourd Farm, Plantation, Desert Farm); then Mushroom Farm, Cocoa Plantation, Cave Vine Farm and Peat Bog
+- Each farm sits at the centre of a protected **7×7 courtyard** and works a ring around it sized by its machine tier (11×11 Basic → 23×23 Infernal, raised with Upgrade Kits, [`0111`](features/0111-machine-frame-tiers.md)); a placed farm only surveys until Start; redstone pauses it; no fake players, no chunk loading
 - Peat bog → peat fuel: bog earth gains a wet-only **maturity** state, worked by the Peat Bog farm
 - Fertilizer chain on existing Apatite: a **Fertilizer** item (kept for a future machine augmentation; not used by farms) and **Humus** soil that speeds saplings and turns to sand under grown trees
 
