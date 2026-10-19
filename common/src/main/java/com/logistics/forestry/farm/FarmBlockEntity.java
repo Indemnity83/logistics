@@ -49,6 +49,7 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
     // Assigned in configure(), which the super constructor calls: no initializers, they would run after it.
     private FarmMachine parts;
     private ContainerData containerData;
+    private final FarmEnergyRate usage = new FarmEnergyRate();
 
     public FarmBlockEntity(BlockPos pos, BlockState state) {
         super(LogisticsForestry.ENTITY.FARM, pos, state);
@@ -64,6 +65,15 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
 
     public static void tick(Level level, BlockPos pos, BlockState state, FarmBlockEntity farm) {
         MachineEntity.tick(level, pos, state, farm);
+        if (!level.isClientSide()) {
+            farm.usage.record(farm.parts.energy().consumedLastTick());
+        }
+    }
+
+    /** RF/t spent on farm work, averaged over the last {@link FarmEnergyRate#WINDOW} ticks. */
+    @Override
+    public long energyRate() {
+        return usage.perTick();
     }
 
     /** Removed or unloaded: the ring stops being irrigated until a loaded farm ticks again. */
