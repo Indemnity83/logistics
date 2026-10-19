@@ -2,6 +2,11 @@ package com.logistics.power.screen;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.power.HeatStage;
 import com.logistics.core.lib.resource.ResourceId;
@@ -23,7 +28,7 @@ import net.minecraft.world.level.material.Fluids;
  * Client-side GUI for the Magmatic Engine: a lava tank, an RF-buffer gauge, and a status readout, with
  * numeric detail shown as hover tooltips.
  */
-public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngineScreenHandler> {
+public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngineScreenHandler> implements SideTabScreen {
 
     private static final ResourceLocation TEXTURE =
             LogisticsMod.modId("textures/gui/power/magmatic_engine.png").toIdentifier();
@@ -55,10 +60,30 @@ public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngine
     private static final int FLAME_Y = 53;
     private static final int FLAME_SIZE = 14;
 
+    private final SideTabHost tabs;
+
     public MagmaticEngineScreen(MagmaticEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.tabs = MachineTabs.engine("magmatic_engine", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top, int button) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top, button), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override
@@ -115,7 +140,7 @@ public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngine
      */
     private String statusKey() {
         boolean lit = menu.isLit();
-        if (!menu.isPowered()) {
+        if (!menu.isEnabled()) {
             return lit
                     ? "tooltip.logistics.magmatic_engine.status.paused"
                     : "tooltip.logistics.magmatic_engine.status.redstone_disabled";

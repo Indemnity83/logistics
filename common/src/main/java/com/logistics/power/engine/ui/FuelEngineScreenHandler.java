@@ -1,6 +1,7 @@
 package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.entity.FuelEngineBlockEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -24,17 +25,22 @@ public class FuelEngineScreenHandler extends AbstractContainerMenu {
     private static final int HOTBAR_Y = 142;
 
     private final ContainerData data;
+    private final MachineControls controls;
     private final ContainerLevelAccess access;
 
     /** Client-side constructor. */
     public FuelEngineScreenHandler(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainerData(FuelEngineBlockEntity.DATA_COUNT),
-                ContainerLevelAccess.NULL);
+                ContainerLevelAccess.NULL, MachineControls.client());
     }
 
     /** Server-side constructor. */
     public FuelEngineScreenHandler(
-            int syncId, Inventory playerInventory, ContainerData data, ContainerLevelAccess access) {
+            int syncId,
+            Inventory playerInventory,
+            ContainerData data,
+            ContainerLevelAccess access,
+            MachineControls controls) {
         super(LogisticsPower.SCREEN.FUEL_ENGINE, syncId);
         checkContainerDataCount(data, FuelEngineBlockEntity.DATA_COUNT);
         this.data = data;
@@ -51,6 +57,9 @@ public class FuelEngineScreenHandler extends AbstractContainerMenu {
         }
 
         addDataSlots(data);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        addDataSlots(controls.data());
     }
 
     @Override
@@ -61,6 +70,16 @@ public class FuelEngineScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return AbstractContainerMenu.stillValid(access, player, LogisticsPower.BLOCK.FUEL_ENGINE);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     // ==================== Data getters for GUI rendering ====================

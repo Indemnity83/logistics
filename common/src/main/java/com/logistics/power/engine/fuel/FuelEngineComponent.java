@@ -302,7 +302,7 @@ public final class FuelEngineComponent
 
     @Override
     public boolean isRunning(MachineContext ctx) {
-        return committedFuelEnergy > 0; // host ANDs isPowered() && !isOverheated()
+        return committedFuelEnergy > 0; // host ANDs isEnabled() && !isOverheated()
     }
 
     // ==================== GUI/HUD getters ====================

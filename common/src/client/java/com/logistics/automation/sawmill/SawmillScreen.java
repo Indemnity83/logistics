@@ -1,6 +1,11 @@
 package com.logistics.automation.sawmill;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -11,7 +16,7 @@ import net.minecraft.world.entity.player.Inventory;
  * Client-side screen for the Sawmill GUI.
  * Shows the input, primary/secondary outputs, a saw-progress arrow, and an energy bar.
  */
-public class SawmillScreen extends AbstractContainerScreen<SawmillScreenHandler> {
+public class SawmillScreen extends AbstractContainerScreen<SawmillScreenHandler> implements SideTabScreen {
 
     private static final ResourceLocation TEXTURE =
         LogisticsMod.modId("textures/gui/automation/sawmill.png").toIdentifier();
@@ -19,14 +24,29 @@ public class SawmillScreen extends AbstractContainerScreen<SawmillScreenHandler>
     // Shared static energy-gauge bar sprite, drawn dark for empty + bright for fill.
     private static final ResourceLocation CHARGE = LogisticsMod.modId("automation/charge").toIdentifier();
 
+    private final SideTabHost tabs;
+
     public SawmillScreen(SawmillScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
+        this.tabs = MachineTabs.machine("sawmill", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
     }
 
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top, int button) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top, button), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

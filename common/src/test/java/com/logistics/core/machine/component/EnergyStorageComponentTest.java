@@ -4,7 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.core.machine.FakeMachineContext;
 import com.logistics.test.MinecraftTestEnvironment;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class EnergyStorageComponentTest extends MinecraftTestEnvironment {
 
@@ -78,5 +82,109 @@ class EnergyStorageComponentTest extends MinecraftTestEnvironment {
         energy.energy(null).insert(100, false);
         energy.consume(30);
         assertThat(energy.amount()).isEqualTo(70);
+    }
+
+    // ==================== Usage counter ====================
+
+    private static EnergyStorageComponent filled(long amount) {
+        EnergyStorageComponent energy = new EnergyStorageComponent("energy", 10_000, 10_000, 0, () -> {});
+        energy.energy(null).insert(amount, false);
+        energy.serverTick(new FakeMachineContext()); // leave the insert's tick behind
+        return energy;
+    }
+
+    /**
+     * One full tick of work: two spends, with the energy component's tick (the rollover) either before
+     * them, as for a machine registering energy first, or after them.
+     */
+    private static void workTick(EnergyStorageComponent energy, boolean rolloverFirst, long... spends) {
+        FakeMachineContext ctx = new FakeMachineContext();
+        if (rolloverFirst) {
+            energy.serverTick(ctx);
+        }
+        for (long spend : spends) {
+            energy.consume(spend);
+        }
+        if (!rolloverFirst) {
+            energy.serverTick(ctx);
+        }
+    }
+
+    @ParameterizedTest(name = "rollover first = {0}")
+    @ValueSource(booleans = {true, false})
+    void consumedLastTickIsOneCompletedTicksTotal(boolean rolloverFirst) {
+        EnergyStorageComponent energy = filled(1_000);
+
+        workTick(energy, rolloverFirst, 10, 15);
+        workTick(energy, rolloverFirst, 10, 15);
+        if (rolloverFirst) {
+            // The rollover publishes at the start of the next tick.
+            energy.serverTick(new FakeMachineContext());
+        }
+
+        assertThat(energy.consumedLastTick()).isEqualTo(25);
+    }
+
+    @ParameterizedTest(name = "rollover first = {0}")
+    @ValueSource(booleans = {true, false})
+    void consumedLastTickReadsZeroOneTickAfterSpendingStops(boolean rolloverFirst) {
+        EnergyStorageComponent energy = filled(1_000);
+        workTick(energy, rolloverFirst, 25);
+        workTick(energy, rolloverFirst);
+        if (rolloverFirst) {
+            energy.serverTick(new FakeMachineContext());
+        }
+
+        assertThat(energy.consumedLastTick()).isZero();
+    }
+
+    @Test
+    void consumedCountsOnlyWhatWasActuallyDeducted() {
+        EnergyStorageComponent energy = filled(30);
+
+        energy.consume(50);
+        energy.consume(-10);
+        energy.serverTick(new FakeMachineContext());
+
+        assertThat(energy.amount()).isZero();
+        assertThat(energy.consumedLastTick()).isEqualTo(30);
+    }
+
+    @Test
+    void loadSetAmountAndInsertRecordNoUsage() {
+        HolderLookup.Provider registries = new FakeMachineContext().registries();
+        EnergyStorageComponent source = filled(800);
+        CompoundTag tag = new CompoundTag();
+        source.save(tag, registries);
+
+        EnergyStorageComponent energy = buffer();
+        energy.load(tag, registries);
+        energy.setAmount(10);
+        energy.setAmount(500);
+        energy.energy(null).insert(100, false);
+        energy.serverTick(new FakeMachineContext());
+
+        assertThat(energy.consumedLastTick()).isZero();
+        assertThat(energy.receivedLastTick()).isEqualTo(100);
+    }
+
+    @Test
+    void receivedLastTickIsUnaffectedBySpending() {
+        EnergyStorageComponent energy = buffer();
+        energy.energy(null).insert(100, false);
+        energy.consume(40);
+        energy.serverTick(new FakeMachineContext());
+
+        assertThat(energy.receivedLastTick()).isEqualTo(100);
+        assertThat(energy.consumedLastTick()).isEqualTo(40);
+
+        energy.serverTick(new FakeMachineContext());
+        assertThat(energy.receivedLastTick()).isZero();
+        assertThat(energy.consumedLastTick()).isZero();
+    }
+
+    @Test
+    void maxInputIsTheConfiguredInsertRate() {
+        assertThat(buffer().maxInput()).isEqualTo(128);
     }
 }

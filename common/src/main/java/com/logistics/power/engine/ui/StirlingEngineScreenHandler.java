@@ -3,6 +3,7 @@ package com.logistics.power.engine.ui;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.FuelHelper;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.entity.StirlingEngineBlockEntity;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -30,6 +31,7 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
 
     private final Container inventory;
     private final ContainerData propertyDelegate;
+    private final MachineControls controls;
 
     // Client constructor (called from MenuType on screen open)
     public StirlingEngineScreenHandler(int syncId, Inventory playerInventory) {
@@ -37,7 +39,8 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
                 syncId,
                 playerInventory,
                 new SimpleContainer(1),
-                new SimpleContainerData(StirlingEngineBlockEntity.PROPERTY_COUNT));
+                new SimpleContainerData(StirlingEngineBlockEntity.PROPERTY_COUNT),
+                MachineControls.client());
     }
 
     // Server constructor
@@ -45,12 +48,17 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
             int syncId,
             Inventory playerInventory,
             StirlingEngineBlockEntity entity,
-            ContainerData propertyDelegate) {
-        this(syncId, playerInventory, (Container) entity, propertyDelegate);
+            ContainerData propertyDelegate,
+            MachineControls controls) {
+        this(syncId, playerInventory, (Container) entity, propertyDelegate, controls);
     }
 
     private StirlingEngineScreenHandler(
-            int syncId, Inventory playerInventory, Container inventory, ContainerData propertyDelegate) {
+            int syncId,
+            Inventory playerInventory,
+            Container inventory,
+            ContainerData propertyDelegate,
+            MachineControls controls) {
         super(LogisticsPower.SCREEN.STIRLING_ENGINE, syncId);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
@@ -66,6 +74,9 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
 
         // Register property delegate for syncing
         addDataSlots(propertyDelegate);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        addDataSlots(controls.data());
     }
 
     private void addInventorySlots(Inventory playerInventory) {
@@ -89,6 +100,16 @@ public class StirlingEngineScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return inventory.stillValid(player);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     @Override

@@ -234,6 +234,50 @@ class RecipeProcessorComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void pausedProcessorRetainsProgressWithoutSpendingEnergy() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipePlan plan = new RecipePlan(30, new ItemStack(Items.IRON_INGOT), 0f);
+        boolean[] lit = {false};
+        RecipeProcessorComponent processor = new RecipeProcessorComponent(
+                "processor", (i, ctx) -> io.hasInput ? plan : null, 10, io, (ctx, on) -> lit[0] = on, () -> {});
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx); // 10 spent
+        assertThat(lit[0]).isTrue();
+
+        ctx.workEnabled = false;
+        processor.serverTick(ctx);
+        processor.serverTick(ctx);
+        assertThat(processor.energySpent()).isEqualTo(10);
+        assertThat(processor.isProcessing()).isTrue();
+        assertThat(io.energy).isEqualTo(990);
+        assertThat(lit[0]).isFalse();
+        assertThat(io.inputsConsumed).isZero();
+
+        ctx.workEnabled = true;
+        processor.serverTick(ctx);
+        assertThat(processor.energySpent()).isEqualTo(20);
+        assertThat(lit[0]).isTrue();
+    }
+
+    @Test
+    void removingInputWhilePausedResetsProgress() {
+        FakeProcessIO io = new FakeProcessIO();
+        io.energy = 1_000;
+        RecipeProcessorComponent processor = processor(io, 30, 10);
+        FakeMachineContext ctx = new FakeMachineContext();
+
+        processor.serverTick(ctx); // 10 spent
+        ctx.workEnabled = false;
+        io.hasInput = false;
+        processor.serverTick(ctx);
+
+        assertThat(processor.isProcessing()).isFalse();
+        assertThat(processor.energySpent()).isZero();
+    }
+
+    @Test
     void reportsProgressFraction() {
         FakeProcessIO io = new FakeProcessIO();
         io.energy = 1_000;

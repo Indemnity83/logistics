@@ -2,6 +2,11 @@ package com.logistics.power.screen;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.steam.SteamFireboxState;
@@ -25,7 +30,7 @@ import net.minecraft.world.level.material.Fluids;
  * shows stored pressure as a white fill (a fuller energy/pressure split is TBD). Numeric detail is shown
  * as hover tooltips.
  */
-public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreenHandler> {
+public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreenHandler> implements SideTabScreen {
 
     private static final ResourceLocation TEXTURE =
             LogisticsMod.modId("textures/gui/power/steam_engine.png").toIdentifier();
@@ -67,10 +72,30 @@ public class SteamEngineScreen extends AbstractContainerScreen<SteamEngineScreen
     private static final int HEAT_HEIGHT = 58;
     private static final int HEAT_BOTTOM = HEAT_TOP + HEAT_HEIGHT;
 
+    private final SideTabHost tabs;
+
     public SteamEngineScreen(SteamEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.tabs = MachineTabs.engine("steam_engine", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top, int button) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top, button), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

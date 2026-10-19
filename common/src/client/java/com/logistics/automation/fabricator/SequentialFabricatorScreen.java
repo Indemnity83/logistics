@@ -1,6 +1,11 @@
 package com.logistics.automation.fabricator;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.automation.fabricator.FabricatorProcessorComponent.Output;
 import com.logistics.core.lib.platform.ClientNetworking;
 import java.util.ArrayList;
@@ -18,7 +23,8 @@ import org.jetbrains.annotations.NotNull;
  * arrow, and a grid of craftable-output buttons on the right. Clicking an output toggles it into the
  * build queue; active/queued state is shown by a red overlay on the button.
  */
-public class SequentialFabricatorScreen extends AbstractContainerScreen<SequentialFabricatorScreenHandler> {
+public class SequentialFabricatorScreen extends AbstractContainerScreen<SequentialFabricatorScreenHandler>
+        implements SideTabScreen {
 
     private static final ResourceLocation TEXTURE =
             LogisticsMod.modId("textures/gui/automation/sequential_fabricator.png").toIdentifier();
@@ -42,11 +48,14 @@ public class SequentialFabricatorScreen extends AbstractContainerScreen<Sequenti
     private static final int ARROW_Y = 44;
 
     private final List<FabricatorOutputButton> outputButtons = new ArrayList<>();
+    private final SideTabHost tabs;
 
     public SequentialFabricatorScreen(SequentialFabricatorScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 186;
+        this.tabs = MachineTabs.machine("sequential_fabricator", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
     }
 
     @Override
@@ -64,6 +73,17 @@ public class SequentialFabricatorScreen extends AbstractContainerScreen<Sequenti
             }
         }
         refreshOutputs();
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top, int button) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top, button), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     private void onOutputClicked(FabricatorOutputButton button) {

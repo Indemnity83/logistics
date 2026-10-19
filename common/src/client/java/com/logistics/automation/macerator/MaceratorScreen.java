@@ -1,6 +1,11 @@
 package com.logistics.automation.macerator;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -10,7 +15,7 @@ import net.minecraft.world.entity.player.Inventory;
 /**
  * Client-side GUI screen for the Iron Macerator.
  */
-public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHandler> {
+public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHandler> implements SideTabScreen {
 
     private static final ResourceLocation TEXTURE =
         LogisticsMod.modId("textures/gui/automation/macerator.png").toIdentifier();
@@ -18,16 +23,31 @@ public class MaceratorScreen extends AbstractContainerScreen<MaceratorScreenHand
     // Shared static energy-gauge bar sprite, drawn dark for empty + bright for fill.
     private static final ResourceLocation CHARGE = LogisticsMod.modId("automation/charge").toIdentifier();
 
+    private final SideTabHost tabs;
+
     public MaceratorScreen(MaceratorScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.tabs = MachineTabs.machine("macerator", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
     }
 
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top, int button) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top, button), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

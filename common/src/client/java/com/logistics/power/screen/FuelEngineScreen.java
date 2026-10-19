@@ -2,6 +2,11 @@ package com.logistics.power.screen;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.ui.FuelEngineScreenHandler;
@@ -23,7 +28,7 @@ import net.minecraft.world.level.material.Fluids;
  * gauge, and a burn flame that crops down as the committed fuel reserve is spent. Numeric detail
  * (temperature, generation, committed reserves, thermal shutdown) is shown as hover tooltips.
  */
-public class FuelEngineScreen extends AbstractContainerScreen<FuelEngineScreenHandler> {
+public class FuelEngineScreen extends AbstractContainerScreen<FuelEngineScreenHandler> implements SideTabScreen {
 
     private static final ResourceLocation TEXTURE =
             LogisticsMod.modId("textures/gui/power/fuel_engine.png").toIdentifier();
@@ -58,10 +63,30 @@ public class FuelEngineScreen extends AbstractContainerScreen<FuelEngineScreenHa
     private static final int FLAME_Y = 53;
     private static final int FLAME_SIZE = 14;
 
+    private final SideTabHost tabs;
+
     public FuelEngineScreen(FuelEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.tabs = MachineTabs.engine("fuel_engine", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top, int button) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top, button), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

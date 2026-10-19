@@ -20,6 +20,7 @@ import com.logistics.core.lib.storage.IItemView;
 import com.logistics.core.lib.storage.ItemStorageLookup;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.StirlingEngineBlock;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.core.BlockPos;
@@ -134,7 +135,7 @@ public class StirlingEngineBlockEntity extends EngineEntity
         burn = engine.burn("burn")
                 .energy(energy)
                 .heat(heat)
-                .powered(this::isPowered)
+                .powered(this::isEnabled)
                 .fuel(fuelSource())
                 .generation(pidGeneration())
                 .lit(this::setLit)
@@ -142,7 +143,7 @@ public class StirlingEngineBlockEntity extends EngineEntity
         engine.pistonCycle("cycle")
                 .energy(energy)
                 .overheated(heat::isOverheated)
-                .powered(this::isPowered)
+                .powered(this::isEnabled)
                 .pistonSpeed(heat::getPistonSpeed)
                 .outputPower(this::currentOutputPower)
                 .outputFace(() -> StirlingEngineBlock.getOutputDirection(getBlockState()))
@@ -371,7 +372,8 @@ public class StirlingEngineBlockEntity extends EngineEntity
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
                 return new StirlingEngineScreenHandler(
-                        syncId, playerInventory, StirlingEngineBlockEntity.this, propertyDelegate);
+                        syncId, playerInventory, StirlingEngineBlockEntity.this, propertyDelegate,
+                        MachineControls.server(StirlingEngineBlockEntity.this));
             }
         };
     }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.logistics.core.lib.power.component.EngineBurnComponent;
 import com.logistics.core.lib.power.component.EnginePistonCycleComponent;
 import com.logistics.core.lib.power.gen.FixedGeneration;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -100,5 +101,24 @@ class EnginePersistenceTest extends MinecraftTestEnvironment {
         assertThat(reader.cycle.cyclePhase()).isEqualTo(CyclePhase.EXPANSION);
         assertThat(reader.burn.burnTime()).isEqualTo(100);
         assertThat(reader.burn.fuelTime()).isEqualTo(200);
+    }
+
+    @Test
+    void redstoneModeDefaultsToHighAndRoundTrips() {
+        TestEngine writer = new TestEngine();
+        assertThat(writer.redstoneControl().mode()).isEqualTo(RedstoneMode.HIGH);
+
+        writer.setRedstoneMode(RedstoneMode.LOW);
+        CompoundTag saved = new CompoundTag();
+        writer.save(saved);
+
+        TestEngine reader = new TestEngine();
+        reader.load(saved);
+        assertThat(reader.redstoneControl().mode()).isEqualTo(RedstoneMode.LOW);
+
+        writer.setRedstoneMode(RedstoneMode.HIGH);
+        CompoundTag defaults = new CompoundTag();
+        writer.save(defaults);
+        assertThat(defaults.getCompound("components").contains("redstone")).isFalse();
     }
 }

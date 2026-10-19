@@ -16,6 +16,7 @@ import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.MachineControls;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -142,6 +143,7 @@ public class RefineryBlockEntity extends MachineEntity {
                 .fluids(outputTank)
                 .lit(this::setLit)
                 .build();
+        machine.redstoneControl("redstone").build();
 
         // Sync both tanks to clients on change so the GUI gauges stay current (the menu's ContainerData
         // only reaches a player with the GUI open).
@@ -180,7 +182,8 @@ public class RefineryBlockEntity extends MachineEntity {
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new RefineryScreenHandler(syncId, playerInventory, RefineryBlockEntity.this, containerData);
+                return new RefineryScreenHandler(syncId, playerInventory, RefineryBlockEntity.this, containerData,
+                        MachineControls.server(RefineryBlockEntity.this));
             }
         };
     }

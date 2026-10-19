@@ -30,6 +30,8 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
 
     private long receivedThisTick;
     private long receivedLastTick;
+    private long consumedThisTick;
+    private long consumedLastTick;
 
     private final IEnergyStorage tracking = new IEnergyStorage() {
         @Override
@@ -84,11 +86,18 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
     public void serverTick(MachineContext ctx) {
         receivedLastTick = receivedThisTick;
         receivedThisTick = 0;
+        consumedLastTick = consumedThisTick;
+        consumedThisTick = 0;
     }
 
     /** Energy received during the previous tick (for HUD readouts). */
     public long receivedLastTick() {
         return receivedLastTick;
+    }
+
+    /** Energy spent through {@link #consume} during the last completed tick. */
+    public long consumedLastTick() {
+        return consumedLastTick;
     }
 
     /**
@@ -160,9 +169,19 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
         return capacity;
     }
 
-    /** Deducts energy for internal work (no change notification, matching the holder's semantics). */
+    /** Configured maximum RF accepted per tick. */
+    public long maxInput() {
+        return maxInsert;
+    }
+
+    /**
+     * Deducts energy for internal work (no change notification, matching the holder's semantics) and
+     * counts what was actually deducted toward {@link #consumedLastTick}.
+     */
     public void consume(long rf) {
+        long before = storage.getAmount();
         storage.consume(rf);
+        consumedThisTick += before - storage.getAmount();
     }
 
     /** Sets the stored amount directly (e.g. legacy migration). */

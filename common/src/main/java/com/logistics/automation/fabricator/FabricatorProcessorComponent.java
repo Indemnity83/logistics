@@ -113,6 +113,10 @@ public final class FabricatorProcessorComponent
 
         FabricatorRecipe recipe = byId.get(activeId).value();
         activeEnergyRequired = recipe.energy();
+        if (!ctx.workEnabled()) {
+            lit.setLit(ctx, false);
+            return;
+        }
 
         RecipeProcessPlan.Result result =
                 RecipeProcessPlan.advance(energySpent, recipe.energy(), energy.amount(), rfPerTick, true);
