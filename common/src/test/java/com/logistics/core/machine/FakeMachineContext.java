@@ -25,6 +25,7 @@ public final class FakeMachineContext implements MachineContext {
     private final BlockPos pos;
     private final BlockState state;
     public int changedCalls;
+    public boolean workEnabled = true;
 
     public FakeMachineContext() {
         this(BlockPos.ZERO, Blocks.AIR.defaultBlockState());
@@ -76,5 +77,10 @@ public final class FakeMachineContext implements MachineContext {
     @Override
     public RandomSource random() {
         return random;
+    }
+
+    @Override
+    public boolean workEnabled() {
+        return workEnabled;
     }
 }

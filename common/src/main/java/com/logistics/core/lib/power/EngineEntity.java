@@ -9,6 +9,9 @@ import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineHudModel;
+import com.logistics.core.machine.control.MachineStatus;
+import com.logistics.core.machine.control.RedstoneControlComponent;
+import com.logistics.core.machine.control.RedstoneMode;
 import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
@@ -35,21 +38,34 @@ import org.jetbrains.annotations.Nullable;
  * Item storage and menus are engine-specific (only the Stirling Engine has them), so those
  * interfaces are declared by the concrete engine rather than here.
  */
-public abstract class EngineEntity extends BaseBlockEntity implements MachineContext, HasEnergyStorage {
+public abstract class EngineEntity extends BaseBlockEntity implements MachineContext, HasEnergyStorage, MachineStatus {
 
     /** Client-side callback for cleanup when an engine is removed. Set by client bootstrap. */
     private static Consumer<BlockPos> onRemovedCallback;
 
     protected final MachineComponentContainer components = new MachineComponentContainer();
     private boolean loaded = false;
+    @Nullable
+    private final RedstoneControlComponent redstone;
 
     protected EngineEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         configure(new EngineBuilder(components, this::setChanged));
+        redstone = hasRedstoneControl()
+                ? components.add(new RedstoneControlComponent("redstone", RedstoneMode.HIGH, this::setChanged))
+                : null;
     }
 
     /** Compose this engine's components via the fluent builder. Called once from the constructor. */
     protected abstract void configure(EngineBuilder engine);
+
+    /**
+     * Whether this engine has a configurable redstone mode (default {@link RedstoneMode#HIGH}). Called
+     * from the constructor, so overrides must return a constant.
+     */
+    protected boolean hasRedstoneControl() {
+        return true;
+    }
 
     public static void tick(Level level, BlockPos pos, BlockState state, EngineEntity engine) {
         if (level.isClientSide()) {
@@ -75,9 +91,9 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
 
     // ==================== Engine getters (block + renderer facing) ====================
 
-    /** Running when powered, not overheated, and every running gate is satisfied. */
+    /** Running when enabled, not overheated, and every running gate is satisfied. */
     public boolean isRunning() {
-        if (!isPowered() || isOverheated()) {
+        if (!isEnabled() || isOverheated()) {
             return false;
         }
         boolean[] running = {true};
@@ -89,8 +105,38 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
         return running[0];
     }
 
+    /** The physical redstone signal (the {@code POWERED} block state). */
     public boolean isPowered() {
         return getBlockState().getValue(AbstractEngineBlock.POWERED);
+    }
+
+    /** Whether the engine is permitted to run: its redstone mode applied to {@link #isPowered()}. */
+    @Override
+    public boolean isEnabled() {
+        return redstone == null ? isPowered() : redstone.allows(this::isPowered);
+    }
+
+    /** The physical signal, {@link #isPowered()}. */
+    @Override
+    public boolean hasRedstoneSignal() {
+        return isPowered();
+    }
+
+    /** The engine's redstone control, or {@code null} when it has none. */
+    @Override
+    @Nullable
+    public RedstoneControlComponent redstoneControl() {
+        return redstone;
+    }
+
+    /** Sets the redstone mode and syncs it to clients; a no-op without a control or when unchanged. */
+    @Override
+    public void setRedstoneMode(RedstoneMode mode) {
+        if (redstone == null || redstone.mode() == mode) {
+            return;
+        }
+        redstone.setMode(mode);
+        markDirtyAndSync();
     }
 
     public float getPistonSpeed() {
@@ -137,6 +183,42 @@ public abstract class EngineEntity extends BaseBlockEntity implements MachineCon
 
     public float getProgress() {
         return components.find(EnginePistonCycleComponent.class).map(EnginePistonCycleComponent::progress).orElse(0f);
+    }
+
+    // ==================== Energy telemetry ====================
+
+    /** Whether the engine has an output buffer; bufferless engines hand RF straight to the consumer. */
+    @Override
+    public boolean hasEnergyBuffer() {
+        return components.find(EngineEnergyOutputComponent.class).isPresent();
+    }
+
+    @Override
+    public long energyStored() {
+        return getEnergy();
+    }
+
+    @Override
+    public long energyCapacity() {
+        return getMaxEnergy();
+    }
+
+    /** RF generated and retained during the last completed tick; by default, what entered the output buffer. */
+    @Override
+    public long energyRate() {
+        return components.find(EngineEnergyOutputComponent.class)
+                .map(EngineEnergyOutputComponent::generatedLastTick)
+                .orElse(0L);
+    }
+
+    @Override
+    public long energyMaxRate() {
+        return maxGeneration();
+    }
+
+    /** The engine's generation ceiling at its current tuning; by default its current output power. */
+    public long maxGeneration() {
+        return getCurrentOutputPower();
     }
 
     private Optional<EngineComponent.HeatState> heat() {

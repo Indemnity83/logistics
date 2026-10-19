@@ -299,7 +299,7 @@ public final class MagmaticEngineComponent
 
     @Override
     public boolean isRunning(MachineContext ctx) {
-        return isLit(); // host ANDs isPowered() && !isOverheated()
+        return isLit(); // host ANDs isEnabled() && !isOverheated()
     }
 
     // ==================== GUI/HUD getters ====================

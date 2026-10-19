@@ -9,6 +9,8 @@ import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.RedstoneControlComponent;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -100,5 +102,30 @@ class MachineBuilderTest extends MinecraftTestEnvironment {
         assertThat(tank.fluid(null).insert(SimpleFluidKey.of(Fluids.WATER), 500, false)).isEqualTo(500);
         assertThat(tank.fluid(null).insert(SimpleFluidKey.of(Fluids.LAVA), 500, false)).isZero();
         assertThat(tank.fluid(null).extract(SimpleFluidKey.of(Fluids.WATER), 500, false)).isZero();
+    }
+
+    @Test
+    void redstoneControlDefaultsToIgnoredAndIsRegistered() {
+        MachineComponentContainer container = new MachineComponentContainer();
+        RedstoneControlComponent redstone =
+                new MachineBuilder(container, () -> {}).redstoneControl("redstone").build();
+
+        assertThat(redstone.id()).isEqualTo("redstone");
+        assertThat(redstone.defaultMode()).isEqualTo(RedstoneMode.IGNORED);
+        assertThat(redstone.mode()).isEqualTo(RedstoneMode.IGNORED);
+        assertThat(container.find(RedstoneControlComponent.class)).containsSame(redstone);
+    }
+
+    @Test
+    void redstoneControlHonorsDefaultModeAndNotifiesTheHost() {
+        int[] changes = {0};
+        RedstoneControlComponent redstone = new MachineBuilder(new MachineComponentContainer(), () -> changes[0]++)
+                .redstoneControl("redstone")
+                .defaultMode(RedstoneMode.HIGH)
+                .build();
+
+        assertThat(redstone.mode()).isEqualTo(RedstoneMode.HIGH);
+        redstone.setMode(RedstoneMode.LOW);
+        assertThat(changes[0]).isEqualTo(1);
     }
 }
