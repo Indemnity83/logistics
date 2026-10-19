@@ -14,7 +14,6 @@ import com.logistics.gametest.core.MarkerGameTestRegistration;
 import com.logistics.gametest.core.OreGenerationGameTestRegistration;
 import com.logistics.gametest.core.PlantCompatGameTestRegistration;
 import com.logistics.gametest.core.SolidFuelGameTestRegistration;
-import com.logistics.gametest.core.UpgradeKitGameTestRegistration;
 import com.logistics.gametest.forestry.ArboretumGameTestRegistration;
 import com.logistics.gametest.forestry.CropFarmGameTestRegistration;
 import com.logistics.gametest.forestry.HumusGameTestRegistration;
@@ -84,7 +83,6 @@ public final class LogisticsGameTestMod {
         OreGenerationGameTestRegistration.bootstrap();
         PlantCompatGameTestRegistration.bootstrap();
         SolidFuelGameTestRegistration.bootstrap();
-        UpgradeKitGameTestRegistration.bootstrap();
 
         ArboretumGameTestRegistration.bootstrap();
         CropFarmGameTestRegistration.bootstrap();

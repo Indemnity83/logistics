@@ -2,8 +2,6 @@ package com.logistics.core.lib.block;
 
 import com.logistics.core.lib.block.behavior.MenuBehavior;
 import com.logistics.core.lib.block.capability.HasExperienceStorage;
-import com.logistics.core.machine.tier.TieredMachine;
-import com.logistics.core.machine.tier.UpgradeKitItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -82,10 +80,6 @@ public abstract class MachineBlock extends BaseEntityBlock {
             Player player,
             InteractionHand hand,
             BlockHitResult hit) {
-        // An upgrade kit on a tiered machine falls through to the kit's own useOn.
-        if (stack.getItem() instanceof UpgradeKitItem && level.getBlockEntity(pos) instanceof TieredMachine) {
-            return InteractionResult.PASS;
-        }
         // Try to open GUI if the machine has one
         return MenuBehavior.tryOpenMenu(level, pos, player);
     }
