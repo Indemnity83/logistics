@@ -6,6 +6,8 @@ import com.logistics.core.lib.resource.ResourceId;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * The screen every farm opens. Soil slot frames and the water gauge are drawn from the spare region
  * of the GUI texture only when the farm lays soil or has a tank; otherwise those areas stay plain.
+ * One button under the soil row starts a surveying farm, then shows or hides a working farm's area.
  */
 public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
 
@@ -44,12 +47,26 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     private static final int LAMP_TOP = 56;
     private static final int LAMP_SIZE = 8;
 
+    private static final int LABEL_COLOR = 0xFF404040;
+
+    private static final int BUTTON_LEFT = 42;
+    private static final int BUTTON_TOP = 54;
+    private static final int BUTTON_WIDTH = 54;
+    private static final int BUTTON_HEIGHT = 14;
+
     // Spare-region UVs in the GUI texture.
     private static final int SOIL_ROW_U = 176, SOIL_ROW_V = 0, SOIL_ROW_WIDTH = 72, SOIL_ROW_HEIGHT = 18;
     private static final int SOIL_ROW_X = 41, SOIL_ROW_Y = 34;
     private static final int TANK_FRAME_U = 176, TANK_FRAME_V = 20;
     private static final int TANK_TICKS_U = 192, TANK_TICKS_V = 21;
     private static final int LAMP_U = 206, LAMP_V = 30, LAMP_U_STEP = 10;
+
+    private Button stateButton;
+    private FarmState shownState;
+    private boolean shownPreview;
+    private int shownClear = -1;
+    private int shownFlagged = -1;
+    private int shownProtected = -1;
 
     public FarmScreen(FarmMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -58,7 +75,57 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        stateButton = Button.builder(FarmScreenText.buttonLabel(menu.state(), menu.previewShown()), button -> {
+                    if (minecraft != null && minecraft.gameMode != null) {
+                        minecraft.gameMode.handleInventoryButtonClick(
+                                menu.containerId, FarmScreenText.buttonId(menu.state()));
+                    }
+                })
+                .bounds(leftPos + BUTTON_LEFT, topPos + BUTTON_TOP, BUTTON_WIDTH, BUTTON_HEIGHT)
+                .build();
+        shownState = null;
+        updateButton();
+        addRenderableWidget(stateButton);
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        updateButton();
+    }
+
+    /** The label and tooltip follow the synced state, preview and survey; rebuilt only when they change. */
+    private void updateButton() {
+        FarmState state = menu.state();
+        boolean preview = menu.previewShown();
+        int clear = menu.surveyClear();
+        int flagged = menu.surveyFlagged();
+        int skipped = menu.surveyProtected();
+        if (state == shownState
+                && preview == shownPreview
+                && clear == shownClear
+                && flagged == shownFlagged
+                && skipped == shownProtected) {
+            return;
+        }
+        shownState = state;
+        shownPreview = preview;
+        shownClear = clear;
+        shownFlagged = flagged;
+        shownProtected = skipped;
+        stateButton.setMessage(FarmScreenText.buttonLabel(state, preview));
+        stateButton.setTooltip(state == FarmState.SURVEY
+                ? Tooltip.create(FarmScreenText.startTooltip(clear, flagged, skipped))
+                : null);
+    }
+
+    /** The title carries the tier, which arrives with the synced data, so it is centred each frame. */
+    @Override
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        Component tieredTitle = FarmScreenText.title(this.title, menu.tier());
+        this.titleLabelX = (this.imageWidth - this.font.width(tieredTitle)) / 2;
+        graphics.text(this.font, tieredTitle, this.titleLabelX, this.titleLabelY, LABEL_COLOR, false);
+        graphics.text(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, LABEL_COLOR, false);
     }
 
     @Override
@@ -71,13 +138,18 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
                     Component.translatable("tooltip.logistics.farm.water", menu.waterMb(), menu.waterCapacityMb()));
         }
         hoverTooltip(graphics, mouseX, mouseY, LAMP_LEFT, LAMP_TOP, LAMP_SIZE, LAMP_SIZE,
-                Component.translatable("tooltip.logistics.farm.status",
-                        Component.translatable(menu.status().translationKey()), menu.areaSize()));
+                FarmScreenText.statusTooltip(
+                        menu.status(), menu.tier(), menu.areaSize(), menu.plotsUsable(), menu.plotsBlocked()));
     }
 
     private void hoverTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y, int w, int h, Component line) {
+        hoverTooltip(graphics, mouseX, mouseY, x, y, w, h, List.of(line));
+    }
+
+    private void hoverTooltip(
+            GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y, int w, int h, List<Component> lines) {
         if (mouseX >= leftPos + x && mouseX < leftPos + x + w && mouseY >= topPos + y && mouseY < topPos + y + h) {
-            graphics.setTooltipForNextFrame(this.font, List.of(line), Optional.empty(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, lines, Optional.empty(), mouseX, mouseY);
         }
     }
 

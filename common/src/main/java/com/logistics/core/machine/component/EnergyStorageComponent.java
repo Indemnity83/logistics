@@ -25,8 +25,9 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
 
     private final String id;
     private final EnergyComponent storage;
-    private final long capacity;
-    private final long maxInsert;
+    private final Runnable onChanged;
+    private long capacity;
+    private long maxInsert;
 
     private long receivedThisTick;
     private long receivedLastTick;
@@ -70,7 +71,8 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
     public EnergyStorageComponent(
             String id, long capacity, long maxInsert, long maxExtract, Runnable onChanged) {
         this.id = id;
-        this.storage = new EnergyComponent(capacity, maxInsert, maxExtract, onChanged);
+        this.storage = new EnergyComponent(() -> this.capacity, maxInsert, maxExtract, onChanged);
+        this.onChanged = onChanged;
         this.capacity = capacity;
         this.maxInsert = maxInsert;
     }
@@ -155,9 +157,34 @@ public final class EnergyStorageComponent implements MachineComponent, MachineCo
         return storage.getAmount();
     }
 
-    /** Total RF capacity, fixed at construction (use this for GUI fill fractions instead of rereading config). */
+    /** Total RF capacity (use this for GUI fill fractions instead of rereading config). */
     public long capacity() {
         return capacity;
+    }
+
+    /** Per-tick input limit; also the cap on network demand. */
+    public long maxInsert() {
+        return maxInsert;
+    }
+
+    /**
+     * Changes the buffer size and input limit, clamping stored energy to the new capacity. A change
+     * between zero and non-zero {@code maxInsert} flips {@code canInsert()}, which a cable network only
+     * re-reads when it rebuilds.
+     */
+    public void resize(long capacity, long maxInsert) {
+        if (capacity < 0 || maxInsert < 0) {
+            throw new IllegalArgumentException(
+                    "energy(" + id + ") resize needs non-negative values, got " + capacity + "/" + maxInsert);
+        }
+        if (capacity == this.capacity && maxInsert == this.maxInsert) {
+            return;
+        }
+        this.capacity = capacity;
+        this.maxInsert = maxInsert;
+        storage.setMaxInsert(maxInsert);
+        storage.setAmount(storage.getAmount());
+        onChanged.run();
     }
 
     /** Deducts energy for internal work (no change notification, matching the holder's semantics). */

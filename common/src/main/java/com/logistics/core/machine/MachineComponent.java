@@ -4,6 +4,8 @@ import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.fluids.IFluidStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
@@ -89,5 +91,21 @@ public interface MachineComponent {
     /** Banks processing experience and releases it on demand (e.g. when the machine is broken). */
     interface ExperienceStore {
         int drainExperience(RandomSource random);
+    }
+
+    /**
+     * Carries state on the machine's item form: written when the block entity's components are
+     * collected (e.g. a {@code copy_components} loot function) and read back when the item is placed.
+     */
+    interface ItemComponents {
+        void addItemComponents(DataComponentMap.Builder builder);
+
+        void readItemComponents(ComponentReader components);
+    }
+
+    /** Read access to the components being applied to a machine from its item form. */
+    interface ComponentReader {
+        @Nullable
+        <T> T get(DataComponentType<? extends T> type);
     }
 }

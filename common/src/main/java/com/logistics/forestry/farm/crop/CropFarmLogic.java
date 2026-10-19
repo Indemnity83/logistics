@@ -5,7 +5,6 @@ import com.logistics.forestry.farm.FarmInputs;
 import com.logistics.forestry.farm.FarmLogic;
 import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.PlotAction;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -14,16 +13,20 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * The Crop Farm: tills each plot's dirt into wet farmland, paying a till's worth of water, plants
- * field crops on it, keeps it wet while the crop grows, and harvests the crop once mature, replanting
- * from the harvest first. A harvest turns the farmland back into dirt, so every crop costs one till.
+ * The Crop Farm: tills each plot's dirt into farmland, plants field crops on it, and harvests the
+ * crop once mature, replanting from the harvest first. A harvest leaves the farmland as it is, at
+ * whatever moisture it had; only farmland that dries out back to dirt costs another till.
+ *
+ * <p>A till leaves the farmland dry. This logic never waters it: the farm irrigates its ring from its
+ * tank as vanilla farmland checks for water, and without water the field still works, its crops
+ * growing at the dry rate.
  *
  * <p>Crop blocks ({@link CropBlock}) are the farm's own growth; anything else above a plot is
- * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt or
- * farmland; anything else under an empty plot, grass included, is replaced with the farm's soil.
+ * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt, farmland
+ * or tillable ({@code logistics:forestry/tillable}, grass included), and a tillable block is tilled
+ * where it stands; anything else under an empty plot is replaced with the farm's soil.
  * Farmland is {@link Blocks#FARMLAND} with {@link BlockStateProperties#MOISTURE}, never the farmland
  * block class, whose name differs between Minecraft versions.
  */
@@ -32,15 +35,8 @@ public final class CropFarmLogic implements FarmLogic {
     /** Crops need this much light to be planted and to grow. */
     public static final int MIN_LIGHT = 8;
 
-    /**
-     * Farmland under a crop this dry or drier is moistened. Crops grow at the wet rate at any
-     * moisture above 0, and vanilla dries farmland one step per random tick, so this leaves a margin
-     * without spending plot visits on farmland that is still wet.
-     */
-    public static final int MOISTEN_AT_MOISTURE = 2;
-
-    private static final BlockState WET_FARMLAND = Blocks.FARMLAND.defaultBlockState()
-            .setValue(BlockStateProperties.MOISTURE, Collections.max(BlockStateProperties.MOISTURE.getPossibleValues()));
+    /** The till's result: dry farmland. */
+    private static final BlockState FARMLAND = Blocks.FARMLAND.defaultBlockState();
 
     private final Predicate<BlockState> tillable;
 
@@ -51,11 +47,6 @@ public final class CropFarmLogic implements FarmLogic {
     /** Test seam: {@code tillable} stands in for the {@code logistics:forestry/tillable} tag. */
     public CropFarmLogic(Predicate<BlockState> tillable) {
         this.tillable = tillable;
-    }
-
-    @Override
-    public int ringOuter() {
-        return 15;
     }
 
     @Override
@@ -114,31 +105,19 @@ public final class CropFarmLogic implements FarmLogic {
             if (!empty) {
                 return PlotAction.NONE;
             }
-            if (!soil.is(Blocks.DIRT)) {
-                return new PlotAction.PlaceSoil(soilPos);
+            if (tillable.test(soil)) {
+                return new PlotAction.Till(soilPos, FARMLAND);
             }
-            return tillable.test(soil)
-                    ? new PlotAction.Till(soilPos, WET_FARMLAND)
-                    : PlotAction.NONE;
+            return soil.is(Blocks.DIRT) ? PlotAction.NONE : new PlotAction.PlaceSoil(soilPos);
         }
 
-        if (empty) {
-            if (world.light(plot) < MIN_LIGHT) {
-                return PlotAction.blocked(PlotAction.Reason.TOO_DARK);
-            }
-            List<ItemStack> germlings = inputs.germlings();
-            return PlotAction.plant(plot, germlings.isEmpty() ? ItemStack.EMPTY : germlings.get(0));
+        if (!empty) {
+            return PlotAction.NONE;
         }
-        if (soil.hasProperty(BlockStateProperties.MOISTURE)
-                && soil.getValue(BlockStateProperties.MOISTURE) <= MOISTEN_AT_MOISTURE) {
-            return new PlotAction.Moisten(soilPos);
+        if (world.light(plot) < MIN_LIGHT) {
+            return PlotAction.blocked(PlotAction.Reason.TOO_DARK);
         }
-        return PlotAction.NONE;
-    }
-
-    @Override
-    @Nullable
-    public BlockState soilAfterHarvest(BlockState soil) {
-        return soil.is(Blocks.FARMLAND) ? Blocks.DIRT.defaultBlockState() : null;
+        List<ItemStack> germlings = inputs.germlings();
+        return PlotAction.plant(plot, germlings.isEmpty() ? ItemStack.EMPTY : germlings.get(0));
     }
 }

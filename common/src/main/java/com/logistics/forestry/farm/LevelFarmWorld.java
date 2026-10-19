@@ -9,6 +9,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -80,10 +82,27 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     }
 
     @Override
-    public void setBlock(BlockPos pos, BlockState state, int flags) {
-        if (isLoaded(pos)) {
-            level.setBlock(pos, state, flags);
+    public boolean setBlock(BlockPos pos, BlockState state, int flags) {
+        return isLoaded(pos) && level.setBlock(pos, state, flags);
+    }
+
+    @Override
+    public FarmClimate climate(BlockPos pos) {
+        return climate(level, pos);
+    }
+
+    /** The climate of the biome at {@code pos} in {@code level}. */
+    public static FarmClimate climate(Level level, BlockPos pos) {
+        if (!level.isLoaded(pos)) {
+            return FarmClimate.NEUTRAL;
         }
+        Biome biome = level.getBiome(pos).value();
+        return new FarmClimate(biome.getBaseTemperature(), biome.hasPrecipitation());
+    }
+
+    @Override
+    public boolean rainingAt(BlockPos pos) {
+        return isLoaded(pos) && level.isRainingAt(pos);
     }
 
     @Override

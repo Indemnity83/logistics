@@ -80,7 +80,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         assertThat(farm.world.blocks).containsEntry(farm.plot(0), SAPLING);
         assertThat(farm.items().getItem(0).getCount()).isEqualTo(4);
-        assertThat(farm.energy()).isEqualTo(1_000 - FarmHarness.SETTINGS.rfPlant());
+        assertThat(farm.energy()).isEqualTo(1_000 - FarmHarness.SETTINGS.cost(FarmCost.PLANT));
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
         assertThat(farm.host.lit()).isTrue();
     }
@@ -91,13 +91,13 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic()
                 .script((world, plot) -> new PlotAction.Plant(List.of(plot, plot.east()), new ItemStack(Items.OAK_SAPLING))));
         farm.items().setItem(0, new ItemStack(Items.OAK_SAPLING, 5));
-        farm.power(FarmHarness.SETTINGS.rfPlant()); // pays for one sapling, the group needs two
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.PLANT)); // pays for one sapling, the group needs two
 
         farm.tick();
 
         assertThat(farm.world.blocks).isEmpty();
         assertThat(farm.items().getItem(0).getCount()).isEqualTo(5);
-        assertThat(farm.energy()).isEqualTo(FarmHarness.SETTINGS.rfPlant());
+        assertThat(farm.energy()).isEqualTo(FarmHarness.SETTINGS.cost(FarmCost.PLANT));
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
     }
 
@@ -132,7 +132,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).isEmpty();
         assertThat(farm.logic.decisions).isZero();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.PAUSED);
-        assertThat(farm.host.lit()).isFalse();
+        assertThat(farm.host.lit()).as("paused, with RF in the buffer").isTrue();
 
         farm.world.signal = false;
         farm.tick();
@@ -305,7 +305,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         assertThat(farm.world.broken).containsExactly(plot.above(2));
         assertThat(farm.logic.decisions).isZero();
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfClearPerBlock());
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.CLEAR));
         assertThat(output(farm)).anySatisfy(stack -> assertThat(stack.is(Items.COBBLESTONE)).isTrue());
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
 
@@ -377,7 +377,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
             assertThat(farm.world.blocks).as("%s", fluid).containsEntry(plot, Blocks.AIR.defaultBlockState());
             assertThat(farm.world.broken).as("%s", fluid).isEmpty();
             assertThat(output(farm)).as("%s", fluid).allSatisfy(stack -> assertThat(stack.isEmpty()).isTrue());
-            assertThat(farm.energy()).as("%s", fluid).isEqualTo(10_000 - FarmHarness.SETTINGS.rfClearPerBlock());
+            assertThat(farm.energy()).as("%s", fluid).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.CLEAR));
         }
     }
 
@@ -394,7 +394,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         FarmHarness unpowered = new FarmHarness(new ScriptedFarmLogic());
         unpowered.world.set(unpowered.plot(0), Blocks.COBBLESTONE.defaultBlockState());
-        unpowered.power(FarmHarness.SETTINGS.rfClearPerBlock() - 1);
+        unpowered.power(FarmHarness.SETTINGS.cost(FarmCost.CLEAR) - 1);
         unpowered.tick();
         assertThat(unpowered.world.broken).isEmpty();
         assertThat(unpowered.farm().status()).isEqualTo(FarmStatus.NO_POWER);
@@ -415,7 +415,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         ScriptedFarmLogic logic = plantingEverywhere();
         logic.clearanceHeight = 3;
         FarmHarness farm = new FarmHarness(logic);
-        farm.farm().setAreaOverride(3, 5);
+        farm.areaOverride(3, 5);
         BlockPos inner = farm.host.pos().offset(1, 1, 0);
         farm.world.set(inner, Blocks.COBBLESTONE.defaultBlockState());
         farm.world.set(farm.host.pos().above(), Blocks.COBBLESTONE.defaultBlockState());
@@ -428,7 +428,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).containsEntry(farm.host.pos().above(), Blocks.COBBLESTONE.defaultBlockState());
         assertThat(farm.world.broken).isEmpty();
         assertThat(farm.world.writeFlags).hasSize(16);
-        assertThat(farm.world.writeFlags.keySet()).allMatch(new RingArea(farm.host.pos(), 3, 5)::contains);
+        assertThat(farm.world.writeFlags.keySet()).allMatch(new RingArea(farm.host.pos().above(), 3, 5)::contains);
     }
 
     // ==================== Multi-block harvests ====================
@@ -447,44 +447,56 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("a tree is felled in plan order, at most harvest_blocks_per_tick blocks a tick")
-    void fellsAFewBlocksPerTick() {
+    @DisplayName("a tree is felled in plan order, one block per action, each charged as a log")
+    void fellsOneBlockPerAction() {
         BlockPos base = new FarmHarness(new ScriptedFarmLogic()).plot(0);
         List<BlockPos> plan = trunk(base, 10);
         FarmHarness farm = new FarmHarness(felling(base, plan));
         plan.forEach(pos -> farm.world.set(pos, LOG));
         farm.power(10_000);
-        int perTick = FarmHarness.SETTINGS.harvestBlocksPerTick();
 
         farm.tick();
-        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, perTick));
+        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, 1));
         assertThat(farm.farm().isHarvesting()).isTrue();
 
-        farm.tick();
-        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, 2 * perTick));
-
-        farm.tick();
+        for (int tick = 0; tick < 20 && farm.farm().isHarvesting(); tick++) {
+            int before = farm.world.broken.size();
+            farm.tick();
+            assertThat(farm.world.broken.size() - before).as("one action a tick").isLessThanOrEqualTo(1);
+        }
         assertThat(farm.world.broken).containsExactlyElementsOf(plan);
         assertThat(farm.farm().isHarvesting()).isFalse();
-        assertThat(farm.energy()).isEqualTo(10_000 - plan.size() * FarmHarness.SETTINGS.rfHarvestPerBlock());
-        assertThat(farm.logic.decisions).as("felling holds the scan").isEqualTo(1);
+        assertThat(farm.energy()).isEqualTo(10_000 - plan.size() * FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
     }
 
     @Test
-    @DisplayName("a block changed since the plan was made is left standing")
-    void skipsBlocksChangedSincePlanned() {
+    @DisplayName("a block changed since the plan was made is never broken: the rest of the plan is dropped and made again")
+    void dropsThePlanWhenATargetChanged() {
         BlockPos base = new FarmHarness(new ScriptedFarmLogic()).plot(0);
         List<BlockPos> plan = trunk(base, 6);
-        FarmHarness farm = new FarmHarness(felling(base, plan));
+        // Plans the logs standing on the base, top-down, as they are when asked.
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic().script((world, plot) -> {
+            if (!plot.equals(base) || !world.state(plot).is(Blocks.OAK_LOG)) {
+                return PlotAction.NONE;
+            }
+            int height = 0;
+            while (world.state(plot.above(height)).is(Blocks.OAK_LOG)) {
+                height++;
+            }
+            return new PlotAction.Harvest(trunk(base, height));
+        }));
         plan.forEach(pos -> farm.world.set(pos, LOG));
         farm.power(10_000);
 
         farm.tick();
-        farm.world.set(plan.get(5), Blocks.STONE.defaultBlockState());
-        farm.tick();
+        BlockPos changed = plan.get(2);
+        farm.world.set(changed, Blocks.STONE.defaultBlockState());
+        farm.ticks(30);
 
-        assertThat(farm.world.blocks).containsEntry(plan.get(5), Blocks.STONE.defaultBlockState());
-        assertThat(farm.world.broken).containsExactlyElementsOf(plan.subList(0, 5));
+        assertThat(farm.world.blocks).containsEntry(changed, Blocks.STONE.defaultBlockState());
+        assertThat(farm.world.broken).doesNotContain(changed);
+        assertThat(farm.world.broken).containsExactly(plan.get(0), plan.get(1), plan.get(3), plan.get(4), plan.get(5));
+        assertThat(farm.farm().isHarvesting()).isFalse();
     }
 
     @Test
@@ -503,8 +515,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         reloaded.power(10_000);
         reloaded.tick();
 
-        int perTick = FarmHarness.SETTINGS.harvestBlocksPerTick();
-        assertThat(reloaded.world.broken).containsExactlyElementsOf(plan.subList(perTick, 2 * perTick));
+        assertThat(reloaded.world.broken).containsExactly(plan.get(1));
         assertThat(reloaded.farm().isHarvesting()).isTrue();
     }
 
@@ -515,18 +526,141 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         List<BlockPos> plan = trunk(base, 6);
         FarmHarness farm = new FarmHarness(felling(base, plan));
         plan.forEach(pos -> farm.world.set(pos, LOG));
-        farm.power(2 * FarmHarness.SETTINGS.rfHarvestPerBlock());
+        farm.power(2 * FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
 
-        farm.ticks(3);
+        farm.ticks(5);
 
         assertThat(farm.world.broken).hasSize(2);
         assertThat(farm.farm().isHarvesting()).isTrue();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
 
         farm.power(10_000);
-        farm.tick();
+        farm.ticks(8);
 
         assertThat(farm.world.broken).containsExactlyElementsOf(plan);
+    }
+
+    // ==================== Waiting for power ====================
+
+    /** Every plot's dirt waiting to be tilled, with less RF than one till. */
+    private static FarmHarness tillingShortOfPower() {
+        FarmHarness farm = new FarmHarness(tillingDirt(false));
+        for (int i = 0; i < 8; i++) {
+            farm.world.set(farm.plot(i).below(), Blocks.DIRT.defaultBlockState());
+        }
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL) - 1);
+        return farm;
+    }
+
+    @Test
+    @DisplayName("work the buffer cannot pay for holds the scan on that plot: no later plot is read or touched")
+    void lowPowerHoldsThePlot() {
+        FarmHarness farm = tillingShortOfPower();
+
+        farm.tick();
+        assertThat(farm.farm().heldPlot()).isZero();
+        assertThat(farm.farm().scanCursor()).as("the cursor stays put").isZero();
+        long reads = farm.world.readCount;
+        int decisions = farm.logic.decisions;
+
+        farm.ticks(500);
+
+        assertThat(farm.farm().scanCursor()).isZero();
+        assertThat(farm.world.readCount).as("nothing read while waiting").isEqualTo(reads);
+        assertThat(farm.logic.decisions).as("no plot asked about").isEqualTo(decisions);
+        assertThat(farm.world.mutations).isEmpty();
+        assertThat(farm.energy()).isEqualTo(FarmHarness.SETTINGS.cost(FarmCost.TILL) - 1);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
+    }
+
+    @Test
+    @DisplayName("once the RF arrives the held plot is worked first, at once, and the scan moves on")
+    void powerReleasesTheHeldPlot() {
+        FarmHarness farm = tillingShortOfPower();
+        farm.ticks(500); // far past a pass and any idle back-off
+
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        farm.tick();
+
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(0));
+        assertThat(farm.world.mutations).hasSize(1);
+        assertThat(farm.farm().scanCursor()).isEqualTo(1);
+        assertThat(farm.farm().heldPlot()).as("out of RF again, on the next plot").isEqualTo(1);
+
+        farm.power(10_000);
+        farm.ticks(8);
+        for (int i = 0; i < 8; i++) {
+            assertThat(farm.world.blocks).as("plot %s", i).containsEntry(farm.plot(i).below(), farmland(0));
+        }
+        assertThat(farm.farm().heldPlot()).isEqualTo(-1);
+    }
+
+    @Test
+    @DisplayName("the held plot is inspected again when the RF arrives: work it no longer needs is not done")
+    void heldPlotIsInspectedAgain() {
+        FarmHarness farm = tillingShortOfPower();
+        farm.tick();
+        farm.world.set(farm.plot(0).below(), farmland(3)); // tilled by hand meanwhile
+
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        farm.ticks(2);
+
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(3));
+        assertThat(farm.world.blocks).as("the RF went to the next plot").containsEntry(farm.plot(1).below(), farmland(0));
+        assertThat(farm.farm().scanCursor()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("a reload while held resumes on the held plot")
+    void heldPlotSurvivesReload() {
+        FarmHarness farm = tillingShortOfPower();
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.TILL) * 2);
+        farm.ticks(3); // tills plots 0 and 1, then holds on 2
+        assertThat(farm.farm().heldPlot()).isEqualTo(2);
+
+        FarmHarness reloaded = new FarmHarness(tillingDirt(false));
+        reloaded.world.blocks.putAll(farm.world.blocks);
+        reloaded.load(farm.save());
+        assertThat(reloaded.farm().scanCursor()).isEqualTo(2);
+        reloaded.power(FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        reloaded.tick();
+
+        assertThat(reloaded.world.mutations).hasSize(1);
+        assertThat(reloaded.world.mutations.get(0).pos()).isEqualTo(reloaded.plot(2).below());
+    }
+
+    @Test
+    @DisplayName("other shortages do not hold the scan: with no germlings it moves on to the next plot")
+    void otherShortagesMoveOn() {
+        FarmHarness farm = new FarmHarness(plantingEverywhere());
+        farm.power(10_000);
+
+        farm.ticks(3);
+
+        assertThat(farm.farm().heldPlot()).isEqualTo(-1);
+        assertThat(farm.farm().scanCursor()).isEqualTo(3);
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_GERMLINGS);
+    }
+
+    @Test
+    @DisplayName("the harvest lane waits on its current block for RF, then breaks that same block")
+    void harvestWaitsOnItsBlock() {
+        BlockPos base = new FarmHarness(new ScriptedFarmLogic()).plot(0);
+        List<BlockPos> plan = trunk(base, 6);
+        FarmHarness farm = new FarmHarness(felling(base, plan));
+        plan.forEach(pos -> farm.world.set(pos, LOG));
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
+        farm.ticks(3);
+        assertThat(farm.world.broken).containsExactly(plan.get(0));
+        int remaining = farm.farm().harvestRemaining();
+
+        farm.ticks(200);
+        assertThat(farm.farm().harvestRemaining()).isEqualTo(remaining);
+        assertThat(farm.world.broken).hasSize(1);
+
+        farm.power(FarmHarness.SETTINGS.cost(FarmCost.HARVEST_LOG));
+        farm.tick();
+        assertThat(farm.world.broken).containsExactly(plan.get(0), plan.get(1));
     }
 
     // ==================== Soil and water ====================
@@ -547,7 +681,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         assertThat(farm.world.blocks).containsEntry(farm.plot(1).below(), Blocks.DIRT.defaultBlockState());
         assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).isEqualTo(1);
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfSoil());
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.SOIL));
     }
 
     /** Lays podzol under every plot that has none yet. */
@@ -669,11 +803,16 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.PODZOL.defaultBlockState());
     }
 
-    private static final BlockState WET_FARMLAND = Blocks.FARMLAND.defaultBlockState().setValue(BlockStateProperties.MOISTURE, 7);
+    private static final BlockState WET_FARMLAND = farmland(7);
 
+    private static BlockState farmland(int moisture) {
+        return Blocks.FARMLAND.defaultBlockState().setValue(BlockStateProperties.MOISTURE, moisture);
+    }
+
+    /** Tills dirt into dry farmland. */
     private static ScriptedFarmLogic tillingDirt(boolean usesWater) {
         return new ScriptedFarmLogic(usesWater, false).script((world, plot) ->
-                world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), WET_FARMLAND) : PlotAction.NONE);
+                world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), farmland(0)) : PlotAction.NONE);
     }
 
     private static void fillWater(FarmHarness farm, long mb) {
@@ -685,37 +824,37 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("each till spends exactly water_per_till; without it the till is skipped and the farm reports No water")
-    void tillSpendsWaterPerTill() {
+    @DisplayName("a till costs RF only: an empty tank tills every plot to dry farmland")
+    void tillNeedsNoWater() {
         FarmHarness farm = new FarmHarness(tillingDirt(true));
         for (int i = 0; i < 8; i++) {
             farm.world.set(farm.plot(i).below(), Blocks.DIRT.defaultBlockState());
         }
-        int perTill = FarmHarness.SETTINGS.waterPerTillMb();
-        fillWater(farm, 2L * perTill + perTill / 2);
         farm.power(10_000);
 
         farm.ticks(8);
 
-        assertThat(tilled(farm)).isEqualTo(2);
-        assertThat(waterMb(farm)).isEqualTo(perTill / 2);
-        assertThat(farm.energy()).isEqualTo(10_000 - 2 * FarmHarness.SETTINGS.rfTill());
-        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_WATER);
-
-        fillWater(farm, perTill);
-        farm.ticks(100);
-        assertThat(tilled(farm)).isEqualTo(3);
-        assertThat(waterMb(farm)).isEqualTo(perTill / 2);
+        for (int i = 0; i < 8; i++) {
+            assertThat(farm.world.blocks).containsEntry(farm.plot(i).below(), farmland(0));
+        }
+        assertThat(waterMb(farm)).isZero();
+        assertThat(farm.energy()).isEqualTo(10_000 - 8 * FarmHarness.SETTINGS.cost(FarmCost.TILL));
+        assertThat(farm.farm().status()).isNotEqualTo(FarmStatus.NO_WATER);
     }
 
-    private static int tilled(FarmHarness farm) {
-        int tilled = 0;
-        for (int i = 0; i < 8; i++) {
-            if (farm.world.blocks.get(farm.plot(i).below()) == WET_FARMLAND) {
-                tilled++;
-            }
-        }
-        return tilled;
+    @Test
+    @DisplayName("a till leaves the tank alone and lays the logic's result as asked")
+    void tillSpendsNoWater() {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false).script((world, plot) ->
+                world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), farmland(5)) : PlotAction.NONE));
+        farm.world.set(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
+        fillWater(farm, 1_000);
+        farm.power(10_000);
+
+        farm.tick();
+
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(5));
+        assertThat(waterMb(farm)).isEqualTo(1_000);
     }
 
     @Test
@@ -727,8 +866,8 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         farm.tick();
 
-        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), WET_FARMLAND);
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfTill());
+        assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), farmland(0));
+        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.cost(FarmCost.TILL));
     }
 
     @Test
@@ -753,36 +892,126 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.farm().status()).isNotEqualTo(FarmStatus.NO_WATER);
     }
 
-    @Test
-    @DisplayName("moistening wets farmland to full moisture without a neighbour update, for RF and no water")
-    void moistensWithoutWater() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false).script((world, plot) -> {
-            BlockState soil = world.state(plot.below());
-            return soil.is(Blocks.FARMLAND) && soil.getValue(BlockStateProperties.MOISTURE) < 7
-                    ? new PlotAction.Moisten(plot.below())
-                    : PlotAction.NONE;
-        }));
-        for (int i = 0; i < 8; i++) {
-            farm.world.set(farm.plot(i).below(), Blocks.FARMLAND.defaultBlockState());
-        }
-        fillWater(farm, 1_000);
-        farm.power(10_000);
+    // ==================== Irrigation ====================
 
+    /** A working farm with a tank of {@code mb}, ticked once so it irrigates its 8-plot ring. */
+    private static FarmHarness irrigating(long mb) {
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true, false));
+        fillWater(farm, mb);
+        farm.tick();
+        return farm;
+    }
+
+    @Test
+    @DisplayName("every soil cell of the ring is irrigated, each check charging water_per_irrigation_mb and no RF")
+    void irrigatesRingSoil() {
+        FarmHarness farm = irrigating(1_000);
+        long energy = farm.energy();
+        int perCheck = FarmHarness.SETTINGS.waterPerIrrigationMb();
+
+        for (int i = 0; i < 8; i++) {
+            assertThat(farm.farm().irrigate(farm.world, farm.plot(i).below())).as("plot %s", i).isTrue();
+        }
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("charged again per check").isTrue();
+
+        assertThat(waterMb(farm)).isEqualTo(1_000 - 9L * perCheck);
+        assertThat(farm.energy()).isEqualTo(energy);
+    }
+
+    @Test
+    @DisplayName("irrigation scales with the climate: a hot, dry biome pays twice")
+    void irrigationScalesWithClimate() {
+        FarmHarness farm = irrigating(1_000);
+        farm.world.climate = new FarmClimate(2f, false);
+
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isTrue();
+
+        assertThat(waterMb(farm)).isEqualTo(1_000 - 2L * FarmHarness.SETTINGS.waterPerIrrigationMb());
+    }
+
+    @Test
+    @DisplayName("the courtyard, outside the ring and any layer but the soil are never irrigated, and cost nothing")
+    void irrigatesOnlyRingSoil() {
+        FarmHarness farm = irrigating(1_000);
+        BlockPos soil = farm.plot(0).below();
+
+        assertThat(farm.farm().irrigate(farm.world, new BlockPos(0, soil.getY(), 0))).as("courtyard").isFalse();
+        assertThat(farm.farm().irrigate(farm.world, new BlockPos(2, soil.getY(), 0))).as("outside").isFalse();
+        assertThat(farm.farm().irrigate(farm.world, soil.above())).as("the plot itself").isFalse();
+        assertThat(farm.farm().irrigate(farm.world, soil.below())).as("under the soil").isFalse();
+        assertThat(waterMb(farm)).isEqualTo(1_000);
+    }
+
+    @Test
+    @DisplayName("a tank short of one check's water irrigates nothing and is not charged")
+    void irrigationNeedsTheFullCharge() {
+        FarmHarness farm = irrigating(FarmHarness.SETTINGS.waterPerIrrigationMb() - 1);
+
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isFalse();
+
+        assertThat(waterMb(farm)).isEqualTo(FarmHarness.SETTINGS.waterPerIrrigationMb() - 1);
+    }
+
+    @Test
+    @DisplayName("farmland in the rain is not irrigated, and costs nothing: the rain wets it")
+    void rainIsFree() {
+        FarmHarness farm = irrigating(1_000);
+        farm.world.raining = true;
+
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isFalse();
+
+        assertThat(waterMb(farm)).isEqualTo(1_000);
+    }
+
+    @Test
+    @DisplayName("a surveying farm irrigates nothing until started")
+    void surveyingFarmDoesNotIrrigate() {
+        FarmHarness farm = FarmHarness.surveying(new ScriptedFarmLogic(true, false), FarmHarness.SETTINGS);
+        fillWater(farm, 1_000);
         farm.tick();
 
-        BlockPos soil = farm.plot(0).below();
-        assertThat(farm.world.blocks.get(soil).getValue(BlockStateProperties.MOISTURE)).isEqualTo(7);
-        assertThat(farm.world.writeFlags).containsEntry(soil, Block.UPDATE_CLIENTS);
-        assertThat(waterMb(farm)).isEqualTo(1_000);
-        assertThat(farm.energy()).isEqualTo(10_000 - FarmHarness.SETTINGS.rfMoisten());
+        assertThat(farm.farm().irrigatedArea()).isNull();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isFalse();
 
-        FarmHarness dry = new FarmHarness(farm.logic);
-        dry.world.set(dry.plot(0).below(), Blocks.FARMLAND.defaultBlockState());
-        dry.power(10_000);
-        dry.tick();
-        assertThat(dry.world.blocks.get(dry.plot(0).below()).getValue(BlockStateProperties.MOISTURE))
-                .as("an empty tank does not stop moistening")
-                .isEqualTo(7);
+        farm.farm().start();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("from its next tick").isFalse();
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isTrue();
+    }
+
+    @Test
+    @DisplayName("a farm without a tank, a paused one and a detached one irrigate nothing")
+    void irrigationGates() {
+        FarmHarness dryFarm = new FarmHarness(new ScriptedFarmLogic(false, false));
+        dryFarm.tick();
+        assertThat(dryFarm.farm().irrigate(dryFarm.world, dryFarm.plot(0).below())).as("no tank").isFalse();
+
+        FarmHarness farm = irrigating(1_000);
+        farm.world.signal = true;
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("redstone").isFalse();
+        farm.world.signal = false;
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isTrue();
+
+        farm.farm().detach();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("detached").isFalse();
+        farm.tick();
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("loaded again").isTrue();
+    }
+
+    @Test
+    @DisplayName("a widened ring is irrigated from the next tick, out to its new edge")
+    void irrigationFollowsTheRing() {
+        FarmHarness farm = irrigating(1_000);
+        BlockPos outer = new BlockPos(2, farm.plot(0).below().getY(), 2);
+        assertThat(farm.farm().irrigate(farm.world, outer)).isFalse();
+
+        farm.areaOverride(1, 5);
+        farm.tick();
+
+        assertThat(farm.farm().irrigatedArea()).isEqualTo(farm.area());
+        assertThat(farm.farm().irrigate(farm.world, outer)).isTrue();
     }
 
     @Test
@@ -828,7 +1057,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         }
         farm.power(10_000);
 
-        farm.ticks(3);
+        farm.ticks(10);
 
         assertThat(farm.world.broken).containsAll(plan);
         assertThat(farm.world.blocks).containsEntry(base.below(), Blocks.SAND.defaultBlockState());
@@ -858,7 +1087,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         reloaded.world.blocks.putAll(farm.world.blocks);
         reloaded.load(farm.save());
         reloaded.power(10_000);
-        reloaded.ticks(5);
+        reloaded.ticks(20);
 
         assertThat(reloaded.farm().isHarvesting()).isFalse();
         assertThat(reloaded.world.blocks).containsEntry(base.below(), Blocks.SAND.defaultBlockState());
@@ -905,7 +1134,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.logic.decisions).as("backing off").isEqualTo(8);
 
         farm.tick();
-        assertThat(farm.logic.decisions).isEqualTo(9);
+        assertThat(farm.logic.decisions).as("the checks saved while backing off, two ticks' worth").isEqualTo(10);
     }
 
     @Test
@@ -928,7 +1157,34 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         farm.tick();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.IDLE);
+        assertThat(farm.host.lit()).as("idle, with RF in the buffer").isTrue();
+    }
+
+    @Test
+    @DisplayName("the farm is lit whenever its buffer holds RF, whatever its status, and only updates on a change")
+    void litFollowsTheBuffer() {
+        FarmHarness farm = new FarmHarness(plantingEverywhere());
+        farm.tick();
+        assertThat(farm.host.lit()).as("empty buffer").isFalse();
+
+        farm.power(1);
+        farm.tick();
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
+        assertThat(farm.host.lit()).as("one RF, not enough for anything").isTrue();
+
+        int writes = farm.host.stateWrites;
+        farm.ticks(3);
+        assertThat(farm.host.stateWrites).as("no write while nothing changes").isEqualTo(writes);
+
+        farm.power(0);
+        farm.tick();
         assertThat(farm.host.lit()).isFalse();
+
+        FarmHarness surveying = FarmHarness.surveying(plantingEverywhere(), FarmHarness.SETTINGS);
+        surveying.power(10);
+        surveying.tick();
+        assertThat(surveying.farm().status()).isEqualTo(FarmStatus.SURVEYING);
+        assertThat(surveying.host.lit()).as("surveying, with RF in the buffer").isTrue();
     }
 
     @Test
@@ -951,20 +1207,20 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("the area override works a different ring, and restores the logic's")
+    @DisplayName("the area override works a different ring, and restores the tier's")
     void areaOverride() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
         assertThat(farm.farm().areaSize()).isEqualTo(3);
 
-        farm.farm().setAreaOverride(1, 5);
+        farm.areaOverride(1, 5);
         farm.power(10_000);
-        farm.ticks(24 + FarmHarness.SETTINGS.idleBackoffBaseTicks() + 1);
+        farm.ticks(24 + FarmHarness.SETTINGS.idleBackoffBaseTicks());
 
         assertThat(farm.farm().areaSize()).isEqualTo(5);
-        assertThat(farm.logic.decisions).as("one 24-plot pass, the back-off, then the next pass").isEqualTo(25);
+        assertThat(farm.logic.decisions).as("one 24-plot pass, then the back-off").isEqualTo(24);
 
-        farm.farm().setAreaOverride(0, 0);
-        assertThat(farm.farm().areaSize()).isEqualTo(3);
+        farm.areaOverride(0, 0);
+        assertThat(farm.farm().areaSize()).isEqualTo(FarmHarness.PROFILE.outerSize());
     }
 
     @Test
@@ -972,22 +1228,23 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     void invalidAreaOverride() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.farm().setAreaOverride(3, 3))
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.areaOverride(3, 3))
                 .isInstanceOf(IllegalArgumentException.class);
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.farm().setAreaOverride(2, 5))
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> farm.areaOverride(2, 5))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    @DisplayName("the logic is handed the ring its plot belongs to")
+    @DisplayName("the logic is handed the ring its plot belongs to, one block above the farm so the soil is level with it")
     void logicSeesRing() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
         farm.power(10_000);
 
         farm.tick();
 
-        assertThat(farm.logic.lastArea).isEqualTo(new RingArea(farm.host.pos(), 1, 3));
-        assertThat(farm.logic.lastArea.plot(0)).isEqualTo(farm.plot(0));
+        assertThat(farm.logic.lastArea).isEqualTo(new RingArea(farm.host.pos().above(), 1, 3));
+        assertThat(farm.logic.lastArea.plot(0, 0).below().getY()).isEqualTo(farm.host.pos().getY());
+        assertThat(farm.logic.lastArea.plot(0, 0)).isEqualTo(farm.plot(0));
     }
 
     @Test

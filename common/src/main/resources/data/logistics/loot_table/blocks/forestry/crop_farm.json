@@ -9,7 +9,14 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:forestry/crop_farm"
+          "name": "logistics:forestry/crop_farm",
+          "modifier": {
+            "type": "minecraft:copy_components",
+            "source": "block_entity",
+            "include": [
+              "logistics:machine_tier"
+            ]
+          }
         }
       ]
     }

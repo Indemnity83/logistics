@@ -14,6 +14,8 @@ import com.logistics.core.engine.block.RedstoneEngineBlock;
 import com.logistics.core.engine.block.entity.RedstoneEngineBlockEntity;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
+import com.logistics.core.machine.tier.MachineTier;
+import com.logistics.core.machine.tier.UpgradeKitItem;
 import com.logistics.core.worldgen.BogPatchFeature;
 import com.logistics.core.worldgen.OilSeepFeature;
 import com.logistics.core.worldgen.OilSandsFeature;
@@ -21,6 +23,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -170,6 +173,7 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
     public void initCommon() {
         LOGGER.info("Registering {}", domain());
 
+        DATA.register();
         BLOCK.register();
         ITEM.register();
         BUCKET.register();
@@ -245,6 +249,22 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
                 BuiltInRegistries.FEATURE_TYPE,
                 LogisticsMod.modId("oil_sands").toIdentifier(),
                 OilSandsFeature.CODEC);
+        }
+    }
+
+    public static final class DATA {
+        /** A machine's tier on its item form, as the tier's string id. */
+        public static DataComponentType<MachineTier> MACHINE_TIER;
+
+        private DATA() {}
+
+        static void register() {
+            MACHINE_TIER = Registry.register(
+                    BuiltInRegistries.DATA_COMPONENT_TYPE,
+                    LogisticsMod.modId("machine_tier").toIdentifier(),
+                    DataComponentType.<MachineTier>builder()
+                            .persistent(MachineTier.LENIENT_CODEC)
+                            .build());
         }
     }
 
@@ -505,6 +525,11 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item ECHO_VALVE;
         public static Item NETHERITE_VALVE;
 
+        // Upgrade kits — raise a tiered machine one step
+        public static Item INDUSTRIAL_UPGRADE_KIT;
+        public static Item PRECISION_UPGRADE_KIT;
+        public static Item INFERNAL_UPGRADE_KIT;
+
         private ITEM() {}
 
         static void register() {
@@ -616,6 +641,14 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             DIAMOND_VALVE = INSTANCE.registerItem("diamond_valve", Item::new);
             ECHO_VALVE = INSTANCE.registerItem("echo_valve", Item::new);
             NETHERITE_VALVE = INSTANCE.registerItem("netherite_valve", Item::new);
+
+            // Upgrade kits
+            INDUSTRIAL_UPGRADE_KIT = INSTANCE.registerItem("industrial_upgrade_kit",
+                props -> new UpgradeKitItem(MachineTier.INDUSTRIAL, props));
+            PRECISION_UPGRADE_KIT = INSTANCE.registerItem("precision_upgrade_kit",
+                props -> new UpgradeKitItem(MachineTier.PRECISION, props));
+            INFERNAL_UPGRADE_KIT = INSTANCE.registerItem("infernal_upgrade_kit",
+                props -> new UpgradeKitItem(MachineTier.INFERNAL, props));
         }
     }
 
@@ -689,6 +722,9 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             TAB.add(ITEM.SILICON_WAFER);
             TAB.add(BLOCK.MARKER);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
+            TAB.add(ITEM.INDUSTRIAL_UPGRADE_KIT);
+            TAB.add(ITEM.PRECISION_UPGRADE_KIT);
+            TAB.add(ITEM.INFERNAL_UPGRADE_KIT);
 
             // --- Component ladder: gears -> valves -> chipsets ---
             TAB.add(ITEM.WOODEN_GEAR);

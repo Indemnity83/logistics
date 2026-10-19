@@ -3,6 +3,8 @@ package com.logistics.forestry.farm;
 import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.tier.MachineTier;
+import java.util.function.BooleanSupplier;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -35,7 +37,17 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@link #STATUS}: {@link FarmStatus} ordinal;</li>
  *   <li>{@link #AREA_SIZE}: outer side of the worked ring (a 15 means 15×15);</li>
  *   <li>{@link #FLAGS}: bit {@link #FLAG_USES_WATER}, bit {@link #FLAG_LAYS_SOIL};</li>
+ *   <li>{@link #TIER}: {@link MachineTier#rank()} of the farm's tier;</li>
+ *   <li>{@link #PLOTS_TOTAL}: plots in the worked ring;</li>
+ *   <li>{@link #PLOTS_BLOCKED}: ring plots blocked on their most recent visit;</li>
+ *   <li>{@link #STATE}: {@link FarmState} ordinal;</li>
+ *   <li>{@link #SURVEY_CLEAR}: blocks the survey found the farm would clear;</li>
+ *   <li>{@link #SURVEY_FLAGGED}: of those, blocks that look player-built;</li>
+ *   <li>{@link #SURVEY_PROTECTED}: blocks it found the farm would skip.</li>
  * </ul>
+ *
+ * <p>Buttons, through {@link #clickMenuButton}: {@link #BUTTON_START} starts a surveying farm,
+ * {@link #BUTTON_SHOW_AREA} toggles the area preview.
  */
 public class FarmMenu extends AbstractContainerMenu {
 
@@ -46,7 +58,18 @@ public class FarmMenu extends AbstractContainerMenu {
     public static final int STATUS = 8;
     public static final int AREA_SIZE = 9;
     public static final int FLAGS = 10;
-    public static final int DATA_COUNT = 11;
+    public static final int TIER = 11;
+    public static final int PLOTS_TOTAL = 12;
+    public static final int PLOTS_BLOCKED = 13;
+    public static final int STATE = 14;
+    public static final int SURVEY_CLEAR = 15;
+    public static final int SURVEY_FLAGGED = 16;
+    public static final int SURVEY_PROTECTED = 17;
+    public static final int PREVIEW_SHOWN = 18;
+    public static final int DATA_COUNT = 19;
+
+    public static final int BUTTON_START = 0;
+    public static final int BUTTON_SHOW_AREA = 1;
 
     public static final int FLAG_USES_WATER = 1;
     public static final int FLAG_LAYS_SOIL = 1 << 1;
@@ -54,21 +77,48 @@ public class FarmMenu extends AbstractContainerMenu {
     private static final int PLAYER_START = FarmMachine.SLOT_COUNT;
     private static final int PLAYER_END = PLAYER_START + 36;
 
+    /** What the menu's buttons do to the farm; each returns whether it did anything. */
+    public interface Controls {
+        /** Buttons that do nothing: the client side, or a menu without a farm. */
+        Controls NONE = new Controls() {
+            @Override
+            public boolean start() {
+                return false;
+            }
+
+            @Override
+            public boolean toggleArea() {
+                return false;
+            }
+        };
+
+        boolean start();
+
+        boolean toggleArea();
+    }
+
     private final Container container;
     private final ContainerData data;
+    private final Controls controls;
 
     /** Client-side constructor. */
     public FarmMenu(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(FarmMachine.SLOT_COUNT), new SimpleContainerData(DATA_COUNT));
     }
 
-    /** Server-side constructor. */
+    /** Server-side constructor without working buttons. */
     public FarmMenu(int syncId, Inventory playerInventory, Container container, ContainerData data) {
+        this(syncId, playerInventory, container, data, Controls.NONE);
+    }
+
+    /** Server-side constructor. */
+    public FarmMenu(int syncId, Inventory playerInventory, Container container, ContainerData data, Controls controls) {
         super(LogisticsForestry.MENU.FARM, syncId);
         checkContainerSize(container, FarmMachine.SLOT_COUNT);
         checkContainerDataCount(data, DATA_COUNT);
         this.container = container;
         this.data = data;
+        this.controls = controls;
 
         container.startOpen(playerInventory.player);
 
@@ -101,8 +151,11 @@ public class FarmMenu extends AbstractContainerMenu {
         addDataSlots(data);
     }
 
-    /** Server-side data source over a farm's components; see the class comment for the indices. */
-    public static ContainerData dataSource(FarmMachine farm) {
+    /**
+     * Server-side data source over a farm's components and whether its area preview shows now; see
+     * the class comment for the indices.
+     */
+    public static ContainerData dataSource(FarmMachine farm, BooleanSupplier previewShown) {
         return new ContainerData() {
             @Override
             public int get(int index) {
@@ -117,6 +170,14 @@ public class FarmMenu extends AbstractContainerMenu {
                     case AREA_SIZE -> farm.farm().areaSize();
                     case FLAGS -> (farm.logic().usesWater() ? FLAG_USES_WATER : 0)
                             | (farm.logic().laysSoil() ? FLAG_LAYS_SOIL : 0);
+                    case TIER -> farm.tier().tier().rank();
+                    case PLOTS_TOTAL -> farm.farm().plotsTotal();
+                    case PLOTS_BLOCKED -> farm.farm().plotsBlocked();
+                    case STATE -> farm.farm().state().ordinal();
+                    case SURVEY_CLEAR -> clampToShort(farm.farm().survey().toClear());
+                    case SURVEY_FLAGGED -> clampToShort(farm.farm().survey().flagged());
+                    case SURVEY_PROTECTED -> clampToShort(farm.farm().survey().protectedCount());
+                    case PREVIEW_SHOWN -> previewShown.getAsBoolean() ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -133,12 +194,29 @@ public class FarmMenu extends AbstractContainerMenu {
         };
     }
 
+    /** Synced data travels as shorts. */
+    private static int clampToShort(int value) {
+        return Math.min(value, Short.MAX_VALUE);
+    }
+
     private static long waterMb(FarmMachine farm) {
         return farm.water() == null ? 0 : FluidUnits.toMillibuckets(farm.water().tank().getAmount());
     }
 
     private static long waterCapacityMb(FarmMachine farm) {
         return farm.water() == null ? 0 : FluidUnits.toMillibuckets(farm.water().tank().getCapacity());
+    }
+
+    // ==================== Buttons ====================
+
+    /** Button ids arrive unchecked from the client; an unknown one does nothing. */
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return switch (id) {
+            case BUTTON_START -> controls.start();
+            case BUTTON_SHOW_AREA -> controls.toggleArea();
+            default -> false;
+        };
     }
 
     // ==================== Shift-click ====================
@@ -208,6 +286,48 @@ public class FarmMenu extends AbstractContainerMenu {
 
     public int areaSize() {
         return data.get(AREA_SIZE);
+    }
+
+    public MachineTier tier() {
+        return MachineTier.byRank(data.get(TIER)).orElse(MachineTier.BASIC);
+    }
+
+    public int plotsTotal() {
+        return data.get(PLOTS_TOTAL);
+    }
+
+    public int plotsBlocked() {
+        return data.get(PLOTS_BLOCKED);
+    }
+
+    public int plotsUsable() {
+        return Math.max(0, plotsTotal() - plotsBlocked());
+    }
+
+    public FarmState state() {
+        int ordinal = data.get(STATE);
+        FarmState[] states = FarmState.values();
+        return ordinal >= 0 && ordinal < states.length ? states[ordinal] : FarmState.SURVEY;
+    }
+
+    /** Blocks the survey found the farm would clear. */
+    public int surveyClear() {
+        return data.get(SURVEY_CLEAR);
+    }
+
+    /** Of {@link #surveyClear()}, blocks that look player-built. */
+    public int surveyFlagged() {
+        return data.get(SURVEY_FLAGGED);
+    }
+
+    /** Blocks the survey found the farm would skip. */
+    public int surveyProtected() {
+        return data.get(SURVEY_PROTECTED);
+    }
+
+    /** Whether the area preview shows now: what {@link #BUTTON_SHOW_AREA} would hide. */
+    public boolean previewShown() {
+        return data.get(PREVIEW_SHOWN) != 0;
     }
 
     public boolean usesWater() {

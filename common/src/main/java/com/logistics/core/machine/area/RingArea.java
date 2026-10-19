@@ -12,11 +12,13 @@ import net.minecraft.core.BlockPos;
  * indexed lane by lane, from the innermost outward. Within a lane, step 0 is the north-west corner
  * (lowest X, lowest Z) and steps run clockwise seen from above: east along the north edge, south
  * along the east edge, west along the south edge, then north along the west edge. Consecutive
- * steps are orthogonally adjacent, and the last step is adjacent to step 0.
+ * steps are orthogonally adjacent, and the last step is adjacent to step 0. A plot's index depends
+ * only on {@code inner}, so widening {@code outer} only appends lanes: every existing plot keeps its
+ * index, lane and step.
  *
  * <p>All positions are at {@code origin}'s Y; membership tests ignore Y.
  */
-public record RingArea(BlockPos origin, int inner, int outer) implements PlotArea {
+public record RingArea(BlockPos origin, int inner, int outer) implements PlotArea, PlotLayout {
 
     public RingArea {
         if (origin == null) {
@@ -36,17 +38,20 @@ public record RingArea(BlockPos origin, int inner, int outer) implements PlotAre
         return outer * outer - inner * inner;
     }
 
+    @Override
     public int laneCount() {
         return (outer - inner) / 2;
     }
 
     /** Plots in {@code lane}: the perimeter of the square of side {@code inner + 2 + 2 * lane}. */
+    @Override
     public int laneLength(int lane) {
         checkLane(lane);
         return 8 * halfSide(lane);
     }
 
     /** Lane holding plot {@code index}. */
+    @Override
     public int lane(int index) {
         checkIndex(index);
         int lane = 0;
@@ -57,6 +62,7 @@ public record RingArea(BlockPos origin, int inner, int outer) implements PlotAre
     }
 
     /** Position of plot {@code index} within its lane. */
+    @Override
     public int step(int index) {
         return index - laneStart(lane(index));
     }
@@ -73,6 +79,7 @@ public record RingArea(BlockPos origin, int inner, int outer) implements PlotAre
         return plot(lane, index - laneStart(lane));
     }
 
+    @Override
     public BlockPos plot(int lane, int step) {
         checkStep(lane, step);
         int h = halfSide(lane);
@@ -120,6 +127,18 @@ public record RingArea(BlockPos origin, int inner, int outer) implements PlotAre
     @Override
     public BlockPos max() {
         return origin.offset(outer / 2, 0, outer / 2);
+    }
+
+    /** The outer square. */
+    @Override
+    public Columns bounds() {
+        return Columns.square(origin, outer);
+    }
+
+    /** The inner square, which the ring surrounds and never includes. */
+    @Override
+    public Columns keepOut() {
+        return Columns.square(origin, inner);
     }
 
     /** Distance from {@code origin} to {@code lane}'s edges. */

@@ -62,6 +62,11 @@ public final class FluidStoreComponent
         return tank;
     }
 
+    /** Changes the tank's capacity, clamping its contents. */
+    public void resize(long capacity) {
+        tank.setCapacity(capacity);
+    }
+
     @Override
     @Nullable
     public IFluidStorage fluid(@Nullable Direction side) {
