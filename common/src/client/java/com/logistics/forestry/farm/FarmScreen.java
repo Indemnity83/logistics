@@ -2,6 +2,11 @@ package com.logistics.forestry.farm;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +25,9 @@ import net.minecraft.world.level.material.Fluids;
  * The screen every farm opens. Soil slot frames and the water gauge are drawn from the spare region
  * of the GUI texture only when the farm lays soil or has a tank; otherwise those areas stay plain.
  * One button under the soil row starts a surveying farm, then shows or hides a working farm's area.
+ * The standard machine side tabs sit outside the image, with each farm type's own Info text.
  */
-public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
+public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements SideTabScreen {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/forestry/farm.png");
     private static final int TEXTURE_WIDTH = 256;
@@ -68,8 +74,12 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
     private int shownFlagged = -1;
     private int shownProtected = -1;
 
+    private final SideTabHost tabs;
+
     public FarmScreen(FarmMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
+        this.tabs = MachineTabs.machine(FarmScreenText.tabKey(title), menu, menu.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
     }
 
     @Override
@@ -86,6 +96,17 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> {
         shownState = null;
         updateButton();
         addRenderableWidget(stateButton);
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

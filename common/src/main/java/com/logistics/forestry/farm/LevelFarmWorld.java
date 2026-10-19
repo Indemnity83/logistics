@@ -54,11 +54,6 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     }
 
     @Override
-    public boolean hasNeighborSignal(BlockPos pos) {
-        return level.hasNeighborSignal(pos);
-    }
-
-    @Override
     public boolean canModify(BlockPos pos) {
         return ProtectionCompat.canModify(level, pos, owner);
     }

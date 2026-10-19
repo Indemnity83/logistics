@@ -73,7 +73,8 @@ import org.jetbrains.annotations.Nullable;
  * {@link CourtyardGuard}, which refuses any in a courtyard column at any Y. The plots are one block
  * above the farm, so their soil, {@code plot.below()}, is level with the farm block.
  *
- * <p>The farm-wide gates live here, not in the logic. A redstone signal pauses everything. Every
+ * <p>The farm-wide gates live here, not in the logic. A host that does not permit work
+ * ({@link MachineContext#workEnabled}, the farm's redstone control) pauses everything. Every
  * action first checks everything it needs without side effects (loaded, claim protection, RF,
  * water, germlings, soil, room for drops), then changes the world, and charges only once the world
  * reports the change; a failed action costs nothing. A full output buffer stops every op that
@@ -212,7 +213,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private FarmLogic germlingLogic;
     private FarmLogic soilLogic;
     private boolean dirty;
-    // The ring irrigated as of the last tick: working, with a tank and no redstone signal; else null.
+    // The ring irrigated as of the last tick: working, with a tank and not paused; else null.
     @Nullable private RingArea irrigated;
     private int irrigationMb;
     @Nullable private FarmlandHydration.Registration irrigation;
@@ -476,7 +477,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         FarmPlan plan = plan(area);
         ensureScanner(area, s);
 
-        boolean paused = world.hasNeighborSignal(ctx.pos());
+        boolean paused = !ctx.workEnabled();
         updateIrrigation(ctx, area, paused, s);
         if (!paused) {
             FarmTierProfile profile = s.profile(tier.get());
@@ -1587,7 +1588,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     /**
      * Vanilla asking whether the farmland at {@code pos} is near water, once it found none. True,
      * paying {@code water_per_irrigation_mb} scaled by the climate at {@code pos}, for a soil cell of
-     * the ring of a working farm whose tank holds that much and that sees no redstone signal. Rain
+     * the ring of a working farm whose tank holds that much and that is not paused. Rain
      * wets farmland for free, so a plot in the rain is answered false and costs nothing; so is one the
      * tank cannot pay for in full, which then dries a level.
      */

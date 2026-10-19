@@ -126,7 +126,7 @@ Then: confirm **NeoForge parity**, run a **balance pass**, refresh docs, and gat
 
 **Farms** *(headline — design settled; briefs [`0201`–`0213`](features/README.md#phase-2-batch-forestry-farms))*
 - Single-block farms (the older Forestry design, **not** the later multiblock multifarm), **one block per farm type**: Cropland (Crop Farm) ✅ and Arboretum ✅ first, adopting the tiered framework; then the ground farms (Berry Farm, Nether Wart Farm, Gourd Farm, Plantation, Desert Farm); then Mushroom Farm, Cocoa Plantation, Cave Vine Farm and Peat Bog
-- Each farm sits at the centre of a protected **7×7 courtyard** and works a ring around it sized by its machine tier (11×11 Basic → 23×23 Infernal, raised with Upgrade Kits, [`0111`](features/0111-machine-frame-tiers.md)); a placed farm only surveys until Start; redstone pauses it; no fake players, no chunk loading
+- Each farm sits at the centre of a protected **7×7 courtyard** and works a ring around it sized by its machine tier (11×11 Basic → 23×23 Infernal, raised with Upgrade Kits, [`0111`](features/0111-machine-frame-tiers.md)); a placed farm only surveys until Start; it has the standard redstone control, ignoring redstone by default; no fake players, no chunk loading
 - Peat bog → peat fuel: bog earth gains a wet-only **maturity** state, worked by the Peat Bog farm
 - Fertilizer chain on existing Apatite: a **Fertilizer** item (kept for a future machine augmentation; not used by farms) and **Humus** soil that speeds saplings and turns to sand under grown trees
 

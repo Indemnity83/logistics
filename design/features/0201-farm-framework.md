@@ -49,7 +49,7 @@ One block per farm type. Replacing one farm block with another is how a player s
 - **Work loop:** the [scheduler](#scheduler) spends an action budget and a check budget each tick. Inspections cost no RF; every world change is one `PlotAction` with its own RF cost; no action needs water.
 - **Irrigation:** a working farm with a tank keeps its ring's farmland wet through vanilla's own moisture check. Vanilla farmland asks, on each of its random ticks, whether water is near: wet, it goes to or stays at moisture 7; dry, it loses a level, and empty farmland at 0 turns back to dirt. Farmland on a ring plot's soil cell that finds no real water asks the farm instead, which answers wet for `water_per_irrigation_mb` (100) × climate factor from its tank. Rain and real water nearby wet it for free, a tank short of the full charge answers dry, and a surveying or paused farm never irrigates. The check is routed through `core.lib.farmland.FarmlandHydration`: a mixin on `FarmlandBlock.isNearWater` on Fabric, a `FarmlandWaterManager` ticket on NeoForge.
 - **Output:** a 9-slot internal buffer. When it is full the farm stops harvesting (planting and soil work continue) and shows *Output full*. It never drops or voids items in the world; it sweeps up loose drops in its own ring. Random drops beyond the free space go to an NBT overflow list.
-- **Redstone:** a redstone signal pauses the farm.
+- **Redstone:** the standard machine redstone control (the GUI's Redstone Control tab), ignoring redstone by default; set to run only with or only without a signal, a farm it disables pauses, irrigation included.
 - **Status (Jade + GUI):** one of Surveying, Working, No power, No germlings, No soil, Output full, Paused (redstone), Idle (nothing to do), plus Too dark / Blocked instead of retrying forever. Usable and blocked plot counts per pass.
 - **No fake players.** Plant with `setBlock` after `canSurvive`; harvest with `Block.getDrops(…, ItemStack.EMPTY)` + `destroyBlock` (accept drops only when it returns true); grow through `PlantCompat`. The owner is recorded on placement behind a no-op `ProtectionCompat` seam, since claim mods see no break event without a fake player.
 - **Slots:** 4 germlings (0–3) + 4 **materials** (4–7) + 9 output (8–16). Materials are whatever the farm places besides germlings — soil, support logs, ceiling blocks, fertilizer — and each farm sets the role filter.
@@ -224,7 +224,7 @@ One menu + screen for every farm, configured by farm type (approved layout):
 
 ## Done when
 
-- A farm block with a trivial test `FarmLogic` works its plot on both loaders: no power → no work, Output full → stall, redstone → pause.
+- A farm block with a trivial test `FarmLogic` works its plot on both loaders: no power → no work, Output full → stall, redstone ignored by default and pausing in a mode that disables it.
 - A hopper inserts germlings and materials into the right slots, and a hopper / Provider pipe can pull only output.
 - Water arrives from a Glass Tank or fluid pipe into the input-only tank.
 - **World safety invariants**, each with a test: no write ever lands in a courtyard column; nothing is modified before Start; block entities, unbreakable blocks and `#never_clear` are never broken; no failed action consumes resources, duplicates drops or changes the world unaccounted; felling stays inside its bounds and never steps from canopy into a foreign trunk; per-tick work is bounded; nothing is scheduled outside the block entity and chunks are never loaded; output never voids.

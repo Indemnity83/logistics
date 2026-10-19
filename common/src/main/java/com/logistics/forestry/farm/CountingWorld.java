@@ -103,11 +103,6 @@ final class CountingWorld implements FarmWorldAccess {
     }
 
     @Override
-    public boolean hasNeighborSignal(BlockPos pos) {
-        return world().hasNeighborSignal(pos);
-    }
-
-    @Override
     public float destroySpeed(BlockPos pos) {
         reads++;
         return world().destroySpeed(pos);

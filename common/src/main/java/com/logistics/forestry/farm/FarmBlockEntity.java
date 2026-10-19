@@ -3,6 +3,8 @@ package com.logistics.forestry.farm;
 import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.control.MachineControls;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.core.machine.tier.TierComponent;
 import com.logistics.core.machine.tier.TieredMachine;
@@ -27,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * is comes from its block's {@link FarmMachineBlock#logic()}; the components are built by
  * {@link FarmMachine#assemble}.
  */
-public class FarmBlockEntity extends MachineEntity implements TieredMachine, FarmMenu.Controls {
+public class FarmBlockEntity extends MachineEntity implements TieredMachine, FarmMenu.Buttons {
 
     public static final String MESSAGE_EXPANDED = "message.logistics.farm.expanded";
 
@@ -56,6 +58,7 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
     protected void configure(MachineBuilder machine) {
         FarmLogic logic = getBlockState().getBlock() instanceof FarmMachineBlock farm ? farm.logic() : UNKNOWN_FARM;
         parts = FarmMachine.assemble(machine, logic, FarmSettings::fromConfig, FarmComponent.LEVEL);
+        machine.redstoneControl("redstone").defaultMode(RedstoneMode.IGNORED).build();
         containerData = FarmMenu.dataSource(parts, this::previewShown);
     }
 
@@ -80,7 +83,8 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new FarmMenu(syncId, playerInventory, FarmBlockEntity.this, containerData, FarmBlockEntity.this);
+                return new FarmMenu(syncId, playerInventory, FarmBlockEntity.this, containerData, FarmBlockEntity.this,
+                        MachineControls.server(FarmBlockEntity.this));
             }
         };
     }

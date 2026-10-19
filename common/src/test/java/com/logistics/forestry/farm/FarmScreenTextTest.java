@@ -2,6 +2,8 @@ package com.logistics.forestry.farm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.logistics.DomainRegistrations;
+import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.List;
@@ -24,6 +26,18 @@ class FarmScreenTextTest extends MinecraftTestEnvironment {
         assertThat(title.getArgs()[0]).isEqualTo(name);
         assertThat(translatable((Component) title.getArgs()[1]).getKey())
                 .isEqualTo(MachineTier.INDUSTRIAL.translationKey());
+    }
+
+    @Test
+    @DisplayName("each farm's side tabs are keyed by its block, so each has its own Info text")
+    void tabKey() {
+        DomainRegistrations.ensureRegistered();
+
+        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.CROP_FARM.getName())).isEqualTo("crop_farm");
+        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.ARBORETUM.getName())).isEqualTo("arboretum");
+        assertThat(FarmScreenText.tabKey(Component.literal("Crop Farm"))).isEqualTo(FarmScreenText.FALLBACK_TAB_KEY);
+        assertThat(FarmScreenText.tabKey(Component.translatable("container.chest")))
+                .isEqualTo(FarmScreenText.FALLBACK_TAB_KEY);
     }
 
     @Test

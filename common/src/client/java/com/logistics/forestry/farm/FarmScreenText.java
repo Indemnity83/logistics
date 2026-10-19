@@ -4,8 +4,9 @@ import com.logistics.core.machine.tier.MachineTier;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
-/** The farm screen's title, status-lamp tooltip and button text. */
+/** The farm screen's title, status-lamp tooltip, button text and side-tab key. */
 final class FarmScreenText {
 
     static final String TITLE = "gui.logistics.farm.title";
@@ -15,6 +16,8 @@ final class FarmScreenText {
     static final String BUTTON_SHOW_AREA = "gui.logistics.farm.show_area";
     static final String BUTTON_HIDE_AREA = "gui.logistics.farm.hide_area";
     static final String TOOLTIP_START = "tooltip.logistics.farm.start";
+    static final String BLOCK_KEY_PREFIX = "block.logistics.";
+    static final String FALLBACK_TAB_KEY = "farm";
 
     private FarmScreenText() {}
 
@@ -47,6 +50,20 @@ final class FarmScreenText {
     /** The button id {@link FarmMenu#clickMenuButton} expects in {@code state}. */
     static int buttonId(FarmState state) {
         return state == FarmState.SURVEY ? FarmMenu.BUTTON_START : FarmMenu.BUTTON_SHOW_AREA;
+    }
+
+    /**
+     * The side-tab key for the farm whose menu opened under {@code blockName}: the last segment of
+     * its block's translation key ({@code block.logistics.forestry.crop_farm} gives {@code crop_farm}).
+     * Every farm shares one menu type, and the block name is the only per-farm detail a client screen
+     * has when it is built.
+     */
+    static String tabKey(Component blockName) {
+        if (blockName.getContents() instanceof TranslatableContents name && name.getKey().startsWith(BLOCK_KEY_PREFIX)) {
+            String key = name.getKey();
+            return key.substring(key.lastIndexOf('.') + 1);
+        }
+        return FALLBACK_TAB_KEY;
     }
 
     /** What pressing Start will clear and skip. */

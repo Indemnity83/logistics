@@ -6,6 +6,8 @@ import com.logistics.DomainRegistrations;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.area.RingArea;
+import com.logistics.core.machine.control.MachineControls;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.ArrayList;
@@ -292,7 +294,7 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
     void menuButtons() {
         FarmHarness farm = surveying();
         long[] now = {200};
-        FarmMenu.Controls controls = new FarmMenu.Controls() {
+        FarmMenu.Buttons buttons = new FarmMenu.Buttons() {
             @Override
             public boolean start() {
                 return farm.farm().start();
@@ -305,10 +307,13 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
         };
         var data = FarmMenu.dataSource(farm.machine, () -> farm.farm().previewShown(now[0]));
         FarmMenu menu = new FarmMenu(
-                1, new Inventory(null, new EntityEquipment()), new SimpleContainer(FarmMachine.SLOT_COUNT), data, controls);
+                1, new Inventory(null, new EntityEquipment()), new SimpleContainer(FarmMachine.SLOT_COUNT), data, buttons,
+                MachineControls.client());
 
         assertThat(menu.clickMenuButton(null, -1)).isFalse();
         assertThat(menu.clickMenuButton(null, 99)).isFalse();
+        assertThat(menu.clickMenuButton(null, MachineControls.redstoneButton(RedstoneMode.HIGH)))
+                .as("a redstone button is the controls', never a farm button").isFalse();
         assertThat(farm.farm().state()).isEqualTo(FarmState.SURVEY);
         assertThat(menu.previewShown()).as("surveying: shown").isTrue();
 
