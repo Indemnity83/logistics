@@ -476,7 +476,7 @@ jobs:
       # the `preview` environment, out of the production deploy stream.
       - name: Create Sentry release (Fabric)
         if: ${{ env.HAS_SENTRY_TOKEN == 'true' }}
-        uses: getsentry/action-release@ff07929a6537bac57790c3451cf4d364aca38528 # v3.7.0
+        uses: getsentry/action-release@6fb9aeade7061441cf3864e34fbe11a1457ad7dc # v3.7.1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: indmenity83
@@ -492,7 +492,7 @@ jobs:
 
       - name: Create Sentry release (NeoForge)
         if: ${{ env.HAS_SENTRY_TOKEN == 'true' }}
-        uses: getsentry/action-release@ff07929a6537bac57790c3451cf4d364aca38528 # v3.7.0
+        uses: getsentry/action-release@6fb9aeade7061441cf3864e34fbe11a1457ad7dc # v3.7.1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: indmenity83
