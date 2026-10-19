@@ -21,6 +21,8 @@ import com.logistics.automation.transposer.TransposerScreenHandler;
 import com.logistics.core.lib.client.screen.tab.TabFixtures.FakeClock;
 import com.logistics.core.lib.client.screen.tab.TabFixtures.RecordingCanvas;
 import com.logistics.core.machine.control.MachineControls;
+import com.logistics.forestry.farm.FarmMenu;
+import com.logistics.forestry.farm.FarmScreen;
 import com.logistics.power.engine.ui.FuelEngineScreenHandler;
 import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
 import com.logistics.power.engine.ui.ReactionEngineScreenHandler;
@@ -83,6 +85,10 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
                         SequentialFabricatorScreenHandler::controls),
                 machine("transposer", TransposerScreen.class, 176, 166,
                         inventory -> new TransposerScreenHandler(1, inventory), TransposerScreenHandler::controls),
+                machine("crop_farm", FarmScreen.class, 176, 166,
+                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
+                machine("arboretum", FarmScreen.class, 176, 166,
+                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
                 engine("stirling_engine", StirlingEngineScreen.class, 176, 166,
                         inventory -> new StirlingEngineScreenHandler(1, inventory), StirlingEngineScreenHandler::controls),
                 engine("fuel_engine", FuelEngineScreen.class, 176, 166,

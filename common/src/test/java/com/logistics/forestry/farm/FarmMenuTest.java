@@ -8,6 +8,8 @@ import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.control.MachineControls;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
@@ -342,6 +344,26 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.waterCapacityMb()).isZero();
         assertThat(menu.usesWater()).isFalse();
         assertThat(menu.laysSoil()).isTrue();
+    }
+
+    @Test
+    @DisplayName("the farm's own buttons sit outside the machine controls' reserved ids")
+    void farmButtonsAvoidControlIds() {
+        int reservedEnd = MachineControls.BUTTON_BASE + MachineControls.BUTTON_RANGE;
+        for (int id : new int[] {FarmMenu.BUTTON_START, FarmMenu.BUTTON_SHOW_AREA}) {
+            assertThat(id >= MachineControls.BUTTON_BASE && id < reservedEnd)
+                    .as("button " + id).isFalse();
+        }
+    }
+
+    @Test
+    @DisplayName("the menu syncs the machine controls after its own data")
+    void carriesMachineControls() {
+        FarmMenu menu = new FarmMenu(1, playerInventory());
+
+        assertThat(menu.controls().data().getCount()).isEqualTo(MachineControls.COUNT);
+        menu.setData(FarmMenu.DATA_COUNT, RedstoneMode.HIGH.syncId());
+        assertThat(menu.controls().mode()).isEqualTo(RedstoneMode.HIGH);
     }
 
     // ==================== Helpers ====================

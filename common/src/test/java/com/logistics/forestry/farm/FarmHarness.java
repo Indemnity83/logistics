@@ -155,13 +155,17 @@ final class FarmHarness {
         components.load(tag, host.registries());
     }
 
-    /** The block entity's side of the farm: position, block state (lit or not) and dirty marking. */
+    /**
+     * The block entity's side of the farm: position, block state (lit or not), dirty marking, and
+     * whether its redstone control permits work.
+     */
     static final class Host implements MachineContext {
         private final HolderLookup.Provider registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
         private final RandomSource random = RandomSource.create(42L);
         BlockState state = Blocks.FURNACE.defaultBlockState().setValue(FarmMachineBlock.FACING, Direction.SOUTH);
         int changes;
         int stateWrites;
+        boolean workEnabled = true;
 
         boolean lit() {
             return state.getValue(FarmMachineBlock.LIT);
@@ -211,6 +215,11 @@ final class FarmHarness {
         @Override
         public RandomSource random() {
             return random;
+        }
+
+        @Override
+        public boolean workEnabled() {
+            return workEnabled;
         }
     }
 }

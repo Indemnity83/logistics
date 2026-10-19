@@ -27,8 +27,13 @@ public class ArboretumGameTest {
     }
 
     @GameTest(maxTicks = 300)
-    public void testRedstonePausesFarm(GameTestHelper context) {
-        ArboretumGameTestBody.testRedstonePausesFarm(context);
+    public void testRedstoneIgnoredByDefault(GameTestHelper context) {
+        ArboretumGameTestBody.testRedstoneIgnoredByDefault(context);
+    }
+
+    @GameTest(maxTicks = 600)
+    public void testSignalPausesFarmInLowMode(GameTestHelper context) {
+        ArboretumGameTestBody.testSignalPausesFarmInLowMode(context);
     }
 
     @GameTest(maxTicks = 1200)

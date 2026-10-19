@@ -78,11 +78,6 @@ final class CourtyardGuard implements FarmWorldAccess {
     }
 
     @Override
-    public boolean hasNeighborSignal(BlockPos pos) {
-        return world.hasNeighborSignal(pos);
-    }
-
-    @Override
     public float destroySpeed(BlockPos pos) {
         return world.destroySpeed(pos);
     }

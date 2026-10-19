@@ -27,7 +27,9 @@ public final class ArboretumGameTestRegistration {
         new GameTestCase(
             "forestry/arboretum_no_power_plants_nothing", 300, ArboretumGameTestBody::testNoPowerPlantsNothing),
         new GameTestCase(
-            "forestry/arboretum_redstone_pauses_farm", 300, ArboretumGameTestBody::testRedstonePausesFarm),
+            "forestry/arboretum_redstone_ignored_by_default", 300, ArboretumGameTestBody::testRedstoneIgnoredByDefault),
+        new GameTestCase(
+            "forestry/arboretum_signal_pauses_farm_in_low_mode", 600, ArboretumGameTestBody::testSignalPausesFarmInLowMode),
         new GameTestCase(
             "forestry/arboretum_clears_blocks_from_ring", 1200, ArboretumGameTestBody::testClearsBlocksFromRing),
         new GameTestCase(
