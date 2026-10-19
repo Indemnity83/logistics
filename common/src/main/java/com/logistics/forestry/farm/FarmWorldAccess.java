@@ -1,5 +1,6 @@
 package com.logistics.forestry.farm;
 
+import com.logistics.forestry.logic.LevelTreeView;
 import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -34,6 +35,23 @@ public interface FarmWorldAccess extends FarmWorld {
      */
     @Nullable
     List<ItemStack> breakBlock(BlockPos pos);
+
+    /**
+     * Whether the farm may break the natural leaves at {@code pos} as the canopy of a tree it fells:
+     * they are natural leaves and {@link #canModify} allows it.
+     */
+    default boolean canBreakLeaves(BlockPos pos) {
+        return LevelTreeView.isNaturalLeaves(state(pos)) && canModify(pos);
+    }
+
+    /**
+     * {@link #breakBlock} for the natural leaves of a tree being felled; {@code null}, breaking
+     * nothing, unless {@link #canBreakLeaves}.
+     */
+    @Nullable
+    default List<ItemStack> breakLeaves(BlockPos pos) {
+        return canBreakLeaves(pos) ? breakBlock(pos) : null;
+    }
 
     /**
      * Places {@code state} at {@code pos}.

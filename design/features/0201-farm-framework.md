@@ -33,7 +33,7 @@ One block per farm type. Replacing one farm block with another is how a player s
 
 ### Functional
 - **One block per farm type.** No farm-type selector. Every farm block shares one block entity type.
-- **Work area (centred ring):** the farm block sits at the centre of a **7×7 courtyard** (`FarmGeometry.COURTYARD = 7`, a code constant). The courtyard is excluded through the farm's **whole vertical range**: no write ever lands in a courtyard column, at any Y. It is where the player puts pipes, engines and chests. The farm works the **ring** between the courtyard and an outer square set by its tier:
+- **Work area (centred ring):** the farm block sits at the centre of a **7×7 courtyard** (`FarmGeometry.COURTYARD = 7`, a code constant). The courtyard is excluded through the farm's **whole vertical range**: no write ever lands in a courtyard column, at any Y, with one exception: the Arboretum breaks the natural leaves of a tree it fells that hang into it, and nothing else. It is where the player puts pipes, engines and chests. The farm works the **ring** between the courtyard and an outer square set by its tier:
 
   | Tier | Outer | Ring width | Plots |
   |---|---|---:|---:|

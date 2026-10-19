@@ -7,9 +7,12 @@ import net.minecraft.gametest.framework.GameTestHelper;
  * Fabric entrypoint wiring for the Arboretum GameTests. Test logic lives in
  * {@link ArboretumGameTestBody} (shared with NeoForge — see {@code common/src/gametest}); these
  * methods only carry the {@code @GameTest} annotation Fabric's reflection-based test discovery
- * requires.
+ * requires. The {@link ArboretumFieldGameTestBody} tests run at the real Basic tier in the larger
+ * {@value #FIELD} structure.
  */
 public class ArboretumGameTest {
+
+    private static final String FIELD = "logistics_gametest:arboretum_field";
 
     @GameTest(maxTicks = 1200)
     public void testPlantsSaplingsOnLattice(GameTestHelper context) {
@@ -64,5 +67,20 @@ public class ArboretumGameTest {
     @GameTest(maxTicks = 40)
     public void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
         ArboretumGameTestBody.testEveryGermlingGrowsOnArboretumSoils(context);
+    }
+
+    @GameTest(structure = FIELD, maxTicks = 6000)
+    public void testBasicRingStaysProductive(GameTestHelper context) {
+        ArboretumFieldGameTestBody.testBasicRingStaysProductive(context);
+    }
+
+    @GameTest(structure = FIELD, maxTicks = 1200)
+    public void testFellsNeighbouringCanopies(GameTestHelper context) {
+        ArboretumFieldGameTestBody.testFellsNeighbouringCanopies(context);
+    }
+
+    @GameTest(structure = FIELD, maxTicks = 2400)
+    public void testForeignTreeWoodIsNeverFelled(GameTestHelper context) {
+        ArboretumFieldGameTestBody.testForeignTreeWoodIsNeverFelled(context);
     }
 }

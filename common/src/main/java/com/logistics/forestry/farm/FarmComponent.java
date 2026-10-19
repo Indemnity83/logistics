@@ -17,6 +17,7 @@ import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.logic.FellPlan;
 import com.logistics.forestry.logic.FellPlanner;
+import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
 import java.util.ArrayDeque;
@@ -144,7 +145,17 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private final CountingWorld counted = new CountingWorld();
     // The current tick's guarded world as a tree view, which a planner reads through across ticks.
     private TreeView trees = pos -> TreeView.Kind.UNLOADED;
-    private final TreeView plannerView = pos -> trees.kind(pos);
+    private final TreeView plannerView = new TreeView() {
+        @Override
+        public Kind kind(BlockPos pos) {
+            return trees.kind(pos);
+        }
+
+        @Override
+        public boolean isLeaves(BlockPos pos) {
+            return trees.isLeaves(pos);
+        }
+    };
 
     @Nullable private PlotScanner scanner;
     private int scannerBase;
@@ -159,6 +170,8 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     private int innerOverride;
     private int outerOverride;
     private int clearanceOverride;
+    private int checksOverride;
+    private int actionsOverride;
     @Nullable private Function<RingArea, FarmPlan> planOverride;
     // Only the harvest's plot persists; the blocks are re-planned from it after a reload.
     @Nullable private BlockPos harvestBase;
@@ -387,6 +400,20 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         clearanceOverride = Math.max(0, height);
     }
 
+    /**
+     * Test seam: inspects {@code checksPerSecond} plots and performs {@code actionsPerSecond}
+     * actions a second instead of the tier's; 0 or less for both restores them.
+     */
+    public void setRateOverride(int checksPerSecond, int actionsPerSecond) {
+        if (checksPerSecond <= 0 && actionsPerSecond <= 0) {
+            checksOverride = 0;
+            actionsOverride = 0;
+            return;
+        }
+        checksOverride = Math.max(1, checksPerSecond);
+        actionsOverride = Math.max(1, actionsPerSecond);
+    }
+
     /** Test seam: assigns the ring's plots to logics through {@code plans} instead of the block's one logic; null restores it. */
     void setPlanOverride(@Nullable Function<RingArea, FarmPlan> plans) {
         planOverride = plans;
@@ -453,6 +480,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         updateIrrigation(ctx, area, paused, s);
         if (!paused) {
             FarmTierProfile profile = s.profile(tier.get());
+            if (actionsOverride > 0) {
+                profile = profile.withRates(checksOverride, actionsOverride);
+            }
             budget.refill(profile.actionsPerSecond(), profile.checksPerSecond(), s.readsPerCheck());
             Tick tick = new Tick(world, s, area, plan);
             if (state == FarmState.ACTIVE) {
@@ -1179,7 +1209,9 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             dirty = true;
             return null;
         }
-        if (!world.canModify(target.pos())) {
+        // Natural leaves go through their own narrow path, the only one into the courtyard.
+        boolean leaves = LevelTreeView.isNaturalLeaves(state);
+        if (leaves ? !world.canBreakLeaves(target.pos()) : !world.canModify(target.pos())) {
             harvest.poll();
             return FarmStatus.BLOCKED;
         }
@@ -1187,7 +1219,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
         if (energy.amount() < cost) {
             return noPower(cost);
         }
-        List<ItemStack> drops = world.breakBlock(target.pos());
+        List<ItemStack> drops = leaves ? world.breakLeaves(target.pos()) : world.breakBlock(target.pos());
         harvest.poll();
         dirty = true;
         if (drops == null) {
