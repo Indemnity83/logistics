@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["MGM", " V ", "MGM"],
+  "key": {
+    "M": "minecraft:netherite_ingot",
+    "G": "#c:gears/netherite",
+    "V": "logistics:core/netherite_valve"
+  },
+  "result": { "count": 1, "id": "logistics:core/infernal_upgrade_kit" }
+}

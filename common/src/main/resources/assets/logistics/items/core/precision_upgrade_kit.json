@@ -1,0 +1,6 @@
+{
+  "model": {
+    "model": "logistics:item/core/precision_upgrade_kit",
+    "type": "minecraft:model"
+  }
+}
