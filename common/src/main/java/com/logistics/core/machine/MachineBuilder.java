@@ -10,6 +10,8 @@ import com.logistics.core.machine.component.RecipeProcessorComponent.LitControll
 import com.logistics.core.machine.component.RecipeResolver;
 import com.logistics.core.machine.component.SidedLayout;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.RedstoneControlComponent;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.upgrade.UpgradeComponent;
 import java.util.function.Predicate;
 import net.minecraft.server.level.TicketType;
@@ -357,6 +359,29 @@ public final class MachineBuilder {
             }
             return components.add(new RecipeProcessorComponent(
                     id, resolver, rfPerTick, items, energy, fluids, inputFluids, lit, onChanged));
+        }
+    }
+
+    public RedstoneControlBuilder redstoneControl(String id) {
+        return new RedstoneControlBuilder(id);
+    }
+
+    /** Builds a {@link RedstoneControlComponent}; the default mode is {@link RedstoneMode#IGNORED}. */
+    public final class RedstoneControlBuilder {
+        private final String id;
+        private RedstoneMode defaultMode = RedstoneMode.IGNORED;
+
+        private RedstoneControlBuilder(String id) {
+            this.id = id;
+        }
+
+        public RedstoneControlBuilder defaultMode(RedstoneMode defaultMode) {
+            this.defaultMode = java.util.Objects.requireNonNull(defaultMode);
+            return this;
+        }
+
+        public RedstoneControlComponent build() {
+            return components.add(new RedstoneControlComponent(id, defaultMode, onChanged));
         }
     }
 }

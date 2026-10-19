@@ -1,6 +1,11 @@
 package com.logistics.automation.refinery;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.resource.ResourceId;
@@ -22,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  * Client-side GUI screen for the Refinery: an input tank and an output tank flanking a progress arrow,
  * an energy bar, and the byproduct output slot.
  */
-public class RefineryScreen extends AbstractContainerScreen<RefineryScreenHandler> {
+public class RefineryScreen extends AbstractContainerScreen<RefineryScreenHandler> implements SideTabScreen {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/refinery.png");
     private static final int TEXTURE_WIDTH = 256;
@@ -39,14 +44,29 @@ public class RefineryScreen extends AbstractContainerScreen<RefineryScreenHandle
     private static final int INPUT_TANK_LEFT = 74;
     private static final int OUTPUT_TANK_LEFT = 147;
 
+    private final SideTabHost tabs;
+
     public RefineryScreen(RefineryScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
+        this.tabs = MachineTabs.machine("refinery", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
     }
 
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

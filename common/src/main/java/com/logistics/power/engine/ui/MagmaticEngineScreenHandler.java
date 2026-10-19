@@ -2,6 +2,7 @@ package com.logistics.power.engine.ui;
 
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.power.HeatStage;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.magmatic.MagmaticEngineComponent;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,17 +26,22 @@ public class MagmaticEngineScreenHandler extends AbstractContainerMenu {
     private static final int HOTBAR_Y = 142;
 
     private final ContainerData data;
+    private final MachineControls controls;
     private final ContainerLevelAccess access;
 
     /** Client-side constructor. */
     public MagmaticEngineScreenHandler(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainerData(MagmaticEngineBlockEntity.DATA_COUNT),
-                ContainerLevelAccess.NULL);
+                ContainerLevelAccess.NULL, MachineControls.client());
     }
 
     /** Server-side constructor. */
     public MagmaticEngineScreenHandler(
-            int syncId, Inventory playerInventory, ContainerData data, ContainerLevelAccess access) {
+            int syncId,
+            Inventory playerInventory,
+            ContainerData data,
+            ContainerLevelAccess access,
+            MachineControls controls) {
         super(LogisticsPower.SCREEN.MAGMATIC_ENGINE, syncId);
         checkContainerDataCount(data, MagmaticEngineBlockEntity.DATA_COUNT);
         this.data = data;
@@ -52,6 +58,9 @@ public class MagmaticEngineScreenHandler extends AbstractContainerMenu {
         }
 
         addDataSlots(data);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        addDataSlots(controls.data());
     }
 
     @Override
@@ -62,6 +71,16 @@ public class MagmaticEngineScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return AbstractContainerMenu.stillValid(access, player, LogisticsPower.BLOCK.MAGMATIC_ENGINE);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     // ==================== Data getters for GUI rendering ====================
@@ -121,8 +140,8 @@ public class MagmaticEngineScreenHandler extends AbstractContainerMenu {
         return Math.min(1f, amount / (float) capacity);
     }
 
-    public boolean isPowered() {
-        return data.get(MagmaticEngineBlockEntity.DATA_POWERED) != 0;
+    public boolean isEnabled() {
+        return data.get(MagmaticEngineBlockEntity.DATA_ENABLED) != 0;
     }
 
     public boolean isLit() {

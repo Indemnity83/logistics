@@ -2,6 +2,11 @@ package com.logistics.power.screen;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.ui.ReactionEngineScreenHandler;
@@ -23,7 +28,7 @@ import net.minecraft.world.level.material.Fluids;
  * <b>fills as the reaction proceeds</b>. Bufferless, so there is no energy gauge — hovering the tank shows
  * the reactant, and the reaction status/output are shown on the Jade HUD.
  */
-public class ReactionEngineScreen extends AbstractContainerScreen<ReactionEngineScreenHandler> {
+public class ReactionEngineScreen extends AbstractContainerScreen<ReactionEngineScreenHandler> implements SideTabScreen {
     private static final ResourceId BACKGROUND_TEXTURE =
             LogisticsMod.modId("textures/gui/power/reaction_engine.png");
     private static final ResourceId ARROW = ResourceId.in("minecraft", "container/furnace/burn_progress");
@@ -46,8 +51,28 @@ public class ReactionEngineScreen extends AbstractContainerScreen<ReactionEngine
     private static final int TANK_FRAME_WIDTH = 18;
     private static final int TANK_FRAME_HEIGHT = 60;
 
+    private final SideTabHost tabs;
+
     public ReactionEngineScreen(ReactionEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
+        this.tabs = MachineTabs.engine("reaction_engine", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

@@ -1,6 +1,12 @@
 package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
+import com.logistics.core.lib.client.screen.tab.TabSide;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenPosition;
@@ -13,7 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
  * Client-side screen for the Alloy Smelter GUI.
  * Shows the two inputs, primary/secondary outputs, a smelt-progress arrow, and an energy bar.
  */
-public class AlloySmelterScreen extends AbstractRecipeBookScreen<AlloySmelterScreenHandler> {
+public class AlloySmelterScreen extends AbstractRecipeBookScreen<AlloySmelterScreenHandler> implements SideTabScreen {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/alloy_smelter.png");
     private static final int TEXTURE_WIDTH = 256;
@@ -23,14 +29,35 @@ public class AlloySmelterScreen extends AbstractRecipeBookScreen<AlloySmelterScr
     private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
     private static final int CHARGE_EMPTY_TINT = 0xFF404040;
 
+    private final SideTabHost tabs;
+
     public AlloySmelterScreen(AlloySmelterScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, new AlloySmelterRecipeBookComponent(handler), inventory, title);
+        this(handler, new AlloySmelterRecipeBookComponent(handler), inventory, title);
+    }
+
+    private AlloySmelterScreen(
+            AlloySmelterScreenHandler handler, AlloySmelterRecipeBookComponent book, Inventory inventory, Component title) {
+        super(handler, book, inventory, title);
+        this.tabs = MachineTabs.machine("alloy_smelter", handler, handler.controls(),
+                        new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height))
+                .hideSideWhen(TabSide.LEFT, book::isVisible);
     }
 
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

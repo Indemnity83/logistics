@@ -1,6 +1,12 @@
 package com.logistics.automation.kiln;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
+import com.logistics.core.lib.client.screen.tab.TabSide;
 import com.logistics.core.lib.resource.ResourceId;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenPosition;
@@ -12,7 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 /**
  * Client-side GUI screen for the Electric Kiln.
  */
-public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
+public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> implements SideTabScreen {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/kiln.png");
     private static final int TEXTURE_WIDTH = 256;
@@ -22,16 +28,37 @@ public class KilnScreen extends AbstractRecipeBookScreen<KilnScreenHandler> {
     private static final ResourceId CHARGE = LogisticsMod.modId("automation/charge");
     private static final int CHARGE_EMPTY_TINT = 0xFF404040;
 
+    private final SideTabHost tabs;
+
     public KilnScreen(KilnScreenHandler handler, Inventory inventory, Component title) {
-        super(handler, new KilnRecipeBookComponent(handler), inventory, title);
+        this(handler, new KilnRecipeBookComponent(handler), inventory, title);
+    }
+
+    private KilnScreen(
+            KilnScreenHandler handler, KilnRecipeBookComponent book, Inventory inventory, Component title) {
+        super(handler, book, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.tabs = MachineTabs.machine("kiln", handler, handler.controls(),
+                        new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height))
+                .hideSideWhen(TabSide.LEFT, book::isVisible);
     }
 
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

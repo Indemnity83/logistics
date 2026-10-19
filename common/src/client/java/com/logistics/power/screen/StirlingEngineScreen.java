@@ -1,6 +1,11 @@
 package com.logistics.power.screen;
 
 import com.logistics.LogisticsMod;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.ui.StirlingEngineScreenHandler;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,7 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
  * Client-side screen for the Stirling Engine: a fuel slot, an energy buffer gauge, and a burn flame that
  * starts full and crops down as the current fuel item is consumed.
  */
-public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngineScreenHandler> {
+public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngineScreenHandler> implements SideTabScreen {
     private static final ResourceId BACKGROUND_TEXTURE =
             LogisticsMod.modId("textures/gui/power/stirling_engine.png");
 
@@ -31,10 +36,30 @@ public class StirlingEngineScreen extends AbstractContainerScreen<StirlingEngine
     private static final int FLAME_Y = 53;
     private static final int FLAME_SIZE = 14;
 
+    private final SideTabHost tabs;
+
     public StirlingEngineScreen(StirlingEngineScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.tabs = MachineTabs.engine("stirling_engine", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override
