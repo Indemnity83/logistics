@@ -120,12 +120,12 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("a redstone signal pauses the farm until it is removed")
+    @DisplayName("a farm its redstone control disables pauses until it is enabled again")
     void redstonePauses() {
         FarmHarness farm = new FarmHarness(plantingEverywhere());
         farm.items().setItem(0, new ItemStack(Items.OAK_SAPLING, 5));
         farm.power(1_000);
-        farm.world.signal = true;
+        farm.host.workEnabled = false;
 
         farm.ticks(5);
 
@@ -134,7 +134,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.PAUSED);
         assertThat(farm.host.lit()).as("paused, with RF in the buffer").isTrue();
 
-        farm.world.signal = false;
+        farm.host.workEnabled = true;
         farm.tick();
 
         assertThat(farm.world.blocks).containsEntry(farm.plot(0), SAPLING);
@@ -987,10 +987,10 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(dryFarm.farm().irrigate(dryFarm.world, dryFarm.plot(0).below())).as("no tank").isFalse();
 
         FarmHarness farm = irrigating(1_000);
-        farm.world.signal = true;
+        farm.host.workEnabled = false;
         farm.tick();
-        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("redstone").isFalse();
-        farm.world.signal = false;
+        assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).as("paused").isFalse();
+        farm.host.workEnabled = true;
         farm.tick();
         assertThat(farm.farm().irrigate(farm.world, farm.plot(0).below())).isTrue();
 

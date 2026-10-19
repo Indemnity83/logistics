@@ -3,6 +3,7 @@ package com.logistics.forestry.farm;
 import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.core.machine.tier.MachineTier;
 import java.util.function.BooleanSupplier;
 import net.minecraft.world.Container;
@@ -46,8 +47,12 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@link #SURVEY_PROTECTED}: blocks it found the farm would skip.</li>
  * </ul>
  *
+ * <p>A second data block, {@link #controls()}, carries the redstone control and energy telemetry the
+ * side tabs show.
+ *
  * <p>Buttons, through {@link #clickMenuButton}: {@link #BUTTON_START} starts a surveying farm,
- * {@link #BUTTON_SHOW_AREA} toggles the area preview.
+ * {@link #BUTTON_SHOW_AREA} toggles the area preview; ids from {@link MachineControls#BUTTON_BASE}
+ * up belong to the controls.
  */
 public class FarmMenu extends AbstractContainerMenu {
 
@@ -77,10 +82,10 @@ public class FarmMenu extends AbstractContainerMenu {
     private static final int PLAYER_START = FarmMachine.SLOT_COUNT;
     private static final int PLAYER_END = PLAYER_START + 36;
 
-    /** What the menu's buttons do to the farm; each returns whether it did anything. */
-    public interface Controls {
+    /** What the menu's farm buttons do to the farm; each returns whether it did anything. */
+    public interface Buttons {
         /** Buttons that do nothing: the client side, or a menu without a farm. */
-        Controls NONE = new Controls() {
+        Buttons NONE = new Buttons() {
             @Override
             public boolean start() {
                 return false;
@@ -99,25 +104,33 @@ public class FarmMenu extends AbstractContainerMenu {
 
     private final Container container;
     private final ContainerData data;
-    private final Controls controls;
+    private final Buttons buttons;
+    private final MachineControls controls;
 
     /** Client-side constructor. */
     public FarmMenu(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(FarmMachine.SLOT_COUNT), new SimpleContainerData(DATA_COUNT));
     }
 
-    /** Server-side constructor without working buttons. */
+    /** Server-side constructor without working buttons or a redstone control. */
     public FarmMenu(int syncId, Inventory playerInventory, Container container, ContainerData data) {
-        this(syncId, playerInventory, container, data, Controls.NONE);
+        this(syncId, playerInventory, container, data, Buttons.NONE, MachineControls.client());
     }
 
     /** Server-side constructor. */
-    public FarmMenu(int syncId, Inventory playerInventory, Container container, ContainerData data, Controls controls) {
+    public FarmMenu(
+            int syncId,
+            Inventory playerInventory,
+            Container container,
+            ContainerData data,
+            Buttons buttons,
+            MachineControls controls) {
         super(LogisticsForestry.MENU.FARM, syncId);
         checkContainerSize(container, FarmMachine.SLOT_COUNT);
         checkContainerDataCount(data, DATA_COUNT);
         this.container = container;
         this.data = data;
+        this.buttons = buttons;
         this.controls = controls;
 
         container.startOpen(playerInventory.player);
@@ -149,6 +162,8 @@ public class FarmMenu extends AbstractContainerMenu {
         }
 
         addDataSlots(data);
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        addDataSlots(controls.data());
     }
 
     /**
@@ -209,12 +224,20 @@ public class FarmMenu extends AbstractContainerMenu {
 
     // ==================== Buttons ====================
 
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
     /** Button ids arrive unchecked from the client; an unknown one does nothing. */
     @Override
     public boolean clickMenuButton(Player player, int id) {
+        if (controls.clickMenuButton(player, id)) {
+            return true;
+        }
         return switch (id) {
-            case BUTTON_START -> controls.start();
-            case BUTTON_SHOW_AREA -> controls.toggleArea();
+            case BUTTON_START -> buttons.start();
+            case BUTTON_SHOW_AREA -> buttons.toggleArea();
             default -> false;
         };
     }

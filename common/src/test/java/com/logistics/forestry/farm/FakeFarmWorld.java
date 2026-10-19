@@ -59,7 +59,6 @@ final class FakeFarmWorld implements FarmWorldAccess {
     BiPredicate<BlockPos, BlockState> refuseSet = (pos, state) -> false;
     /** A break at a position this refuses reports failure and changes nothing. */
     Predicate<BlockPos> refuseBreak = pos -> false;
-    boolean signal;
     long readCount;
 
     /** An item entity lying in the world. */
@@ -145,11 +144,6 @@ final class FakeFarmWorld implements FarmWorldAccess {
 
     private float hardness(BlockPos pos) {
         return isLoaded(pos) ? stateAt(pos).getDestroySpeed(EmptyBlockGetter.INSTANCE, pos) : 0;
-    }
-
-    @Override
-    public boolean hasNeighborSignal(BlockPos pos) {
-        return signal;
     }
 
     @Override

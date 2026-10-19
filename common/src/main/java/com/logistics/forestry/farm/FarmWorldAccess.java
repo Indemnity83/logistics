@@ -17,9 +17,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface FarmWorldAccess extends FarmWorld {
 
-    /** Whether the block at {@code pos} receives a redstone signal. */
-    boolean hasNeighborSignal(BlockPos pos);
-
     /** Hardness of the block at {@code pos}, below 0 when unbreakable; 0 when not loaded. */
     float destroySpeed(BlockPos pos);
 

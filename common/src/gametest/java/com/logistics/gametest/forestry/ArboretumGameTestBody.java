@@ -5,6 +5,7 @@ import com.logistics.LogisticsPower;
 import com.logistics.core.lib.compat.PlantCompat;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.machine.area.RingArea;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmLogic;
 import com.logistics.forestry.farm.FarmMachineBlock;
@@ -165,26 +166,59 @@ public class ArboretumGameTestBody {
         });
     }
 
-    /** A redstone signal on the farm pauses it: powered and stocked, it still plants nothing. */
-    public static void testRedstonePausesFarm(GameTestHelper context) {
+    /** By default the farm ignores redstone: with a signal on it, powered and stocked, it plants. */
+    public static void testRedstoneIgnoredByDefault(GameTestHelper context) {
         FarmBlockEntity farm = rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
         context.setBlock(FARM.east(), Blocks.REDSTONE_BLOCK);
         feed(context, new ItemStack(Items.OAK_SAPLING, 4));
 
-        context.runAfterDelay(SETTLE_TICKS, () -> {
-            if (!hopper(context, INPUT_HOPPER).isEmpty()) {
-                context.fail("The hopper should have fed its saplings into the farm");
-                return;
+        context.succeedWhen(() -> {
+            if (farm.redstoneControl().mode() != RedstoneMode.IGNORED) {
+                throw context.assertionException(FARM, "A farm should ignore redstone by default, was "
+                        + farm.redstoneControl().mode());
             }
-            if (!ringIsEmpty(context)) {
-                return;
+            if (!farm.hasRedstoneSignal()) {
+                throw context.assertionException(FARM, "The redstone block should power the farm");
             }
-            if (farm.status() != FarmStatus.PAUSED) {
-                context.fail("A farm with a redstone signal should report Paused, was " + farm.status());
-                return;
+            if (farm.status() == FarmStatus.PAUSED) {
+                throw context.assertionException(FARM, "A farm ignoring redstone should not pause");
             }
-            context.succeed();
+            if (SPOTS.stream().noneMatch(cell -> context.getBlockState(cell).is(Blocks.OAK_SAPLING))) {
+                throw context.assertionException(FARM, "A powered farm ignoring redstone should plant");
+            }
         });
+    }
+
+    /**
+     * Set to run only without a signal, a farm with a redstone signal pauses: powered and stocked, it
+     * plants nothing and reports Paused. Once the signal is gone it plants.
+     */
+    public static void testSignalPausesFarmInLowMode(GameTestHelper context) {
+        FarmBlockEntity farm = rig(context, true, LogisticsForestry.BLOCK.HUMUS.defaultBlockState());
+        farm.setRedstoneMode(RedstoneMode.LOW);
+        BlockPos signal = FARM.east();
+        context.setBlock(signal, Blocks.REDSTONE_BLOCK);
+        feed(context, new ItemStack(Items.OAK_SAPLING, 4));
+
+        context.startSequence()
+                .thenExecuteAfter(SETTLE_TICKS, () -> {
+                    if (!hopper(context, INPUT_HOPPER).isEmpty()) {
+                        throw context.assertionException(INPUT_HOPPER, "The hopper should have fed its saplings into the farm");
+                    }
+                    assertRingEmpty(context);
+                    if (farm.status() != FarmStatus.PAUSED) {
+                        throw context.assertionException(FARM, "A farm its redstone control disables should report Paused, was "
+                                + farm.status());
+                    }
+                })
+                .thenExecute(() -> context.setBlock(signal, Blocks.AIR))
+                .thenWaitUntil(() -> {
+                    if (SPOTS.stream().noneMatch(cell -> context.getBlockState(cell).is(Blocks.OAK_SAPLING))) {
+                        throw context.assertionException(FARM, "Without the signal the farm should plant, status "
+                                + farm.status());
+                    }
+                })
+                .thenSucceed();
     }
 
     // ==================== Clearing ====================
@@ -562,6 +596,16 @@ public class ArboretumGameTestBody {
         for (BlockPos cell : PLOTS) {
             if (!SPOTS.contains(cell)) {
                 context.assertBlockPresent(Blocks.AIR, cell);
+            }
+        }
+    }
+
+    /** Throws when anything stands in the ring. */
+    private static void assertRingEmpty(GameTestHelper context) {
+        for (BlockPos cell : PLOTS) {
+            Block block = context.getBlockState(cell).getBlock();
+            if (block != Blocks.AIR) {
+                throw context.assertionException(cell, "Nothing should have been planted, found " + block);
             }
         }
     }

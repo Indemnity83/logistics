@@ -10,6 +10,7 @@ import com.logistics.core.lib.fluids.IFluidView;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.machine.area.RingArea;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachine;
@@ -549,14 +550,15 @@ public class CropFarmGameTestBody {
 
     /**
      * An engine on top of the farm, switched on by a lever on the engine, powers the farm without
-     * relaying the lever's signal into it: the farm is not paused, and sows seeds fed in from a
-     * hopper beside it.
+     * relaying the lever's signal into it: a farm set to run only without a signal is not paused,
+     * and sows seeds fed in from a hopper beside it.
      */
     public static void testLeverOnEngineDoesNotPauseFarm(GameTestHelper context) {
         Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false, true);
         if (rig == null) {
             return;
         }
+        rig.farm().setRedstoneMode(RedstoneMode.LOW);
         BlockPos engineOnTop = INPUT_HOPPER;
         BlockPos lever = engineOnTop.above();
         context.setBlock(engineOnTop, LogisticsPower.BLOCK.CREATIVE_ENGINE.defaultBlockState()
