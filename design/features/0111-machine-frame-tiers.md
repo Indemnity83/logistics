@@ -1,6 +1,6 @@
 # Machine Frame Tiers
 
-> **Status:** 🚧 Planned — design settled; the farms are the first adopter · **Phase:** 1 — Automation core (cross-cutting) · **Module:** shared framework in `core` (`core/machine/tier/`)
+> **Status:** 🚧 Planned — design settled; the farms are the first adopter; the tier contract lands with the tiered farms, the Upgrade Kits in a follow-up · **Phase:** 1 — Automation core (cross-cutting) · **Module:** shared framework in `core` (`core/machine/tier/`)
 > **Source:** [`../progression-tiers.md`](../progression-tiers.md) (Machine frames) · **Depends on:** the machine framework (`core/machine/*`) · **Maps to (roadmap):** Phase 2 — Farms (first adopter)
 
 One machine-wide tier contract: a machine block carries a **tier** (Basic → Industrial → Precision → Infernal) that scales what it can do, and the player raises it in place with an **Upgrade Kit**. The [farms](0201-farm-framework.md) adopt it first; other machines can opt in later. Slot-in augments (speed, efficiency, …) are a separate system and stay in [0106](0106-machine-upgrades.md).
@@ -57,7 +57,7 @@ common/src/main/java/com/logistics/core/machine/tier/
 
 ## Scope & non-goals
 
-- **In:** `MachineTier`, `TierComponent`, `TieredMachine`, `MachineBuilder.tier`, the data component and drop retention, buffer resizing, three Upgrade Kits.
+- **In:** `MachineTier`, `TierComponent`, `TieredMachine`, `MachineBuilder.tier`, the data component and drop retention, buffer resizing, three Upgrade Kits. The kits arrive in a follow-up PR; until then machines stay Basic in play.
 - **Out:** augments — speed, efficiency, fertilization and so on stay in [0106](0106-machine-upgrades.md) and use `MachineModifiers` / `OperationKey`. Downgrades. Per-tier block variants or per-tier crafted frames. Adopting tiers on the processing machines (Macerator, Kiln, …) — possible later, not planned here.
 
 ## Open questions
