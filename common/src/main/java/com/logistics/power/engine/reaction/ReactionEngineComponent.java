@@ -173,6 +173,11 @@ public final class ReactionEngineComponent implements MachineComponent, EngineCo
         return lastAccepted;
     }
 
+    /** The RF/t the running reaction's recipe generates, or 0 while not reacting. */
+    public long activeOutputPerTick() {
+        return isReacting() ? committedOutputPerTick : 0;
+    }
+
     // ==================== Persistence ====================
 
     @Override

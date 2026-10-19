@@ -13,6 +13,7 @@ import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.MagmaticEngineBlock;
 import com.logistics.power.engine.magmatic.MagmaticEngineComponent;
 import com.logistics.power.engine.magmatic.MagmaticEngineFuels;
@@ -52,7 +53,7 @@ public class MagmaticEngineBlockEntity extends EngineEntity implements HasFluidS
     public static final int DATA_LAVA_ID = 8;
     public static final int DATA_LAVA_AMOUNT = 9;
     public static final int DATA_LAVA_CAPACITY = 10;
-    public static final int DATA_POWERED = 11;
+    public static final int DATA_ENABLED = 11;
     public static final int DATA_LIT = 12;
     public static final int DATA_IGNITION_BLOCK = 13; // MagmaticEngineComponent.IgnitionBlock ordinal
     public static final int DATA_COUNT = 14;
@@ -72,7 +73,7 @@ public class MagmaticEngineBlockEntity extends EngineEntity implements HasFluidS
                 case DATA_LAVA_ID -> fluidId(lavaTank);
                 case DATA_LAVA_AMOUNT -> amountMb(lavaTank);
                 case DATA_LAVA_CAPACITY -> capacityMb(lavaTank);
-                case DATA_POWERED -> isPowered() ? 1 : 0;
+                case DATA_ENABLED -> isEnabled() ? 1 : 0;
                 case DATA_LIT -> magmaSim.lit() ? 1 : 0;
                 case DATA_IGNITION_BLOCK -> magmaSim.ignitionBlock().ordinal();
                 default -> 0;
@@ -119,11 +120,11 @@ public class MagmaticEngineBlockEntity extends EngineEntity implements HasFluidS
                 .build();
         engine.add(new FluidSyncComponent(lavaTank));
         magmaSim = engine.add(new MagmaticEngineComponent(
-                "magmaSim", energy, lavaTank, MagmaticEngineFuels::isLava, this::isPowered, profile, this::setChanged));
+                "magmaSim", energy, lavaTank, MagmaticEngineFuels::isLava, this::isEnabled, profile, this::setChanged));
         engine.pistonCycle("cycle")
                 .energy(energy)
                 .overheated(() -> false)
-                .powered(this::isPowered)
+                .powered(this::isEnabled)
                 .pistonSpeed(() -> magmaSim.pistonSpeed())
                 .outputPower(profile::hotOutputPerTick)
                 .outputFace(() -> MagmaticEngineBlock.getOutputDirection(getBlockState()))
@@ -171,7 +172,8 @@ public class MagmaticEngineBlockEntity extends EngineEntity implements HasFluidS
                 ContainerLevelAccess accessor = level == null
                         ? ContainerLevelAccess.NULL
                         : ContainerLevelAccess.create(level, getBlockPos());
-                return new MagmaticEngineScreenHandler(syncId, playerInventory, containerData, accessor);
+                return new MagmaticEngineScreenHandler(
+                        syncId, playerInventory, containerData, accessor, MachineControls.server(MagmaticEngineBlockEntity.this));
             }
         };
     }
