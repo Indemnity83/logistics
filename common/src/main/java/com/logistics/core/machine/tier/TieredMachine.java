@@ -13,7 +13,7 @@ public interface TieredMachine {
     }
 
     /**
-     * Called once a kit has raised the machine to {@code newTier}; what to tell the player instead of
+     * Called once the machine has been raised to {@code newTier}; what to tell the player instead of
      * the plain "Upgraded to" message, if anything.
      */
     default Optional<Component> upgradeFeedback(MachineTier newTier) {
