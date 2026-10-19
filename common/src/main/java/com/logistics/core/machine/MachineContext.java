@@ -50,6 +50,11 @@ public interface MachineContext {
     /** Randomness source for chance-based outputs and XP rounding (seeded/deterministic in tests). */
     RandomSource random();
 
+    /** Whether the host currently permits work (e.g. its redstone control allows it). */
+    default boolean workEnabled() {
+        return true;
+    }
+
     default boolean isServer() {
         Level level = level();
         return level != null && !level.isClientSide();

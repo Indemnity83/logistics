@@ -48,13 +48,13 @@ public class CreativeEngineBlockEntity extends EngineEntity {
                 .build();
         engine.constantFill("burn")
                 .energy(energy)
-                .powered(this::isPowered)
+                .powered(this::isEnabled)
                 .levelIndex(() -> outputLevels.index(), value -> outputLevels.restore(value))
                 .build();
         engine.pistonCycle("cycle")
                 .energy(energy)
                 .overheated(heat::isOverheated)
-                .powered(this::isPowered)
+                .powered(this::isEnabled)
                 .pistonSpeed(() -> outputLevels.pistonSpeed())
                 .outputPower(() -> outputLevels.outputRate())
                 .outputFace(() -> CreativeEngineBlock.getOutputDirection(getBlockState()))
