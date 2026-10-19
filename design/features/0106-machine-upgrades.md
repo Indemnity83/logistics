@@ -37,7 +37,21 @@ Define the contract in `core.lib`, apply it in each machine's processing plan.
 - **Augment items** in `core` domain (e.g. `SpeedUpgradeItem`/tiered, or a single item type with a tier component). Tier could be a data component to avoid item sprawl.
 - **`ProcessingPlan` integration:** each plan's `advance(...)` already takes progress/energy params — extend it to take the derived modifiers (a small `MachineModifiers` record) so speed/efficiency are pure-function inputs and both branches stay testable. This is the key reason to route augments through the plan, not ad-hoc into the tick loop.
 - **Auto-output:** in the BE tick, after `complete`, if `upgrades.autoOutput()` push outputs to the adjacent inventory via `ItemStorageLookup.find(...)` (item-side precedent exists).
-- **GUI:** add upgrade slots to each machine's `ScreenHandler` + `Screen`. A shared sub-layout (slot strip + tooltips) keeps the four screens consistent.
+- **GUI:** add upgrade slots to each machine's `ScreenHandler` + `Screen`. A shared sub-layout (slot strip + tooltips) keeps the four screens consistent. The natural home is an **Upgrades side tab** next to the existing Info/Energy/Redstone tabs — see below.
+
+### Upgrade slots in a side tab
+
+The side-tab framework (`core/lib/client/screen/tab/`, guide in its `package-info.java`) does not host slots yet. This is the contract it was designed to accept them under; the additions are small and none of it is built.
+
+1. **Tab slots are ordinary menu slots.** The server treats them as always active; all authority stays in `Slot.mayPlace` and the container's `canPlaceItem`, so a modified client can do nothing an open tab couldn't.
+2. **Positions are fixed.** With one open tab per side, an open tab's position depends only on its index on its side and the GUI width, so the slots get fixed menu coordinates outside the GUI image — which suits `Slot.x/y` being final.
+3. **The client hides them while the tab isn't fully open.** A `TabSlot` whose `isActive()` reads a client-only `BooleanSupplier` injected by the screen (`host.isFullyOpen(id)`), defaulting to `true` so the server is unaffected. Inactive slots aren't hovered, drawn, or used as quick-craft targets.
+4. **Rendering comes free:** slots draw above widgets, so slot items render on the open panel.
+5. **Host additions needed:** a `passThroughRects()` hook so the tab widget's `isMouseOver` returns false over its slots (otherwise vanilla never sees the slot click), and a `minOpenWidth` wide enough for the slot strip.
+
+**Accepted limitations:**
+- Shift-click (`quickMoveStack`) can route items into the upgrade slots while the tab is collapsed — the server can't know the client's tab state. Keep augments out of the shift-click route, or accept it.
+- At a GUI scale that leaves too little margin, the tab can't open and the slots are reachable only by shift-click.
 
 **Adoption order:** build the contract + Macerator integration first (Macerator already has secondary-output work in flight), then add the slots to Kiln/Sawmill/Alloy Smelter — they share the `ProcessingPlan` shape, so adoption is mechanical.
 
