@@ -35,6 +35,12 @@ public class RedstoneEngineBlockEntity extends EngineEntity implements LowTierEn
         EngineEntity.tick(level, pos, state, entity);
     }
 
+    /** Redstone is this engine's energy source, so it has no redstone mode. */
+    @Override
+    protected boolean hasRedstoneControl() {
+        return false;
+    }
+
     @Override
     protected void configure(EngineBuilder engine) {
         energy = engine.energyOutput("energy")

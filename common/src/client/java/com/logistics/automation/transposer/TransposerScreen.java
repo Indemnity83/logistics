@@ -2,6 +2,11 @@ package com.logistics.automation.transposer;
 
 import com.logistics.LogisticsMod;
 import com.logistics.core.lib.client.render.FluidBoxRenderer;
+import com.logistics.core.lib.client.screen.tab.MachineTabs;
+import com.logistics.core.lib.client.screen.tab.SideTabHost;
+import com.logistics.core.lib.client.screen.tab.SideTabScreen;
+import com.logistics.core.lib.client.screen.tab.SideTabsWidget;
+import com.logistics.core.lib.client.screen.tab.TabAnchor;
 import com.logistics.core.lib.fluids.FluidDisplay;
 import com.logistics.core.lib.resource.ResourceId;
 import java.util.List;
@@ -21,7 +26,7 @@ import net.minecraft.world.level.material.Fluids;
  * Client-side GUI screen for the Transposer: a small input slot over a larger output slot, a droplet
  * progress gauge, an energy bar, and the tank.
  */
-public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHandler> {
+public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHandler> implements SideTabScreen {
 
     private static final ResourceId TEXTURE = LogisticsMod.modId("textures/gui/automation/transposer.png");
     private static final int TEXTURE_WIDTH = 256;
@@ -50,14 +55,29 @@ public class TransposerScreen extends AbstractContainerScreen<TransposerScreenHa
     private static final int TANK_HEIGHT = TANK_BOTTOM - TANK_TOP;
     private static final int OVERLAY_U = TANK_LEFT + 64;
 
+    private final SideTabHost tabs;
+
     public TransposerScreen(TransposerScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
+        this.tabs = MachineTabs.machine("transposer", handler, handler.controls(),
+                new TabAnchor(() -> leftPos, () -> topPos, () -> imageWidth, () -> width, () -> height));
     }
 
     @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        return tabs.clickedOutside(super.hasClickedOutside(mouseX, mouseY, left, top), mouseX, mouseY);
+    }
+
+    @Override
+    public SideTabHost sideTabs() {
+        return tabs;
     }
 
     @Override

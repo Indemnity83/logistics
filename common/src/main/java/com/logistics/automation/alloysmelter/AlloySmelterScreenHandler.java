@@ -2,6 +2,7 @@ package com.logistics.automation.alloysmelter;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Holder;
@@ -34,15 +35,17 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
 
     private final Container inventory;
     private final ContainerData data;
+    private final MachineControls controls;
 
     /** Client-side constructor. */
     public AlloySmelterScreenHandler(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT),
-                new SimpleContainerData(MachineData.COUNT));
+                new SimpleContainerData(MachineData.COUNT), MachineControls.client());
     }
 
     /** Server-side constructor. */
-    public AlloySmelterScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
+    public AlloySmelterScreenHandler(
+            int syncId, Inventory playerInventory, Container inventory, ContainerData data, MachineControls controls) {
         super(LogisticsAutomation.MENU.ALLOY_SMELTER, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, MachineData.COUNT);
@@ -74,6 +77,9 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
         }
 
         this.addDataSlots(data);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        this.addDataSlots(controls.data());
     }
 
     // ==================== RecipeBookMenu ====================
@@ -252,6 +258,16 @@ public class AlloySmelterScreenHandler extends RecipeBookMenu {
     @Override
     public boolean stillValid(Player player) {
         return this.inventory.stillValid(player);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     @Override
