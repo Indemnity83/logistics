@@ -4,6 +4,7 @@ import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.energy.IEnergyStorage;
 import com.logistics.core.lib.power.EngineEnergyPusher;
 import com.logistics.core.machine.MachineComponent;
+import com.logistics.core.machine.MachineContext;
 import java.util.function.LongSupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +26,9 @@ public final class EngineEnergyOutputComponent implements MachineComponent, Mach
     private final EnergyComponent buffer;
     private final Runnable onChanged;
 
+    private long generatedThisTick;
+    private long generatedLastTick;
+
     public EngineEnergyOutputComponent(String id, LongSupplier capacity, Runnable onChanged) {
         this.id = id;
         this.onChanged = onChanged;
@@ -34,6 +38,17 @@ public final class EngineEnergyOutputComponent implements MachineComponent, Mach
     @Override
     public String id() {
         return id;
+    }
+
+    @Override
+    public void serverTick(MachineContext ctx) {
+        generatedLastTick = generatedThisTick;
+        generatedThisTick = 0;
+    }
+
+    /** RF accepted into the buffer by {@link #addEnergy} during the last completed tick. */
+    public long generatedLastTick() {
+        return generatedLastTick;
     }
 
     @Override
@@ -50,12 +65,14 @@ public final class EngineEnergyOutputComponent implements MachineComponent, Mach
         return buffer.getCapacity();
     }
 
-    /** Adds energy, capped at capacity, and marks dirty. */
+    /** Adds generated energy, capped at capacity, and marks dirty. Only the amount that fit counts as generated. */
     public void addEnergy(long amount) {
         if (amount <= 0) {
             return;
         }
-        buffer.setAmount(buffer.getAmount() + amount);
+        long before = buffer.getAmount();
+        buffer.setAmount(before + amount);
+        generatedThisTick += buffer.getAmount() - before;
         onChanged.run();
     }
 

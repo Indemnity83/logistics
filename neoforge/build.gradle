@@ -107,7 +107,10 @@ tasks.named('compileTestJava', JavaCompile) {
 dependencies {
     // JEI — compile against API only; players install separately at runtime
     compileOnly("mezz.jei:jei-${rootProject.jei_mc_version}-neoforge-api:${rootProject.jei_version}")
-    runtimeOnly("mezz.jei:jei-${rootProject.jei_mc_version}-neoforge:${rootProject.jei_version}")
+    // -PwithoutJei drops JEI from the dev runtime, to check the mod without it installed.
+    if (!project.hasProperty('withoutJei')) {
+        runtimeOnly("mezz.jei:jei-${rootProject.jei_mc_version}-neoforge:${rootProject.jei_version}")
+    }
 
     // Jade HUD — compile against the API only; never bundled. Loaded in dev via runClient.
     compileOnly("maven.modrinth:jade:${rootProject.jade_neoforge_version}")

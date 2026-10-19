@@ -116,6 +116,10 @@ public final class RecipeProcessorComponent
             return;
         }
         syncActivePlan(plan);
+        if (!ctx.workEnabled()) {
+            lit.setLit(ctx, false);
+            return;
+        }
 
         RecipeProcessPlan.Result result = RecipeProcessPlan.advance(
                 energySpent, plan.energyRequired(), io.energyStored(), rfPerTick, canRun(plan));
