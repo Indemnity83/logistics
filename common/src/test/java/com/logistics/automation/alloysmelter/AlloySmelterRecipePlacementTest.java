@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.logistics.core.lib.recipe.ItemResult;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,8 @@ class AlloySmelterRecipePlacementTest extends MinecraftTestEnvironment {
     }
 
     private static AlloySmelterScreenHandler menu(Inventory inventory, SimpleContainer machine) {
-        return new AlloySmelterScreenHandler(1, inventory, machine, new SimpleContainerData(MachineData.COUNT));
+        return new AlloySmelterScreenHandler(
+                1, inventory, machine, new SimpleContainerData(MachineData.COUNT), MachineControls.client());
     }
 
     /** Every item the player can reach: inventory (incl. equipment), machine slots, and the ground. */

@@ -14,6 +14,7 @@ import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
 import com.logistics.core.machine.component.RecipeProcessorComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.MachineControls;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -108,6 +109,7 @@ public class CrucibleBlockEntity extends MachineEntity {
                 .fluids(fluidStore)
                 .lit(this::setLit)
                 .build();
+        machine.redstoneControl("redstone").build();
 
         // Sync the tank to clients on change so the front-face fluid gauge stays current (the menu's
         // ContainerData only reaches a player with the GUI open).
@@ -136,7 +138,8 @@ public class CrucibleBlockEntity extends MachineEntity {
 
             @Override
             public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-                return new CrucibleScreenHandler(syncId, playerInventory, CrucibleBlockEntity.this, containerData);
+                return new CrucibleScreenHandler(syncId, playerInventory, CrucibleBlockEntity.this, containerData,
+                        MachineControls.server(CrucibleBlockEntity.this));
             }
         };
     }

@@ -2,6 +2,7 @@ package com.logistics.automation.refinery;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.core.machine.MachineData;
+import com.logistics.core.machine.control.MachineControls;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,15 +26,17 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
 
     private final Container inventory;
     private final ContainerData data;
+    private final MachineControls controls;
 
     /** Client-side constructor. */
     public RefineryScreenHandler(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(MACHINE_SLOT_COUNT),
-                new SimpleContainerData(RefineryBlockEntity.DATA_COUNT));
+                new SimpleContainerData(RefineryBlockEntity.DATA_COUNT), MachineControls.client());
     }
 
     /** Server-side constructor. */
-    public RefineryScreenHandler(int syncId, Inventory playerInventory, Container inventory, ContainerData data) {
+    public RefineryScreenHandler(
+            int syncId, Inventory playerInventory, Container inventory, ContainerData data, MachineControls controls) {
         super(LogisticsAutomation.MENU.REFINERY, syncId);
         checkContainerSize(inventory, MACHINE_SLOT_COUNT);
         checkContainerDataCount(data, RefineryBlockEntity.DATA_COUNT);
@@ -64,6 +67,9 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
         }
 
         this.addDataSlots(data);
+        this.controls = controls;
+        checkContainerDataCount(controls.data(), MachineControls.COUNT);
+        this.addDataSlots(controls.data());
     }
 
     @Override
@@ -111,6 +117,16 @@ public class RefineryScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return this.inventory.stillValid(player);
+    }
+
+    /** Redstone and energy status synced alongside this menu's own data. */
+    public MachineControls controls() {
+        return controls;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        return controls.clickMenuButton(player, id) || super.clickMenuButton(player, id);
     }
 
     // ==================== Data getters for GUI rendering ====================

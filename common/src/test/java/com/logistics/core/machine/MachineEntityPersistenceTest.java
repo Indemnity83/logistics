@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.logistics.core.lib.energy.EnergyComponent;
 import com.logistics.core.lib.items.ItemInventoryComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -38,6 +39,7 @@ class MachineEntityPersistenceTest extends MinecraftTestEnvironment {
         protected void configure(MachineBuilder machine) {
             machine.energy("energy").capacity(10_000).maxInput(128).build();
             machine.items("inventory").slots(SlotRole.INPUT, SlotRole.OUTPUT).bottomOutAccess().build();
+            machine.redstoneControl("redstone").build();
         }
 
         void save(CompoundTag tag) {
@@ -90,5 +92,37 @@ class MachineEntityPersistenceTest extends MinecraftTestEnvironment {
         assertThat(reader.energyStorage(null).getAmount()).isEqualTo(4_200);
         assertThat(reader.getItem(0).getItem()).isEqualTo(Items.RAW_IRON);
         assertThat(reader.getItem(0).getCount()).isEqualTo(7);
+    }
+
+    @Test
+    void redstoneModeRoundTripsAndDefaultIsNotWritten() {
+        TestMachine writer = new TestMachine();
+        CompoundTag defaults = new CompoundTag();
+        writer.save(defaults);
+        assertThat(defaults.getCompoundOrEmpty("components").contains("redstone")).isFalse();
+
+        writer.setRedstoneMode(RedstoneMode.LOW);
+        CompoundTag saved = new CompoundTag();
+        writer.save(saved);
+
+        TestMachine reader = new TestMachine();
+        reader.load(saved);
+        assertThat(reader.redstoneControl().mode()).isEqualTo(RedstoneMode.LOW);
+
+        reader.load(defaults); // a client re-loading an update tag without the key returns to the default
+        assertThat(reader.redstoneControl().mode()).isEqualTo(RedstoneMode.IGNORED);
+    }
+
+    @Test
+    void workEnabledAppliesTheModeToTheSignal() {
+        TestMachine machine = new TestMachine(); // no level, so no signal
+        assertThat(machine.hasRedstoneSignal()).isFalse();
+        assertThat(machine.workEnabled()).isTrue();
+
+        machine.setRedstoneMode(RedstoneMode.LOW);
+        assertThat(machine.workEnabled()).isTrue();
+
+        machine.setRedstoneMode(RedstoneMode.HIGH);
+        assertThat(machine.workEnabled()).isFalse();
     }
 }

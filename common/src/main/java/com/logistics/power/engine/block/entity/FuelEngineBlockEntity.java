@@ -13,6 +13,7 @@ import com.logistics.core.lib.power.EngineEntity;
 import com.logistics.core.lib.power.component.EngineEnergyOutputComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.FluidSyncComponent;
+import com.logistics.core.machine.control.MachineControls;
 import com.logistics.power.engine.block.FuelEngineBlock;
 import com.logistics.power.engine.fuel.FuelEngineComponent;
 import com.logistics.power.engine.fuel.FuelEngineCoolants;
@@ -128,11 +129,11 @@ public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStora
         engine.add(new FluidSyncComponent(fuelTank, coolantTank));
         fuelSim = engine.add(new FuelEngineComponent(
                 "fuelSim", energy, fuelTank, coolantTank,
-                FuelEngineFuels::lookup, FuelEngineCoolants::lookup, this::isPowered, profile, this::setChanged));
+                FuelEngineFuels::lookup, FuelEngineCoolants::lookup, this::isEnabled, profile, this::setChanged));
         engine.pistonCycle("cycle")
                 .energy(energy)
                 .overheated(fuelSim::isOverheated)
-                .powered(this::isPowered)
+                .powered(this::isEnabled)
                 .pistonSpeed(this::pistonSpeed)
                 .outputPower(() -> LogisticsConfigHost.get(LogisticsPower.CONFIG.FUEL_MAX_OUTPUT))
                 .outputFace(() -> FuelEngineBlock.getOutputDirection(getBlockState()))
@@ -196,7 +197,8 @@ public class FuelEngineBlockEntity extends EngineEntity implements HasFluidStora
                 ContainerLevelAccess accessor = level == null
                         ? ContainerLevelAccess.NULL
                         : ContainerLevelAccess.create(level, getBlockPos());
-                return new FuelEngineScreenHandler(syncId, playerInventory, containerData, accessor);
+                return new FuelEngineScreenHandler(
+                        syncId, playerInventory, containerData, accessor, MachineControls.server(FuelEngineBlockEntity.this));
             }
         };
     }
