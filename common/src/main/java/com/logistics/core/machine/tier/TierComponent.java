@@ -76,8 +76,7 @@ public final class TierComponent
 
     @Override
     public void contributeHud(MachineHudModel hud) {
-        // Hidden while nothing can change a tier.
-        // hud.line(HUD_TIER, tier.translationKey());
+        hud.line(HUD_TIER, tier.translationKey());
     }
 
     @Override

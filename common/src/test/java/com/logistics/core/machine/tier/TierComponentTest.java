@@ -25,7 +25,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class TierComponentTest extends MinecraftTestEnvironment {
@@ -135,7 +134,6 @@ class TierComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @Disabled("The tier HUD line is hidden while nothing can change a tier")
     void contributesATierHudLine() {
         TierComponent component = tier();
         component.setTier(MachineTier.PRECISION);
