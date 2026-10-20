@@ -16,10 +16,15 @@ sheet checks that the design reads for every farm type before the first two farm
   glass at y 15.
 - **Atlas:** each shipped farm paints its body from a single 32×32 atlas, `<farm>_body.png`,
   with UVs in 0–16 units (atlas px ÷ 2). The concepts here use vanilla textures instead.
-- **Texel density:**
-  - Blocks (beds, logs, cactus, caps) map vanilla textures 1:1.
-  - Plant crosses sample at 2× density, which shows the whole sprite at half size. This is a
-    placeholder shortcut; the painted atlases should go back to 1:1.
+- **Texel size:** every face samples its texture 1:1, so one texel is one model pixel, the
+  same as everywhere else in Minecraft. Nothing is scaled. `check_texels` fails the run if any
+  face would stretch or squeeze its texture.
+  - **Blocks and plant strands** (beds, logs, cactus, caps, sugar cane, kelp, vines) crop
+    vanilla textures 1:1.
+  - **Small plants** are too large in vanilla to crop into a 10×10 bed, so they are redrawn at
+    bed scale in their vanilla palettes (`SPRITES` in `concepts.py`). That covers the berry
+    bush, nether wart, flowers, mushrooms, fungi, dead bush, bamboo leaves, gourd stem, cocoa
+    pod, log end and apple.
 
 ## Lineup
 
@@ -28,7 +33,7 @@ The two labels that appear twice are alternatives to compare.
 | Farm | Body | Status |
 |---|---|---|
 | Crop Farm | four crop-sprout crosses on farmland | farm shipped in #1469; this case model and `crop_farm_body.png` are on `farm-case-models` |
-| Arboretum | a 3-2-1 oak log pile with two iron straps, on Humus | alternative A |
+| Arboretum | a 3-2 pile of 3 px oak logs on Humus, with iron straps painted into the bark | alternative A |
 | Arboretum | a mini tree on Humus (trunk, canopy, crown) | alternative B; the current model on `farm-case-models` |
 | Orchard | the mini tree on grass with red apples in the foliage | alternative A |
 | Orchard | a stripped-oak basket on grass, filled with `textures/apple_pile.png` | alternative B |
@@ -39,7 +44,7 @@ The two labels that appear twice are alternatives to compare.
 | Cocoa Plantation | pods on a bare jungle log, with no leaves | planned |
 | Cave Vine Farm | glow-berry vines hanging from a moss ceiling | planned; the ceiling hides the vines from above |
 | Mushroom Farm | a giant red mushroom on mycelium | planned |
-| Nether Wart Farm | separate wart stalks on soul sand (`textures/nether_wart_stalks.png`) | planned |
+| Nether Wart Farm | wart stalks with bulbs on soul sand | planned |
 | Peat Bog | a mud bed with a water inset and stacked peat | planned; no plant |
 | Aquatic Farm | kelp, seagrass and sea pickles under a full water volume | idea; needs a translucent layer |
 | Chorus Farm | a branching chorus plant on end stone | idea |
@@ -65,9 +70,9 @@ python3 -I design/concepts/farm-bodies/concepts.py
   `LOGISTICS_DOCS_TOOLS`.
 - **Vanilla textures:** extracted once into `.cache/` (git-ignored) from the 26.3 client jar in
   the Gradle cache. Override with `MC_CLIENT_JAR`. Vanilla textures are never committed.
-- **PNG decoding:** optionally `~/Dev/Tools/texturekit` (`TEXTUREKIT`). Without it, the
-  renderer's own decoder is used, but it drops the transparency of grayscale PNGs such as
-  `attached_pumpkin_stem`.
+- **PNG decoding:** the renderer's own decoder. It needs the `docs` commit that respects
+  transparency in grayscale and RGB PNGs; without it, textures such as `attached_pumpkin_stem`
+  render as solid squares.
 
 **Outputs:**
 - **`farm-concepts.png`:** the labelled contact sheet.
@@ -76,8 +81,9 @@ python3 -I design/concepts/farm-bodies/concepts.py
   - The tints used in the concepts (grass, water, stems, sugar cane) are not saved, so those
     faces show grey.
   - The water's translucency is not saved either.
-- **`textures/`:** the generated textures, `apple_pile.png` and `nether_wart_stalks.png`.
-  `models/` refers to them as `logistics:block/forestry/concept/<name>`.
+- **`textures/`:** every generated texture: the redrawn sprites, `strapped_log.png` and
+  `apple_pile.png`. Each sprite sits at the top-left of its own 16×16 file. `models/` refers to
+  them as `logistics:block/forestry/concept/<name>`.
 
 Each body is one function in `concepts.py`, listed in `BODIES` with its label and model file
 name.

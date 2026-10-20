@@ -1,6 +1,7 @@
 """Concept farm bodies (bed + planting, no case) on one labelled contact sheet.
 
-Blocks map vanilla textures 1:1; plant crosses sample at 2x density (full sprite at half size).
+Every face samples its texture 1:1 (check_texels enforces it). Blocks and plant strands crop
+vanilla textures; small plants are redrawn in their vanilla palettes (SPRITES).
 Rendering reuses logistics-docs/tools/render_blocks.py, plus a blended pass for water.
 
 Writes farm-concepts.png, models/<body>.json and the generated textures/ next to this file.
@@ -21,12 +22,7 @@ DOCS_TOOLS = os.environ.get("LOGISTICS_DOCS_TOOLS",
 sys.path.insert(0, DOCS_TOOLS)
 import render_blocks as rb  # noqa: E402
 
-encode_rgba = rb.encode_png
-try:  # render_blocks ignores tRNS on grayscale PNGs (attached_pumpkin_stem); pngkit does not
-    sys.path.insert(0, os.environ.get("TEXTUREKIT", os.path.expanduser("~/Dev/Tools/texturekit")))
-    from pngkit import decode_rgba  # noqa: E402
-except ImportError:
-    decode_rgba = rb.decode_png
+decode_rgba, encode_rgba = rb.decode_png, rb.encode_png
 
 MOD = os.path.join(REPO, "common/src/main/resources/assets/logistics")
 CACHE = os.path.join(HERE, ".cache")
@@ -79,20 +75,22 @@ def modtex(path):
 
 
 # ---------------------------------------------------------------- elements
+#
+# Every face samples its texture 1:1: a face's uv span, in texels, equals its size in model
+# pixels. check_texels() enforces that before anything is rendered.
 
-def box(frm, to, side, top=None, bottom=None, off=(0, 0), top_off=None, density=1, faces=None, **extra):
-    """Cuboid with uv sized to the element (x density) so texels match the block grid."""
+def box(frm, to, side, top=None, bottom=None, off=(0, 0), top_off=None, faces=None, **extra):
+    """Cuboid cropping its textures 1:1; off/top_off pick where in the texture the crop sits."""
     (x0, y0, z0), (x1, y1, z1) = frm, to
     top = top or side
     bottom = bottom or top
-    top_off = top_off if top_off is not None else (8 - (x1 - x0) * density / 2, 8 - (z1 - z0) * density / 2)
-    d = density
+    top_off = top_off if top_off is not None else (8 - (x1 - x0) / 2, 8 - (z1 - z0) / 2)
 
     def side_uv(w):
-        u0 = off[0] if off[0] is not None else 8 - w * d / 2
-        return [u0, off[1], u0 + w * d, off[1] + (y1 - y0) * d]
+        u0 = off[0] if off[0] is not None else 8 - w / 2
+        return [u0, off[1], u0 + w, off[1] + (y1 - y0)]
 
-    tu = [top_off[0], top_off[1], top_off[0] + (x1 - x0) * d, top_off[1] + (z1 - z0) * d]
+    tu = [top_off[0], top_off[1], top_off[0] + (x1 - x0), top_off[1] + (z1 - z0)]
     f = {
         "north": {"texture": side, "uv": side_uv(x1 - x0)},
         "south": {"texture": side, "uv": side_uv(x1 - x0)},
@@ -106,12 +104,9 @@ def box(frm, to, side, top=None, bottom=None, off=(0, 0), top_off=None, density=
     return dict({"from": list(frm), "to": list(to), "faces": f}, **extra)
 
 
-def cross(t, cx, cz, y0, w, h, v_top=None, density=2):
-    """Two axis-aligned planes, bottom-aligned on the sprite unless v_top is given."""
-    uw, uh = w * density, h * density
-    u0 = 8 - uw / 2
-    v0 = v_top if v_top is not None else 16 - uh
-    uv = [u0, v0, u0 + uw, v0 + uh]
+def cross(t, cx, cz, y0, w, h, u0=0, v0=0):
+    """Two axis-aligned planes showing the w x h texels at (u0, v0) of the texture."""
+    uv = [u0, v0, u0 + w, v0 + h]
     a = {"from": [cx - w / 2, y0, cz], "to": [cx + w / 2, y0 + h, cz],
          "faces": {"north": {"texture": t, "uv": uv}, "south": {"texture": t, "uv": uv}}}
     b = {"from": [cx, y0, cz - w / 2], "to": [cx, y0 + h, cz + w / 2],
@@ -126,6 +121,176 @@ def bed(top, side, side_off=(0, 0)):
 QUAD = [(5.5, 5.5), (10.5, 5.5), (5.5, 10.5), (10.5, 10.5)]
 
 
+def check_texels(name, elements):
+    """Return the faces whose texels are not exactly one model pixel."""
+    bad = []
+    for i, el in enumerate(elements):
+        (x0, y0, z0), (x1, y1, z1) = el["from"], el["to"]
+        size = {"north": (x1 - x0, y1 - y0), "south": (x1 - x0, y1 - y0),
+                "east": (z1 - z0, y1 - y0), "west": (z1 - z0, y1 - y0),
+                "up": (x1 - x0, z1 - z0), "down": (x1 - x0, z1 - z0)}
+        for d, face in el["faces"].items():
+            tw, th, _ = decode_rgba(os.path.join(ASSETS, "textures", face["texture"].split(":", 1)[1] + ".png"))
+            u0, v0, u1, v1 = face["uv"]
+            du, dv = abs(u1 - u0) * tw / 16, abs(v1 - v0) * th / 16
+            if face.get("rotation", 0) % 180:
+                du, dv = dv, du
+            gu, gv = size[d]
+            if abs(du - gu) > 1e-6 or abs(dv - gv) > 1e-6:
+                bad.append(f"{name}: element {i} {d} shows {du}x{dv} texels on {gu}x{gv} px")
+    return bad
+
+
+# ---------------------------------------------------------------- sprites
+#
+# Small plants drawn at the bed's own scale in their vanilla palettes, since the vanilla sprites
+# are too big to crop 1:1 into a 10x10 bed.
+
+GENERATED = set()
+
+
+def sprite(name, rows, palette):
+    """A hand-placed sprite at the top-left of a 16x16 texture; '.' is transparent."""
+    out = os.path.join(ASSETS, "textures/block/v", name + ".png")
+    px = bytearray(16 * 16 * 4)
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                c = palette[ch]
+                px[(y * 16 + x) * 4:(y * 16 + x) * 4 + 4] = bytes((c >> 16, (c >> 8) & 255, c & 255, 255))
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    encode_rgba(out, 16, 16, px)
+    GENERATED.add(name)
+    return "logistics:block/v/" + name
+
+
+def tinted(c, tint):
+    return (((c >> 16) * (tint >> 16) // 255) << 16) | ((((c >> 8) & 255) * ((tint >> 8) & 255) // 255) << 8) \
+        | ((c & 255) * (tint & 255) // 255)
+
+
+SPRITES = {
+    "berry_bush": ([".bab.",
+                    "baeab",
+                    "ebcag",
+                    "daceb",
+                    ".d.d."],
+                   {"a": 0x3c6e42, "b": 0x487f4f, "c": 0x286240, "d": 0x295230, "e": 0xa50700, "g": 0xdf467e}),
+    "nether_wart": (["de...",
+                     "ec.de",
+                     ".b.ec",
+                     ".b..b",
+                     ".f..f"],
+                    {"b": 0x480000, "c": 0x831c20, "d": 0xc53439, "e": 0xa42429, "f": 0x730408}),
+    "brown_mushroom": ([".ab.",
+                        "abbc",
+                        "..g."],
+                       {"a": 0xcc9978, "b": 0x916d55, "c": 0x725643, "g": 0xb5947d}),
+    "crimson_fungus": ([".acb.",
+                        "adabe",
+                        "efgfi",
+                        "..n..",
+                        "..m.."],
+                       {"a": 0xc53439, "b": 0xa42429, "c": 0xffa468, "d": 0xff6500, "e": 0x941818,
+                        "f": 0x730408, "g": 0x521810, "i": 0x480000, "m": 0x723232, "n": 0x854242}),
+    "warped_fungus": (["acbca",
+                       "fegef",
+                       "..i..",
+                       "..j.."],
+                      {"a": 0x119b85, "b": 0xff6500, "c": 0x14b485, "e": 0x167e86, "f": 0x16615b,
+                       "g": 0xe93e0c, "i": 0x442131, "j": 0x4b2737}),
+    "poppy": (["aca",
+               "cdb",
+               ".g.",
+               "fg.",
+               ".g."],
+              {"a": 0xed302c, "b": 0x9b221a, "c": 0xbf2529, "d": 0x742303, "f": 0x265a25, "g": 0x4a8f28}),
+    "dandelion": ([".a.",
+                   "aca",
+                   ".e.",
+                   "fg.",
+                   ".e."],
+                  {"a": 0xffec4f, "c": 0xf19d25, "e": 0x177c04, "f": 0x4a8f28, "g": 0x55ab2d}),
+    "cornflower": (["aba",
+                    "bdc",
+                    ".f.",
+                    ".fh",
+                    ".i."],
+                   {"a": 0x728ff1, "b": 0x466aeb, "c": 0x6281e8, "d": 0x2a4cc7, "f": 0x2e6924,
+                    "h": 0x578c4d, "i": 0x5b9c51}),
+    "allium": (["dab",
+                "bce",
+                ".f.",
+                ".g.",
+                ".f."],
+               {"a": 0xd2a6f6, "b": 0xb878ed, "c": 0xa65ee1, "d": 0xe8cffe, "e": 0x7b4ea0,
+                "f": 0x4a8f28, "g": 0x529a2e}),
+    "oxeye_daisy": (["cbc",
+                     "bea",
+                     ".h.",
+                     "ij.",
+                     ".i."],
+                    {"a": 0x9bbdbd, "b": 0xf7f7f7, "c": 0xd6e8e8, "e": 0xfed639, "h": 0x529a2e,
+                     "i": 0x177c04, "j": 0x55ab2d}),
+    "blue_orchid": (["bc.",
+                     "cdb",
+                     ".ea",
+                     ".f.",
+                     ".g."],
+                    {"a": 0x2fcefd, "b": 0x2abffd, "c": 0x27a9f4, "d": 0x1c92d6, "e": 0x4a8f28,
+                     "f": 0x55ab2d, "g": 0x177c04}),
+    "dead_bush": (["b..a",
+                   "cb.c",
+                   ".cb.",
+                   ".ca."],
+                  {"a": 0x513d24, "b": 0x946428, "c": 0x67502c}),
+    "bamboo_leaves": ([".ab",
+                       "aea",
+                       "b.f"],
+                      {"a": 0x67a124, "b": 0x528919, "e": 0x457616, "f": 0x375a15}),
+    "gourd_stem": (["...a",
+                    "..ab",
+                    ".ab.",
+                    "ab.."],
+                   {"a": tinted(0xb5b5b5, STEM), "b": tinted(0x858585, STEM)}),
+    "cocoa_pod": (["cfc.bcb",  # side 3x4 at (0,0), top 3x3 at (4,0)
+                   "geg.cfc",
+                   "gdg.bcb",
+                   "bgb"],
+                  {"b": 0x652f0b, "c": 0x823c0e, "d": 0xe2b17c, "e": 0xcb8e53, "f": 0x96571a, "g": 0xb97335}),
+    "log_end": (["bab",
+                 "ada",
+                 "bab"],
+                {"a": 0x5f4a2b, "b": 0x4c3d26, "d": 0xb8945f}),
+    "apple": (["ab"],
+              {"a": 0xdd1725, "b": 0xff1c2b}),
+}
+
+
+def spr(name):
+    rows, palette = SPRITES[name]
+    return sprite(name, rows, palette), len(rows[0]), len(rows)
+
+
+def strapped_log():
+    """Oak bark turned to run along x (3 rows by 8), with iron straps at columns 1 and 6."""
+    out = os.path.join(ASSETS, "textures/block/v/strapped_log.png")
+    w, h, bark = decode_rgba(os.path.join(VAN, "block/oak_log.png"))
+    px = bytearray(16 * 16 * 4)
+    for r in range(3):
+        for c in range(8):
+            o = (r * 16 + c) * 4
+            if c in (1, 6):
+                px[o:o + 4] = bytes((156, 156, 156, 255) if r < 2 else (104, 104, 104, 255))
+            else:
+                s = (c * w + r) * 4
+                px[o:o + 4] = bark[s:s + 4]
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    encode_rgba(out, 16, 16, px)
+    GENERATED.add("strapped_log")
+    return "logistics:block/v/strapped_log"
+
+
 # ---------------------------------------------------------------- bodies
 
 def real(model):
@@ -138,42 +303,18 @@ def real(model):
     return els
 
 
-def log_x(z, y, d=2.5, x0=4, x1=12):
-    """A log lying along x: grain runs the length, rings on the ends."""
-    side, end = tex("oak_log"), tex("oak_log_top")
-    L = x1 - x0
-    run = {"texture": side, "uv": [6, 4, 6 + d, 4 + L], "rotation": 90}
-    return {"from": [x0, y, z], "to": [x1, y + d, z + d],
-            "faces": {"north": dict(run), "south": dict(run), "up": dict(run), "down": dict(run),
-                      "east": {"texture": end, "uv": [0, 0, 16, 16]},
-                      "west": {"texture": end, "uv": [0, 0, 16, 16]}}}
-
-
-def band(frm, to):
-    iron = {"texture": tex("rail"), "uv": [2, 1, 4, 3]}
-    return {"from": list(frm), "to": list(to), "faces": {d: dict(iron) for d in rb.DIR_NORMAL}}
-
-
 def log_pile():
     humus = modtex("block/forestry/humus")
+    side = strapped_log()
+    end, _, _ = spr("log_end")
     e = [bed(humus, humus)]
-    for z in (4.25, 6.75, 9.25):
-        e.append(log_x(z, 6))
-    for z in (5.5, 8):
-        e.append(log_x(z, 8.5))
-    e.append(log_x(6.75, 11))
-    t = 0.25
-    profile = [  # (z0, z1, y0, y1): a stepped strap hugging the 3-2-1 pyramid
-        (4.25 - t, 4.25, 6, 8.5), (11.75, 11.75 + t, 6, 8.5),
-        (4.25 - t, 5.5, 8.5, 8.5 + t), (10.5, 11.75 + t, 8.5, 8.5 + t),
-        (5.5 - t, 5.5, 8.5 + t, 11), (10.5, 10.5 + t, 8.5 + t, 11),
-        (5.5 - t, 6.75, 11, 11 + t), (9.25, 10.5 + t, 11, 11 + t),
-        (6.75 - t, 6.75, 11 + t, 13.5), (9.25, 9.25 + t, 11 + t, 13.5),
-        (6.75 - t, 9.25 + t, 13.5, 13.5 + t),
-    ]
-    for x in (5, 10):
-        for z0, z1, y0, y1 in profile:
-            e.append(band((x, y0, z0), (x + 1, y1, z1)))
+    run = {"texture": side, "uv": [0, 0, 8, 3]}
+    cap = {"texture": end, "uv": [0, 0, 3, 3]}
+    for y, zs in ((6, (3.5, 6.5, 9.5)), (9, (5, 8))):
+        for z in zs:
+            e.append({"from": [4, y, z], "to": [12, y + 3, z + 3],
+                      "faces": {"north": dict(run), "south": dict(run), "up": dict(run), "down": dict(run),
+                                "east": dict(cap), "west": dict(cap)}})
     return e
 
 
@@ -181,8 +322,9 @@ def gourd():
     e = [bed(tex("farmland_moist"), tex("dirt"))]
     e.append(box((3, 6, 8), (8, 10, 13), tex("pumpkin_side"), tex("pumpkin_top"), off=(None, 5)))
     e.append(box((8, 6, 3), (13, 10, 8), tex("melon_side"), tex("melon_top"), off=(None, 5)))
-    e += cross(tex("attached_pumpkin_stem", STEM), 5.5, 5.5, 6, 4, 4)
-    e += cross(tex("attached_melon_stem", STEM), 10.5, 10.5, 6, 4, 4)
+    stem, w, h = spr("gourd_stem")
+    e += cross(stem, 5.5, 5.5, 6, w, h)
+    e += cross(stem, 10.5, 10.5, 6, w, h)
     return e
 
 
@@ -190,16 +332,16 @@ def plantation():
     sand = tex("sand")
     e = [box((3, 4, 3), (7, 6, 13), sand, off=(3, 0), top_off=(3, 3)),
          box((9, 4, 3), (13, 6, 13), sand, off=(9, 0), top_off=(9, 3)),
-         box((7, 4, 3), (9, 5, 13), sand, off=(7, 0), top_off=(7, 3)),
-         box((7, 5, 3), (9, 5.75, 13), tex("water_still", WATER), translucent=0.55,
-             faces=("up", "north", "south"))]
+         box((7, 4, 3), (9, 5, 13), tex("water_still", WATER), translucent=0.55,
+             faces=("up", "north", "south"), off=(7, 0), top_off=(7, 3))]
     cane = tex("sugar_cane", GRASS)
-    e += cross(cane, 5, 5.5, 6, 3, 8, v_top=0)
-    e += cross(cane, 5, 10.5, 6, 3, 6, v_top=4)
+    e += cross(cane, 5, 5.5, 6, 3, 8, u0=4, v0=0)
+    e += cross(cane, 5, 10.5, 6, 3, 6, u0=4, v0=4)
     stalk = tex("bamboo_stalk")
-    for (x, z, h) in ((10, 4.5, 8), (11.5, 9.5, 6)):
+    leaves, lw, lh = spr("bamboo_leaves")
+    for (x, z, h) in ((10, 4, 8), (11, 9, 6)):
         e.append(box((x, 6, z), (x + 2, 6 + h, z + 2), stalk, off=(0, 0), top_off=(13, 0)))
-        e += cross(tex("bamboo_small_leaves"), x + 1, z + 1, 6 + h - 3, 4, 4, v_top=0)
+        e += cross(leaves, x + 1, z + 1, 6 + h - 2, lw, lh)
     return e
 
 
@@ -207,16 +349,18 @@ def desert():
     sand = tex("sand")
     e = [bed(sand, sand)]
     e.append(box((5, 6, 5), (9, 13, 9), tex("cactus_side"), tex("cactus_top"), off=(None, 0)))
-    e += cross(tex("cactus_flower"), 7, 7, 13, 4, 2, v_top=10)
+    e += cross(tex("cactus_flower"), 7, 7, 13, 4, 2, u0=6, v0=7)
     e.append(box((9, 6, 9), (12, 10, 12), tex("cactus_side"), tex("cactus_top"), off=(None, 3)))
-    e += cross(tex("dead_bush"), 10.5, 5.5, 6, 4, 4)
+    bush, w, h = spr("dead_bush")
+    e += cross(bush, 10.5, 5.5, 6, w, h)
     return e
 
 
 def berry():
     e = [bed(tex("grass_block_top", GRASS), tex("grass_block_side"))]
-    for (x, z), h in zip(QUAD, (5, 4, 4, 5)):
-        e += cross(tex("sweet_berry_bush_stage3"), x, z, 6, 5, h)
+    bush, w, h = spr("berry_bush")
+    for x, z in QUAD:
+        e += cross(bush, x, z, 6, w, h)
     return e
 
 
@@ -224,10 +368,9 @@ def cocoa():
     log = tex("jungle_log")
     e = [bed(modtex("block/forestry/humus"), modtex("block/forestry/humus"))]
     e.append(box((6, 6, 6), (10, 14, 10), log, tex("jungle_log_top"), off=(None, 0)))
-    pod, ptop = tex("cocoa_stage2"), tex("cocoa_stage2")
-    for frm, to in (((7, 8, 4), (10, 12, 6)), ((10, 7, 7), (12, 11, 10)), ((4, 9, 6.5), (6, 12, 9.5))):
-        b = box(frm, to, pod, ptop, density=2, off=(8, 4), top_off=(0, 0))
-        e.append(b)
+    pod, _, _ = spr("cocoa_pod")
+    for frm, to in (((7, 8, 3), (10, 12, 6)), ((10, 7, 7), (13, 11, 10)), ((3, 9, 6), (6, 13, 9))):
+        e.append(box(frm, to, pod, off=(0, 0), top_off=(4, 0)))
     return e
 
 
@@ -235,8 +378,8 @@ def cave_vines():
     moss = tex("moss_block")
     e = [bed(moss, moss), box((3, 13, 3), (13, 14, 13), moss, off=(3, 0), top_off=(3, 3))]
     for (x, z), h in zip(QUAD, (6, 4, 5, 7)):
-        e += cross(tex("cave_vines_plant_lit"), x, z, 13 - h + 2, 4, h - 2, v_top=0)
-        e += cross(tex("cave_vines_lit"), x, z, 13 - h, 4, 2, v_top=10)
+        e += cross(tex("cave_vines_plant_lit"), x, z, 13 - h + 2, 4, h - 2, u0=1, v0=4)
+        e += cross(tex("cave_vines_lit"), x, z, 13 - h, 4, 2, u0=2, v0=2)
     return e
 
 
@@ -246,31 +389,18 @@ def mushroom():
     cap = tex("red_mushroom_block")
     e.append(box((4, 11, 4), (12, 13, 12), cap, off=(4, 0), top_off=(4, 4)))
     e.append(box((5, 13, 5), (11, 14, 11), cap, off=(5, 2), top_off=(5, 5)))
-    e += cross(tex("brown_mushroom"), 4.5, 11, 6, 3, 3)
-    e += cross(tex("brown_mushroom"), 11.5, 11.5, 6, 3, 3)
+    shroom, w, h = spr("brown_mushroom")
+    e += cross(shroom, 4.5, 11, 6, w, h)
+    e += cross(shroom, 11.5, 11.5, 6, w, h)
     return e
-
-
-def wart_stalks():
-    """nether_wart_stage2 with the merged base cut back to one stalk under each bulb."""
-    out = os.path.join(ASSETS, "textures/block/v/nether_wart_stalks.png")
-    w, h, px = decode_rgba(os.path.join(VAN, "block/nether_wart_stage2.png"))
-    px = bytearray(px)
-    for y in range(10, 16):
-        for x in range(16):
-            if x not in (3, 4, 12, 13):
-                px[(y * w + x) * 4 + 3] = 0
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    encode_rgba(out, w, h, px)
-    return "logistics:block/v/nether_wart_stalks"
 
 
 def nether_wart():
     ss = tex("soul_sand")
     e = [bed(ss, ss)]
-    wart = wart_stalks()
-    for (x, z), h in zip(QUAD, (5, 4.5, 4.5, 5)):
-        e += cross(wart, x, z, 6, h, h, v_top=0, density=16 / h)
+    wart, w, h = spr("nether_wart")
+    for x, z in QUAD:
+        e += cross(wart, x, z, 6, w, h)
     return e
 
 
@@ -280,12 +410,12 @@ def peat_bog():
          box((3, 4, 10), (13, 6, 13), mud, off=(3, 0), top_off=(3, 10)),
          box((3, 4, 6), (5, 6, 10), mud, off=(3, 0), top_off=(3, 6)),
          box((10, 4, 6), (13, 6, 10), mud, off=(10, 0), top_off=(10, 6)),
-         box((5, 4, 6), (10, 5, 10), mud, off=(5, 0), top_off=(5, 6)),
-         box((5, 5, 6), (10, 5.75, 10), tex("water_still", WATER), translucent=0.55, faces=("up",))]
+         box((5, 4, 6), (10, 5, 10), tex("water_still", WATER), translucent=0.55, faces=("up",),
+             top_off=(5, 6))]
     peat = tex("packed_mud")
     e.append(box((9, 6, 10), (12, 8, 12), peat, off=(2, 4)))
-    e.append(box((10, 8, 10.5), (12, 9.5, 12), peat, off=(6, 2)))
-    e.append(box((4, 6, 3.5), (6.5, 7.5, 5.5), peat, off=(9, 9)))
+    e.append(box((10, 8, 10), (12, 9, 12), peat, off=(6, 2)))
+    e.append(box((4, 6, 4), (6, 7, 6), peat, off=(9, 9)))
     return e
 
 
@@ -293,12 +423,12 @@ def aquatic():
     sand = tex("sand")
     e = [bed(sand, sand)]
     for x, z, h in ((5, 5.5, 7), (10.5, 6, 6), (8, 10.5, 7)):
-        e += cross(tex("kelp_plant"), x, z, 6, 4, h, v_top=0)
-    e += cross(tex("seagrass"), 5, 10.5, 6, 4, 4)
-    e += cross(tex("seagrass"), 11, 10.5, 6, 3, 3)
-    for x, z in ((8.5, 5), (9.5, 6.5)):
-        e.append(box((x, 6, z), (x + 1.5, 8, z + 1.5), tex("sea_pickle"), off=(4, 8), top_off=(5, 2)))
-    e.append(box((3, 6, 3), (13, 13.5, 13), tex("water_still", WATER), translucent=0.4,
+        e += cross(tex("kelp_plant"), x, z, 6, 4, h, u0=5, v0=16 - h)
+    e += cross(tex("seagrass"), 5, 10.5, 6, 4, 4, u0=1, v0=12)
+    e += cross(tex("seagrass"), 11, 10.5, 6, 3, 3, u0=10, v0=12)
+    for x, z in ((8, 5), (9, 6)):
+        e.append(box((x, 6, z), (x + 1, 8, z + 1), tex("sea_pickle"), off=(6, 5), top_off=(6, 2)))
+    e.append(box((3, 6, 3), (13, 13, 13), tex("water_still", WATER), translucent=0.4,
                  faces=("up", "north", "south", "east", "west"), off=(3, 0), top_off=(3, 3)))
     return e
 
@@ -310,19 +440,18 @@ def chorus():
     e.append(box((6, 11, 6), (10, 14, 10), flower, off=(None, 6)))
     e.append(box((4, 8, 7), (7, 10, 9), plant, off=(None, 2)))
     e.append(box((4, 10, 7), (6, 12, 9), plant, off=(None, 8)))
-    e.append(box((3.5, 12, 6.5), (6.5, 14, 9.5), flower, off=(None, 6)))
+    e.append(box((3, 12, 7), (6, 14, 10), flower, off=(None, 6)))
     e.append(box((9, 7, 7), (12, 9, 9), plant, off=(None, 6)))
     e.append(box((10, 9, 7), (12, 11, 9), plant, off=(None, 10)))
-    e.append(box((10, 11, 7), (12, 12.5, 9), tex("chorus_flower_dead"), off=(None, 6)))
+    e.append(box((10, 11, 7), (12, 13, 9), tex("chorus_flower_dead"), off=(None, 6)))
     return e
 
 
 def vines():
     e = [bed(tex("warped_nylium"), tex("warped_nylium_side"))]
     for (x, z), h in zip(((5, 5.5), (10.5, 6), (7.5, 10.5)), (8, 6, 7)):
-        e += cross(tex("twisting_vines_plant"), x, z, 6, 4, h - 2, v_top=0)
-        e += cross(tex("twisting_vines"), x, z, 6 + h - 2, 4, 2, v_top=4)
-    e += cross(tex("warped_roots"), 11, 11, 6, 3, 3)
+        e += cross(tex("twisting_vines_plant"), x, z, 6, 4, h - 2, u0=5, v0=0)
+        e += cross(tex("twisting_vines"), x, z, 6 + h - 2, 4, 2, u0=7, v0=2)
     return e
 
 
@@ -331,20 +460,19 @@ def flowers():
     names = ("poppy", "dandelion", "cornflower", "allium", "oxeye_daisy", "blue_orchid")
     spots = ((4.5, 5), (8, 4.5), (11.5, 5.5), (5, 9.5), (8.5, 8.5), (11, 11))
     for n, (x, z) in zip(names, spots):
-        e += cross(tex(n), x, z, 6, 4, 6)
+        t, w, h = spr(n)
+        e += cross(t, x, z, 6, w, h)
     return e
 
 
 def moss_azalea():
     moss = tex("moss_block")
     e = [bed(moss, moss)]
-    e += cross(tex("azalea_plant"), 6.5, 6.5, 6, 4, 3)
-    e.append(box((3.5, 9, 3.5), (9.5, 13, 9.5), tex("flowering_azalea_side"), tex("flowering_azalea_top"),
-                 density=2, off=(2, 0), top_off=(2, 2)))
-    e += cross(tex("azalea_plant"), 10.5, 10.5, 6, 3, 2)
-    e.append(box((8.5, 8, 8.5), (12.5, 11, 12.5), tex("azalea_side"), tex("azalea_top"),
-                 density=2, off=(4, 0), top_off=(4, 4)))
-    e += cross(tex("small_dripleaf_side"), 11, 5, 6, 3, 3, v_top=6)
+    e += cross(tex("azalea_plant"), 6.5, 6.5, 6, 4, 3, u0=6, v0=11)
+    e.append(box((4, 9, 4), (10, 13, 10), tex("flowering_azalea_side"), tex("flowering_azalea_top"),
+                 off=(0, 0), top_off=(5, 5)))
+    e += cross(tex("azalea_plant"), 10.5, 10.5, 6, 3, 2, u0=6, v0=12)
+    e.append(box((9, 8, 9), (13, 11, 13), tex("azalea_side"), tex("azalea_top"), off=(0, 0), top_off=(6, 6)))
     return e
 
 
@@ -352,16 +480,12 @@ def fungus():
     c, w = tex("crimson_nylium"), tex("warped_nylium")
     e = [box((3, 4, 3), (8, 6, 13), tex("crimson_nylium_side"), c, off=(3, 0), top_off=(3, 3)),
          box((8, 4, 3), (13, 6, 13), tex("warped_nylium_side"), w, off=(8, 0), top_off=(8, 3))]
-    e += cross(tex("crimson_fungus"), 5.5, 8, 6, 5, 6)
-    e += cross(tex("warped_fungus"), 10.5, 8, 6, 5, 6)
+    crimson, cw, ch = spr("crimson_fungus")
+    warped, ww, wh = spr("warped_fungus")
+    for z in (5.5, 10.5):
+        e += cross(crimson, 5.5, z, 6, cw, ch)
+        e += cross(warped, 10.5, z, 6, ww, wh)
     return e
-
-
-def apple_tex():
-    out = os.path.join(ASSETS, "textures/item/v/apple.png")
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    shutil.copy(os.path.join(VAN, "item/apple.png"), out)
-    return "logistics:item/v/apple"
 
 
 APPLE_RED = [(84, 9, 14), (156, 16, 23), (180, 19, 30), (221, 23, 37), (255, 28, 43)]
@@ -374,8 +498,7 @@ def apple_block():
     rows = [(2, (2, 6, 10, 14)), (6, (0, 4, 8, 12)), (10, (2, 6, 10, 14)), (14, (0, 4, 8, 12))]
     jitter = [(0.2, -0.2), (-0.2, 0.1), (0.1, 0.2), (-0.1, -0.2)] * 4
     centers = [(x + jitter[i][0], y + jitter[i][1], i % 3 == 0)
-               for i, (y, xs_) in enumerate((y, x) for y, xs in rows for x in xs)
-               for x, y in [(xs_, y)]]
+               for i, (y, x) in enumerate((y, x) for y, xs in rows for x in xs)]
     r = 2.15
     px = bytearray(16 * 16 * 4)
     for y in range(16):
@@ -403,6 +526,7 @@ def apple_block():
             px[o:o + 4] = bytes(c + (255,))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     encode_rgba(out, 16, 16, px)
+    GENERATED.add("apple_pile")
     return "logistics:block/v/apple_pile"
 
 
@@ -410,29 +534,29 @@ def orchard_basket():
     e = [bed(tex("grass_block_top", GRASS), tex("grass_block_side"))]
     wicker = tex("stripped_oak_log")
     e.append(box((4, 6, 4), (12, 7, 12), wicker, off=(4, 0), top_off=(4, 4)))
-    for frm, to in (((4, 7, 4), (12, 9.5, 5)), ((4, 7, 11), (12, 9.5, 12)),
-                    ((4, 7, 5), (5, 9.5, 11)), ((11, 7, 5), (12, 9.5, 11))):
+    for frm, to in (((4, 7, 4), (12, 10, 5)), ((4, 7, 11), (12, 10, 12)),
+                    ((4, 7, 5), (5, 10, 11)), ((11, 7, 5), (12, 10, 11))):
         e.append(box(frm, to, wicker, off=(2, 4)))
-    e.append(box((4, 9.5, 7.5), (5, 12.5, 8.5), wicker, off=(4, 2)))
-    e.append(box((11, 9.5, 7.5), (12, 12.5, 8.5), wicker, off=(4, 2)))
-    e.append(box((4, 12.5, 7.5), (12, 13.25, 8.5), wicker, off=(2, 6)))
+    e.append(box((4, 10, 7), (5, 13, 9), wicker, off=(4, 2)))
+    e.append(box((11, 10, 7), (12, 13, 9), wicker, off=(4, 2)))
+    e.append(box((4, 13, 7), (12, 14, 9), wicker, off=(2, 6)))
     pile = apple_block()
-    e.append(box((5, 7, 5), (11, 9.25, 11), pile, off=(5, 4), top_off=(5, 5)))
-    e.append(box((6, 9.25, 6), (10, 10, 10), pile, off=(4, 0), top_off=(6, 6)))
+    e.append(box((5, 7, 5), (11, 9, 11), pile, off=(5, 4), top_off=(5, 5)))
+    e.append(box((6, 9, 6), (10, 10, 10), pile, off=(4, 0), top_off=(6, 6)))
     return e
 
 
 def orchard():
     e = [bed(tex("grass_block_top", GRASS), tex("grass_block_side"))]
     e += [el for el in real("arboretum") if el.get("name") != "bed"]
-    apple = apple_tex()
-    spots = [((5.5, 10, 3.5)), (9.5, 9.5, 3.5), (6.5, 10.5, 11.5), (10, 9.5, 11.5),
+    apple, _, _ = spr("apple")
+    spots = [(5.5, 10, 3.5), (9.5, 9.5, 3.5), (6.5, 10.5, 11.5), (10, 9.5, 11.5),
              (3.5, 10, 6), (3.5, 9.5, 9.5), (11.5, 10.5, 5.5), (11.5, 9.5, 9),
              (7, 12.5, 8), (9, 12.5, 6), (5.8, 12.2, 10.6)]
     for x, y, z in spots:
-        e.append(box((x, y, z), (x + 1, y + 1, z + 1), apple, density=2, off=(5, 7), top_off=(5, 7)))
+        b = box((x, y, z), (x + 1, y + 1, z + 1), apple, off=(0, 0), top_off=(1, 0))
+        e.append(b)
     return e
-
 
 
 BODIES = [  # (label, model file, builder)
@@ -567,9 +691,6 @@ class Font:
             x += self.adv[c] * k
 
 
-GENERATED = ("apple_pile", "nether_wart_stalks")
-
-
 def export(slug, elements):
     """Write the body as a plain block model; vanilla ids lose their concept-only tints."""
     names, textures = {}, {}
@@ -611,8 +732,11 @@ def main():
     rows = math.ceil(len(BODIES) / cols)
     W, H = cols * size, rows * (size + label_h)
     sheet = bytearray(bytes((43, 43, 46, 255)) * (W * H))
-    for i, (name, slug, build) in enumerate(BODIES):
-        elements = build()
+    built = [(name, slug, build()) for name, slug, build in BODIES]
+    bad = [msg for name, _, elements in built for msg in check_texels(name, elements)]
+    if bad:
+        sys.exit("faces that scale their texture:\n  " + "\n  ".join(bad))
+    for i, (name, slug, elements) in enumerate(built):
         export(slug, elements)
         px = render(elements, size, ss)
         ox, oy = (i % cols) * size, (i // cols) * (size + label_h)
@@ -629,8 +753,9 @@ def main():
         font.draw(sheet, W, name, tx + k, ty + k, k, (62, 62, 62))
         font.draw(sheet, W, name, tx, ty, k, (255, 255, 255))
         print("rendered", name, file=sys.stderr)
+    shutil.rmtree(os.path.join(HERE, "textures"), ignore_errors=True)
     os.makedirs(os.path.join(HERE, "textures"), exist_ok=True)
-    for name in GENERATED:
+    for name in sorted(GENERATED):
         shutil.copy(os.path.join(ASSETS, "textures/block/v", name + ".png"), os.path.join(HERE, "textures"))
     out = os.path.join(HERE, "farm-concepts.png")
     encode_rgba(out, W, H, sheet)
