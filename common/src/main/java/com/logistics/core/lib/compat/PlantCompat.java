@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -23,8 +24,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
  * The cross-version seam for vanilla plant APIs: the only place the mod calls
  * {@link BonemealableBlock} or reproduces a berry harvest, so callers stay identical across branches.
  *
- * <p>mc/26.3 passes a {@code BonemealSource} to every {@link BonemealableBlock} method; this branch
- * has none. Berries are harvested through the block-interact loot tables here, where mc/1.21.x
+ * <p>mc/26.3 passes a {@code BonemealSource} to every {@link BonemealableBlock} method; earlier
+ * branches have none. mc/26.x harvests berries through the block-interact loot tables; mc/1.21.x
  * computes berry drops in code. Per branch, only this file carries the matching calls.
  *
  * <p>Nothing here plays sounds or spawns particles; callers decide on feedback.
@@ -59,10 +60,11 @@ public final class PlantCompat {
 
     /**
      * Picks a sweet berry bush (age 2 or more) or cave vines bearing glow berries the way a player
-     * does: rolls the same drops, resets the plant (bush to age 1, vines to no berries) and returns
-     * the drops instead of spawning them.
+     * does: resets the plant (bush to age 1, vines to no berries), then rolls the same drops and
+     * returns them instead of spawning them. Drops are rolled only once the reset has landed.
      *
-     * @return the picked stacks; empty, with the plant unchanged, if it has nothing to pick
+     * @return the picked stacks; empty, with the plant unchanged, if it has nothing to pick or the
+     *     reset was refused
      */
     public static List<ItemStack> harvestBerries(ServerLevel level, BlockPos pos, BlockState state) {
         if (state.getBlock() instanceof SweetBerryBushBlock) {
@@ -81,15 +83,19 @@ public final class PlantCompat {
 
     private static List<ItemStack> pick(
             ServerLevel level, BlockPos pos, BlockState state, ResourceKey<LootTable> lootTable, BlockState picked) {
-        // Block.dropFromBlockInteractLootTable is protected on this branch; same params, inlined.
+        // The plant is reset first and the drops rolled only once it is, so a refused change never
+        // yields berries; the loot context still sees the plant as it was.
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!level.setBlock(pos, picked, Block.UPDATE_CLIENTS)) {
+            return List.of();
+        }
+        level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(picked));
         LootParams params = new LootParams.Builder(level)
                 .withParameter(LootContextParams.BLOCK_STATE, state)
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos))
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity)
                 .create(LootContextParamSets.BLOCK_INTERACT);
         List<ItemStack> drops = new ArrayList<>(
                 level.getServer().reloadableRegistries().getLootTable(lootTable).getRandomItems(params));
-        level.setBlock(pos, picked, Block.UPDATE_CLIENTS);
-        level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(picked));
         return drops;
     }
 }

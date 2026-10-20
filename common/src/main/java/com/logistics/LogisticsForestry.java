@@ -3,19 +3,31 @@ package com.logistics;
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigEntries;
 import com.indemnity83.configory.ConfigKey;
+import com.indemnity83.configory.ValidationResult;
+import com.indemnity83.configory.builder.IntConfigBuilder;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
 import com.logistics.core.lib.resource.ResourceId;
+import com.logistics.core.machine.tier.MachineTier;
+import com.logistics.core.machine.tier.TieredBlockItem;
 import com.logistics.forestry.farm.FarmBlockEntity;
+import com.logistics.forestry.farm.FarmCost;
+import com.logistics.forestry.farm.FarmGeometry;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmMenu;
+import com.logistics.forestry.farm.FarmSettings;
+import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
 import com.logistics.forestry.humus.HumusBlock;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
@@ -27,6 +39,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import org.jetbrains.annotations.Nullable;
 
 public final class LogisticsForestry extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsForestry INSTANCE = new LogisticsForestry();
@@ -83,81 +96,121 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 .describe("Chance per Humus random tick to give the sapling above an extra growth step (0.0-1.0)")
                 .register();
 
-        public static final ConfigKey<Integer> FARM_WORK_INTERVAL_TICKS = farm.defineInt("work_interval_ticks", 10)
-                .min(1)
-                .describe("Ticks between plots; a farm works at most one plot per interval")
-                .register();
+        /** One tier's farm profile keys, {@code tier.<id>.*}; see {@link FarmTierProfile}. */
+        public record FarmTierKeys(
+                ConfigKey<Integer> outerSize,
+                ConfigKey<Integer> checksPerSecond,
+                ConfigKey<Integer> actionsPerSecond,
+                ConfigKey<Long> energyCapacity,
+                ConfigKey<Long> maxEnergyInput,
+                ConfigKey<Integer> waterCapacityMb) {}
 
-        public static final ConfigKey<Long> FARM_ENERGY_CAPACITY = farm.defineLong("energy_capacity", 20_000L)
-                .min(1L)
-                .describe("Internal RF buffer capacity")
-                .register();
+        public static final FarmTierKeys FARM_TIER_BASIC = farmTierKeys(MachineTier.BASIC, null);
+        public static final FarmTierKeys FARM_TIER_INDUSTRIAL =
+                farmTierKeys(MachineTier.INDUSTRIAL, () -> CONFIG.FARM_TIER_BASIC.outerSize());
+        public static final FarmTierKeys FARM_TIER_PRECISION =
+                farmTierKeys(MachineTier.PRECISION, () -> CONFIG.FARM_TIER_INDUSTRIAL.outerSize());
+        public static final FarmTierKeys FARM_TIER_INFERNAL =
+                farmTierKeys(MachineTier.INFERNAL, () -> CONFIG.FARM_TIER_PRECISION.outerSize());
 
-        public static final ConfigKey<Long> FARM_MAX_ENERGY_INPUT = farm.defineLong("max_energy_input", 128L)
-                .min(1L)
-                .describe("Maximum RF accepted per tick")
-                .register();
+        public static FarmTierKeys farmTier(MachineTier tier) {
+            return switch (tier) {
+                case BASIC -> FARM_TIER_BASIC;
+                case INDUSTRIAL -> FARM_TIER_INDUSTRIAL;
+                case PRECISION -> FARM_TIER_PRECISION;
+                case INFERNAL -> FARM_TIER_INFERNAL;
+            };
+        }
 
-        public static final ConfigKey<Long> FARM_RF_HARVEST_PER_BLOCK = farm.defineLong("rf_harvest_per_block", 40L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per block harvested")
-                .register();
+        private static FarmTierKeys farmTierKeys(
+                MachineTier tier, @Nullable Supplier<ConfigKey<Integer>> previousOuter) {
+            FarmTierProfile defaults = FarmTierProfile.defaults(tier);
+            String prefix = "tier." + tier.id() + ".";
+            IntConfigBuilder outer = farm.defineInt(prefix + "outer_size", defaults.outerSize())
+                    .greaterThan(FarmGeometry.COURTYARD)
+                    .validator((value, config) ->
+                            value % 2 != 0 ? ValidationResult.ok() : ValidationResult.error("must be odd"))
+                    .describe("Side of the square the farm works out to at this tier: odd, wider than the "
+                            + FarmGeometry.COURTYARD + "x" + FarmGeometry.COURTYARD
+                            + " courtyard, and at least the previous tier's");
+            if (previousOuter != null) {
+                outer.minValueOf(previousOuter);
+            }
+            return new FarmTierKeys(
+                    outer.register(),
+                    farm.defineInt(prefix + "checks_per_second", defaults.checksPerSecond())
+                            .min(1)
+                            .describe("Plots the farm inspects per second at this tier; inspecting costs no RF")
+                            .register(),
+                    farm.defineInt(prefix + "actions_per_second", defaults.actionsPerSecond())
+                            .min(1)
+                            .describe("World-changing actions (clear, harvest, till, soil, plant) per "
+                                    + "second at this tier; each costs RF")
+                            .register(),
+                    farm.defineLong(prefix + "energy_capacity", defaults.energyCapacity())
+                            .min(1L)
+                            .describe("Internal RF buffer capacity at this tier")
+                            .register(),
+                    farm.defineLong(prefix + "max_energy_input", defaults.maxEnergyInput())
+                            .min(1L)
+                            .describe("Maximum RF accepted per tick at this tier")
+                            .register(),
+                    farm.defineInt(prefix + "water_capacity_mb", defaults.waterCapacityMb())
+                            .min(1)
+                            .describe("Water tank capacity (mB) at this tier, for farms that irrigate their farmland")
+                            .register());
+        }
 
-        public static final ConfigKey<Long> FARM_RF_CLEAR_PER_BLOCK = farm.defineLong("rf_clear_per_block", 40L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per block or fluid cleared from above a plot")
-                .register();
+        private static final Map<FarmCost, ConfigKey<Long>> FARM_COSTS = farmCosts();
 
-        public static final ConfigKey<Long> FARM_RF_PLANT = farm.defineLong("rf_plant", 100L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per germling planted")
-                .register();
+        /** The RF key of {@code cost}, {@code rf_*}. */
+        public static ConfigKey<Long> farmCost(FarmCost cost) {
+            return FARM_COSTS.get(cost);
+        }
 
-        public static final ConfigKey<Long> FARM_RF_TILL = farm.defineLong("rf_till", 60L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per block tilled")
-                .register();
+        private static Map<FarmCost, ConfigKey<Long>> farmCosts() {
+            Map<FarmCost, ConfigKey<Long>> keys = new EnumMap<>(FarmCost.class);
+            for (FarmCost cost : FarmCost.values()) {
+                keys.put(cost, farm.defineLong(cost.configName(), cost.defaultRf())
+                        .min(0L)
+                        .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
+                        .describe(cost.description())
+                        .register());
+            }
+            return Collections.unmodifiableMap(keys);
+        }
 
-        public static final ConfigKey<Long> FARM_RF_SOIL = farm.defineLong("rf_soil", 60L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per soil block laid")
-                .register();
-
-        public static final ConfigKey<Long> FARM_RF_MOISTEN = farm.defineLong("rf_moisten", 20L)
-                .min(0L)
-                .maxValueOf(() -> CONFIG.FARM_ENERGY_CAPACITY)
-                .describe("RF per planted farmland block kept moist; spends no water")
-                .register();
-
-        public static final ConfigKey<Integer> FARM_WATER_CAPACITY_MB = farm.defineInt("water_capacity_mb", 8_000)
-                .min(1)
-                .describe("Water tank capacity (mB) of farms that till with water")
-                .register();
-
-        public static final ConfigKey<Integer> FARM_WATER_PER_TILL_MB = farm.defineInt("water_per_till_mb", 250)
+        public static final ConfigKey<Integer> FARM_WATER_PER_IRRIGATION_MB = farm.defineInt(
+                        "water_per_irrigation_mb", FarmSettings.DEFAULT_WATER_PER_IRRIGATION_MB)
                 .min(0)
-                .describe("Water (mB) per block tilled, which keeps it moist for the crop's whole life")
+                .describe("Water (mB) a working farm pays in a temperate biome each time a farmland plot of its "
+                        + "ring checks for water (a random tick) and the farm keeps it wet; hot or dry biomes "
+                        + "cost up to twice this. Rain and nearby water wet farmland for free")
                 .register();
 
-        public static final ConfigKey<Integer> FARM_HARVEST_BLOCKS_PER_TICK =
-                farm.defineInt("harvest_blocks_per_tick", 4)
-                        .min(1)
-                        .describe("Blocks broken per tick while harvesting, e.g. felling a tree")
-                        .register();
+        public static final ConfigKey<Double> FARM_HARVEST_SHARE = farm.defineDouble(
+                        "harvest_share", FarmSettings.DEFAULT_HARVEST_SHARE)
+                .finite()
+                .range(0.0, FarmSettings.MAX_HARVEST_SHARE)
+                .describe("Share of actions a multi-block harvest (a tree) takes while the farm also has plots "
+                        + "to work (0.0-0.75); the rest always goes to planting, tilling and clearing")
+                .register();
+
+        public static final ConfigKey<Integer> FARM_READS_PER_CHECK = farm.defineInt(
+                        "reads_per_check", FarmSettings.DEFAULT_READS_PER_CHECK)
+                .min(16)
+                .describe("Block reads one check buys; a plot inspection costs one check, and tree planning "
+                        + "spends checks as it reads")
+                .register();
 
         public static final ConfigKey<Integer> FARM_IDLE_BACKOFF_BASE_TICKS =
-                farm.defineInt("idle_backoff_base_ticks", 20)
+                farm.defineInt("idle_backoff_base_ticks", FarmSettings.DEFAULT_IDLE_BACKOFF_BASE_TICKS)
                         .min(1)
                         .describe("Pause after a full pass over the plot finds nothing to do")
                         .register();
 
         public static final ConfigKey<Integer> FARM_IDLE_BACKOFF_MAX_TICKS =
-                farm.defineInt("idle_backoff_max_ticks", 200)
+                farm.defineInt("idle_backoff_max_ticks", FarmSettings.DEFAULT_IDLE_BACKOFF_MAX_TICKS)
                         .min(1)
                         .minValueOf(() -> CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS)
                         .describe("Longest pause between idle passes; the pause doubles per idle pass up to this")
@@ -188,6 +241,14 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Ground the Crop Farm tills into farmland. */
         public static final TagKey<Block> TILLABLE =
                 TagKey.create(Registries.BLOCK, resource("tillable").toIdentifier());
+
+        /** Blocks a farm's survey counts as natural ground to clear; anything else it would clear looks player-built. */
+        public static final TagKey<Block> NATURAL_CLEARABLE =
+                TagKey.create(Registries.BLOCK, resource("natural_clearable").toIdentifier());
+
+        /** Blocks a farm never clears or replaces, like a block entity. */
+        public static final TagKey<Block> NEVER_CLEAR =
+                TagKey.create(Registries.BLOCK, resource("never_clear").toIdentifier());
 
         /** Seeds and crop items the Crop Farm plants. */
         public static final TagKey<Item> CROP_GERMLINGS =
@@ -226,7 +287,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
          * valid for it. Call from {@link #register()}, which runs before {@link ENTITY#register()}.
          */
         static Block registerFarm(String name, Function<BlockBehaviour.Properties, FarmMachineBlock> factory) {
-            Block block = INSTANCE.registerBlockWithItem(name, factory::apply);
+            Block block = INSTANCE.registerBlockWithItem(name, factory::apply, TieredBlockItem::new);
             FARMS.add(block);
             return block;
         }

@@ -26,6 +26,7 @@ import com.logistics.power.engine.reaction.jei.ReactionJeiSyncAdapter;
 import com.logistics.automation.kiln.KilnScreen;
 import com.logistics.automation.sawmill.SawmillScreen;
 import com.logistics.automation.transposer.TransposerScreen;
+import com.logistics.forestry.farm.FarmPreviewRenderer;
 import com.logistics.forestry.farm.FarmScreen;
 import com.logistics.core.lib.platform.ClientNetworking;
 import com.logistics.automation.macerator.MaceratorScreen;
@@ -286,6 +287,7 @@ public final class NeoForgeClientSetup {
         event.registerBlockEntityRenderer(
                 LogisticsAutomation.ENTITY.REFINERY_BLOCK_ENTITY,
                 com.logistics.automation.refinery.RefineryBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(LogisticsForestry.ENTITY.FARM, FarmPreviewRenderer::new);
     }
 
     private static void registerBlockColors(RegisterColorHandlersEvent.BlockTintSources event) {

@@ -11,7 +11,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "logistics:forestry/arboretum"
+          "name": "logistics:forestry/arboretum",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity",
+              "include": [
+                "logistics:machine_tier"
+              ]
+            }
+          ]
         }
       ]
     }
