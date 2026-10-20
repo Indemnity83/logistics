@@ -140,10 +140,12 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
                 : null);
     }
 
-    /** The title carries the tier, which arrives with the synced data, so it is centred each frame. */
+    /** The title is centred each frame; with the tier shown it arrives with the synced data. */
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        Component tieredTitle = FarmScreenText.title(this.title, menu.tier());
+        // Tier hidden from the title while nothing can change it.
+        // Component tieredTitle = FarmScreenText.title(this.title, menu.tier());
+        Component tieredTitle = this.title;
         this.titleLabelX = (this.imageWidth - this.font.width(tieredTitle)) / 2;
         graphics.text(this.font, tieredTitle, this.titleLabelX, this.titleLabelY, LABEL_COLOR, false);
         graphics.text(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, LABEL_COLOR, false);
