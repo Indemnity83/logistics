@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.core.machine.area.Columns;
 import com.logistics.forestry.logic.TreeView.Kind;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import org.junit.jupiter.api.Test;
 
 class TreeFellerTest {
@@ -190,7 +193,63 @@ class TreeFellerTest {
         assertThat(plan.blocks()).doesNotContain(fenceLow, fenceHigh);
     }
 
-    // --- never touch, unloaded ---
+    @Test
+    void touchingCanopies_eachTreeTakesOnlyTheLeavesNearestItsOwnWood() {
+        FakeView view = smallOak(smallOak(new FakeView(), 0, 0), 2, 0);
+        Map<BlockPos, Integer> fromWest = view.stepsFrom(columnPositions(0, 0, 0, 4));
+        Map<BlockPos, Integer> fromEast = view.stepsFrom(columnPositions(2, 0, 0, 4));
+
+        FellPlan west = TreeFeller.plan(view, ORIGIN, LIMITS);
+
+        assertThat(west.isFound()).isTrue();
+        for (BlockPos leaf : view.canopy()) {
+            int w = fromWest.getOrDefault(leaf, Integer.MAX_VALUE);
+            int e = fromEast.getOrDefault(leaf, Integer.MAX_VALUE);
+            if (w < e && w <= TreeFeller.CANOPY_REACH) {
+                assertThat(west.blocks()).as("%s nearest the west trunk", leaf).contains(leaf);
+            } else if (e < w) {
+                assertThat(west.blocks()).as("%s nearest the east trunk", leaf).doesNotContain(leaf);
+            }
+        }
+        assertThat(west.blocks()).doesNotContainAnyElementsOf(columnPositions(2, 0, 0, 4));
+
+        west.blocks().forEach(view.blocks::remove);
+        FellPlan east = TreeFeller.plan(view, new BlockPos(2, 0, 0), LIMITS);
+
+        assertThat(east.isFound()).as("the east tree keeps a canopy: %s", east.reason()).isTrue();
+        assertFoundExactly(east, view.all());
+    }
+
+    @Test
+    void equidistantLeaf_goesWithEitherTree_neverStrandingTheOther() {
+        BlockPos between = new BlockPos(1, 3, 0);
+        for (boolean westFirst : List.of(true, false)) {
+            FakeView view = smallOak(smallOak(new FakeView(), 0, 0), 2, 0);
+                BlockPos first = westFirst ? ORIGIN : new BlockPos(2, 0, 0);
+            BlockPos second = westFirst ? new BlockPos(2, 0, 0) : ORIGIN;
+
+            FellPlan felled = TreeFeller.plan(view, first, LIMITS);
+            assertThat(felled.blocks()).as("the leaf as near both trunks").contains(between);
+            felled.blocks().forEach(view.blocks::remove);
+                FellPlan other = TreeFeller.plan(view, second, LIMITS);
+
+            assertThat(other.isFound()).as("the other tree keeps a canopy").isTrue();
+            assertFoundExactly(other, view.all());
+        }
+    }
+
+    @Test
+    void persistentLeavesInTheCanopy_areNeverTaken() {
+        FakeView view = smallOak(new FakeView(), 0, 0);
+        // player-placed leaves are classified OTHER by the world adapter
+        List<BlockPos> placed = List.of(new BlockPos(1, 3, 0), new BlockPos(0, 5, 0), new BlockPos(-2, 2, 1));
+        placed.forEach(pos -> view.set(pos, Kind.OTHER));
+
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
+
+        assertThat(plan.isFound()).isTrue();
+        assertThat(plan.blocks()).doesNotContainAnyElementsOf(placed);
+    }
 
     @Test
     void beehiveOnTrunk_isExcludedAndNotTraversed() {
@@ -334,8 +393,9 @@ class TreeFellerTest {
     private static final BlockPos RING_PLOT = new BlockPos(4, 0, 0);
 
     @Test
-    void region_canopyOverTheCourtyardIsNotPlanned() {
+    void region_canopyOverTheCourtyardThatIsNotLeavesIsNotPlanned() {
         FakeView view = smallOak(new FakeView(), RING_PLOT.getX(), RING_PLOT.getZ());
+        view.blocks.keySet().stream().filter(REGION.keepOut()::contains).forEach(view.notLeaves::add);
 
         FellPlan plan = TreeFeller.plan(view, RING_PLOT, REGION);
 
@@ -345,6 +405,25 @@ class TreeFellerTest {
                 .doesNotContain(new BlockPos(3, 3, 0), new BlockPos(2, 3, 1), new BlockPos(3, 5, 0))
                 .as("canopy past the outer edge, within the margin")
                 .contains(new BlockPos(6, 3, 0), new BlockPos(5, 5, 0));
+    }
+
+    @Test
+    void region_ownLeavesOverTheCourtyardAreTaken_nothingElseThere() {
+        FakeView view = smallOak(new FakeView(), 5, 0);
+        BlockPos courtyardVine = new BlockPos(3, 3, 1);
+        BlockPos courtyardLog = new BlockPos(2, 4, 0);
+        view.set(courtyardLog, Kind.WOOD);
+        view.notLeaves.add(courtyardVine);
+
+        FellPlan plan = TreeFeller.plan(view, new BlockPos(5, 0, 0), REGION);
+
+        assertThat(plan.isFound()).isTrue();
+        assertThat(plan.blocks())
+                .as("the tree's own leaves hanging into the courtyard")
+                .contains(new BlockPos(3, 3, 0), new BlockPos(3, 2, -1))
+                .doesNotContain(courtyardVine, courtyardLog);
+        assertThat(plan.blocks().stream().filter(REGION.keepOut()::contains))
+                .allMatch(pos -> view.blocks.get(pos) == Kind.CANOPY);
     }
 
     @Test
@@ -361,9 +440,7 @@ class TreeFellerTest {
         assertThat(plan.isFound()).isTrue();
         assertThat(plan.blocks())
                 .contains(new BlockPos(5, 3, 0), new BlockPos(5, 4, 0))
-                .doesNotContain(new BlockPos(6, 3, 0), new BlockPos(7, 3, 0), new BlockPos(8, 3, 0))
-                .as("the canopy's courtyard column")
-                .doesNotContain(new BlockPos(3, 4, 0));
+                .doesNotContain(new BlockPos(6, 3, 0), new BlockPos(7, 3, 0), new BlockPos(8, 3, 0));
     }
 
     @Test
@@ -510,8 +587,15 @@ class TreeFellerTest {
     /** A world of OTHER except for the positions set; records every position read. */
     private static final class FakeView implements TreeView {
         final Map<BlockPos, Kind> blocks = new LinkedHashMap<>();
+        /** CANOPY positions that are not leaves, e.g. vines. */
+        final Set<BlockPos> notLeaves = new HashSet<>();
         final Set<BlockPos> queried = new HashSet<>();
         Predicate<BlockPos> unloaded = pos -> false;
+
+        @Override
+        public boolean isLeaves(BlockPos pos) {
+            return blocks.get(pos) == Kind.CANOPY && !notLeaves.contains(pos);
+        }
 
         @Override
         public Kind kind(BlockPos pos) {
@@ -549,6 +633,38 @@ class TreeFellerTest {
             blocks.putIfAbsent(new BlockPos(x - 1, y, z), kind);
             blocks.putIfAbsent(new BlockPos(x, y, z + 1), kind);
             blocks.putIfAbsent(new BlockPos(x, y, z - 1), kind);
+        }
+
+        /** Face steps from {@code wood} to each CANOPY position through CANOPY only. */
+        Map<BlockPos, Integer> stepsFrom(List<BlockPos> wood) {
+            Map<BlockPos, Integer> steps = new HashMap<>();
+            ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+            wood.forEach(pos -> {
+                steps.put(pos, 0);
+                queue.add(pos);
+            });
+            while (!queue.isEmpty()) {
+                BlockPos pos = queue.poll();
+                for (Direction side : Direction.values()) {
+                    BlockPos beside = pos.relative(side);
+                    if (blocks.get(beside) == Kind.CANOPY && !steps.containsKey(beside)) {
+                        steps.put(beside, steps.get(pos) + 1);
+                        queue.add(beside);
+                    }
+                }
+            }
+            wood.forEach(steps::remove);
+            return steps;
+        }
+
+        Set<BlockPos> canopy() {
+            Set<BlockPos> canopy = new HashSet<>();
+            blocks.forEach((pos, kind) -> {
+                if (kind == Kind.CANOPY) {
+                    canopy.add(pos);
+                }
+            });
+            return canopy;
         }
 
         /** Every WOOD and CANOPY position. */

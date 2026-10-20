@@ -9,8 +9,14 @@ import net.minecraft.core.BlockPos;
  * <p>Wood is flood-filled from a seed log through all 26 neighbours, so diagonal trunks and
  * branches stay connected. Canopy is then filled from that wood through face neighbours only, up
  * to {@link #CANOPY_REACH} steps, and never steps from canopy into wood: touching leaves cannot
- * pull in a neighbouring trunk or a log building. Wood with no canopy at all is a player build
- * and is skipped, as is anything larger than {@link Limits#cap()}.
+ * pull in a neighbouring trunk or a log building. Canopy is taken, and the fill goes on through it,
+ * only when this tree's wood is (one of) its nearest, as vanilla judges a leaf's distance: in face
+ * steps through canopy, to any wood. Canopy nearer other wood is left to it, so felling one of two
+ * trees whose canopies touch takes only its own leaves; canopy as near both goes with the tree
+ * felled first, and the other keeps the leaves beside its own wood. Distances are measured from the
+ * wood found while planning, before any block is broken, never from the leaves' own recorded
+ * {@code distance}, which updates only ticks after a nearby block changes. Wood with no canopy at
+ * all is a player build and is skipped, as is anything larger than {@link Limits#cap()}.
  *
  * <p>The result is ordered top-down, so breaking it in order never leaves a block unsupported.
  */
@@ -24,8 +30,9 @@ public final class TreeFeller {
 
     /**
      * Search bounds and size cap. Wood must lie in the {@code wood} columns and canopy in the
-     * {@code canopy} columns, and nothing is ever taken from or walked through the {@code keepOut}
-     * columns. Vertically, bounds are measured from the seed log: {@code below} and {@code above}.
+     * {@code canopy} columns. Of the {@code keepOut} columns, only natural leaves that belong to the
+     * tree ({@link TreeView#isLeaves}) are ever taken or walked through: no wood, no other canopy. Vertically, bounds are measured from
+     * the seed log: {@code below} and {@code above}.
      */
     public record Limits(Columns wood, Columns canopy, Columns keepOut, int below, int above, int cap) {
         public static final int BELOW = 3;

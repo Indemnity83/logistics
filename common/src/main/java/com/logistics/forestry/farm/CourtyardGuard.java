@@ -1,6 +1,7 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.core.machine.area.Columns;
+import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeView;
 import java.util.List;
 import java.util.function.Predicate;
@@ -12,9 +13,12 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The world a farm works, with its courtyard sealed off: at any Y, a courtyard column is never
- * modifiable, never broken, never written, never swept of items, and never part of a tree. Reads
- * pass through unchanged. Every write is refused here, whatever the caller checked first, so a
- * missed check fails closed.
+ * modifiable, never broken, never written and never swept of items. Reads pass through unchanged.
+ * Every write is refused here, whatever the caller checked first, so a missed check fails closed.
+ *
+ * <p>One exception: natural leaves hanging into the courtyard may be part of a tree's canopy and
+ * broken through {@link #breakLeaves} as it is felled. Nothing else in the courtyard is ever part of
+ * a tree.
  */
 final class CourtyardGuard implements FarmWorldAccess {
 
@@ -74,7 +78,21 @@ final class CourtyardGuard implements FarmWorldAccess {
     @Override
     public TreeView treeView() {
         TreeView inner = world.treeView();
-        return pos -> courtyard.contains(pos) ? TreeView.Kind.NEVER_TOUCH : inner.kind(pos);
+        return new TreeView() {
+            @Override
+            public Kind kind(BlockPos pos) {
+                Kind kind = inner.kind(pos);
+                if (!courtyard.contains(pos)) {
+                    return kind;
+                }
+                return kind == Kind.CANOPY && inner.isLeaves(pos) ? kind : Kind.NEVER_TOUCH;
+            }
+
+            @Override
+            public boolean isLeaves(BlockPos pos) {
+                return inner.isLeaves(pos);
+            }
+        };
     }
 
     @Override
@@ -91,6 +109,18 @@ final class CourtyardGuard implements FarmWorldAccess {
     @Nullable
     public List<ItemStack> breakBlock(BlockPos pos) {
         return courtyard.contains(pos) ? null : world.breakBlock(pos);
+    }
+
+    /** In the courtyard, only natural leaves, and only where the world allows it. */
+    @Override
+    public boolean canBreakLeaves(BlockPos pos) {
+        return LevelTreeView.isNaturalLeaves(world.state(pos)) && world.canModify(pos);
+    }
+
+    @Override
+    @Nullable
+    public List<ItemStack> breakLeaves(BlockPos pos) {
+        return canBreakLeaves(pos) ? world.breakBlock(pos) : null;
     }
 
     @Override

@@ -41,7 +41,8 @@ import org.jetbrains.annotations.Nullable;
  *       directly, so the farm can spread a large tree's planning over its check budget.
  *   <li>Trees are felled within the region's bounds
  *       ({@link com.logistics.forestry.logic.TreeFeller.Limits#within}), never in
- *       its {@link PlotLayout#keepOut()}.
+ *       its {@link PlotLayout#keepOut()} but for the felled tree's own natural leaves hanging into
+ *       it, which the farm breaks through {@link FarmWorldAccess#breakLeaves}.
  * </ul>
  */
 public interface FarmLogic {

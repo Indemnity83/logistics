@@ -1224,6 +1224,30 @@ class FarmComponentTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("the rate override checks plots faster, and restores the tier's")
+    void rateOverride() {
+        FarmHarness tierRate = new FarmHarness(new ScriptedFarmLogic());
+        FarmHarness raised = new FarmHarness(new ScriptedFarmLogic());
+        tierRate.areaOverride(1, 5);
+        raised.areaOverride(1, 5);
+        raised.farm().setRateOverride(80, 80);
+        tierRate.power(10_000);
+        raised.power(10_000);
+
+        tierRate.ticks(6);
+        raised.ticks(6);
+
+        assertThat(tierRate.logic.decisions).as("one check a tick").isEqualTo(6);
+        assertThat(raised.logic.decisions).as("four checks a tick: the whole 24-plot pass").isEqualTo(24);
+
+        raised.farm().setRateOverride(0, 0);
+        raised.ticks(FarmHarness.SETTINGS.idleBackoffBaseTicks() + 3);
+        int afterRestore = raised.logic.decisions;
+        raised.ticks(3);
+        assertThat(raised.logic.decisions - afterRestore).as("back to one check a tick").isEqualTo(3);
+    }
+
+    @Test
     @DisplayName("an override that is not a valid ring is refused")
     void invalidAreaOverride() {
         FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
