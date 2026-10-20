@@ -42,15 +42,16 @@ Every machine is a fixed block today. The farms need a bigger work area and more
 
 ```text
 common/src/main/java/com/logistics/core/machine/tier/
-├── MachineTier.java      # enum, StringRepresentable; id, rank, material, lang key; next()/previous(); CODEC
-├── TierComponent.java    # MachineComponent; NBT "Tier": "<id>"; tier()/setTier(); onChange listeners
+├── MachineTier.java      # enum, StringRepresentable; id, rank, material, lang key; next()/previous(); CODEC, LENIENT_CODEC
+├── TierComponent.java    # MachineComponent; NBT "Tier": "<id>" read with byIdOrBasic; tier()/setTier(); onChange listeners
 ├── TieredMachine.java    # interface on the block entity
 └── UpgradeKitItem.java   # UpgradeKitItem(MachineTier target)
 ```
-- **`MachineTier.CODEC = StringRepresentable.fromEnum(...)`**, used for NBT, the network and the data component alike.
-- **`TierComponent`** calls `ctx.sync()` on change, notifies `onChange` listeners (adopters resize there), and contributes a Jade line through `MachineHudModel`.
+- **`MachineTier.CODEC = StringRepresentable.fromEnum(...)`** is the strict codec, for contexts where an unknown id should be an error. No production code uses it yet; only the codec tests do.
+- **`MachineTier.LENIENT_CODEC`** uses the same string encoding, but an unknown id decodes to Basic.
+- **`TierComponent`** saves NBT as the string id and loads it with `MachineTier.byIdOrBasic`, which never throws. On change it notifies `onChange` listeners (adopters resize there) and invokes the `onSync` callback injected through its constructor. Its Jade line (through `MachineHudModel`) stays hidden until the Upgrade Kits land, since nothing else can change a tier yet.
 - **`MachineBuilder.tier(id)`** registers the component.
-- **Data component `logistics:machine_tier`**, encoded with the same string codec. Drop retention follows the battery pattern: `AbstractBatteryBlockEntity` implicit components plus `copy_components` in the loot table.
+- **Data component `logistics:machine_tier`**, registered with `MachineTier.LENIENT_CODEC`. Drop retention follows the battery pattern: `AbstractBatteryBlockEntity` implicit components plus `copy_components` in the loot table.
 - **`EnergyStorageComponent.resize(capacity, maxInsert)`** and **`FluidStoreComponent.resize(capacity)`**, both clamped.
 - **`UpgradeKitItem.useOn`:** validate (`TieredMachine`, current tier is `target.previous()`), then `setTier(target)` and resize, then shrink the stack. No partial state on failure.
 - The kit's tooltip names its effect for each adopter (the farm's: "Expands the work area immediately").

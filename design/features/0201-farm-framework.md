@@ -18,7 +18,7 @@ One block per farm type. Replacing one farm block with another is how a player s
 | # | Farm | Grows | Water |
 |---|---|---|---|
 | [0203](0203-arboretum.md) | Arboretum | trees | none |
-| [0204](0204-crop-farm.md) | Cropland (Crop Farm) | field crops | per till |
+| [0204](0204-crop-farm.md) | Cropland (Crop Farm) | field crops | per irrigation check |
 | [0205](0205-peat-bog.md) | Peat Bog | Bog Earth → Peat | none from the tank (wetness: see brief) |
 | [0206](0206-mushroom-farm.md) | Mushroom Farm | giant mushrooms, huge fungi | none |
 | [0207](0207-plantation.md) | Plantation | sugar cane, bamboo | 1000 mB per channel source |
@@ -26,7 +26,7 @@ One block per farm type. Replacing one farm block with another is how a player s
 | [0209](0209-berry-farm.md) | Berry Farm | sweet berries | none |
 | [0210](0210-cocoa-plantation.md) | Cocoa Plantation | cocoa | none |
 | [0211](0211-cave-vine-farm.md) | Cave Vine Farm | glow berries | none |
-| [0212](0212-gourd-farm.md) | Gourd Farm | pumpkins, melons | per till |
+| [0212](0212-gourd-farm.md) | Gourd Farm | pumpkins, melons | per irrigation check |
 | [0213](0213-desert-farm.md) | Desert Farm | cactus | none |
 
 ## Requirements
@@ -84,8 +84,7 @@ Per-tier profile. Each tier doubles throughput, and every tier's peak fits a cab
 | Infernal | 128 | 32 | 80 | 160k | 512 | 64 B |
 
 - A full inspection pass takes 3.75–5.5 s at every tier.
-- **Water:** an input-only tank accepting `c:water`, filled by a Pump, fluid pipe, Glass Tank or Fluid Supplier pipe. Only farms that use water have one: Cropland and the Gourd Farm (irrigation) and the Plantation (per source placed). All other farms use none. A farm works fully without water; its crops only grow at the dry rate.
-- **Benchmarks** (JUnit simulations, ±10%): idle is 0 RF/t; a fully mature Basic cropland pass takes ≈54 s and 7.2k RF (≈6.7 RF/t); an oak felling (≈65 blocks, ≈425 RF) takes ≈16 s at Basic alone, ≈32 s while cultivation also has work.
+- **Benchmarks** (JUnit simulations, ±10%): idle is 0 RF/t; a fully mature Basic cropland (72 plots, each harvested and replanted on its farmland) takes 720 ticks (36 s) and 5,400 RF with no water, one action per 5 ticks (7.5 RF/t); an oak felling (≈65 blocks, ≈425 RF) takes ≈16 s at Basic alone, ≈32 s while cultivation also has work.
 - Config keys: `tier.<id>.{outer_size,checks_per_second,actions_per_second,energy_capacity,max_energy_input,water_capacity_mb}`, `rf_*` per action, `water_per_irrigation_mb`, `water_per_source_mb`, `harvest_share`, `reads_per_check`, `cave_vine_max_length`. `work_interval_ticks`, `harvest_blocks_per_tick`, `rf_harvest_per_block` and the flat buffer keys are dropped; farms are unreleased, so there is no migrator.
 - Recipe: the standard machine recipe (Machine Frame + Redstone Reception Coil + copper gears) with themed items and **1–2 valves** per farm. Decided: Arboretum = copper, Crop Farm = tin. Proposed: Peat Bog = rubber, Mushroom Farm = obsidian, Nether Wart Farm = blazing, Berry Farm = emerald. The other farms' valves are settled in their PRs.
 
@@ -93,7 +92,7 @@ Per-tier profile. Each tier doubles throughput, and every tier's peak fits a cab
 
 Read from Forestry's `mc-1.12` source (`TileFarmGearbox`, `FarmController`, `FarmHydrationManager`, `FarmLogic*`). Forestry prepays 200 RF per operation but only spends it on success, so in practice it costs 200 RF per successful op and nothing when idle, at about 4 ops/s per gearbox. It alternates CULTIVATE and HARVEST, removes one block per harvest call top-down, charges water per op with a climate modifier, and spends one item per substrate block.
 
-- **Kept:** energy per successful action, idle at zero, per-block tree charging, top-down harvest queues, idle back-off, harvest alternating with cultivation, water per op with a climate modifier, one item per substrate. Basic matches one Forestry gearbox: 4 actions/s at a quarter of the energy.
+- **Kept:** energy per successful action, idle at zero, per-block tree charging, top-down harvest queues, idle back-off, harvest alternating with cultivation, water charged per irrigation check with a climate modifier, one item per substrate. Basic matches one Forestry gearbox: 4 actions/s at a quarter of the energy.
 - **Changed:** no prepaid energy; leaves are broken and charged cheaply; fertilizer is optional (a future augment); a simpler, bounded climate modifier; separate inspection and action budgets; tree crawls capped and budgeted.
 
 ## Design sketch
@@ -123,7 +122,8 @@ common/src/main/java/com/logistics/forestry/farm/
 ├── FarmBlockEntity.java      # one shared type for every farm block; MachineEntity + MachineBuilder + tier
 ├── FarmComponent.java        # scheduler, survey state, FarmPlan
 ├── FarmGeometry.java         # COURTYARD = 7; ring from the tier profile
-├── FarmWorldAccess.java      # courtyard write guard (fails closed)
+├── FarmWorldAccess.java      # interface: the farm's world reads plus writes
+├── CourtyardGuard.java       # FarmWorldAccess wrapper: courtyard write guard (fails closed)
 ├── ColumnClearer.java        # pure: next block to clear from a plot's column
 ├── FarmLogic.java            # per-farm SPI: clearance, germlings, materials, plot actions, harvestCost
 ├── PlotAction.java           # Harvest / PlaceSoil / Till / Plant / None / Blocked
@@ -142,7 +142,7 @@ common/src/main/java/com/logistics/forestry/farm/
 
 ### Geometry and courtyard guard
 - **`FarmGeometry`:** `COURTYARD = 7`; the outer size comes from `FarmTierProfile` in `FarmSettings`. `FarmLogic.ringInner()` / `ringOuter()` are removed. On a tier change the scanner, energy buffer and tank are resized.
-- **Courtyard guard:** one `FarmWorldAccess` wrapper rejects every write whose X/Z falls in the courtyard, at any Y, and fails closed. `TreeView` returns `NEVER_TOUCH` for courtyard columns. Felling bounds are the outer square plus a 3-block canopy margin; wood must sit inside the outer square. The loose-drop sweep stays filtered to the ring.
+- **Courtyard guard:** `CourtyardGuard`, a wrapper implementing `FarmWorldAccess`, rejects every write whose X/Z falls in the courtyard, at any Y, and fails closed. `TreeView` returns `NEVER_TOUCH` for courtyard columns. Felling bounds are the outer square plus a 3-block canopy margin; wood must sit inside the outer square. The loose-drop sweep stays filtered to the ring.
 
 ### Scheduler
 
@@ -163,7 +163,7 @@ Replaces `work_interval_ticks` and `harvest_blocks_per_tick`.
   - **SURVEY** (on placement): a read-only scan on the check budget. It **breaks nothing, places nothing and draws no RF**. The preview is shown and the GUI summarises: "N blocks will be cleared, of which M look player-built (amber); P plots are protected".
   - **ACTIVE:** the player presses **Start** (vanilla `clickMenuButton`). **Start is consent**: blocks flagged as player-built are then cleared into the output like any other obstruction. Only block entities, unbreakable blocks and `#never_clear` are skipped.
 - **Kit upgrades act immediately.** The new lanes are worked straight away, with no confirmation step. To avoid surprises the kit tooltip says "Expands the work area immediately", and applying it shows the preview for 30 s with an action-bar summary: "Now 15×15 · N blocks will be cleared (M look player-built)".
-- **"Looks player-built" classifier:** every block not in `#logistics:forestry/natural_clearable` (grass, dirt, sand, gravel, the stone family, flowers, tall grass, snow, natural leaves, vines, fluids, logs with natural canopy) is flagged. A pure function; it only drives the preview and the warnings.
+- **"Looks player-built" classifier:** every block not in `#logistics:forestry/natural_clearable` (dirt, grass, podzol and mycelium, sand, gravel, clay, the overworld stone family, snow, flowers, grasses and ferns, dead bushes, leaves, vines, moss, sweet berry bushes, farmland, Humus, water and lava) is flagged, and so are player-placed (persistent) leaves. A pure function; it only drives the preview and the warnings.
 - **Foreign leaves:** a natural tree outside the farm whose leaves hang over ring columns loses those leaves as obstructions; its trunk, and its leaves outside the ring columns, are never touched.
 - **Preview renderer** (client, both loaders): courtyard outline (white), outer boundary (green), flagged blocks (amber), protected blocks (red). Reuses the line approach of `LaserQuarryBlockEntityRenderer`'s frame preview and `MarkerBlockEntityRenderer`'s culling overrides. Flagged and protected positions sync in the update tag (capped at 256 plus a count) only while the preview is visible: in SURVEY, while the GUI is open, and for 30 s after **Show area**.
 
