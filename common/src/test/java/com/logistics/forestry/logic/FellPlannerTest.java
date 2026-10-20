@@ -218,33 +218,68 @@ class FellPlannerTest {
             return true;
         }
 
+        /** Explores the canopy, then keeps what is nearest this tree's wood, ties included. */
         private static boolean fillCanopy(
                 TreeView view, BlockPos seed, TreeFeller.Limits limits, Set<BlockPos> wood, Set<BlockPos> canopy) {
-            Map<BlockPos, Integer> steps = new HashMap<>();
+            Map<BlockPos, Integer> explored = new HashMap<>();
+            Set<BlockPos> other = new HashSet<>();
             ArrayDeque<BlockPos> queue = new ArrayDeque<>(wood);
             while (!queue.isEmpty()) {
                 BlockPos pos = queue.poll();
-                int step = steps.getOrDefault(pos, 0);
-                if (step >= TreeFeller.CANOPY_REACH) {
+                int step = explored.getOrDefault(pos, 0);
+                if (step > FellPlanner.EXPLORE_REACH) {
                     continue;
                 }
                 for (int[] offset : FACE_OFFSETS) {
                     BlockPos next = pos.offset(offset[0], offset[1], offset[2]);
-                    if (wood.contains(next)
-                            || canopy.contains(next)
-                            || !inBounds(next, seed, limits, limits.canopy())
-                            || view.kind(next) != Kind.CANOPY) {
+                    if (wood.contains(next) || explored.containsKey(next) || other.contains(next)
+                            || !inCanopyBounds(next, seed, limits)) {
                         continue;
                     }
-                    canopy.add(next);
-                    if (wood.size() + canopy.size() > limits.cap()) {
-                        return false;
+                    Kind kind = view.kind(next);
+                    if (kind == Kind.WOOD) {
+                        other.add(next);
+                    } else if (kind == Kind.CANOPY && !limits.keepOut().contains(next)) {
+                        explored.put(next, step + 1);
+                        if (explored.size() <= limits.cap()) {
+                            queue.add(next);
+                        }
                     }
-                    steps.put(next, step + 1);
-                    queue.add(next);
                 }
             }
-            return true;
+            // Each explored block goes to its nearest wood; distances from each side compared.
+            Map<BlockPos, Integer> fromOwn = distances(wood, explored.keySet());
+            Map<BlockPos, Integer> fromOther = distances(other, explored.keySet());
+            for (BlockPos pos : explored.keySet()) {
+                int own = fromOwn.getOrDefault(pos, Integer.MAX_VALUE);
+                if (own <= TreeFeller.CANOPY_REACH && own <= fromOther.getOrDefault(pos, Integer.MAX_VALUE)) {
+                    canopy.add(pos);
+                }
+            }
+            return wood.size() + canopy.size() <= limits.cap();
+        }
+
+        private static Map<BlockPos, Integer> distances(Set<BlockPos> sources, Set<BlockPos> through) {
+            Map<BlockPos, Integer> distance = new HashMap<>();
+            ArrayDeque<BlockPos> queue = new ArrayDeque<>(sources);
+            sources.forEach(pos -> distance.put(pos, 0));
+            while (!queue.isEmpty()) {
+                BlockPos pos = queue.poll();
+                for (int[] offset : FACE_OFFSETS) {
+                    BlockPos next = pos.offset(offset[0], offset[1], offset[2]);
+                    if (through.contains(next) && !distance.containsKey(next)) {
+                        distance.put(next, distance.get(pos) + 1);
+                        queue.add(next);
+                    }
+                }
+            }
+            return distance;
+        }
+
+        private static boolean inCanopyBounds(BlockPos pos, BlockPos seed, TreeFeller.Limits limits) {
+            return limits.canopy().contains(pos)
+                    && pos.getY() >= seed.getY() - limits.below()
+                    && pos.getY() <= seed.getY() + limits.above();
         }
 
         private static boolean inBounds(BlockPos pos, BlockPos seed, TreeFeller.Limits limits, Columns columns) {
