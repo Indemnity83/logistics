@@ -409,13 +409,15 @@ This branches off a tag rather than main, so it's the plain-`git` exception note
 
 **The version boundary problem:** Once any `feat:` PR merges, the next release-please bump is a minor version. This makes "quick patch after features land" impossible without the hotfix workflow above.
 
-**Two tools to manage this:**
+**Three tools to manage this:**
 
 **1. "Up Next" label** — Applied to PRs that are approved but intentionally held past the current patch release.
 - Rule: If a release-please PR for the current version is still open, apply `up next` to any `feat:` PR instead of merging it.
 - Transition: When the patch release ships, strip `up next` — those PRs are now in scope for the next minor.
 
-**2. Release Candidate gate** (`build-rc.yml`) — When ready to commit to the release, publish `v0.6.0-rc.1`. This builds the base branch merged with the open Release Please PR, publishes it as a beta/prerelease, and signals the "Field Test phase" for community testing. When satisfied, merge the release-please PR.
+**2. Release Candidate gate** (`build-rc.yml`, stage `rc`) — When ready to commit to the release, publish `v0.6.0-rc.1`. This builds the base branch merged with the open Release Please PR, publishes it as a beta/prerelease, and signals the "Field Test phase" for community testing. When satisfied, merge the release-please PR.
+
+**3. Alpha early access** (`build-rc.yml`, stage `alpha`) — When a feature on the pending release needs player feedback before its mechanics settle, publish `v0.6.0-a.1`, then `-a.2` and so on. It is the same build as an RC, but goes to the Modrinth/CurseForge **alpha** channel with notes warning that it carries no world-compatibility promise. Alphas sort before RCs (`-a.N` < `-rc.N` < the release) and leave the Release Please PR and manifest alone. A block, item or save format that only ever shipped in an alpha owes no alias or migration under the [Backward Compatibility Policy](#backward-compatibility-policy).
 
 **Full cycle:**
 ```

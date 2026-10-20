@@ -1,29 +1,43 @@
-name: Build (Release Candidate)
+name: Build (Pre-release)
 
-# Builds a Release Candidate from the EXACT combined state of:
+# Builds a pre-release from the EXACT combined state of:
 #   1. the latest commit on the branch this workflow is dispatched from, and
 #   2. that branch's open Release Please release PR branch.
-# Dispatch this workflow from the mc/* branch you want an RC for (mc/26.2, mc/26.1,
-# mc/1.21.11, mc/1.21.1) — the run targets whichever branch you select, NOT the repo
-# default branch, so each version line publishes its own RC.
-# The RC therefore carries all current development changes plus the pending version,
-# changelog, and release metadata that Release Please has staged — without pushing to
-# or modifying either source branch. RCs publish as beta on Modrinth/CurseForge, as a
-# GitHub *prerelease*, and to Sentry's `preview` environment (never production).
+# Dispatch this workflow from the mc/* branch you want a pre-release for — the run targets
+# whichever branch you select, NOT the repo default branch, so each version line publishes
+# its own pre-release.
+# The pre-release therefore carries all current development changes plus the pending
+# version, changelog, and release metadata that Release Please has staged — without pushing
+# to or modifying either source branch. It publishes as a GitHub *prerelease* and to
+# Sentry's `preview` environment (never production).
+#
+# Two stages, in SemVer order before the stable release:
+#   alpha — X.Y.Z-a.N, Modrinth/CurseForge `alpha`. Early access to features whose
+#           mechanics may still change; carries no world-compatibility promise.
+#   rc    — X.Y.Z-rc.N, Modrinth/CurseForge `beta`. The Field Test candidate: the exact
+#           state we intend to ship.
 # Field Test announcements are posted manually, not from this workflow.
 
 on:
   workflow_dispatch:
     inputs:
+      stage:
+        description: "Pre-release stage"
+        type: choice
+        options:
+          - rc
+          - alpha
+        required: true
+        default: rc
       number:
-        description: "Release candidate number (1, 2, 3...)"
+        description: "Pre-release number within the stage (1, 2, 3...)"
         required: true
         default: "1"
 
 # One publication per dispatched branch at a time. Keyed on the selected branch so
-# different version lines can publish RCs concurrently, while a single branch never
-# double-publishes. Never cancel an in-flight publish — a half-cancelled run can leave
-# a partial RC live on one platform.
+# different version lines can publish pre-releases concurrently, while a single branch
+# never double-publishes. Never cancel an in-flight publish — a half-cancelled run can
+# leave a partial pre-release live on one platform.
 concurrency:
   group: release-candidate-${{ github.ref_name }}
   cancel-in-progress: false
@@ -49,7 +63,10 @@ jobs:
       rp_pr_number: ${{ steps.resolve.outputs.rp_pr_number }}
       merged_sha: ${{ steps.merge.outputs.merged_sha }}
       base_version: ${{ steps.version.outputs.base_version }}
-      rc_version: ${{ steps.version.outputs.rc_version }}
+      pre_version: ${{ steps.version.outputs.pre_version }}
+      stage: ${{ steps.version.outputs.stage }}
+      stage_label: ${{ steps.version.outputs.stage_label }}
+      channel: ${{ steps.version.outputs.channel }}
       minecraft_version: ${{ steps.version.outputs.minecraft_version }}
       game_version_filter: ${{ steps.version.outputs.game_version_filter }}
       component: ${{ steps.version.outputs.component }}
@@ -154,6 +171,7 @@ jobs:
         id: version
         env:
           GH_TOKEN: ${{ github.token }}
+          STAGE: ${{ inputs.stage }}
           NUMBER: ${{ inputs.number }}
         shell: bash
         run: |
@@ -172,11 +190,17 @@ jobs:
             exit 1
           fi
 
-          [[ "$NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "::error::Invalid RC number: must be a positive integer" >&2; exit 1; }
+          [[ "$NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "::error::Invalid pre-release number: must be a positive integer" >&2; exit 1; }
 
-          # RC terminology (not `pre`) — this is a Field Test candidate, distinct from the
-          # older internal pre-release gate.
-          RC_VERSION="${BASE_VERSION}-rc.${NUMBER}"
+          # The suffix keeps SemVer order: X.Y.Z-a.N < X.Y.Z-rc.N < X.Y.Z, numerically within
+          # a stage. `a` stays short because Modrinth caps version ids at 32 chars (see the
+          # publish job); `alpha` would overflow on mc/1.21.11 NeoForge.
+          case "$STAGE" in
+            alpha) SUFFIX="a"; CHANNEL="alpha"; STAGE_LABEL="Alpha" ;;
+            rc)    SUFFIX="rc"; CHANNEL="beta"; STAGE_LABEL="RC" ;;
+            *) echo "::error::Unknown pre-release stage '${STAGE}'" >&2; exit 1 ;;
+          esac
+          PRE_VERSION="${BASE_VERSION}-${SUFFIX}.${NUMBER}"
 
           MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)"
 
@@ -190,12 +214,12 @@ jobs:
           fi
 
           # Tag matches the repo's component-scoped scheme (e.g. mc26.2-v0.8.0-rc.1),
-          # keeping RCs in the same tag namespace as stable releases.
-          TAG="${COMPONENT}-v${RC_VERSION}"
+          # keeping pre-releases in the same tag namespace as stable releases.
+          TAG="${COMPONENT}-v${PRE_VERSION}"
 
-          # Fail before building if this RC was already published.
+          # Fail before building if this pre-release was already published.
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "::error::Release ${TAG} already exists — RC ${NUMBER} was already published" >&2
+            echo "::error::Release ${TAG} already exists — ${STAGE_LABEL} ${NUMBER} was already published" >&2
             exit 1
           fi
           if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
@@ -205,14 +229,17 @@ jobs:
 
           {
             echo "base_version=$BASE_VERSION"
-            echo "rc_version=$RC_VERSION"
+            echo "pre_version=$PRE_VERSION"
+            echo "stage=$STAGE"
+            echo "stage_label=$STAGE_LABEL"
+            echo "channel=$CHANNEL"
             echo "minecraft_version=$MC_VERSION"
             echo "game_version_filter=$GAME_VERSION_FILTER"
             echo "component=$COMPONENT"
             echo "tag=$TAG"
           } >> "$GITHUB_OUTPUT"
 
-          echo "Preparing Release Candidate ${RC_VERSION} (tag ${TAG}) for MC ${MC_VERSION}"
+          echo "Preparing ${STAGE_LABEL} ${PRE_VERSION} (tag ${TAG}) for MC ${MC_VERSION}"
 
   # ---------------------------------------------------------------------------
   # build: compile each loader from the SAME pinned snapshot. Both legs check out
@@ -271,13 +298,13 @@ jobs:
       - name: Compute loader version
         id: version
         env:
-          RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+          PRE_VERSION: ${{ needs.prepare.outputs.pre_version }}
           MC_VERSION: ${{ needs.prepare.outputs.minecraft_version }}
           LOADER: ${{ matrix.loader }}
         shell: bash
         run: |
           set -euo pipefail
-          FULL_VERSION="${RC_VERSION}+mc${MC_VERSION}.${LOADER}"
+          FULL_VERSION="${PRE_VERSION}+mc${MC_VERSION}.${LOADER}"
           # Fabric uses remapJar (obfuscated); NeoForge uses jar.
           if [[ "$LOADER" == "fabric" ]]; then
             GRADLE_TASK=":${LOADER}:remapJar"
@@ -316,16 +343,17 @@ jobs:
   # ---------------------------------------------------------------------------
   # publish: runs ONLY after both loader builds succeed (needs-gating). Downloads
   # both jars, validates them, then publishes atomically: GitHub prerelease first,
-  # then Modrinth/CurseForge beta, then Sentry preview releases. A single loader
-  # failure above skips this entire job, so a partial RC never goes public.
+  # then Modrinth/CurseForge (alpha or beta channel), then Sentry preview releases. A
+  # single loader failure above skips this entire job, so a partial pre-release never
+  # goes public.
   # ---------------------------------------------------------------------------
   publish:
     needs: [prepare, build]
     runs-on: ubuntu-latest
     env:
       HAS_SENTRY_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
-      FABRIC_FULL: ${{ needs.prepare.outputs.rc_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.fabric
-      NEOFORGE_FULL: ${{ needs.prepare.outputs.rc_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.neoforge
+      FABRIC_FULL: ${{ needs.prepare.outputs.pre_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.fabric
+      NEOFORGE_FULL: ${{ needs.prepare.outputs.pre_version }}+mc${{ needs.prepare.outputs.minecraft_version }}.neoforge
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
@@ -350,24 +378,24 @@ jobs:
       - name: Validate artifacts and identifiers
         id: validate
         env:
-          RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+          PRE_VERSION: ${{ needs.prepare.outputs.pre_version }}
           MC_VERSION: ${{ needs.prepare.outputs.minecraft_version }}
         shell: bash
         run: |
           set -euo pipefail
 
-          FABRIC_JAR="artifacts/logistics-${RC_VERSION}+mc${MC_VERSION}.fabric.jar"
-          NEO_JAR="artifacts/logistics-${RC_VERSION}+mc${MC_VERSION}.neoforge.jar"
+          FABRIC_JAR="artifacts/logistics-${PRE_VERSION}+mc${MC_VERSION}.fabric.jar"
+          NEO_JAR="artifacts/logistics-${PRE_VERSION}+mc${MC_VERSION}.neoforge.jar"
 
           for JAR in "$FABRIC_JAR" "$NEO_JAR"; do
             [[ -f "$JAR" ]] || { echo "::error::Expected jar missing: $JAR" >&2; exit 1; }
           done
 
-          # Both jars must share the same RC version (only the loader suffix differs).
+          # Both jars must share the same pre-release version (only the loader suffix differs).
           for JAR in "$FABRIC_JAR" "$NEO_JAR"; do
             base="$(basename "$JAR")"
-            [[ "$base" == "logistics-${RC_VERSION}+mc${MC_VERSION}."* ]] || {
-              echo "::error::RC version mismatch in $base (expected ${RC_VERSION})" >&2; exit 1; }
+            [[ "$base" == "logistics-${PRE_VERSION}+mc${MC_VERSION}."* ]] || {
+              echo "::error::Pre-release version mismatch in $base (expected ${PRE_VERSION})" >&2; exit 1; }
           done
 
           # Modrinth requires a distinct version_number per loader upload (loaders aren't
@@ -375,8 +403,8 @@ jobs:
           # never silently truncate — if an identifier exceeds Modrinth's 32-char limit
           # (labrinth caps version_number at 32), since truncation could collide two loaders'
           # versions on the same prefix.
-          MODRINTH_FABRIC="${RC_VERSION}+mc${MC_VERSION}.fabric"
-          MODRINTH_NEO="${RC_VERSION}+mc${MC_VERSION}.neoforge"
+          MODRINTH_FABRIC="${PRE_VERSION}+mc${MC_VERSION}.fabric"
+          MODRINTH_NEO="${PRE_VERSION}+mc${MC_VERSION}.neoforge"
           for ID in "$MODRINTH_FABRIC" "$MODRINTH_NEO"; do
             if (( ${#ID} > 32 )); then
               echo "::error::Modrinth version identifier '${ID}' is ${#ID} chars (>32). Shorten the version scheme." >&2
@@ -391,17 +419,77 @@ jobs:
             echo "modrinth_neoforge=$MODRINTH_NEO"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub prerelease
+      # One set of notes for GitHub, Modrinth and CurseForge, so a player downloading an
+      # alpha from any of them sees its warning.
+      - name: Compose release notes
+        id: notes
         env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.prepare.outputs.tag }}
-          RC_VERSION: ${{ needs.prepare.outputs.rc_version }}
+          STAGE: ${{ needs.prepare.outputs.stage }}
+          PRE_VERSION: ${{ needs.prepare.outputs.pre_version }}
           MC_VERSION: ${{ needs.prepare.outputs.minecraft_version }}
           BASE_BRANCH: ${{ needs.prepare.outputs.base_branch }}
           BASE_SHA: ${{ needs.prepare.outputs.base_sha }}
           RP_PR: ${{ needs.prepare.outputs.rp_pr_number }}
           RP_SHA: ${{ needs.prepare.outputs.rp_sha }}
           MERGED_SHA: ${{ needs.prepare.outputs.merged_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$STAGE" == "alpha" ]]; then
+            INTRO="$(cat <<EOF
+          ## 🧪 Alpha — early access, expect changes
+
+          **Logistics v${PRE_VERSION} for MC ${MC_VERSION}** (Fabric + NeoForge).
+
+          This is an **alpha**, not a stable release. It gives early access to features that
+          are still being designed, and their mechanics may change in the next alpha.
+
+          **Play it in a copy of your world.** Alphas carry no world-compatibility promise:
+          blocks, items and machine state from features still in alpha may change, reset or
+          disappear in a later alpha or in the stable release, and will not be migrated.
+          EOF
+            )"
+          else
+            INTRO="$(cat <<EOF
+          ## 🛠️ Release Candidate — for Field Test only
+
+          **Logistics v${PRE_VERSION} for MC ${MC_VERSION}** (Fabric + NeoForge).
+
+          This is a **release candidate**, not a stable release. It combines the current
+          development branch with the pending Release Please version and changelog so
+          Field Engineers can validate the exact state we intend to ship.
+          EOF
+            )"
+          fi
+
+          NOTES="$(cat <<EOF
+          ${INTRO}
+
+          ### Traceability
+          - Base branch: \`${BASE_BRANCH}\` @ \`${BASE_SHA}\`
+          - Release Please PR: #${RP_PR} @ \`${RP_SHA}\`
+          - Merged source commit: \`${MERGED_SHA}\` (local, unpushed)
+
+          Please report findings in **#field-engineers**.
+          EOF
+          )"
+
+          {
+            echo "body<<NOTES_EOF"
+            echo "$NOTES"
+            echo "NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          PRE_VERSION: ${{ needs.prepare.outputs.pre_version }}
+          STAGE_LABEL: ${{ needs.prepare.outputs.stage_label }}
+          MC_VERSION: ${{ needs.prepare.outputs.minecraft_version }}
+          BASE_SHA: ${{ needs.prepare.outputs.base_sha }}
+          NOTES: ${{ steps.notes.outputs.body }}
           FABRIC_JAR: ${{ steps.validate.outputs.fabric_jar }}
           NEO_JAR: ${{ steps.validate.outputs.neoforge_jar }}
         shell: bash
@@ -414,28 +502,10 @@ jobs:
             exit 1
           fi
 
-          NOTES="$(cat <<EOF
-          ## 🛠️ Release Candidate — for Field Test only
-
-          **Logistics v${RC_VERSION} for MC ${MC_VERSION}** (Fabric + NeoForge).
-
-          This is a **release candidate**, not a stable release. It combines the current
-          development branch with the pending Release Please version and changelog so
-          Field Engineers can validate the exact state we intend to ship.
-
-          ### Traceability
-          - Base branch: \`${BASE_BRANCH}\` @ \`${BASE_SHA}\`
-          - Release Please PR: #${RP_PR} @ \`${RP_SHA}\`
-          - Merged source commit: \`${MERGED_SHA}\` (local, unpushed)
-
-          Please report findings in **#field-engineers**.
-          EOF
-          )"
-
           gh release create "$TAG" \
             --prerelease \
             --target "$BASE_SHA" \
-            --title "Logistics v${RC_VERSION} (RC) for MC ${MC_VERSION}" \
+            --title "Logistics v${PRE_VERSION} (${STAGE_LABEL}) for MC ${MC_VERSION}" \
             --notes "$NOTES" \
             "$FABRIC_JAR" "$NEO_JAR"
 
@@ -452,12 +522,13 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
           game-version-filter: ${{ needs.prepare.outputs.game_version_filter }}
-          version-type: beta
-          # mc-publish features a version on Modrinth unless told otherwise; an RC must never
-          # displace the stable release as the featured download.
+          version-type: ${{ needs.prepare.outputs.channel }}
+          # mc-publish features a version on Modrinth unless told otherwise; a pre-release must
+          # never displace the stable release as the featured download.
           modrinth-featured: false
+          changelog: ${{ steps.notes.outputs.body }}
           version: ${{ env.FABRIC_FULL }}
-          name: "Logistics v${{ needs.prepare.outputs.rc_version }} for fabric ${{ needs.prepare.outputs.minecraft_version }}"
+          name: "Logistics v${{ needs.prepare.outputs.pre_version }} for fabric ${{ needs.prepare.outputs.minecraft_version }}"
           files: ${{ steps.validate.outputs.fabric_jar }}
 
       - name: Publish NeoForge to Modrinth and CurseForge
@@ -471,15 +542,16 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
 
           game-version-filter: ${{ needs.prepare.outputs.game_version_filter }}
-          version-type: beta
+          version-type: ${{ needs.prepare.outputs.channel }}
           modrinth-featured: false
+          changelog: ${{ steps.notes.outputs.body }}
           version: ${{ env.NEOFORGE_FULL }}
-          name: "Logistics v${{ needs.prepare.outputs.rc_version }} for neoforge ${{ needs.prepare.outputs.minecraft_version }}"
+          name: "Logistics v${{ needs.prepare.outputs.pre_version }} for neoforge ${{ needs.prepare.outputs.minecraft_version }}"
           files: ${{ steps.validate.outputs.neoforge_jar }}
 
       # Sentry release creation happens only here — after both loader builds succeeded.
-      # Commits are associated against the real base SHA (checked out above); RCs stay in
-      # the `preview` environment, out of the production deploy stream.
+      # Commits are associated against the real base SHA (checked out above); pre-releases stay
+      # in the `preview` environment, out of the production deploy stream.
       - name: Create Sentry release (Fabric)
         if: ${{ env.HAS_SENTRY_TOKEN == 'true' }}
         uses: getsentry/action-release@6fb9aeade7061441cf3864e34fbe11a1457ad7dc # v3.7.1
