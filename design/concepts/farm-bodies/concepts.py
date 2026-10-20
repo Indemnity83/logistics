@@ -374,12 +374,14 @@ def cocoa():
     return e
 
 
-def cave_vines():
+def glow_berries():
     moss = tex("moss_block")
-    e = [bed(moss, moss), box((3, 13, 3), (13, 14, 13), moss, off=(3, 0), top_off=(3, 3))]
-    for (x, z), h in zip(QUAD, (6, 4, 5, 7)):
-        e += cross(tex("cave_vines_plant_lit"), x, z, 13 - h + 2, 4, h - 2, u0=1, v0=4)
-        e += cross(tex("cave_vines_lit"), x, z, 13 - h, 4, 2, u0=2, v0=2)
+    e = [bed(moss, moss),
+         box((3, 12, 3), (13, 14, 13), tex("spruce_trapdoor"), off=(3, 0), top_off=(3, 3))]
+    e += cross(tex("spruce_log"), 8, 8, 6, 1, 6, u0=7, v0=0)  # centre post holding up the trapdoor
+    for (x, z), h in zip(((4.5, 8), (8, 4.5), (11.5, 8), (8, 11.5)), (5, 3, 4, 6)):
+        e += cross(tex("cave_vines_plant_lit"), x, z, 12 - h + 2, 4, h - 2, u0=1, v0=4)
+        e += cross(tex("cave_vines_lit"), x, z, 12 - h, 4, 2, u0=2, v0=2)
     return e
 
 
@@ -570,7 +572,7 @@ BODIES = [  # (label, model file, builder)
     ("Desert Farm", "desert_farm", desert),
     ("Berry Farm", "berry_farm", berry),
     ("Cocoa Plantation", "cocoa_plantation", cocoa),
-    ("Cave Vine Farm", "cave_vine_farm", cave_vines),
+    ("Glow Berry Farm", "glow_berry_farm", glow_berries),
     ("Mushroom Farm", "mushroom_farm", mushroom),
     ("Nether Wart Farm", "nether_wart_farm", nether_wart),
     ("Peat Bog", "peat_bog", peat_bog),
@@ -600,6 +602,8 @@ def render(elements, size, ss):
     opaque, clear = [], []
     for el in elements:
         for d, face in el["faces"].items():
+            if rb.rot_xyz(rb.DIR_NORMAL[d], rx, ry, rz)[2] <= 1e-6:
+                continue  # back face; the game culls these, and a plane's two faces would z-fight
             quad = rb.face_quad(el, d, face.get("uv") or rb.default_uv(el, d))
             n = face.get("rotation", 0) // 90
             corners, uvs = [c for c, _ in quad], [u for _, u in quad]
@@ -732,6 +736,7 @@ def main():
     rows = math.ceil(len(BODIES) / cols)
     W, H = cols * size, rows * (size + label_h)
     sheet = bytearray(bytes((43, 43, 46, 255)) * (W * H))
+    shutil.rmtree(os.path.join(HERE, "models"), ignore_errors=True)
     built = [(name, slug, build()) for name, slug, build in BODIES]
     bad = [msg for name, _, elements in built for msg in check_texels(name, elements)]
     if bad:

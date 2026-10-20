@@ -42,7 +42,7 @@ The two labels that appear twice are alternatives to compare.
 | Desert Farm | two cactus columns, a cactus flower and a dead bush | planned |
 | Berry Farm | four sweet berry bushes on grass | planned |
 | Cocoa Plantation | pods on a bare jungle log, with no leaves | planned |
-| Cave Vine Farm | glow-berry vines hanging from a moss ceiling | planned; the ceiling hides the vines from above |
+| Glow Berry Farm | glow-berry vines hanging from a spruce trapdoor on a 1 px centre post, over a moss bed | planned; the trapdoor hides the vines from above |
 | Mushroom Farm | a giant red mushroom on mycelium | planned |
 | Nether Wart Farm | wart stalks with bulbs on soul sand | planned |
 | Peat Bog | a mud bed with a water inset and stacked peat | planned; no plant |
