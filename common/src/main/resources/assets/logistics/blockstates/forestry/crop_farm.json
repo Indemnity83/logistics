@@ -1,34 +1,16 @@
 {
   "variants": {
-    "facing=north,lit=false": {
+    "lamp=off": {
       "model": "logistics:block/forestry/crop_farm"
     },
-    "facing=north,lit=true": {
-      "model": "logistics:block/forestry/crop_farm_active"
+    "lamp=red": {
+      "model": "logistics:block/forestry/crop_farm_red"
     },
-    "facing=south,lit=false": {
-      "model": "logistics:block/forestry/crop_farm",
-      "y": 180
+    "lamp=amber": {
+      "model": "logistics:block/forestry/crop_farm_amber"
     },
-    "facing=south,lit=true": {
-      "model": "logistics:block/forestry/crop_farm_active",
-      "y": 180
-    },
-    "facing=east,lit=false": {
-      "model": "logistics:block/forestry/crop_farm",
-      "y": 90
-    },
-    "facing=east,lit=true": {
-      "model": "logistics:block/forestry/crop_farm_active",
-      "y": 90
-    },
-    "facing=west,lit=false": {
-      "model": "logistics:block/forestry/crop_farm",
-      "y": 270
-    },
-    "facing=west,lit=true": {
-      "model": "logistics:block/forestry/crop_farm_active",
-      "y": 270
+    "lamp=green": {
+      "model": "logistics:block/forestry/crop_farm_green"
     }
   }
 }

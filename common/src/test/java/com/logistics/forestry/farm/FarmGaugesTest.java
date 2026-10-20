@@ -2,7 +2,6 @@ package com.logistics.forestry.farm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.logistics.forestry.farm.FarmGauges.Lamp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,18 +29,22 @@ class FarmGaugesTest {
     }
 
     @Test
-    @DisplayName("lamp is green while working and amber while idle, paused or surveying")
-    void lampForBenignStatuses() {
-        assertThat(FarmGauges.lamp(FarmStatus.WORKING)).isEqualTo(Lamp.GREEN);
-        assertThat(FarmGauges.lamp(FarmStatus.IDLE)).isEqualTo(Lamp.AMBER);
-        assertThat(FarmGauges.lamp(FarmStatus.PAUSED)).isEqualTo(Lamp.AMBER);
-        assertThat(FarmGauges.lamp(FarmStatus.SURVEYING)).isEqualTo(Lamp.AMBER);
+    @DisplayName("the GUI lamp sprite follows the shared lamp colour: green, amber, red along the row")
+    void lampSpriteFollowsTheColour() {
+        assertThat(FarmGauges.lampSprite(FarmStatus.WORKING)).isZero();
+        assertThat(FarmGauges.lampSprite(FarmStatus.IDLE)).isEqualTo(1);
+        assertThat(FarmGauges.lampSprite(FarmStatus.NO_POWER)).isEqualTo(2);
     }
 
     @ParameterizedTest
-    @EnumSource(value = FarmStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"WORKING", "IDLE", "PAUSED", "SURVEYING"})
-    @DisplayName("lamp is red for every problem status")
-    void lampForProblems(FarmStatus status) {
-        assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.RED);
+    @EnumSource(FarmStatus.class)
+    @DisplayName("every status has a GUI lamp sprite, shared by every status of its colour")
+    void everyStatusHasASprite(FarmStatus status) {
+        FarmStatus sameColour = switch (FarmLamp.forStatus(status)) {
+            case GREEN -> FarmStatus.WORKING;
+            case AMBER -> FarmStatus.IDLE;
+            default -> FarmStatus.NO_POWER;
+        };
+        assertThat(FarmGauges.lampSprite(status)).isEqualTo(FarmGauges.lampSprite(sameColour));
     }
 }

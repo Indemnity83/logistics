@@ -1693,9 +1693,10 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
             status = tracker.status(area.plotCount(), problem -> stillApplies(problem, s));
         }
         BlockState state = ctx.blockState();
-        boolean lit = energy.amount() > 0;
-        if (state.hasProperty(FarmMachineBlock.LIT) && state.getValue(FarmMachineBlock.LIT) != lit) {
-            ctx.setBlockState(state.setValue(FarmMachineBlock.LIT, lit), Block.UPDATE_ALL);
+        FarmLamp lamp = energy.amount() > 0 ? FarmLamp.forStatus(status) : FarmLamp.OFF;
+        if (state.hasProperty(FarmMachineBlock.LAMP) && state.getValue(FarmMachineBlock.LAMP) != lamp) {
+            // setBlock relights on any flags; no neighbour reacts to the lamp.
+            ctx.setBlockState(state.setValue(FarmMachineBlock.LAMP, lamp), Block.UPDATE_CLIENTS);
         }
     }
 

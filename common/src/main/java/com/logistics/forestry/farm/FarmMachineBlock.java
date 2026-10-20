@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,11 +27,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class FarmMachineBlock extends MachineBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    public static final EnumProperty<FarmLamp> LAMP = EnumProperty.create("lamp", FarmLamp.class);
 
     protected FarmMachineBlock(Properties settings) {
         super(settings);
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LIT, false));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LAMP, FarmLamp.OFF));
     }
 
     /** This farm type's behaviour; the same instance on every call. */
@@ -40,7 +39,7 @@ public abstract class FarmMachineBlock extends MachineBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, LIT);
+        builder.add(FACING, LAMP);
     }
 
     @Nullable
