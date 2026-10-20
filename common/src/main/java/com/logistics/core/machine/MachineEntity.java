@@ -21,6 +21,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -59,7 +61,7 @@ public abstract class MachineEntity extends BaseBlockEntity
 
     protected MachineEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        configure(new MachineBuilder(components, this::setChanged));
+        configure(new MachineBuilder(components, this::setChanged, this::sync));
         redstone = components.find(RedstoneControlComponent.class).orElse(null);
     }
 
@@ -319,5 +321,19 @@ public abstract class MachineEntity extends BaseBlockEntity
     @Override
     protected void loadLogisticsData(CompoundTag tag, HolderLookup.Provider registries) {
         components.load(tag, registries);
+    }
+
+    // ==================== Item form ====================
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        components.forEach(MachineComponent.ItemComponents.class, c -> c.addItemComponents(builder));
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter input) {
+        super.applyImplicitComponents(input);
+        components.forEach(MachineComponent.ItemComponents.class, c -> c.readItemComponents(input::get));
     }
 }

@@ -26,6 +26,10 @@ public final class MachineControlsGameTestRegistration {
             100,
             MachineControlsGameTestBody::testMaceratorMenuHandlerValidation),
         new GameTestCase(
+            "core/machine_controls_crop_farm_handler_validation",
+            100,
+            MachineControlsGameTestBody::testCropFarmMenuHandlerValidation),
+        new GameTestCase(
             "core/machine_controls_magmatic_handler_validation",
             100,
             MachineControlsGameTestBody::testMagmaticEngineMenuHandlerValidation),

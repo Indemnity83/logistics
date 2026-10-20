@@ -16,10 +16,12 @@ public enum FarmStatus {
     NO_SOIL,
     /** The output buffer is full; harvesting waits, other work goes on. */
     OUTPUT_FULL,
-    /** Stopped by a redstone signal. */
+    /** Stopped by its redstone control. */
     PAUSED,
     TOO_DARK,
-    BLOCKED;
+    BLOCKED,
+    /** Placed, not started: surveying the ring until Start is pressed. */
+    SURVEYING;
 
     private static final FarmStatus[] VALUES = values();
 

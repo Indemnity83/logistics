@@ -6,6 +6,7 @@ import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.SlotRole;
+import com.logistics.core.machine.tier.TierComponent;
 import java.util.function.Supplier;
 import net.minecraft.tags.FluidTags;
 import org.jetbrains.annotations.Nullable;
@@ -14,10 +15,13 @@ import org.jetbrains.annotations.Nullable;
  * The components every farm is built from, and its slot layout. Inserting on any face routes an
  * item by role (germling or soil slots); every face extracts only from the output slots.
  *
- * <p>Registration order is load-bearing: the energy buffer ticks before the farm spends from it.
+ * <p>Registration order is load-bearing: the tier loads before the buffers it sizes, so a saved
+ * charge is never clamped to a lower tier's capacity, and the energy buffer ticks before the farm
+ * spends from it.
  */
 public record FarmMachine(
         FarmLogic logic,
+        TierComponent tier,
         EnergyStorageComponent energy,
         @Nullable FluidStoreComponent water,
         ItemStoreComponent items,
@@ -33,14 +37,15 @@ public record FarmMachine(
 
     /**
      * Builds a farm's components on {@code machine}. Buffer sizes are read from {@code settings}
-     * once, now; the farm reads the rest of it every tick.
+     * for the tier now and again whenever the tier changes; the farm reads the rest of it every tick.
      */
     public static FarmMachine assemble(
             MachineBuilder machine,
             FarmLogic logic,
             Supplier<FarmSettings> settings,
             FarmComponent.WorldFactory worlds) {
-        FarmSettings initial = settings.get();
+        TierComponent tier = machine.tier("tier");
+        FarmTierProfile initial = settings.get().profile(tier.tier());
         EnergyStorageComponent energy = machine.energy("energy")
                 .capacity(initial.energyCapacity())
                 .maxInput(initial.maxEnergyInput())
@@ -51,14 +56,22 @@ public record FarmMachine(
                         .inputOnly(fluid -> fluid.getFluid().defaultFluidState().is(FluidTags.WATER))
                         .build()
                 : null;
+        tier.onChange(newTier -> {
+            FarmTierProfile profile = settings.get().profile(newTier);
+            energy.resize(profile.energyCapacity(), profile.maxEnergyInput());
+            if (water != null) {
+                water.resize(FluidUnits.mb(profile.waterCapacityMb()));
+            }
+        });
         ItemStoreComponent items = machine.items("inventory")
                 .slots(roles())
                 .anyFaceAccess()
                 .slotFilter(GERMLING_START, GERMLING_END, logic::isGermling)
                 .slotFilter(SOIL_START, SOIL_END, stack -> logic.laysSoil() && logic.isSoil(stack))
                 .build();
-        FarmComponent farm = machine.add(new FarmComponent("farm", logic, items, energy, water, settings, worlds));
-        return new FarmMachine(logic, energy, water, items, farm);
+        FarmComponent farm =
+                machine.add(new FarmComponent("farm", logic, items, energy, water, settings, tier::tier, worlds));
+        return new FarmMachine(logic, tier, energy, water, items, farm);
     }
 
     private static SlotRole[] roles() {
