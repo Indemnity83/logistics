@@ -1,6 +1,6 @@
 {
   "parent": "logistics:block/forestry/crop_farm",
   "textures": {
-    "front": "logistics:block/forestry/crop_farm_on"
+    "front": "logistics:block/forestry/farm_front_on"
   }
 }
