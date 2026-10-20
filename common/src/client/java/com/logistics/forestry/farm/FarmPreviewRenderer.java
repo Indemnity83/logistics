@@ -23,6 +23,8 @@ import net.minecraft.world.phys.Vec3;
  */
 public class FarmPreviewRenderer implements BlockEntityRenderer<FarmBlockEntity, FarmPreviewRenderState> {
 
+    private final FarmPreviewLineCache<FarmBlockEntity> cache = new FarmPreviewLineCache<>(FarmPreviewRenderer::build);
+
     public FarmPreviewRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
@@ -43,16 +45,20 @@ public class FarmPreviewRenderer implements BlockEntityRenderer<FarmBlockEntity,
         state.visible = level != null && preview.visible(level.getGameTime());
         if (!state.visible) {
             state.lines = List.of();
+            cache.forget(entity);
             return;
         }
-        BlockPos origin = entity.getBlockPos();
-        state.lines = FarmPreviewLines.of(
+        state.lines = cache.lines(entity, preview, entity.getBlockPos());
+        state.lineWidth = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
+    }
+
+    private static List<FarmPreviewLines.Line> build(FarmPreview preview, BlockPos origin) {
+        return FarmPreviewLines.of(
                 preview.inner(),
                 preview.outer(),
                 preview.height(),
                 relative(preview.survey().flaggedAt(), origin),
                 relative(preview.survey().protectedAt(), origin));
-        state.lineWidth = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
     }
 
     private static List<BlockPos> relative(List<BlockPos> positions, BlockPos origin) {
