@@ -66,11 +66,11 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).isEmpty();
         assertThat(farm.items().getItem(0).getCount()).isEqualTo(5);
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
-        assertThat(farm.host.lit()).isFalse();
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.OFF);
     }
 
     @Test
-    @DisplayName("planting spends one germling and its RF, and lights the farm")
+    @DisplayName("planting spends one germling and its RF, and turns the lamp green")
     void plantsWhenPowered() {
         FarmHarness farm = new FarmHarness(plantingEverywhere());
         farm.items().setItem(0, new ItemStack(Items.OAK_SAPLING, 5));
@@ -82,7 +82,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.items().getItem(0).getCount()).isEqualTo(4);
         assertThat(farm.energy()).isEqualTo(1_000 - FarmHarness.SETTINGS.cost(FarmCost.PLANT));
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
-        assertThat(farm.host.lit()).isTrue();
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.GREEN);
     }
 
     @Test
@@ -132,7 +132,7 @@ class FarmComponentTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks).isEmpty();
         assertThat(farm.logic.decisions).isZero();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.PAUSED);
-        assertThat(farm.host.lit()).as("paused, with RF in the buffer").isTrue();
+        assertThat(farm.host.lamp()).as("paused, with RF in the buffer").isEqualTo(FarmLamp.AMBER);
 
         farm.host.workEnabled = true;
         farm.tick();
@@ -1153,38 +1153,58 @@ class FarmComponentTest extends MinecraftTestEnvironment {
 
         farm.ticks(7); // the rest of the pass
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
-        assertThat(farm.host.lit()).isTrue();
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.GREEN);
 
         farm.tick();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.IDLE);
-        assertThat(farm.host.lit()).as("idle, with RF in the buffer").isTrue();
+        assertThat(farm.host.lamp()).as("idle, with RF in the buffer").isEqualTo(FarmLamp.AMBER);
     }
 
     @Test
-    @DisplayName("the farm is lit whenever its buffer holds RF, whatever its status, and only updates on a change")
-    void litFollowsTheBuffer() {
+    @DisplayName("the lamp is off with an empty buffer, otherwise its status colour, and only updates on a change")
+    void lampFollowsTheBufferAndStatus() {
         FarmHarness farm = new FarmHarness(plantingEverywhere());
         farm.tick();
-        assertThat(farm.host.lit()).as("empty buffer").isFalse();
+        assertThat(farm.host.lamp()).as("empty buffer").isEqualTo(FarmLamp.OFF);
+        assertThat(farm.host.stateWrites).as("already off").isZero();
 
         farm.power(1);
         farm.tick();
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_POWER);
-        assertThat(farm.host.lit()).as("one RF, not enough for anything").isTrue();
+        assertThat(farm.host.lamp()).as("one RF, not enough for anything").isEqualTo(FarmLamp.RED);
+        assertThat(farm.host.stateWrites).isEqualTo(1);
 
-        int writes = farm.host.stateWrites;
         farm.ticks(3);
-        assertThat(farm.host.stateWrites).as("no write while nothing changes").isEqualTo(writes);
+        assertThat(farm.host.stateWrites).as("no write while nothing changes").isEqualTo(1);
+
+        farm.power(10_000);
+        farm.tick();
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.NO_GERMLINGS);
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.RED);
+        assertThat(farm.host.stateWrites).as("a new problem, the same colour").isEqualTo(1);
+
+        farm.items().setItem(0, new ItemStack(Items.OAK_SAPLING, 5));
+        farm.tick();
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.WORKING);
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.GREEN);
+        assertThat(farm.host.stateWrites).isEqualTo(2);
+
+        farm.host.workEnabled = false;
+        farm.tick();
+        assertThat(farm.farm().status()).isEqualTo(FarmStatus.PAUSED);
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.AMBER);
+        assertThat(farm.host.stateWrites).isEqualTo(3);
 
         farm.power(0);
         farm.tick();
-        assertThat(farm.host.lit()).isFalse();
+        assertThat(farm.host.lamp()).as("empty buffer, whatever the status").isEqualTo(FarmLamp.OFF);
+        assertThat(farm.host.stateWrites).isEqualTo(4);
 
         FarmHarness surveying = FarmHarness.surveying(plantingEverywhere(), FarmHarness.SETTINGS);
         surveying.power(10);
         surveying.tick();
         assertThat(surveying.farm().status()).isEqualTo(FarmStatus.SURVEYING);
-        assertThat(surveying.host.lit()).as("surveying, with RF in the buffer").isTrue();
+        assertThat(surveying.host.lamp()).as("surveying, with RF in the buffer").isEqualTo(FarmLamp.AMBER);
     }
 
     @Test

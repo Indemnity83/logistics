@@ -193,7 +193,7 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
             renderWater(graphics);
         }
 
-        int lampU = LAMP_U + FarmGauges.lamp(menu.status()).ordinal() * LAMP_U_STEP;
+        int lampU = LAMP_U + FarmGauges.lampSprite(menu.status()) * LAMP_U_STEP;
         blitTexture(graphics, LAMP_LEFT, LAMP_TOP, lampU, LAMP_V, LAMP_SIZE, LAMP_SIZE);
 
         for (int i = 0; i < 4; i++) {
