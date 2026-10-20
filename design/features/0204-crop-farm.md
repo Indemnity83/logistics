@@ -1,9 +1,9 @@
 # Cropland (Crop Farm)
 
-> **Status:** ✅ **Shipped** (#1408) — field crops on a ring around the farm · 🚧 **Planned:** tiered ring (11×11 at Basic around a 7×7 courtyard), water per till × climate, reconciled costs · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
+> **Status:** ✅ **Shipped** (#1408) — field crops on a ring around the farm · 🚧 **Planned:** tiered ring (11×11 at Basic around a 7×7 courtyard), irrigation water × climate, reconciled costs · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md) · **Maps to (roadmap):** Phase 2 — Farms
 
-The field-crop farm (Forestry's Managed Farm / Combine): clears a ring around itself, lays dirt, hoes it with water from its tank, plants, and harvests mature crops, replanting from the harvest first. Gourds have their own farm ([0212](0212-gourd-farm.md)).
+The field-crop farm (Forestry's Managed Farm / Combine): clears a ring around itself, lays dirt, hoes it, keeps its farmland wet from its tank, plants, and harvests mature crops, replanting from the harvest first. Gourds have their own farm ([0212](0212-gourd-farm.md)).
 
 ## Problem & goal
 
@@ -24,14 +24,14 @@ Field crops are the most common thing players automate. **Goal:** a single block
 - **Recipe:** standard farm recipe with the **tin valve**.
 
 ### Balance
-Costs from [0201](0201-farm-framework.md): place dirt 50 RF, till 25 RF, plant 25 RF, harvest 50 RF, plus irrigation water. A fully mature plot costs ≈100 RF over three actions; a full Basic pass takes ≈54 s and 7.2k RF (≈6.7 RF/t). Growing crops idle near 0.2 RF/t at Basic.
+Costs from [0201](0201-farm-framework.md): place dirt 50 RF, till 25 RF, plant 25 RF, harvest 50 RF, plus irrigation water. A harvest leaves the farmland in place, so a fully mature plot costs 75 RF over two actions (harvest 50 + replant 25); a full Basic pass of 72 plots takes 720 ticks (36 s) and 5,400 RF (7.5 RF/t), with no water.
 
 ## Design sketch
 
 - A `FarmLogic` implementation (e.g. `CropFarmLogic`) on the shared `FarmBlockEntity` with `FluidBuilder.inputOnly(c:water)`.
 - Farmland via `Blocks.FARMLAND` + `BlockStateProperties.MOISTURE`; the farm never writes moisture, vanilla does on its random ticks. Never reference the farmland class (`FarmBlock` on 1.21.1, `FarmlandBlock` on 26.x).
 - Our own `logistics:forestry/tillable` tag, because 1.21.1 has no `#turns_into_farmland`.
-- Water per till goes through the pure `forestry/farm/Hydration` function.
+- Irrigation water goes through the pure `forestry/farm/Hydration` function (`waterMb(baseMb, climate)`).
 
 ## Scope & non-goals
 
@@ -46,7 +46,7 @@ Costs from [0201](0201-farm-framework.md): place dirt 50 RF, till 25 RF, plant 2
 
 - A GameTest (in a `setAreaOverride(1, 5)` ring) irrigates from a Glass Tank or fluid pipe, plants hopper-fed seeds, harvests a mature crop into a hopper-fed chest, leaving the farmland in place, and replants, on both loaders.
 - *Too dark* and *Blocked* show instead of an endless retry.
-- JUnit: water per till follows `Hydration`; a till with too little water changes nothing.
+- JUnit: irrigation water follows `Hydration` (a hot, dry biome pays twice); tilling needs no water, so an empty tank still tills every plot; a tank short of one full irrigation charge answers dry and spends nothing.
 
 ## References
 
