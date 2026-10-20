@@ -61,7 +61,7 @@ The two labels that appear twice are alternatives to compare.
 
 ## Layout ideas for later
 
-From a reference screenshot of a garden build (not committed):
+From [`garden-pergola-vine-curtain.png`](../inspiration/garden-pergola-vine-curtain.png); see [`../inspiration/`](../inspiration/README.md) for all references and their sources:
 
 - **Glow Berry Farm as a pergola.**
   - Two posts carry an open top beam with a slab-like rail, and the vines hang from the beam
