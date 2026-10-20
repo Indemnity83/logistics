@@ -51,7 +51,7 @@ Likely after the current automation core is stable.
 | Crafting terminal         | Exploring | Network-wide crafting already works through the Crafting and Process pipes and the Crafter modules. What's contemplated here is a dedicated request/crafting terminal block on top of them — not yet specified |
 | Firewall Pipe             | Deferred  | No solid use case yet — parked until network segmentation earns its place; also needs routing/boundary design work   |
 | Pipe based power delivery | Exploring | The Power Junction is a first step; the broader goal is one connection that feeds a machine both items and power     |
-| Forestry-style farms      | In progress | One block per farm type working a ring around a free 9×9, plus Fertilizer and Humus soils. The farm framework, Arboretum, Crop Farm, Fertilizer and Humus have shipped; the processing/biofuel chain comes later (not the multiblock multifarm) |
+| Forestry-style farms      | In progress | One block per farm type working a tiered ring around a protected 7×7 courtyard, plus Fertilizer and Humus soils. The farm framework, Arboretum, Crop Farm, Fertilizer and Humus have shipped; the processing/biofuel chain comes later (not the multiblock multifarm) |
 
 ## Later
 

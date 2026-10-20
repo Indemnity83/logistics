@@ -1,8 +1,7 @@
 package com.logistics.forestry.farm.arboretum;
 
 import com.logistics.LogisticsForestry;
-import com.logistics.core.machine.area.PlotArea;
-import com.logistics.core.machine.area.RingArea;
+import com.logistics.core.machine.area.PlotLayout;
 import com.logistics.forestry.farm.FarmInputs;
 import com.logistics.forestry.farm.FarmLogic;
 import com.logistics.forestry.farm.FarmWorld;
@@ -22,8 +21,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * The tree farm: plants saplings, lays soil, and fells grown trees whole.
  *
- * <p>Planting pattern, by a plot's lane and step in the {@link RingArea} (lane 0 innermost, steps
- * clockwise from the north-west corner):
+ * <p>Planting pattern, by a plot's lane and step in its {@link PlotLayout region} (lane 0 innermost,
+ * steps clockwise from the north-west corner):
  *
  * <ul>
  *   <li><b>Single saplings</b> go on every even step of every lane. Neighbouring steps of a lane,
@@ -46,6 +45,9 @@ public final class ArboretumLogic implements FarmLogic {
 
     /** Along an edge, group anchors fall every this many steps of lane 0. */
     static final int GROUP_SPACING = 3;
+
+    /** How far from a plot outside any region a tree may reach. */
+    static final int FREE_STANDING_RADIUS = 8;
 
     private final Predicate<ItemStack> germlings;
     private final Predicate<ItemStack> soils;
@@ -76,11 +78,6 @@ public final class ArboretumLogic implements FarmLogic {
         this.requires2x2 = requires2x2;
         this.humus = humus;
         this.ownGrowth = ownGrowth;
-    }
-
-    @Override
-    public int ringOuter() {
-        return 13;
     }
 
     @Override
@@ -121,30 +118,36 @@ public final class ArboretumLogic implements FarmLogic {
         return !stack.isEmpty() && soils.test(stack);
     }
 
-    /** Without its ring the plot stands alone: a single-sapling spot with no group. */
+    /**
+     * Without a region the plot stands alone: a single-sapling spot with no group, felling a tree
+     * within {@link #FREE_STANDING_RADIUS} of it.
+     */
     @Override
     public PlotAction decide(FarmWorld world, BlockPos plot, FarmInputs inputs) {
-        return decide(world, plot, true, null, inputs);
+        return decide(world, plot, true, null, TreeFeller.Limits.around(plot, FREE_STANDING_RADIUS), inputs);
     }
 
     @Override
-    public PlotAction decide(FarmWorld world, PlotArea area, BlockPos plot, FarmInputs inputs) {
-        if (!(area instanceof RingArea ring)) {
-            return decide(world, plot, inputs);
-        }
-        int index = ring.indexOf(plot);
+    public PlotAction decide(FarmWorld world, PlotLayout region, BlockPos plot, FarmInputs inputs) {
+        TreeFeller.Limits limits = TreeFeller.Limits.within(region.bounds(), region.keepOut());
+        int index = region.indexOf(plot);
         if (index < 0) {
-            FellPlan tree = TreeFeller.plan(world.treeView(), plot, TreeFeller.Limits.DEFAULT);
+            FellPlan tree = world.fellPlan(plot, limits);
             return tree.isFound() ? new PlotAction.Harvest(tree.blocks()) : PlotAction.NONE;
         }
-        int lane = ring.lane(index);
-        int step = ring.step(index);
-        return decide(world, plot, isSingleSpot(lane, step), group(ring, lane, step), inputs);
+        int lane = region.lane(index);
+        int step = region.step(index);
+        return decide(world, plot, isSingleSpot(lane, step), group(region, lane, step), limits, inputs);
     }
 
     private PlotAction decide(
-            FarmWorld world, BlockPos plot, boolean single, @Nullable List<BlockPos> group, FarmInputs inputs) {
-        FellPlan tree = TreeFeller.plan(world.treeView(), plot, TreeFeller.Limits.DEFAULT);
+            FarmWorld world,
+            BlockPos plot,
+            boolean single,
+            @Nullable List<BlockPos> group,
+            TreeFeller.Limits limits,
+            FarmInputs inputs) {
+        FellPlan tree = world.fellPlan(plot, limits);
         if (tree.isFound()) {
             return new PlotAction.Harvest(tree.blocks());
         }
@@ -179,30 +182,47 @@ public final class ArboretumLogic implements FarmLogic {
 
     /**
      * The 2×2 group anchored at ({@code lane}, {@code step}), anchor first, or {@code null} when no
-     * group is anchored there.
+     * group is anchored there or any of its cells lies outside {@code region}.
      */
     @Nullable
-    static List<BlockPos> group(RingArea ring, int lane, int step) {
-        if (lane != 0 || ring.laneCount() < 2) {
+    static List<BlockPos> group(PlotLayout region, int lane, int step) {
+        List<BlockPos> group = groupCells(region, lane, step);
+        if (group == null) {
             return null;
         }
-        int side = ring.laneLength(0) / 4;
-        int outerSide = ring.laneLength(1) / 4;
+        for (BlockPos cell : group) {
+            if (!region.contains(cell)) {
+                return null;
+            }
+        }
+        return group;
+    }
+
+    @Nullable
+    private static List<BlockPos> groupCells(PlotLayout region, int lane, int step) {
+        if (lane != 0 || region.laneCount() < 2) {
+            return null;
+        }
+        int side = region.laneLength(0) / 4;
+        int outerSide = region.laneLength(1) / 4;
         int edge = step / side;
         int along = step % side;
         // Lane 1's corner at the start of this edge; lane 1 runs one cell further out on each side.
         int outerCorner = edge * outerSide;
         if (along == 0) {
-            int before = Math.floorMod(outerCorner - 1, ring.laneLength(1));
+            int before = Math.floorMod(outerCorner - 1, region.laneLength(1));
             return List.of(
-                    ring.plot(0, step), ring.plot(1, outerCorner), ring.plot(1, outerCorner + 1), ring.plot(1, before));
+                    region.plot(0, step),
+                    region.plot(1, outerCorner),
+                    region.plot(1, outerCorner + 1),
+                    region.plot(1, before));
         }
         if (along >= 2 && (along - 2) % GROUP_SPACING == 0 && along + 1 <= side - 2) {
             return List.of(
-                    ring.plot(0, step),
-                    ring.plot(0, step + 1),
-                    ring.plot(1, outerCorner + along + 1),
-                    ring.plot(1, outerCorner + along + 2));
+                    region.plot(0, step),
+                    region.plot(0, step + 1),
+                    region.plot(1, outerCorner + along + 1),
+                    region.plot(1, outerCorner + along + 2));
         }
         return null;
     }
