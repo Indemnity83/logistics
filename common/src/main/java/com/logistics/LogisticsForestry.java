@@ -275,11 +275,11 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             ARBORETUM = registerFarm("arboretum",
                 props -> new ArboretumBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
-                    .lightLevel(state -> state.getValue(FarmMachineBlock.LIT) ? 13 : 0)));
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LIT) ? 13 : 0).noOcclusion()));
             CROP_FARM = registerFarm("crop_farm",
                 props -> new CropFarmBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
-                    .lightLevel(state -> state.getValue(CropFarmBlock.LIT) ? 13 : 0)));
+                    .lightLevel(state -> state.getValue(CropFarmBlock.LIT) ? 13 : 0).noOcclusion()));
         }
 
         /**
