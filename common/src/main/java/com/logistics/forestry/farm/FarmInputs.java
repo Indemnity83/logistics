@@ -20,10 +20,4 @@ public interface FarmInputs {
 
     /** The soil item the next {@link PlotAction.PlaceSoil} would lay (one of it), or empty. */
     ItemStack soil();
-
-    /**
-     * Whether the water tank holds at least one till's worth; always false for a farm without a
-     * tank. A till asked for without it is refused and reported as no water.
-     */
-    boolean hasWater();
 }

@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.CaveVines;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -60,10 +61,11 @@ public final class PlantCompat {
 
     /**
      * Picks a sweet berry bush (age 2 or more) or cave vines bearing glow berries the way a player
-     * does: rolls the same drops, resets the plant (bush to age 1, vines to no berries) and returns
-     * the drops instead of spawning them.
+     * does: resets the plant (bush to age 1, vines to no berries), then rolls the same drops and
+     * returns them instead of spawning them. Drops are rolled only once the reset has landed.
      *
-     * @return the picked stacks; empty, with the plant unchanged, if it has nothing to pick
+     * @return the picked stacks; empty, with the plant unchanged, if it has nothing to pick or the
+     *     reset was refused
      */
     public static List<ItemStack> harvestBerries(ServerLevel level, BlockPos pos, BlockState state) {
         if (state.getBlock() instanceof SweetBerryBushBlock) {
@@ -82,14 +84,19 @@ public final class PlantCompat {
 
     private static List<ItemStack> pick(
             ServerLevel level, BlockPos pos, BlockState state, ResourceKey<LootTable> lootTable, BlockState picked) {
+        // The plant is reset first and the drops rolled only once it is, so a refused change never
+        // yields berries; the loot context still sees the plant as it was.
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!level.setBlock(pos, picked, Block.UPDATE_CLIENTS)) {
+            return List.of();
+        }
+        level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(picked));
         LootParams params = new LootParams.Builder(level)
                 .withParameter(LootContextParams.BLOCK_STATE, state)
-                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos))
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity)
                 .create(LootContextParamSets.BLOCK_INTERACT);
         List<ItemStack> drops = new ArrayList<>(
                 level.getServer().reloadableRegistries().getLootTable(lootTable).getRandomItems(params));
-        level.setBlock(pos, picked, Block.UPDATE_CLIENTS);
-        level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(picked));
         return drops;
     }
 }

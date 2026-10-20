@@ -22,6 +22,11 @@ public class MachineControlsGameTest {
     }
 
     @GameTest
+    public void testCropFarmMenuHandlerValidation(GameTestHelper context) {
+        MachineControlsGameTestBody.testCropFarmMenuHandlerValidation(context);
+    }
+
+    @GameTest
     public void testMagmaticEngineMenuHandlerValidation(GameTestHelper context) {
         MachineControlsGameTestBody.testMagmaticEngineMenuHandlerValidation(context);
     }

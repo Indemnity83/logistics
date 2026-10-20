@@ -1,17 +1,17 @@
-# Infernal Farm
+# Nether Wart Farm
 
-> **Status:** 🚧 Planned — wave 3 · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
+> **Status:** 🚧 Planned — Phase 2 of the farm plan · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md) · **Maps to (roadmap):** Phase 2 — Farms
 
-> **Area:** follows the centred-ring model from [0201](0201-farm-framework.md): the farm sits at the centre of a free 9×9 and works (and clears) a ring of plots around it; slots are germlings 0–3, soil 4–7, output 8–16. The ring size is settled when this farm is built.
+> **Area:** follows the tiered centred-ring model from [0201](0201-farm-framework.md): a 7×7 courtyard and a ring from 11×11 (Basic) to 23×23 (Infernal), raised with Upgrade Kits ([0111](0111-machine-frame-tiers.md)); slots are germlings 0–3, materials 4–7, output 8–16; nothing changes in the world until Start.
 
-Plants and harvests nether wart on soul sand (Forestry's infernal farm).
+Plants and harvests nether wart on soul sand (Forestry's infernal farm). Renamed from "Infernal Farm" because **Infernal** is now the top [machine tier](0111-machine-frame-tiers.md).
 
 ## Requirements
 
 - **Germlings:** nether wart.
 - **Soil:** soul sand.
-- **Harvest:** mature wart only; replants.
+- **Harvest:** mature wart only (50 RF); replants from the drops first (25 RF).
 - **Water:** none.
 - **Recipe:** standard farm recipe; proposed valve: **blazing**.
 
@@ -26,8 +26,8 @@ Plants and harvests nether wart on soul sand (Forestry's infernal farm).
 
 ## Open questions
 
-- Whether the farm lays soul sand from its soil slots or only keeps existing soul sand.
-- Valve choice (blazing is a proposal for this wave).
+- Whether the farm lays soul sand from its material slots (50 RF per block) or only keeps existing soul sand.
+- Valve choice (blazing is a proposal).
 
 ## Done when
 

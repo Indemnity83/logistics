@@ -3,6 +3,7 @@ package com.logistics.forestry.logic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.logistics.core.machine.area.Columns;
 import com.logistics.forestry.logic.TreeView.Kind;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,13 +20,15 @@ class TreeFellerTest {
 
     private static final BlockPos ORIGIN = BlockPos.ZERO;
 
+    private static final TreeFeller.Limits LIMITS = TreeFeller.Limits.around(ORIGIN, 8);
+
     // --- tree shapes ---
 
     @Test
     void smallOak_takesTrunkAndLeafBlob() {
         FakeView view = smallOak(new FakeView(), 0, 0);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertFoundExactly(plan, view.all());
     }
@@ -40,7 +43,7 @@ class TreeFellerTest {
         view.layer(-1, 1, 6, -1, 1, false, Kind.CANOPY);
         view.plus(0, 7, 0, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertFoundExactly(plan, view.all());
     }
@@ -57,7 +60,7 @@ class TreeFellerTest {
         view.layer(-2, 3, 5, -2, 3, true, Kind.CANOPY);
         view.layer(-1, 2, 6, -1, 2, false, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertFoundExactly(plan, view.all());
     }
@@ -79,7 +82,7 @@ class TreeFellerTest {
         view.set(new BlockPos(-2, 12, -2), Kind.CANOPY);
         view.layer(-2, 3, 15, -2, 3, true, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertFoundExactly(plan, view.all());
         assertThat(plan.blocks()).containsAll(branches);
@@ -96,7 +99,7 @@ class TreeFellerTest {
         view.layer(1, 5, 6, -2, 2, true, Kind.CANOPY);
         view.layer(-3, -1, 4, 0, 2, false, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertFoundExactly(plan, view.all());
     }
@@ -117,7 +120,7 @@ class TreeFellerTest {
         BlockPos propagule = new BlockPos(2, 6, 0);
         view.set(propagule, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         Set<BlockPos> expected = new HashSet<>(view.all());
         expected.remove(tooDeep);
@@ -132,7 +135,7 @@ class TreeFellerTest {
         FakeView view = new FakeView();
         view.column(0, 0, 0, 5, Kind.WOOD);
 
-        assertSkipped(TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT), FellPlan.Reason.NO_CANOPY);
+        assertSkipped(TreeFeller.plan(view, ORIGIN, LIMITS), FellPlan.Reason.NO_CANOPY);
     }
 
     @Test
@@ -148,7 +151,7 @@ class TreeFellerTest {
             }
         }
 
-        assertSkipped(TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT), FellPlan.Reason.NO_CANOPY);
+        assertSkipped(TreeFeller.plan(view, ORIGIN, LIMITS), FellPlan.Reason.NO_CANOPY);
     }
 
     @Test
@@ -159,7 +162,7 @@ class TreeFellerTest {
         view.layer(-2, 2, 3, -2, 2, true, Kind.OTHER);
         view.layer(-1, 1, 5, -1, 1, false, Kind.OTHER);
 
-        assertSkipped(TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT), FellPlan.Reason.NO_CANOPY);
+        assertSkipped(TreeFeller.plan(view, ORIGIN, LIMITS), FellPlan.Reason.NO_CANOPY);
     }
 
     @Test
@@ -177,7 +180,7 @@ class TreeFellerTest {
         view.set(fenceLow, Kind.WOOD);
         view.set(fenceHigh, Kind.WOOD);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertThat(plan.isFound()).isTrue();
         List<BlockPos> wood = plan.blocks().stream()
@@ -201,7 +204,7 @@ class TreeFellerTest {
         view.set(hive, Kind.NEVER_TOUCH);
         view.set(behindHive, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertThat(plan.isFound()).isTrue();
         assertThat(plan.blocks()).doesNotContain(hive, behindHive);
@@ -213,7 +216,7 @@ class TreeFellerTest {
         FakeView view = smallOak(new FakeView(), 0, 0);
         view.unloaded = pos -> pos.getX() >= 2;
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertThat(plan.isFound()).isTrue();
         assertThat(plan.blocks()).allMatch(pos -> pos.getX() < 2);
@@ -228,8 +231,8 @@ class TreeFellerTest {
         FakeView view = smallOak(new FakeView(), 0, 0);
         int size = view.all().size();
 
-        FellPlan atCap = TreeFeller.plan(view, ORIGIN, new TreeFeller.Limits(8, 3, 32, size));
-        FellPlan overCap = TreeFeller.plan(view, ORIGIN, new TreeFeller.Limits(8, 3, 32, size - 1));
+        FellPlan atCap = TreeFeller.plan(view, ORIGIN, LIMITS.withCap(size));
+        FellPlan overCap = TreeFeller.plan(view, ORIGIN, LIMITS.withCap(size - 1));
 
         assertThat(atCap.isFound()).isTrue();
         assertThat(atCap.blocks()).hasSize(size);
@@ -241,7 +244,7 @@ class TreeFellerTest {
         FakeView view = new FakeView();
         view.column(0, 0, 0, 20, Kind.WOOD);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, new TreeFeller.Limits(8, 3, 32, 10));
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS.withCap(10));
 
         assertSkipped(plan, FellPlan.Reason.CAP_EXCEEDED);
         assertThat(view.queried).doesNotContain(new BlockPos(0, 11, 0));
@@ -256,7 +259,7 @@ class TreeFellerTest {
         }
         view.layer(-1, 1, 4, -1, 1, false, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertThat(plan.isFound()).isTrue();
         assertThat(plan.blocks()).contains(new BlockPos(8, 3, 0));
@@ -270,7 +273,7 @@ class TreeFellerTest {
         view.layer(-3, 3, 4, 0, 0, false, Kind.CANOPY);
         view.layer(-1, 1, 9, -1, 1, false, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, new TreeFeller.Limits(2, 3, 5, 1024));
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.around(ORIGIN, 2).withHeight(3, 5));
 
         assertThat(plan.isFound()).isTrue();
         assertThat(plan.blocks())
@@ -290,7 +293,7 @@ class TreeFellerTest {
         BlockPos diagonalOnly = new BlockPos(-1, 4, 1);
         view.set(diagonalOnly, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertThat(plan.blocks())
                 .contains(new BlockPos(TreeFeller.CANOPY_REACH, 3, 0))
@@ -299,10 +302,109 @@ class TreeFellerTest {
     }
 
     @Test
-    void defaultLimits() {
-        assertThat(TreeFeller.Limits.DEFAULT).isEqualTo(new TreeFeller.Limits(8, 3, 32, 1024));
-        assertThatThrownBy(() -> new TreeFeller.Limits(8, 3, 32, 0)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new TreeFeller.Limits(-1, 3, 32, 1)).isInstanceOf(IllegalArgumentException.class);
+    void limits_aroundAPlot() {
+        assertThat(LIMITS).isEqualTo(new TreeFeller.Limits(
+                new Columns(-8, -8, 8, 8), new Columns(-8, -8, 8, 8), Columns.EMPTY, 3, 32, 1024));
+        assertThatThrownBy(() -> LIMITS.withCap(0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> LIMITS.withHeight(-1, 32)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> TreeFeller.Limits.around(ORIGIN, -1)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void limits_withinARegion() {
+        Columns bounds = Columns.square(ORIGIN, 11);
+        Columns courtyard = Columns.square(ORIGIN, 7);
+
+        TreeFeller.Limits limits = TreeFeller.Limits.within(bounds, courtyard);
+
+        assertThat(limits.wood()).isEqualTo(bounds);
+        assertThat(limits.canopy()).isEqualTo(new Columns(-8, -8, 8, 8));
+        assertThat(limits.keepOut()).isEqualTo(courtyard);
+        assertThat(limits.below()).isEqualTo(3);
+        assertThat(limits.above()).isEqualTo(32);
+        assertThat(limits.cap()).isEqualTo(1024);
+    }
+
+    // --- farm region bounds (a 7×7 courtyard, ring out to 11×11, centred on the origin) ---
+
+    private static final TreeFeller.Limits REGION =
+            TreeFeller.Limits.within(Columns.square(ORIGIN, 11), Columns.square(ORIGIN, 7));
+
+    /** First lane of the ring, east of the courtyard. */
+    private static final BlockPos RING_PLOT = new BlockPos(4, 0, 0);
+
+    @Test
+    void region_canopyOverTheCourtyardIsNotPlanned() {
+        FakeView view = smallOak(new FakeView(), RING_PLOT.getX(), RING_PLOT.getZ());
+
+        FellPlan plan = TreeFeller.plan(view, RING_PLOT, REGION);
+
+        assertThat(plan.isFound()).isTrue();
+        assertThat(plan.blocks())
+                .noneMatch(REGION.keepOut()::contains)
+                .doesNotContain(new BlockPos(3, 3, 0), new BlockPos(2, 3, 1), new BlockPos(3, 5, 0))
+                .as("canopy past the outer edge, within the margin")
+                .contains(new BlockPos(6, 3, 0), new BlockPos(5, 5, 0));
+    }
+
+    @Test
+    void region_woodOutsideTheOuterSquareIsNotPlanned() {
+        FakeView view = new FakeView();
+        view.column(4, 0, 0, 3, Kind.WOOD);
+        for (int x = 5; x <= 8; x++) {
+            view.set(new BlockPos(x, 3, 0), Kind.WOOD);
+        }
+        view.layer(3, 5, 4, -1, 1, false, Kind.CANOPY);
+
+        FellPlan plan = TreeFeller.plan(view, RING_PLOT, REGION);
+
+        assertThat(plan.isFound()).isTrue();
+        assertThat(plan.blocks())
+                .contains(new BlockPos(5, 3, 0), new BlockPos(5, 4, 0))
+                .doesNotContain(new BlockPos(6, 3, 0), new BlockPos(7, 3, 0), new BlockPos(8, 3, 0))
+                .as("the canopy's courtyard column")
+                .doesNotContain(new BlockPos(3, 4, 0));
+    }
+
+    @Test
+    void region_canopyStopsAtTheMargin() {
+        FakeView view = new FakeView();
+        view.column(5, 0, 0, 3, Kind.WOOD);
+        for (int x = 6; x <= 10; x++) {
+            view.set(new BlockPos(x, 3, 0), Kind.CANOPY);
+        }
+
+        FellPlan plan = TreeFeller.plan(view, new BlockPos(5, 0, 0), REGION);
+
+        assertThat(plan.blocks())
+                .contains(new BlockPos(8, 3, 0))
+                .doesNotContain(new BlockPos(9, 3, 0), new BlockPos(10, 3, 0));
+    }
+
+    @Test
+    void region_treeRootedInTheCourtyardIsNoTree() {
+        FakeView view = smallOak(new FakeView(), 2, 0);
+
+        assertSkipped(TreeFeller.plan(view, new BlockPos(2, 0, 0), REGION), FellPlan.Reason.NO_TREE);
+    }
+
+    @Test
+    void region_neverWalksThroughTheCourtyard() {
+        FakeView view = new FakeView();
+        // A trunk on the west lane joined to one on the east lane only through the courtyard.
+        view.column(-4, 0, 0, 3, Kind.WOOD);
+        for (int x = -3; x <= 3; x++) {
+            view.set(new BlockPos(x, 3, 0), Kind.WOOD);
+        }
+        view.column(4, 0, 0, 3, Kind.WOOD);
+        view.layer(3, 5, 4, -1, 1, false, Kind.CANOPY);
+        view.layer(-5, -3, 4, -1, 1, false, Kind.CANOPY);
+
+        FellPlan plan = TreeFeller.plan(view, RING_PLOT, REGION);
+
+        assertThat(plan.blocks())
+                .contains(new BlockPos(4, 3, 0))
+                .noneMatch(pos -> pos.getX() < 0);
     }
 
     // --- seeding ---
@@ -313,8 +415,8 @@ class TreeFellerTest {
         view.column(0, 0, 5, 9, Kind.WOOD);
         view.layer(-1, 1, 9, -1, 1, false, Kind.CANOPY);
 
-        assertSkipped(TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT), FellPlan.Reason.NO_TREE);
-        assertSkipped(TreeFeller.plan(new FakeView(), ORIGIN, TreeFeller.Limits.DEFAULT), FellPlan.Reason.NO_TREE);
+        assertSkipped(TreeFeller.plan(view, ORIGIN, LIMITS), FellPlan.Reason.NO_TREE);
+        assertSkipped(TreeFeller.plan(new FakeView(), ORIGIN, LIMITS), FellPlan.Reason.NO_TREE);
     }
 
     @Test
@@ -323,7 +425,7 @@ class TreeFellerTest {
         view.column(0, 0, 4, 8, Kind.WOOD);
         view.layer(-1, 1, 8, -1, 1, false, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT);
+        FellPlan plan = TreeFeller.plan(view, ORIGIN, LIMITS);
 
         assertFoundExactly(plan, view.all());
     }
@@ -334,7 +436,7 @@ class TreeFellerTest {
     void order_isTopDownCanopyFirstThenXThenZ() {
         FakeView view = smallOak(new FakeView(), 0, 0);
 
-        List<BlockPos> blocks = TreeFeller.plan(view, ORIGIN, TreeFeller.Limits.DEFAULT).blocks();
+        List<BlockPos> blocks = TreeFeller.plan(view, ORIGIN, LIMITS).blocks();
 
         for (int i = 1; i < blocks.size(); i++) {
             BlockPos prev = blocks.get(i - 1);
@@ -366,9 +468,9 @@ class TreeFellerTest {
         Collections.reverse(entries);
         entries.forEach(entry -> reversed.set(entry.getKey(), entry.getValue()));
 
-        List<BlockPos> first = TreeFeller.plan(forward, ORIGIN, TreeFeller.Limits.DEFAULT).blocks();
-        List<BlockPos> second = TreeFeller.plan(reversed, ORIGIN, TreeFeller.Limits.DEFAULT).blocks();
-        List<BlockPos> third = TreeFeller.plan(forward, ORIGIN, TreeFeller.Limits.DEFAULT).blocks();
+        List<BlockPos> first = TreeFeller.plan(forward, ORIGIN, LIMITS).blocks();
+        List<BlockPos> second = TreeFeller.plan(reversed, ORIGIN, LIMITS).blocks();
+        List<BlockPos> third = TreeFeller.plan(forward, ORIGIN, LIMITS).blocks();
 
         assertThat(second).isEqualTo(first);
         assertThat(third).isEqualTo(first);
