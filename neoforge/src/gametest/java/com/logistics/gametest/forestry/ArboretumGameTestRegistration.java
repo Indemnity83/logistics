@@ -75,4 +75,20 @@ public final class ArboretumGameTestRegistration {
     public static void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
         ArboretumGameTestBody.testEveryGermlingGrowsOnArboretumSoils(context);
     }
+
+    /** Real Basic-tier tests, in the larger structure they need. */
+    @GameTest(template = "arboretum_field", batch = "arboretum_field", timeoutTicks = 6000)
+    public static void testBasicRingStaysProductive(GameTestHelper context) {
+        ArboretumFieldGameTestBody.testBasicRingStaysProductive(context);
+    }
+
+    @GameTest(template = "arboretum_field", batch = "arboretum_field", timeoutTicks = 1200)
+    public static void testFellsNeighbouringCanopies(GameTestHelper context) {
+        ArboretumFieldGameTestBody.testFellsNeighbouringCanopies(context);
+    }
+
+    @GameTest(template = "arboretum_field", batch = "arboretum_field", timeoutTicks = 2400)
+    public static void testForeignTreeWoodIsNeverFelled(GameTestHelper context) {
+        ArboretumFieldGameTestBody.testForeignTreeWoodIsNeverFelled(context);
+    }
 }
