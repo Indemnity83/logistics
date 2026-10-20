@@ -54,10 +54,11 @@ public final class PlantCompat {
 
     /**
      * Picks a sweet berry bush (age 2 or more) or cave vines bearing glow berries the way a player
-     * does: rolls the same drops, resets the plant (bush to age 1, vines to no berries) and returns
-     * the drops instead of spawning them.
+     * does: resets the plant (bush to age 1, vines to no berries), then rolls the same drops and
+     * returns them instead of spawning them. Drops are rolled only once the reset has landed.
      *
-     * @return the picked stacks; empty, with the plant unchanged, if it has nothing to pick
+     * @return the picked stacks; empty, with the plant unchanged, if it has nothing to pick or the
+     *     reset was refused
      */
     public static List<ItemStack> harvestBerries(ServerLevel level, BlockPos pos, BlockState state) {
         if (state.getBlock() instanceof SweetBerryBushBlock) {
@@ -76,7 +77,11 @@ public final class PlantCompat {
     }
 
     private static List<ItemStack> pick(ServerLevel level, BlockPos pos, ItemStack drop, BlockState picked) {
-        level.setBlock(pos, picked, Block.UPDATE_CLIENTS);
+        // The plant is reset first and the drop handed out only once it is, so a refused change
+        // never yields berries.
+        if (!level.setBlock(pos, picked, Block.UPDATE_CLIENTS)) {
+            return List.of();
+        }
         level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(picked));
         return List.of(drop);
     }

@@ -17,28 +17,38 @@ public class CropFarmGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testHoeingSpendsWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHoeingSpendsWater(context);
+    public void testTillsAndPlantsWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testTillsAndPlantsWithoutWater(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2400)
-    public void testHarvestReturnsPlotToDirtAndRetillPaysWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestReturnsPlotToDirtAndRetillPaysWater(context);
+    public void testHarvestKeepsFarmland(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestKeepsFarmland(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testMoistensPlantedFarmlandWithoutWater(context);
+    public void testIrrigatesRingFarmlandFromTank(GameTestHelper context) {
+        CropFarmGameTestBody.testIrrigatesRingFarmlandFromTank(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 200)
+    public void testFarmlandDriesWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testFarmlandDriesWithoutWater(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
+    public void testSurveyingFarmDoesNotIrrigate(GameTestHelper context) {
+        CropFarmGameTestBody.testSurveyingFarmDoesNotIrrigate(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
+    public void testNeverIrrigatesOutsideRing(GameTestHelper context) {
+        CropFarmGameTestBody.testNeverIrrigatesOutsideRing(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 3000)
     public void testHarvestsAndReplantsFromReturnedSeeds(GameTestHelper context) {
         CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testHarvestsButStopsTillingWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestsButStopsTillingWithoutWater(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 300)
@@ -72,7 +82,32 @@ public class CropFarmGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testReplacesGrassWithDirt(GameTestHelper context) {
-        CropFarmGameTestBody.testReplacesGrassWithDirt(context);
+    public void testTillsGrassInPlace(GameTestHelper context) {
+        CropFarmGameTestBody.testTillsGrassInPlace(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2400)
+    public void testLaysSoilLevelWithFarmOnGrass(GameTestHelper context) {
+        CropFarmGameTestBody.testLaysSoilLevelWithFarmOnGrass(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 100)
+    public void testTierSurvivesBreakAndReplace(GameTestHelper context) {
+        CropFarmGameTestBody.testTierSurvivesBreakAndReplace(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 600)
+    public void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
+        CropFarmGameTestBody.testRaisingTierGrowsEnergyBuffer(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
+    public void testSurveyChangesNothingUntilStart(GameTestHelper context) {
+        CropFarmGameTestBody.testSurveyChangesNothingUntilStart(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 600)
+    public void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
+        CropFarmGameTestBody.testUpgradeWorksNewLanesImmediately(context);
     }
 }

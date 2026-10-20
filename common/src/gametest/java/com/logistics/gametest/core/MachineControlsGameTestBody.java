@@ -2,6 +2,7 @@ package com.logistics.gametest.core;
 
 import com.logistics.LogisticsAutomation;
 import com.logistics.LogisticsConfigHost;
+import com.logistics.LogisticsForestry;
 import com.logistics.LogisticsPower;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
 import com.logistics.automation.macerator.MaceratorScreenHandler;
@@ -13,6 +14,8 @@ import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.machine.control.MachineControls;
 import com.logistics.core.machine.control.MachineStatus;
 import com.logistics.core.machine.control.RedstoneMode;
+import com.logistics.forestry.farm.FarmBlockEntity;
+import com.logistics.forestry.farm.FarmMenu;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
 import com.mojang.authlib.GameProfile;
@@ -72,7 +75,9 @@ public class MachineControlsGameTestBody {
             () -> LogisticsPower.BLOCK.FUEL_ENGINE,
             () -> LogisticsPower.BLOCK.MAGMATIC_ENGINE,
             () -> LogisticsPower.BLOCK.STEAM_ENGINE,
-            () -> LogisticsPower.BLOCK.REACTION_ENGINE);
+            () -> LogisticsPower.BLOCK.REACTION_ENGINE,
+            () -> LogisticsForestry.BLOCK.CROP_FARM,
+            () -> LogisticsForestry.BLOCK.ARBORETUM);
 
     // ==================== Helpers ====================
 
@@ -181,7 +186,7 @@ public class MachineControlsGameTestBody {
 
     // ==================== Every server menu ====================
 
-    /** Each of the 13 server menus, opened through its block entity's real menu provider, carries live controls. */
+    /** Each of the 15 server menus, opened through its block entity's real menu provider, carries live controls. */
     public static void testEveryServerMenuCarriesControls(GameTestHelper context) {
         Player player = mockPlayer(context, GameType.SURVIVAL);
         for (Supplier<Block> block : MENU_BLOCKS) {
@@ -258,6 +263,12 @@ public class MachineControlsGameTestBody {
     public static void testMaceratorMenuHandlerValidation(GameTestHelper context) {
         MaceratorBlockEntity macerator = place(context, LogisticsAutomation.BLOCK.MACERATOR, MaceratorBlockEntity.class);
         handlerAppliesModeAndRejectsBadClicks(context, macerator, inv -> new MaceratorScreenHandler(1, inv));
+    }
+
+    /** The farm menu hands redstone ids to its controls before its own Start and Show area buttons. */
+    public static void testCropFarmMenuHandlerValidation(GameTestHelper context) {
+        FarmBlockEntity farm = place(context, LogisticsForestry.BLOCK.CROP_FARM, FarmBlockEntity.class);
+        handlerAppliesModeAndRejectsBadClicks(context, farm, inv -> new FarmMenu(1, inv));
     }
 
     public static void testMagmaticEngineMenuHandlerValidation(GameTestHelper context) {

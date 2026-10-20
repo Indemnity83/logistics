@@ -1,6 +1,7 @@
 package com.logistics.core.machine.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
@@ -100,5 +101,62 @@ class FluidStoreComponentTest extends MinecraftTestEnvironment {
         assertThat(store.tank().getAmount()).isEqualTo(4_000);
         // The machine still drains internally.
         assertThat(store.tank().extract(SimpleFluidKey.of(Fluids.WATER), 1_000, false)).isEqualTo(1_000);
+    }
+
+    @Test
+    void resizeGrowKeepsContents() {
+        FluidStoreComponent store = store();
+        store.tank().setContents(SimpleFluidKey.of(Fluids.WATER), 4_000);
+
+        store.resize(20_000);
+
+        assertThat(store.tank().getCapacity()).isEqualTo(20_000);
+        assertThat(store.tank().getAmount()).isEqualTo(4_000);
+        assertThat(store.tank().insert(SimpleFluidKey.of(Fluids.WATER), 50_000, false)).isEqualTo(16_000);
+    }
+
+    @Test
+    void resizeShrinkClampsContents() {
+        int[] changes = {0};
+        FluidStoreComponent store = new FluidStoreComponent("fluid", 10_000, () -> changes[0]++);
+        store.tank().setContents(SimpleFluidKey.of(Fluids.WATER), 8_000);
+        changes[0] = 0;
+
+        store.resize(3_000);
+
+        assertThat(store.tank().getAmount()).isEqualTo(3_000);
+        assertThat(store.tank().getFluidKey()).isEqualTo(SimpleFluidKey.of(Fluids.WATER));
+        assertThat(store.tank().insert(SimpleFluidKey.of(Fluids.WATER), 1_000, false)).isZero();
+        assertThat(changes[0]).isEqualTo(1);
+    }
+
+    @Test
+    void resizeToZeroEmptiesTheTank() {
+        FluidStoreComponent store = store();
+        store.tank().setContents(SimpleFluidKey.of(Fluids.LAVA), 2_000);
+
+        store.resize(0);
+
+        assertThat(store.tank().isEmpty()).isTrue();
+        assertThat(store.tank().getAmount()).isZero();
+        assertThat(store.tank().insert(SimpleFluidKey.of(Fluids.WATER), 1_000, false)).isZero();
+    }
+
+    @Test
+    void resizeToTheSameCapacityDoesNotMarkDirty() {
+        int[] changes = {0};
+        FluidStoreComponent store = new FluidStoreComponent("fluid", 10_000, () -> changes[0]++);
+
+        store.resize(10_000);
+
+        assertThat(changes[0]).isZero();
+    }
+
+    @Test
+    void resizeRejectsNegativeCapacity() {
+        FluidStoreComponent store = store();
+
+        assertThatThrownBy(() -> store.resize(-1)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(store.tank().getCapacity()).isEqualTo(10_000);
     }
 }

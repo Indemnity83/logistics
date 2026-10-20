@@ -30,15 +30,16 @@ class FarmGaugesTest {
     }
 
     @Test
-    @DisplayName("lamp is green while working and amber while idle or paused")
+    @DisplayName("lamp is green while working and amber while idle, paused or surveying")
     void lampForBenignStatuses() {
         assertThat(FarmGauges.lamp(FarmStatus.WORKING)).isEqualTo(Lamp.GREEN);
         assertThat(FarmGauges.lamp(FarmStatus.IDLE)).isEqualTo(Lamp.AMBER);
         assertThat(FarmGauges.lamp(FarmStatus.PAUSED)).isEqualTo(Lamp.AMBER);
+        assertThat(FarmGauges.lamp(FarmStatus.SURVEYING)).isEqualTo(Lamp.AMBER);
     }
 
     @ParameterizedTest
-    @EnumSource(value = FarmStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"WORKING", "IDLE", "PAUSED"})
+    @EnumSource(value = FarmStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"WORKING", "IDLE", "PAUSED", "SURVEYING"})
     @DisplayName("lamp is red for every problem status")
     void lampForProblems(FarmStatus status) {
         assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.RED);

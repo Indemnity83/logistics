@@ -22,6 +22,11 @@ public class MachineControlsGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty")
+    public void testCropFarmMenuHandlerValidation(GameTestHelper context) {
+        MachineControlsGameTestBody.testCropFarmMenuHandlerValidation(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty")
     public void testMagmaticEngineMenuHandlerValidation(GameTestHelper context) {
         MachineControlsGameTestBody.testMagmaticEngineMenuHandlerValidation(context);
     }

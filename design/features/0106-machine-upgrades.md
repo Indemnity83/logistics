@@ -6,6 +6,8 @@
 
 A unified, slot-in modifier system applied across all RF machines (Macerator, Kiln, Sawmill, Alloy Smelter): speed, efficiency, secondary-yield, and auto-output augments. The cross-cutting "make machines feel like a system, not isolated blocks" feature. There is no upgrade system today — this defines one.
 
+> **Tiers live in [0111](0111-machine-frame-tiers.md).** A machine's rank (Basic → Industrial → Precision → Infernal) and the Upgrade Kits that raise it are the machine tier contract, not augments. This brief covers only the slot-in augments, which apply on top of any tier through `MachineModifiers` / `OperationKey`.
+
 ## Problem & goal
 
 Each machine is currently a fixed block: fixed speed, fixed energy cost, manual output extraction. TE's augment system is what turned its machines into a progression — you upgraded the machine you had instead of replacing it (the balance principle: *each tier obsoletes the grind, not the gameplay*).
@@ -44,12 +46,12 @@ Define the contract in `core.lib`, apply it in each machine's processing plan.
 ## Scope & non-goals
 
 - **In (if accepted):** the `core.lib` upgrade contract, four augment types, GUI slots, adoption across the four core machines (Macerator/Kiln/Sawmill/Alloy Smelter).
-- **Out:** machine **tiers / frames** (Basic→Resonant crafted machine bodies — separate, see TE breakdown "Machine frames / tiers"); per-side augment config; augments that change *what* a machine does (only how fast/cheap/auto); fluid-machine augments (until those machines exist).
+- **Out:** machine **tiers** and Upgrade Kits ([0111](0111-machine-frame-tiers.md)); per-side augment config; augments that change *what* a machine does (only how fast/cheap/auto); fluid-machine augments (until those machines exist).
 - **Out:** engine augments — engines aren't processing machines; revisit separately if wanted.
 
 ## Open questions
 
-- **Augment items vs. machine tiers** — do we ship slot-in augments (this doc) *and* crafted machine tiers, or fold tiering into augments? The TE breakdown lists tiers as a separate "—" row. **Lean: augments first (more flexible, less block sprawl); decide on tiers later.**
+- ~~Augment items vs. machine tiers~~ — **settled:** both. Tiers are the separate contract in [0111](0111-machine-frame-tiers.md), raised with Upgrade Kits; augments (this doc) stack on top.
 - One augment item with a tier component, or distinct items per tier? (Data component keeps the item list short.)
 - How many slots per machine, and caps per augment type, to avoid stacking into trivialization?
 - Should Speed and Efficiency be mutually constraining (a curve) rather than independent multipliers?

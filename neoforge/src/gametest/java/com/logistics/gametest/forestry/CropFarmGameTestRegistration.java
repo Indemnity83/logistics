@@ -22,28 +22,38 @@ public final class CropFarmGameTestRegistration {
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testHoeingSpendsWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHoeingSpendsWater(context);
+    public static void testTillsAndPlantsWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testTillsAndPlantsWithoutWater(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 2400)
-    public static void testHarvestReturnsPlotToDirtAndRetillPaysWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestReturnsPlotToDirtAndRetillPaysWater(context);
+    public static void testHarvestKeepsFarmland(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestKeepsFarmland(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testMoistensPlantedFarmlandWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testMoistensPlantedFarmlandWithoutWater(context);
+    public static void testIrrigatesRingFarmlandFromTank(GameTestHelper context) {
+        CropFarmGameTestBody.testIrrigatesRingFarmlandFromTank(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 220)
+    public static void testFarmlandDriesWithoutWater(GameTestHelper context) {
+        CropFarmGameTestBody.testFarmlandDriesWithoutWater(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
+    public static void testSurveyingFarmDoesNotIrrigate(GameTestHelper context) {
+        CropFarmGameTestBody.testSurveyingFarmDoesNotIrrigate(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
+    public static void testNeverIrrigatesOutsideRing(GameTestHelper context) {
+        CropFarmGameTestBody.testNeverIrrigatesOutsideRing(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 3000)
     public static void testHarvestsAndReplantsFromReturnedSeeds(GameTestHelper context) {
         CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testHarvestsButStopsTillingWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestsButStopsTillingWithoutWater(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 300)
@@ -77,7 +87,32 @@ public final class CropFarmGameTestRegistration {
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testReplacesGrassWithDirt(GameTestHelper context) {
-        CropFarmGameTestBody.testReplacesGrassWithDirt(context);
+    public static void testTillsGrassInPlace(GameTestHelper context) {
+        CropFarmGameTestBody.testTillsGrassInPlace(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 2400)
+    public static void testLaysSoilLevelWithFarmOnGrass(GameTestHelper context) {
+        CropFarmGameTestBody.testLaysSoilLevelWithFarmOnGrass(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm")
+    public static void testTierSurvivesBreakAndReplace(GameTestHelper context) {
+        CropFarmGameTestBody.testTierSurvivesBreakAndReplace(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 600)
+    public static void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
+        CropFarmGameTestBody.testRaisingTierGrowsEnergyBuffer(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
+    public static void testSurveyChangesNothingUntilStart(GameTestHelper context) {
+        CropFarmGameTestBody.testSurveyChangesNothingUntilStart(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 600)
+    public static void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
+        CropFarmGameTestBody.testUpgradeWorksNewLanesImmediately(context);
     }
 }

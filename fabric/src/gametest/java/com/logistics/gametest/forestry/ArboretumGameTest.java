@@ -27,8 +27,13 @@ public class ArboretumGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 300)
-    public void testRedstonePausesFarm(GameTestHelper context) {
-        ArboretumGameTestBody.testRedstonePausesFarm(context);
+    public void testRedstoneIgnoredByDefault(GameTestHelper context) {
+        ArboretumGameTestBody.testRedstoneIgnoredByDefault(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 600)
+    public void testSignalPausesFarmInLowMode(GameTestHelper context) {
+        ArboretumGameTestBody.testSignalPausesFarmInLowMode(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
@@ -39,6 +44,11 @@ public class ArboretumGameTest {
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
     public void testHumusReplacesDirtAcrossTheRing(GameTestHelper context) {
         ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
+    public void testLaysHumusLevelWithFarmOnGrass(GameTestHelper context) {
+        ArboretumGameTestBody.testLaysHumusLevelWithFarmOnGrass(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)

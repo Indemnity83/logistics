@@ -25,7 +25,7 @@ import net.minecraft.world.level.material.Fluids;
  */
 public class FluidTankComponent implements IFluidStorage {
 
-    private final long capacity;
+    private long capacity;
     private final Runnable onChanged;
 
     private Fluid fluid = Fluids.EMPTY;
@@ -126,6 +126,28 @@ public class FluidTankComponent implements IFluidStorage {
     /** Returns the current amount of fluid stored, in platform-native units. */
     public long getAmount() {
         return amount;
+    }
+
+    /**
+     * Changes the capacity, in platform-native units, clamping the stored amount; a tank shrunk to
+     * zero is emptied.
+     */
+    public void setCapacity(long capacity) {
+        if (capacity < 0) {
+            throw new IllegalArgumentException("Tank capacity must be non-negative, got " + capacity);
+        }
+        if (capacity == this.capacity) {
+            return;
+        }
+        this.capacity = capacity;
+        if (amount > capacity) {
+            amount = capacity;
+        }
+        if (amount == 0) {
+            fluid = Fluids.EMPTY;
+            components = DataComponentPatch.EMPTY;
+        }
+        onChanged.run();
     }
 
     /** Returns the maximum capacity, in platform-native units. */

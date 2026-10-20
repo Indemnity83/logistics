@@ -30,6 +30,11 @@ public final class MachineControlsGameTestRegistration {
     }
 
     @GameTest(template = "empty", batch = "machinecontrols")
+    public static void testCropFarmMenuHandlerValidation(GameTestHelper context) {
+        MachineControlsGameTestBody.testCropFarmMenuHandlerValidation(context);
+    }
+
+    @GameTest(template = "empty", batch = "machinecontrols")
     public static void testMagmaticEngineMenuHandlerValidation(GameTestHelper context) {
         MachineControlsGameTestBody.testMagmaticEngineMenuHandlerValidation(context);
     }

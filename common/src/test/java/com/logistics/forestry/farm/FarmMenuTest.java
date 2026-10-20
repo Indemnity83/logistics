@@ -8,11 +8,16 @@ import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
+import com.logistics.core.machine.control.MachineControls;
+import com.logistics.core.machine.control.RedstoneMode;
+import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -76,7 +81,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     }
 
     private static FarmMenu serverMenu(TestFarm farm, Inventory inventory) {
-        return new FarmMenu(1, inventory, farm, FarmMenu.dataSource(farm.parts));
+        return new FarmMenu(1, inventory, farm, FarmMenu.dataSource(farm.parts, () -> false));
     }
 
     private static Inventory playerInventory() {
@@ -280,11 +285,12 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @DisplayName("the synced data decodes to the farm's energy, water, status, plot and flags")
     void syncedData() {
         // Values above a short's range, so the wide slot pairs are exercised.
-        FarmSettings settings = new FarmSettings(10, 100_000, 128, 40, 40, 100, 60, 60, 20, 40_000, 50, 4, 20, 200);
+        FarmSettings settings = FarmSettings.defaults()
+                .withTiers(FarmSettings.everyTier(new FarmTierProfile(15, 16, 4, 100_000, 128, 40_000)));
         TestFarm farm = farm(new ScriptedFarmLogic(true, false), settings);
         farm.parts.energy().setAmount(70_000);
         farm.parts.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(33_000), false);
-        ContainerData data = FarmMenu.dataSource(farm.parts);
+        ContainerData data = FarmMenu.dataSource(farm.parts, () -> false);
         FarmMenu menu = new FarmMenu(1, playerInventory(), farm, data);
 
         assertThat(data.getCount()).isEqualTo(FarmMenu.DATA_COUNT);
@@ -293,9 +299,38 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.waterMb()).isEqualTo(33_000);
         assertThat(menu.waterCapacityMb()).isEqualTo(40_000);
         assertThat(menu.status()).isEqualTo(FarmStatus.IDLE);
-        assertThat(menu.areaSize()).as("the ring's outer side").isEqualTo(3);
+        assertThat(menu.areaSize()).as("the ring's outer side at the farm's tier").isEqualTo(15);
         assertThat(menu.usesWater()).isTrue();
         assertThat(menu.laysSoil()).isFalse();
+        assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
+        assertThat(menu.plotsTotal()).as("15×15 around the 7×7 courtyard").isEqualTo(176);
+        assertThat(menu.plotsBlocked()).isZero();
+        assertThat(menu.plotsUsable()).isEqualTo(176);
+
+        farm.parts.tier().setTier(MachineTier.PRECISION);
+        assertThat(data.get(FarmMenu.TIER)).isEqualTo(MachineTier.PRECISION.rank());
+        assertThat(menu.tier()).isEqualTo(MachineTier.PRECISION);
+    }
+
+    @Test
+    @DisplayName("the tier and plot counts follow the earlier indices, and an unknown tier rank reads as Basic")
+    void tierAndPlotIndices() {
+        assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.FLAGS + 1);
+        assertThat(FarmMenu.PLOTS_TOTAL).isEqualTo(FarmMenu.TIER + 1);
+        assertThat(FarmMenu.PLOTS_BLOCKED).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
+        assertThat(FarmMenu.STATE).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
+
+        SimpleContainerData data = new SimpleContainerData(FarmMenu.DATA_COUNT);
+        FarmMenu menu = new FarmMenu(1, playerInventory(), new SimpleContainer(FarmMachine.SLOT_COUNT), data);
+        data.set(FarmMenu.TIER, MachineTier.INFERNAL.rank());
+        data.set(FarmMenu.PLOTS_TOTAL, 72);
+        data.set(FarmMenu.PLOTS_BLOCKED, 5);
+        assertThat(menu.tier()).isEqualTo(MachineTier.INFERNAL);
+        assertThat(menu.plotsUsable()).isEqualTo(67);
+        assertThat(menu.plotsBlocked()).isEqualTo(5);
+
+        data.set(FarmMenu.TIER, 99);
+        assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
     }
 
     @Test
@@ -308,6 +343,26 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.waterCapacityMb()).isZero();
         assertThat(menu.usesWater()).isFalse();
         assertThat(menu.laysSoil()).isTrue();
+    }
+
+    @Test
+    @DisplayName("the farm's own buttons sit outside the machine controls' reserved ids")
+    void farmButtonsAvoidControlIds() {
+        int reservedEnd = MachineControls.BUTTON_BASE + MachineControls.BUTTON_RANGE;
+        for (int id : new int[] {FarmMenu.BUTTON_START, FarmMenu.BUTTON_SHOW_AREA}) {
+            assertThat(id >= MachineControls.BUTTON_BASE && id < reservedEnd)
+                    .as("button " + id).isFalse();
+        }
+    }
+
+    @Test
+    @DisplayName("the menu syncs the machine controls after its own data")
+    void carriesMachineControls() {
+        FarmMenu menu = new FarmMenu(1, playerInventory());
+
+        assertThat(menu.controls().data().getCount()).isEqualTo(MachineControls.COUNT);
+        menu.setData(FarmMenu.DATA_COUNT, RedstoneMode.HIGH.syncId());
+        assertThat(menu.controls().mode()).isEqualTo(RedstoneMode.HIGH);
     }
 
     // ==================== Helpers ====================

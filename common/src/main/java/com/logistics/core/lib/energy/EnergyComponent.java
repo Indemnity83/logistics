@@ -16,7 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 public final class EnergyComponent implements IEnergyStorage {
     private long amount;
     private final LongSupplier capacitySupplier;
-    private final long maxInsert;
+    private long maxInsert;
     private final long maxExtract;
     private final Runnable onChanged;
 
@@ -74,6 +74,11 @@ public final class EnergyComponent implements IEnergyStorage {
     @Override
     public boolean canExtract() {
         return maxExtract > 0;
+    }
+
+    /** Changes the per-call insert limit. Does not fire change notification. */
+    public void setMaxInsert(long maxInsert) {
+        this.maxInsert = maxInsert;
     }
 
     /** Consumes energy internally (e.g., machine processing). Does not fire change notification. */

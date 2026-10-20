@@ -32,8 +32,13 @@ public final class ArboretumGameTestRegistration {
     }
 
     @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 300)
-    public static void testRedstonePausesFarm(GameTestHelper context) {
-        ArboretumGameTestBody.testRedstonePausesFarm(context);
+    public static void testRedstoneIgnoredByDefault(GameTestHelper context) {
+        ArboretumGameTestBody.testRedstoneIgnoredByDefault(context);
+    }
+
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 600)
+    public static void testSignalPausesFarmInLowMode(GameTestHelper context) {
+        ArboretumGameTestBody.testSignalPausesFarmInLowMode(context);
     }
 
     @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 1200)
@@ -44,6 +49,11 @@ public final class ArboretumGameTestRegistration {
     @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 2000)
     public static void testHumusReplacesDirtAcrossTheRing(GameTestHelper context) {
         ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
+    }
+
+    @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 2000)
+    public static void testLaysHumusLevelWithFarmOnGrass(GameTestHelper context) {
+        ArboretumGameTestBody.testLaysHumusLevelWithFarmOnGrass(context);
     }
 
     @GameTest(template = "empty", batch = "arboretum", timeoutTicks = 2000)

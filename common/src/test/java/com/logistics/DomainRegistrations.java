@@ -24,6 +24,7 @@ public final class DomainRegistrations {
         }
         registered = true;
 
+        LogisticsCore.DATA.register();
         LogisticsCore.BLOCK.register();
         LogisticsCore.ITEM.register();
         LogisticsCore.BUCKET.register();

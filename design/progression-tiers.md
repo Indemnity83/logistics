@@ -67,7 +67,7 @@ Each line picks its subset in canonical order. *(Illustrative subsets — refine
 | **Gears** ✅ | mechanical | Wood · Stone · Copper · Iron · Bronze · Gold · Diamond · Netherite *(shipped; tin gear removed)* |
 | **Batteries** ✅ ([0107](features/0107-tiered-batteries.md)) | storage | Basic · Conductive · Resonant · Deep *(shipped; clay around a block of the tier's storage material)* |
 | **Valves / chipsets** | electronics | *component catalog, not a strict ladder — 15 valves + 7 chipsets (shipped)* |
-| **Machine frames** (future) | structural | Iron · Bronze · Diamond · Netherite |
+| **Machine tiers** ([0111](features/0111-machine-frame-tiers.md), planned) | structural | Basic · Industrial · Precision · Infernal *(copper, bronze, diamond, netherite; machines are crafted at Basic and raised one step at a time with the Industrial, Precision and Infernal Upgrade Kits; the farms adopt first)* |
 | **Chassis MkI–V** | slot count | *intentional exception — numeric, not a material tier* |
 
 ## Retrofit plan (implementation)
