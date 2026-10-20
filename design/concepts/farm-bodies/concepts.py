@@ -114,6 +114,16 @@ def cross(t, cx, cz, y0, w, h, u0=0, v0=0):
     return [a, b]
 
 
+def plane(t, cx, cz, y0, w, h, u0=0, v0=0, axis="x"):
+    """One flat plane along x or z; its back face shows the texture mirrored."""
+    uv = [u0, v0, u0 + w, v0 + h]
+    if axis == "x":
+        return {"from": [cx - w / 2, y0, cz], "to": [cx + w / 2, y0 + h, cz],
+                "faces": {"north": {"texture": t, "uv": uv}, "south": {"texture": t, "uv": uv}}}
+    return {"from": [cx, y0, cz - w / 2], "to": [cx, y0 + h, cz + w / 2],
+            "faces": {"east": {"texture": t, "uv": uv}, "west": {"texture": t, "uv": uv}}}
+
+
 def bed(top, side, side_off=(0, 0)):
     return box((3, 4, 3), (13, 6, 13), side, top, off=(3, side_off[1]), top_off=(3, 3))
 
@@ -377,11 +387,12 @@ def cocoa():
 def glow_berries():
     moss = tex("moss_block")
     e = [bed(moss, moss),
-         box((3, 12, 3), (13, 14, 13), tex("spruce_trapdoor"), off=(3, 0), top_off=(3, 3))]
-    e += cross(tex("spruce_log"), 8, 8, 6, 1, 6, u0=7, v0=0)  # centre post holding up the trapdoor
-    for (x, z), h in zip(((4.5, 8), (8, 4.5), (11.5, 8), (8, 11.5)), (5, 3, 4, 6)):
-        e += cross(tex("cave_vines_plant_lit"), x, z, 12 - h + 2, 4, h - 2, u0=1, v0=4)
-        e += cross(tex("cave_vines_lit"), x, z, 12 - h, 4, 2, u0=2, v0=2)
+         box((3, 13, 3), (13, 14, 13), tex("spruce_trapdoor"), off=(3, 0), top_off=(3, 3)),
+         box((7, 6, 7), (8, 13, 8), tex("spruce_log"), tex("spruce_log_top"), off=(7, 0), top_off=(7, 7))]
+    vines = (((4.5, 8), 6, "z"), ((8, 4.5), 4, "x"), ((11.5, 8), 5, "z"), ((8, 11.5), 7, "x"))
+    for (x, z), h, axis in vines:
+        e.append(plane(tex("cave_vines_plant_lit"), x, z, 13 - h + 2, 4, h - 2, u0=1, v0=4, axis=axis))
+        e.append(plane(tex("cave_vines_lit"), x, z, 13 - h, 4, 2, u0=2, v0=2, axis=axis))
     return e
 
 
