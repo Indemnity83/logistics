@@ -92,6 +92,10 @@ def decode_png(path):
         rows += line; prev = line
     out = bytearray(w * h * 4)
     maxv = (1 << bit) - 1
+    # tRNS on grayscale/RGB names one fully transparent sample value (16-bit fields).
+    gray_key = int.from_bytes(trns[0:2], "big") if ct == 0 and len(trns) >= 2 else None
+    rgb_key = (tuple(int.from_bytes(trns[i:i + 2], "big") for i in (0, 2, 4))
+               if ct == 2 and len(trns) >= 6 else None)
     for y in range(h):
         ro = y * stride
         for x in range(w):
@@ -101,9 +105,10 @@ def decode_png(path):
                 if ct == 6:
                     out[o:o + 4] = rows[s:s + 4]
                 elif ct == 2:
-                    out[o:o + 3] = rows[s:s + 3]; out[o + 3] = 255
+                    out[o:o + 3] = rows[s:s + 3]
+                    out[o + 3] = 0 if rgb_key == tuple(rows[s:s + 3]) else 255
                 elif ct == 0:
-                    g = rows[s]; out[o:o + 4] = bytes((g, g, g, 255))
+                    g = rows[s]; out[o:o + 4] = bytes((g, g, g, 0 if g == gray_key else 255))
                 elif ct == 4:
                     g = rows[s]; out[o:o + 4] = bytes((g, g, g, rows[s + 1]))
                 elif ct == 3:
@@ -116,7 +121,7 @@ def decode_png(path):
                     out[o:o + 3] = plte[val * 3:val * 3 + 3]
                     out[o + 3] = trns[val] if val < len(trns) else 255
                 else:
-                    g = val * 255 // maxv; out[o:o + 4] = bytes((g, g, g, 255))
+                    g = val * 255 // maxv; out[o:o + 4] = bytes((g, g, g, 0 if val == gray_key else 255))
     if h > w and h % w == 0:  # animated strip -> first frame
         out = out[:w * w * 4]; h = w
     return w, h, out
