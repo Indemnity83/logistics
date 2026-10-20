@@ -59,6 +59,25 @@ The two labels that appear twice are alternatives to compare.
 - **The Fungus Farm covers both Nether woods**, which is why its body is split in two.
 - **The Cocoa body is pods on a log**, with no foliage.
 
+## Layout ideas for later
+
+From a reference screenshot of a garden build (not committed):
+
+- **Glow Berry Farm as a pergola.**
+  - Two posts carry an open top beam with a slab-like rail, and the vines hang from the beam
+    as a full curtain.
+  - The top stays open, so the berries show from above as well as from the sides, which a solid
+    trapdoor ceiling can't do.
+  - The beam reads best as darker wood than the posts.
+- **Cocoa Plantation on the same frame.**
+  - Jungle-log posts and beam, with pods hanging off the post faces and the underside of the
+    beam.
+  - This replaces the single log, gives more pod faces in view, and sits alongside the Glow
+    Berry pergola as a family.
+- **Raised planters for the ground farms.**
+  - A bed edged with a dark trapdoor-style rim, with the crop or pumpkin sitting inside it.
+  - This could give the Gourd and Crop beds more shape than a flat slab.
+
 ## Regenerating
 
 ```bash
