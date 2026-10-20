@@ -11,6 +11,7 @@ final class FarmScreenText {
 
     static final String TITLE = "gui.logistics.farm.title";
     static final String TOOLTIP_AREA = "tooltip.logistics.farm.area";
+    static final String TOOLTIP_FOOTPRINT = "tooltip.logistics.farm.footprint";
     static final String TOOLTIP_PLOTS = "tooltip.logistics.farm.plots";
     static final String BUTTON_START = "gui.logistics.farm.start";
     static final String BUTTON_SHOW_AREA = "gui.logistics.farm.show_area";
@@ -26,15 +27,18 @@ final class FarmScreenText {
         return Component.translatable(TITLE, blockName, Component.translatable(tier.translationKey()));
     }
 
-    /** The status, then the tier and footprint, then the plot counts. */
+    /** The status, then the footprint, then the plot counts. */
     static List<Component> statusTooltip(FarmStatus status, MachineTier tier, int areaSize, int usable, int blocked) {
         return List.of(
                 Component.translatable(status.translationKey()),
-                Component.translatable(
-                                TOOLTIP_AREA,
-                                Component.translatable(tier.translationKey()),
-                                areaSize,
-                                FarmGeometry.COURTYARD)
+                // Tier hidden while nothing can change it.
+                // Component.translatable(
+                //                 TOOLTIP_AREA,
+                //                 Component.translatable(tier.translationKey()),
+                //                 areaSize,
+                //                 FarmGeometry.COURTYARD)
+                //         .withStyle(ChatFormatting.GRAY),
+                Component.translatable(TOOLTIP_FOOTPRINT, areaSize, FarmGeometry.COURTYARD)
                         .withStyle(ChatFormatting.GRAY),
                 Component.translatable(TOOLTIP_PLOTS, usable, blocked).withStyle(ChatFormatting.GRAY));
     }

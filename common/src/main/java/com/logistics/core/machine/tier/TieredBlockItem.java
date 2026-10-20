@@ -1,8 +1,6 @@
 package com.logistics.core.machine.tier;
 
-import com.logistics.LogisticsCore;
 import java.util.function.Consumer;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -28,10 +26,11 @@ public class TieredBlockItem extends BlockItem {
             Consumer<Component> consumer,
             TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltipDisplay, consumer, flag);
-        MachineTier tier = stack.get(LogisticsCore.DATA.MACHINE_TIER);
-        if (tier != null) {
-            consumer.accept(Component.translatable(TOOLTIP_TIER, Component.translatable(tier.translationKey()))
-                    .withStyle(ChatFormatting.GRAY));
-        }
+        // Hidden while nothing can change a tier.
+        // MachineTier tier = stack.get(LogisticsCore.DATA.MACHINE_TIER);
+        // if (tier != null) {
+        //     consumer.accept(Component.translatable(TOOLTIP_TIER, Component.translatable(tier.translationKey()))
+        //             .withStyle(ChatFormatting.GRAY));
+        // }
     }
 }
