@@ -13,7 +13,7 @@ public enum FarmStatus {
     NO_POWER,
     /** Stopped by its redstone control. */
     PAUSED,
-    /** Claim protection or the world refused a harvest. */
+    /** Claim protection or the world refused a harvest or a replant. */
     BLOCKED,
     /** The inventory is full; the farm keeps working and drops what does not fit. */
     INVENTORY_FULL,
