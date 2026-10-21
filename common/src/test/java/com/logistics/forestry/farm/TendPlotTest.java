@@ -140,6 +140,18 @@ class TendPlotTest extends MinecraftTestEnvironment {
         assertThat(farm.energy()).isEqualTo(before - farm.cost(FarmCost.PLANT));
     }
 
+    @Test
+    void replantsFarmlandOnThePlantsRfAloneWithoutHoldingOutForATill() {
+        FarmHarness farm = emptyWheatPlot();
+        farm.power(farm.cost(FarmCost.PLANT));
+
+        farm.items().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 1));
+        farm.ticks(PASS);
+
+        assertThat(farm.world.blocks.get(PLOT)).isEqualTo(Blocks.WHEAT.defaultBlockState());
+        assertThat(farm.energy()).isZero();
+    }
+
     /** Seeds in, a pass, and the plot is still bare: the farm no longer remembers it. */
     private static void assertForgotten(FarmHarness farm) {
         farm.items().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 4));

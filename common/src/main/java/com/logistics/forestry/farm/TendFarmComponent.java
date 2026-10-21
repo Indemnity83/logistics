@@ -91,6 +91,13 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     private record Target(BlockPos pos, Block block) {}
 
+    /** The ground under a Plot as read, and as {@link TendLogic#plotGround} makes it ready for planting. */
+    private record Ground(BlockState current, BlockState ready) {
+        boolean needsRepair() {
+            return current != ready;
+        }
+    }
+
     private final String id;
     private final TendLogic logic;
     private final Container items;
@@ -338,7 +345,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         if (occupant == null) {
             occupant = counted.state(pos);
         }
-        BlockState ground = readyGround(pos);
+        Ground ground = readGround(pos);
         if (ground == null || !occupant.isAir() && !logic.isPlanted(occupant, germling)) {
             plots.forget(pos);
             return FarmStatus.IDLE;
@@ -351,7 +358,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         if (inventory.count(germling) == 0) {
             return FarmStatus.WAITING_FOR_SEEDS;
         }
-        long cost = plantCost(pos, ground, s);
+        long cost = plantCost(ground, s);
         if (energy.amount() < cost) {
             return noPower(cost);
         }
@@ -363,20 +370,25 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         return FarmStatus.WORKING;
     }
 
-    /**
-     * The ground under {@code plot} made ready for planting ({@link TendLogic#plotGround}); {@code null}
-     * when it cannot hold a Plot or is not loaded.
-     */
+    /** The ground under {@code plot}; {@code null} when it cannot hold a Plot or is not loaded. */
     @Nullable
-    private BlockState readyGround(BlockPos plot) {
+    private Ground readGround(BlockPos plot) {
         BlockPos foot = plot.below();
-        return counted.isLoaded(foot) ? logic.plotGround(counted.state(foot)) : null;
+        if (!counted.isLoaded(foot)) {
+            return null;
+        }
+        BlockState current = counted.state(foot);
+        BlockState ready = logic.plotGround(current);
+        return ready != null ? new Ground(current, ready) : null;
     }
 
-    /** RF planting {@code plot} on {@code ground} takes: the plant, and the repair if its ground needs one. */
-    private long plantCost(BlockPos plot, @Nullable BlockState ground, FarmSettings s) {
-        boolean repair = ground != null && counted.seen(plot.below()) != ground;
-        return s.cost(FarmCost.PLANT) + (repair ? s.cost(FarmCost.TILL) : 0);
+    /** RF a plant on {@code ground} takes: the plant, and the till if the ground needs repair. */
+    private static long plantCost(@Nullable Ground ground, FarmSettings s) {
+        return s.cost(FarmCost.PLANT) + (tills(ground) ? s.cost(FarmCost.TILL) : 0);
+    }
+
+    private static boolean tills(@Nullable Ground ground) {
+        return ground != null && ground.needsRepair();
     }
 
     // ==================== Harvest ====================
@@ -516,7 +528,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         }
         List<ItemStack> drops = new ArrayList<>(collected);
         collected.clear();
-        BlockState ground = readyGround(done.plot());
+        Ground ground = readGround(done.plot());
         ItemStack germling = takeGermling(drops, done);
         boolean planted = false;
         if (!germling.isEmpty()) {
@@ -564,21 +576,19 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     }
 
     /**
-     * Plants {@code germling} on {@code plot}, first repairing its ground into {@code ground} if that
-     * differs from what is there; {@code null} plants on the ground as it is. False, changing and
-     * spending nothing, when it cannot; a repair that succeeds is charged even if the plant then fails.
+     * Plants {@code germling} on {@code plot}, first repairing its {@code ground} if it needs it;
+     * {@code null} plants on the ground as it is. False, changing and spending nothing, when it
+     * cannot; a repair that succeeds is charged even if the plant then fails.
      */
-    private boolean replant(BlockPos plot, ItemStack germling, @Nullable BlockState ground, FarmSettings s) {
+    private boolean replant(BlockPos plot, ItemStack germling, @Nullable Ground ground, FarmSettings s) {
         BlockPos foot = plot.below();
         if (!counted.isLoaded(plot) || !counted.isLoaded(foot)) {
             return false;
         }
         BlockState plant = logic.plantState(germling, plot, counted);
-        boolean repair = ground != null && counted.state(foot) != ground;
-        long plantCost = s.cost(FarmCost.PLANT);
-        long repairCost = repair ? s.cost(FarmCost.TILL) : 0;
+        boolean repair = tills(ground);
         if (plant == null
-                || energy.amount() < plantCost + repairCost
+                || energy.amount() < plantCost(ground, s)
                 || !counted.canModify(plot)
                 || repair && !counted.canModify(foot)) {
             return false;
@@ -588,15 +598,15 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             return false;
         }
         if (repair) {
-            if (!counted.setBlock(foot, ground, Block.UPDATE_ALL)) {
+            if (!counted.setBlock(foot, ground.ready(), Block.UPDATE_ALL)) {
                 return false;
             }
-            energy.consume(repairCost);
+            energy.consume(s.cost(FarmCost.TILL));
         }
         if (!counted.canSurvive(plant, plot) || !counted.setBlock(plot, plant, Block.UPDATE_ALL)) {
             return false;
         }
-        energy.consume(plantCost);
+        energy.consume(s.cost(FarmCost.PLANT));
         return true;
     }
 
