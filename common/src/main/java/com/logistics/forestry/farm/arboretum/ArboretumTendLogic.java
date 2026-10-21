@@ -107,7 +107,6 @@ public final class ArboretumTendLogic implements TendLogic {
         return new TreeFeller.Limits(
                 column,
                 column.grow(TreeFeller.Limits.CANOPY_MARGIN),
-                Columns.EMPTY,
                 0,
                 TreeFeller.Limits.ABOVE,
                 TreeFeller.Limits.CAP);

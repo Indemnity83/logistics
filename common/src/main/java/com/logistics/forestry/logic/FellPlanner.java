@@ -52,11 +52,9 @@ public final class FellPlanner {
     private final Set<BlockPos> wood = new HashSet<>();
     private final Set<BlockPos> canopy = new HashSet<>();
     private final Map<BlockPos, Integer> steps = new HashMap<>();
-    // Canopy explored with its steps from this tree's wood, other wood beside it, and which of the
-    // canopy read is leaves.
+    // Canopy explored with its steps from this tree's wood, and other wood beside it.
     private final Map<BlockPos, Integer> explored = new HashMap<>();
     private final Set<BlockPos> otherWood = new HashSet<>();
-    private final Set<BlockPos> leaves = new HashSet<>();
     private final ArrayDeque<BlockPos> queue = new ArrayDeque<>();
 
     private Phase phase = Phase.SEED;
@@ -149,9 +147,6 @@ public final class FellPlanner {
         reads++;
         Kind kind = view.kind(pos);
         kinds.put(pos.immutable(), kind);
-        if (kind == Kind.CANOPY && view.isLeaves(pos)) {
-            leaves.add(pos.immutable());
-        }
         return kind;
     }
 
@@ -168,7 +163,7 @@ public final class FellPlanner {
             }
             seedDy++;
         }
-        if (seed == null || !limits.wood().contains(seed) || limits.keepOut().contains(seed)) {
+        if (seed == null || !limits.wood().contains(seed)) {
             seed = null;
             finish(FellPlan.skip(FellPlan.Reason.NO_TREE));
             return true;
@@ -194,7 +189,7 @@ public final class FellPlanner {
             while (offset < ALL_OFFSETS.length) {
                 int[] o = ALL_OFFSETS[offset];
                 BlockPos next = current.offset(o[0], o[1], o[2]);
-                if (wood.contains(next) || !inBounds(next, limits.wood())) {
+                if (wood.contains(next) || !inCanopyBounds(next, limits.wood())) {
                     offset++;
                     continue;
                 }
@@ -254,7 +249,7 @@ public final class FellPlanner {
                     otherWood.add(next.immutable());
                     continue;
                 }
-                if (kind != Kind.CANOPY || (limits.keepOut().contains(next) && !leaves.contains(next))) {
+                if (kind != Kind.CANOPY) {
                     continue;
                 }
                 explored.put(next.immutable(), step + 1);
@@ -338,17 +333,11 @@ public final class FellPlanner {
         steps.clear();
         explored.clear();
         otherWood.clear();
-        leaves.clear();
         kinds.clear();
         wood.clear();
         canopy.clear();
     }
 
-    private boolean inBounds(BlockPos pos, Columns columns) {
-        return !limits.keepOut().contains(pos) && inCanopyBounds(pos, columns);
-    }
-
-    /** Canopy may lie in the keep-out columns; {@link #isOwn} decides whether it is taken. */
     private boolean inCanopyBounds(BlockPos pos) {
         return inCanopyBounds(pos, limits.canopy());
     }

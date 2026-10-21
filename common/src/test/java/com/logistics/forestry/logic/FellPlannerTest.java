@@ -75,7 +75,7 @@ class FellPlannerTest {
     }
 
     private static TreeFeller.Limits limits(long seed) {
-        TreeFeller.Limits limits = TreeFeller.Limits.within(Columns.square(ORIGIN, 9), Columns.square(new BlockPos(5, 0, 0), 3));
+        TreeFeller.Limits limits = TreeFeller.Limits.within(Columns.square(ORIGIN, 9));
         return seed % 5 == 0 ? limits.withCap(60) : limits;
     }
 
@@ -153,7 +153,7 @@ class FellPlannerTest {
             Map<BlockPos, Kind> kinds = new HashMap<>();
             TreeView cached = pos -> kinds.computeIfAbsent(pos, view::kind);
             BlockPos seed = findSeed(cached, plot.immutable());
-            if (seed == null || !limits.wood().contains(seed) || limits.keepOut().contains(seed)) {
+            if (seed == null || !limits.wood().contains(seed)) {
                 return FellPlan.skip(FellPlan.Reason.NO_TREE);
             }
             Set<BlockPos> wood = new HashSet<>();
@@ -239,7 +239,7 @@ class FellPlannerTest {
                     Kind kind = view.kind(next);
                     if (kind == Kind.WOOD) {
                         other.add(next);
-                    } else if (kind == Kind.CANOPY && !limits.keepOut().contains(next)) {
+                    } else if (kind == Kind.CANOPY) {
                         explored.put(next, step + 1);
                         if (explored.size() <= limits.cap()) {
                             queue.add(next);
@@ -284,7 +284,6 @@ class FellPlannerTest {
 
         private static boolean inBounds(BlockPos pos, BlockPos seed, TreeFeller.Limits limits, Columns columns) {
             return columns.contains(pos)
-                    && !limits.keepOut().contains(pos)
                     && pos.getY() >= seed.getY() - limits.below()
                     && pos.getY() <= seed.getY() + limits.above();
         }

@@ -6,7 +6,6 @@ import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The read-only world a {@link TendLogic} decides from. No read ever loads a chunk: an unloaded
@@ -27,33 +26,9 @@ public interface FarmWorld {
         return LevelTreeView.classify(state);
     }
 
-    /**
-     * This world classified for {@link com.logistics.forestry.logic.TreeFeller}. Whether canopy is
-     * leaves is taken from the state just read for its kind, so it costs no second read.
-     */
+    /** This world classified for {@link TreeFeller}. */
     default TreeView treeView() {
-        return new TreeView() {
-            @Nullable private BlockPos lastPos;
-            @Nullable private BlockState lastState;
-
-            @Override
-            public Kind kind(BlockPos pos) {
-                if (!isLoaded(pos)) {
-                    return Kind.UNLOADED;
-                }
-                lastState = state(pos);
-                lastPos = pos.immutable();
-                return treeKind(lastState);
-            }
-
-            @Override
-            public boolean isLeaves(BlockPos pos) {
-                if (pos.equals(lastPos)) {
-                    return LevelTreeView.isNaturalLeaves(lastState);
-                }
-                return isLoaded(pos) && LevelTreeView.isNaturalLeaves(state(pos));
-            }
-        };
+        return pos -> isLoaded(pos) ? treeKind(state(pos)) : TreeView.Kind.UNLOADED;
     }
 
     /** The tree standing at {@code plot}, planned by {@link TreeFeller} within {@code limits}. */
