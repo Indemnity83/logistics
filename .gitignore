@@ -56,3 +56,6 @@ scripts/
 # directory is excluded.
 .claude/*
 !.claude/skills/
+
+# Local markdown issue tracker (docs/agents/issue-tracker.md)
+.scratch/
