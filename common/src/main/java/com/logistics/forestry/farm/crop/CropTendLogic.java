@@ -7,6 +7,7 @@ import com.logistics.forestry.farm.TendLogic;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -23,6 +24,9 @@ import org.jetbrains.annotations.Nullable;
 public final class CropTendLogic implements TendLogic {
 
     private static final String AGE = "age";
+
+    /** A till's result: dry farmland. */
+    private static final BlockState FARMLAND = Blocks.FARMLAND.defaultBlockState();
 
     private final Predicate<BlockState> tended;
 
@@ -48,6 +52,16 @@ public final class CropTendLogic implements TendLogic {
     @Override
     public FarmCost harvestCost(BlockState state) {
         return FarmCost.HARVEST_CROP;
+    }
+
+    /** Farmland as it is; dirt and grass tilled into farmland; anything else holds no Plot. */
+    @Override
+    @Nullable
+    public BlockState plotGround(BlockState ground) {
+        if (ground.is(Blocks.FARMLAND)) {
+            return ground;
+        }
+        return ground.is(Blocks.DIRT) || ground.is(Blocks.GRASS_BLOCK) ? FARMLAND : null;
     }
 
     static boolean isRipe(BlockState state) {

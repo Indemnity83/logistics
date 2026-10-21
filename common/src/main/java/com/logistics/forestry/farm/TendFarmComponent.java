@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * A tend farm's work loop: it watches every position of its Reach, {@value #REACH} blocks out on
  * every side (corners included) and {@value #REACH_HEIGHT} above and below the farm, the farm's own
  * position left out, and harvests whatever its {@link TendLogic} finds ripe there. It never clears,
- * lays soil or plants anywhere it has not just harvested.
+ * lays soil or plants anywhere that is not one of its Plots.
  *
  * <p>The scan visits one position per check, round-robin, bounded every tick by a
  * {@link WorkBudget}: its tier's checks and actions per second. A pass that finds nothing ripe backs
@@ -35,8 +35,15 @@ import org.jetbrains.annotations.Nullable;
  * it is broken; one that has changed since it was planned drops the rest of the harvest.
  *
  * <p>Once every block is broken the harvest's drops are worked through in order: one matching
- * germling is taken from them to replant the plot, the rest go into the inventory, and whatever does
- * not fit is dropped at the plot. The farm never stops for a full inventory.
+ * germling is taken from them to replant the plot, or else one from the inventory, the rest go into
+ * the inventory, and whatever does not fit is dropped at the plot. The farm never stops for a full
+ * inventory.
+ *
+ * <p>Every harvested position whose ground can hold it becomes a Plot ({@link FarmPlots}),
+ * remembered with its germling. A Plot left unplanted is an Empty Plot: the scan replants it, its
+ * ground repaired first ({@link TendLogic#plotGround}), as soon as its germling is in the inventory.
+ * A Plot is forgotten once its ground can no longer hold it or anything other than its own plant
+ * stands on it.
  *
  * <p>Every action checks everything it needs without side effects first (loaded, claim protection,
  * RF), then changes the world, and charges only once the world reports the change. A harvest only
@@ -59,6 +66,9 @@ public final class TendFarmComponent implements FarmEngine {
     /** Every position of the Reach relative to the farm, in scan order. */
     static final List<BlockPos> REACH_OFFSETS = reachOffsets();
 
+    /** The HUD's status while waiting for seeds, with the Empty Plot count. */
+    public static final String HUD_WAITING_FOR_SEEDS = "jade.logistics.farm.waiting_for_seeds";
+
     private record Target(BlockPos pos, Block block) {}
 
     private final String id;
@@ -74,6 +84,7 @@ public final class TendFarmComponent implements FarmEngine {
     private final CountingWorld counted = new CountingWorld();
     private final ArrayDeque<Target> targets = new ArrayDeque<>();
     private final List<ItemStack> collected = new ArrayList<>();
+    private final FarmPlots plots = new FarmPlots();
 
     @Nullable private TendLogic.Harvest harvest;
     @Nullable private PlotScanner scanner;
@@ -154,12 +165,13 @@ public final class TendFarmComponent implements FarmEngine {
 
     @Override
     public int plotsTotal() {
-        return 0;
+        return plots.size();
     }
 
+    /** The Empty Plots: those waiting for a germling. */
     @Override
     public int plotsBlocked() {
-        return 0;
+        return plots.emptyCount();
     }
 
     @Override
@@ -335,7 +347,62 @@ public final class TendFarmComponent implements FarmEngine {
             return FarmStatus.IDLE;
         }
         TendLogic.Harvest found = logic.ripe(counted, pos);
-        return found != null ? startHarvest(found, s) : FarmStatus.IDLE;
+        if (found != null) {
+            return startHarvest(found, s);
+        }
+        ItemStack germling = plots.germling(pos);
+        return germling != null ? tendPlot(pos, germling, s) : FarmStatus.IDLE;
+    }
+
+    /**
+     * Looks after the Plot at {@code pos}: forgets it once its ground can no longer hold it or
+     * something else stands on it, and replants it from the inventory, repairing its ground first if
+     * needed, once it is empty and its germling is there.
+     */
+    private FarmStatus tendPlot(BlockPos pos, ItemStack germling, FarmSettings s) {
+        BlockState occupant = counted.seen(pos);
+        if (occupant == null) {
+            occupant = counted.state(pos);
+        }
+        BlockState ground = readyGround(pos);
+        if (ground == null || !occupant.isAir() && !logic.isPlanted(occupant, germling)) {
+            plots.forget(pos);
+            return FarmStatus.IDLE;
+        }
+        if (!occupant.isAir()) {
+            plots.markEmpty(pos, false);
+            return FarmStatus.IDLE;
+        }
+        plots.markEmpty(pos, true);
+        if (inventory.count(germling) == 0) {
+            return FarmStatus.WAITING_FOR_SEEDS;
+        }
+        long cost = plantCost(pos, ground, s);
+        if (energy.amount() < cost) {
+            return noPower(cost);
+        }
+        if (!replant(pos, germling, ground, s)) {
+            return FarmStatus.BLOCKED;
+        }
+        inventory.take(germling, 1);
+        plots.markEmpty(pos, false);
+        return FarmStatus.WORKING;
+    }
+
+    /**
+     * The ground under {@code plot} made ready for planting ({@link TendLogic#plotGround}); {@code null}
+     * when it cannot hold a Plot or is not loaded.
+     */
+    @Nullable
+    private BlockState readyGround(BlockPos plot) {
+        BlockPos foot = plot.below();
+        return counted.isLoaded(foot) ? logic.plotGround(counted.state(foot)) : null;
+    }
+
+    /** RF planting {@code plot} on {@code ground} takes: the plant, and the repair if its ground needs one. */
+    private long plantCost(BlockPos plot, @Nullable BlockState ground, FarmSettings s) {
+        boolean repair = ground != null && counted.seen(plot.below()) != ground;
+        return s.cost(FarmCost.PLANT) + (repair ? s.cost(FarmCost.TILL) : 0);
     }
 
     // ==================== Harvest ====================
@@ -437,9 +504,24 @@ public final class TendFarmComponent implements FarmEngine {
         }
         List<ItemStack> drops = new ArrayList<>(collected);
         collected.clear();
+        BlockState ground = readyGround(done.plot());
         ItemStack germling = takeGermling(drops, done);
-        if (!germling.isEmpty() && !replant(done, germling, s)) {
-            drops.add(germling);
+        boolean planted = false;
+        if (!germling.isEmpty()) {
+            planted = replant(done.plot(), germling, ground, s);
+            if (!planted) {
+                drops.add(germling);
+            }
+        } else if (!done.germling().isEmpty()
+                && inventory.count(done.germling()) > 0
+                && replant(done.plot(), done.germling(), ground, s)) {
+            inventory.take(done.germling(), 1);
+            planted = true;
+        }
+        if (ground == null || done.germling().isEmpty()) {
+            plots.forget(done.plot());
+        } else {
+            plots.remember(done.plot(), done.germling(), !planted);
         }
         List<ItemStack> spill = new ArrayList<>();
         for (ItemStack drop : drops) {
@@ -469,25 +551,40 @@ public final class TendFarmComponent implements FarmEngine {
         return ItemStack.EMPTY;
     }
 
-    /** Plants {@code germling} on the harvest's plot; false, spending nothing, when it cannot. */
-    private boolean replant(TendLogic.Harvest done, ItemStack germling, FarmSettings s) {
-        BlockPos plot = done.plot();
-        if (!counted.isLoaded(plot)) {
+    /**
+     * Plants {@code germling} on {@code plot}, first repairing its ground into {@code ground} if that
+     * differs from what is there; {@code null} plants on the ground as it is. False, changing and
+     * spending nothing, when it cannot; a repair that succeeds is charged even if the plant then fails.
+     */
+    private boolean replant(BlockPos plot, ItemStack germling, @Nullable BlockState ground, FarmSettings s) {
+        BlockPos foot = plot.below();
+        if (!counted.isLoaded(plot) || !counted.isLoaded(foot)) {
             return false;
         }
         BlockState plant = logic.plantState(germling, plot, counted);
-        long cost = s.cost(FarmCost.PLANT);
-        if (plant == null || energy.amount() < cost || !counted.canModify(plot)) {
+        boolean repair = ground != null && counted.state(foot) != ground;
+        long plantCost = s.cost(FarmCost.PLANT);
+        long repairCost = repair ? s.cost(FarmCost.TILL) : 0;
+        if (plant == null
+                || energy.amount() < plantCost + repairCost
+                || !counted.canModify(plot)
+                || repair && !counted.canModify(foot)) {
             return false;
         }
         BlockState current = counted.state(plot);
-        if (!(current.isAir() || current.canBeReplaced()) || !counted.canSurvive(plant, plot)) {
+        if (!(current.isAir() || current.canBeReplaced())) {
             return false;
         }
-        if (!counted.setBlock(plot, plant, Block.UPDATE_ALL)) {
+        if (repair) {
+            if (!counted.setBlock(foot, ground, Block.UPDATE_ALL)) {
+                return false;
+            }
+            energy.consume(repairCost);
+        }
+        if (!counted.canSurvive(plant, plot) || !counted.setBlock(plot, plant, Block.UPDATE_ALL)) {
             return false;
         }
-        energy.consume(cost);
+        energy.consume(plantCost);
         return true;
     }
 
@@ -507,6 +604,7 @@ public final class TendFarmComponent implements FarmEngine {
         return switch (problem) {
             case NO_POWER -> energy.amount() < powerNeeded;
             case INVENTORY_FULL -> !hasEmptySlot();
+            case WAITING_FOR_SEEDS -> plots.emptyCount() > 0;
             default -> true;
         };
     }
@@ -531,7 +629,11 @@ public final class TendFarmComponent implements FarmEngine {
 
     @Override
     public void contributeHud(MachineHudModel hud) {
-        hud.line(FarmComponent.HUD_STATUS, status.translationKey());
+        if (status == FarmStatus.WAITING_FOR_SEEDS) {
+            hud.line(FarmComponent.HUD_STATUS, HUD_WAITING_FOR_SEEDS, Integer.toString(plots.emptyCount()));
+        } else {
+            hud.line(FarmComponent.HUD_STATUS, status.translationKey());
+        }
         hud.line(FarmComponent.HUD_PLOT, FarmComponent.HUD_PLOT_SIZE, Integer.toString(REACH_SIZE));
     }
 
@@ -543,6 +645,7 @@ public final class TendFarmComponent implements FarmEngine {
         if (owner != null) {
             tag.putString("Owner", owner.toString());
         }
+        plots.save(tag, "Plots", registries);
     }
 
     @Override
@@ -551,6 +654,7 @@ public final class TendFarmComponent implements FarmEngine {
         scanner = null;
         heldPower = 0;
         owner = parseUuid(NbtCompat.getString(tag, "Owner", ""));
+        plots.load(tag, "Plots", registries);
         harvest = null;
         targets.clear();
         collected.clear();

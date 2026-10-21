@@ -39,6 +39,23 @@ public interface TendLogic {
     }
 
     /**
+     * The ground a Plot's germling grows on, made ready from {@code ground}, the block under the Plot:
+     * {@code ground} itself when it is ready, the block the farm repairs it into (charged as a
+     * {@link FarmCost#TILL}) when it can be repaired, or {@code null} when it cannot hold the Plot,
+     * which the farm then forgets.
+     */
+    @Nullable
+    BlockState plotGround(BlockState ground);
+
+    /**
+     * Whether {@code occupant} is the plant {@code germling} grows into, so that a Plot it stands on
+     * still holds its own plant. Defaults to the germling's block, at any age.
+     */
+    default boolean isPlanted(BlockState occupant, ItemStack germling) {
+        return germling.getItem() instanceof BlockItem blockItem && occupant.is(blockItem.getBlock());
+    }
+
+    /**
      * One harvest: break {@code blocks} in order, then replant {@code plot} with one {@code germling}.
      * Leftover drops spill at {@code plot}. A multi-block list (a tree) is broken across ticks and
      * must be ordered so that breaking it in order never leaves a block unsupported.

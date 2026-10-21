@@ -21,6 +21,7 @@ final class FarmStatusTracker {
         FarmStatus.INVENTORY_FULL,
         FarmStatus.NO_SOIL,
         FarmStatus.NO_GERMLINGS,
+        FarmStatus.WAITING_FOR_SEEDS,
         FarmStatus.TOO_DARK,
         FarmStatus.BLOCKED
     };

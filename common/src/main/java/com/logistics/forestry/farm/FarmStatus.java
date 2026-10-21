@@ -22,7 +22,9 @@ public enum FarmStatus {
     /** Placed, not started: surveying the ring until Start is pressed. */
     SURVEYING,
     /** The inventory is full; the farm keeps working and drops what does not fit. */
-    INVENTORY_FULL;
+    INVENTORY_FULL,
+    /** Empty Plots are waiting for their germlings to arrive in the inventory. */
+    WAITING_FOR_SEEDS;
 
     private static final FarmStatus[] VALUES = values();
 
