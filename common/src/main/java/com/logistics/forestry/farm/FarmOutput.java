@@ -102,7 +102,7 @@ final class FarmOutput {
     }
 
     /** Inserts into the output slots, filling matching stacks before empty slots; returns the rest. */
-    private ItemStack insert(ItemStack stack) {
+    ItemStack insert(ItemStack stack) {
         ItemStack rest = stack.copy();
         for (int slot = fromSlot; slot < toSlotExclusive && !rest.isEmpty(); slot++) {
             ItemStack current = container.getItem(slot);

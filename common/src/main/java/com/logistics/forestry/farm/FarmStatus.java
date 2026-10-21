@@ -20,7 +20,9 @@ public enum FarmStatus {
     TOO_DARK,
     BLOCKED,
     /** Placed, not started: surveying the ring until Start is pressed. */
-    SURVEYING;
+    SURVEYING,
+    /** The inventory is full; the farm keeps working and drops what does not fit. */
+    INVENTORY_FULL;
 
     private static final FarmStatus[] VALUES = values();
 

@@ -62,4 +62,7 @@ public interface FarmWorldAccess extends FarmWorld {
      * and returns their stacks.
      */
     List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where);
+
+    /** Drops {@code stacks} as loose items at {@code pos}; nothing happens where it is not loaded. */
+    void dropStacks(BlockPos pos, List<ItemStack> stacks);
 }

@@ -89,6 +89,19 @@ final class FarmHarness {
         }
     }
 
+    /** A tend farm of {@code logic}, working its Reach around the host. */
+    private FarmHarness(TendLogic logic, FarmSettings settings) {
+        this.logic = null;
+        this.settings = settings;
+        this.machine = FarmMachine.assembleTend(
+                new MachineBuilder(components, () -> {}), logic, () -> settings, (ctx, owner) -> world);
+    }
+
+    /** A tend farm of {@code logic}. */
+    static FarmHarness tending(TendLogic logic) {
+        return new FarmHarness(logic, SETTINGS);
+    }
+
     /** A farm as placed: surveying, not started. */
     static FarmHarness surveying(FarmLogic logic, FarmSettings settings) {
         return new FarmHarness(logic, settings, false);
@@ -129,7 +142,12 @@ final class FarmHarness {
         return area().plot(index);
     }
 
+    /** The ring engine; only for a farm not built with {@link #tending}. */
     FarmComponent farm() {
+        return (FarmComponent) machine.farm();
+    }
+
+    FarmEngine engine() {
         return machine.farm();
     }
 

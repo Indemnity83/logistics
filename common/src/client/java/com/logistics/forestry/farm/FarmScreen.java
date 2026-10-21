@@ -22,6 +22,8 @@ import net.minecraft.world.inventory.Slot;
  * The screen every farm opens. Soil slot frames are drawn from the spare region of the GUI texture
  * only when the farm lays soil; otherwise that area stays plain.
  * One button under the soil row starts a surveying farm, then shows or hides a working farm's area.
+ * A tend farm's menu ({@link FarmMenu.Layout#TEND}) has neither: its slot area is drawn plain, with a
+ * frame under each of its generic slots.
  * The standard machine side tabs sit outside the image, with each farm type's own Info text.
  */
 public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements SideTabScreen {
@@ -61,6 +63,13 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
     private static final int SOIL_ROW_X = 41, SOIL_ROW_Y = 34;
     private static final int LAMP_U = 206, LAMP_V = 30, LAMP_U_STEP = 10;
 
+    // The tend layout: the ring layout's slot area painted over in the panel colour, and the lamp beside the gauge.
+    private static final int PANEL_COLOR = 0xFFC6C6C6;
+    private static final int SLOT_AREA_LEFT = 40, SLOT_AREA_TOP = 16, SLOT_AREA_RIGHT = 172, SLOT_AREA_BOTTOM = 72;
+    private static final int SLOT_FRAME_SIZE = 18;
+    private static final int TEND_LAMP_LEFT = 40;
+    private static final int TEND_LAMP_TOP = 40;
+
     private Button stateButton;
     private FarmState shownState;
     private boolean shownPreview;
@@ -89,8 +98,22 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
                 .build();
         shownState = null;
         updateButton();
-        addRenderableWidget(stateButton);
+        if (!tends()) {
+            addRenderableWidget(stateButton);
+        }
         addRenderableWidget(tabs.attach(SideTabsWidget::new));
+    }
+
+    private boolean tends() {
+        return menu.layout() == FarmMenu.Layout.TEND;
+    }
+
+    private int lampLeft() {
+        return tends() ? TEND_LAMP_LEFT : LAMP_LEFT;
+    }
+
+    private int lampTop() {
+        return tends() ? TEND_LAMP_TOP : LAMP_TOP;
     }
 
     @Override
@@ -150,7 +173,7 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         hoverTooltip(graphics, mouseX, mouseY, ENERGY_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT,
                 Component.translatable("tooltip.logistics.farm.energy", menu.energy(), menu.energyCapacity()));
-        hoverTooltip(graphics, mouseX, mouseY, LAMP_LEFT, LAMP_TOP, LAMP_SIZE, LAMP_SIZE,
+        hoverTooltip(graphics, mouseX, mouseY, lampLeft(), lampTop(), LAMP_SIZE, LAMP_SIZE,
                 FarmScreenText.statusTooltip(
                         menu.status(), menu.tier(), menu.areaSize(), menu.plotsUsable(), menu.plotsBlocked()));
     }
@@ -170,18 +193,32 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         blitTexture(graphics, 0, 0, 0, 0, imageWidth, imageHeight);
 
-        if (menu.laysSoil()) {
+        if (tends()) {
+            renderTendSlots(graphics);
+        } else if (menu.laysSoil()) {
             blitTexture(graphics, SOIL_ROW_X, SOIL_ROW_Y, SOIL_ROW_U, SOIL_ROW_V, SOIL_ROW_WIDTH, SOIL_ROW_HEIGHT);
         }
 
         renderEnergy(graphics);
 
         int lampU = LAMP_U + FarmGauges.lamp(menu.status()).ordinal() * LAMP_U_STEP;
-        blitTexture(graphics, LAMP_LEFT, LAMP_TOP, lampU, LAMP_V, LAMP_SIZE, LAMP_SIZE);
+        blitTexture(graphics, lampLeft(), lampTop(), lampU, LAMP_V, LAMP_SIZE, LAMP_SIZE);
 
-        for (int i = 0; i < 4; i++) {
-            renderGhost(graphics, menu.getSlot(FarmMachine.GERMLING_START + i), GERMLING_GHOST);
-            renderGhost(graphics, menu.getSlot(FarmMachine.SOIL_START + i), SOIL_GHOST);
+        if (!tends()) {
+            for (int i = 0; i < 4; i++) {
+                renderGhost(graphics, menu.getSlot(FarmMachine.GERMLING_START + i), GERMLING_GHOST);
+                renderGhost(graphics, menu.getSlot(FarmMachine.SOIL_START + i), SOIL_GHOST);
+            }
+        }
+    }
+
+    /** Paints over the ring layout's slots and frames each of the tend layout's own. */
+    private void renderTendSlots(GuiGraphicsExtractor graphics) {
+        graphics.fill(leftPos + SLOT_AREA_LEFT, topPos + SLOT_AREA_TOP,
+                leftPos + SLOT_AREA_RIGHT, topPos + SLOT_AREA_BOTTOM, PANEL_COLOR);
+        for (int i = 0; i < menu.layout().slots(); i++) {
+            Slot slot = menu.getSlot(i);
+            blitTexture(graphics, slot.x - 1, slot.y - 1, SOIL_ROW_U, SOIL_ROW_V, SLOT_FRAME_SIZE, SLOT_FRAME_SIZE);
         }
     }
 

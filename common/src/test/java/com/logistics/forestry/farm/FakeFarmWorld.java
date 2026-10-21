@@ -48,6 +48,8 @@ final class FakeFarmWorld implements FarmWorldAccess {
     final List<BlockPos> broken = new ArrayList<>();
     final Map<BlockPos, Integer> writeFlags = new HashMap<>();
     final List<LooseItem> loose = new ArrayList<>();
+    /** Stacks the farm dropped through {@link #dropStacks}, kept apart from {@link #loose} so no sweep collects them. */
+    final List<LooseItem> spilled = new ArrayList<>();
     Function<BlockState, List<ItemStack>> drops = state -> List.of(new ItemStack(state.getBlock().asItem()));
     Function<BlockState, TreeView.Kind> trees = NO_TREES;
     /** Stand in for the unbound {@code natural_clearable} and {@code never_clear} tags. */
@@ -176,5 +178,17 @@ final class FakeFarmWorld implements FarmWorldAccess {
             return false;
         });
         return collected;
+    }
+
+    @Override
+    public void dropStacks(BlockPos pos, List<ItemStack> stacks) {
+        if (!isLoaded(pos)) {
+            return;
+        }
+        for (ItemStack stack : stacks) {
+            if (!stack.isEmpty()) {
+                spilled.add(new LooseItem(pos.immutable(), stack.copy()));
+            }
+        }
     }
 }

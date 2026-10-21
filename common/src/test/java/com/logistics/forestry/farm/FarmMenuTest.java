@@ -349,6 +349,38 @@ class FarmMenuTest extends MinecraftTestEnvironment {
 
     // ==================== Helpers ====================
 
+    // ==================== Tend layout ====================
+
+    @Test
+    @DisplayName("a tend farm's menu shows its 15 generic slots as a 5×3 grid")
+    void tendSlotPositions() {
+        FarmMenu menu = FarmMenu.tend(1, playerInventory());
+
+        assertThat(menu.layout()).isEqualTo(FarmMenu.Layout.TEND);
+        assertThat(menu.slots).hasSize(FarmMachine.TEND_SLOT_COUNT + PLAYER_SLOTS);
+        assertThat(menu.getSlot(0).x).isEqualTo(80);
+        assertThat(menu.getSlot(0).y).isEqualTo(17);
+        assertThat(menu.getSlot(14).x).isEqualTo(152);
+        assertThat(menu.getSlot(14).y).isEqualTo(53);
+    }
+
+    @Test
+    @DisplayName("shift-clicking moves anything into a tend farm and back out of any slot")
+    void tendShiftClickTakesAnythingBothWays() {
+        Inventory inventory = playerInventory();
+        inventory.setItem(0, new ItemStack(Items.COBBLESTONE, 32));
+        FarmMenu menu = FarmMenu.tend(1, inventory);
+
+        menu.quickMoveStack(null, hotbar(menu));
+        assertThat(menu.getSlot(0).getItem().is(Items.COBBLESTONE)).isTrue();
+        assertThat(menu.getSlot(0).getItem().getCount()).isEqualTo(32);
+
+        menu.getSlot(14).set(new ItemStack(Items.WHEAT, 5));
+        menu.quickMoveStack(null, 14);
+        assertThat(menu.getSlot(14).getItem().isEmpty()).isTrue();
+        assertThat(countOf(inventory, Items.WHEAT)).isEqualTo(5);
+    }
+
     private static int totalItems(FarmMenu menu, Inventory inventory) {
         int total = 0;
         for (int slot = 0; slot < MACHINE_SLOTS; slot++) {

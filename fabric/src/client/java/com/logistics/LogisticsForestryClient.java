@@ -14,6 +14,7 @@ public final class LogisticsForestryClient implements ClientDomainBootstrap {
     public void initClient() {
         LOGGER.info("Registering forestry (client)");
         MenuScreens.register(LogisticsForestry.MENU.FARM, FarmScreen::new);
+        MenuScreens.register(LogisticsForestry.MENU.TEND_FARM, FarmScreen::new);
         BlockEntityRendererRegistry.register(LogisticsForestry.ENTITY.FARM, FarmPreviewRenderer::new);
     }
 }

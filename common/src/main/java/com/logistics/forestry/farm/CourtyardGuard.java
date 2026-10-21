@@ -122,4 +122,9 @@ final class CourtyardGuard implements FarmWorldAccess {
     public List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where) {
         return world.collectItems(box, pos -> !courtyard.contains(pos) && where.test(pos));
     }
+
+    @Override
+    public void dropStacks(BlockPos pos, List<ItemStack> stacks) {
+        world.dropStacks(pos, stacks);
+    }
 }

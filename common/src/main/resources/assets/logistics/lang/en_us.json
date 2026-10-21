@@ -488,6 +488,7 @@
   "status.logistics.farm.too_dark": "Too dark",
   "status.logistics.farm.blocked": "Blocked",
   "status.logistics.farm.surveying": "Surveying – press Start",
+  "status.logistics.farm.inventory_full": "Inventory full: dropping items",
   "gui.logistics.farm.start": "Start",
   "gui.logistics.farm.show_area": "Show area",
   "gui.logistics.farm.hide_area": "Hide area",
