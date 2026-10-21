@@ -49,6 +49,10 @@ import org.jetbrains.annotations.Nullable;
  * A Plot is forgotten once its ground can no longer hold it or anything other than its own plant
  * stands on it.
  *
+ * <p>Each tick, before any action, the farm pays its upkeep: {@link TendLogic#upkeep}'s RF/t for
+ * every Plot, Empty Plots included, fractions carried until they make a whole RF. While it cannot
+ * pay, it does nothing and reports No power; its Plots are kept.
+ *
  * <p>Every action checks everything it needs without side effects first (loaded, claim protection,
  * RF), then changes the world, and charges only once the world reports the change. A harvest only
  * starts while the buffer holds its first break and the replant; a position the farm cannot pay for
@@ -126,6 +130,9 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     private FarmStatus status = FarmStatus.IDLE;
     // What the last NO_POWER was short of, so the status clears as soon as it is there.
     private long powerNeeded;
+    // Upkeep owed below one RF, in thousandths of an RF; not saved.
+    private long upkeepOwed;
+    private boolean upkeepUnpaid;
     private boolean dirty;
 
     public TendFarmComponent(
@@ -237,7 +244,10 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             if (cooldown > 0) {
                 cooldown--;
             }
-            work(ctx.pos(), s);
+            upkeepUnpaid = !payUpkeep(s);
+            if (!upkeepUnpaid) {
+                work(ctx.pos(), s);
+            }
         }
         updateStatus(ctx, paused, s);
 
@@ -255,6 +265,24 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             scanner = PlotScanner.restore(REACH_OFFSETS.size(), cursor, scannerBase, scannerMax);
             stepsInPass = 0;
         }
+    }
+
+    /**
+     * Pays this tick's upkeep for every Plot, Empty Plots included, in whole RF, the fraction left
+     * over carried to the next tick. False, paying and carrying nothing, when the buffer is short.
+     */
+    private boolean payUpkeep(FarmSettings s) {
+        long owed = upkeepOwed + plots.size() * Math.round(s.upkeep(logic.upkeep()) * 1000);
+        long due = owed / 1000;
+        if (energy.amount() < due) {
+            powerNeeded = due;
+            return false;
+        }
+        if (due > 0) {
+            energy.consume(due);
+        }
+        upkeepOwed = owed - due * 1000;
+        return true;
     }
 
     /** Spends this tick's actions: on the harvest under way, or on the scan once there is none. */
@@ -613,11 +641,14 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     // ==================== Status ====================
 
-    /** Paused, else No power while short of the cheapest action, ripe produce or not, else the tracked status. */
+    /**
+     * Paused, else No power while the upkeep went unpaid or the buffer is short of the cheapest
+     * action, ripe produce or not, else the tracked status.
+     */
     private void updateStatus(MachineContext ctx, boolean paused, FarmSettings s) {
         if (paused) {
             status = FarmStatus.PAUSED;
-        } else if (energy.amount() < cheapestAction(s)) {
+        } else if (upkeepUnpaid || energy.amount() < cheapestAction(s)) {
             status = FarmStatus.NO_POWER;
         } else {
             status = tracker.status(REACH_OFFSETS.size(), this::stillApplies);

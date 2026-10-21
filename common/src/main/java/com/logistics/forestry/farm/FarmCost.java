@@ -11,15 +11,15 @@ import java.util.Map;
  */
 public enum FarmCost implements OperationKey {
     /** Harvesting one crop block. */
-    HARVEST_CROP("harvest_crop", "rf_harvest_crop", 50, "RF per crop block harvested"),
+    HARVEST_CROP("harvest_crop", "rf_harvest_crop", 100, "RF per crop block harvested"),
     /** Felling one log of a tree. */
-    HARVEST_LOG("harvest_log", "rf_harvest_log", 25, "RF per log felled"),
+    HARVEST_LOG("harvest_log", "rf_harvest_log", 50, "RF per log felled"),
     /** Breaking one leaf or other canopy block of a felled tree. */
-    HARVEST_LEAVES("harvest_leaves", "rf_harvest_leaves", 5, "RF per leaf or other canopy block of a felled tree"),
+    HARVEST_LEAVES("harvest_leaves", "rf_harvest_leaves", 10, "RF per leaf or other canopy block of a felled tree"),
     /** Tilling one block, e.g. dirt into farmland. */
-    TILL("till", "rf_till", 25, "RF per block tilled"),
+    TILL("till", "rf_till", 50, "RF per block tilled"),
     /** Planting one germling. */
-    PLANT("plant", "rf_plant", 25, "RF per germling planted");
+    PLANT("plant", "rf_plant", 50, "RF per germling planted");
 
     private final String namespace;
     private final String configName;

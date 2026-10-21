@@ -53,8 +53,14 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
 
     /** An Arboretum whose leaves drop one oak sapling each and whose logs drop themselves. */
     private static FarmHarness farm() {
-        FarmHarness farm = FarmHarness.tending(new ArboretumTendLogic(
-                state -> state.is(LogisticsForestry.BLOCK.HUMUS), stack -> SAPLINGS.contains(stack.getItem())));
+        return farm(FarmHarness.SETTINGS);
+    }
+
+    private static FarmHarness farm(FarmSettings settings) {
+        FarmHarness farm = FarmHarness.tending(
+                new ArboretumTendLogic(
+                        state -> state.is(LogisticsForestry.BLOCK.HUMUS), stack -> SAPLINGS.contains(stack.getItem())),
+                settings);
         farm.world.trees = FakeFarmWorld.OAK_TREES;
         farm.world.drops = state -> state.is(Blocks.OAK_LEAVES)
                 ? List.of(new ItemStack(Items.OAK_SAPLING))
@@ -111,6 +117,21 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
         assertThat(farm.world.blocks.get(BASE)).isEqualTo(SAPLING);
         assertThat(farm.world.blocks.get(BASE.below())).isEqualTo(humus());
         assertThat(count(farm.items(), Items.OAK_LOG)).isEqualTo(5);
+    }
+
+    @Test
+    void paysItsOwnUpkeepRateForEachPlot() {
+        FarmHarness farm = farm(FarmHarness.SETTINGS
+                .withUpkeep(FarmUpkeep.ARBORETUM, 0.6)
+                .withUpkeep(FarmUpkeep.CROP_FARM, 5.0));
+        tree(farm, BASE, humus(), 5, LEAVES);
+        farm.ticks(FELL);
+        assertThat(farm.engine().plotsTotal()).isEqualTo(1);
+        long before = farm.energy();
+
+        farm.ticks(10);
+
+        assertThat(before - farm.energy()).isEqualTo(6);
     }
 
     @ParameterizedTest

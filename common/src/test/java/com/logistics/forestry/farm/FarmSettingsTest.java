@@ -28,14 +28,14 @@ import org.junit.jupiter.api.Test;
 class FarmSettingsTest extends MinecraftTestEnvironment {
 
     @Test
-    @DisplayName("config defaults: per-action RF, 64 reads a check")
+    @DisplayName("config defaults: per-action RF, per-Plot upkeep, 64 reads a check")
     void configDefaults() {
         Map<FarmCost, Long> expected = Map.of(
-                FarmCost.HARVEST_CROP, 50L,
-                FarmCost.HARVEST_LOG, 25L,
-                FarmCost.HARVEST_LEAVES, 5L,
-                FarmCost.TILL, 25L,
-                FarmCost.PLANT, 25L);
+                FarmCost.HARVEST_CROP, 100L,
+                FarmCost.HARVEST_LOG, 50L,
+                FarmCost.HARVEST_LEAVES, 10L,
+                FarmCost.TILL, 50L,
+                FarmCost.PLANT, 50L);
         for (FarmCost cost : FarmCost.values()) {
             ConfigKey<Long> key = LogisticsForestry.CONFIG.farmCost(cost);
             assertThat(key.definition().path().fullPath()).as("%s", cost).isEqualTo(cost.configName());
@@ -43,6 +43,14 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         }
         assertThat(FarmCost.values()).extracting(FarmCost::configName).containsExactly(
                 "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves", "rf_till", "rf_plant");
+        Map<FarmUpkeep, Double> upkeep = Map.of(FarmUpkeep.CROP_FARM, 0.1, FarmUpkeep.ARBORETUM, 0.6);
+        for (FarmUpkeep rate : FarmUpkeep.values()) {
+            ConfigKey<Double> key = LogisticsForestry.CONFIG.farmUpkeep(rate);
+            assertThat(key.definition().path().fullPath()).as("%s", rate).isEqualTo(rate.configName());
+            assertThat(key.definition().defaultValue()).as("%s", rate).isEqualTo(upkeep.get(rate));
+        }
+        assertThat(FarmUpkeep.values()).extracting(FarmUpkeep::configName)
+                .containsExactly("rf_upkeep_crop_farm", "rf_upkeep_arboretum");
         assertThat(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK.definition().defaultValue()).isEqualTo(64);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS.definition().defaultValue()).isEqualTo(20);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_MAX_TICKS.definition().defaultValue()).isEqualTo(200);
@@ -111,14 +119,27 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("out-of-range settings are normalised into a workable farm")
     void normalises() {
-        FarmSettings settings = new FarmSettings(Map.of(FarmCost.PLANT, -5L), 0, 0, -3, Map.of());
+        FarmSettings settings = new FarmSettings(
+                Map.of(FarmCost.PLANT, -5L), Map.of(FarmUpkeep.CROP_FARM, -1.0), 0, 0, -3, Map.of());
 
         assertThat(settings.cost(FarmCost.PLANT)).isZero();
-        assertThat(settings.cost(FarmCost.HARVEST_CROP)).as("missing costs take their defaults").isEqualTo(50);
+        assertThat(settings.cost(FarmCost.HARVEST_CROP)).as("missing costs take their defaults").isEqualTo(100);
+        assertThat(settings.upkeep(FarmUpkeep.CROP_FARM)).isZero();
+        assertThat(settings.upkeep(FarmUpkeep.ARBORETUM)).as("missing upkeep takes its default").isEqualTo(0.6);
         assertThat(settings.readsPerCheck()).isEqualTo(1);
         assertThat(settings.idleBackoffBaseTicks()).isEqualTo(1);
         assertThat(settings.idleBackoffMaxTicks()).isEqualTo(1);
         assertThat(settings.tiers()).as("missing tiers take their defaults").isEqualTo(FarmSettings.defaultTiers());
+    }
+
+    @Test
+    @DisplayName("upkeep can't go below zero")
+    void upkeepValidation() {
+        ConfigKey<Double> key = LogisticsForestry.CONFIG.farmUpkeep(FarmUpkeep.ARBORETUM);
+        Config config = ConfigRegistry.config(key.configId());
+
+        assertThat(config.trySet(key, -0.5)).isFalse();
+        assertThat(LogisticsConfigHost.get(key)).isEqualTo(0.6);
     }
 
     @Test

@@ -35,6 +35,11 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine {
         }
 
         @Override
+        public FarmUpkeep upkeep() {
+            return FarmUpkeep.CROP_FARM;
+        }
+
+        @Override
         public FarmCost harvestCost(BlockState state) {
             return FarmCost.HARVEST_CROP;
         }

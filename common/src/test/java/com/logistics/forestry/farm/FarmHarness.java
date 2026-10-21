@@ -45,8 +45,12 @@ final class FarmHarness {
             FarmCost.TILL, 60L,
             FarmCost.PLANT, 100L);
 
+    /** No upkeep, so tests can count action costs exactly; upkeep tests set their own. */
+    static final Map<FarmUpkeep, Double> NO_UPKEEP = Map.of(FarmUpkeep.CROP_FARM, 0.0, FarmUpkeep.ARBORETUM, 0.0);
+
     /** One position and one action per tick while busy, so tests can count steps in ticks. */
-    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 64, 20, 200, FarmSettings.everyTier(PROFILE));
+    static final FarmSettings SETTINGS =
+            new FarmSettings(COSTS, NO_UPKEEP, 64, 20, 200, FarmSettings.everyTier(PROFILE));
 
     final FakeFarmWorld world = new FakeFarmWorld();
     final Host host = new Host();
