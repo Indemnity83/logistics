@@ -236,6 +236,7 @@ public final class NeoForgeClientSetup {
         event.register(LogisticsAutomation.MENU.TRANSPOSER, TransposerScreen::new);
 
         event.register(LogisticsForestry.MENU.FARM, FarmScreen::new);
+        event.register(LogisticsForestry.MENU.TEND_FARM, FarmScreen::new);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

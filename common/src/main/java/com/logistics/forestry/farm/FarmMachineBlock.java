@@ -35,8 +35,17 @@ public abstract class FarmMachineBlock extends MachineBlock {
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LIT, false));
     }
 
-    /** This farm type's behaviour; the same instance on every call. */
+    /** This farm type's behaviour on the ring engine; the same instance on every call. */
     public abstract FarmLogic logic();
+
+    /**
+     * This farm type's behaviour on the tend engine, which it runs instead of the ring engine when
+     * set; the same instance on every call.
+     */
+    @Nullable
+    public TendLogic tendLogic() {
+        return null;
+    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

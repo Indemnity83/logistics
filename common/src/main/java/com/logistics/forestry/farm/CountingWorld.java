@@ -116,4 +116,9 @@ final class CountingWorld implements FarmWorldAccess {
     public List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where) {
         return world().collectItems(box, where);
     }
+
+    @Override
+    public void dropStacks(BlockPos pos, List<ItemStack> stacks) {
+        world().dropStacks(pos, stacks);
+    }
 }

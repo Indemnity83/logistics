@@ -90,4 +90,16 @@ public final class LevelFarmWorld implements FarmWorldAccess {
         }
         return stacks;
     }
+
+    @Override
+    public void dropStacks(BlockPos pos, List<ItemStack> stacks) {
+        if (!isLoaded(pos)) {
+            return;
+        }
+        for (ItemStack stack : stacks) {
+            if (!stack.isEmpty()) {
+                Block.popResource(level, pos, stack.copy());
+            }
+        }
+    }
 }

@@ -241,6 +241,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static final TagKey<Item> CROP_GERMLINGS =
                 TagKey.create(Registries.ITEM, resource("crop_germlings").toIdentifier());
 
+        /** Crops the Crop Farm harvests once fully grown and replants. */
+        public static final TagKey<Block> CROP_FARM_TENDS =
+                TagKey.create(Registries.BLOCK, resource("crop_farm_tends").toIdentifier());
+
         /** Soil the Crop Farm lays where its plot has no ground. */
         public static final TagKey<Item> CROP_SOILS =
                 TagKey.create(Registries.ITEM, resource("crop_soils").toIdentifier());
@@ -304,11 +308,15 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
     public static final class MENU {
         private MENU() {}
 
-        /** The one menu every farm block opens. */
+        /** The menu a ring farm opens. */
         public static MenuType<FarmMenu> FARM;
+
+        /** The menu a tend farm opens. */
+        public static MenuType<FarmMenu> TEND_FARM;
 
         static void register() {
             FARM = INSTANCE.registerMenuType("farm", FarmMenu::new);
+            TEND_FARM = INSTANCE.registerMenuType("tend_farm", FarmMenu::tend);
         }
     }
 

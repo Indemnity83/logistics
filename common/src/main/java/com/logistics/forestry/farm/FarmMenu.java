@@ -16,15 +16,18 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The menu every farm opens (176×166). Machine slots come first, in container order:
+ * The menu every farm opens (176×166), in one of two {@link Layout}s. Machine slots come first, in
+ * container order. A tend farm's are its {@value FarmMachine#TEND_SLOT_COUNT} generic slots, a 5×3
+ * grid at x 80 + col×18 × y 17 + row×18, row by row. A ring farm's are:
  *
  * <ul>
  *   <li>0–3 germlings, at (42, 17), (60, 17), (78, 17), (96, 17);</li>
  *   <li>4–7 soil, at (42, 35) … (96, 35); always present so slot indices never shift, but
  *       {@linkplain Slot#isActive() inactive} (hidden, unclickable) unless the farm lays soil;</li>
  *   <li>8–16 output, take-only, a 3×3 grid at x 116/134/152 × y 17/35/53, row by row;</li>
- *   <li>17–43 player inventory at (8 + col×18, 84 + row×18), then 44–52 hotbar at y 142.</li>
  * </ul>
+ *
+ * <p>The player inventory follows at (8 + col×18, 84 + row×18), then the hotbar at y 142.
  *
  * <p>Synced {@link ContainerData} indices. A "wide" value spans two slots and is read with
  * {@link MachineData#wide}; the getters below decode everything.
@@ -73,8 +76,32 @@ public class FarmMenu extends AbstractContainerMenu {
 
     public static final int FLAG_LAYS_SOIL = 1;
 
-    private static final int PLAYER_START = FarmMachine.SLOT_COUNT;
-    private static final int PLAYER_END = PLAYER_START + 36;
+    private static final int TEND_COLUMNS = 5;
+    private static final int TEND_LEFT = 80;
+
+    /** Which farm's slots the menu shows. */
+    public enum Layout {
+        /** Germling, soil and output slots. */
+        RING(FarmMachine.SLOT_COUNT),
+        /** One generic inventory. */
+        TEND(FarmMachine.TEND_SLOT_COUNT);
+
+        private final int slots;
+
+        Layout(int slots) {
+            this.slots = slots;
+        }
+
+        /** Machine slots in this layout. */
+        public int slots() {
+            return slots;
+        }
+
+        /** The layout of a farm whose container has {@code size} slots. */
+        public static Layout forSize(int size) {
+            return size == TEND.slots ? TEND : RING;
+        }
+    }
 
     /** What the menu's farm buttons do to the farm; each returns whether it did anything. */
     public interface Buttons {
@@ -96,14 +123,26 @@ public class FarmMenu extends AbstractContainerMenu {
         boolean toggleArea();
     }
 
+    private final Layout layout;
+    private final int playerStart;
+    private final int playerEnd;
     private final Container container;
     private final ContainerData data;
     private final Buttons buttons;
     private final MachineControls controls;
 
-    /** Client-side constructor. */
+    /** Client-side constructor of a ring farm's menu. */
     public FarmMenu(int syncId, Inventory playerInventory) {
         this(syncId, playerInventory, new SimpleContainer(FarmMachine.SLOT_COUNT), new SimpleContainerData(DATA_COUNT));
+    }
+
+    /** Client-side constructor of a tend farm's menu. */
+    public static FarmMenu tend(int syncId, Inventory playerInventory) {
+        return new FarmMenu(
+                syncId,
+                playerInventory,
+                new SimpleContainer(FarmMachine.TEND_SLOT_COUNT),
+                new SimpleContainerData(DATA_COUNT));
     }
 
     /** Server-side constructor without working buttons or a redstone control. */
@@ -111,7 +150,7 @@ public class FarmMenu extends AbstractContainerMenu {
         this(syncId, playerInventory, container, data, Buttons.NONE, MachineControls.client());
     }
 
-    /** Server-side constructor. */
+    /** Server-side constructor; the container's size picks the {@link Layout}. */
     public FarmMenu(
             int syncId,
             Inventory playerInventory,
@@ -119,9 +158,23 @@ public class FarmMenu extends AbstractContainerMenu {
             ContainerData data,
             Buttons buttons,
             MachineControls controls) {
-        super(LogisticsForestry.MENU.FARM, syncId);
-        checkContainerSize(container, FarmMachine.SLOT_COUNT);
+        this(Layout.forSize(container.getContainerSize()), syncId, playerInventory, container, data, buttons, controls);
+    }
+
+    private FarmMenu(
+            Layout layout,
+            int syncId,
+            Inventory playerInventory,
+            Container container,
+            ContainerData data,
+            Buttons buttons,
+            MachineControls controls) {
+        super(layout == Layout.TEND ? LogisticsForestry.MENU.TEND_FARM : LogisticsForestry.MENU.FARM, syncId);
+        checkContainerSize(container, layout.slots());
         checkContainerDataCount(data, DATA_COUNT);
+        this.layout = layout;
+        this.playerStart = layout.slots();
+        this.playerEnd = playerStart + 36;
         this.container = container;
         this.data = data;
         this.buttons = buttons;
@@ -129,21 +182,10 @@ public class FarmMenu extends AbstractContainerMenu {
 
         container.startOpen(playerInventory.player);
 
-        for (int i = 0; i < 4; i++) {
-            addSlot(new InputSlot(container, FarmMachine.GERMLING_START + i, 42 + i * 18, 17));
-        }
-        for (int i = 0; i < 4; i++) {
-            addSlot(new InputSlot(container, FarmMachine.SOIL_START + i, 42 + i * 18, 35) {
-                @Override
-                public boolean isActive() {
-                    return laysSoil();
-                }
-            });
-        }
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                addSlot(new OutputSlot(container, FarmMachine.OUTPUT_START + row * 3 + col, 116 + col * 18, 17 + row * 18));
-            }
+        if (layout == Layout.TEND) {
+            addTendSlots(container);
+        } else {
+            addRingSlots(container);
         }
 
         for (int row = 0; row < 3; row++) {
@@ -160,6 +202,33 @@ public class FarmMenu extends AbstractContainerMenu {
         addDataSlots(controls.data());
     }
 
+    private void addTendSlots(Container container) {
+        for (int slot = 0; slot < FarmMachine.TEND_SLOT_COUNT; slot++) {
+            int row = slot / TEND_COLUMNS;
+            int col = slot % TEND_COLUMNS;
+            addSlot(new Slot(container, slot, TEND_LEFT + col * 18, 17 + row * 18));
+        }
+    }
+
+    private void addRingSlots(Container container) {
+        for (int i = 0; i < 4; i++) {
+            addSlot(new InputSlot(container, FarmMachine.GERMLING_START + i, 42 + i * 18, 17));
+        }
+        for (int i = 0; i < 4; i++) {
+            addSlot(new InputSlot(container, FarmMachine.SOIL_START + i, 42 + i * 18, 35) {
+                @Override
+                public boolean isActive() {
+                    return laysSoil();
+                }
+            });
+        }
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                addSlot(new OutputSlot(container, FarmMachine.OUTPUT_START + row * 3 + col, 116 + col * 18, 17 + row * 18));
+            }
+        }
+    }
+
     /**
      * Server-side data source over a farm's components and whether its area preview shows now; see
      * the class comment for the indices.
@@ -174,7 +243,7 @@ public class FarmMenu extends AbstractContainerMenu {
                         MachineData.wideSlot(farm.energy().capacity(), index - ENERGY_CAPACITY);
                     case STATUS -> farm.farm().status().ordinal();
                     case AREA_SIZE -> farm.farm().areaSize();
-                    case FLAGS -> farm.logic().laysSoil() ? FLAG_LAYS_SOIL : 0;
+                    case FLAGS -> farm.logic() != null && farm.logic().laysSoil() ? FLAG_LAYS_SOIL : 0;
                     case TIER -> farm.tier().tier().rank();
                     case PLOTS_TOTAL -> farm.farm().plotsTotal();
                     case PLOTS_BLOCKED -> farm.farm().plotsBlocked();
@@ -235,8 +304,13 @@ public class FarmMenu extends AbstractContainerMenu {
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
 
-        if (index < PLAYER_START) {
-            if (!moveItemStackTo(stack, PLAYER_START, PLAYER_END, index >= FarmMachine.OUTPUT_START)) {
+        if (index < playerStart) {
+            boolean fromOutput = layout == Layout.TEND || index >= FarmMachine.OUTPUT_START;
+            if (!moveItemStackTo(stack, playerStart, playerEnd, fromOutput)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (layout == Layout.TEND) {
+            if (!moveItemStackTo(stack, 0, playerStart, false)) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -268,6 +342,10 @@ public class FarmMenu extends AbstractContainerMenu {
     }
 
     // ==================== Synced data ====================
+
+    public Layout layout() {
+        return layout;
+    }
 
     public long energy() {
         return MachineData.wide(data, ENERGY);

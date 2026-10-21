@@ -26,8 +26,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The block entity every farm block shares ({@link LogisticsForestry.ENTITY#FARM}). Which farm it
- * is comes from its block's {@link FarmMachineBlock#logic()}; the components are built by
- * {@link FarmMachine#assemble}.
+ * is comes from its block: a {@link FarmMachineBlock#tendLogic()} runs the tend engine
+ * ({@link FarmMachine#assembleTend}), otherwise its {@link FarmMachineBlock#logic()} runs the ring
+ * engine ({@link FarmMachine#assemble}).
  */
 public class FarmBlockEntity extends MachineEntity implements TieredMachine, FarmMenu.Buttons {
 
@@ -57,8 +58,14 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
 
     @Override
     protected void configure(MachineBuilder machine) {
-        FarmLogic logic = getBlockState().getBlock() instanceof FarmMachineBlock farm ? farm.logic() : UNKNOWN_FARM;
-        parts = FarmMachine.assemble(machine, logic, FarmSettings::fromConfig, FarmComponent.LEVEL);
+        FarmMachineBlock block = getBlockState().getBlock() instanceof FarmMachineBlock farm ? farm : null;
+        TendLogic tendLogic = block != null ? block.tendLogic() : null;
+        if (tendLogic != null) {
+            parts = FarmMachine.assembleTend(machine, tendLogic, FarmSettings::fromConfig, FarmComponent.LEVEL);
+        } else {
+            FarmLogic logic = block != null ? block.logic() : UNKNOWN_FARM;
+            parts = FarmMachine.assemble(machine, logic, FarmSettings::fromConfig, FarmComponent.LEVEL);
+        }
         machine.redstoneControl("redstone").defaultMode(RedstoneMode.IGNORED).build();
         containerData = FarmMenu.dataSource(parts, this::previewShown);
     }
@@ -92,6 +99,8 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine, Far
         };
     }
 
+    /** The ring farm's logic; {@code null} for a tend farm. */
+    @Nullable
     public FarmLogic logic() {
         return parts.logic();
     }

@@ -1,7 +1,6 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.core.lib.compat.NbtCompat;
-import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineHudModel;
 import com.logistics.core.machine.area.PlotArea;
@@ -84,7 +83,7 @@ import org.jetbrains.annotations.Nullable;
  * {@link FarmSurvey} what working each plot would clear: its column, and the soil its logic would
  * replace. {@link #start} makes it {@link FarmState#ACTIVE}.
  */
-public final class FarmComponent implements MachineComponent, MachineComponent.HudContributor {
+public final class FarmComponent implements FarmEngine {
 
     /** Opens the world a farm works; {@code null} where there is none to work (client, unit tests). */
     @FunctionalInterface
@@ -231,15 +230,18 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
 
     // ==================== State ====================
 
+    @Override
     public FarmStatus status() {
         return status;
     }
 
+    @Override
     public FarmState state() {
         return state;
     }
 
     /** Starts working the ring and hides the preview. Returns false, changing nothing, unless the farm is surveying. */
+    @Override
     public boolean start() {
         if (state != FarmState.SURVEY) {
             return false;
@@ -257,6 +259,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
      * shows it until toggled off, surveying a working farm's ring as it stands. A surveying farm
      * keeps surveying either way.
      */
+    @Override
     public boolean toggleArea(MachineContext ctx, long now) {
         if (previewShown(now)) {
             previewToggled = false;
@@ -274,6 +277,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
      * After the tier has widened the ring: surveys the lanes it added, all at once, shows the preview
      * of them from {@code now}, and lets the scan reach them straight away.
      */
+    @Override
     public FarmSurvey expanded(MachineContext ctx, long now) {
         RingArea area = area(ctx, settings.get());
         int from = area.plotCount();
@@ -291,6 +295,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
      * What the preview reports: while surveying, the last full pass, or the pass so far before one
      * completes; while working, what Show area or the last upgrade found.
      */
+    @Override
     public FarmSurvey survey() {
         if (state == FarmState.SURVEY) {
             return surveyed != null ? surveyed : surveyPass;
@@ -304,16 +309,19 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     }
 
     /** Whether the preview shows at {@code now}: while toggled on, or during an upgrade's flash. */
+    @Override
     public boolean previewShown(long now) {
         return previewToggled || now < previewUntil;
     }
 
     /** The preview as the last update tag carried it; on the client, what to draw. */
+    @Override
     public FarmPreview syncedPreview() {
         return syncedPreview;
     }
 
     /** Writes an update tag through {@code save}, carrying the preview as it stands at {@code now}. */
+    @Override
     public <T> T withPreview(MachineContext ctx, long now, Supplier<T> save) {
         RingArea area = area(ctx, settings.get());
         FarmSurvey found = survey();
@@ -335,11 +343,13 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     }
 
     /** Side of the square whose ring is worked: a 15 means the ring reaches 15×15. */
+    @Override
     public int areaSize() {
         return outerOverride > 0 ? outerOverride : settings.get().profile(tier.get()).outerSize();
     }
 
     /** Plots in the worked ring. */
+    @Override
     public int plotsTotal() {
         int outer = areaSize();
         int inner = outerOverride > 0 ? innerOverride : FarmGeometry.COURTYARD;
@@ -347,15 +357,18 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     }
 
     /** Ring plots that came back blocked on their most recent visit; see {@link BlockedPlots}. */
+    @Override
     public int plotsBlocked() {
         return Math.min(blockedPlots.count(), plotsTotal());
     }
 
+    @Override
     @Nullable
     public UUID owner() {
         return owner;
     }
 
+    @Override
     public void setOwner(@Nullable UUID owner) {
         this.owner = owner;
     }
@@ -365,6 +378,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
      * {@code inner >= 1}, {@code outer > inner}) instead of the courtyard and the tier's; 0 for both
      * restores them. The square of {@code inner} is then the one never touched.
      */
+    @Override
     public void setAreaOverride(int inner, int outer) {
         if (inner <= 0 && outer <= 0) {
             innerOverride = 0;
@@ -377,6 +391,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
     }
 
     /** Test seam: keeps {@code height} blocks clear above each plot instead of the logic's; 0 or less restores it. */
+    @Override
     public void setClearanceHeightOverride(int height) {
         clearanceOverride = Math.max(0, height);
     }
@@ -385,6 +400,7 @@ public final class FarmComponent implements MachineComponent, MachineComponent.H
      * Test seam: inspects {@code checksPerSecond} plots and performs {@code actionsPerSecond}
      * actions a second instead of the tier's; 0 or less for both restores them.
      */
+    @Override
     public void setRateOverride(int checksPerSecond, int actionsPerSecond) {
         if (checksPerSecond <= 0 && actionsPerSecond <= 0) {
             checksOverride = 0;

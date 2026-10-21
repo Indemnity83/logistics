@@ -192,7 +192,8 @@ public final class MachineBuilder {
             FURNACE,
             BOTTOM_OUT,
             TOP_IN,
-            ANY_FACE
+            ANY_FACE,
+            OPEN
         }
 
         private record SlotRange(int from, int toExclusive, Predicate<ItemStack> filter) {}
@@ -259,6 +260,13 @@ public final class MachineBuilder {
             return this;
         }
 
+        /** Open access: every slot, whatever its role, insertable and extractable from every face. */
+        public ItemsBuilder openAccess() {
+            this.accessMode = AccessMode.OPEN;
+            this.insertFilter = stack -> true;
+            return this;
+        }
+
         /**
          * Restricts slots {@code fromSlot} (inclusive) to {@code toSlotExclusive} to items matching
          * {@code filter}, for face insertion and {@code Container#canPlaceItem} alike. A slot covered
@@ -279,9 +287,10 @@ public final class MachineBuilder {
                                 indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT), insertFilter);
                         case TOP_IN -> SidedLayout.topIn(indicesOf(SlotRole.INPUT), insertFilter);
                         case ANY_FACE -> SidedLayout.anyFace(indicesOf(SlotRole.INPUT), indicesOf(SlotRole.OUTPUT));
+                        case OPEN -> SidedLayout.open(roles.length);
                         case NONE -> throw new IllegalStateException("items(" + id
                                 + ") requires an access mode: furnaceAccess(), bottomOutAccess(), topInAccess()"
-                                + " or anyFaceAccess()");
+                                + ", anyFaceAccess() or openAccess()");
                     };
             if (!slotFilters.isEmpty()) {
                 layout = layout.withSlotFilter(composedSlotFilter());
