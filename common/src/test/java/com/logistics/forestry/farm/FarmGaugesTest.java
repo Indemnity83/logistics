@@ -29,18 +29,24 @@ class FarmGaugesTest {
         assertThat(FarmGauges.fillPixels(4_000_000_000L, 4_000_000_001L, 52)).isEqualTo(51);
     }
 
-    @Test
-    @DisplayName("lamp is green while working and amber while idle or paused")
-    void lampForBenignStatuses() {
-        assertThat(FarmGauges.lamp(FarmStatus.WORKING)).isEqualTo(Lamp.GREEN);
-        assertThat(FarmGauges.lamp(FarmStatus.IDLE)).isEqualTo(Lamp.AMBER);
-        assertThat(FarmGauges.lamp(FarmStatus.PAUSED)).isEqualTo(Lamp.AMBER);
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"WORKING", "IDLE"})
+    @DisplayName("lamp is green while the farm works or has nothing ripe")
+    void lampIsGreenWhenAllIsWell(FarmStatus status) {
+        assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.GREEN);
     }
 
     @ParameterizedTest
-    @EnumSource(value = FarmStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"WORKING", "IDLE", "PAUSED"})
-    @DisplayName("lamp is red for every problem status")
-    void lampForProblems(FarmStatus status) {
+    @EnumSource(value = FarmStatus.class, names = {"WAITING_FOR_SEEDS", "INVENTORY_FULL", "PAUSED"})
+    @DisplayName("lamp is amber while the farm needs attention but is not stopped by a fault")
+    void lampIsAmberForWarnings(FarmStatus status) {
+        assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.AMBER);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"NO_POWER", "BLOCKED"})
+    @DisplayName("lamp is red when the farm cannot work")
+    void lampIsRedForFaults(FarmStatus status) {
         assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.RED);
     }
 }
