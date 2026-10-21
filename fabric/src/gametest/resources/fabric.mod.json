@@ -27,6 +27,7 @@
 			"com.logistics.gametest.core.MarkerGameTest",
 			"com.logistics.gametest.core.PlantCompatGameTest",
 			"com.logistics.gametest.core.SolidFuelGameTest",
+			"com.logistics.gametest.core.UpgradeKitGameTest",
 			"com.logistics.gametest.forestry.TreeFellerGameTest",
 			"com.logistics.gametest.pipe.PipeInfrastructureGameTest",
 			"com.logistics.gametest.pipe.ModuleGameTest",

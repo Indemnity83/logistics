@@ -41,7 +41,7 @@ class FarmScreenTextTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("the lamp tooltip is the status, then the footprint without a tier, then plot counts in gray")
+    @DisplayName("the lamp tooltip is the status, then tier and footprint, then plot counts in gray")
     void statusTooltip() {
         List<Component> lines = FarmScreenText.statusTooltip(FarmStatus.BLOCKED, MachineTier.PRECISION, 19, 300, 12);
 
@@ -49,8 +49,11 @@ class FarmScreenTextTest extends MinecraftTestEnvironment {
         assertThat(translatable(lines.get(0)).getKey()).isEqualTo(FarmStatus.BLOCKED.translationKey());
 
         TranslatableContents area = translatable(lines.get(1));
-        assertThat(area.getKey()).isEqualTo(FarmScreenText.TOOLTIP_FOOTPRINT);
-        assertThat(area.getArgs()).containsExactly(19, FarmGeometry.COURTYARD);
+        assertThat(area.getKey()).isEqualTo(FarmScreenText.TOOLTIP_AREA);
+        assertThat(translatable((Component) area.getArgs()[0]).getKey())
+                .isEqualTo(MachineTier.PRECISION.translationKey());
+        assertThat(area.getArgs()[1]).isEqualTo(19);
+        assertThat(area.getArgs()[2]).isEqualTo(FarmGeometry.COURTYARD);
         assertThat(lines.get(1).getStyle().getColor()).isEqualTo(Component.empty().withStyle(ChatFormatting.GRAY).getStyle().getColor());
 
         TranslatableContents plots = translatable(lines.get(2));

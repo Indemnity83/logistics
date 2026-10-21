@@ -30,6 +30,7 @@
       "com.logistics.power.engine.magmatic.jei.MagmaticJeiPlugin",
       "com.logistics.power.engine.jei.EngineFuelJeiPlugin",
       "com.logistics.forestry.jei.ForestryJeiPlugin",
+      "com.logistics.core.jei.CoreJeiPlugin",
       "com.logistics.core.lib.jei.SideTabsJeiPlugin"
     ],
     "jade": ["com.logistics.compat.jade.JadeLogisticsPlugin"]

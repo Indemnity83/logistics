@@ -1,6 +1,6 @@
 # Farm Framework
 
-> **Status:** ✅ **Shipped** (#1406; farm screen #1407) — shared farm block, work loop, role-routed I/O, water tank and farm screen; ring farms (#1414–#1418) · 🚧 **Planned:** tiered ring farms — 7×7 courtyard, tiers (Upgrade Kits in a follow-up), budgeted scheduler, survey + Start · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain) + shared framework in `core`
+> **Status:** ✅ **Shipped** (#1406; farm screen #1407) — shared farm block, work loop, role-routed I/O, water tank and farm screen; ring farms (#1414–#1418) · 🚧 **Planned:** tiered ring farms — 7×7 courtyard, tiers and kits, budgeted scheduler, survey + Start · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain) + shared framework in `core`
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** the machine framework (`core/machine/*`); [0111 Machine Frame Tiers](0111-machine-frame-tiers.md); a Provider-pipe fix (below) · **Maps to (roadmap):** Phase 2 — Farms
 
 The shared base every Phase 2 farm is built on: one block per farm type, sitting at the centre of a protected **7×7 courtyard** and working a ring of plots around it whose width grows with the machine's [tier](0111-machine-frame-tiers.md). A budgeted scheduler clears, harvests, lays soil, tills and plants; role-routed item I/O, an input-only water tank and one shared farm screen complete it. A placed farm only surveys until the player presses **Start**. The individual farms ([0203](0203-arboretum.md)–[0213](0213-desert-farm.md)) only supply a `FarmLogic`.
@@ -213,7 +213,7 @@ One menu + screen for every farm, configured by farm type (approved layout):
 
 ## Scope & non-goals
 
-- **In:** the framework extensions above, the Provider-pipe fix, the domain scaffold, the farm block/entity/component/logic SPI, the shared screen, Jade, NeoForge capabilities, tiers (via [0111](0111-machine-frame-tiers.md); the Upgrade Kits arrive in a follow-up), the scheduler, survey + Start and the area preview, the `FarmPlan` seam.
+- **In:** the framework extensions above, the Provider-pipe fix, the domain scaffold, the farm block/entity/component/logic SPI, the shared screen, Jade, NeoForge capabilities, tiers and Upgrade Kits (via [0111](0111-machine-frame-tiers.md)), the scheduler, survey + Start and the area preview, the `FarmPlan` seam.
 - **Out:** genetics ([RFC 0002](../rfcs/0002-forestry-bees.md)), multiblocks and the Multifarm, chunk loading, fake players, circuit-board programmability (redstone enable/disable only — [RFC 0001](../rfcs/0001-programmable-behavior.md) option B), augments such as speed, efficiency and fertilization (later, through [0106](0106-machine-upgrades.md)), several logics per block, farm-specific logistics modules, the Squeezer/Fermenter/Still/Bottler chain and peat/biofuel engines.
 
 ## Open questions
