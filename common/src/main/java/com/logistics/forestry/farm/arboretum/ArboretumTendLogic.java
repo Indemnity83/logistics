@@ -8,6 +8,7 @@ import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.TendLogic;
 import com.logistics.forestry.logic.FellPlan;
 import com.logistics.forestry.logic.FellPlanner;
+import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
 import java.util.List;
@@ -66,7 +67,11 @@ public final class ArboretumTendLogic implements TendLogic {
             return null;
         }
         FellPlan tree = world.fellPlan(pos, limits(pos));
-        return tree.isFound() ? new Harvest(pos, tree.blocks(), germling(world, tree.blocks())) : null;
+        if (!tree.isFound()) {
+            return null;
+        }
+        Block leaves = naturalLeaves(world, tree.blocks());
+        return leaves != null ? new Harvest(pos, tree.blocks(), germlingFor(leaves)) : null;
     }
 
     /** What is left of the tree on {@code harvest}'s trunk, its canopy perhaps already gone. */
@@ -116,15 +121,19 @@ public final class ArboretumTendLogic implements TendLogic {
         return state.getBlock() instanceof LeavesBlock || state.is(Blocks.MANGROVE_PROPAGULE);
     }
 
-    /** The germling named after the first leaves of {@code tree}; empty when there is none. */
-    private ItemStack germling(FarmWorld world, List<BlockPos> tree) {
+    /**
+     * The first natural leaves of {@code tree}, or {@code null} when it has none: other canopy (vines,
+     * cocoa) on a log build does not make it a tree.
+     */
+    @Nullable
+    private static Block naturalLeaves(FarmWorld world, List<BlockPos> tree) {
         for (BlockPos pos : tree) {
             BlockState state = world.state(pos);
-            if (state.getBlock() instanceof LeavesBlock) {
-                return germlingFor(state.getBlock());
+            if (LevelTreeView.isNaturalLeaves(state)) {
+                return state.getBlock();
             }
         }
-        return ItemStack.EMPTY;
+        return null;
     }
 
     private ItemStack germlingFor(Block leaves) {

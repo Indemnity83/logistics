@@ -140,6 +140,26 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void leavesALogPillarOnHumusHungWithVinesAndCocoaStanding() {
+        FarmHarness farm = farm();
+        // Vines and cocoa are canopy to the feller, as the tags would have them, but not leaves.
+        farm.world.trees = state -> state.is(Blocks.VINE) || state.is(Blocks.COCOA)
+                ? TreeView.Kind.CANOPY
+                : FakeFarmWorld.OAK_TREES.apply(state);
+        farm.world.set(BASE.below(), humus());
+        for (int y = 0; y < 4; y++) {
+            farm.world.set(BASE.above(y), LOG);
+        }
+        farm.world.set(BASE.offset(1, 1, 0), Blocks.VINE.defaultBlockState());
+        farm.world.set(BASE.offset(-1, 2, 0), Blocks.COCOA.defaultBlockState());
+
+        farm.ticks(FELL);
+
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.world.mutations).isEmpty();
+    }
+
+    @Test
     void leavesAHandBuiltTreeWithPlacedLeavesStanding() {
         FarmHarness farm = farm();
         tree(farm, BASE, humus(), 5, PLACED_LEAVES);
