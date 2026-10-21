@@ -272,6 +272,32 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void spillsAtTheFarmWhenTheTrunkBaseIsUnloadedByTheEndOfAFell() {
+        FarmHarness farm = farm();
+        for (int slot = 0; slot < FarmMachine.SLOT_COUNT; slot++) {
+            farm.items().setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
+        }
+        tree(farm, BASE, humus(), 5, LEAVES);
+        for (int tick = 0; tick < FELL && farm.world.broken.isEmpty(); tick++) {
+            farm.tick();
+        }
+        assertThat(farm.world.broken).as("the fell is under way").isNotEmpty().doesNotContain(BASE);
+        farm.world.unloaded.add(BASE);
+        farm.world.unloaded.add(BASE.below());
+
+        farm.ticks(FELL);
+
+        assertThat(farm.world.spilled).isNotEmpty();
+        assertThat(farm.world.spilled).allSatisfy(item -> assertThat(item.pos()).isEqualTo(BlockPos.ZERO));
+        assertThat(farm.world.spilled.stream()
+                        .filter(item -> item.stack().is(Items.OAK_LOG))
+                        .mapToInt(item -> item.stack().getCount())
+                        .sum())
+                .as("the four logs still standing above the base were felled and spilled")
+                .isEqualTo(4);
+    }
+
+    @Test
     void chargesEachLogAndLeafFelledAndTheReplant() {
         FarmHarness farm = farm();
         List<BlockPos> tree = tree(farm, BASE, humus(), 5, LEAVES);

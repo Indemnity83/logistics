@@ -44,8 +44,8 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Once every block is broken the harvest's drops are worked through in order: one matching
  * germling is taken from them to replant the plot, or else one from the inventory, the rest go into
- * the inventory, and whatever does not fit is dropped at the plot. The farm never stops for a full
- * inventory.
+ * the inventory, and whatever does not fit is dropped at the plot, or at the farm itself while the
+ * plot is not loaded. The farm never stops for a full inventory.
  *
  * <p>Every harvested position whose ground can hold it becomes a Plot ({@link FarmPlots}),
  * remembered with its germling. A Plot left unplanted is an Empty Plot: the scan replants it, its
@@ -260,7 +260,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             FarmStatus outcome;
             if (harvest != null) {
                 long mark = counted.reads();
-                outcome = breakNext(s);
+                outcome = breakNext(origin, s);
                 budget.spendReads(counted.reads() - mark);
                 tracker.record(outcome);
             } else {
@@ -291,7 +291,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             dirty = true;
             counted.forget();
             long mark = counted.reads();
-            FarmStatus outcome = visit(pos, s);
+            FarmStatus outcome = visit(origin, pos, s);
             budget.spendReads(Math.max(readsPerCheck, counted.reads() - mark));
             tracker.record(outcome);
             if (outcome == FarmStatus.NO_POWER) {
@@ -316,13 +316,13 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     }
 
     /** Looks at {@code pos} and starts harvesting whatever is ripe there. */
-    private FarmStatus visit(BlockPos pos, FarmSettings s) {
+    private FarmStatus visit(BlockPos origin, BlockPos pos, FarmSettings s) {
         if (!counted.isLoaded(pos)) {
             return FarmStatus.IDLE;
         }
         TendLogic.Harvest found = logic.ripe(counted, pos);
         if (found != null) {
-            return startHarvest(found, s);
+            return startHarvest(origin, found, s);
         }
         ItemStack germling = plots.germling(pos);
         return germling != null ? tendPlot(pos, germling, s) : FarmStatus.IDLE;
@@ -385,7 +385,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
      * Takes {@code found} as the farm's harvest and breaks its first block as this action. It only
      * starts while the buffer holds that break and the replant.
      */
-    private FarmStatus startHarvest(TendLogic.Harvest found, FarmSettings s) {
+    private FarmStatus startHarvest(BlockPos origin, TendLogic.Harvest found, FarmSettings s) {
         List<Target> planned = targets(found);
         if (planned.isEmpty()) {
             return FarmStatus.IDLE;
@@ -400,7 +400,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         targets.addAll(planned);
         collected.clear();
         dirty = true;
-        return breakNext(s);
+        return breakNext(origin, s);
     }
 
     /**
@@ -409,7 +409,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
      * it was planned has the rest of the harvest planned again ({@link TendLogic#resume}), as has a
      * harvest taken up again after a reload.
      */
-    private FarmStatus breakNext(FarmSettings s) {
+    private FarmStatus breakNext(BlockPos origin, FarmSettings s) {
         boolean refused = false;
         if (resumeHarvest) {
             resumeHarvest = false;
@@ -462,11 +462,11 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             energy.consume(cost);
             drops.forEach(drop -> collected.add(drop.copy()));
             if (targets.isEmpty()) {
-                finishHarvest(s);
+                finishHarvest(origin, s);
             }
             return FarmStatus.WORKING;
         }
-        finishHarvest(s);
+        finishHarvest(origin, s);
         return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
     }
 
@@ -500,8 +500,11 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         dirty = true;
     }
 
-    /** Replants the harvest's plot from its drops, stores the rest, and drops what does not fit at the plot. */
-    private void finishHarvest(FarmSettings s) {
+    /**
+     * Replants the harvest's plot from its drops, stores the rest, and drops what does not fit at the
+     * plot, or at the farm, {@code origin}, while the plot is not loaded.
+     */
+    private void finishHarvest(BlockPos origin, FarmSettings s) {
         TendLogic.Harvest done = harvest;
         harvest = null;
         resumeHarvest = false;
@@ -540,7 +543,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             }
         }
         if (!spill.isEmpty()) {
-            counted.dropStacks(done.plot(), spill);
+            counted.dropStacks(counted.isLoaded(done.plot()) ? done.plot() : origin, spill);
             tracker.record(FarmStatus.INVENTORY_FULL);
         }
     }
