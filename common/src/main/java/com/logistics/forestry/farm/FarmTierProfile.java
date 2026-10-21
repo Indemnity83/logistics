@@ -16,8 +16,7 @@ public record FarmTierProfile(
         int checksPerSecond,
         int actionsPerSecond,
         long energyCapacity,
-        long maxEnergyInput,
-        int waterCapacityMb) {
+        long maxEnergyInput) {
 
     public FarmTierProfile {
         outerSize = Math.max(FarmGeometry.COURTYARD + 2, outerSize | 1);
@@ -25,16 +24,15 @@ public record FarmTierProfile(
         actionsPerSecond = Math.max(1, actionsPerSecond);
         energyCapacity = Math.max(1, energyCapacity);
         maxEnergyInput = Math.max(0, maxEnergyInput);
-        waterCapacityMb = Math.max(1, waterCapacityMb);
     }
 
     /** The shipped profile of {@code tier}, which the config defaults to. */
     public static FarmTierProfile defaults(MachineTier tier) {
         return switch (tier) {
-            case BASIC -> new FarmTierProfile(11, 16, 4, 20_000, 64, 8_000);
-            case INDUSTRIAL -> new FarmTierProfile(15, 32, 8, 40_000, 128, 16_000);
-            case PRECISION -> new FarmTierProfile(19, 64, 16, 80_000, 256, 32_000);
-            case INFERNAL -> new FarmTierProfile(23, 128, 32, 160_000, 512, 64_000);
+            case BASIC -> new FarmTierProfile(11, 16, 4, 20_000, 64);
+            case INDUSTRIAL -> new FarmTierProfile(15, 32, 8, 40_000, 128);
+            case PRECISION -> new FarmTierProfile(19, 64, 16, 80_000, 256);
+            case INFERNAL -> new FarmTierProfile(23, 128, 32, 160_000, 512);
         };
     }
 
@@ -45,19 +43,16 @@ public record FarmTierProfile(
                 LogisticsConfigHost.get(keys.checksPerSecond()),
                 LogisticsConfigHost.get(keys.actionsPerSecond()),
                 LogisticsConfigHost.get(keys.energyCapacity()),
-                LogisticsConfigHost.get(keys.maxEnergyInput()),
-                LogisticsConfigHost.get(keys.waterCapacityMb()));
+                LogisticsConfigHost.get(keys.maxEnergyInput()));
     }
 
     /** This profile with its ring reaching {@code outerSize}. */
     public FarmTierProfile withOuterSize(int outerSize) {
-        return new FarmTierProfile(
-                outerSize, checksPerSecond, actionsPerSecond, energyCapacity, maxEnergyInput, waterCapacityMb);
+        return new FarmTierProfile(outerSize, checksPerSecond, actionsPerSecond, energyCapacity, maxEnergyInput);
     }
 
     /** This profile working at {@code checksPerSecond} and {@code actionsPerSecond}. */
     public FarmTierProfile withRates(int checksPerSecond, int actionsPerSecond) {
-        return new FarmTierProfile(
-                outerSize, checksPerSecond, actionsPerSecond, energyCapacity, maxEnergyInput, waterCapacityMb);
+        return new FarmTierProfile(outerSize, checksPerSecond, actionsPerSecond, energyCapacity, maxEnergyInput);
     }
 }

@@ -1,7 +1,6 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.LogisticsForestry;
-import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineData;
 import com.logistics.core.machine.control.MachineControls;
 import com.logistics.core.machine.tier.MachineTier;
@@ -33,11 +32,9 @@ import net.minecraft.world.item.ItemStack;
  * <ul>
  *   <li>{@link #ENERGY} (wide): stored RF;</li>
  *   <li>{@link #ENERGY_CAPACITY} (wide): RF capacity;</li>
- *   <li>{@link #WATER} (wide): water in mB;</li>
- *   <li>{@link #WATER_CAPACITY} (wide): tank capacity in mB, 0 for a farm without water;</li>
  *   <li>{@link #STATUS}: {@link FarmStatus} ordinal;</li>
  *   <li>{@link #AREA_SIZE}: outer side of the worked ring (a 15 means 15×15);</li>
- *   <li>{@link #FLAGS}: bit {@link #FLAG_USES_WATER}, bit {@link #FLAG_LAYS_SOIL};</li>
+ *   <li>{@link #FLAGS}: bit {@link #FLAG_LAYS_SOIL};</li>
  *   <li>{@link #TIER}: {@link MachineTier#rank()} of the farm's tier;</li>
  *   <li>{@link #PLOTS_TOTAL}: plots in the worked ring;</li>
  *   <li>{@link #PLOTS_BLOCKED}: ring plots blocked on their most recent visit;</li>
@@ -58,26 +55,23 @@ public class FarmMenu extends AbstractContainerMenu {
 
     public static final int ENERGY = 0;
     public static final int ENERGY_CAPACITY = 2;
-    public static final int WATER = 4;
-    public static final int WATER_CAPACITY = 6;
-    public static final int STATUS = 8;
-    public static final int AREA_SIZE = 9;
-    public static final int FLAGS = 10;
-    public static final int TIER = 11;
-    public static final int PLOTS_TOTAL = 12;
-    public static final int PLOTS_BLOCKED = 13;
-    public static final int STATE = 14;
-    public static final int SURVEY_CLEAR = 15;
-    public static final int SURVEY_FLAGGED = 16;
-    public static final int SURVEY_PROTECTED = 17;
-    public static final int PREVIEW_SHOWN = 18;
-    public static final int DATA_COUNT = 19;
+    public static final int STATUS = 4;
+    public static final int AREA_SIZE = 5;
+    public static final int FLAGS = 6;
+    public static final int TIER = 7;
+    public static final int PLOTS_TOTAL = 8;
+    public static final int PLOTS_BLOCKED = 9;
+    public static final int STATE = 10;
+    public static final int SURVEY_CLEAR = 11;
+    public static final int SURVEY_FLAGGED = 12;
+    public static final int SURVEY_PROTECTED = 13;
+    public static final int PREVIEW_SHOWN = 14;
+    public static final int DATA_COUNT = 15;
 
     public static final int BUTTON_START = 0;
     public static final int BUTTON_SHOW_AREA = 1;
 
-    public static final int FLAG_USES_WATER = 1;
-    public static final int FLAG_LAYS_SOIL = 1 << 1;
+    public static final int FLAG_LAYS_SOIL = 1;
 
     private static final int PLAYER_START = FarmMachine.SLOT_COUNT;
     private static final int PLAYER_END = PLAYER_START + 36;
@@ -178,13 +172,9 @@ public class FarmMenu extends AbstractContainerMenu {
                     case ENERGY, ENERGY + 1 -> MachineData.wideSlot(farm.energy().amount(), index - ENERGY);
                     case ENERGY_CAPACITY, ENERGY_CAPACITY + 1 ->
                         MachineData.wideSlot(farm.energy().capacity(), index - ENERGY_CAPACITY);
-                    case WATER, WATER + 1 -> MachineData.wideSlot(waterMb(farm), index - WATER);
-                    case WATER_CAPACITY, WATER_CAPACITY + 1 ->
-                        MachineData.wideSlot(waterCapacityMb(farm), index - WATER_CAPACITY);
                     case STATUS -> farm.farm().status().ordinal();
                     case AREA_SIZE -> farm.farm().areaSize();
-                    case FLAGS -> (farm.logic().usesWater() ? FLAG_USES_WATER : 0)
-                            | (farm.logic().laysSoil() ? FLAG_LAYS_SOIL : 0);
+                    case FLAGS -> farm.logic().laysSoil() ? FLAG_LAYS_SOIL : 0;
                     case TIER -> farm.tier().tier().rank();
                     case PLOTS_TOTAL -> farm.farm().plotsTotal();
                     case PLOTS_BLOCKED -> farm.farm().plotsBlocked();
@@ -212,14 +202,6 @@ public class FarmMenu extends AbstractContainerMenu {
     /** Synced data travels as shorts. */
     private static int clampToShort(int value) {
         return Math.min(value, Short.MAX_VALUE);
-    }
-
-    private static long waterMb(FarmMachine farm) {
-        return farm.water() == null ? 0 : FluidUnits.toMillibuckets(farm.water().tank().getAmount());
-    }
-
-    private static long waterCapacityMb(FarmMachine farm) {
-        return farm.water() == null ? 0 : FluidUnits.toMillibuckets(farm.water().tank().getCapacity());
     }
 
     // ==================== Buttons ====================
@@ -295,14 +277,6 @@ public class FarmMenu extends AbstractContainerMenu {
         return MachineData.wide(data, ENERGY_CAPACITY);
     }
 
-    public int waterMb() {
-        return MachineData.wide(data, WATER);
-    }
-
-    public int waterCapacityMb() {
-        return MachineData.wide(data, WATER_CAPACITY);
-    }
-
     public FarmStatus status() {
         return FarmStatus.byOrdinal(data.get(STATUS));
     }
@@ -351,10 +325,6 @@ public class FarmMenu extends AbstractContainerMenu {
     /** Whether the area preview shows now: what {@link #BUTTON_SHOW_AREA} would hide. */
     public boolean previewShown() {
         return data.get(PREVIEW_SHOWN) != 0;
-    }
-
-    public boolean usesWater() {
-        return (data.get(FLAGS) & FLAG_USES_WATER) != 0;
     }
 
     public boolean laysSoil() {

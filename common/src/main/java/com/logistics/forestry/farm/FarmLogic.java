@@ -15,11 +15,10 @@ import org.jetbrains.annotations.Nullable;
  * <p>One stateless instance per farm block ({@link FarmMachineBlock#logic()}), shared by every farm
  * of that type. A logic only reads the world, through {@link FarmWorld}, and answers with a single
  * {@link PlotAction}; the {@link FarmComponent} carries it out and owns the farm-wide gates: power,
- * germlings, soil, a full output buffer, redstone and claim protection, and the irrigation of its
- * ring's farmland.
+ * germlings, soil, a full output buffer, redstone and claim protection.
  *
- * <p>{@link #usesWater()} and {@link #laysSoil()} shape the machine (its tank and soil slots), so
- * they must never change for a given farm type.
+ * <p>{@link #laysSoil()} shapes the machine (its soil slots), so it must never change for a given
+ * farm type.
  *
  * <p>A farm works the ring of plots around its {@link FarmGeometry#COURTYARD}, out to its tier's
  * outer size, one block above the farm so that their soil is level with it. Before the logic is
@@ -54,14 +53,6 @@ public interface FarmLogic {
 
     /** Whether {@code state} is the farm's own growth, which it harvests instead of clearing. */
     default boolean isOwnGrowth(BlockState state) {
-        return false;
-    }
-
-    /**
-     * Whether the farm has an input-only water tank, from which it irrigates its ring's farmland while
-     * working; see {@link FarmComponent}.
-     */
-    default boolean usesWater() {
         return false;
     }
 

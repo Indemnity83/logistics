@@ -82,9 +82,8 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     // ==================== Shape ====================
 
     @Test
-    @DisplayName("uses water, lays soil and replants from its own harvest")
+    @DisplayName("lays soil and replants from its own harvest")
     void machineShape() {
-        assertThat(logic.usesWater()).isTrue();
         assertThat(logic.laysSoil()).isTrue();
         assertThat(logic.replantsFromOutput()).isTrue();
     }
@@ -175,7 +174,7 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("tills dirt into dry farmland, which the farm's irrigation wets")
+    @DisplayName("tills dirt into dry farmland")
     void tillsDirt() {
         world.set(SOIL, Blocks.DIRT.defaultBlockState());
 
@@ -271,8 +270,8 @@ class CropFarmLogicTest extends MinecraftTestEnvironment {
     // ==================== Moisture ====================
 
     @Test
-    @DisplayName("never waters farmland, planted or not, at any moisture: the farm irrigates it")
-    void leavesMoistureToIrrigation() {
+    @DisplayName("never waters farmland, planted or not, at any moisture")
+    void neverWatersFarmland() {
         for (int moisture = 0; moisture <= 7; moisture++) {
             world.set(PLOT, wheat(3));
             world.set(SOIL, farmland(moisture));

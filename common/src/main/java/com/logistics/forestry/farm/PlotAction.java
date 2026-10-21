@@ -38,10 +38,7 @@ public sealed interface PlotAction {
         }
     }
 
-    /**
-     * Turn the block at {@code pos} into {@code result} in place, e.g. dirt into dry farmland. Costs
-     * only RF; a farm with a water tank irrigates the farmland afterwards, as it checks for water.
-     */
+    /** Turn the block at {@code pos} into {@code result} in place, e.g. dirt into dry farmland. Costs only RF. */
     record Till(BlockPos pos, BlockState result) implements PlotAction {
         public Till {
             pos = pos.immutable();

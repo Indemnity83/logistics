@@ -1,15 +1,11 @@
 package com.logistics.forestry.farm;
 
-import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.component.EnergyStorageComponent;
-import com.logistics.core.machine.component.FluidStoreComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.SlotRole;
 import com.logistics.core.machine.tier.TierComponent;
 import java.util.function.Supplier;
-import net.minecraft.tags.FluidTags;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The components every farm is built from, and its slot layout. Inserting on any face routes an
@@ -23,7 +19,6 @@ public record FarmMachine(
         FarmLogic logic,
         TierComponent tier,
         EnergyStorageComponent energy,
-        @Nullable FluidStoreComponent water,
         ItemStoreComponent items,
         FarmComponent farm) {
 
@@ -50,18 +45,9 @@ public record FarmMachine(
                 .capacity(initial.energyCapacity())
                 .maxInput(initial.maxEnergyInput())
                 .build();
-        FluidStoreComponent water = logic.usesWater()
-                ? machine.fluids("water")
-                        .capacity(FluidUnits.mb(initial.waterCapacityMb()))
-                        .inputOnly(fluid -> fluid.getFluid().defaultFluidState().is(FluidTags.WATER))
-                        .build()
-                : null;
         tier.onChange(newTier -> {
             FarmTierProfile profile = settings.get().profile(newTier);
             energy.resize(profile.energyCapacity(), profile.maxEnergyInput());
-            if (water != null) {
-                water.resize(FluidUnits.mb(profile.waterCapacityMb()));
-            }
         });
         ItemStoreComponent items = machine.items("inventory")
                 .slots(roles())
@@ -70,8 +56,8 @@ public record FarmMachine(
                 .slotFilter(SOIL_START, SOIL_END, stack -> logic.laysSoil() && logic.isSoil(stack))
                 .build();
         FarmComponent farm =
-                machine.add(new FarmComponent("farm", logic, items, energy, water, settings, tier::tier, worlds));
-        return new FarmMachine(logic, tier, energy, water, items, farm);
+                machine.add(new FarmComponent("farm", logic, items, energy, settings, tier::tier, worlds));
+        return new FarmMachine(logic, tier, energy, items, farm);
     }
 
     private static SlotRole[] roles() {

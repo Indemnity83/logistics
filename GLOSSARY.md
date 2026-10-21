@@ -79,45 +79,30 @@ A block placed in an L of three and activated with a Wrench to set a custom Lase
 ### Farming
 
 **Farm**:
-A machine that plants, tends and harvests one kind of produce in the area around itself. Each kind of produce has its own farm block.
-_Avoid_: Multifarm, farm-type selection
+A machine that harvests and replants one kind of produce within its reach, leaving the shape and styling of the field to the player. It never clears, builds or lays soil; the only ground it touches is its own plots. Each kind of produce has its own farm block.
+_Avoid_: Multifarm, farm-type selection, ring farm
 
 **Crop Farm**:
-The farm for field crops, which tills and replants its own farmland.
+The farm for field crops: it harvests ripe crops in its reach and replants them.
 _Avoid_: Cropland, Managed Farm
 
 **Arboretum**:
-The farm for trees, which plants saplings on Humus and fells whole grown trees.
+The farm for trees: it fells grown trees standing on Humus in its reach and replants their saplings.
 _Avoid_: Tree farm, lumberjack
 
-**Courtyard**:
-The fixed 7×7 square centred on the farm block that the farm never touches. It is where the player puts pipes, power and storage.
-
-**Ring**:
-The band the farm works between its courtyard and its outer edge. Its width grows with the farm's machine tier.
-
-**Lane**:
-One square loop of the ring, counted outward from the courtyard.
-
-**Soil**:
-The block a farm lays under its plants: dirt for the Crop Farm, Humus for the Arboretum.
-_Avoid_: Substrate, materials
+**Reach**:
+The box around a farm block in which the farm tends plants: 3 blocks out on every side, corners included, and 1 block above and below the farm.
+_Avoid_: Work area, range, radius, Courtyard, Ring, Lane
 
 **Germling**:
 Whatever a farm plants: seeds, saplings, and so on.
 
-**Survey**:
-The state a newly placed farm starts in: it previews what working would clear and changes nothing until the player presses Start.
-
-**Protected block**:
-A block a farm never breaks, such as a chest. The farm reports it as blocked and works around it.
-
-**Hydration**:
-A working farm keeping its farmland hydrated, in the vanilla sense, by spending water from its tank, more in hot or dry biomes.
-_Avoid_: Irrigation, water cycle, soak
+**Plot**:
+A spot in a farm's reach that the farm has harvested and keeps replanting with the same plant, re-tilling its ground when it has to. A plot left without a germling waits as an **Empty Plot** until a matching germling is available. The farm forgets a plot once something else occupies it or its ground is anything other than farmland, dirt or grass; breaking the farm forgets all its plots.
+_Avoid_: Spot, tile, cell
 
 **Humus**:
-A crafted soil that makes saplings grow faster and turns to sand once a tree has grown on it.
+A crafted soil on which any sapling grows into the same small tree, a straight trunk under a round canopy, made of that sapling's own wood and leaves. It is the only soil an Arboretum tends.
 _Avoid_: Compost, mulch
 
 **Fertilizer**:

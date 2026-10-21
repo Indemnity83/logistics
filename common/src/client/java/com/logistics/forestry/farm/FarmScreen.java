@@ -1,7 +1,6 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.LogisticsMod;
-import com.logistics.core.lib.client.render.FluidBoxRenderer;
 import com.logistics.core.lib.client.screen.tab.MachineTabs;
 import com.logistics.core.lib.client.screen.tab.SideTabHost;
 import com.logistics.core.lib.client.screen.tab.SideTabScreen;
@@ -15,15 +14,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.level.material.Fluids;
 
 /**
- * The screen every farm opens. Soil slot frames and the water gauge are drawn from the spare region
- * of the GUI texture only when the farm lays soil or has a tank; otherwise those areas stay plain.
+ * The screen every farm opens. Soil slot frames are drawn from the spare region of the GUI texture
+ * only when the farm lays soil; otherwise that area stays plain.
  * One button under the soil row starts a surveying farm, then shows or hides a working farm's area.
  * The standard machine side tabs sit outside the image, with each farm type's own Info text.
  */
@@ -42,12 +39,11 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
     private static final ResourceId SOIL_GHOST = LogisticsMod.modId("forestry/soil_slot");
     private static final float GHOST_ALPHA = 0.3f;
 
-    // Vertical gauges (screen-local interiors); both 12x52.
+    // The vertical energy gauge (screen-local interior), 12x52.
     private static final int GAUGE_WIDTH = 12;
     private static final int GAUGE_HEIGHT = 52;
     private static final int GAUGE_TOP = 17;
     private static final int ENERGY_LEFT = 8;
-    private static final int WATER_LEFT = 24;
 
     private static final int LAMP_LEFT = 100;
     private static final int LAMP_TOP = 56;
@@ -63,8 +59,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
     // Spare-region UVs in the GUI texture.
     private static final int SOIL_ROW_U = 176, SOIL_ROW_V = 0, SOIL_ROW_WIDTH = 72, SOIL_ROW_HEIGHT = 18;
     private static final int SOIL_ROW_X = 41, SOIL_ROW_Y = 34;
-    private static final int TANK_FRAME_U = 176, TANK_FRAME_V = 20;
-    private static final int TANK_TICKS_U = 192, TANK_TICKS_V = 21;
     private static final int LAMP_U = 206, LAMP_V = 30, LAMP_U_STEP = 10;
 
     private Button stateButton;
@@ -156,10 +150,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         hoverTooltip(graphics, mouseX, mouseY, ENERGY_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT,
                 Component.translatable("tooltip.logistics.farm.energy", menu.energy(), menu.energyCapacity()));
-        if (hasTank()) {
-            hoverTooltip(graphics, mouseX, mouseY, WATER_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT,
-                    Component.translatable("tooltip.logistics.farm.water", menu.waterMb(), menu.waterCapacityMb()));
-        }
         hoverTooltip(graphics, mouseX, mouseY, LAMP_LEFT, LAMP_TOP, LAMP_SIZE, LAMP_SIZE,
                 FarmScreenText.statusTooltip(
                         menu.status(), menu.tier(), menu.areaSize(), menu.plotsUsable(), menu.plotsBlocked()));
@@ -176,10 +166,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
         }
     }
 
-    private boolean hasTank() {
-        return menu.waterCapacityMb() > 0;
-    }
-
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         blitTexture(graphics, 0, 0, 0, 0, imageWidth, imageHeight);
@@ -189,9 +175,6 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
         }
 
         renderEnergy(graphics);
-        if (hasTank()) {
-            renderWater(graphics);
-        }
 
         int lampU = LAMP_U + FarmGauges.lamp(menu.status()).ordinal() * LAMP_U_STEP;
         blitTexture(graphics, LAMP_LEFT, LAMP_TOP, lampU, LAMP_V, LAMP_SIZE, LAMP_SIZE);
@@ -240,25 +223,5 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
                     GAUGE_WIDTH, segBottom - drawTop,
                     tint);
         }
-    }
-
-    /** Tank frame, then water tiled bottom-up (never stretched, clipped to the fill), then the tick marks. */
-    private void renderWater(GuiGraphicsExtractor graphics) {
-        blitTexture(graphics, WATER_LEFT - 1, GAUGE_TOP - 1, TANK_FRAME_U, TANK_FRAME_V, GAUGE_WIDTH + 2, GAUGE_HEIGHT + 2);
-
-        int fill = FarmGauges.fillPixels(menu.waterMb(), menu.waterCapacityMb(), GAUGE_HEIGHT);
-        FluidBoxRenderer.Appearance appearance = fill > 0 ? FluidBoxRenderer.resolveForGui(Fluids.WATER) : null;
-        if (appearance != null) {
-            TextureAtlasSprite sprite = appearance.sprite();
-            int x0 = leftPos + WATER_LEFT;
-            int bottomY = topPos + GAUGE_TOP + GAUGE_HEIGHT;
-            graphics.enableScissor(x0, bottomY - fill, x0 + GAUGE_WIDTH, bottomY);
-            for (int drawn = 0; drawn < fill; drawn += 16) {
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x0, bottomY - drawn - 16, 16, 16, appearance.tint());
-            }
-            graphics.disableScissor();
-        }
-
-        blitTexture(graphics, WATER_LEFT, GAUGE_TOP, TANK_TICKS_U, TANK_TICKS_V, GAUGE_WIDTH, GAUGE_HEIGHT);
     }
 }

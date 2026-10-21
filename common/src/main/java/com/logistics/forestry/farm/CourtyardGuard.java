@@ -51,16 +51,6 @@ final class CourtyardGuard implements FarmWorldAccess {
     }
 
     @Override
-    public FarmClimate climate(BlockPos pos) {
-        return world.climate(pos);
-    }
-
-    @Override
-    public boolean rainingAt(BlockPos pos) {
-        return world.rainingAt(pos);
-    }
-
-    @Override
     public TreeView.Kind treeKind(BlockState state) {
         return world.treeKind(state);
     }

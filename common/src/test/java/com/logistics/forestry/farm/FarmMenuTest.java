@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
 import com.logistics.LogisticsForestry;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.control.MachineControls;
@@ -24,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
-import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -178,7 +175,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("germlings shift-click into the germling slots")
     void germlingsRouteToGermlingSlots() {
-        TestFarm farm = farm(new ScriptedFarmLogic(false, true));
+        TestFarm farm = farm(new ScriptedFarmLogic(true));
         Inventory inventory = playerInventory();
         inventory.setItem(0, new ItemStack(Items.OAK_SAPLING, 20));
         FarmMenu menu = serverMenu(farm, inventory);
@@ -193,7 +190,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("fertilizer and bone meal stay with the player: no farm slot takes them")
     void fertilizerIsNotAccepted() {
-        TestFarm farm = farm(new ScriptedFarmLogic(false, true));
+        TestFarm farm = farm(new ScriptedFarmLogic(true));
         Inventory inventory = playerInventory();
         inventory.setItem(0, new ItemStack(Items.BONE_MEAL, 10));
         inventory.setItem(1, new ItemStack(LogisticsForestry.ITEM.FERTILIZER, 10));
@@ -210,7 +207,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("soil shift-clicks into the soil slots of a farm that lays soil, and nowhere otherwise")
     void soilRoutesOnlyWhenTheFarmLaysSoil() {
-        TestFarm laying = farm(new ScriptedFarmLogic(false, true));
+        TestFarm laying = farm(new ScriptedFarmLogic(true));
         Inventory inventory = playerInventory();
         inventory.setItem(0, new ItemStack(Items.DIRT, 10));
         FarmMenu menu = serverMenu(laying, inventory);
@@ -220,7 +217,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(laying.getItem(FarmMachine.SOIL_START).is(Items.DIRT)).isTrue();
         assertThat(menu.getSlot(FarmMachine.SOIL_START).isActive()).isTrue();
 
-        TestFarm notLaying = farm(new ScriptedFarmLogic(false, false));
+        TestFarm notLaying = farm(new ScriptedFarmLogic());
         Inventory other = playerInventory();
         other.setItem(0, new ItemStack(Items.DIRT, 10));
         FarmMenu otherMenu = serverMenu(notLaying, other);
@@ -235,7 +232,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("an item no slot accepts stays with the player")
     void unacceptedItemsStay() {
-        TestFarm farm = farm(new ScriptedFarmLogic(false, true));
+        TestFarm farm = farm(new ScriptedFarmLogic(true));
         Inventory inventory = playerInventory();
         inventory.setItem(0, new ItemStack(Items.COBBLESTONE, 10));
         FarmMenu menu = serverMenu(farm, inventory);
@@ -283,25 +280,21 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     // ==================== Synced data ====================
 
     @Test
-    @DisplayName("the synced data decodes to the farm's energy, water, status, plot and flags")
+    @DisplayName("the synced data decodes to the farm's energy, status, plot and flags")
     void syncedData() {
         // Values above a short's range, so the wide slot pairs are exercised.
         FarmSettings settings = FarmSettings.defaults()
-                .withTiers(FarmSettings.everyTier(new FarmTierProfile(15, 16, 4, 100_000, 128, 40_000)));
-        TestFarm farm = farm(new ScriptedFarmLogic(true, false), settings);
+                .withTiers(FarmSettings.everyTier(new FarmTierProfile(15, 16, 4, 100_000, 128)));
+        TestFarm farm = farm(new ScriptedFarmLogic(), settings);
         farm.parts.energy().setAmount(70_000);
-        farm.parts.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(33_000), false);
         ContainerData data = FarmMenu.dataSource(farm.parts, () -> false);
         FarmMenu menu = new FarmMenu(1, playerInventory(), farm, data);
 
         assertThat(data.getCount()).isEqualTo(FarmMenu.DATA_COUNT);
         assertThat(menu.energy()).isEqualTo(70_000);
         assertThat(menu.energyCapacity()).isEqualTo(100_000);
-        assertThat(menu.waterMb()).isEqualTo(33_000);
-        assertThat(menu.waterCapacityMb()).isEqualTo(40_000);
         assertThat(menu.status()).isEqualTo(FarmStatus.IDLE);
         assertThat(menu.areaSize()).as("the ring's outer side at the farm's tier").isEqualTo(15);
-        assertThat(menu.usesWater()).isTrue();
         assertThat(menu.laysSoil()).isFalse();
         assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
         assertThat(menu.plotsTotal()).as("15×15 around the 7×7 courtyard").isEqualTo(176);
@@ -332,18 +325,6 @@ class FarmMenuTest extends MinecraftTestEnvironment {
 
         data.set(FarmMenu.TIER, 99);
         assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
-    }
-
-    @Test
-    @DisplayName("a farm without water syncs an empty, zero-capacity tank")
-    void noWaterSyncsZero() {
-        TestFarm farm = farm(new ScriptedFarmLogic(false, true));
-        FarmMenu menu = serverMenu(farm, playerInventory());
-
-        assertThat(menu.waterMb()).isZero();
-        assertThat(menu.waterCapacityMb()).isZero();
-        assertThat(menu.usesWater()).isFalse();
-        assertThat(menu.laysSoil()).isTrue();
     }
 
     @Test

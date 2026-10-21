@@ -83,11 +83,10 @@ class ArboretumLogicTest extends MinecraftTestEnvironment {
     // ==================== Shape ====================
 
     @Test
-    @DisplayName("lays soil and replants from its output, without water")
+    @DisplayName("lays soil and replants from its output")
     void farmShape() {
         assertThat(logic().laysSoil()).isTrue();
         assertThat(logic().replantsFromOutput()).isTrue();
-        assertThat(logic().usesWater()).isFalse();
         assertThat(logic().isGermling(new ItemStack(Items.OAK_SAPLING))).isTrue();
         assertThat(logic().isGermling(ItemStack.EMPTY)).isFalse();
         assertThat(logic().isSoil(new ItemStack(LogisticsForestry.BLOCK.HUMUS))).isTrue();

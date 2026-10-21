@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
  */
 final class ScriptedFarmLogic implements FarmLogic {
 
-    private final boolean usesWater;
     private final boolean laysSoil;
     private BiFunction<FarmWorld, BlockPos, PlotAction> script = (world, plot) -> PlotAction.NONE;
     int clearanceHeight = 1;
@@ -32,11 +31,10 @@ final class ScriptedFarmLogic implements FarmLogic {
     FarmInputs lastInputs;
 
     ScriptedFarmLogic() {
-        this(false, false);
+        this(false);
     }
 
-    ScriptedFarmLogic(boolean usesWater, boolean laysSoil) {
-        this.usesWater = usesWater;
+    ScriptedFarmLogic(boolean laysSoil) {
         this.laysSoil = laysSoil;
     }
 
@@ -53,11 +51,6 @@ final class ScriptedFarmLogic implements FarmLogic {
     @Override
     public boolean isOwnGrowth(BlockState state) {
         return ownGrowth.test(state);
-    }
-
-    @Override
-    public boolean usesWater() {
-        return usesWater;
     }
 
     @Override

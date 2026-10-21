@@ -3,8 +3,6 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.area.RingArea;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.test.MinecraftTestEnvironment;
@@ -13,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,9 +26,9 @@ class FarmTierTest extends MinecraftTestEnvironment {
         DomainRegistrations.ensureRegistered();
     }
 
-    /** A water-using farm working its tier's ring, recording every plot it decides on. */
+    /** A farm working its tier's ring, recording every plot it decides on. */
     private static FarmHarness farm(List<BlockPos> visited) {
-        ScriptedFarmLogic logic = new ScriptedFarmLogic(true, false).script((world, plot) -> {
+        ScriptedFarmLogic logic = new ScriptedFarmLogic().script((world, plot) -> {
             visited.add(plot.immutable());
             return PlotAction.NONE;
         });
@@ -78,7 +75,6 @@ class FarmTierTest extends MinecraftTestEnvironment {
         assertThat(farm.farm().areaSize()).isEqualTo(11);
         assertThat(farm.machine.energy().capacity()).isEqualTo(20_000);
         assertThat(farm.machine.energy().maxInsert()).isEqualTo(64);
-        assertThat(farm.machine.water().tank().getCapacity()).isEqualTo(FluidUnits.mb(8_000));
     }
 
     @Test
@@ -86,21 +82,17 @@ class FarmTierTest extends MinecraftTestEnvironment {
     void tierChangeGrowsRingAndBuffers() {
         FarmHarness farm = farm(new ArrayList<>());
         farm.power(15_000);
-        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(6_000), false);
 
         assertThat(farm.machine.tier().setTier(MachineTier.INDUSTRIAL)).isTrue();
 
         assertThat(farm.farm().areaSize()).isEqualTo(15);
         assertThat(farm.machine.energy().capacity()).isEqualTo(40_000);
         assertThat(farm.machine.energy().maxInsert()).isEqualTo(128);
-        assertThat(farm.machine.water().tank().getCapacity()).isEqualTo(FluidUnits.mb(16_000));
         assertThat(farm.energy()).isEqualTo(15_000);
-        assertThat(farm.machine.water().tank().getAmount()).isEqualTo(FluidUnits.mb(6_000));
 
         farm.machine.tier().setTier(MachineTier.INFERNAL);
         assertThat(farm.farm().areaSize()).isEqualTo(23);
         assertThat(farm.machine.energy().capacity()).isEqualTo(160_000);
-        assertThat(farm.machine.water().tank().getCapacity()).isEqualTo(FluidUnits.mb(64_000));
     }
 
     @Test
@@ -131,7 +123,6 @@ class FarmTierTest extends MinecraftTestEnvironment {
         FarmHarness farm = farm(new ArrayList<>());
         farm.machine.tier().setTier(MachineTier.INDUSTRIAL);
         farm.power(30_000);
-        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(12_000), false);
         CompoundTag saved = farm.save();
 
         FarmHarness reloaded = farm(new ArrayList<>());
@@ -141,7 +132,6 @@ class FarmTierTest extends MinecraftTestEnvironment {
         assertThat(reloaded.farm().areaSize()).isEqualTo(15);
         assertThat(reloaded.machine.energy().capacity()).isEqualTo(40_000);
         assertThat(reloaded.energy()).as("not clamped to Basic's 20 000").isEqualTo(30_000);
-        assertThat(reloaded.machine.water().tank().getAmount()).isEqualTo(FluidUnits.mb(12_000));
     }
 
     @Test

@@ -3,8 +3,6 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.forestry.logic.FellPlan;
 import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.test.MinecraftTestEnvironment;
@@ -24,7 +22,6 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -214,7 +211,7 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("soil refused after the floor was broken: the break is charged and its drops kept, no soil or soil RF spent")
     void soilPlaceFailsAfterBreak() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(false, true).script((world, plot) ->
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true).script((world, plot) ->
                 world.state(plot.below()).is(Blocks.PODZOL) ? PlotAction.NONE : new PlotAction.PlaceSoil(plot.below())));
         BlockPos floor = farm.plot(0).below();
         for (int i = 1; i < 8; i++) {
@@ -243,7 +240,7 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("soil that cannot pay for the break and the soil both breaks nothing")
     void soilNeedsEnergyForBothSteps() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(false, true).script((world, plot) ->
+        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic(true).script((world, plot) ->
                 world.state(plot.below()).is(Blocks.PODZOL) ? PlotAction.NONE : new PlotAction.PlaceSoil(plot.below())));
         BlockPos floor = farm.plot(0).below();
         farm.world.set(floor, Blocks.STONE.defaultBlockState());
@@ -258,29 +255,19 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
     }
 
     private static ScriptedFarmLogic tillingDirt() {
-        return new ScriptedFarmLogic(true, false).script((world, plot) ->
+        return new ScriptedFarmLogic().script((world, plot) ->
                 world.state(plot.below()).is(Blocks.DIRT) ? new PlotAction.Till(plot.below(), WET_FARMLAND) : PlotAction.NONE);
     }
 
-    private static void fillWater(FarmHarness farm, long mb) {
-        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(mb), false);
-    }
-
-    private static long waterMb(FarmHarness farm) {
-        return FluidUnits.toMillibuckets(farm.machine.water().tank().getAmount());
-    }
-
     @Test
-    @DisplayName("a till or a drain the world refuses spends no RF and no water")
+    @DisplayName("a till or a drain the world refuses spends no RF")
     void refusedWritesCostNothing() {
         FarmHarness farm = new FarmHarness(tillingDirt());
         farm.world.set(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
-        fillWater(farm, 1_000);
         farm.world.refuseSet = (pos, state) -> true;
         farm.power(RF);
         farm.tick();
         assertThat(farm.world.blocks).containsEntry(farm.plot(0).below(), Blocks.DIRT.defaultBlockState());
-        assertThat(waterMb(farm)).isEqualTo(1_000);
         assertThat(farm.energy()).isEqualTo(RF);
         assertThat(farm.farm().status()).isEqualTo(FarmStatus.BLOCKED);
 
@@ -324,7 +311,7 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
     /** One seeded run; returns how many planted cells were rolled back. */
     private static long conservationRun(long seed) {
         Random random = new Random(seed);
-        ScriptedFarmLogic logic = new ScriptedFarmLogic(true, true).script((world, plot) -> {
+        ScriptedFarmLogic logic = new ScriptedFarmLogic(true).script((world, plot) -> {
             BlockState state = world.state(plot);
             BlockState soil = world.state(plot.below());
             if (state.is(Blocks.WHEAT) || state.is(Blocks.OAK_LOG)) {
@@ -398,9 +385,6 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
             } else if (random.nextInt(10) == 0) {
                 farm.power(RF);
             }
-            if (random.nextInt(15) == 0) {
-                fillWater(farm, random.nextInt(600));
-            }
             if (random.nextInt(10) == 0) {
                 farm.items().setItem(random.nextInt(4), new ItemStack(GERMLINGS[random.nextInt(2)], random.nextInt(5)));
                 farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.PODZOL, random.nextInt(4)));
@@ -412,7 +396,6 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
             }
 
             long energy = farm.energy();
-            long water = waterMb(farm);
             Map<Item, Integer> items = inventory(farm);
             int mutations = world.mutations.size();
 
@@ -436,7 +419,6 @@ class FarmAtomicityTest extends MinecraftTestEnvironment {
             }
             String context = "seed " + seed + ", tick " + tick + ", changes " + changes;
             assertThat(energy - farm.energy()).as("RF, %s", context).isEqualTo(expectedRf);
-            assertThat(waterMb(farm)).as("working never spends water, %s", context).isEqualTo(water);
             expectedItems.values().removeIf(count -> count == 0);
             assertThat(inventory(farm)).as("items, %s", context).isEqualTo(expectedItems);
         }

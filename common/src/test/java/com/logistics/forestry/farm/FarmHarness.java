@@ -32,7 +32,7 @@ final class FarmHarness {
      * 20 checks and 20 actions a second, one of each a tick, with a 10 000 RF buffer taking
      * 1 000 RF/t and an 8 000 mB tank, at every tier.
      */
-    static final FarmTierProfile PROFILE = new FarmTierProfile(11, 20, 20, 10_000, 1_000, 8_000);
+    static final FarmTierProfile PROFILE = new FarmTierProfile(11, 20, 20, 10_000, 1_000);
 
     /** Every cost different, so tests can tell which was charged. */
     static final Map<FarmCost, Long> COSTS = Map.of(
@@ -44,8 +44,8 @@ final class FarmHarness {
             FarmCost.SOIL, 65L,
             FarmCost.PLANT, 100L);
 
-    /** One plot and one action per tick while busy, so tests can count steps in ticks; 25 mB per irrigation. */
-    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 25, 0.5, 64, 20, 200, FarmSettings.everyTier(PROFILE));
+    /** One plot and one action per tick while busy, so tests can count steps in ticks. */
+    static final FarmSettings SETTINGS = new FarmSettings(COSTS, 0.5, 64, 20, 200, FarmSettings.everyTier(PROFILE));
 
     /** The shipped tier profiles, each at the test rate of one check and one action a tick. */
     static Map<MachineTier, FarmTierProfile> shippedTiersAtTestRate() {
