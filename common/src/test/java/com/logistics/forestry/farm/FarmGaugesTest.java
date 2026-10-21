@@ -28,23 +28,31 @@ class FarmGaugesTest {
         assertThat(FarmGauges.fillPixels(4_000_000_000L, 4_000_000_001L, 52)).isEqualTo(51);
     }
 
-    @Test
-    @DisplayName("the GUI lamp sprite follows the shared lamp colour: green, amber, red along the row")
-    void lampSpriteFollowsTheColour() {
-        assertThat(FarmGauges.lampSprite(FarmStatus.WORKING)).isZero();
-        assertThat(FarmGauges.lampSprite(FarmStatus.IDLE)).isEqualTo(1);
-        assertThat(FarmGauges.lampSprite(FarmStatus.NO_POWER)).isEqualTo(2);
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"WORKING", "IDLE"})
+    @DisplayName("the screen lamp shows the green sprite while the farm works or has nothing ripe")
+    void lampIsGreenWhenAllIsWell(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isZero();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"WAITING_FOR_SEEDS", "INVENTORY_FULL", "PAUSED"})
+    @DisplayName("the screen lamp shows the amber sprite while the farm needs attention")
+    void lampIsAmberForWarnings(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isEqualTo(1);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"NO_POWER", "BLOCKED"})
+    @DisplayName("the screen lamp shows the red sprite when the farm cannot work")
+    void lampIsRedForFaults(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isEqualTo(2);
     }
 
     @ParameterizedTest
     @EnumSource(FarmStatus.class)
-    @DisplayName("every status has a GUI lamp sprite, shared by every status of its colour")
+    @DisplayName("every status has a screen lamp sprite")
     void everyStatusHasASprite(FarmStatus status) {
-        FarmStatus sameColour = switch (FarmLamp.forStatus(status)) {
-            case GREEN -> FarmStatus.WORKING;
-            case AMBER -> FarmStatus.IDLE;
-            default -> FarmStatus.NO_POWER;
-        };
-        assertThat(FarmGauges.lampSprite(status)).isEqualTo(FarmGauges.lampSprite(sameColour));
+        assertThat(FarmGauges.lampSprite(status)).isBetween(0, 2);
     }
 }

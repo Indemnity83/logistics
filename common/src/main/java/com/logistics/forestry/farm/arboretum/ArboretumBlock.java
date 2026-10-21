@@ -1,19 +1,19 @@
 package com.logistics.forestry.farm.arboretum;
 
-import com.logistics.forestry.farm.FarmLogic;
 import com.logistics.forestry.farm.FarmMachineBlock;
+import com.logistics.forestry.farm.TendLogic;
 
-/** The tree farm block; see {@link ArboretumLogic}. */
+/** The Arboretum block: fells and replants trees grown on Humus in its Reach; see {@link ArboretumTendLogic}. */
 public class ArboretumBlock extends FarmMachineBlock {
 
-    private static final FarmLogic LOGIC = new ArboretumLogic();
+    private static final TendLogic LOGIC = new ArboretumTendLogic();
 
     public ArboretumBlock(Properties settings) {
         super(settings);
     }
 
     @Override
-    public FarmLogic logic() {
+    public TendLogic logic() {
         return LOGIC;
     }
 }

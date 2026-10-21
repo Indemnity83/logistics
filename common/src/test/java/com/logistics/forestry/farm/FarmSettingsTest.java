@@ -13,6 +13,7 @@ import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.MachineHudModel;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.core.machine.tier.TieredBlockItem;
+import com.logistics.forestry.farm.crop.CropTendLogic;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,15 +28,13 @@ import org.junit.jupiter.api.Test;
 class FarmSettingsTest extends MinecraftTestEnvironment {
 
     @Test
-    @DisplayName("config defaults: per-action RF, 100 mB per irrigation, an even harvest share, 64 reads a check")
+    @DisplayName("config defaults: per-action RF, 64 reads a check")
     void configDefaults() {
         Map<FarmCost, Long> expected = Map.of(
-                FarmCost.CLEAR, 25L,
                 FarmCost.HARVEST_CROP, 50L,
                 FarmCost.HARVEST_LOG, 25L,
                 FarmCost.HARVEST_LEAVES, 5L,
                 FarmCost.TILL, 25L,
-                FarmCost.SOIL, 50L,
                 FarmCost.PLANT, 25L);
         for (FarmCost cost : FarmCost.values()) {
             ConfigKey<Long> key = LogisticsForestry.CONFIG.farmCost(cost);
@@ -43,10 +42,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
             assertThat(key.definition().defaultValue()).as("%s", cost).isEqualTo(expected.get(cost));
         }
         assertThat(FarmCost.values()).extracting(FarmCost::configName).containsExactly(
-                "rf_clear_per_block", "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves",
-                "rf_till", "rf_soil", "rf_plant");
-        assertThat(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB.definition().defaultValue()).isEqualTo(100);
-        assertThat(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE.definition().defaultValue()).isEqualTo(0.5);
+                "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves", "rf_till", "rf_plant");
         assertThat(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK.definition().defaultValue()).isEqualTo(64);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS.definition().defaultValue()).isEqualTo(20);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_MAX_TICKS.definition().defaultValue()).isEqualTo(200);
@@ -56,45 +52,33 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("the dropped keys are gone from the farm config")
     void droppedKeys() {
-        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB.configId());
+        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK.configId());
         assertThat(config.definitions())
                 .extracting(definition -> definition.path().fullPath())
-                .contains("water_per_irrigation_mb", "harvest_share", "reads_per_check", "tier.basic.checks_per_second")
+                .contains("reads_per_check", "tier.basic.checks_per_second")
                 .doesNotContain("work_interval_ticks", "harvest_blocks_per_tick", "rf_harvest_per_block",
                         "water_per_till_mb", "rf_moisten", "water_per_moisture_mb", "tilled_moisture",
-                        "rf_moisture_per_level");
+                        "rf_moisture_per_level", "water_per_irrigation_mb", "tier.basic.water_capacity_mb",
+                        "harvest_share", "rf_clear_per_block", "rf_soil", "tier.basic.outer_size");
     }
 
     @Test
-    @DisplayName("water per irrigation must not be negative")
-    void irrigationValidation() {
-        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB.configId());
+    @DisplayName("a check buys at least 16 reads")
+    void readsValidation() {
+        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK.configId());
 
-        assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB, -1)).isFalse();
-        assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB)).isEqualTo(100);
-    }
-
-    @Test
-    @DisplayName("the harvest share leaves cultivation at least a quarter; a check buys at least 16 reads")
-    void shareAndReadsValidation() {
-        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE.configId());
-
-        assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE, 0.8)).isFalse();
-        assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE, -0.1)).isFalse();
         assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK, 8)).isFalse();
-        assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE)).isEqualTo(0.5);
         assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK)).isEqualTo(64);
-        assertThat(FarmSettings.defaults().withHarvestShare(0.9).harvestShare()).isEqualTo(FarmSettings.MAX_HARVEST_SHARE);
     }
 
     @Test
-    @DisplayName("each tier's profile defaults: 11/15/19/23 rings, rates, buffers and tanks doubling per tier")
+    @DisplayName("each tier's profile defaults: rates and buffers doubling per tier")
     void tierDefaults() {
         assertThat(FarmSettings.fromConfig().tiers()).containsExactly(
-                entry(MachineTier.BASIC, new FarmTierProfile(11, 16, 4, 20_000, 64, 8_000)),
-                entry(MachineTier.INDUSTRIAL, new FarmTierProfile(15, 32, 8, 40_000, 128, 16_000)),
-                entry(MachineTier.PRECISION, new FarmTierProfile(19, 64, 16, 80_000, 256, 32_000)),
-                entry(MachineTier.INFERNAL, new FarmTierProfile(23, 128, 32, 160_000, 512, 64_000)));
+                entry(MachineTier.BASIC, new FarmTierProfile(16, 4, 20_000, 64)),
+                entry(MachineTier.INDUSTRIAL, new FarmTierProfile(32, 8, 40_000, 128)),
+                entry(MachineTier.PRECISION, new FarmTierProfile(64, 16, 80_000, 256)),
+                entry(MachineTier.INFERNAL, new FarmTierProfile(128, 32, 160_000, 512)));
         for (MachineTier tier : MachineTier.values()) {
             assertThat(FarmTierProfile.fromConfig(tier)).as("%s", tier).isEqualTo(FarmTierProfile.defaults(tier));
         }
@@ -105,34 +89,10 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     void tierKeyPaths() {
         LogisticsForestry.CONFIG.FarmTierKeys keys = LogisticsForestry.CONFIG.farmTier(MachineTier.INDUSTRIAL);
 
-        assertThat(keys.outerSize().definition().path().fullPath()).isEqualTo("tier.industrial.outer_size");
         assertThat(keys.checksPerSecond().definition().path().fullPath()).isEqualTo("tier.industrial.checks_per_second");
         assertThat(keys.actionsPerSecond().definition().path().fullPath()).isEqualTo("tier.industrial.actions_per_second");
         assertThat(keys.energyCapacity().definition().path().fullPath()).isEqualTo("tier.industrial.energy_capacity");
         assertThat(keys.maxEnergyInput().definition().path().fullPath()).isEqualTo("tier.industrial.max_energy_input");
-        assertThat(keys.waterCapacityMb().definition().path().fullPath()).isEqualTo("tier.industrial.water_capacity_mb");
-    }
-
-    @Test
-    @DisplayName("a tier's outer size must be odd, wider than the courtyard, and no narrower than the tier below")
-    void outerSizeValidation() {
-        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_TIER_BASIC.outerSize().configId());
-        ConfigKey<Integer> basic = LogisticsForestry.CONFIG.FARM_TIER_BASIC.outerSize();
-        ConfigKey<Integer> industrial = LogisticsForestry.CONFIG.FARM_TIER_INDUSTRIAL.outerSize();
-        try {
-            assertThat(config.trySet(basic, 12)).as("even").isFalse();
-            assertThat(config.trySet(basic, FarmGeometry.COURTYARD)).as("no ring").isFalse();
-            assertThat(config.trySet(basic, 5)).as("inside the courtyard").isFalse();
-            assertThat(config.trySet(basic, 9)).as("one lane").isTrue();
-            assertThat(config.trySet(industrial, 7)).as("narrower than basic").isFalse();
-            assertThat(config.trySet(industrial, 9)).as("as wide as basic").isTrue();
-            assertThat(config.trySet(industrial, 13)).isTrue();
-        } finally {
-            config.set(basic, 11);
-            config.set(industrial, 15);
-        }
-        assertThat(LogisticsConfigHost.get(basic)).isEqualTo(11);
-        assertThat(LogisticsConfigHost.get(industrial)).isEqualTo(15);
     }
 
     @Test
@@ -143,7 +103,6 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
 
         assertThat(config.trySet(keys.energyCapacity(), 0L)).isFalse();
         assertThat(config.trySet(keys.maxEnergyInput(), 0L)).isFalse();
-        assertThat(config.trySet(keys.waterCapacityMb(), 0)).isFalse();
         assertThat(config.trySet(keys.checksPerSecond(), 0)).isFalse();
         assertThat(config.trySet(keys.actionsPerSecond(), 0)).isFalse();
         assertThat(LogisticsConfigHost.get(keys.energyCapacity())).isEqualTo(80_000L);
@@ -152,44 +111,25 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("out-of-range settings are normalised into a workable farm")
     void normalises() {
-        FarmSettings settings = new FarmSettings(Map.of(FarmCost.PLANT, -5L), -1, Double.NaN, 0, 0, -3, Map.of());
+        FarmSettings settings = new FarmSettings(Map.of(FarmCost.PLANT, -5L), 0, 0, -3, Map.of());
 
         assertThat(settings.cost(FarmCost.PLANT)).isZero();
-        assertThat(settings.cost(FarmCost.CLEAR)).as("missing costs take their defaults").isEqualTo(25);
-        assertThat(settings.waterPerIrrigationMb()).isZero();
-        assertThat(settings.withWaterPerIrrigationMb(-7).waterPerIrrigationMb()).isZero();
-        assertThat(settings.harvestShare()).isEqualTo(0.5);
+        assertThat(settings.cost(FarmCost.HARVEST_CROP)).as("missing costs take their defaults").isEqualTo(50);
         assertThat(settings.readsPerCheck()).isEqualTo(1);
         assertThat(settings.idleBackoffBaseTicks()).isEqualTo(1);
         assertThat(settings.idleBackoffMaxTicks()).isEqualTo(1);
         assertThat(settings.tiers()).as("missing tiers take their defaults").isEqualTo(FarmSettings.defaultTiers());
-        assertThat(settings.withHarvestShare(-1).harvestShare()).isZero();
     }
 
     @Test
-    @DisplayName("a tier profile is normalised: an odd ring wider than the courtyard, positive rates and buffers")
+    @DisplayName("a tier profile is normalised: positive rates and buffers")
     void normalisesProfile() {
-        FarmTierProfile profile = new FarmTierProfile(4, 0, -2, 0, -1, 0);
+        FarmTierProfile profile = new FarmTierProfile(0, -2, 0, -1);
 
-        assertThat(profile.outerSize()).isEqualTo(FarmGeometry.COURTYARD + 2);
-        assertThat(new FarmTierProfile(14, 1, 1, 1, 1, 1).outerSize()).as("even rounds up").isEqualTo(15);
         assertThat(profile.checksPerSecond()).isEqualTo(1);
         assertThat(profile.actionsPerSecond()).isEqualTo(1);
         assertThat(profile.energyCapacity()).isEqualTo(1);
         assertThat(profile.maxEnergyInput()).isZero();
-        assertThat(profile.waterCapacityMb()).isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName("no tier's ring is narrower than the tier below it")
-    void ringsNeverShrinkUpTheLadder() {
-        Map<MachineTier, FarmTierProfile> tiers = FarmSettings.defaultTiers();
-        tiers.put(MachineTier.PRECISION, new FarmTierProfile(9, 64, 16, 80_000, 256, 32_000));
-        FarmSettings settings = FarmSettings.defaults().withTiers(tiers);
-
-        assertThat(settings.profile(MachineTier.PRECISION).outerSize()).isEqualTo(15);
-        assertThat(settings.profile(MachineTier.PRECISION).energyCapacity()).isEqualTo(80_000);
-        assertThat(settings.profile(MachineTier.INFERNAL).outerSize()).isEqualTo(23);
     }
 
     @Test
@@ -199,13 +139,11 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         for (FarmStatus status : FarmStatus.values()) {
             assertThat(lang.has(status.translationKey())).as(status.translationKey()).isTrue();
         }
-        assertThat(lang.has(FarmComponent.HUD_STATUS)).isTrue();
-        assertThat(lang.has(FarmComponent.HUD_PLOT)).isTrue();
-        assertThat(lang.has(FarmComponent.HUD_PLOT_SIZE)).isTrue();
-        assertThat(lang.has(FarmComponent.HUD_PLOTS)).isTrue();
-        assertThat(lang.has(FarmComponent.HUD_PLOTS_VALUE)).isTrue();
+        assertThat(lang.has(TendFarmComponent.HUD_STATUS)).isTrue();
+        assertThat(lang.has(TendFarmComponent.HUD_REACH)).isTrue();
+        assertThat(lang.has(TendFarmComponent.HUD_REACH_SIZE)).isTrue();
         assertThat(lang.has(FarmScreenText.TITLE)).isTrue();
-        assertThat(lang.has(FarmScreenText.TOOLTIP_AREA)).isTrue();
+        assertThat(lang.has(FarmScreenText.TOOLTIP_REACH)).isTrue();
         assertThat(lang.has(FarmScreenText.TOOLTIP_PLOTS)).isTrue();
         for (MachineTier tier : MachineTier.values()) {
             assertThat(lang.has(tier.translationKey())).as(tier.translationKey()).isTrue();
@@ -214,41 +152,25 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("the Jade HUD carries the status, the plot size and the plot counts")
+    @DisplayName("the Jade HUD carries the status and the Reach's size")
     void hudLines() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic());
+        FarmHarness farm = FarmHarness.tending(new CropTendLogic());
         MachineHudModel hud = new MachineHudModel();
-        farm.farm().contributeHud(hud);
+        farm.engine().contributeHud(hud);
         CompoundTag data = new CompoundTag();
         hud.save(data);
 
         assertThat(MachineHudModel.entries(data)).containsExactly(
-                new MachineHudModel.LineEntry(FarmComponent.HUD_STATUS, FarmStatus.IDLE.translationKey(), java.util.List.of()),
-                new MachineHudModel.LineEntry(FarmComponent.HUD_PLOT, FarmComponent.HUD_PLOT_SIZE, java.util.List.of("3")),
                 new MachineHudModel.LineEntry(
-                        FarmComponent.HUD_PLOTS, FarmComponent.HUD_PLOTS_VALUE, java.util.List.of("8", "0")));
-    }
-
-    @Test
-    @DisplayName("the Jade plot counts subtract the blocked plots from the ring")
-    void hudPlotCounts() {
-        FarmHarness farm = new FarmHarness(new ScriptedFarmLogic()
-                .script((world, plot) -> PlotAction.blocked(PlotAction.Reason.OBSTRUCTED)));
-        farm.ticks(400);
-        MachineHudModel hud = new MachineHudModel();
-        farm.farm().contributeHud(hud);
-        CompoundTag data = new CompoundTag();
-        hud.save(data);
-
-        assertThat(MachineHudModel.entries(data)).contains(
+                        TendFarmComponent.HUD_STATUS, FarmStatus.IDLE.translationKey(), java.util.List.of()),
                 new MachineHudModel.LineEntry(
-                        FarmComponent.HUD_PLOTS, FarmComponent.HUD_PLOTS_VALUE, java.util.List.of("0", "8")));
+                        TendFarmComponent.HUD_REACH, TendFarmComponent.HUD_REACH_SIZE, java.util.List.of("7")));
     }
 
     @Test
     @DisplayName("an unknown synced status reads as idle")
     void byOrdinal() {
-        assertThat(FarmStatus.byOrdinal(FarmStatus.OUTPUT_FULL.ordinal())).isEqualTo(FarmStatus.OUTPUT_FULL);
+        assertThat(FarmStatus.byOrdinal(FarmStatus.INVENTORY_FULL.ordinal())).isEqualTo(FarmStatus.INVENTORY_FULL);
         assertThat(FarmStatus.byOrdinal(-1)).isEqualTo(FarmStatus.IDLE);
         assertThat(FarmStatus.byOrdinal(FarmStatus.values().length)).isEqualTo(FarmStatus.IDLE);
     }

@@ -10,23 +10,24 @@ import org.junit.jupiter.params.provider.EnumSource;
 @DisplayName("Farm status lamp")
 class FarmLampTest {
 
-    @Test
-    @DisplayName("the lamp is green while working")
-    void greenWhileWorking() {
-        assertThat(FarmLamp.forStatus(FarmStatus.WORKING)).isEqualTo(FarmLamp.GREEN);
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"WORKING", "IDLE"})
+    @DisplayName("the lamp is green while the farm works or has nothing ripe")
+    void greenWhenAllIsWell(FarmStatus status) {
+        assertThat(FarmLamp.forStatus(status)).isEqualTo(FarmLamp.GREEN);
     }
 
     @ParameterizedTest
-    @EnumSource(value = FarmStatus.class, names = {"IDLE", "PAUSED", "SURVEYING"})
-    @DisplayName("the lamp is amber while idle, paused or surveying")
-    void amberWhileWaiting(FarmStatus status) {
+    @EnumSource(value = FarmStatus.class, names = {"WAITING_FOR_SEEDS", "INVENTORY_FULL", "PAUSED"})
+    @DisplayName("the lamp is amber while the farm needs attention but is not stopped by a fault")
+    void amberForWarnings(FarmStatus status) {
         assertThat(FarmLamp.forStatus(status)).isEqualTo(FarmLamp.AMBER);
     }
 
     @ParameterizedTest
-    @EnumSource(value = FarmStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"WORKING", "IDLE", "PAUSED", "SURVEYING"})
-    @DisplayName("the lamp is red for every problem status")
-    void redForProblems(FarmStatus status) {
+    @EnumSource(value = FarmStatus.class, names = {"NO_POWER", "BLOCKED"})
+    @DisplayName("the lamp is red when the farm cannot work")
+    void redForFaults(FarmStatus status) {
         assertThat(FarmLamp.forStatus(status)).isEqualTo(FarmLamp.RED);
     }
 

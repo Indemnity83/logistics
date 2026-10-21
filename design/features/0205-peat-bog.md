@@ -1,5 +1,7 @@
 # Peat Bog
 
+> **Note:** written for the ring model, which [ADR 0001](../../docs/adr/0001-tend-only-farms.md) replaced with farms that tend the player's own field. Revisit this brief against the tend model before building it.
+
 > **Status:** 🚧 Planned — Phase 3 of the farm plan · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain); Bog Earth stays in `core`
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Peat bog / peat) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md), [`0202-fertilizer-and-soils.md`](0202-fertilizer-and-soils.md) (Bog Earth maturity) · **Maps to (roadmap):** Phase 2 — Farms (peat bog → peat fuel)
 

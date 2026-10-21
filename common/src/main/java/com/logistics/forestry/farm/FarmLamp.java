@@ -24,12 +24,12 @@ public enum FarmLamp implements StringRepresentable {
         return id;
     }
 
-    /** Green while working; amber while idle, paused or surveying; red for every problem. Never {@link #OFF}. */
+    /** Green while the farm works or has nothing ripe, amber while it needs attention, red when it cannot work. Never {@link #OFF}. */
     public static FarmLamp forStatus(FarmStatus status) {
         return switch (status) {
-            case WORKING -> GREEN;
-            case IDLE, PAUSED, SURVEYING -> AMBER;
-            default -> RED;
+            case WORKING, IDLE -> GREEN;
+            case WAITING_FOR_SEEDS, INVENTORY_FULL, PAUSED -> AMBER;
+            case NO_POWER, BLOCKED -> RED;
         };
     }
 }

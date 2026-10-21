@@ -1,5 +1,7 @@
 # Cropland (Crop Farm)
 
+> **Superseded** by [ADR 0001](../../docs/adr/0001-tend-only-farms.md): farms now tend the field the player builds within a 7×7 Reach. The courtyard, ring, survey and Start, clearing, soil laying and irrigation this brief describes were removed; it is kept for history.
+
 > **Status:** ✅ **Shipped** (#1408) — field crops on a ring around the farm · 🚧 **Planned:** tiered ring (11×11 at Basic around a 7×7 courtyard), irrigation water × climate, reconciled costs · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain)
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** [`0201-farm-framework.md`](0201-farm-framework.md) · **Maps to (roadmap):** Phase 2 — Farms
 

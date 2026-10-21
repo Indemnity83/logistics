@@ -10,43 +10,28 @@ import java.util.Map;
 /**
  * The farm's tunables in one snapshot. Production reads them from config each tick
  * ({@link #fromConfig()}); tests construct them directly. Out-of-range values are normalised, so
- * every snapshot is workable: costs never negative and every {@link FarmCost} has one, the harvest
- * share between 0 and {@link #MAX_HARVEST_SHARE}, at least one read per check, the idle back-off
- * cap never below its base, every tier has a profile, and no tier's ring is narrower than the tier
- * below it.
+ * every snapshot is workable: costs never negative and every {@link FarmCost} has one, at least one
+ * read per check, the idle back-off cap never below its base, and every tier has a profile.
  *
- * <p>{@code waterPerIrrigationMb} is the water an active farm pays, in a temperate biome, each time
- * one of its ring's farmland plots checks for water and the farm keeps it wet.
+ * <p>{@code readsPerCheck} is how many block reads one check buys; inspecting a position costs one
+ * check.
  *
- * <p>{@code harvestShare} is the share of actions a multi-block harvest gets while cultivation also
- * has work. {@code readsPerCheck} is how many block reads one check buys; a plot inspection costs
- * one check.
- *
- * <p>A tier's energy capacity, maximum input and water capacity size the machine's buffers when the
+ * <p>A tier's energy capacity and maximum input size the machine's buffer when the
  * block entity is built and whenever its tier changes; the rest apply live.
  */
 public record FarmSettings(
         Map<FarmCost, Long> costs,
-        int waterPerIrrigationMb,
-        double harvestShare,
         int readsPerCheck,
         int idleBackoffBaseTicks,
         int idleBackoffMaxTicks,
         Map<MachineTier, FarmTierProfile> tiers) {
 
-    /** Cultivation always keeps at least a quarter of the actions while it has work. */
-    public static final double MAX_HARVEST_SHARE = 0.75;
-
-    public static final int DEFAULT_WATER_PER_IRRIGATION_MB = 100;
-    public static final double DEFAULT_HARVEST_SHARE = 0.5;
     public static final int DEFAULT_READS_PER_CHECK = 64;
     public static final int DEFAULT_IDLE_BACKOFF_BASE_TICKS = 20;
     public static final int DEFAULT_IDLE_BACKOFF_MAX_TICKS = 200;
 
     public FarmSettings {
         costs = normaliseCosts(costs);
-        waterPerIrrigationMb = Math.max(0, waterPerIrrigationMb);
-        harvestShare = Double.isFinite(harvestShare) ? Math.clamp(harvestShare, 0.0, MAX_HARVEST_SHARE) : 0.5;
         readsPerCheck = Math.max(1, readsPerCheck);
         idleBackoffBaseTicks = Math.max(1, idleBackoffBaseTicks);
         idleBackoffMaxTicks = Math.max(idleBackoffBaseTicks, idleBackoffMaxTicks);
@@ -57,8 +42,6 @@ public record FarmSettings(
     public static FarmSettings defaults() {
         return new FarmSettings(
                 FarmCost.defaults(),
-                DEFAULT_WATER_PER_IRRIGATION_MB,
-                DEFAULT_HARVEST_SHARE,
                 DEFAULT_READS_PER_CHECK,
                 DEFAULT_IDLE_BACKOFF_BASE_TICKS,
                 DEFAULT_IDLE_BACKOFF_MAX_TICKS,
@@ -78,31 +61,19 @@ public record FarmSettings(
     public FarmSettings withCost(FarmCost cost, long rf) {
         Map<FarmCost, Long> changed = new EnumMap<>(costs);
         changed.put(cost, rf);
-        return new FarmSettings(
-                changed, waterPerIrrigationMb, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
-    }
-
-    public FarmSettings withWaterPerIrrigationMb(int mb) {
-        return new FarmSettings(costs, mb, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
-    }
-
-    public FarmSettings withHarvestShare(double share) {
-        return new FarmSettings(
-                costs, waterPerIrrigationMb, share, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+        return new FarmSettings(changed, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     public FarmSettings withReadsPerCheck(int reads) {
-        return new FarmSettings(
-                costs, waterPerIrrigationMb, harvestShare, reads, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+        return new FarmSettings(costs, reads, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     public FarmSettings withIdleBackoff(int baseTicks, int maxTicks) {
-        return new FarmSettings(costs, waterPerIrrigationMb, harvestShare, readsPerCheck, baseTicks, maxTicks, tiers);
+        return new FarmSettings(costs, readsPerCheck, baseTicks, maxTicks, tiers);
     }
 
     public FarmSettings withTiers(Map<MachineTier, FarmTierProfile> tiers) {
-        return new FarmSettings(
-                costs, waterPerIrrigationMb, harvestShare, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+        return new FarmSettings(costs, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     /** {@code profile} at every tier. */
@@ -134,8 +105,6 @@ public record FarmSettings(
         }
         return new FarmSettings(
                 costs,
-                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB),
-                LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_MAX_TICKS),
@@ -151,17 +120,11 @@ public record FarmSettings(
         return Collections.unmodifiableMap(result);
     }
 
-    /** Fills missing tiers with their defaults and widens any ring narrower than the tier below it. */
+    /** Fills missing tiers with their defaults. */
     private static Map<MachineTier, FarmTierProfile> normalise(Map<MachineTier, FarmTierProfile> tiers) {
         Map<MachineTier, FarmTierProfile> result = new EnumMap<>(MachineTier.class);
-        int floor = 0;
-        for (MachineTier tier = MachineTier.BASIC; tier != null; tier = tier.next().orElse(null)) {
-            FarmTierProfile profile = tiers.getOrDefault(tier, FarmTierProfile.defaults(tier));
-            if (profile.outerSize() < floor) {
-                profile = profile.withOuterSize(floor);
-            }
-            floor = profile.outerSize();
-            result.put(tier, profile);
+        for (MachineTier tier : MachineTier.values()) {
+            result.put(tier, tiers.getOrDefault(tier, FarmTierProfile.defaults(tier)));
         }
         return Collections.unmodifiableMap(result);
     }

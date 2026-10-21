@@ -19,9 +19,9 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Base block for every farm type. A farm sits at the edge of its plot and faces into it: placed,
- * it faces the way the player was looking, so the plot lies ahead of where they stood. All farm
- * blocks share {@link FarmBlockEntity}; a subclass only supplies its {@link FarmLogic}.
+ * Base block for every farm type. A farm tends the Reach around it; placed, it faces the way the
+ * player was looking. All farm blocks share {@link FarmBlockEntity}; a subclass only supplies its
+ * {@link TendLogic}.
  *
  * <p>Not named {@code FarmBlock}: that is vanilla farmland on older Minecraft versions.
  */
@@ -35,7 +35,7 @@ public abstract class FarmMachineBlock extends MachineBlock {
     }
 
     /** This farm type's behaviour; the same instance on every call. */
-    public abstract FarmLogic logic();
+    public abstract TendLogic logic();
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

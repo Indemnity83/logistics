@@ -3,8 +3,6 @@ package com.logistics;
 import com.indemnity83.configory.Config;
 import com.indemnity83.configory.ConfigEntries;
 import com.indemnity83.configory.ConfigKey;
-import com.indemnity83.configory.ValidationResult;
-import com.indemnity83.configory.builder.IntConfigBuilder;
 import com.logistics.core.bootstrap.DomainBootstrap;
 import com.logistics.core.lib.platform.CreativeTabRegistrar;
 import com.logistics.core.lib.platform.LogisticsCreativeTab;
@@ -13,7 +11,6 @@ import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.core.machine.tier.TieredBlockItem;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmCost;
-import com.logistics.forestry.farm.FarmGeometry;
 import com.logistics.forestry.farm.FarmLamp;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmMenu;
@@ -21,14 +18,12 @@ import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
-import com.logistics.forestry.humus.HumusBlock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
@@ -40,7 +35,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import org.jetbrains.annotations.Nullable;
 
 public final class LogisticsForestry extends LogisticsMod implements DomainBootstrap {
     private static final LogisticsForestry INSTANCE = new LogisticsForestry();
@@ -81,38 +75,23 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         ALIAS.register();
     }
 
-    /**
-     * Farm soils ({@code humus.json}) and the shared farm machine ({@code farm.json}), both under
-     * {@code config/logistics/forestry/}.
-     */
+    /** The shared farm machine ({@code farm.json}), under {@code config/logistics/forestry/}. */
     public static final class CONFIG extends ConfigEntries {
-        private static final Config humus = configFor(LogisticsConfigHost.MOD_ID, "forestry.humus");
         private static final Config farm = configFor(LogisticsConfigHost.MOD_ID, "forestry.farm");
 
         private CONFIG() {}
 
-        public static final ConfigKey<Double> HUMUS_GROWTH_CHANCE = humus.defineDouble("humus_growth_chance", 0.25)
-                .finite()
-                .range(0.0, 1.0)
-                .describe("Chance per Humus random tick to give the sapling above an extra growth step (0.0-1.0)")
-                .register();
-
         /** One tier's farm profile keys, {@code tier.<id>.*}; see {@link FarmTierProfile}. */
         public record FarmTierKeys(
-                ConfigKey<Integer> outerSize,
                 ConfigKey<Integer> checksPerSecond,
                 ConfigKey<Integer> actionsPerSecond,
                 ConfigKey<Long> energyCapacity,
-                ConfigKey<Long> maxEnergyInput,
-                ConfigKey<Integer> waterCapacityMb) {}
+                ConfigKey<Long> maxEnergyInput) {}
 
-        public static final FarmTierKeys FARM_TIER_BASIC = farmTierKeys(MachineTier.BASIC, null);
-        public static final FarmTierKeys FARM_TIER_INDUSTRIAL =
-                farmTierKeys(MachineTier.INDUSTRIAL, () -> CONFIG.FARM_TIER_BASIC.outerSize());
-        public static final FarmTierKeys FARM_TIER_PRECISION =
-                farmTierKeys(MachineTier.PRECISION, () -> CONFIG.FARM_TIER_INDUSTRIAL.outerSize());
-        public static final FarmTierKeys FARM_TIER_INFERNAL =
-                farmTierKeys(MachineTier.INFERNAL, () -> CONFIG.FARM_TIER_PRECISION.outerSize());
+        public static final FarmTierKeys FARM_TIER_BASIC = farmTierKeys(MachineTier.BASIC);
+        public static final FarmTierKeys FARM_TIER_INDUSTRIAL = farmTierKeys(MachineTier.INDUSTRIAL);
+        public static final FarmTierKeys FARM_TIER_PRECISION = farmTierKeys(MachineTier.PRECISION);
+        public static final FarmTierKeys FARM_TIER_INFERNAL = farmTierKeys(MachineTier.INFERNAL);
 
         public static FarmTierKeys farmTier(MachineTier tier) {
             return switch (tier) {
@@ -123,30 +102,18 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             };
         }
 
-        private static FarmTierKeys farmTierKeys(
-                MachineTier tier, @Nullable Supplier<ConfigKey<Integer>> previousOuter) {
+        private static FarmTierKeys farmTierKeys(MachineTier tier) {
             FarmTierProfile defaults = FarmTierProfile.defaults(tier);
             String prefix = "tier." + tier.id() + ".";
-            IntConfigBuilder outer = farm.defineInt(prefix + "outer_size", defaults.outerSize())
-                    .greaterThan(FarmGeometry.COURTYARD)
-                    .validator((value, config) ->
-                            value % 2 != 0 ? ValidationResult.ok() : ValidationResult.error("must be odd"))
-                    .describe("Side of the square the farm works out to at this tier: odd, wider than the "
-                            + FarmGeometry.COURTYARD + "x" + FarmGeometry.COURTYARD
-                            + " courtyard, and at least the previous tier's");
-            if (previousOuter != null) {
-                outer.minValueOf(previousOuter);
-            }
             return new FarmTierKeys(
-                    outer.register(),
                     farm.defineInt(prefix + "checks_per_second", defaults.checksPerSecond())
                             .min(1)
-                            .describe("Plots the farm inspects per second at this tier; inspecting costs no RF")
+                            .describe("Positions the farm inspects per second at this tier; inspecting costs no RF")
                             .register(),
                     farm.defineInt(prefix + "actions_per_second", defaults.actionsPerSecond())
                             .min(1)
-                            .describe("World-changing actions (clear, harvest, till, soil, plant) per "
-                                    + "second at this tier; each costs RF")
+                            .describe("World-changing actions (harvest, till, plant) per second at this tier; "
+                                    + "each costs RF")
                             .register(),
                     farm.defineLong(prefix + "energy_capacity", defaults.energyCapacity())
                             .min(1L)
@@ -155,10 +122,6 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                     farm.defineLong(prefix + "max_energy_input", defaults.maxEnergyInput())
                             .min(1L)
                             .describe("Maximum RF accepted per tick at this tier")
-                            .register(),
-                    farm.defineInt(prefix + "water_capacity_mb", defaults.waterCapacityMb())
-                            .min(1)
-                            .describe("Water tank capacity (mB) at this tier, for farms that irrigate their farmland")
                             .register());
         }
 
@@ -181,33 +144,17 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             return Collections.unmodifiableMap(keys);
         }
 
-        public static final ConfigKey<Integer> FARM_WATER_PER_IRRIGATION_MB = farm.defineInt(
-                        "water_per_irrigation_mb", FarmSettings.DEFAULT_WATER_PER_IRRIGATION_MB)
-                .min(0)
-                .describe("Water (mB) a working farm pays in a temperate biome each time a farmland plot of its "
-                        + "ring checks for water (a random tick) and the farm keeps it wet; hot or dry biomes "
-                        + "cost up to twice this. Rain and nearby water wet farmland for free")
-                .register();
-
-        public static final ConfigKey<Double> FARM_HARVEST_SHARE = farm.defineDouble(
-                        "harvest_share", FarmSettings.DEFAULT_HARVEST_SHARE)
-                .finite()
-                .range(0.0, FarmSettings.MAX_HARVEST_SHARE)
-                .describe("Share of actions a multi-block harvest (a tree) takes while the farm also has plots "
-                        + "to work (0.0-0.75); the rest always goes to planting, tilling and clearing")
-                .register();
-
         public static final ConfigKey<Integer> FARM_READS_PER_CHECK = farm.defineInt(
                         "reads_per_check", FarmSettings.DEFAULT_READS_PER_CHECK)
                 .min(16)
-                .describe("Block reads one check buys; a plot inspection costs one check, and tree planning "
+                .describe("Block reads one check buys; inspecting a position costs one check, and tree planning "
                         + "spends checks as it reads")
                 .register();
 
         public static final ConfigKey<Integer> FARM_IDLE_BACKOFF_BASE_TICKS =
                 farm.defineInt("idle_backoff_base_ticks", FarmSettings.DEFAULT_IDLE_BACKOFF_BASE_TICKS)
                         .min(1)
-                        .describe("Pause after a full pass over the plot finds nothing to do")
+                        .describe("Pause after a full pass over the Reach finds nothing to do")
                         .register();
 
         public static final ConfigKey<Integer> FARM_IDLE_BACKOFF_MAX_TICKS =
@@ -227,37 +174,17 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static final TagKey<Item> FERTILIZERS =
                 TagKey.create(Registries.ITEM, resource("fertilizers").toIdentifier());
 
-        /** Items the Arboretum plants. */
-        public static final TagKey<Item> ARBORETUM_GERMLINGS =
-                TagKey.create(Registries.ITEM, resource("arboretum_germlings").toIdentifier());
+        /** Crops the Crop Farm harvests once fully grown and replants. */
+        public static final TagKey<Block> CROP_FARM_TENDS =
+                TagKey.create(Registries.BLOCK, resource("crop_farm_tends").toIdentifier());
 
-        /** Items the Arboretum lays as soil. */
-        public static final TagKey<Item> ARBORETUM_SOILS =
-                TagKey.create(Registries.ITEM, resource("arboretum_soils").toIdentifier());
+        /** Ground the Crop Farm tends crops on; any but farmland is tilled before replanting. */
+        public static final TagKey<Block> CROP_FARM_GROUND =
+                TagKey.create(Registries.BLOCK, resource("crop_farm_ground").toIdentifier());
 
-        /** Saplings that only grow as an aligned 2×2 group, e.g. dark oak. */
-        public static final TagKey<Item> REQUIRES_2X2 =
-                TagKey.create(Registries.ITEM, resource("requires_2x2").toIdentifier());
-
-        /** Ground the Crop Farm tills into farmland. */
-        public static final TagKey<Block> TILLABLE =
-                TagKey.create(Registries.BLOCK, resource("tillable").toIdentifier());
-
-        /** Blocks a farm's survey counts as natural ground to clear; anything else it would clear looks player-built. */
-        public static final TagKey<Block> NATURAL_CLEARABLE =
-                TagKey.create(Registries.BLOCK, resource("natural_clearable").toIdentifier());
-
-        /** Blocks a farm never clears or replaces, like a block entity. */
-        public static final TagKey<Block> NEVER_CLEAR =
-                TagKey.create(Registries.BLOCK, resource("never_clear").toIdentifier());
-
-        /** Seeds and crop items the Crop Farm plants. */
-        public static final TagKey<Item> CROP_GERMLINGS =
-                TagKey.create(Registries.ITEM, resource("crop_germlings").toIdentifier());
-
-        /** Soil the Crop Farm lays where its plot has no ground. */
-        public static final TagKey<Item> CROP_SOILS =
-                TagKey.create(Registries.ITEM, resource("crop_soils").toIdentifier());
+        /** Ground an Arboretum tends trees on; it is never repaired. */
+        public static final TagKey<Block> ARBORETUM_GROUND =
+                TagKey.create(Registries.BLOCK, resource("arboretum_ground").toIdentifier());
     }
 
     public static final class BLOCK {
@@ -272,7 +199,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
-                props -> new HumusBlock(props.mapColor(MapColor.DIRT).strength(0.5f).sound(SoundType.ROOTED_DIRT)));
+                props -> new Block(props.mapColor(MapColor.DIRT).strength(0.5f).sound(SoundType.ROOTED_DIRT)));
             ARBORETUM = registerFarm("arboretum",
                 props -> new ArboretumBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
@@ -318,7 +245,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
     public static final class MENU {
         private MENU() {}
 
-        /** The one menu every farm block opens. */
+        /** The menu every farm opens. */
         public static MenuType<FarmMenu> FARM;
 
         static void register() {
