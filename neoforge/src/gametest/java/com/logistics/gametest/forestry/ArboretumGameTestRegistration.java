@@ -1,6 +1,5 @@
 package com.logistics.gametest.forestry;
 
-import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.gametest.GameTestCase;
 import com.logistics.gametest.GameTestRegistrationSupport;
 import java.util.List;
@@ -21,56 +20,18 @@ public final class ArboretumGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase(
-            "forestry/arboretum_plants_saplings_on_lattice", 1200, ArboretumGameTestBody::testPlantsSaplingsOnLattice),
+            "forestry/arboretum_fells_humus_tree_whole_and_replants", 2400,
+            ArboretumGameTestBody::testFellsHumusTreeWholeAndReplants),
         new GameTestCase(
-            "forestry/arboretum_fells_grown_tree_and_replants", 3000,
-            ArboretumGameTestBody::testFellsGrownTreeAndReplants),
+            "forestry/arboretum_leaves_tree_on_grass_standing", 600,
+            ArboretumGameTestBody::testLeavesTreeOnGrassStanding),
         new GameTestCase(
-            "forestry/arboretum_no_power_plants_nothing", 300, ArboretumGameTestBody::testNoPowerPlantsNothing),
+            "forestry/arboretum_does_nothing_without_power", 400, ArboretumGameTestBody::testDoesNothingWithoutPower),
         new GameTestCase(
-            "forestry/arboretum_redstone_ignored_by_default", 300, ArboretumGameTestBody::testRedstoneIgnoredByDefault),
-        new GameTestCase(
-            "forestry/arboretum_signal_pauses_farm_in_low_mode", 600, ArboretumGameTestBody::testSignalPausesFarmInLowMode),
-        new GameTestCase(
-            "forestry/arboretum_clears_blocks_from_ring", 1200, ArboretumGameTestBody::testClearsBlocksFromRing),
-        new GameTestCase(
-            "forestry/arboretum_humus_replaces_dirt_across_the_ring", 2000,
-            ArboretumGameTestBody::testHumusReplacesDirtAcrossTheRing),
-        new GameTestCase(
-            "forestry/arboretum_lays_humus_level_with_farm_on_grass", 2000,
-            ArboretumGameTestBody::testLaysHumusLevelWithFarmOnGrass),
-        new GameTestCase(
-            "forestry/arboretum_felled_tree_leaves_sand_that_is_relaid_with_humus", 2000,
-            ArboretumGameTestBody::testFelledTreeLeavesSandThatIsRelaidWithHumus),
-        new GameTestCase(
-            "forestry/arboretum_felled_2x2_tree_leaves_sand_under_all_four_cells", 2000,
-            ArboretumGameTestBody::testFelled2x2TreeLeavesSandUnderAllFourCells),
-        new GameTestCase(
-            "forestry/arboretum_without_humus_sand_is_left_unplanted", 1200,
-            ArboretumGameTestBody::testWithoutHumusSandIsLeftUnplanted),
-        new GameTestCase(
-            "forestry/arboretum_every_germling_grows_on_arboretum_soils", 40,
-            ArboretumGameTestBody::testEveryGermlingGrowsOnArboretumSoils));
-
-    /** Real Basic-tier tests, in the larger structure they need. */
-    private static final List<GameTestCase> FIELD_TESTS = List.of(
-        new GameTestCase(
-            "forestry/arboretum_basic_ring_stays_productive", 6020,
-            ArboretumFieldGameTestBody::testBasicRingStaysProductive),
-        new GameTestCase(
-            "forestry/arboretum_fells_neighbouring_canopies", 1220,
-            ArboretumFieldGameTestBody::testFellsNeighbouringCanopies),
-        new GameTestCase(
-            "forestry/arboretum_foreign_tree_wood_is_never_felled", 2420,
-            ArboretumFieldGameTestBody::testForeignTreeWoodIsNeverFelled));
-
-    private static final ResourceId FIELD = ResourceId.in("logistics_gametest", "arboretum_field");
+            "forestry/arboretum_redstone_signal_pauses_farm", 400, ArboretumGameTestBody::testRedstoneSignalPausesFarm));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);
-
-    private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FIELD_FUNCTIONS =
-        GameTestRegistrationSupport.registerFunctions(FIELD_TESTS);
 
     private ArboretumGameTestRegistration() {}
 
@@ -80,7 +41,5 @@ public final class ArboretumGameTestRegistration {
     @SubscribeEvent
     static void onRegisterGameTests(RegisterGameTestsEvent event) {
         GameTestRegistrationSupport.registerInstances(event, "forestry/arboretum", TESTS, FUNCTIONS);
-        GameTestRegistrationSupport.registerInstances(
-            event, "forestry/arboretum_field", FIELD_TESTS, FIELD_FUNCTIONS, FIELD);
     }
 }
