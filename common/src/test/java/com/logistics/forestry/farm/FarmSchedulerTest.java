@@ -3,8 +3,6 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.area.RingArea;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.farm.crop.CropFarmLogic;
@@ -22,7 +20,6 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -58,14 +55,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         farm.machine.tier().setTier(tier);
         FarmTierProfile profile = farm.settings.profile(tier);
         farm.power(profile.energyCapacity());
-        if (farm.machine.water() != null) {
-            farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(profile.waterCapacityMb()), false);
-        }
         return farm;
-    }
-
-    private static long waterMb(FarmHarness farm) {
-        return FluidUnits.toMillibuckets(farm.machine.water().tank().getAmount());
     }
 
     private static long actions(FarmHarness farm) {
@@ -112,11 +102,6 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         @Override
         public boolean isOwnGrowth(BlockState state) {
             return crops.isOwnGrowth(state);
-        }
-
-        @Override
-        public boolean usesWater() {
-            return true;
         }
 
         @Override
@@ -432,7 +417,7 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
 
     // ==================== Benchmark scenarios ====================
 
-    private record Measured(int ticks, long rf, long waterMb) {}
+    private record Measured(int ticks, long rf) {}
 
     private static Measured matureCropland(MachineTier tier) {
         FarmHarness farm = shipped(new Cropland(), tier);
@@ -442,9 +427,8 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
             farm.world.set(ring.plot(i), RIPE_WHEAT);
         }
         long energy = farm.energy();
-        long water = waterMb(farm);
         int ticks = runUntil(farm, () -> replanted(farm, ring), 10_000);
-        return new Measured(ticks, energy - farm.energy(), water - waterMb(farm));
+        return new Measured(ticks, energy - farm.energy());
     }
 
     @Test
@@ -477,12 +461,11 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("mature cropland, Basic: 72 plots harvested and replanted on their farmland in 36 s for 5 400 RF and no water")
+    @DisplayName("mature cropland, Basic: 72 plots harvested and replanted on their farmland in 36 s for 5 400 RF")
     void matureCroplandBasic() {
         Measured measured = matureCropland(MachineTier.BASIC);
 
         assertThat(measured.rf()).isEqualTo(5_400);
-        assertThat(measured.waterMb()).as("working never spends water").isZero();
         // A harvest and a replant a plot, one action per 5 ticks.
         assertThat(measured.ticks()).isEqualTo(720);
     }
@@ -493,23 +476,13 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         Measured measured = matureCropland(MachineTier.INFERNAL);
 
         assertThat(measured.rf()).isEqualTo(36_000);
-        assertThat(measured.waterMb()).isZero();
         assertThat(measured.ticks()).isEqualTo(600);
     }
 
     @Test
-    @DisplayName("first preparation on grass, Basic: half the plots cleared of tall grass, all tilled and planted in ~47 s for 4 500 RF and no water")
+    @DisplayName("first preparation on grass, Basic: half the plots cleared of tall grass, all tilled and planted in ~47 s for 4 500 RF")
     void grassPrepBasic() {
         assertGrassPrep(shipped(new Cropland(), MachineTier.BASIC));
-    }
-
-    @Test
-    @DisplayName("an empty tank prepares the same field just as fast: tilling and planting never wait for water")
-    void grassPrepWithoutWater() {
-        FarmHarness farm = shipped(new Cropland(), MachineTier.BASIC);
-        farm.machine.water().tank().setContents(SimpleFluidKey.of(Fluids.WATER), 0);
-
-        assertGrassPrep(farm);
     }
 
     private static void assertGrassPrep(FarmHarness farm) {
@@ -523,12 +496,10 @@ class FarmSchedulerTest extends MinecraftTestEnvironment {
         farm.items().setItem(FarmMachine.GERMLING_START, new ItemStack(Items.WHEAT_SEEDS, 64));
         farm.items().setItem(FarmMachine.GERMLING_START + 1, new ItemStack(Items.WHEAT_SEEDS, 8));
         long energy = farm.energy();
-        long water = waterMb(farm);
 
         int ticks = runUntil(farm, () -> replanted(farm, ring), 10_000);
 
         assertThat(energy - farm.energy()).isEqualTo(4_500);
-        assertThat(water - waterMb(farm)).isZero();
         // 2.5 actions a plot is 180 actions, one per 5 ticks, plus the scan reaching them.
         assertThat(ticks).isEqualTo(935);
     }

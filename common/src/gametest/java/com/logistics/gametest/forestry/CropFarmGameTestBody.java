@@ -2,12 +2,8 @@ package com.logistics.gametest.forestry;
 
 import com.logistics.LogisticsCore;
 import com.logistics.LogisticsForestry;
-import com.logistics.LogisticsPipe;
 import com.logistics.LogisticsPower;
 import com.logistics.core.lib.compat.PlantCompat;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.IFluidView;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.machine.area.RingArea;
 import com.logistics.core.machine.control.RedstoneMode;
@@ -21,10 +17,6 @@ import com.logistics.forestry.farm.FarmState;
 import com.logistics.forestry.farm.FarmStatus;
 import com.logistics.forestry.farm.FarmSurvey;
 import com.logistics.forestry.farm.FarmTierProfile;
-import com.logistics.forestry.farm.Hydration;
-import com.logistics.forestry.farm.LevelFarmWorld;
-import com.logistics.pipe.block.entity.FluidPipeBlockEntity;
-import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +27,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -52,7 +43,6 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,9 +55,8 @@ import org.jetbrains.annotations.Nullable;
  * between a 3×3 and a 5×5 square around it ({@link FarmBlockEntity#setAreaOverride}), one block
  * above it, with the soil level with the farm. Everything else stands in the 3×3 inside the ring,
  * which the farm never touches: a Creative Engine held on by a redstone block powers the farm from
- * the west, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest. Water
- * comes from a Glass Tank through a Fluid Extractor Pipe on the north side, driven by a second
- * engine. Two glowstone lamps above the inner square keep the ring bright whatever the sky does.
+ * the west, a hopper on top feeds it, and a hopper underneath pulls its produce into a chest. Two
+ * glowstone lamps above the inner square keep the ring bright whatever the sky does.
  * The farm is started, except in the survey tests, which press Start themselves.
  */
 public class CropFarmGameTestBody {
@@ -78,10 +67,6 @@ public class CropFarmGameTestBody {
     private static final BlockPos INPUT_HOPPER = FARM.above();
     private static final BlockPos OUTPUT_HOPPER = FARM.below();
     private static final BlockPos CHEST = OUTPUT_HOPPER.below();
-    private static final BlockPos WATER_PIPE = FARM.north();
-    private static final BlockPos WATER_TANK = WATER_PIPE.above();
-    private static final BlockPos PIPE_ENGINE = WATER_PIPE.east();
-    private static final BlockPos PIPE_ENGINE_SIGNAL = PIPE_ENGINE.above();
     private static final List<BlockPos> LAMPS = List.of(new BlockPos(2, 4, 2), new BlockPos(4, 4, 4));
 
     private static final int RING_INNER = 3;
@@ -91,7 +76,6 @@ public class CropFarmGameTestBody {
     private static final List<BlockPos> PLOTS = plots();
 
     private static final int MAX_MOISTURE = 7;
-    private static final long TANK_MB = 4_000;
 
     private static List<BlockPos> plots() {
         RingArea ring = new RingArea(FARM.above(), RING_INNER, RING_OUTER);
@@ -102,31 +86,24 @@ public class CropFarmGameTestBody {
         return List.copyOf(plots);
     }
 
-    private record Rig(FarmBlockEntity farm, HopperBlockEntity input, @Nullable GlassTankBlockEntity tank) {}
+    private record Rig(FarmBlockEntity farm, HopperBlockEntity input) {}
 
     /**
      * Builds the rig over {@code soil} (one block per plot, under it; {@code null} lays none). Returns
      * {@code null}, with the test failed, if a block entity is missing.
      */
     @Nullable
-    private static Rig build(GameTestHelper context, @Nullable BlockState soil, boolean power, boolean water) {
-        return build(context, soil, power, water ? TANK_MB : 0);
-    }
-
-    /** {@link #build(GameTestHelper, BlockState, boolean, boolean)} with {@code waterMb} in the source tank; 0 for no water rig. */
-    @Nullable
-    private static Rig build(GameTestHelper context, @Nullable BlockState soil, boolean power, long waterMb) {
-        Rig rig = placeRig(context, soil, power, waterMb);
+    private static Rig build(GameTestHelper context, @Nullable BlockState soil, boolean power) {
+        Rig rig = placeRig(context, soil, power);
         if (rig != null) {
             rig.farm().start();
         }
         return rig;
     }
 
-    /** The rig as {@link #build(GameTestHelper, BlockState, boolean, long)} builds it, with the farm left surveying. */
+    /** The rig as {@link #build} builds it, with the farm left surveying. */
     @Nullable
-    private static Rig placeRig(GameTestHelper context, @Nullable BlockState soil, boolean power, long waterMb) {
-        boolean water = waterMb > 0;
+    private static Rig placeRig(GameTestHelper context, @Nullable BlockState soil, boolean power) {
         if (soil != null) {
             for (BlockPos plot : PLOTS) {
                 context.setBlock(plot.below(), soil);
@@ -159,22 +136,7 @@ public class CropFarmGameTestBody {
             engine.cycleOutputLevel();
         }
 
-        GlassTankBlockEntity tank = null;
-        if (water) {
-            context.setBlock(WATER_TANK, LogisticsPipe.BLOCK.GLASS_TANK);
-            context.setBlock(WATER_PIPE, LogisticsPipe.BLOCK.FLUID_EXTRACTOR_PIPE);
-            tank = context.getBlockEntity(WATER_TANK, GlassTankBlockEntity.class);
-            FluidPipeBlockEntity pipe = context.getBlockEntity(WATER_PIPE, FluidPipeBlockEntity.class);
-            if (tank == null || pipe == null
-                    || placeEngine(context, PIPE_ENGINE, PIPE_ENGINE_SIGNAL, Direction.WEST) == null) {
-                context.fail("Expected the glass tank, extractor pipe and its engine");
-                return null;
-            }
-            // Filling the source tank is a precondition; the pipe carries it into the farm.
-            tank.tank().setContents(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(waterMb));
-            pipe.setFeatureDirection(Direction.UP);
-        }
-        return new Rig(farm, input, tank);
+        return new Rig(farm, input);
     }
 
     @Nullable
@@ -193,51 +155,6 @@ public class CropFarmGameTestBody {
 
     private static BlockState farmland(int moisture) {
         return Blocks.FARMLAND.defaultBlockState().setValue(BlockStateProperties.MOISTURE, moisture);
-    }
-
-    private static long farmWater(FarmBlockEntity farm) {
-        long total = 0;
-        for (IFluidView view : farm.fluidStorage(null).contents()) {
-            total += view.amount();
-        }
-        return total;
-    }
-
-    /** The water one irrigation of {@code soil} costs where the test runs, in mB. */
-    private static long irrigationMb(GameTestHelper context, BlockPos soil) {
-        return Hydration.waterMb(
-                FarmSettings.fromConfig().waterPerIrrigationMb(),
-                LevelFarmWorld.climate(context.getLevel(), context.absolutePos(soil)));
-    }
-
-    /**
-     * Glass over {@code soil}'s column, just above what the farm keeps clear, so rain never reaches
-     * the plot and only irrigation can wet it.
-     */
-    private static BlockPos roof(GameTestHelper context, Rig rig, BlockPos soil) {
-        BlockPos roof = soil.above(1 + rig.farm().logic().clearanceHeight());
-        context.setBlock(roof, Blocks.GLASS);
-        return roof;
-    }
-
-    /** {@code soil} as farmland of {@code moisture}, given one vanilla random tick; returns the moisture after it. */
-    private static int randomTick(GameTestHelper context, BlockPos soil, int moisture) {
-        context.setBlock(soil, farmland(moisture));
-        ServerLevel level = context.getLevel();
-        BlockPos pos = context.absolutePos(soil);
-        level.getBlockState(pos).randomTick(level, pos, level.getRandom());
-        BlockState after = context.getBlockState(soil);
-        if (!after.is(Blocks.FARMLAND)) {
-            throw context.assertionException(soil, "The farmland should still be farmland, is " + after);
-        }
-        return after.getValue(BlockStateProperties.MOISTURE);
-    }
-
-    /** Fails until every drop of the source tank has reached the farm. */
-    private static void assertTankDrained(GameTestHelper context, Rig rig) {
-        if (rig.tank() != null && rig.tank().tank().getAmount() > 0) {
-            throw context.assertionException(WATER_TANK, "All the tank's water should have reached the farm");
-        }
     }
 
     private static void assertWheatEverywhere(GameTestHelper context, List<BlockPos> plots) {
@@ -262,7 +179,7 @@ public class CropFarmGameTestBody {
      * on one plot is cleared first.
      */
     public static void testTillsAndPlantsWheat(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -272,25 +189,6 @@ public class CropFarmGameTestBody {
         context.succeedWhen(() -> assertWheatEverywhere(context, PLOTS));
     }
 
-    /** With no water at all, the farm still tills the whole ring and sows it, never reporting No water. */
-    public static void testTillsAndPlantsWithoutWater(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, false);
-        if (rig == null) {
-            return;
-        }
-        rig.input().setItem(0, new ItemStack(Items.WHEAT_SEEDS, PLOTS.size()));
-
-        context.succeedWhen(() -> {
-            assertWheatEverywhere(context, PLOTS);
-            if (farmWater(rig.farm()) != 0) {
-                throw context.assertionException(FARM, "The farm should have no water");
-            }
-            if (rig.farm().status() == FarmStatus.NO_WATER) {
-                throw context.assertionException(FARM, "Farm should not report No water");
-            }
-        });
-    }
-
     /**
      * Mature wheat is harvested and replanted on the same farmland: the harvest leaves the plot's
      * farmland, at the moisture it had, and the plot is never dirt. The test bone-meals that one
@@ -298,7 +196,7 @@ public class CropFarmGameTestBody {
      * idle.
      */
     public static void testHarvestKeepsFarmland(GameTestHelper context) {
-        Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
+        Rig rig = build(context, farmland(MAX_MOISTURE), true);
         if (rig == null) {
             return;
         }
@@ -354,120 +252,6 @@ public class CropFarmGameTestBody {
     }
 
     /**
-     * A working farm irrigates dry farmland of its ring through vanilla's own random tick: the
-     * farmland goes to full moisture and the farm's tank drops by exactly one irrigation's water.
-     */
-    public static void testIrrigatesRingFarmlandFromTank(GameTestHelper context) {
-        Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
-        if (rig == null) {
-            return;
-        }
-        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
-        BlockPos soil = PLOTS.get(PLOTS.size() / 2).below();
-        BlockPos roof = roof(context, rig, soil);
-
-        context.succeedWhen(() -> {
-            assertTankDrained(context, rig);
-            long before = farmWater(rig.farm());
-            int moisture = randomTick(context, soil, 0);
-            long spent = before - farmWater(rig.farm());
-            if (moisture != MAX_MOISTURE) {
-                throw context.assertionException(soil, "Irrigated farmland should be fully wet, is " + moisture);
-            }
-            long charge = FluidUnits.mb(irrigationMb(context, soil));
-            if (spent != charge) {
-                throw context.assertionException(FARM, "The irrigation should cost " + FluidUnits.toMillibuckets(charge)
-                        + " mB, cost " + FluidUnits.toMillibuckets(spent) + " mB");
-            }
-            context.setBlock(roof, Blocks.AIR);
-        });
-    }
-
-    /** With an empty tank the farm cannot irrigate: a random tick dries its farmland one level and nothing is spent. */
-    public static void testFarmlandDriesWithoutWater(GameTestHelper context) {
-        Rig rig = build(context, farmland(MAX_MOISTURE), true, false);
-        if (rig == null) {
-            return;
-        }
-        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
-        BlockPos soil = PLOTS.get(PLOTS.size() / 2).below();
-        BlockPos roof = roof(context, rig, soil);
-
-        context.runAfterDelay(40, () -> {
-            int moisture = randomTick(context, soil, 5);
-            if (moisture != 4) {
-                throw context.assertionException(soil, "Unirrigated farmland should dry from 5 to 4, is " + moisture);
-            }
-            if (farmWater(rig.farm()) != 0) {
-                throw context.assertionException(FARM, "The farm should have spent no water");
-            }
-            context.setBlock(roof, Blocks.AIR);
-            context.succeed();
-        });
-    }
-
-    /** A farm that is still surveying never irrigates: its farmland dries and its water stays in the tank. */
-    public static void testSurveyingFarmDoesNotIrrigate(GameTestHelper context) {
-        Rig rig = placeRig(context, farmland(MAX_MOISTURE), true, TANK_MB);
-        if (rig == null) {
-            return;
-        }
-        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
-        BlockPos soil = PLOTS.get(PLOTS.size() / 2).below();
-        BlockPos roof = roof(context, rig, soil);
-
-        context.succeedWhen(() -> {
-            assertTankDrained(context, rig);
-            long before = farmWater(rig.farm());
-            int moisture = randomTick(context, soil, 5);
-            if (moisture != 4) {
-                throw context.assertionException(soil, "A surveying farm's farmland should dry from 5 to 4, is " + moisture);
-            }
-            if (farmWater(rig.farm()) != before) {
-                throw context.assertionException(FARM, "A surveying farm should spend no water");
-            }
-            if (rig.farm().state() != FarmState.SURVEY) {
-                throw context.assertionException(FARM, "The farm should still be surveying");
-            }
-            context.setBlock(roof, Blocks.AIR);
-        });
-    }
-
-    /**
-     * Farmland in the courtyard or outside the ring is never irrigated by a working farm with water:
-     * a random tick dries both and the farm spends nothing.
-     */
-    public static void testNeverIrrigatesOutsideRing(GameTestHelper context) {
-        Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
-        if (rig == null) {
-            return;
-        }
-        PLOTS.forEach(plot -> context.setBlock(plot, Blocks.WHEAT));
-        // Under a lamp, which keeps the rain off.
-        BlockPos courtyard = new BlockPos(4, FARM.getY(), 4);
-        BlockPos outside = new BlockPos(0, FARM.getY(), FARM.getZ());
-        BlockPos outsideRoof = outside.above(2);
-        context.setBlock(outsideRoof, Blocks.GLASS);
-
-        context.succeedWhen(() -> {
-            assertTankDrained(context, rig);
-            long before = farmWater(rig.farm());
-            for (BlockPos soil : List.of(courtyard, outside)) {
-                int moisture = randomTick(context, soil, 5);
-                if (moisture != 4) {
-                    throw context.assertionException(soil, "Farmland off the ring should dry from 5 to 4, is " + moisture);
-                }
-            }
-            if (farmWater(rig.farm()) != before) {
-                throw context.assertionException(FARM, "Farmland off the ring should cost the farm nothing");
-            }
-            context.setBlock(courtyard, Blocks.AIR);
-            context.setBlock(outside, Blocks.AIR);
-            context.setBlock(outsideRoof, Blocks.AIR);
-        });
-    }
-
-    /**
      * Wheat ripens, is harvested into the chest through the output hopper, and plots are sown again
      * from the seeds the harvest returned. The test bone-meals growing wheat so it ripens quickly.
      *
@@ -477,7 +261,7 @@ public class CropFarmGameTestBody {
      * need be replanted: the output hopper is free to carry returned seeds off to the chest.
      */
     public static void testHarvestsAndReplantsFromReturnedSeeds(GameTestHelper context) {
-        Rig rig = build(context, farmland(MAX_MOISTURE), true, true);
+        Rig rig = build(context, farmland(MAX_MOISTURE), true);
         if (rig == null) {
             return;
         }
@@ -526,7 +310,7 @@ public class CropFarmGameTestBody {
 
     /** Without power the farm tills and plants nothing, and reports No power. */
     public static void testDoesNothingWithoutPower(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false);
         if (rig == null) {
             return;
         }
@@ -554,7 +338,7 @@ public class CropFarmGameTestBody {
      * and sows seeds fed in from a hopper beside it.
      */
     public static void testLeverOnEngineDoesNotPauseFarm(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), false);
         if (rig == null) {
             return;
         }
@@ -597,7 +381,7 @@ public class CropFarmGameTestBody {
 
     /** A torch standing on a plot is cleared into the chest, and the plot is farmed like the rest. */
     public static void testClearsTorchFromPlot(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -612,7 +396,7 @@ public class CropFarmGameTestBody {
 
     /** Cobblestone two blocks above a plot is cleared into the chest, and the ring is farmed. */
     public static void testClearsBlockAbovePlot(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -632,7 +416,7 @@ public class CropFarmGameTestBody {
      * chest and its contents are still there once the farm has sown the rest of the ring.
      */
     public static void testNeverBreaksChestInRing(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -663,7 +447,7 @@ public class CropFarmGameTestBody {
 
     /** A block in the square inside the ring, right beside the farm, is never touched. */
     public static void testLeavesInnerSquareAlone(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -685,7 +469,7 @@ public class CropFarmGameTestBody {
      * broken, so no dirt reaches the output and none of the dirt in the soil slots is laid.
      */
     public static void testTillsGrassInPlace(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, true);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -717,7 +501,7 @@ public class CropFarmGameTestBody {
      * the farm's menu, then clears the torch, planks and grass, and never the chest or its diamonds.
      */
     public static void testSurveyChangesNothingUntilStart(GameTestHelper context) {
-        Rig rig = placeRig(context, Blocks.GRASS_BLOCK.defaultBlockState(), true, TANK_MB);
+        Rig rig = placeRig(context, Blocks.GRASS_BLOCK.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -810,7 +594,7 @@ public class CropFarmGameTestBody {
      * shows the new lanes' torch as flagged and reports it, then clears it without any confirmation.
      */
     public static void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
-        Rig rig = build(context, Blocks.GRASS_BLOCK.defaultBlockState(), true, true);
+        Rig rig = build(context, Blocks.GRASS_BLOCK.defaultBlockState(), true);
         if (rig == null) {
             return;
         }
@@ -866,7 +650,7 @@ public class CropFarmGameTestBody {
                 context.setBlock(new BlockPos(x, floorY, z), Blocks.GRASS_BLOCK);
             }
         }
-        Rig rig = build(context, null, true, true);
+        Rig rig = build(context, null, true);
         if (rig == null) {
             return;
         }
@@ -947,7 +731,7 @@ public class CropFarmGameTestBody {
      * past the Basic capacity, at the Industrial input rate.
      */
     public static void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
-        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true, false);
+        Rig rig = build(context, Blocks.DIRT.defaultBlockState(), true);
         if (rig == null) {
             return;
         }

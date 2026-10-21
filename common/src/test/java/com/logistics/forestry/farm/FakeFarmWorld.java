@@ -53,8 +53,6 @@ final class FakeFarmWorld implements FarmWorldAccess {
     /** Stand in for the unbound {@code natural_clearable} and {@code never_clear} tags. */
     Predicate<BlockState> natural = state -> false;
     Predicate<BlockState> neverClear = state -> false;
-    FarmClimate climate = FarmClimate.NEUTRAL;
-    boolean raining;
     /** A write of a state at a position this refuses reports failure and changes nothing. */
     BiPredicate<BlockPos, BlockState> refuseSet = (pos, state) -> false;
     /** A break at a position this refuses reports failure and changes nothing. */
@@ -107,18 +105,6 @@ final class FakeFarmWorld implements FarmWorldAccess {
     public boolean canSurvive(BlockState state, BlockPos pos) {
         readCount++;
         return isLoaded(pos);
-    }
-
-    @Override
-    public FarmClimate climate(BlockPos pos) {
-        readCount++;
-        return climate;
-    }
-
-    @Override
-    public boolean rainingAt(BlockPos pos) {
-        readCount++;
-        return raining && isLoaded(pos);
     }
 
     @Override

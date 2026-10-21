@@ -18,7 +18,6 @@ final class FarmStatusTracker {
     private static final FarmStatus[] PROBLEMS = {
         FarmStatus.NO_POWER,
         FarmStatus.OUTPUT_FULL,
-        FarmStatus.NO_WATER,
         FarmStatus.NO_SOIL,
         FarmStatus.NO_GERMLINGS,
         FarmStatus.TOO_DARK,

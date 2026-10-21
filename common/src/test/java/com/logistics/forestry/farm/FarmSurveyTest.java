@@ -3,8 +3,6 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.area.RingArea;
 import com.logistics.core.machine.control.MachineControls;
 import com.logistics.core.machine.control.RedstoneMode;
@@ -27,7 +25,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +43,7 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
 
     /** Lays dirt under any plot whose soil is not dirt, and wants nothing else. */
     private static ScriptedFarmLogic dirtLayer() {
-        ScriptedFarmLogic logic = new ScriptedFarmLogic(true, true).script((world, plot) ->
+        ScriptedFarmLogic logic = new ScriptedFarmLogic(true).script((world, plot) ->
                 world.state(plot.below()).is(Blocks.DIRT) ? PlotAction.NONE : new PlotAction.PlaceSoil(plot.below()));
         logic.clearanceHeight = 3;
         return logic;
@@ -105,7 +102,6 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
 
     private static void stock(FarmHarness farm) {
         farm.power(10_000);
-        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(4_000), false);
         farm.items().setItem(FarmMachine.GERMLING_START, new ItemStack(Items.WHEAT_SEEDS, 10));
         farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.DIRT, 32));
     }
@@ -136,7 +132,6 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
         fixture(farm);
         stock(farm);
         Map<BlockPos, BlockState> before = new HashMap<>(farm.world.blocks);
-        long water = farm.machine.water().tank().getAmount();
         List<ItemStack> stacks = items(farm);
 
         farm.ticks(500);
@@ -146,7 +141,6 @@ class FarmSurveyTest extends MinecraftTestEnvironment {
         assertThat(farm.world.mutations).as("no break or write").isEmpty();
         assertThat(farm.world.blocks).isEqualTo(before);
         assertThat(farm.energy()).isEqualTo(10_000);
-        assertThat(farm.machine.water().tank().getAmount()).isEqualTo(water);
         assertThat(sameItems(stacks, items(farm))).as("inventory unchanged").isTrue();
         assertThat(farm.farm().harvestActions() + farm.farm().cultivateActions()).isZero();
         assertThat(farm.host.lit()).as("its buffer holds RF").isTrue();

@@ -3,8 +3,6 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
-import com.logistics.core.lib.fluids.FluidUnits;
-import com.logistics.core.lib.fluids.SimpleFluidKey;
 import com.logistics.core.machine.area.Columns;
 import com.logistics.core.machine.area.RingArea;
 import com.logistics.forestry.logic.TreeView;
@@ -21,7 +19,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +31,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 class CourtyardGuardTest extends MinecraftTestEnvironment {
 
     private static final long RF = 10_000;
-    private static final long WATER_MB = 4_000;
     private static final int GERMLINGS = 8;
     private static final int SOIL = 8;
     private static final BlockState STONE = Blocks.STONE.defaultBlockState();
@@ -88,14 +84,12 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
         farm.areaOverride(0, 0);
         farm.items().setItem(FarmMachine.GERMLING_START, new ItemStack(Items.OAK_SAPLING, GERMLINGS));
         farm.items().setItem(FarmMachine.SOIL_START, new ItemStack(Items.DIRT, SOIL));
-        farm.machine.water().tank().insert(SimpleFluidKey.of(Fluids.WATER), FluidUnits.mb(WATER_MB), false);
         farm.power(RF);
         return farm;
     }
 
     private static void assertNothingSpentOrTouched(FarmHarness farm, Columns courtyard) {
         assertThat(farm.energy()).as("RF").isEqualTo(RF);
-        assertThat(farm.machine.water().tank().getAmount()).as("water").isEqualTo(FluidUnits.mb(WATER_MB));
         assertThat(farm.items().getItem(FarmMachine.GERMLING_START).getCount()).as("germlings").isEqualTo(GERMLINGS);
         assertThat(farm.items().getItem(FarmMachine.SOIL_START).getCount()).as("soil").isEqualTo(SOIL);
         assertThat(farm.world.broken).as("broken").isEmpty();
@@ -106,7 +100,7 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
     @MethodSource("everyActionAtEveryCourtyardPosition")
     @DisplayName("every action aimed into the courtyard, at any height, is refused and charges nothing")
     void actionsIntoTheCourtyardAreRefused(Case c, BlockPos target) {
-        ScriptedFarmLogic logic = new ScriptedFarmLogic(true, true).script((world, plot) -> c.action().apply(target));
+        ScriptedFarmLogic logic = new ScriptedFarmLogic(true).script((world, plot) -> c.action().apply(target));
         FarmHarness farm = farm(logic);
         farm.world.set(target, c.before());
         Columns courtyard = farm.area().keepOut();
@@ -130,7 +124,7 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
         BlockPos log = new BlockPos(-2, 4, -3);
         BlockPos planks = new BlockPos(-3, 5, -3);
         List<BlockPos> blocks = List.of(leaf, playerLeaf, log, planks, plot.above(), plot);
-        ScriptedFarmLogic logic = new ScriptedFarmLogic(true, true)
+        ScriptedFarmLogic logic = new ScriptedFarmLogic(true)
                 .script((world, p) -> p.equals(plot) && world.state(plot).is(Blocks.OAK_LOG)
                         ? new PlotAction.Harvest(blocks)
                         : PlotAction.NONE);
@@ -205,7 +199,7 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
     @DisplayName("a group reaching into the courtyard is planted nowhere, its ring cell included")
     void groupReachingIntoTheCourtyardIsRefused() {
         BlockPos inside = new BlockPos(-3, 1, -3);
-        ScriptedFarmLogic logic = new ScriptedFarmLogic(true, true)
+        ScriptedFarmLogic logic = new ScriptedFarmLogic(true)
                 .script((world, plot) -> new PlotAction.Plant(List.of(plot, inside), new ItemStack(Items.OAK_SAPLING)));
         FarmHarness farm = farm(logic);
 
@@ -222,7 +216,7 @@ class CourtyardGuardTest extends MinecraftTestEnvironment {
         BlockPos plot = ring.plot(0);
         BlockPos inside = new BlockPos(-3, 3, -3);
         List<BlockPos> blocks = List.of(plot.above(2), inside, plot.above(), plot);
-        ScriptedFarmLogic logic = new ScriptedFarmLogic(true, true)
+        ScriptedFarmLogic logic = new ScriptedFarmLogic(true)
                 .script((world, p) -> p.equals(plot) && world.state(plot).is(Blocks.OAK_LOG)
                         ? new PlotAction.Harvest(blocks)
                         : PlotAction.NONE);

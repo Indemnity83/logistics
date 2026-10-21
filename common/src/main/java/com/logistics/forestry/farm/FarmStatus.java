@@ -11,7 +11,6 @@ public enum FarmStatus {
     /** Nothing to do anywhere in the plot. */
     IDLE,
     NO_POWER,
-    NO_WATER,
     NO_GERMLINGS,
     NO_SOIL,
     /** The output buffer is full; harvesting waits, other work goes on. */

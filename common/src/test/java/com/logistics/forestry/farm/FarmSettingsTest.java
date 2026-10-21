@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class FarmSettingsTest extends MinecraftTestEnvironment {
 
     @Test
-    @DisplayName("config defaults: per-action RF, 100 mB per irrigation, an even harvest share, 64 reads a check")
+    @DisplayName("config defaults: per-action RF, an even harvest share, 64 reads a check")
     void configDefaults() {
         Map<FarmCost, Long> expected = Map.of(
                 FarmCost.CLEAR, 25L,
@@ -45,7 +45,6 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         assertThat(FarmCost.values()).extracting(FarmCost::configName).containsExactly(
                 "rf_clear_per_block", "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves",
                 "rf_till", "rf_soil", "rf_plant");
-        assertThat(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB.definition().defaultValue()).isEqualTo(100);
         assertThat(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE.definition().defaultValue()).isEqualTo(0.5);
         assertThat(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK.definition().defaultValue()).isEqualTo(64);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS.definition().defaultValue()).isEqualTo(20);
@@ -56,22 +55,13 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("the dropped keys are gone from the farm config")
     void droppedKeys() {
-        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB.configId());
+        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_HARVEST_SHARE.configId());
         assertThat(config.definitions())
                 .extracting(definition -> definition.path().fullPath())
-                .contains("water_per_irrigation_mb", "harvest_share", "reads_per_check", "tier.basic.checks_per_second")
+                .contains("harvest_share", "reads_per_check", "tier.basic.checks_per_second")
                 .doesNotContain("work_interval_ticks", "harvest_blocks_per_tick", "rf_harvest_per_block",
                         "water_per_till_mb", "rf_moisten", "water_per_moisture_mb", "tilled_moisture",
-                        "rf_moisture_per_level");
-    }
-
-    @Test
-    @DisplayName("water per irrigation must not be negative")
-    void irrigationValidation() {
-        Config config = ConfigRegistry.config(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB.configId());
-
-        assertThat(config.trySet(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB, -1)).isFalse();
-        assertThat(LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_WATER_PER_IRRIGATION_MB)).isEqualTo(100);
+                        "rf_moisture_per_level", "water_per_irrigation_mb", "tier.basic.water_capacity_mb");
     }
 
     @Test
@@ -88,13 +78,13 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("each tier's profile defaults: 11/15/19/23 rings, rates, buffers and tanks doubling per tier")
+    @DisplayName("each tier's profile defaults: 11/15/19/23 rings, rates and buffers doubling per tier")
     void tierDefaults() {
         assertThat(FarmSettings.fromConfig().tiers()).containsExactly(
-                entry(MachineTier.BASIC, new FarmTierProfile(11, 16, 4, 20_000, 64, 8_000)),
-                entry(MachineTier.INDUSTRIAL, new FarmTierProfile(15, 32, 8, 40_000, 128, 16_000)),
-                entry(MachineTier.PRECISION, new FarmTierProfile(19, 64, 16, 80_000, 256, 32_000)),
-                entry(MachineTier.INFERNAL, new FarmTierProfile(23, 128, 32, 160_000, 512, 64_000)));
+                entry(MachineTier.BASIC, new FarmTierProfile(11, 16, 4, 20_000, 64)),
+                entry(MachineTier.INDUSTRIAL, new FarmTierProfile(15, 32, 8, 40_000, 128)),
+                entry(MachineTier.PRECISION, new FarmTierProfile(19, 64, 16, 80_000, 256)),
+                entry(MachineTier.INFERNAL, new FarmTierProfile(23, 128, 32, 160_000, 512)));
         for (MachineTier tier : MachineTier.values()) {
             assertThat(FarmTierProfile.fromConfig(tier)).as("%s", tier).isEqualTo(FarmTierProfile.defaults(tier));
         }
@@ -110,7 +100,6 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         assertThat(keys.actionsPerSecond().definition().path().fullPath()).isEqualTo("tier.industrial.actions_per_second");
         assertThat(keys.energyCapacity().definition().path().fullPath()).isEqualTo("tier.industrial.energy_capacity");
         assertThat(keys.maxEnergyInput().definition().path().fullPath()).isEqualTo("tier.industrial.max_energy_input");
-        assertThat(keys.waterCapacityMb().definition().path().fullPath()).isEqualTo("tier.industrial.water_capacity_mb");
     }
 
     @Test
@@ -143,7 +132,6 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
 
         assertThat(config.trySet(keys.energyCapacity(), 0L)).isFalse();
         assertThat(config.trySet(keys.maxEnergyInput(), 0L)).isFalse();
-        assertThat(config.trySet(keys.waterCapacityMb(), 0)).isFalse();
         assertThat(config.trySet(keys.checksPerSecond(), 0)).isFalse();
         assertThat(config.trySet(keys.actionsPerSecond(), 0)).isFalse();
         assertThat(LogisticsConfigHost.get(keys.energyCapacity())).isEqualTo(80_000L);
@@ -152,12 +140,10 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("out-of-range settings are normalised into a workable farm")
     void normalises() {
-        FarmSettings settings = new FarmSettings(Map.of(FarmCost.PLANT, -5L), -1, Double.NaN, 0, 0, -3, Map.of());
+        FarmSettings settings = new FarmSettings(Map.of(FarmCost.PLANT, -5L), Double.NaN, 0, 0, -3, Map.of());
 
         assertThat(settings.cost(FarmCost.PLANT)).isZero();
         assertThat(settings.cost(FarmCost.CLEAR)).as("missing costs take their defaults").isEqualTo(25);
-        assertThat(settings.waterPerIrrigationMb()).isZero();
-        assertThat(settings.withWaterPerIrrigationMb(-7).waterPerIrrigationMb()).isZero();
         assertThat(settings.harvestShare()).isEqualTo(0.5);
         assertThat(settings.readsPerCheck()).isEqualTo(1);
         assertThat(settings.idleBackoffBaseTicks()).isEqualTo(1);
@@ -169,22 +155,21 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("a tier profile is normalised: an odd ring wider than the courtyard, positive rates and buffers")
     void normalisesProfile() {
-        FarmTierProfile profile = new FarmTierProfile(4, 0, -2, 0, -1, 0);
+        FarmTierProfile profile = new FarmTierProfile(4, 0, -2, 0, -1);
 
         assertThat(profile.outerSize()).isEqualTo(FarmGeometry.COURTYARD + 2);
-        assertThat(new FarmTierProfile(14, 1, 1, 1, 1, 1).outerSize()).as("even rounds up").isEqualTo(15);
+        assertThat(new FarmTierProfile(14, 1, 1, 1, 1).outerSize()).as("even rounds up").isEqualTo(15);
         assertThat(profile.checksPerSecond()).isEqualTo(1);
         assertThat(profile.actionsPerSecond()).isEqualTo(1);
         assertThat(profile.energyCapacity()).isEqualTo(1);
         assertThat(profile.maxEnergyInput()).isZero();
-        assertThat(profile.waterCapacityMb()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("no tier's ring is narrower than the tier below it")
     void ringsNeverShrinkUpTheLadder() {
         Map<MachineTier, FarmTierProfile> tiers = FarmSettings.defaultTiers();
-        tiers.put(MachineTier.PRECISION, new FarmTierProfile(9, 64, 16, 80_000, 256, 32_000));
+        tiers.put(MachineTier.PRECISION, new FarmTierProfile(9, 64, 16, 80_000, 256));
         FarmSettings settings = FarmSettings.defaults().withTiers(tiers);
 
         assertThat(settings.profile(MachineTier.PRECISION).outerSize()).isEqualTo(15);

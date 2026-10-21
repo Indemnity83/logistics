@@ -102,8 +102,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 ConfigKey<Integer> checksPerSecond,
                 ConfigKey<Integer> actionsPerSecond,
                 ConfigKey<Long> energyCapacity,
-                ConfigKey<Long> maxEnergyInput,
-                ConfigKey<Integer> waterCapacityMb) {}
+                ConfigKey<Long> maxEnergyInput) {}
 
         public static final FarmTierKeys FARM_TIER_BASIC = farmTierKeys(MachineTier.BASIC, null);
         public static final FarmTierKeys FARM_TIER_INDUSTRIAL =
@@ -154,10 +153,6 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                     farm.defineLong(prefix + "max_energy_input", defaults.maxEnergyInput())
                             .min(1L)
                             .describe("Maximum RF accepted per tick at this tier")
-                            .register(),
-                    farm.defineInt(prefix + "water_capacity_mb", defaults.waterCapacityMb())
-                            .min(1)
-                            .describe("Water tank capacity (mB) at this tier, for farms that irrigate their farmland")
                             .register());
         }
 
@@ -179,14 +174,6 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             }
             return Collections.unmodifiableMap(keys);
         }
-
-        public static final ConfigKey<Integer> FARM_WATER_PER_IRRIGATION_MB = farm.defineInt(
-                        "water_per_irrigation_mb", FarmSettings.DEFAULT_WATER_PER_IRRIGATION_MB)
-                .min(0)
-                .describe("Water (mB) a working farm pays in a temperate biome each time a farmland plot of its "
-                        + "ring checks for water (a random tick) and the farm keeps it wet; hot or dry biomes "
-                        + "cost up to twice this. Rain and nearby water wet farmland for free")
-                .register();
 
         public static final ConfigKey<Double> FARM_HARVEST_SHARE = farm.defineDouble(
                         "harvest_share", FarmSettings.DEFAULT_HARVEST_SHARE)

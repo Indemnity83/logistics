@@ -16,34 +16,9 @@ public class CropFarmGameTest {
         CropFarmGameTestBody.testTillsAndPlantsWheat(context);
     }
 
-    @GameTest(maxTicks = 1200)
-    public void testTillsAndPlantsWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testTillsAndPlantsWithoutWater(context);
-    }
-
     @GameTest(maxTicks = 2400)
     public void testHarvestKeepsFarmland(GameTestHelper context) {
         CropFarmGameTestBody.testHarvestKeepsFarmland(context);
-    }
-
-    @GameTest(maxTicks = 1200)
-    public void testIrrigatesRingFarmlandFromTank(GameTestHelper context) {
-        CropFarmGameTestBody.testIrrigatesRingFarmlandFromTank(context);
-    }
-
-    @GameTest(maxTicks = 200)
-    public void testFarmlandDriesWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testFarmlandDriesWithoutWater(context);
-    }
-
-    @GameTest(maxTicks = 1200)
-    public void testSurveyingFarmDoesNotIrrigate(GameTestHelper context) {
-        CropFarmGameTestBody.testSurveyingFarmDoesNotIrrigate(context);
-    }
-
-    @GameTest(maxTicks = 1200)
-    public void testNeverIrrigatesOutsideRing(GameTestHelper context) {
-        CropFarmGameTestBody.testNeverIrrigatesOutsideRing(context);
     }
 
     @GameTest(maxTicks = 3000)

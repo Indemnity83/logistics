@@ -19,9 +19,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * crop once mature, replanting from the harvest first. A harvest leaves the farmland as it is, at
  * whatever moisture it had; only farmland that dries out back to dirt costs another till.
  *
- * <p>A till leaves the farmland dry. This logic never waters it: the farm irrigates its ring from its
- * tank as vanilla farmland checks for water, and without water the field still works, its crops
- * growing at the dry rate.
+ * <p>A till leaves the farmland dry. The farm never waters it: without water nearby the field still
+ * works, its crops growing at the dry rate.
  *
  * <p>Crop blocks ({@link CropBlock}) are the farm's own growth; anything else above a plot is
  * cleared by the farm before this logic is asked. Soil counts as prepared when it is dirt, farmland
@@ -57,11 +56,6 @@ public final class CropFarmLogic implements FarmLogic {
     @Override
     public boolean isOwnGrowth(BlockState state) {
         return state.getBlock() instanceof CropBlock;
-    }
-
-    @Override
-    public boolean usesWater() {
-        return true;
     }
 
     @Override
