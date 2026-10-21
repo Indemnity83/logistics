@@ -246,7 +246,7 @@ public class MachineControlsGameTestBody {
     /** The farm menu hands redstone ids to its controls before its own Start and Show area buttons. */
     public static void testCropFarmMenuHandlerValidation(GameTestHelper context) {
         FarmBlockEntity farm = place(context, LogisticsForestry.BLOCK.CROP_FARM, FarmBlockEntity.class);
-        handlerAppliesModeAndRejectsBadClicks(context, farm, FarmMenu::tend);
+        handlerAppliesModeAndRejectsBadClicks(context, farm, inv -> FarmMenu.tend(1, inv));
     }
 
     public static void testMagmaticEngineMenuHandlerValidation(GameTestHelper context) {
