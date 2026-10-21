@@ -34,6 +34,7 @@ public final class LogisticsNeoForge {
         NeoForgeMobLootModifier.register(NeoForge.EVENT_BUS);
         NeoForgeNetworkTickHandler.register(NeoForge.EVENT_BUS);
         NeoForgeFarmlandHydration.register(NeoForge.EVENT_BUS);
+        NeoForgeHumusTrees.register(NeoForge.EVENT_BUS);
         NeoForgePlayerJoinEvents.register(NeoForge.EVENT_BUS);
         if (FMLEnvironment.getDist().isClient()) {
             NeoForgeClientSetup.register(modBus);

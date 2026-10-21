@@ -20,7 +20,6 @@ import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
-import com.logistics.forestry.humus.HumusBlock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -80,21 +79,11 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         ALIAS.register();
     }
 
-    /**
-     * Farm soils ({@code humus.json}) and the shared farm machine ({@code farm.json}), both under
-     * {@code config/logistics/forestry/}.
-     */
+    /** The shared farm machine ({@code farm.json}), under {@code config/logistics/forestry/}. */
     public static final class CONFIG extends ConfigEntries {
-        private static final Config humus = configFor(LogisticsConfigHost.MOD_ID, "forestry.humus");
         private static final Config farm = configFor(LogisticsConfigHost.MOD_ID, "forestry.farm");
 
         private CONFIG() {}
-
-        public static final ConfigKey<Double> HUMUS_GROWTH_CHANCE = humus.defineDouble("humus_growth_chance", 0.25)
-                .finite()
-                .range(0.0, 1.0)
-                .describe("Chance per Humus random tick to give the sapling above an extra growth step (0.0-1.0)")
-                .register();
 
         /** One tier's farm profile keys, {@code tier.<id>.*}; see {@link FarmTierProfile}. */
         public record FarmTierKeys(
@@ -271,7 +260,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
-                props -> new HumusBlock(props.mapColor(MapColor.DIRT).strength(0.5f).sound(SoundType.ROOTED_DIRT)));
+                props -> new Block(props.mapColor(MapColor.DIRT).strength(0.5f).sound(SoundType.ROOTED_DIRT)));
             ARBORETUM = registerFarm("arboretum",
                 props -> new ArboretumBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
