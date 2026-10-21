@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.8.13](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.12...mc26.3-v0.8.13) (2026-10-21)
+
+
+### Added
+
+* **automation:** add redstone control modes to machines and engines ([bc2fe97](https://github.com/Indemnity83/logistics/commit/bc2fe97bc33cfd415a16586952bd1dd2f27c2428))
+* **energy:** show live energy usage and generation in machine and engine GUIs ([bc2fe97](https://github.com/Indemnity83/logistics/commit/bc2fe97bc33cfd415a16586952bd1dd2f27c2428))
+* **farming:** add fertilizer ([#1402](https://github.com/Indemnity83/logistics/issues/1402)) ([7a736f5](https://github.com/Indemnity83/logistics/commit/7a736f57f9e877f6f9259bc976a0f224b6d6dbac))
+* **farming:** add humus soil ([#1404](https://github.com/Indemnity83/logistics/issues/1404)) ([1226e22](https://github.com/Indemnity83/logistics/commit/1226e22e5daca849c0ffdbe1602898ec4033261f))
+* **farming:** add surveyed ring farms with irrigation ([#1469](https://github.com/Indemnity83/logistics/issues/1469)) ([e9ab9b0](https://github.com/Indemnity83/logistics/commit/e9ab9b0293a67d8cbac49f45518d85f5e0107a2b))
+* **farming:** add the arboretum ([#1409](https://github.com/Indemnity83/logistics/issues/1409)) ([209a95d](https://github.com/Indemnity83/logistics/commit/209a95d15b3f75adeb64aa0a7206f7122401449a))
+* **farming:** add the crop farm ([#1408](https://github.com/Indemnity83/logistics/issues/1408)) ([6fcad16](https://github.com/Indemnity83/logistics/commit/6fcad16d9ab22d41125884b7a412987286e3bc34))
+* **farming:** add the farm screen ([#1407](https://github.com/Indemnity83/logistics/issues/1407)) ([d2166d2](https://github.com/Indemnity83/logistics/commit/d2166d2856f09dbd95958d55b04bf1e23e09c302))
+* **farming:** explain the farms, fertilizer and humus in JEI ([#1410](https://github.com/Indemnity83/logistics/issues/1410)) ([5e762ff](https://github.com/Indemnity83/logistics/commit/5e762ff010ba4fcb88ea38a0d6785abe8aa937c7))
+* **farming:** irrigate farm fields from the water tank ([e9ab9b0](https://github.com/Indemnity83/logistics/commit/e9ab9b0293a67d8cbac49f45518d85f5e0107a2b))
+* **farming:** survey the farm area and start on demand ([e9ab9b0](https://github.com/Indemnity83/logistics/commit/e9ab9b0293a67d8cbac49f45518d85f5e0107a2b))
+* **ui:** add side tabs to machine and engine GUIs ([#1467](https://github.com/Indemnity83/logistics/issues/1467)) ([bc2fe97](https://github.com/Indemnity83/logistics/commit/bc2fe97bc33cfd415a16586952bd1dd2f27c2428))
+
+
+### Changed
+
+* **farming:** charge farm energy per action at a tiered work rate ([e9ab9b0](https://github.com/Indemnity83/logistics/commit/e9ab9b0293a67d8cbac49f45518d85f5e0107a2b))
+
+
+### Fixed
+
+* **energy:** stop continuous engines skipping a tick each cycle ([#1390](https://github.com/Indemnity83/logistics/issues/1390)) ([a47cb5b](https://github.com/Indemnity83/logistics/commit/a47cb5bce2597be979c0fbb40473e7ae7dfaae3a))
+* **energy:** stop engines passing a lever's signal to neighbors ([#1413](https://github.com/Indemnity83/logistics/issues/1413)) ([938ac75](https://github.com/Indemnity83/logistics/commit/938ac755b1d9c949a043e4fc8e0bf533242eaf98))
+* **quarry:** deactivate a marker set when any marker is removed ([3f1b397](https://github.com/Indemnity83/logistics/commit/3f1b39734d0ee5074d5cbe84c75470d6eeffbe55))
+* **quarry:** pop markers off when their floor is removed ([#1388](https://github.com/Indemnity83/logistics/issues/1388)) ([3f1b397](https://github.com/Indemnity83/logistics/commit/3f1b39734d0ee5074d5cbe84c75470d6eeffbe55))
+* **quarry:** release chunks when a Laser Quarry loses power ([#1391](https://github.com/Indemnity83/logistics/issues/1391)) ([21f7c45](https://github.com/Indemnity83/logistics/commit/21f7c45dac7a644132c301da5e22a9c569b95fa3))
+* **routing:** keep deliveries in a mid-line requester's chest ([#1389](https://github.com/Indemnity83/logistics/issues/1389)) ([988bfd0](https://github.com/Indemnity83/logistics/commit/988bfd013bb806f21142a8e2b8c63aa72198f797))
+* **routing:** stop crafting pipes over-demanding multi-slot ingredients ([#1387](https://github.com/Indemnity83/logistics/issues/1387)) ([c7b22f3](https://github.com/Indemnity83/logistics/commit/c7b22f34b29734b93101017387244071caf96555))
+* **routing:** stop provider pipes offering machine input slots ([#1400](https://github.com/Indemnity83/logistics/issues/1400)) ([8536379](https://github.com/Indemnity83/logistics/commit/85363799407ff247314b33c87696d7ce84e4952e))
+
 ## [0.8.12](https://github.com/Indemnity83/logistics/compare/mc26.3-v0.8.11...mc26.3-v0.8.12) (2026-10-11)
 
 
