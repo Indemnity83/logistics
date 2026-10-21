@@ -178,7 +178,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.energy()).isEqualTo(70_000);
         assertThat(menu.energyCapacity()).isEqualTo(100_000);
         assertThat(menu.status()).isEqualTo(FarmStatus.IDLE);
-        assertThat(menu.areaSize()).as("the Reach's side").isEqualTo(7);
+        assertThat(menu.reachSize()).as("the Reach's side").isEqualTo(7);
         assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
         assertThat(menu.plotsTotal()).as("no Plots until a harvest").isZero();
         assertThat(menu.emptyPlots()).isZero();
@@ -191,7 +191,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("the tier and plot counts follow the earlier indices, and an unknown tier rank reads as Basic")
     void tierAndPlotIndices() {
-        assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.AREA_SIZE + 1);
+        assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.REACH_SIZE + 1);
         assertThat(FarmMenu.PLOTS_TOTAL).isEqualTo(FarmMenu.TIER + 1);
         assertThat(FarmMenu.PLOTS_EMPTY).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
         assertThat(FarmMenu.DATA_COUNT).isEqualTo(FarmMenu.PLOTS_EMPTY + 1);
@@ -222,7 +222,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     // ==================== Layout ====================
 
     @Test
-    @DisplayName("the menu shows the farm's 15 generic slots as a 5×3 grid, then the player's")
+    @DisplayName("the menu shows the farm's 15 generic slots as 5 columns × 3 rows, then the player's")
     void slotPositions() {
         FarmMenu menu = new FarmMenu(1, playerInventory());
 

@@ -121,7 +121,7 @@ class FarmScheduleTest extends MinecraftTestEnvironment {
         assertThat(farm.machine.energy().capacity()).isEqualTo(40_000);
         assertThat(farm.machine.energy().maxInsert()).isEqualTo(128);
         assertThat(farm.energy()).isEqualTo(15_000);
-        assertThat(farm.engine().areaSize()).as("the Reach does not grow with the tier").isEqualTo(7);
+        assertThat(farm.engine().reachSize()).as("the Reach does not grow with the tier").isEqualTo(7);
     }
 
     @Test

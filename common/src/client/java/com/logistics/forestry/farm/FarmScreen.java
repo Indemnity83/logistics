@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 /**
  * The screen every farm opens: the energy gauge on the left, the status lamp and its readout beside
- * it, and the farm's 3×5 inventory on the right, all laid out in the GUI texture.
+ * it, and the farm's inventory, 5 columns × 3 rows, on the right, all laid out in the GUI texture.
  * The standard machine side tabs sit outside the image, with each farm type's own Info text.
  */
 public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements SideTabScreen {
@@ -107,7 +107,7 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
                 List.of(Component.translatable("tooltip.logistics.farm.energy", menu.energy(), menu.energyCapacity())));
         hoverTooltip(graphics, mouseX, mouseY, READOUT_CENTER - READOUT_WIDTH / 2, LAMP_TOP,
                 READOUT_WIDTH, READOUT_BOTTOM - LAMP_TOP,
-                FarmScreenText.statusTooltip(menu.status(), menu.areaSize(), menu.plotsTotal(), menu.emptyPlots()));
+                FarmScreenText.statusTooltip(menu.status(), menu.reachSize(), menu.plotsTotal(), menu.emptyPlots()));
     }
 
     private void hoverTooltip(

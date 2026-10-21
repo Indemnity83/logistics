@@ -184,8 +184,8 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         this.owner = owner;
     }
 
-    /** Side of the square the farm works out to. */
-    public int areaSize() {
+    /** Side of the Reach's square. */
+    public int reachSize() {
         return REACH_SIZE;
     }
 
@@ -311,7 +311,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             if (outcome == FarmStatus.WORKING) {
                 scanner.markWorked();
             }
-            if (stepsInPass >= scanner.plotCount()) {
+            if (stepsInPass >= scanner.positionCount()) {
                 stepsInPass = 0;
                 cooldown += scanner.idleTicks();
             }
@@ -655,7 +655,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         return false;
     }
 
-    /** The block's status lamp: lit while the farm holds any power. */
+    /** The block's {@code lit} state, which shows its active model: on while the farm holds any power. */
     private void showLamp(MachineContext ctx) {
         BlockState state = ctx.blockState();
         boolean lit = energy.amount() > 0;

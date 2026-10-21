@@ -16,8 +16,8 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * The menu every farm opens (176×166). Machine slots come first, in container order: the farm's
- * {@value FarmMachine#SLOT_COUNT} generic slots, a 5×3 grid at x 80 + col×18 × y 17 + row×18, row by
- * row. The player inventory follows at (8 + col×18, 84 + row×18), then the hotbar at y 142.
+ * {@value FarmMachine#SLOT_COUNT} generic slots, a grid of 5 columns × 3 rows at x 80 + col×18,
+ * y 17 + row×18, row by row. The player inventory follows at (8 + col×18, 84 + row×18), then the hotbar at y 142.
  *
  * <p>Synced {@link ContainerData} indices. A "wide" value spans two slots and is read with
  * {@link MachineData#wide}; the getters below decode everything.
@@ -26,7 +26,7 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@link #ENERGY} (wide): stored RF;</li>
  *   <li>{@link #ENERGY_CAPACITY} (wide): RF capacity;</li>
  *   <li>{@link #STATUS}: {@link FarmStatus} ordinal;</li>
- *   <li>{@link #AREA_SIZE}: side of the Reach (a 7 means 7×7);</li>
+ *   <li>{@link #REACH_SIZE}: side of the Reach (a 7 means 7×7);</li>
  *   <li>{@link #TIER}: {@link MachineTier#rank()} of the farm's tier;</li>
  *   <li>{@link #PLOTS_TOTAL}: the Plots the farm remembers;</li>
  *   <li>{@link #PLOTS_EMPTY}: of those, the Empty Plots.</li>
@@ -40,7 +40,7 @@ public class FarmMenu extends AbstractContainerMenu {
     public static final int ENERGY = 0;
     public static final int ENERGY_CAPACITY = 2;
     public static final int STATUS = 4;
-    public static final int AREA_SIZE = 5;
+    public static final int REACH_SIZE = 5;
     public static final int TIER = 6;
     public static final int PLOTS_TOTAL = 7;
     public static final int PLOTS_EMPTY = 8;
@@ -105,7 +105,7 @@ public class FarmMenu extends AbstractContainerMenu {
                     case ENERGY_CAPACITY, ENERGY_CAPACITY + 1 ->
                         MachineData.wideSlot(farm.energy().capacity(), index - ENERGY_CAPACITY);
                     case STATUS -> farm.farm().status().ordinal();
-                    case AREA_SIZE -> farm.farm().areaSize();
+                    case REACH_SIZE -> farm.farm().reachSize();
                     case TIER -> farm.tier().tier().rank();
                     case PLOTS_TOTAL -> farm.farm().plotsTotal();
                     case PLOTS_EMPTY -> farm.farm().emptyPlots();
@@ -185,8 +185,8 @@ public class FarmMenu extends AbstractContainerMenu {
         return FarmStatus.byOrdinal(data.get(STATUS));
     }
 
-    public int areaSize() {
-        return data.get(AREA_SIZE);
+    public int reachSize() {
+        return data.get(REACH_SIZE);
     }
 
     public MachineTier tier() {

@@ -103,9 +103,9 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine {
         return parts.tier();
     }
 
-    /** Side of the square the farm works out to. */
-    public int areaSize() {
-        return parts.farm().areaSize();
+    /** Side of the Reach's square. */
+    public int reachSize() {
+        return parts.farm().reachSize();
     }
 
     public FarmStatus status() {
