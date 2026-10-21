@@ -54,6 +54,9 @@ public class CropFarmGameTestBody {
     private static final BlockPos ENGINE_SIGNAL = ENGINE.south();
     private static final BlockPos OUTPUT_HOPPER = FARM.below();
     private static final BlockPos CHEST = OUTPUT_HOPPER.below();
+    /** Checks per second for the Plot test, so a pass over the Reach takes well under a second. */
+    private static final int PLOT_CHECKS_PER_SECOND = 400;
+
     private static final List<BlockPos> LAMPS = List.of(new BlockPos(2, 5, 2), new BlockPos(4, 5, 4));
 
     /** The field: every position two blocks out from the farm, one above it, so its farmland is level with the farm. */
@@ -219,6 +222,70 @@ public class CropFarmGameTestBody {
                 throw context.assertionException(FARM, "The farm should report Inventory full, reports " + farm.status());
             }
         });
+    }
+
+    /**
+     * A harvested position stays a Plot: wheat taken off it is replanted from the inventory. Breaking
+     * the farm and placing it again forgets its Plots, so the same bare farmland is then left alone.
+     */
+    public static void testBreakingTheFarmForgetsItsPlots(GameTestHelper context) {
+        BlockPos plot = PLOTS.get(0);
+        FarmBlockEntity farm = build(context, List.of(plot), ripe(Blocks.WHEAT), true);
+        if (farm == null) {
+            return;
+        }
+        context.setBlock(FARM.below(), Blocks.STONE);
+        farm.setRateOverride(PLOT_CHECKS_PER_SECOND, 20);
+        farm.setItem(0, new ItemStack(Items.WHEAT_SEEDS, 16));
+        FarmBlockEntity[] replaced = new FarmBlockEntity[1];
+
+        context.startSequence()
+                .thenWaitUntil(() -> assertGrowingWheat(context, plot, "The ripe wheat should be harvested and replanted"))
+                .thenExecute(() -> context.setBlock(plot, Blocks.AIR))
+                .thenWaitUntil(() -> assertGrowingWheat(context, plot, "The Plot should be replanted from the inventory"))
+                .thenExecute(() -> {
+                    replaced[0] = breakAndReplace(context);
+                    replaced[0].setRateOverride(PLOT_CHECKS_PER_SECOND, 20);
+                    replaced[0].setItem(0, new ItemStack(Items.WHEAT_SEEDS, 16));
+                    context.setBlock(plot, Blocks.AIR);
+                })
+                .thenExecuteAfter(200, () -> {
+                    if (!context.getBlockState(plot).isAir()) {
+                        throw context.assertionException(plot, "A replaced farm should not remember the Plot, holds "
+                                + context.getBlockState(plot));
+                    }
+                    if (count(replaced[0], Items.WHEAT_SEEDS) != 16) {
+                        throw context.assertionException(FARM, "The replaced farm should plant none of its seeds");
+                    }
+                })
+                .thenSucceed();
+    }
+
+    private static void assertGrowingWheat(GameTestHelper context, BlockPos plot, String message) {
+        BlockState state = context.getBlockState(plot);
+        if (!state.is(Blocks.WHEAT) || isRipe(state)) {
+            throw context.assertionException(plot, message + ", holds " + state);
+        }
+    }
+
+    /** Mines the farm and places the item it dropped back where it stood; returns the new farm. */
+    private static FarmBlockEntity breakAndReplace(GameTestHelper context) {
+        context.getLevel().destroyBlock(context.absolutePos(FARM), true);
+        AABB around = new AABB(context.absolutePos(FARM)).inflate(2.0);
+        ItemEntity dropped = context.getLevel().getEntitiesOfClass(ItemEntity.class, around).stream()
+                .filter(item -> item.getItem().is(LogisticsForestry.BLOCK.CROP_FARM.asItem()))
+                .findFirst()
+                .orElseThrow(() -> context.assertionException(FARM, "Breaking the farm should drop it"));
+        ItemStack item = dropped.getItem().copy();
+        dropped.discard();
+        Player player = context.makeMockPlayer(GameType.SURVIVAL);
+        player.setItemInHand(InteractionHand.MAIN_HAND, item);
+        context.placeAt(player, item, FARM.below(2), Direction.UP);
+        FarmBlockEntity replaced = context.getBlockEntity(FARM, FarmBlockEntity.class);
+        if (replaced == null) {
+            throw context.assertionException(FARM, "Placing the dropped item should put a farm back");
+        }
+        return replaced;
     }
 
     /** Without power the farm harvests nothing, and reports No power. */

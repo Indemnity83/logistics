@@ -21,6 +21,11 @@ public class CropFarmGameTest {
         CropFarmGameTestBody.testFullFarmSpillsAtThePlot(context);
     }
 
+    @GameTest(maxTicks = 1200)
+    public void testBreakingTheFarmForgetsItsPlots(GameTestHelper context) {
+        CropFarmGameTestBody.testBreakingTheFarmForgetsItsPlots(context);
+    }
+
     @GameTest(maxTicks = 400)
     public void testDoesNothingWithoutPower(GameTestHelper context) {
         CropFarmGameTestBody.testDoesNothingWithoutPower(context);

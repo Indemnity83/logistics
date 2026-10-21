@@ -28,6 +28,10 @@ public final class CropFarmGameTestRegistration {
             1200,
             CropFarmGameTestBody::testFullFarmSpillsAtThePlot),
         new GameTestCase(
+            "forestry/crop_farm_breaking_the_farm_forgets_its_plots",
+            1200,
+            CropFarmGameTestBody::testBreakingTheFarmForgetsItsPlots),
+        new GameTestCase(
             "forestry/crop_farm_does_nothing_without_power",
             400,
             CropFarmGameTestBody::testDoesNothingWithoutPower),
