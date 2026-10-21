@@ -2,23 +2,18 @@ package com.logistics.forestry.farm;
 
 import com.logistics.forestry.logic.LevelTreeView;
 import java.util.List;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The world as {@link FarmComponent} works it: {@link FarmWorld}'s reads plus the writes the farm
+ * The world as {@link TendFarmComponent} works it: {@link FarmWorld}'s reads plus the writes the farm
  * performs. Writes to an unloaded position do nothing and report failure; callers still check
  * {@link #isLoaded(BlockPos)} and {@link #canModify(BlockPos)} first, and charge for a write only
  * once it reports success.
  */
 public interface FarmWorldAccess extends FarmWorld {
-
-    /** Hardness of the block at {@code pos}, below 0 when unbreakable; 0 when not loaded. */
-    float destroySpeed(BlockPos pos);
 
     /** Whether the farm's owner may change the block at {@code pos} (claim protection). */
     boolean canModify(BlockPos pos);
@@ -56,12 +51,6 @@ public interface FarmWorldAccess extends FarmWorld {
      * @return whether the world now holds the change; false when unloaded or refused
      */
     boolean setBlock(BlockPos pos, BlockState state, int flags);
-
-    /**
-     * Removes the loose item entities inside {@code box} whose block position passes {@code where},
-     * and returns their stacks.
-     */
-    List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where);
 
     /** Drops {@code stacks} as loose items at {@code pos}; nothing happens where it is not loaded. */
     void dropStacks(BlockPos pos, List<ItemStack> stacks);

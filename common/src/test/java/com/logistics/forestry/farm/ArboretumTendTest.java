@@ -10,7 +10,6 @@ import com.logistics.test.MinecraftTestEnvironment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -235,7 +234,7 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
     @Test
     void aFullInventorySpillsAtTheTrunkBaseAndStillReplants() {
         FarmHarness farm = farm();
-        for (int slot = 0; slot < FarmMachine.TEND_SLOT_COUNT; slot++) {
+        for (int slot = 0; slot < FarmMachine.SLOT_COUNT; slot++) {
             farm.items().setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
         }
         tree(farm, BASE, humus(), 5, LEAVES);
@@ -264,6 +263,26 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
                 .isEqualTo(5 * farm.cost(FarmCost.HARVEST_LOG)
                         + leaves * farm.cost(FarmCost.HARVEST_LEAVES)
                         + farm.cost(FarmCost.PLANT));
+    }
+
+    @Test
+    void stopsAFellThatRunsOutOfPowerAndFinishesItOncePowered() {
+        FarmHarness farm = farm();
+        List<BlockPos> tree = tree(farm, BASE, humus(), 5, LEAVES);
+        farm.power(300);
+
+        farm.ticks(FELL);
+
+        assertThat(farm.world.broken).isNotEmpty().hasSizeLessThan(tree.size());
+        assertThat(farm.world.blocks.get(BASE)).isEqualTo(LOG);
+        assertThat(farm.engine().status()).isEqualTo(FarmStatus.NO_POWER);
+        assertThat(farm.energy()).isLessThan(farm.cost(FarmCost.HARVEST_LOG));
+
+        farm.power(10_000);
+        farm.ticks(FELL);
+
+        assertThat(farm.world.broken).containsExactlyInAnyOrderElementsOf(tree);
+        assertThat(farm.world.blocks.get(BASE)).isEqualTo(SAPLING);
     }
 
     @Test
@@ -305,15 +324,8 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
 
     @Test
     void loadsARingArboretumSaveAndStartsTending() {
-        FarmHarness ring = new FarmHarness(new ScriptedFarmLogic());
-        for (int slot = 0; slot < FarmMachine.SLOT_COUNT; slot++) {
-            ring.items().setItem(slot, new ItemStack(Items.OAK_SAPLING, slot + 1));
-        }
-        ring.farm().setOwner(UUID.randomUUID());
-        ring.ticks(5);
-
         FarmHarness farm = farm();
-        farm.load(ring.save());
+        farm.load(FarmHarness.ringFarmSave(slot -> new ItemStack(Items.OAK_SAPLING, slot + 1)));
         farm.power(10_000);
         tree(farm, BASE, humus(), 5, LEAVES);
         farm.ticks(FELL);

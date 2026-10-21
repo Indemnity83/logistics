@@ -187,7 +187,7 @@ public class CropFarmGameTestBody {
         if (farm == null) {
             return;
         }
-        for (int slot = 0; slot < FarmMachine.TEND_SLOT_COUNT; slot++) {
+        for (int slot = 0; slot < FarmMachine.SLOT_COUNT; slot++) {
             farm.setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
         }
         Vec3 drop = Vec3.atCenterOf(context.absolutePos(plot));

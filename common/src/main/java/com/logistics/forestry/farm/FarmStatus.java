@@ -8,19 +8,13 @@ import java.util.Locale;
  */
 public enum FarmStatus {
     WORKING,
-    /** Nothing to do anywhere in the plot. */
+    /** Nothing ripe anywhere in the Reach. */
     IDLE,
     NO_POWER,
-    NO_GERMLINGS,
-    NO_SOIL,
-    /** The output buffer is full; harvesting waits, other work goes on. */
-    OUTPUT_FULL,
     /** Stopped by its redstone control. */
     PAUSED,
-    TOO_DARK,
+    /** Claim protection or the world refused a harvest. */
     BLOCKED,
-    /** Placed, not started: surveying the ring until Start is pressed. */
-    SURVEYING,
     /** The inventory is full; the farm keeps working and drops what does not fit. */
     INVENTORY_FULL,
     /** Empty Plots are waiting for their germlings to arrive in the inventory. */

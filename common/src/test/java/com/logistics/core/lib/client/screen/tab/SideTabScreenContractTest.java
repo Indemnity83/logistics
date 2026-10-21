@@ -86,7 +86,7 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
                 machine("transposer", TransposerScreen.class, 176, 166,
                         inventory -> new TransposerScreenHandler(1, inventory), TransposerScreenHandler::controls),
                 machine("crop_farm", FarmScreen.class, 176, 166,
-                        inventory -> FarmMenu.tend(1, inventory), FarmMenu::controls),
+                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
                 machine("arboretum", FarmScreen.class, 176, 166,
                         inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
                 engine("stirling_engine", StirlingEngineScreen.class, 176, 166,

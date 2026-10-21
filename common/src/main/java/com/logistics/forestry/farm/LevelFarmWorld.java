@@ -1,18 +1,14 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.core.lib.compat.ProtectionCompat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /** {@link FarmWorldAccess} over a live server level. Never loads a chunk. */
@@ -37,18 +33,8 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     }
 
     @Override
-    public int light(BlockPos pos) {
-        return isLoaded(pos) ? level.getRawBrightness(pos, 0) : 0;
-    }
-
-    @Override
     public boolean canSurvive(BlockState state, BlockPos pos) {
         return isLoaded(pos) && state.canSurvive(level, pos);
-    }
-
-    @Override
-    public float destroySpeed(BlockPos pos) {
-        return isLoaded(pos) ? level.getBlockState(pos).getDestroySpeed(level, pos) : 0;
     }
 
     @Override
@@ -77,18 +63,6 @@ public final class LevelFarmWorld implements FarmWorldAccess {
     @Override
     public boolean setBlock(BlockPos pos, BlockState state, int flags) {
         return isLoaded(pos) && level.setBlock(pos, state, flags);
-    }
-
-    @Override
-    public List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where) {
-        List<ItemStack> stacks = new ArrayList<>();
-        for (ItemEntity entity : level.getEntitiesOfClass(ItemEntity.class, box)) {
-            if (entity.isAlive() && !entity.getItem().isEmpty() && where.test(entity.blockPosition())) {
-                stacks.add(entity.getItem().copy());
-                entity.discard();
-            }
-        }
-        return stacks;
     }
 
     @Override

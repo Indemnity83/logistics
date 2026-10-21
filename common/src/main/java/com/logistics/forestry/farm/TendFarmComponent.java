@@ -1,6 +1,7 @@
 package com.logistics.forestry.farm;
 
 import com.logistics.core.lib.compat.NbtCompat;
+import com.logistics.core.machine.MachineComponent;
 import com.logistics.core.machine.MachineContext;
 import com.logistics.core.machine.MachineHudModel;
 import com.logistics.core.machine.area.PlotScanner;
@@ -21,6 +22,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -28,10 +30,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A tend farm's work loop: it watches every position of its Reach, {@value #REACH} blocks out on
- * every side (corners included) and {@value #REACH_HEIGHT} above and below the farm, the farm's own
- * position left out, and harvests whatever its {@link TendLogic} finds ripe there. It never clears,
- * lays soil or plants anywhere that is not one of its Plots.
+ * A farm's work loop: it watches every position of its Reach, {@value #REACH} blocks out on every
+ * side (corners included) and {@value #REACH_HEIGHT} above and below the farm, the farm's own
+ * position left out, and harvests whatever its {@link TendLogic} finds ripe there. It plants only
+ * on its Plots.
  *
  * <p>The scan visits one position per check, round-robin, bounded every tick by a
  * {@link WorkBudget}: its tier's checks and actions per second. A pass that finds nothing ripe backs
@@ -58,7 +60,22 @@ import org.jetbrains.annotations.Nullable;
  * ({@link MachineContext#workEnabled}, the farm's redstone control) pauses everything. Nothing
  * touches an unloaded position.
  */
-public final class TendFarmComponent implements FarmEngine {
+public final class TendFarmComponent implements MachineComponent, MachineComponent.HudContributor {
+
+    /** Opens the world a farm works; {@code null} where there is none to work (client, unit tests). */
+    @FunctionalInterface
+    public interface WorldFactory {
+        @Nullable
+        FarmWorldAccess open(MachineContext ctx, @Nullable UUID owner);
+    }
+
+    /** The live server level. */
+    public static final WorldFactory LEVEL =
+            (ctx, owner) -> ctx.level() instanceof ServerLevel level ? new LevelFarmWorld(level, owner) : null;
+
+    public static final String HUD_STATUS = "jade.logistics.machine.status";
+    public static final String HUD_PLOT = "jade.logistics.farm.plot";
+    public static final String HUD_PLOT_SIZE = "jade.logistics.farm.plot_size";
 
     /** How far the Reach extends from the farm on every horizontal side. */
     public static final int REACH = 3;
@@ -84,7 +101,7 @@ public final class TendFarmComponent implements FarmEngine {
     private final EnergyStorageComponent energy;
     private final Supplier<FarmSettings> settings;
     private final Supplier<MachineTier> tier;
-    private final FarmComponent.WorldFactory worlds;
+    private final WorldFactory worlds;
     private final FarmStatusTracker tracker = new FarmStatusTracker();
     private final WorkBudget budget = new WorkBudget();
     private final CountingWorld counted = new CountingWorld();
@@ -118,7 +135,7 @@ public final class TendFarmComponent implements FarmEngine {
             EnergyStorageComponent energy,
             Supplier<FarmSettings> settings,
             Supplier<MachineTier> tier,
-            FarmComponent.WorldFactory worlds) {
+            WorldFactory worlds) {
         this.id = id;
         this.logic = logic;
         this.items = items.container();
@@ -150,39 +167,38 @@ public final class TendFarmComponent implements FarmEngine {
 
     // ==================== State ====================
 
-    @Override
     public FarmStatus status() {
         return status;
     }
 
-    @Override
     @Nullable
     public UUID owner() {
         return owner;
     }
 
-    @Override
     public void setOwner(@Nullable UUID owner) {
         this.owner = owner;
     }
 
-    @Override
+    /** Side of the square the farm works out to. */
     public int areaSize() {
         return REACH_SIZE;
     }
 
-    @Override
+    /** The Plots the farm remembers. */
     public int plotsTotal() {
         return plots.size();
     }
 
     /** The Empty Plots: those waiting for a germling. */
-    @Override
     public int plotsBlocked() {
         return plots.emptyCount();
     }
 
-    @Override
+    /**
+     * Test seam: inspects {@code checksPerSecond} positions and performs {@code actionsPerSecond}
+     * actions a second instead of the tier's; 0 or less for both restores them.
+     */
     public void setRateOverride(int checksPerSecond, int actionsPerSecond) {
         if (checksPerSecond <= 0 && actionsPerSecond <= 0) {
             checksOverride = 0;
@@ -192,53 +208,6 @@ public final class TendFarmComponent implements FarmEngine {
         checksOverride = Math.max(1, checksPerSecond);
         actionsOverride = Math.max(1, actionsPerSecond);
     }
-
-    /** Always working: a tend farm has no survey. */
-    @Override
-    public FarmState state() {
-        return FarmState.ACTIVE;
-    }
-
-    @Override
-    public FarmSurvey survey() {
-        return FarmSurvey.EMPTY;
-    }
-
-    @Override
-    public boolean start() {
-        return false;
-    }
-
-    @Override
-    public boolean toggleArea(MachineContext ctx, long now) {
-        return false;
-    }
-
-    @Override
-    public FarmSurvey expanded(MachineContext ctx, long now) {
-        return FarmSurvey.EMPTY;
-    }
-
-    @Override
-    public boolean previewShown(long now) {
-        return false;
-    }
-
-    @Override
-    public FarmPreview syncedPreview() {
-        return FarmPreview.NONE;
-    }
-
-    @Override
-    public <T> T withPreview(MachineContext ctx, long now, Supplier<T> save) {
-        return save.get();
-    }
-
-    @Override
-    public void setAreaOverride(int inner, int outer) {}
-
-    @Override
-    public void setClearanceHeightOverride(int height) {}
 
     // ==================== Tick ====================
 
@@ -673,11 +642,11 @@ public final class TendFarmComponent implements FarmEngine {
     @Override
     public void contributeHud(MachineHudModel hud) {
         if (status == FarmStatus.WAITING_FOR_SEEDS) {
-            hud.line(FarmComponent.HUD_STATUS, HUD_WAITING_FOR_SEEDS, Integer.toString(plots.emptyCount()));
+            hud.line(HUD_STATUS, HUD_WAITING_FOR_SEEDS, Integer.toString(plots.emptyCount()));
         } else {
-            hud.line(FarmComponent.HUD_STATUS, status.translationKey());
+            hud.line(HUD_STATUS, status.translationKey());
         }
-        hud.line(FarmComponent.HUD_PLOT, FarmComponent.HUD_PLOT_SIZE, Integer.toString(REACH_SIZE));
+        hud.line(HUD_PLOT, HUD_PLOT_SIZE, Integer.toString(REACH_SIZE));
     }
 
     // ==================== Persistence ====================

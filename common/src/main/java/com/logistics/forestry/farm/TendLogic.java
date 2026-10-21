@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
  * replants it. The {@link TendFarmComponent} asks about one position of its Reach at a time and
  * owns everything else: power, the inventory, spills, redstone and claim protection.
  *
- * <p>One stateless instance per farm block ({@link FarmMachineBlock#tendLogic()}), shared by every
+ * <p>One stateless instance per farm block ({@link FarmMachineBlock#logic()}), shared by every
  * farm of that type. A logic only reads the world, through {@link FarmWorld}.
  */
 public interface TendLogic {

@@ -112,7 +112,7 @@ public final class NeoForgeCapabilityRegistration {
         registerItems(event, LogisticsAutomation.ENTITY.SEQUENTIAL_FABRICATOR_BLOCK_ENTITY);
         // Transposer input/output slots, so item pipes can feed buckets in from the top and pull results out.
         registerItems(event, LogisticsAutomation.ENTITY.TRANSPOSER_BLOCK_ENTITY);
-        // Every farm shares one type: role-routed inputs on any face, produce out of any face.
+        // Every farm shares one type: anything in on any face, any slot out of any face.
         registerItems(event, LogisticsForestry.ENTITY.FARM);
 
         // The steam engine accepts water into its boiler tank.
@@ -133,8 +133,6 @@ public final class NeoForgeCapabilityRegistration {
         registerFluids(event, LogisticsAutomation.ENTITY.TRANSPOSER_BLOCK_ENTITY);
         registerFluids(event, LogisticsPower.ENTITY.MAGMATIC_ENGINE_BLOCK_ENTITY);
         registerFluids(event, LogisticsPower.ENTITY.FUEL_ENGINE_BLOCK_ENTITY);
-        // Input-only water tank on farms that till with water; farms without one expose no fluid handler.
-        registerFluids(event, LogisticsForestry.ENTITY.FARM);
 
         // Filled buckets expose a one-bucket fluid handler that drains to a plain bucket (Fabric uses
         // FullItemFluidStorage). Empty-bucket -> filled is handled by vanilla BucketResourceHandler via the

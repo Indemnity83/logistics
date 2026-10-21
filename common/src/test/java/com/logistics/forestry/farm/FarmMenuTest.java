@@ -3,12 +3,12 @@ package com.logistics.forestry.farm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
-import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineEntity;
 import com.logistics.core.machine.control.MachineControls;
 import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.tier.MachineTier;
+import com.logistics.forestry.farm.crop.CropTendLogic;
 import com.logistics.test.MinecraftTestEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
@@ -27,10 +27,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * The shared farm menu: shift-click conserves items (mirroring {@code MachineMenuShiftClickTest})
- * and routes them by the farm's per-slot filters, and the synced data decodes to the farm's state.
- * Server-side cases run over a real {@link MachineEntity} built from {@link FarmMachine#assemble},
- * so the menu sees the same {@code canPlaceItem} filters hoppers and pipes do.
+ * The shared farm menu: shift-click conserves items (mirroring {@code MachineMenuShiftClickTest}),
+ * and the synced data decodes to the farm's state. Server-side cases run over a real
+ * {@link MachineEntity} built from {@link FarmMachine#assemble}.
  */
 @DisplayName("Farm menu")
 class FarmMenuTest extends MinecraftTestEnvironment {
@@ -40,7 +39,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     private static final int FIRST_MAIN_INVENTORY_SLOT = 9;
 
     /** Handed to {@link TestFarm#configure}, which runs inside the super constructor before fields exist. */
-    private static FarmLogic nextLogic;
+    private static TendLogic nextLogic;
     private static FarmSettings nextSettings = FarmHarness.SETTINGS;
 
     @BeforeAll
@@ -68,18 +67,10 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         }
     }
 
-    private static TestFarm farm(FarmLogic logic) {
-        return farm(logic, FarmHarness.SETTINGS);
-    }
-
-    private static TestFarm farm(FarmLogic logic, FarmSettings settings) {
+    private static TestFarm farm(TendLogic logic, FarmSettings settings) {
         nextLogic = logic;
         nextSettings = settings;
         return new TestFarm();
-    }
-
-    private static FarmMenu serverMenu(TestFarm farm, Inventory inventory) {
-        return new FarmMenu(1, inventory, farm, FarmMenu.dataSource(farm.parts, () -> false));
     }
 
     private static Inventory playerInventory() {
@@ -170,113 +161,6 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(inventory.getItem(0).getCount()).isBetween(1, 63);
     }
 
-    // ==================== Routing (server-side menu over a real farm) ====================
-
-    @Test
-    @DisplayName("germlings shift-click into the germling slots")
-    void germlingsRouteToGermlingSlots() {
-        TestFarm farm = farm(new ScriptedFarmLogic(true));
-        Inventory inventory = playerInventory();
-        inventory.setItem(0, new ItemStack(Items.OAK_SAPLING, 20));
-        FarmMenu menu = serverMenu(farm, inventory);
-
-        menu.quickMoveStack(null, hotbar(menu));
-
-        assertThat(farm.getItem(FarmMachine.GERMLING_START).is(Items.OAK_SAPLING)).isTrue();
-        assertThat(farm.getItem(FarmMachine.GERMLING_START).getCount()).isEqualTo(20);
-        assertThat(inventory.getItem(0).isEmpty()).isTrue();
-    }
-
-    @Test
-    @DisplayName("fertilizer and bone meal stay with the player: no farm slot takes them")
-    void fertilizerIsNotAccepted() {
-        TestFarm farm = farm(new ScriptedFarmLogic(true));
-        Inventory inventory = playerInventory();
-        inventory.setItem(0, new ItemStack(Items.BONE_MEAL, 10));
-        inventory.setItem(1, new ItemStack(LogisticsForestry.ITEM.FERTILIZER, 10));
-        FarmMenu menu = serverMenu(farm, inventory);
-
-        assertThat(menu.quickMoveStack(null, hotbar(menu))).isEqualTo(ItemStack.EMPTY);
-        assertThat(menu.quickMoveStack(null, hotbar(menu) + 1)).isEqualTo(ItemStack.EMPTY);
-
-        assertThat(inventory.getItem(0).getCount()).isEqualTo(10);
-        assertThat(inventory.getItem(1).getCount()).isEqualTo(10);
-        assertThat(farm.isEmpty()).isTrue();
-    }
-
-    @Test
-    @DisplayName("soil shift-clicks into the soil slots of a farm that lays soil, and nowhere otherwise")
-    void soilRoutesOnlyWhenTheFarmLaysSoil() {
-        TestFarm laying = farm(new ScriptedFarmLogic(true));
-        Inventory inventory = playerInventory();
-        inventory.setItem(0, new ItemStack(Items.DIRT, 10));
-        FarmMenu menu = serverMenu(laying, inventory);
-
-        menu.quickMoveStack(null, hotbar(menu));
-
-        assertThat(laying.getItem(FarmMachine.SOIL_START).is(Items.DIRT)).isTrue();
-        assertThat(menu.getSlot(FarmMachine.SOIL_START).isActive()).isTrue();
-
-        TestFarm notLaying = farm(new ScriptedFarmLogic());
-        Inventory other = playerInventory();
-        other.setItem(0, new ItemStack(Items.DIRT, 10));
-        FarmMenu otherMenu = serverMenu(notLaying, other);
-
-        assertThat(otherMenu.quickMoveStack(null, hotbar(otherMenu))).isEqualTo(ItemStack.EMPTY);
-        assertThat(other.getItem(0).getCount()).isEqualTo(10);
-        assertThat(notLaying.isEmpty()).isTrue();
-        assertThat(otherMenu.getSlot(FarmMachine.SOIL_START).isActive()).isFalse();
-        assertThat(otherMenu.getSlot(FarmMachine.SOIL_START).mayPlace(new ItemStack(Items.DIRT))).isFalse();
-    }
-
-    @Test
-    @DisplayName("an item no slot accepts stays with the player")
-    void unacceptedItemsStay() {
-        TestFarm farm = farm(new ScriptedFarmLogic(true));
-        Inventory inventory = playerInventory();
-        inventory.setItem(0, new ItemStack(Items.COBBLESTONE, 10));
-        FarmMenu menu = serverMenu(farm, inventory);
-
-        assertThat(menu.quickMoveStack(null, hotbar(menu))).isEqualTo(ItemStack.EMPTY);
-        assertThat(inventory.getItem(0).getCount()).isEqualTo(10);
-        assertThat(farm.isEmpty()).isTrue();
-    }
-
-    @Test
-    @DisplayName("output slots are take-only and shift-click to the player")
-    void outputIsTakeOnly() {
-        TestFarm farm = farm(new ScriptedFarmLogic());
-        Inventory inventory = playerInventory();
-        FarmMenu menu = serverMenu(farm, inventory);
-        farm.setItem(FarmMachine.OUTPUT_START, new ItemStack(Items.WHEAT, 12));
-
-        assertThat(menu.getSlot(FarmMachine.OUTPUT_START).mayPlace(new ItemStack(Items.WHEAT))).isFalse();
-        menu.quickMoveStack(null, FarmMachine.OUTPUT_START);
-
-        assertThat(farm.getItem(FarmMachine.OUTPUT_START).isEmpty()).isTrue();
-        assertThat(countOf(inventory, Items.WHEAT)).isEqualTo(12);
-    }
-
-    @Test
-    @DisplayName("slots sit at the approved layout positions")
-    void slotPositions() {
-        FarmMenu menu = new FarmMenu(1, playerInventory());
-
-        assertThat(menu.getSlot(0).x).isEqualTo(42);
-        assertThat(menu.getSlot(3).x).isEqualTo(96);
-        assertThat(menu.getSlot(3).y).isEqualTo(17);
-        assertThat(menu.getSlot(4).y).isEqualTo(35);
-        assertThat(menu.getSlot(8).x).as("output starts right after soil").isEqualTo(116);
-        assertThat(menu.getSlot(16).y).isEqualTo(53);
-        assertThat(MACHINE_SLOTS).isEqualTo(17);
-        assertThat(menu.getSlot(FarmMachine.OUTPUT_START).x).isEqualTo(116);
-        assertThat(menu.getSlot(FarmMachine.OUTPUT_START).y).isEqualTo(17);
-        assertThat(menu.getSlot(FarmMachine.OUTPUT_END - 1).x).isEqualTo(152);
-        assertThat(menu.getSlot(FarmMachine.OUTPUT_END - 1).y).isEqualTo(53);
-        assertThat(menu.getSlot(MACHINE_SLOTS).y).isEqualTo(84);
-        assertThat(menu.getSlot(hotbar(menu)).y).isEqualTo(142);
-    }
-
     // ==================== Synced data ====================
 
     @Test
@@ -284,22 +168,20 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     void syncedData() {
         // Values above a short's range, so the wide slot pairs are exercised.
         FarmSettings settings = FarmSettings.defaults()
-                .withTiers(FarmSettings.everyTier(new FarmTierProfile(15, 16, 4, 100_000, 128)));
-        TestFarm farm = farm(new ScriptedFarmLogic(), settings);
+                .withTiers(FarmSettings.everyTier(new FarmTierProfile(16, 4, 100_000, 128)));
+        TestFarm farm = farm(new CropTendLogic(), settings);
         farm.parts.energy().setAmount(70_000);
-        ContainerData data = FarmMenu.dataSource(farm.parts, () -> false);
+        ContainerData data = FarmMenu.dataSource(farm.parts);
         FarmMenu menu = new FarmMenu(1, playerInventory(), farm, data);
 
         assertThat(data.getCount()).isEqualTo(FarmMenu.DATA_COUNT);
         assertThat(menu.energy()).isEqualTo(70_000);
         assertThat(menu.energyCapacity()).isEqualTo(100_000);
         assertThat(menu.status()).isEqualTo(FarmStatus.IDLE);
-        assertThat(menu.areaSize()).as("the ring's outer side at the farm's tier").isEqualTo(15);
-        assertThat(menu.laysSoil()).isFalse();
+        assertThat(menu.areaSize()).as("the Reach's side").isEqualTo(7);
         assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
-        assertThat(menu.plotsTotal()).as("15×15 around the 7×7 courtyard").isEqualTo(176);
+        assertThat(menu.plotsTotal()).as("no Plots until a harvest").isZero();
         assertThat(menu.plotsBlocked()).isZero();
-        assertThat(menu.plotsUsable()).isEqualTo(176);
 
         farm.parts.tier().setTier(MachineTier.PRECISION);
         assertThat(data.get(FarmMenu.TIER)).isEqualTo(MachineTier.PRECISION.rank());
@@ -309,10 +191,10 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     @Test
     @DisplayName("the tier and plot counts follow the earlier indices, and an unknown tier rank reads as Basic")
     void tierAndPlotIndices() {
-        assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.FLAGS + 1);
+        assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.AREA_SIZE + 1);
         assertThat(FarmMenu.PLOTS_TOTAL).isEqualTo(FarmMenu.TIER + 1);
         assertThat(FarmMenu.PLOTS_BLOCKED).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
-        assertThat(FarmMenu.STATE).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
+        assertThat(FarmMenu.DATA_COUNT).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
 
         SimpleContainerData data = new SimpleContainerData(FarmMenu.DATA_COUNT);
         FarmMenu menu = new FarmMenu(1, playerInventory(), new SimpleContainer(FarmMachine.SLOT_COUNT), data);
@@ -328,16 +210,6 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    @DisplayName("the farm's own buttons sit outside the machine controls' reserved ids")
-    void farmButtonsAvoidControlIds() {
-        int reservedEnd = MachineControls.BUTTON_BASE + MachineControls.BUTTON_RANGE;
-        for (int id : new int[] {FarmMenu.BUTTON_START, FarmMenu.BUTTON_SHOW_AREA}) {
-            assertThat(id >= MachineControls.BUTTON_BASE && id < reservedEnd)
-                    .as("button " + id).isFalse();
-        }
-    }
-
-    @Test
     @DisplayName("the menu syncs the machine controls after its own data")
     void carriesMachineControls() {
         FarmMenu menu = new FarmMenu(1, playerInventory());
@@ -347,29 +219,28 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.controls().mode()).isEqualTo(RedstoneMode.HIGH);
     }
 
-    // ==================== Helpers ====================
-
-    // ==================== Tend layout ====================
+    // ==================== Layout ====================
 
     @Test
-    @DisplayName("a tend farm's menu shows its 15 generic slots as a 5×3 grid")
-    void tendSlotPositions() {
-        FarmMenu menu = FarmMenu.tend(1, playerInventory());
+    @DisplayName("the menu shows the farm's 15 generic slots as a 5×3 grid, then the player's")
+    void slotPositions() {
+        FarmMenu menu = new FarmMenu(1, playerInventory());
 
-        assertThat(menu.layout()).isEqualTo(FarmMenu.Layout.TEND);
-        assertThat(menu.slots).hasSize(FarmMachine.TEND_SLOT_COUNT + PLAYER_SLOTS);
+        assertThat(menu.slots).hasSize(FarmMachine.SLOT_COUNT + PLAYER_SLOTS);
         assertThat(menu.getSlot(0).x).isEqualTo(80);
         assertThat(menu.getSlot(0).y).isEqualTo(17);
         assertThat(menu.getSlot(14).x).isEqualTo(152);
         assertThat(menu.getSlot(14).y).isEqualTo(53);
+        assertThat(menu.getSlot(MACHINE_SLOTS).y).isEqualTo(84);
+        assertThat(menu.getSlot(hotbar(menu)).y).isEqualTo(142);
     }
 
     @Test
-    @DisplayName("shift-clicking moves anything into a tend farm and back out of any slot")
-    void tendShiftClickTakesAnythingBothWays() {
+    @DisplayName("shift-clicking moves anything into the farm and back out of any slot")
+    void shiftClickTakesAnythingBothWays() {
         Inventory inventory = playerInventory();
         inventory.setItem(0, new ItemStack(Items.COBBLESTONE, 32));
-        FarmMenu menu = FarmMenu.tend(1, inventory);
+        FarmMenu menu = new FarmMenu(1, inventory);
 
         menu.quickMoveStack(null, hotbar(menu));
         assertThat(menu.getSlot(0).getItem().is(Items.COBBLESTONE)).isTrue();

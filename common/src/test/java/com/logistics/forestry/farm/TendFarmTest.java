@@ -418,21 +418,14 @@ class TendFarmTest extends MinecraftTestEnvironment {
 
     @Test
     void loadsARingFarmSaveAndStartsTending() {
-        FarmHarness ring = new FarmHarness(new ScriptedFarmLogic());
-        for (int slot = 0; slot < FarmMachine.SLOT_COUNT; slot++) {
-            ring.items().setItem(slot, new ItemStack(Items.WHEAT_SEEDS, slot + 1));
-        }
-        ring.farm().setOwner(UUID.randomUUID());
-        ring.ticks(5);
-
         FarmHarness farm = farm();
-        farm.load(ring.save());
+        farm.load(FarmHarness.ringFarmSave(slot -> new ItemStack(Items.WHEAT_SEEDS, slot + 1)));
         farm.power(10_000);
         BlockPos plot = new BlockPos(1, 0, 2);
         field(farm, plot, ripe(Blocks.WHEAT));
         farm.ticks(PASS);
 
-        for (int slot = 0; slot < FarmMachine.TEND_SLOT_COUNT; slot++) {
+        for (int slot = 0; slot < FarmMachine.SLOT_COUNT; slot++) {
             assertThat(farm.items().getItem(slot).getCount()).as("slot %s", slot).isGreaterThanOrEqualTo(slot + 1);
         }
         assertThat(farm.world.blocks.get(plot)).isEqualTo(Blocks.WHEAT.defaultBlockState());

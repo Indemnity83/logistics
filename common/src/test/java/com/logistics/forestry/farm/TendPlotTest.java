@@ -210,7 +210,7 @@ class TendPlotTest extends MinecraftTestEnvironment {
         assertThat(farm.engine().status()).isEqualTo(FarmStatus.WAITING_FOR_SEEDS);
         assertThat(farm.engine().plotsBlocked()).isEqualTo(2);
         assertThat(hud(farm)).contains(new MachineHudModel.LineEntry(
-                FarmComponent.HUD_STATUS, TendFarmComponent.HUD_WAITING_FOR_SEEDS, List.of("2")));
+                TendFarmComponent.HUD_STATUS, TendFarmComponent.HUD_WAITING_FOR_SEEDS, List.of("2")));
 
         farm.items().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 4));
         farm.items().setItem(1, new ItemStack(Items.BEETROOT_SEEDS, 4));

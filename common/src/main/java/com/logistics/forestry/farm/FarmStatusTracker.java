@@ -17,12 +17,8 @@ final class FarmStatusTracker {
     /** Most important first. */
     private static final FarmStatus[] PROBLEMS = {
         FarmStatus.NO_POWER,
-        FarmStatus.OUTPUT_FULL,
         FarmStatus.INVENTORY_FULL,
-        FarmStatus.NO_SOIL,
-        FarmStatus.NO_GERMLINGS,
         FarmStatus.WAITING_FOR_SEEDS,
-        FarmStatus.TOO_DARK,
         FarmStatus.BLOCKED
     };
 
