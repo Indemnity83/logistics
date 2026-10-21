@@ -50,7 +50,7 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
 
     private static final int LABEL_COLOR = 0xFF404040;
 
-    // Lamp sprites in the texture's spare region, in FarmGauges.Lamp order.
+    // Lamp sprites in the texture's spare region, in FarmGauges.lampSprite order.
     private static final int LAMP_U = 176, LAMP_V = 0, LAMP_U_STEP = 10;
 
     private final SideTabHost tabs;
@@ -122,7 +122,7 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
         blitTexture(graphics, 0, 0, 0, 0, imageWidth, imageHeight);
         renderEnergy(graphics);
 
-        int lampU = LAMP_U + FarmGauges.lamp(menu.status()).ordinal() * LAMP_U_STEP;
+        int lampU = LAMP_U + FarmGauges.lampSprite(menu.status()) * LAMP_U_STEP;
         blitTexture(graphics, LAMP_LEFT, LAMP_TOP, lampU, LAMP_V, LAMP_SIZE, LAMP_SIZE);
     }
 

@@ -11,6 +11,7 @@ import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.core.machine.tier.TieredBlockItem;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmCost;
+import com.logistics.forestry.farm.FarmLamp;
 import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmMenu;
 import com.logistics.forestry.farm.FarmSettings;
@@ -222,11 +223,11 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             ARBORETUM = registerFarm("arboretum",
                 props -> new ArboretumBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
-                    .lightLevel(state -> state.getValue(FarmMachineBlock.LIT) ? 13 : 0)));
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
             CROP_FARM = registerFarm("crop_farm",
                 props -> new CropFarmBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
-                    .lightLevel(state -> state.getValue(CropFarmBlock.LIT) ? 13 : 0)));
+                    .lightLevel(state -> state.getValue(CropFarmBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
         }
 
         /**

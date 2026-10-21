@@ -2,7 +2,6 @@ package com.logistics.forestry.farm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.logistics.forestry.farm.FarmGauges.Lamp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,22 +30,29 @@ class FarmGaugesTest {
 
     @ParameterizedTest
     @EnumSource(value = FarmStatus.class, names = {"WORKING", "IDLE"})
-    @DisplayName("lamp is green while the farm works or has nothing ripe")
+    @DisplayName("the screen lamp shows the green sprite while the farm works or has nothing ripe")
     void lampIsGreenWhenAllIsWell(FarmStatus status) {
-        assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.GREEN);
+        assertThat(FarmGauges.lampSprite(status)).isZero();
     }
 
     @ParameterizedTest
     @EnumSource(value = FarmStatus.class, names = {"WAITING_FOR_SEEDS", "INVENTORY_FULL", "PAUSED"})
-    @DisplayName("lamp is amber while the farm needs attention but is not stopped by a fault")
+    @DisplayName("the screen lamp shows the amber sprite while the farm needs attention")
     void lampIsAmberForWarnings(FarmStatus status) {
-        assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.AMBER);
+        assertThat(FarmGauges.lampSprite(status)).isEqualTo(1);
     }
 
     @ParameterizedTest
     @EnumSource(value = FarmStatus.class, names = {"NO_POWER", "BLOCKED"})
-    @DisplayName("lamp is red when the farm cannot work")
+    @DisplayName("the screen lamp shows the red sprite when the farm cannot work")
     void lampIsRedForFaults(FarmStatus status) {
-        assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.RED);
+        assertThat(FarmGauges.lampSprite(status)).isEqualTo(2);
+    }
+
+    @ParameterizedTest
+    @EnumSource(FarmStatus.class)
+    @DisplayName("every status has a screen lamp sprite")
+    void everyStatusHasASprite(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isBetween(0, 2);
     }
 }

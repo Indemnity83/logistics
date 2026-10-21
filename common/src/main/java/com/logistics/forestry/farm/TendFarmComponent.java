@@ -682,12 +682,13 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         return false;
     }
 
-    /** The block's {@code lit} state, which shows its active model: on while the farm holds any power. */
+    /** The block's {@code lamp} state: off with an empty buffer, else the status colour. */
     private void showLamp(MachineContext ctx) {
         BlockState state = ctx.blockState();
-        boolean lit = energy.amount() > 0;
-        if (state.hasProperty(FarmMachineBlock.LIT) && state.getValue(FarmMachineBlock.LIT) != lit) {
-            ctx.setBlockState(state.setValue(FarmMachineBlock.LIT, lit), Block.UPDATE_ALL);
+        FarmLamp lamp = energy.amount() > 0 ? FarmLamp.forStatus(status) : FarmLamp.OFF;
+        if (state.hasProperty(FarmMachineBlock.LAMP) && state.getValue(FarmMachineBlock.LAMP) != lamp) {
+            // setBlock relights on any flags; no neighbour reacts to the lamp.
+            ctx.setBlockState(state.setValue(FarmMachineBlock.LAMP, lamp), Block.UPDATE_CLIENTS);
         }
     }
 

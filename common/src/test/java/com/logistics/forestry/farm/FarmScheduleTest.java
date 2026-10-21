@@ -96,22 +96,37 @@ class FarmScheduleTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    void isLitWhileItsBufferHoldsPowerAndOnlyWritesOnAChange() {
+    void lampIsOffWithAnEmptyBufferElseItsStatusColourAndOnlyWritesOnAChange() {
         FarmHarness farm = FarmHarness.tending(new CountingLogic());
         farm.tick();
-        assertThat(farm.host.lit()).as("empty buffer").isFalse();
+        assertThat(farm.host.lamp()).as("empty buffer").isEqualTo(FarmLamp.OFF);
+        assertThat(farm.host.stateWrites).as("already off").isZero();
 
         farm.power(1);
         farm.tick();
-        assertThat(farm.host.lit()).as("one RF, not enough for anything").isTrue();
+        assertThat(farm.engine().status()).isEqualTo(FarmStatus.NO_POWER);
+        assertThat(farm.host.lamp()).as("one RF, not enough for anything").isEqualTo(FarmLamp.RED);
+        assertThat(farm.host.stateWrites).isEqualTo(1);
 
-        int writes = farm.host.stateWrites;
         farm.ticks(3);
-        assertThat(farm.host.stateWrites).as("no write while nothing changes").isEqualTo(writes);
+        assertThat(farm.host.stateWrites).as("no write while nothing changes").isEqualTo(1);
+
+        farm.power(10_000);
+        farm.tick();
+        assertThat(farm.engine().status()).isIn(FarmStatus.WORKING, FarmStatus.IDLE);
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.GREEN);
+        assertThat(farm.host.stateWrites).isEqualTo(2);
+
+        farm.host.workEnabled = false;
+        farm.tick();
+        assertThat(farm.engine().status()).isEqualTo(FarmStatus.PAUSED);
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.AMBER);
+        assertThat(farm.host.stateWrites).isEqualTo(3);
 
         farm.power(0);
         farm.tick();
-        assertThat(farm.host.lit()).isFalse();
+        assertThat(farm.host.lamp()).as("empty buffer, whatever the status").isEqualTo(FarmLamp.OFF);
+        assertThat(farm.host.stateWrites).isEqualTo(4);
     }
 
     @Test

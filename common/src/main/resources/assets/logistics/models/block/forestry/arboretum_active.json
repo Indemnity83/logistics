@@ -1,6 +1,0 @@
-{
-  "parent": "logistics:block/forestry/arboretum",
-  "textures": {
-    "front": "logistics:block/forestry/arboretum_on"
-  }
-}

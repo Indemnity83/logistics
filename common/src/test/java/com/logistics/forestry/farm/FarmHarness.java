@@ -1,5 +1,7 @@
 package com.logistics.forestry.farm;
 
+import com.logistics.DomainRegistrations;
+import com.logistics.LogisticsForestry;
 import com.logistics.core.machine.MachineBuilder;
 import com.logistics.core.machine.MachineComponentContainer;
 import com.logistics.core.machine.MachineContext;
@@ -23,14 +25,14 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * A farm's real components ({@link FarmMachine#assemble}) on a fake host and a {@link FakeFarmWorld}.
- * The host is a furnace block state, which carries the same horizontal {@code facing} and
- * {@code lit} properties as a farm block, facing south at the origin.
+ * The host is a Crop Farm block state, facing south at the origin.
  */
 final class FarmHarness {
 
@@ -166,19 +168,24 @@ final class FarmHarness {
     }
 
     /**
-     * The block entity's side of the farm: position, block state (lit or not), dirty marking, and
+     * The block entity's side of the farm: position, block state (facing and lamp), dirty marking, and
      * whether its redstone control permits work.
      */
     static final class Host implements MachineContext {
         private final HolderLookup.Provider registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
         private final RandomSource random = RandomSource.create(42L);
-        BlockState state = Blocks.FURNACE.defaultBlockState().setValue(FarmMachineBlock.FACING, Direction.SOUTH);
+        BlockState state = farmBlock().defaultBlockState().setValue(FarmMachineBlock.FACING, Direction.SOUTH);
         int changes;
         int stateWrites;
         boolean workEnabled = true;
 
-        boolean lit() {
-            return state.getValue(FarmMachineBlock.LIT);
+        FarmLamp lamp() {
+            return state.getValue(FarmMachineBlock.LAMP);
+        }
+
+        private static Block farmBlock() {
+            DomainRegistrations.ensureRegistered();
+            return LogisticsForestry.BLOCK.CROP_FARM;
         }
 
         @Override
