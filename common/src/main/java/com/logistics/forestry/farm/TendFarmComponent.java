@@ -236,7 +236,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             }
             work(ctx.pos(), s);
         }
-        updateStatus(ctx, paused);
+        updateStatus(ctx, paused, s);
 
         if (dirty) {
             dirty = false;
@@ -604,9 +604,24 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     // ==================== Status ====================
 
-    private void updateStatus(MachineContext ctx, boolean paused) {
-        status = paused ? FarmStatus.PAUSED : tracker.status(REACH_OFFSETS.size(), this::stillApplies);
+    /** Paused, else No power while short of the cheapest action, ripe produce or not, else the tracked status. */
+    private void updateStatus(MachineContext ctx, boolean paused, FarmSettings s) {
+        if (paused) {
+            status = FarmStatus.PAUSED;
+        } else if (energy.amount() < cheapestAction(s)) {
+            status = FarmStatus.NO_POWER;
+        } else {
+            status = tracker.status(REACH_OFFSETS.size(), this::stillApplies);
+        }
         showLamp(ctx);
+    }
+
+    private static long cheapestAction(FarmSettings s) {
+        long cheapest = Long.MAX_VALUE;
+        for (FarmCost cost : FarmCost.values()) {
+            cheapest = Math.min(cheapest, s.cost(cost));
+        }
+        return cheapest;
     }
 
     private boolean stillApplies(FarmStatus problem) {

@@ -305,6 +305,30 @@ class TendFarmTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void anUnpoweredFarmWithNothingToDoSaysNoPowerNotIdle() {
+        FarmHarness farm = farm();
+        farm.power(0);
+
+        farm.ticks(PASS);
+
+        assertThat(farm.engine().status()).isEqualTo(FarmStatus.NO_POWER);
+    }
+
+    @Test
+    void aFarmShortOfItsCheapestActionSaysNoPowerUntilCharged() {
+        FarmHarness farm = farm();
+        long cheapest = farm.cost(FarmCost.HARVEST_LEAVES);
+        farm.power(cheapest - 1);
+
+        farm.ticks(PASS);
+        assertThat(farm.engine().status()).isEqualTo(FarmStatus.NO_POWER);
+
+        farm.power(cheapest);
+        farm.tick();
+        assertThat(farm.engine().status()).isEqualTo(FarmStatus.IDLE);
+    }
+
+    @Test
     void waitsUntilItCanPayForTheReplantToo() {
         FarmHarness farm = farm();
         long harvestOnly = farm.cost(FarmCost.HARVEST_CROP);
