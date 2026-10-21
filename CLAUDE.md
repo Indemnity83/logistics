@@ -856,6 +856,20 @@ When creating or modifying PRs:
 - Do not add `refactor`, `test`, `build`, `ci`, or `chore` to the Release Please changelog sections.
 - Do not attempt to group changelog entries by scope using nested headings unless the release strategy is intentionally changed later.
 
+## Agent skills
+
+### Issue tracker
+
+Two surfaces. Standalone work (bugs, findings, feature requests) goes to GitHub Issues. Specs and the implementation tickets they break into stay local under `.scratch/<feature>/` (gitignored) so they don't flood the backlog. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`): labels on GitHub, `Status:` lines in `.scratch/` files. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
 ## Documentation
 
 **Architecture & Design:**
