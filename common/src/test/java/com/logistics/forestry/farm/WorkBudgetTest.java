@@ -78,24 +78,4 @@ class WorkBudgetTest {
         budget.refill(4, 16, 64);
         assertThat(budget.reads()).isEqualTo(4);
     }
-
-    @Test
-    @DisplayName("turns: strict alternation at a half share, one in four at a quarter, never harvest at zero")
-    void turns() {
-        assertThat(turns(0.5, 8)).isEqualTo("CHCHCHCH");
-        assertThat(turns(0.75, 8)).isEqualTo("CHHHCHHH");
-        assertThat(turns(0.25, 8)).isEqualTo("CCCHCCCH");
-        assertThat(turns(0.0, 8)).isEqualTo("CCCCCCCC");
-    }
-
-    private static String turns(double share, int count) {
-        WorkBudget budget = new WorkBudget();
-        StringBuilder turns = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            WorkBudget.Lane lane = budget.turn(share);
-            turns.append(lane == WorkBudget.Lane.HARVEST ? 'H' : 'C');
-            budget.took(lane, share);
-        }
-        return turns.toString();
-    }
 }

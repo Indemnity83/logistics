@@ -1,0 +1,15 @@
+# Farms tend the player's field instead of building their own
+
+Farms used to work like Forestry's: the farm block sat at the centre of a fixed courtyard, cleared a ring around it, laid its own soil, kept the farmland hydrated from a water tank, and planted its own pattern. Playtesting and garden references showed this can't live inside a decorated build, so the ring model was removed. A farm now only tends what is already growing in a small reach around it: it harvests ripe plants, replants each plot with the same plant, and re-tills only its own plots' dirt or grass. It never clears, lays soil or hydrates. The player builds and styles the field; the farm supplies the labour and spends RF to do it. The ring farms had only shipped in an alpha, so removing them owed no migration.
+
+## Considered Options
+
+- **Keep rings and add a tend mode as a per-farm toggle.** Rejected: two farming models to maintain, and the ring code (clearing, soil laying, survey preview, hydration) was the most complex part of the domain.
+- **Ring at higher tiers, tend at Basic.** Rejected for the same reason. Tiers will widen the reach instead (not built yet).
+
+## Consequences
+
+- **Overflow spills; the farm never pauses.** Harvests yield a variable number of items, so "is there room?" can't be answered before harvesting. The germling for the replant is taken from the drops first, the rest goes into the farm's single generic inventory, and whatever doesn't fit drops at the plot. Keeping up with the output is a logistics problem the player is meant to solve.
+- **Seed supply is the player's to manage.** Wheat and beetroot drop no seed about 8% of the time. A plot that can't be replanted waits as an Empty Plot until a matching germling turns up in the inventory. There is no timeout, and the farm never tops itself up from a reserve slot. Pipes can extract the seeds too, so extracting everything starves the field.
+- **Plots are forgotten only when the player acts.** That means another plant grows there, something else occupies the spot, or the ground is anything other than farmland, dirt or grass (so a shovelled path stops a plot). Breaking the farm forgets all of its plots.
+- **Humus is the Arboretum's farmland, and it fixes the tree's shape.** Any sapling on Humus, with or without a farm nearby, grows the same small tree: a straight trunk 4–6 logs tall under a round canopy, made of its own species' wood and leaves, never a 2×2 mega tree. Branching trunks, roots and decorations are removed, except decorations that hang the tree's own germling from its leaves, which are placed fully grown. Without that exception, mangrove leaves drop no propagules and a mangrove grove would never replant itself. This puts every sapling, mangrove and 2×2-only species included, in a single plot of known size, so felling never touches the blocks around a tree. The Arboretum only tends trees on Humus, so the player's other trees and log builds are safe. A sapling with no tree definition to read doesn't grow on Humus at all.

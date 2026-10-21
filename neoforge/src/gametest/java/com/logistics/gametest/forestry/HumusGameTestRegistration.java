@@ -20,13 +20,24 @@ public final class HumusGameTestRegistration {
 
     private static final List<GameTestCase> TESTS = List.of(
         new GameTestCase("forestry/humus_sapling_survives", 60, HumusGameTestBody::testSaplingSurvivesOnHumus),
+        new GameTestCase("forestry/humus_oak_grows_small_tree", 60, HumusGameTestBody::testOakGrowsSmallTree),
         new GameTestCase(
-            "forestry/humus_boost_grows_tree_and_turns_to_sand", 60,
-            HumusGameTestBody::testHumusBoostGrowsTreeAndTurnsToSand),
-        new GameTestCase("forestry/humus_under_log_turns_to_sand", 60, HumusGameTestBody::testHumusUnderLogTurnsToSand),
+            "forestry/humus_dark_oak_grows_from_one_sapling", 60, HumusGameTestBody::testDarkOakGrowsFromOneSapling),
+        new GameTestCase("forestry/humus_spruce_grows_small_tree", 60, HumusGameTestBody::testSpruceGrowsSmallTree),
+        new GameTestCase("forestry/humus_azalea_grows_small_tree", 60, HumusGameTestBody::testAzaleaGrowsSmallTree),
         new GameTestCase(
-            "forestry/humus_without_sapling_never_changes", 60, HumusGameTestBody::testHumusWithoutSaplingNeverChanges),
-        new GameTestCase("forestry/humus_no_growth_in_darkness", 60, HumusGameTestBody::testNoGrowthInDarkness));
+            "forestry/humus_mangrove_grows_small_tree_with_grown_propagules", 60,
+            HumusGameTestBody::testMangroveGrowsSmallTreeWithGrownPropagules),
+        new GameTestCase(
+            "forestry/humus_dark_oak_group_grows_four_trees", 60, HumusGameTestBody::testDarkOakGroupGrowsFourTrees),
+        new GameTestCase(
+            "forestry/humus_spruce_group_grows_four_trees", 60, HumusGameTestBody::testSpruceGroupGrowsFourTrees),
+        new GameTestCase(
+            "forestry/humus_saplings_off_humus_grow_as_vanilla", 60,
+            HumusGameTestBody::testSaplingsOffHumusGrowAsVanilla),
+        new GameTestCase(
+            "forestry/humus_is_permanent_and_gives_no_boost", 60,
+            HumusGameTestBody::testHumusIsPermanentAndGivesNoBoost));
 
     private static final Map<String, DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>>> FUNCTIONS =
         GameTestRegistrationSupport.registerFunctions(TESTS);

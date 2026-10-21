@@ -15,32 +15,31 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Base block for every farm type. A farm sits at the edge of its plot and faces into it: placed,
- * it faces the way the player was looking, so the plot lies ahead of where they stood. All farm
- * blocks share {@link FarmBlockEntity}; a subclass only supplies its {@link FarmLogic}.
+ * Base block for every farm type. A farm tends the Reach around it; placed, it faces the way the
+ * player was looking. All farm blocks share {@link FarmBlockEntity}; a subclass only supplies its
+ * {@link TendLogic}.
  *
  * <p>Not named {@code FarmBlock}: that is vanilla farmland on older Minecraft versions.
  */
 public abstract class FarmMachineBlock extends MachineBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    public static final EnumProperty<FarmLamp> LAMP = EnumProperty.create("lamp", FarmLamp.class);
 
     protected FarmMachineBlock(Properties settings) {
         super(settings);
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LIT, false));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LAMP, FarmLamp.OFF));
     }
 
     /** This farm type's behaviour; the same instance on every call. */
-    public abstract FarmLogic logic();
+    public abstract TendLogic logic();
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, LIT);
+        builder.add(FACING, LAMP);
     }
 
     @Nullable

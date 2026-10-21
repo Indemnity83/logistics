@@ -363,7 +363,7 @@ class TreeFellerTest {
     @Test
     void limits_aroundAPlot() {
         assertThat(LIMITS).isEqualTo(new TreeFeller.Limits(
-                new Columns(-8, -8, 8, 8), new Columns(-8, -8, 8, 8), Columns.EMPTY, 3, 32, 1024));
+                new Columns(-8, -8, 8, 8), new Columns(-8, -8, 8, 8), 3, 32, 1024));
         assertThatThrownBy(() -> LIMITS.withCap(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> LIMITS.withHeight(-1, 32)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> TreeFeller.Limits.around(ORIGIN, -1)).isInstanceOf(IllegalArgumentException.class);
@@ -372,59 +372,22 @@ class TreeFellerTest {
     @Test
     void limits_withinARegion() {
         Columns bounds = Columns.square(ORIGIN, 11);
-        Columns courtyard = Columns.square(ORIGIN, 7);
 
-        TreeFeller.Limits limits = TreeFeller.Limits.within(bounds, courtyard);
+        TreeFeller.Limits limits = TreeFeller.Limits.within(bounds);
 
         assertThat(limits.wood()).isEqualTo(bounds);
         assertThat(limits.canopy()).isEqualTo(new Columns(-8, -8, 8, 8));
-        assertThat(limits.keepOut()).isEqualTo(courtyard);
         assertThat(limits.below()).isEqualTo(3);
         assertThat(limits.above()).isEqualTo(32);
         assertThat(limits.cap()).isEqualTo(1024);
     }
 
-    // --- farm region bounds (a 7×7 courtyard, ring out to 11×11, centred on the origin) ---
+    // --- region bounds (11×11, centred on the origin) ---
 
-    private static final TreeFeller.Limits REGION =
-            TreeFeller.Limits.within(Columns.square(ORIGIN, 11), Columns.square(ORIGIN, 7));
+    private static final TreeFeller.Limits REGION = TreeFeller.Limits.within(Columns.square(ORIGIN, 11));
 
-    /** First lane of the ring, east of the courtyard. */
-    private static final BlockPos RING_PLOT = new BlockPos(4, 0, 0);
-
-    @Test
-    void region_canopyOverTheCourtyardThatIsNotLeavesIsNotPlanned() {
-        FakeView view = smallOak(new FakeView(), RING_PLOT.getX(), RING_PLOT.getZ());
-        view.blocks.keySet().stream().filter(REGION.keepOut()::contains).forEach(view.notLeaves::add);
-
-        FellPlan plan = TreeFeller.plan(view, RING_PLOT, REGION);
-
-        assertThat(plan.isFound()).isTrue();
-        assertThat(plan.blocks())
-                .noneMatch(REGION.keepOut()::contains)
-                .doesNotContain(new BlockPos(3, 3, 0), new BlockPos(2, 3, 1), new BlockPos(3, 5, 0))
-                .as("canopy past the outer edge, within the margin")
-                .contains(new BlockPos(6, 3, 0), new BlockPos(5, 5, 0));
-    }
-
-    @Test
-    void region_ownLeavesOverTheCourtyardAreTaken_nothingElseThere() {
-        FakeView view = smallOak(new FakeView(), 5, 0);
-        BlockPos courtyardVine = new BlockPos(3, 3, 1);
-        BlockPos courtyardLog = new BlockPos(2, 4, 0);
-        view.set(courtyardLog, Kind.WOOD);
-        view.notLeaves.add(courtyardVine);
-
-        FellPlan plan = TreeFeller.plan(view, new BlockPos(5, 0, 0), REGION);
-
-        assertThat(plan.isFound()).isTrue();
-        assertThat(plan.blocks())
-                .as("the tree's own leaves hanging into the courtyard")
-                .contains(new BlockPos(3, 3, 0), new BlockPos(3, 2, -1))
-                .doesNotContain(courtyardVine, courtyardLog);
-        assertThat(plan.blocks().stream().filter(REGION.keepOut()::contains))
-                .allMatch(pos -> view.blocks.get(pos) == Kind.CANOPY);
-    }
+    /** Near the region's east edge. */
+    private static final BlockPos EDGE_PLOT = new BlockPos(4, 0, 0);
 
     @Test
     void region_woodOutsideTheOuterSquareIsNotPlanned() {
@@ -435,7 +398,7 @@ class TreeFellerTest {
         }
         view.layer(3, 5, 4, -1, 1, false, Kind.CANOPY);
 
-        FellPlan plan = TreeFeller.plan(view, RING_PLOT, REGION);
+        FellPlan plan = TreeFeller.plan(view, EDGE_PLOT, REGION);
 
         assertThat(plan.isFound()).isTrue();
         assertThat(plan.blocks())
@@ -456,32 +419,6 @@ class TreeFellerTest {
         assertThat(plan.blocks())
                 .contains(new BlockPos(8, 3, 0))
                 .doesNotContain(new BlockPos(9, 3, 0), new BlockPos(10, 3, 0));
-    }
-
-    @Test
-    void region_treeRootedInTheCourtyardIsNoTree() {
-        FakeView view = smallOak(new FakeView(), 2, 0);
-
-        assertSkipped(TreeFeller.plan(view, new BlockPos(2, 0, 0), REGION), FellPlan.Reason.NO_TREE);
-    }
-
-    @Test
-    void region_neverWalksThroughTheCourtyard() {
-        FakeView view = new FakeView();
-        // A trunk on the west lane joined to one on the east lane only through the courtyard.
-        view.column(-4, 0, 0, 3, Kind.WOOD);
-        for (int x = -3; x <= 3; x++) {
-            view.set(new BlockPos(x, 3, 0), Kind.WOOD);
-        }
-        view.column(4, 0, 0, 3, Kind.WOOD);
-        view.layer(3, 5, 4, -1, 1, false, Kind.CANOPY);
-        view.layer(-5, -3, 4, -1, 1, false, Kind.CANOPY);
-
-        FellPlan plan = TreeFeller.plan(view, RING_PLOT, REGION);
-
-        assertThat(plan.blocks())
-                .contains(new BlockPos(4, 3, 0))
-                .noneMatch(pos -> pos.getX() < 0);
     }
 
     // --- seeding ---
@@ -587,15 +524,8 @@ class TreeFellerTest {
     /** A world of OTHER except for the positions set; records every position read. */
     private static final class FakeView implements TreeView {
         final Map<BlockPos, Kind> blocks = new LinkedHashMap<>();
-        /** CANOPY positions that are not leaves, e.g. vines. */
-        final Set<BlockPos> notLeaves = new HashSet<>();
         final Set<BlockPos> queried = new HashSet<>();
         Predicate<BlockPos> unloaded = pos -> false;
-
-        @Override
-        public boolean isLeaves(BlockPos pos) {
-            return blocks.get(pos) == Kind.CANOPY && !notLeaves.contains(pos);
-        }
 
         @Override
         public Kind kind(BlockPos pos) {

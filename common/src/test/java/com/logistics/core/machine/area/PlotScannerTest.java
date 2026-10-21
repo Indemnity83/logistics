@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 class PlotScannerTest {
 
     private static void emptyPass(PlotScanner scanner) {
-        for (int i = 0; i < scanner.plotCount(); i++) {
+        for (int i = 0; i < scanner.positionCount(); i++) {
             scanner.next();
         }
     }
 
     @Test
-    void nextVisitsEveryPlotThenWraps() {
+    void nextVisitsEveryPositionThenWraps() {
         PlotScanner scanner = new PlotScanner(4, 10, 80);
 
         assertThat(scanner.next()).isEqualTo(0);
@@ -72,7 +72,7 @@ class PlotScannerTest {
     }
 
     @Test
-    void workOnLastPlotOfPassCountsForThatPassOnly() {
+    void workOnLastPositionOfPassCountsForThatPassOnly() {
         PlotScanner scanner = new PlotScanner(3, 10, 80);
 
         scanner.next();
@@ -86,7 +86,7 @@ class PlotScannerTest {
     }
 
     @Test
-    void singlePlotScannerBacksOffEveryEmptyCall() {
+    void singlePositionScannerBacksOffEveryEmptyCall() {
         PlotScanner scanner = new PlotScanner(1, 5, 20);
 
         assertThat(scanner.next()).isZero();
@@ -107,7 +107,7 @@ class PlotScannerTest {
         assertThat(scanner.idleTicks()).isEqualTo(10);
 
         scanner.resize(169);
-        assertThat(scanner.plotCount()).isEqualTo(169);
+        assertThat(scanner.positionCount()).isEqualTo(169);
         assertThat(scanner.cursor()).isEqualTo(40);
         assertThat(scanner.idleTicks()).isZero();
     }
@@ -144,7 +144,7 @@ class PlotScannerTest {
     void restoreResumesAtSavedCursor() {
         PlotScanner scanner = PlotScanner.restore(81, 37, 10, 80);
 
-        assertThat(scanner.plotCount()).isEqualTo(81);
+        assertThat(scanner.positionCount()).isEqualTo(81);
         assertThat(scanner.idleTicks()).isZero();
         assertThat(scanner.next()).isEqualTo(37);
         assertThat(scanner.cursor()).isEqualTo(38);

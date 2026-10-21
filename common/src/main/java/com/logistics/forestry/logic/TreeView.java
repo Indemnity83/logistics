@@ -8,14 +8,6 @@ public interface TreeView {
 
     Kind kind(BlockPos pos);
 
-    /**
-     * Whether the canopy at {@code pos} is natural leaves. Only asked right after {@link #kind}
-     * answered {@link Kind#CANOPY} for {@code pos}.
-     */
-    default boolean isLeaves(BlockPos pos) {
-        return false;
-    }
-
     enum Kind {
         /** Trunk or root; joined to other wood through all 26 neighbours. */
         WOOD,

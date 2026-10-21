@@ -24,3 +24,6 @@ type="required"
 versionRange="${neoforge_minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
+
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
