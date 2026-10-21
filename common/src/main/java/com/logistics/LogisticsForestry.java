@@ -234,6 +234,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static final TagKey<Block> CROP_FARM_TENDS =
                 TagKey.create(Registries.BLOCK, resource("crop_farm_tends").toIdentifier());
 
+        /** Ground the Crop Farm tends crops on; any but farmland is tilled before replanting. */
+        public static final TagKey<Block> CROP_FARM_GROUND =
+                TagKey.create(Registries.BLOCK, resource("crop_farm_ground").toIdentifier());
+
         /** Ground an Arboretum tends trees on; it is never repaired. */
         public static final TagKey<Block> ARBORETUM_GROUND =
                 TagKey.create(Registries.BLOCK, resource("arboretum_ground").toIdentifier());

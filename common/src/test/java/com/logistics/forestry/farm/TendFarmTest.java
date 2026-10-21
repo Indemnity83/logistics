@@ -18,7 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -33,13 +33,17 @@ class TendFarmTest extends MinecraftTestEnvironment {
     /** Stands in for {@code logistics:forestry/crop_farm_tends}, which is not bound in unit tests. */
     private static final Set<Block> TENDED = Set.of(Blocks.WHEAT, Blocks.CARROTS, Blocks.POTATOES, Blocks.BEETROOTS);
 
+    /** Stands in for {@code logistics:forestry/crop_farm_ground}. */
+    private static final Set<Block> GROUND = Set.of(Blocks.FARMLAND, Blocks.DIRT, Blocks.GRASS_BLOCK);
+
     @BeforeAll
     static void registerDomains() {
         DomainRegistrations.ensureRegistered();
     }
 
     private static FarmHarness farm() {
-        FarmHarness farm = FarmHarness.tending(new CropTendLogic(state -> TENDED.contains(state.getBlock())));
+        FarmHarness farm = FarmHarness.tending(new CropTendLogic(
+                state -> TENDED.contains(state.getBlock()), state -> GROUND.contains(state.getBlock())));
         farm.world.drops = TendFarmTest::drops;
         farm.power(10_000);
         return farm;
@@ -165,21 +169,46 @@ class TendFarmTest extends MinecraftTestEnvironment {
     }
 
     @Test
-    void tendsAnyTaggedAgeCropAndNothingUntagged() {
-        FarmHarness farm = FarmHarness.tending(new CropTendLogic(state -> state.is(Blocks.NETHER_WART)));
+    void tendsAnExtraCropAddedToBothTagsAndNothingUntagged() {
+        FarmHarness farm = FarmHarness.tending(new CropTendLogic(
+                state -> state.is(Blocks.SWEET_BERRY_BUSH),
+                state -> state.is(Blocks.FARMLAND) || state.is(Blocks.PODZOL)));
         farm.power(10_000);
-        BlockPos wart = new BlockPos(1, 0, 1);
+        BlockPos bush = new BlockPos(1, 0, 1);
         BlockPos wheat = new BlockPos(-1, 0, -1);
-        farm.world.set(wart.below(), Blocks.SOUL_SAND.defaultBlockState());
-        farm.world.set(wart, Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE, 3));
+        farm.world.set(bush.below(), Blocks.PODZOL.defaultBlockState());
+        farm.world.set(bush, Blocks.SWEET_BERRY_BUSH.defaultBlockState().setValue(SweetBerryBushBlock.AGE, 3));
         field(farm, wheat, ripe(Blocks.WHEAT));
-        farm.world.drops = state -> List.of(new ItemStack(Items.NETHER_WART, 3));
+        farm.world.drops = state -> List.of(new ItemStack(Items.SWEET_BERRIES, 3));
 
         farm.ticks(PASS);
 
-        assertThat(farm.world.broken).containsExactly(wart);
-        assertThat(farm.world.blocks.get(wart)).isEqualTo(Blocks.NETHER_WART.defaultBlockState());
-        assertThat(count(farm.items(), Items.NETHER_WART)).isEqualTo(2);
+        assertThat(farm.world.broken).containsExactly(bush);
+        assertThat(farm.world.blocks.get(bush.below())).isEqualTo(Blocks.FARMLAND.defaultBlockState());
+        assertThat(farm.world.blocks.get(bush)).isEqualTo(Blocks.SWEET_BERRY_BUSH.defaultBlockState());
+        assertThat(count(farm.items(), Items.SWEET_BERRIES)).isEqualTo(2);
+    }
+
+    @Test
+    void leavesATaggedCropOnUntaggedGroundAloneAndNeverRemembersIt() {
+        FarmHarness farm = farm();
+        BlockPos plot = new BlockPos(1, 0, 1);
+        farm.world.set(plot.below(), Blocks.SOUL_SAND.defaultBlockState());
+        farm.world.set(plot, ripe(Blocks.WHEAT));
+
+        farm.ticks(PASS);
+
+        assertThat(farm.world.mutations).isEmpty();
+        assertThat(farm.world.blocks.get(plot)).isEqualTo(ripe(Blocks.WHEAT));
+
+        // Cleared by hand onto good ground: a remembered Plot would be replanted now.
+        farm.world.set(plot, Blocks.AIR.defaultBlockState());
+        farm.world.set(plot.below(), Blocks.FARMLAND.defaultBlockState());
+        farm.items().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 4));
+        farm.ticks(2 * PASS);
+
+        assertThat(farm.world.mutations).isEmpty();
+        assertThat(count(farm.items(), Items.WHEAT_SEEDS)).isEqualTo(4);
     }
 
     @Test

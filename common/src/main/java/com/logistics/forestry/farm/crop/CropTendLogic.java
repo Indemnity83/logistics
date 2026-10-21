@@ -17,6 +17,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * The Crop Farm: harvests a crop in {@code logistics:forestry/crop_farm_tends} once it reaches its
  * maximum age, and replants the same crop from the crop block's own item (wheat seeds for wheat).
+ * Only a crop standing on {@code logistics:forestry/crop_farm_ground} is tended; one on any other
+ * ground is left alone.
  *
  * <p>A {@link CropBlock} knows its maximum age; any other tagged block counts as ripe at the
  * highest value of its {@code age} property.
@@ -29,21 +31,28 @@ public final class CropTendLogic implements TendLogic {
     private static final BlockState FARMLAND = Blocks.FARMLAND.defaultBlockState();
 
     private final Predicate<BlockState> tended;
+    private final Predicate<BlockState> ground;
 
     public CropTendLogic() {
-        this(state -> state.is(LogisticsForestry.TAG.CROP_FARM_TENDS));
+        this(
+                state -> state.is(LogisticsForestry.TAG.CROP_FARM_TENDS),
+                state -> state.is(LogisticsForestry.TAG.CROP_FARM_GROUND));
     }
 
-    /** Test seam: {@code tended} stands in for the {@code logistics:forestry/crop_farm_tends} tag. */
-    public CropTendLogic(Predicate<BlockState> tended) {
+    /**
+     * Test seam: {@code tended} stands in for the {@code logistics:forestry/crop_farm_tends} block tag
+     * and {@code ground} for {@code logistics:forestry/crop_farm_ground}.
+     */
+    public CropTendLogic(Predicate<BlockState> tended, Predicate<BlockState> ground) {
         this.tended = tended;
+        this.ground = ground;
     }
 
     @Override
     @Nullable
     public Harvest ripe(FarmWorld world, BlockPos pos) {
         BlockState state = world.state(pos);
-        if (!tended.test(state) || !isRipe(state)) {
+        if (!tended.test(state) || !isRipe(state) || !standsOnGround(world, pos)) {
             return null;
         }
         return Harvest.single(pos, new ItemStack(state.getBlock().asItem()));
@@ -54,14 +63,19 @@ public final class CropTendLogic implements TendLogic {
         return FarmCost.HARVEST_CROP;
     }
 
-    /** Farmland as it is; dirt and grass tilled into farmland; anything else holds no Plot. */
+    /** Farmland as it is; other Crop Farm ground tilled into farmland; anything else holds no Plot. */
     @Override
     @Nullable
-    public BlockState plotGround(BlockState ground) {
-        if (ground.is(Blocks.FARMLAND)) {
-            return ground;
+    public BlockState plotGround(BlockState state) {
+        if (!ground.test(state)) {
+            return null;
         }
-        return ground.is(Blocks.DIRT) || ground.is(Blocks.GRASS_BLOCK) ? FARMLAND : null;
+        return state.is(Blocks.FARMLAND) ? state : FARMLAND;
+    }
+
+    private boolean standsOnGround(FarmWorld world, BlockPos pos) {
+        BlockPos foot = pos.below();
+        return world.isLoaded(foot) && ground.test(world.state(foot));
     }
 
     static boolean isRipe(BlockState state) {

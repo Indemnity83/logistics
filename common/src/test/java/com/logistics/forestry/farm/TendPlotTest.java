@@ -32,6 +32,9 @@ class TendPlotTest extends MinecraftTestEnvironment {
 
     private static final Set<Block> TENDED = Set.of(Blocks.WHEAT, Blocks.CARROTS, Blocks.POTATOES, Blocks.BEETROOTS);
 
+    /** Stands in for {@code logistics:forestry/crop_farm_ground}. */
+    private static final Set<Block> GROUND = Set.of(Blocks.FARMLAND, Blocks.DIRT, Blocks.GRASS_BLOCK);
+
     private static final BlockPos PLOT = new BlockPos(2, 0, 1);
 
     @BeforeAll
@@ -41,7 +44,8 @@ class TendPlotTest extends MinecraftTestEnvironment {
 
     /** A Crop Farm whose wheat and beetroot harvests roll no seed; carrots and potatoes replant themselves. */
     private static FarmHarness seedlessFarm() {
-        FarmHarness farm = FarmHarness.tending(new CropTendLogic(state -> TENDED.contains(state.getBlock())));
+        FarmHarness farm = FarmHarness.tending(new CropTendLogic(
+                state -> TENDED.contains(state.getBlock()), state -> GROUND.contains(state.getBlock())));
         farm.world.drops = state -> {
             if (state.is(Blocks.WHEAT)) {
                 return List.of(new ItemStack(Items.WHEAT));
