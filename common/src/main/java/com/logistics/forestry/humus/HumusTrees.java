@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -21,10 +22,15 @@ import org.jetbrains.annotations.Nullable;
 public final class HumusTrees {
 
     /** The flags vanilla's tree grower lifts a sapling with before placing its tree. */
-    private static final int LIFT_GERMLING_FLAGS = 818;
+    private static final int LIFT_GERMLING_FLAGS = Block.UPDATE_CLIENTS
+            | Block.UPDATE_KNOWN_SHAPE
+            | Block.UPDATE_SUPPRESS_DROPS
+            | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS
+            | Block.UPDATE_SKIP_ON_PLACE;
 
     /** The flags vanilla's tree grower puts a sapling back with when its tree did not fit. */
-    private static final int RESTORE_GERMLING_FLAGS = 260;
+    private static final int RESTORE_GERMLING_FLAGS =
+            Block.UPDATE_INVISIBLE | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
 
     private HumusTrees() {}
 

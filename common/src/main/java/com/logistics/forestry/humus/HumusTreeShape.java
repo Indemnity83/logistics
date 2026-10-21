@@ -1,8 +1,8 @@
 package com.logistics.forestry.humus;
 
 import com.google.gson.JsonObject;
+import com.logistics.forestry.logic.GrowthAge;
 import com.mojang.serialization.JsonOps;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
@@ -76,15 +75,10 @@ public final class HumusTreeShape {
                 .getOrThrow();
     }
 
-    /** {@code state} with every {@code age} property at its maximum. */
+    /** {@code state} with its {@code age} at its maximum. */
     static BlockState fullyGrown(BlockState state) {
-        BlockState grown = state;
-        for (Property<?> property : state.getProperties()) {
-            if (property instanceof IntegerProperty age && property.getName().equals("age")) {
-                grown = grown.setValue(age, Collections.max(age.getPossibleValues()));
-            }
-        }
-        return grown;
+        IntegerProperty age = GrowthAge.of(state);
+        return age != null ? state.setValue(age, GrowthAge.max(age)) : state;
     }
 
     /**

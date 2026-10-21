@@ -4,6 +4,7 @@ import com.logistics.LogisticsForestry;
 import com.logistics.forestry.farm.FarmCost;
 import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.TendLogic;
+import com.logistics.forestry.logic.GrowthAge;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
  * highest value of its {@code age} property.
  */
 public final class CropTendLogic implements TendLogic {
-
-    private static final String AGE = "age";
 
     /** A till's result: dry farmland. */
     private static final BlockState FARMLAND = Blocks.FARMLAND.defaultBlockState();
@@ -82,11 +80,7 @@ public final class CropTendLogic implements TendLogic {
         if (state.getBlock() instanceof CropBlock crop) {
             return crop.isMaxAge(state);
         }
-        for (Property<?> property : state.getProperties()) {
-            if (property instanceof IntegerProperty age && property.getName().equals(AGE)) {
-                return state.getValue(age) >= age.getPossibleValues().stream().mapToInt(Integer::intValue).max().orElse(0);
-            }
-        }
-        return false;
+        IntegerProperty age = GrowthAge.of(state);
+        return age != null && state.getValue(age) >= GrowthAge.max(age);
     }
 }
