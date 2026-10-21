@@ -21,12 +21,11 @@ import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * The tree farm: plants saplings, lays soil, and fells grown trees whole.
+ * The tree farm on the ring engine, which no farm runs any more: plants saplings, lays soil, and
+ * fells grown trees whole. The Arboretum tends through {@link ArboretumTendLogic}.
  *
  * <p>Planting spots are single trunk cells of its {@link PlotLayout region}, any two at least
  * {@link #SPOT_SPACING} apart in Chebyshev distance, so neighbouring trunks never touch, not even
@@ -41,8 +40,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Each plot gets, in order: its tree felled, off the spots only one standing on the plot itself; its soil replaced with Humus unless it is Humus
  * already; on a spot, a sapling planted. Humus is the only soil the Arboretum lays, so without it
- * unprepared plots report no soil and stay unplanted. A felled tree leaves sand where its Humus
- * was, which the next pass digs out and relays.
+ * unprepared plots report no soil and stay unplanted.
  */
 public final class ArboretumLogic implements FarmLogic {
 
@@ -110,13 +108,6 @@ public final class ArboretumLogic implements FarmLogic {
     @Override
     public boolean laysSoil() {
         return true;
-    }
-
-    /** Humus under a felled tree is spent and turns to sand. */
-    @Override
-    @Nullable
-    public BlockState soilAfterHarvest(BlockState soil) {
-        return isPrepared(soil) ? Blocks.SAND.defaultBlockState() : null;
     }
 
     @Override
