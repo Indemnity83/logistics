@@ -3,18 +3,24 @@ package com.logistics.neoforge;
 import com.logistics.forestry.humus.HumusTrees;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.BonemealEvent;
 import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Routes germlings on Humus to {@link HumusTrees}. The first growth event a germling fires carries
- * the tree definition vanilla picked, the 2x2 one where there is one, as dark oak has no other; the
- * Humus tree is grown from it and the event cancelled, so no vanilla tree follows.
+ * Routes germlings on Humus to {@link HumusTrees}. The Humus tree is grown at the first growth event
+ * a germling fires and the event cancelled, so no vanilla tree follows. Its tree definition is the
+ * germling's single-tree one, or else the one the event carries: the 2x2 one where the germling has
+ * no other (dark oak, pale oak).
  */
 public final class NeoForgeHumusTrees {
 
@@ -30,15 +36,31 @@ public final class NeoForgeHumusTrees {
             return;
         }
         BlockPos pos = event.getPos();
-        Holder<Feature> definition = event.getFeature();
+        BlockState germling = level.getBlockState(pos);
+        Holder<Feature> definition = singleTreeDefinition(level, germling, event.getRandom());
+        if (definition == null) {
+            definition = event.getFeature();
+        }
         HumusTrees.grow(
                 level,
                 level.getChunkSource().getGenerator(),
                 pos,
-                level.getBlockState(pos),
+                germling,
                 event.getRandom(),
                 definition == null ? null : definition.value());
         event.setCanceled(true);
+    }
+
+    /** The germling's single-tree definition; {@code null} when it has none or is no sapling. */
+    @Nullable
+    private static Holder<Feature> singleTreeDefinition(ServerLevel level, BlockState germling, RandomSource random) {
+        if (!(germling.getBlock() instanceof SaplingBlock sapling)) {
+            return null;
+        }
+        ResourceKey<Feature> key = sapling.treeGrower.getConfiguredFeature(random, false);
+        return key == null
+                ? null
+                : level.registryAccess().lookupOrThrow(Registries.FEATURE).get(key).orElse(null);
     }
 
     /**

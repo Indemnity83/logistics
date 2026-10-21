@@ -27,6 +27,11 @@ public class HumusGameTest {
     }
 
     @GameTest(maxTicks = 40)
+    public void testSpruceGrowsSmallTree(GameTestHelper context) {
+        HumusGameTestBody.testSpruceGrowsSmallTree(context);
+    }
+
+    @GameTest(maxTicks = 40)
     public void testAzaleaGrowsSmallTree(GameTestHelper context) {
         HumusGameTestBody.testAzaleaGrowsSmallTree(context);
     }
@@ -39,6 +44,11 @@ public class HumusGameTest {
     @GameTest(maxTicks = 40)
     public void testDarkOakGroupGrowsFourTrees(GameTestHelper context) {
         HumusGameTestBody.testDarkOakGroupGrowsFourTrees(context);
+    }
+
+    @GameTest(maxTicks = 40)
+    public void testSpruceGroupGrowsFourTrees(GameTestHelper context) {
+        HumusGameTestBody.testSpruceGroupGrowsFourTrees(context);
     }
 
     @GameTest(maxTicks = 40)

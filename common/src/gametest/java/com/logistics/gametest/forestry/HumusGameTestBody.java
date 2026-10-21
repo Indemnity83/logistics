@@ -94,6 +94,16 @@ public class HumusGameTestBody {
         context.succeed();
     }
 
+    /**
+     * A spruce sapling on Humus, which has both a single-tree and a 2x2 definition, grows the small
+     * tree from its single-tree one.
+     */
+    public static void testSpruceGrowsSmallTree(GameTestHelper context) {
+        growOnHumus(context, Blocks.SPRUCE_SAPLING);
+        assertSmallTree(context, HUMUS_POS.above(), Blocks.SPRUCE_LOG, state -> state.is(Blocks.SPRUCE_LEAVES));
+        context.succeed();
+    }
+
     /** An azalea on Humus grows the small tree, with no rooted dirt and no bending trunk. */
     public static void testAzaleaGrowsSmallTree(GameTestHelper context) {
         growOnHumus(context, Blocks.AZALEA);
@@ -138,17 +148,26 @@ public class HumusGameTestBody {
      * leaves the other three saplings, where vanilla would grow all four into one mega tree.
      */
     public static void testDarkOakGroupGrowsFourTrees(GameTestHelper context) {
+        assertGroupGrowsFourTrees(context, Blocks.DARK_OAK_SAPLING, Blocks.DARK_OAK_LOG);
+    }
+
+    /** A 2x2 group of spruce saplings on Humus grows four small trees, never a mega spruce. */
+    public static void testSpruceGroupGrowsFourTrees(GameTestHelper context) {
+        assertGroupGrowsFourTrees(context, Blocks.SPRUCE_SAPLING, Blocks.SPRUCE_LOG);
+    }
+
+    private static void assertGroupGrowsFourTrees(GameTestHelper context, Block germling, Block log) {
         List<BlockPos> saplings = List.of(
                 new BlockPos(3, 2, 3), new BlockPos(4, 2, 3), new BlockPos(3, 2, 4), new BlockPos(4, 2, 4));
         for (BlockPos sapling : saplings) {
             context.setBlock(sapling.below(), LogisticsForestry.BLOCK.HUMUS);
-            context.setBlock(sapling, Blocks.DARK_OAK_SAPLING);
+            context.setBlock(sapling, germling);
         }
 
         boneMeal(context, saplings.getFirst());
-        context.assertBlockPresent(Blocks.DARK_OAK_LOG, saplings.getFirst());
+        context.assertBlockPresent(log, saplings.getFirst());
         for (BlockPos other : saplings.subList(1, saplings.size())) {
-            context.assertBlockPresent(Blocks.DARK_OAK_SAPLING, other);
+            context.assertBlockPresent(germling, other);
         }
 
         for (BlockPos other : saplings.subList(1, saplings.size())) {
@@ -157,7 +176,7 @@ public class HumusGameTestBody {
         for (BlockPos sapling : saplings) {
             context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, sapling.below());
             for (int y = 0; y < 4; y++) {
-                context.assertBlockPresent(Blocks.DARK_OAK_LOG, sapling.above(y));
+                context.assertBlockPresent(log, sapling.above(y));
             }
         }
         treeSpace(saplings.getFirst()).forEach(pos -> {

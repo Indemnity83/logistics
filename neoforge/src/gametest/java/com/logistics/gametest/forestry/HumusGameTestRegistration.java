@@ -23,12 +23,15 @@ public final class HumusGameTestRegistration {
         new GameTestCase("forestry/humus_oak_grows_small_tree", 60, HumusGameTestBody::testOakGrowsSmallTree),
         new GameTestCase(
             "forestry/humus_dark_oak_grows_from_one_sapling", 60, HumusGameTestBody::testDarkOakGrowsFromOneSapling),
+        new GameTestCase("forestry/humus_spruce_grows_small_tree", 60, HumusGameTestBody::testSpruceGrowsSmallTree),
         new GameTestCase("forestry/humus_azalea_grows_small_tree", 60, HumusGameTestBody::testAzaleaGrowsSmallTree),
         new GameTestCase(
             "forestry/humus_mangrove_grows_small_tree_with_grown_propagules", 60,
             HumusGameTestBody::testMangroveGrowsSmallTreeWithGrownPropagules),
         new GameTestCase(
             "forestry/humus_dark_oak_group_grows_four_trees", 60, HumusGameTestBody::testDarkOakGroupGrowsFourTrees),
+        new GameTestCase(
+            "forestry/humus_spruce_group_grows_four_trees", 60, HumusGameTestBody::testSpruceGroupGrowsFourTrees),
         new GameTestCase(
             "forestry/humus_saplings_off_humus_grow_as_vanilla", 60,
             HumusGameTestBody::testSaplingsOffHumusGrowAsVanilla),

@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * A germling on Humus grows the Humus tree from {@link HumusTrees} instead of its vanilla feature,
  * and grows alone even when vanilla would only grow it as part of a 2x2 group. Its tree definition
- * is the one vanilla would have picked: the 2x2 one where there is one, as dark oak has no other.
+ * is the germling's single-tree one, or its 2x2 one only where it has no other (dark oak, pale oak).
  */
 @Mixin(TreeGrower.class)
 public abstract class TreeGrowerMixin {
@@ -47,9 +47,9 @@ public abstract class TreeGrowerMixin {
         if (!HumusTrees.growsHumusTree(level, pos)) {
             return;
         }
-        ResourceKey<Feature> key = getConfiguredMegaFeature(random);
+        ResourceKey<Feature> key = getConfiguredFeature(random, false);
         if (key == null) {
-            key = getConfiguredFeature(random, false);
+            key = getConfiguredMegaFeature(random);
         }
         Feature definition = key == null
                 ? null
