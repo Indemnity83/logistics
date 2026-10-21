@@ -203,6 +203,28 @@ class HumusTreeShapeTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    @DisplayName("hangs mangrove propagules from a 4-log tree, needing one empty block under the leaf")
+    void shortMangrovePropagules() {
+        TreeFeature tree = reshape(TreeFeatures.MANGROVE);
+        int shortTrees = 0;
+        int onGround = 0;
+        for (long seed = 0; seed < SEEDS; seed++) {
+            Grown grown = Grown.of(tree, seed);
+            if (grown.trunkHeight() != 4) {
+                continue;
+            }
+            shortTrees++;
+            onGround += grown.matching(state -> state.is(Blocks.MANGROVE_PROPAGULE)).keySet().stream()
+                    .filter(pos -> pos.getY() == 0)
+                    .count();
+        }
+        assertThat(shortTrees).as("4-log trees over " + SEEDS + " seeds").isPositive();
+        assertThat(onGround)
+                .as("propagules hung just above the ground, under the lowest leaves of " + shortTrees + " 4-log trees")
+                .isPositive();
+    }
+
+    @Test
     @DisplayName("grows no tree without a tree definition")
     void noDefinition() {
         assertThat(HumusTreeShape.of(null)).isEmpty();

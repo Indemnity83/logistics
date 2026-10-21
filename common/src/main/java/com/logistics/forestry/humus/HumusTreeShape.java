@@ -1,5 +1,7 @@
 package com.logistics.forestry.humus;
 
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * The one small tree every sapling on Humus grows: vanilla oak's straight 4–6 log trunk and radius-2
  * blob canopy, in the wood and leaves of the sapling's own tree definition. Roots and decorations
  * are dropped, except decorations that hang germlings from the leaves, whose germlings are placed
- * fully grown. Nothing is placed under the trunk, so the Humus stays Humus.
+ * fully grown and need only one empty block under a leaf. Nothing is placed under the trunk, so the Humus stays Humus.
  */
 public final class HumusTreeShape {
 
@@ -42,6 +44,7 @@ public final class HumusTreeShape {
         }
         List<TreeDecorator> decorators = tree.decorators().stream()
                 .filter(AttachedToLeavesDecorator.class::isInstance)
+                .map(decorator -> withOneEmptyBlockBelow((AttachedToLeavesDecorator) decorator))
                 .<TreeDecorator>map(HangingGermlings::new)
                 .toList();
         return Optional.of(new TreeFeature(
@@ -54,6 +57,23 @@ public final class HumusTreeShape {
                 decorators,
                 true,
                 NOTHING_BELOW_TRUNK));
+    }
+
+    /**
+     * {@code hanging} needing only one empty block under a leaf, so the lowest leaves of the small
+     * tree can bear germlings too. Its fields are protected, so it is rebuilt through its codec.
+     */
+    private static AttachedToLeavesDecorator withOneEmptyBlockBelow(AttachedToLeavesDecorator hanging) {
+        JsonObject encoded = AttachedToLeavesDecorator.CODEC
+                .codec()
+                .encodeStart(JsonOps.INSTANCE, hanging)
+                .getOrThrow()
+                .getAsJsonObject();
+        encoded.addProperty("required_empty_blocks", 1);
+        return AttachedToLeavesDecorator.CODEC
+                .codec()
+                .parse(JsonOps.INSTANCE, encoded)
+                .getOrThrow();
     }
 
     /** {@code state} with every {@code age} property at its maximum. */
