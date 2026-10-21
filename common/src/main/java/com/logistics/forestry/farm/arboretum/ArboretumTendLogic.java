@@ -4,6 +4,7 @@ import com.logistics.LogisticsForestry;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.core.machine.area.Columns;
 import com.logistics.forestry.farm.FarmCost;
+import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.TendLogic;
 import com.logistics.forestry.logic.FellPlan;
@@ -84,6 +85,11 @@ public final class ArboretumTendLogic implements TendLogic {
         }
         FellPlan rest = new FellPlanner(world.treeView(), plot, limits(plot), false).step(Integer.MAX_VALUE);
         return rest != null && rest.isFound() ? new Harvest(plot, rest.blocks(), harvest.germling()) : null;
+    }
+
+    @Override
+    public FarmUpkeep upkeep() {
+        return FarmUpkeep.ARBORETUM;
     }
 
     @Override

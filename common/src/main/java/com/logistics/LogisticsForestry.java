@@ -16,6 +16,7 @@ import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmMenu;
 import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmTierProfile;
+import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
 import java.util.ArrayList;
@@ -139,6 +140,25 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                         .min(0L)
                         .maxValueOf(() -> CONFIG.FARM_TIER_BASIC.energyCapacity())
                         .describe(cost.description())
+                        .register());
+            }
+            return Collections.unmodifiableMap(keys);
+        }
+
+        private static final Map<FarmUpkeep, ConfigKey<Double>> FARM_UPKEEP = farmUpkeep();
+
+        /** The RF/t-per-Plot key of {@code upkeep}, {@code rf_upkeep_*}. */
+        public static ConfigKey<Double> farmUpkeep(FarmUpkeep upkeep) {
+            return FARM_UPKEEP.get(upkeep);
+        }
+
+        private static Map<FarmUpkeep, ConfigKey<Double>> farmUpkeep() {
+            Map<FarmUpkeep, ConfigKey<Double>> keys = new EnumMap<>(FarmUpkeep.class);
+            for (FarmUpkeep upkeep : FarmUpkeep.values()) {
+                keys.put(upkeep, farm.defineDouble(upkeep.configName(), upkeep.defaultRfPerTick())
+                        .finite()
+                        .min(0.0)
+                        .describe(upkeep.description())
                         .register());
             }
             return Collections.unmodifiableMap(keys);

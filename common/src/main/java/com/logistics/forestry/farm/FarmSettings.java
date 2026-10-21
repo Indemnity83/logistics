@@ -10,7 +10,8 @@ import java.util.Map;
 /**
  * The farm's tunables in one snapshot. Production reads them from config each tick
  * ({@link #fromConfig()}); tests construct them directly. Out-of-range values are normalised, so
- * every snapshot is workable: costs never negative and every {@link FarmCost} has one, at least one
+ * every snapshot is workable: costs and upkeep never negative, every {@link FarmCost} and
+ * {@link FarmUpkeep} has one, at least one
  * read per check, the idle back-off cap never below its base, and every tier has a profile.
  *
  * <p>{@code readsPerCheck} is how many block reads one check buys; inspecting a position costs one
@@ -21,6 +22,7 @@ import java.util.Map;
  */
 public record FarmSettings(
         Map<FarmCost, Long> costs,
+        Map<FarmUpkeep, Double> upkeep,
         int readsPerCheck,
         int idleBackoffBaseTicks,
         int idleBackoffMaxTicks,
@@ -32,6 +34,7 @@ public record FarmSettings(
 
     public FarmSettings {
         costs = normaliseCosts(costs);
+        upkeep = normaliseUpkeep(upkeep);
         readsPerCheck = Math.max(1, readsPerCheck);
         idleBackoffBaseTicks = Math.max(1, idleBackoffBaseTicks);
         idleBackoffMaxTicks = Math.max(idleBackoffBaseTicks, idleBackoffMaxTicks);
@@ -42,6 +45,7 @@ public record FarmSettings(
     public static FarmSettings defaults() {
         return new FarmSettings(
                 FarmCost.defaults(),
+                FarmUpkeep.defaults(),
                 DEFAULT_READS_PER_CHECK,
                 DEFAULT_IDLE_BACKOFF_BASE_TICKS,
                 DEFAULT_IDLE_BACKOFF_MAX_TICKS,
@@ -53,6 +57,11 @@ public record FarmSettings(
         return costs.get(cost);
     }
 
+    /** RF/t {@code upkeep}'s farm type pays for each Plot it maintains. */
+    public double upkeep(FarmUpkeep upkeep) {
+        return this.upkeep.get(upkeep);
+    }
+
     /** The profile of {@code tier}. */
     public FarmTierProfile profile(MachineTier tier) {
         return tiers.get(tier);
@@ -61,19 +70,25 @@ public record FarmSettings(
     public FarmSettings withCost(FarmCost cost, long rf) {
         Map<FarmCost, Long> changed = new EnumMap<>(costs);
         changed.put(cost, rf);
-        return new FarmSettings(changed, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+        return new FarmSettings(changed, upkeep, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+    }
+
+    public FarmSettings withUpkeep(FarmUpkeep upkeep, double rfPerTick) {
+        Map<FarmUpkeep, Double> changed = new EnumMap<>(this.upkeep);
+        changed.put(upkeep, rfPerTick);
+        return new FarmSettings(costs, changed, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     public FarmSettings withReadsPerCheck(int reads) {
-        return new FarmSettings(costs, reads, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+        return new FarmSettings(costs, upkeep, reads, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     public FarmSettings withIdleBackoff(int baseTicks, int maxTicks) {
-        return new FarmSettings(costs, readsPerCheck, baseTicks, maxTicks, tiers);
+        return new FarmSettings(costs, upkeep, readsPerCheck, baseTicks, maxTicks, tiers);
     }
 
     public FarmSettings withTiers(Map<MachineTier, FarmTierProfile> tiers) {
-        return new FarmSettings(costs, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
+        return new FarmSettings(costs, upkeep, readsPerCheck, idleBackoffBaseTicks, idleBackoffMaxTicks, tiers);
     }
 
     /** {@code profile} at every tier. */
@@ -103,8 +118,13 @@ public record FarmSettings(
         for (FarmCost cost : FarmCost.values()) {
             costs.put(cost, LogisticsConfigHost.get(LogisticsForestry.CONFIG.farmCost(cost)));
         }
+        Map<FarmUpkeep, Double> upkeep = new EnumMap<>(FarmUpkeep.class);
+        for (FarmUpkeep rate : FarmUpkeep.values()) {
+            upkeep.put(rate, LogisticsConfigHost.get(LogisticsForestry.CONFIG.farmUpkeep(rate)));
+        }
         return new FarmSettings(
                 costs,
+                upkeep,
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS),
                 LogisticsConfigHost.get(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_MAX_TICKS),
@@ -116,6 +136,15 @@ public record FarmSettings(
         for (FarmCost cost : FarmCost.values()) {
             Long rf = costs.get(cost);
             result.put(cost, rf == null ? cost.defaultRf() : Math.max(0, rf));
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    private static Map<FarmUpkeep, Double> normaliseUpkeep(Map<FarmUpkeep, Double> upkeep) {
+        Map<FarmUpkeep, Double> result = new EnumMap<>(FarmUpkeep.class);
+        for (FarmUpkeep rate : FarmUpkeep.values()) {
+            Double rf = upkeep.get(rate);
+            result.put(rate, rf == null || !Double.isFinite(rf) ? rate.defaultRfPerTick() : Math.max(0, rf));
         }
         return Collections.unmodifiableMap(result);
     }

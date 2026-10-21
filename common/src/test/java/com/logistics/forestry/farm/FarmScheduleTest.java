@@ -39,6 +39,11 @@ class FarmScheduleTest extends MinecraftTestEnvironment {
         }
 
         @Override
+        public FarmUpkeep upkeep() {
+            return crops.upkeep();
+        }
+
+        @Override
         public FarmCost harvestCost(BlockState state) {
             return crops.harvestCost(state);
         }

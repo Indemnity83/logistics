@@ -2,6 +2,7 @@ package com.logistics.forestry.farm.crop;
 
 import com.logistics.LogisticsForestry;
 import com.logistics.forestry.farm.FarmCost;
+import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.TendLogic;
 import com.logistics.forestry.logic.GrowthAge;
@@ -54,6 +55,11 @@ public final class CropTendLogic implements TendLogic {
             return null;
         }
         return Harvest.single(pos, new ItemStack(state.getBlock().asItem()));
+    }
+
+    @Override
+    public FarmUpkeep upkeep() {
+        return FarmUpkeep.CROP_FARM;
     }
 
     @Override

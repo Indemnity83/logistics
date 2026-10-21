@@ -37,6 +37,9 @@ public interface TendLogic {
         return again != null ? new Harvest(harvest.plot(), again.blocks(), harvest.germling()) : null;
     }
 
+    /** What this farm type pays each tick for each Plot it maintains. */
+    FarmUpkeep upkeep();
+
     /** What breaking {@code state} as part of a harvest costs. */
     FarmCost harvestCost(BlockState state);
 
