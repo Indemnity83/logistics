@@ -7,6 +7,7 @@ import com.logistics.core.machine.area.PlotScanner;
 import com.logistics.core.machine.component.EnergyStorageComponent;
 import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.tier.MachineTier;
+import com.logistics.forestry.logic.LevelTreeView;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +17,10 @@ import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +37,8 @@ import org.jetbrains.annotations.Nullable;
  * {@link WorkBudget}: its tier's checks and actions per second. A pass that finds nothing ripe backs
  * the scan off ({@link PlotScanner#idleTicks()}). A ripe find starts a harvest: its blocks are broken
  * in order, one per action, and while one is under way the scan waits. Each target is re-checked as
- * it is broken; one that has changed since it was planned drops the rest of the harvest.
+ * it is broken; one that has changed since it was planned has the rest of the harvest planned again.
+ * A harvest under way is saved with the drops it has collected, and planned again once loaded.
  *
  * <p>Once every block is broken the harvest's drops are worked through in order: one matching
  * germling is taken from them to replant the plot, or else one from the inventory, the rest go into
@@ -87,6 +93,8 @@ public final class TendFarmComponent implements FarmEngine {
     private final FarmPlots plots = new FarmPlots();
 
     @Nullable private TendLogic.Harvest harvest;
+    // Set when a harvest loaded from a save is still to be planned again.
+    private boolean resumeHarvest;
     @Nullable private PlotScanner scanner;
     private int scannerBase;
     private int scannerMax;
@@ -412,19 +420,7 @@ public final class TendFarmComponent implements FarmEngine {
      * starts while the buffer holds that break and the replant.
      */
     private FarmStatus startHarvest(TendLogic.Harvest found, FarmSettings s) {
-        List<Target> planned = new ArrayList<>(found.blocks().size());
-        for (BlockPos pos : found.blocks()) {
-            BlockState state = counted.seen(pos);
-            if (state == null) {
-                if (!counted.isLoaded(pos)) {
-                    continue;
-                }
-                state = counted.state(pos);
-            }
-            if (!state.isAir()) {
-                planned.add(new Target(pos, state.getBlock()));
-            }
-        }
+        List<Target> planned = targets(found);
         if (planned.isEmpty()) {
             return FarmStatus.IDLE;
         }
@@ -444,10 +440,20 @@ public final class TendFarmComponent implements FarmEngine {
     /**
      * Breaks the next block of the harvest; finishes it once the last is broken. A target already
      * gone is passed over and one claim protection refuses is left standing; any other change since
-     * it was planned drops the rest of the harvest.
+     * it was planned has the rest of the harvest planned again ({@link TendLogic#resume}), as has a
+     * harvest taken up again after a reload.
      */
     private FarmStatus breakNext(FarmSettings s) {
         boolean refused = false;
+        if (resumeHarvest) {
+            resumeHarvest = false;
+            if (!counted.isLoaded(harvest.plot())) {
+                resumeHarvest = true;
+                return FarmStatus.IDLE;
+            }
+            replan();
+        }
+        boolean replanned = false;
         while (!targets.isEmpty()) {
             Target target = targets.peek();
             BlockPos pos = target.pos();
@@ -461,11 +467,17 @@ public final class TendFarmComponent implements FarmEngine {
                 continue;
             }
             if (state.getBlock() != target.block()) {
-                // Changed since planned: never break on a stale plan.
+                // Changed since planned: never break on a stale plan, plan the rest again once.
                 targets.clear();
-                break;
+                if (!replanned) {
+                    replanned = true;
+                    replan();
+                }
+                continue;
             }
-            if (!counted.canModify(pos)) {
+            // Natural leaves go through their own path: only the canopy of a tree being felled.
+            boolean leaves = LevelTreeView.isNaturalLeaves(state);
+            if (leaves ? !counted.canBreakLeaves(pos) : !counted.canModify(pos)) {
                 targets.poll();
                 refused = true;
                 continue;
@@ -474,7 +486,7 @@ public final class TendFarmComponent implements FarmEngine {
             if (energy.amount() < cost) {
                 return noPower(cost);
             }
-            List<ItemStack> drops = counted.breakBlock(pos);
+            List<ItemStack> drops = leaves ? counted.breakLeaves(pos) : counted.breakBlock(pos);
             targets.poll();
             dirty = true;
             if (drops == null) {
@@ -492,10 +504,41 @@ public final class TendFarmComponent implements FarmEngine {
         return refused ? FarmStatus.BLOCKED : FarmStatus.IDLE;
     }
 
+    /** The blocks of {@code found} as they stood when planned; air and unloaded positions are left out. */
+    private List<Target> targets(TendLogic.Harvest found) {
+        List<Target> planned = new ArrayList<>(found.blocks().size());
+        for (BlockPos pos : found.blocks()) {
+            BlockState state = counted.seen(pos);
+            if (state == null) {
+                if (!counted.isLoaded(pos)) {
+                    continue;
+                }
+                state = counted.state(pos);
+            }
+            if (!state.isAir()) {
+                planned.add(new Target(pos, state.getBlock()));
+            }
+        }
+        return planned;
+    }
+
+    /** Plans what is left of the harvest under way again; leaves no targets when nothing is. */
+    private void replan() {
+        counted.forget();
+        TendLogic.Harvest rest = logic.resume(counted, harvest);
+        targets.clear();
+        if (rest != null) {
+            harvest = rest;
+            targets.addAll(targets(rest));
+        }
+        dirty = true;
+    }
+
     /** Replants the harvest's plot from its drops, stores the rest, and drops what does not fit at the plot. */
     private void finishHarvest(FarmSettings s) {
         TendLogic.Harvest done = harvest;
         harvest = null;
+        resumeHarvest = false;
         targets.clear();
         dirty = true;
         if (done == null) {
@@ -646,6 +689,20 @@ public final class TendFarmComponent implements FarmEngine {
             tag.putString("Owner", owner.toString());
         }
         plots.save(tag, "Plots", registries);
+        if (harvest != null) {
+            RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+            CompoundTag saved = new CompoundTag();
+            saved.putLong("Plot", harvest.plot().asLong());
+            if (!harvest.germling().isEmpty()) {
+                ItemStack.CODEC.encodeStart(ops, harvest.germling()).result().ifPresent(g -> saved.put("Germling", g));
+            }
+            ListTag drops = new ListTag();
+            for (ItemStack drop : collected) {
+                ItemStack.CODEC.encodeStart(ops, drop).result().ifPresent(drops::add);
+            }
+            saved.put("Drops", drops);
+            tag.put("Harvest", saved);
+        }
     }
 
     @Override
@@ -656,8 +713,31 @@ public final class TendFarmComponent implements FarmEngine {
         owner = parseUuid(NbtCompat.getString(tag, "Owner", ""));
         plots.load(tag, "Plots", registries);
         harvest = null;
+        resumeHarvest = false;
         targets.clear();
         collected.clear();
+        if (NbtCompat.hasCompound(tag, "Harvest")) {
+            loadHarvest(NbtCompat.getCompoundOrEmpty(tag, "Harvest"), registries);
+        }
+    }
+
+    /** Takes up a harvest saved under way, planned again from its plot on the next action. */
+    private void loadHarvest(CompoundTag saved, HolderLookup.Provider registries) {
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        ItemStack germling = NbtCompat.hasCompound(saved, "Germling")
+                ? ItemStack.CODEC.parse(ops, NbtCompat.getCompoundOrEmpty(saved, "Germling")).result().orElse(ItemStack.EMPTY)
+                : ItemStack.EMPTY;
+        BlockPos plot = BlockPos.of(NbtCompat.getLong(saved, "Plot", 0L));
+        harvest = new TendLogic.Harvest(plot, List.of(), germling);
+        resumeHarvest = true;
+        ListTag drops = NbtCompat.getListOrEmpty(saved, "Drops");
+        for (int i = 0; i < drops.size(); i++) {
+            NbtCompat.ifHasCompoundAt(drops, i, drop -> ItemStack.CODEC
+                    .parse(ops, drop)
+                    .result()
+                    .filter(stack -> !stack.isEmpty())
+                    .ifPresent(collected::add));
+        }
     }
 
     @Nullable

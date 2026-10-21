@@ -26,6 +26,17 @@ public interface TendLogic {
     @Nullable
     Harvest ripe(FarmWorld world, BlockPos pos);
 
+    /**
+     * What is left to take of {@code harvest}, part broken, its blocks having changed since it was
+     * planned or the farm having been reloaded; {@code null} when nothing of it is left. The result
+     * keeps {@code harvest}'s plot and germling. Defaults to {@link #ripe} at the plot.
+     */
+    @Nullable
+    default Harvest resume(FarmWorld world, Harvest harvest) {
+        Harvest again = ripe(world, harvest.plot());
+        return again != null ? new Harvest(harvest.plot(), again.blocks(), harvest.germling()) : null;
+    }
+
     /** What breaking {@code state} as part of a harvest costs. */
     FarmCost harvestCost(BlockState state);
 
