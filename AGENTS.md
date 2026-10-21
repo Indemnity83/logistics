@@ -860,11 +860,11 @@ When creating or modifying PRs:
 
 ### Issue tracker
 
-Issues and specs live as local markdown files under `.scratch/<feature>/` (gitignored). See `docs/agents/issue-tracker.md`.
+Two surfaces. Standalone work (bugs, findings, feature requests) goes to GitHub Issues. Specs and the implementation tickets they break into stay local under `.scratch/<feature>/` (gitignored) so they don't flood the backlog. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
-Default vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), recorded as each issue file's `Status:` line. See `docs/agents/triage-labels.md`.
+Default vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`): labels on GitHub, `Status:` lines in `.scratch/` files. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
