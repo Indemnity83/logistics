@@ -29,7 +29,7 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@link #AREA_SIZE}: side of the Reach (a 7 means 7×7);</li>
  *   <li>{@link #TIER}: {@link MachineTier#rank()} of the farm's tier;</li>
  *   <li>{@link #PLOTS_TOTAL}: the Plots the farm remembers;</li>
- *   <li>{@link #PLOTS_BLOCKED}: of those, the Empty Plots.</li>
+ *   <li>{@link #PLOTS_EMPTY}: of those, the Empty Plots.</li>
  * </ul>
  *
  * <p>A second data block, {@link #controls()}, carries the redstone control and energy telemetry the
@@ -43,7 +43,7 @@ public class FarmMenu extends AbstractContainerMenu {
     public static final int AREA_SIZE = 5;
     public static final int TIER = 6;
     public static final int PLOTS_TOTAL = 7;
-    public static final int PLOTS_BLOCKED = 8;
+    public static final int PLOTS_EMPTY = 8;
     public static final int DATA_COUNT = 9;
 
     private static final int COLUMNS = 5;
@@ -108,7 +108,7 @@ public class FarmMenu extends AbstractContainerMenu {
                     case AREA_SIZE -> farm.farm().areaSize();
                     case TIER -> farm.tier().tier().rank();
                     case PLOTS_TOTAL -> farm.farm().plotsTotal();
-                    case PLOTS_BLOCKED -> farm.farm().plotsBlocked();
+                    case PLOTS_EMPTY -> farm.farm().emptyPlots();
                     default -> 0;
                 };
             }
@@ -197,11 +197,7 @@ public class FarmMenu extends AbstractContainerMenu {
         return data.get(PLOTS_TOTAL);
     }
 
-    public int plotsBlocked() {
-        return data.get(PLOTS_BLOCKED);
-    }
-
-    public int plotsUsable() {
-        return Math.max(0, plotsTotal() - plotsBlocked());
+    public int emptyPlots() {
+        return data.get(PLOTS_EMPTY);
     }
 }

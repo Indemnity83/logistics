@@ -74,8 +74,8 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             (ctx, owner) -> ctx.level() instanceof ServerLevel level ? new LevelFarmWorld(level, owner) : null;
 
     public static final String HUD_STATUS = "jade.logistics.machine.status";
-    public static final String HUD_PLOT = "jade.logistics.farm.plot";
-    public static final String HUD_PLOT_SIZE = "jade.logistics.farm.plot_size";
+    public static final String HUD_REACH = "jade.logistics.farm.reach";
+    public static final String HUD_REACH_SIZE = "jade.logistics.farm.reach_size";
 
     /** How far the Reach extends from the farm on every horizontal side. */
     public static final int REACH = 3;
@@ -88,9 +88,6 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     /** Every position of the Reach relative to the farm, in scan order. */
     static final List<BlockPos> REACH_OFFSETS = reachOffsets();
-
-    /** The HUD's status while waiting for seeds, with the Empty Plot count. */
-    public static final String HUD_WAITING_FOR_SEEDS = "jade.logistics.farm.waiting_for_seeds";
 
     private record Target(BlockPos pos, Block block) {}
 
@@ -191,7 +188,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     }
 
     /** The Empty Plots: those waiting for a germling. */
-    public int plotsBlocked() {
+    public int emptyPlots() {
         return plots.emptyCount();
     }
 
@@ -642,11 +639,11 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     @Override
     public void contributeHud(MachineHudModel hud) {
         if (status == FarmStatus.WAITING_FOR_SEEDS) {
-            hud.line(HUD_STATUS, HUD_WAITING_FOR_SEEDS, Integer.toString(plots.emptyCount()));
+            hud.line(HUD_STATUS, status.translationKey(), Integer.toString(plots.emptyCount()));
         } else {
             hud.line(HUD_STATUS, status.translationKey());
         }
-        hud.line(HUD_PLOT, HUD_PLOT_SIZE, Integer.toString(REACH_SIZE));
+        hud.line(HUD_REACH, HUD_REACH_SIZE, Integer.toString(REACH_SIZE));
     }
 
     // ==================== Persistence ====================

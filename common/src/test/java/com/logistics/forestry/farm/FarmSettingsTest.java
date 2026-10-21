@@ -140,11 +140,10 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
             assertThat(lang.has(status.translationKey())).as(status.translationKey()).isTrue();
         }
         assertThat(lang.has(TendFarmComponent.HUD_STATUS)).isTrue();
-        assertThat(lang.has(TendFarmComponent.HUD_PLOT)).isTrue();
-        assertThat(lang.has(TendFarmComponent.HUD_PLOT_SIZE)).isTrue();
-        assertThat(lang.has(TendFarmComponent.HUD_WAITING_FOR_SEEDS)).isTrue();
+        assertThat(lang.has(TendFarmComponent.HUD_REACH)).isTrue();
+        assertThat(lang.has(TendFarmComponent.HUD_REACH_SIZE)).isTrue();
         assertThat(lang.has(FarmScreenText.TITLE)).isTrue();
-        assertThat(lang.has(FarmScreenText.TOOLTIP_FOOTPRINT)).isTrue();
+        assertThat(lang.has(FarmScreenText.TOOLTIP_REACH)).isTrue();
         assertThat(lang.has(FarmScreenText.TOOLTIP_PLOTS)).isTrue();
         for (MachineTier tier : MachineTier.values()) {
             assertThat(lang.has(tier.translationKey())).as(tier.translationKey()).isTrue();
@@ -165,7 +164,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
                 new MachineHudModel.LineEntry(
                         TendFarmComponent.HUD_STATUS, FarmStatus.IDLE.translationKey(), java.util.List.of()),
                 new MachineHudModel.LineEntry(
-                        TendFarmComponent.HUD_PLOT, TendFarmComponent.HUD_PLOT_SIZE, java.util.List.of("7")));
+                        TendFarmComponent.HUD_REACH, TendFarmComponent.HUD_REACH_SIZE, java.util.List.of("7")));
     }
 
     @Test

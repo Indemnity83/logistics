@@ -13,12 +13,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
 
 /**
- * The screen every farm opens: the energy gauge, the status lamp and a frame under each of the
- * farm's generic slots, drawn over the GUI texture's slot area in the panel colour.
+ * The screen every farm opens: the energy gauge on the left, the status lamp and its readout beside
+ * it, and the farm's 3×5 inventory on the right, all laid out in the GUI texture.
  * The standard machine side tabs sit outside the image, with each farm type's own Info text.
  */
 public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements SideTabScreen {
@@ -38,19 +38,20 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
     private static final int GAUGE_TOP = 17;
     private static final int ENERGY_LEFT = 8;
 
-    private static final int LAMP_LEFT = 40;
-    private static final int LAMP_TOP = 40;
+    // The lamp sits in the texture's socket, centred over the status readout between gauge and grid.
+    private static final int LAMP_LEFT = 46;
+    private static final int LAMP_TOP = 18;
     private static final int LAMP_SIZE = 8;
+    private static final int READOUT_CENTER = 50;
+    private static final int READOUT_TOP = 31;
+    private static final int READOUT_WIDTH = 54;
+    private static final int READOUT_MAX_LINES = 4;
+    private static final int READOUT_BOTTOM = 68;
 
     private static final int LABEL_COLOR = 0xFF404040;
 
-    // Spare-region UVs in the GUI texture.
-    private static final int SLOT_FRAME_U = 176, SLOT_FRAME_V = 0, SLOT_FRAME_SIZE = 18;
-    private static final int LAMP_U = 206, LAMP_V = 30, LAMP_U_STEP = 10;
-
-    // The texture's own slot area, painted over in the panel colour.
-    private static final int PANEL_COLOR = 0xFFC6C6C6;
-    private static final int SLOT_AREA_LEFT = 40, SLOT_AREA_TOP = 16, SLOT_AREA_RIGHT = 172, SLOT_AREA_BOTTOM = 72;
+    // Lamp sprites in the texture's spare region, in FarmGauges.Lamp order.
+    private static final int LAMP_U = 176, LAMP_V = 0, LAMP_U_STEP = 10;
 
     private final SideTabHost tabs;
 
@@ -85,6 +86,18 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
         this.titleLabelX = (this.imageWidth - this.font.width(tieredTitle)) / 2;
         graphics.text(this.font, tieredTitle, this.titleLabelX, this.titleLabelY, LABEL_COLOR, false);
         graphics.text(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, LABEL_COLOR, false);
+        renderReadout(graphics);
+    }
+
+    /** The status under the lamp, wrapped to the gap between gauge and grid; the tooltip has it in full. */
+    private void renderReadout(GuiGraphicsExtractor graphics) {
+        List<FormattedCharSequence> lines =
+                font.split(FarmScreenText.status(menu.status(), menu.emptyPlots()), READOUT_WIDTH);
+        int y = READOUT_TOP;
+        for (FormattedCharSequence line : lines.subList(0, Math.min(lines.size(), READOUT_MAX_LINES))) {
+            graphics.text(this.font, line, READOUT_CENTER - font.width(line) / 2, y, LABEL_COLOR, false);
+            y += font.lineHeight;
+        }
     }
 
     @Override
@@ -92,9 +105,9 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         hoverTooltip(graphics, mouseX, mouseY, ENERGY_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT,
                 List.of(Component.translatable("tooltip.logistics.farm.energy", menu.energy(), menu.energyCapacity())));
-        hoverTooltip(graphics, mouseX, mouseY, LAMP_LEFT, LAMP_TOP, LAMP_SIZE, LAMP_SIZE,
-                FarmScreenText.statusTooltip(
-                        menu.status(), menu.tier(), menu.areaSize(), menu.plotsUsable(), menu.plotsBlocked()));
+        hoverTooltip(graphics, mouseX, mouseY, READOUT_CENTER - READOUT_WIDTH / 2, LAMP_TOP,
+                READOUT_WIDTH, READOUT_BOTTOM - LAMP_TOP,
+                FarmScreenText.statusTooltip(menu.status(), menu.areaSize(), menu.plotsTotal(), menu.emptyPlots()));
     }
 
     private void hoverTooltip(
@@ -107,21 +120,10 @@ public class FarmScreen extends AbstractContainerScreen<FarmMenu> implements Sid
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         blitTexture(graphics, 0, 0, 0, 0, imageWidth, imageHeight);
-        renderSlots(graphics);
         renderEnergy(graphics);
 
         int lampU = LAMP_U + FarmGauges.lamp(menu.status()).ordinal() * LAMP_U_STEP;
         blitTexture(graphics, LAMP_LEFT, LAMP_TOP, lampU, LAMP_V, LAMP_SIZE, LAMP_SIZE);
-    }
-
-    /** Paints over the texture's slot area and frames each of the farm's slots. */
-    private void renderSlots(GuiGraphicsExtractor graphics) {
-        graphics.fill(leftPos + SLOT_AREA_LEFT, topPos + SLOT_AREA_TOP,
-                leftPos + SLOT_AREA_RIGHT, topPos + SLOT_AREA_BOTTOM, PANEL_COLOR);
-        for (int i = 0; i < FarmMachine.SLOT_COUNT; i++) {
-            Slot slot = menu.getSlot(i);
-            blitTexture(graphics, slot.x - 1, slot.y - 1, SLOT_FRAME_U, SLOT_FRAME_V, SLOT_FRAME_SIZE, SLOT_FRAME_SIZE);
-        }
     }
 
     private void blitTexture(GuiGraphicsExtractor graphics, int x, int y, int u, int v, int w, int h) {

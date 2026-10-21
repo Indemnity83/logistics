@@ -181,7 +181,7 @@ class FarmMenuTest extends MinecraftTestEnvironment {
         assertThat(menu.areaSize()).as("the Reach's side").isEqualTo(7);
         assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);
         assertThat(menu.plotsTotal()).as("no Plots until a harvest").isZero();
-        assertThat(menu.plotsBlocked()).isZero();
+        assertThat(menu.emptyPlots()).isZero();
 
         farm.parts.tier().setTier(MachineTier.PRECISION);
         assertThat(data.get(FarmMenu.TIER)).isEqualTo(MachineTier.PRECISION.rank());
@@ -193,17 +193,17 @@ class FarmMenuTest extends MinecraftTestEnvironment {
     void tierAndPlotIndices() {
         assertThat(FarmMenu.TIER).isEqualTo(FarmMenu.AREA_SIZE + 1);
         assertThat(FarmMenu.PLOTS_TOTAL).isEqualTo(FarmMenu.TIER + 1);
-        assertThat(FarmMenu.PLOTS_BLOCKED).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
-        assertThat(FarmMenu.DATA_COUNT).isEqualTo(FarmMenu.PLOTS_BLOCKED + 1);
+        assertThat(FarmMenu.PLOTS_EMPTY).isEqualTo(FarmMenu.PLOTS_TOTAL + 1);
+        assertThat(FarmMenu.DATA_COUNT).isEqualTo(FarmMenu.PLOTS_EMPTY + 1);
 
         SimpleContainerData data = new SimpleContainerData(FarmMenu.DATA_COUNT);
         FarmMenu menu = new FarmMenu(1, playerInventory(), new SimpleContainer(FarmMachine.SLOT_COUNT), data);
         data.set(FarmMenu.TIER, MachineTier.INFERNAL.rank());
         data.set(FarmMenu.PLOTS_TOTAL, 72);
-        data.set(FarmMenu.PLOTS_BLOCKED, 5);
+        data.set(FarmMenu.PLOTS_EMPTY, 5);
         assertThat(menu.tier()).isEqualTo(MachineTier.INFERNAL);
-        assertThat(menu.plotsUsable()).isEqualTo(67);
-        assertThat(menu.plotsBlocked()).isEqualTo(5);
+        assertThat(menu.plotsTotal()).isEqualTo(72);
+        assertThat(menu.emptyPlots()).isEqualTo(5);
 
         data.set(FarmMenu.TIER, 99);
         assertThat(menu.tier()).isEqualTo(MachineTier.BASIC);

@@ -208,16 +208,18 @@ class TendPlotTest extends MinecraftTestEnvironment {
         farm.ticks(2 * PASS);
 
         assertThat(farm.engine().status()).isEqualTo(FarmStatus.WAITING_FOR_SEEDS);
-        assertThat(farm.engine().plotsBlocked()).isEqualTo(2);
-        assertThat(hud(farm)).contains(new MachineHudModel.LineEntry(
-                TendFarmComponent.HUD_STATUS, TendFarmComponent.HUD_WAITING_FOR_SEEDS, List.of("2")));
+        assertThat(farm.engine().emptyPlots()).isEqualTo(2);
+        assertThat(hud(farm)).first().isEqualTo(new MachineHudModel.LineEntry(
+                TendFarmComponent.HUD_STATUS, FarmStatus.WAITING_FOR_SEEDS.translationKey(), List.of("2")));
 
         farm.items().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 4));
         farm.items().setItem(1, new ItemStack(Items.BEETROOT_SEEDS, 4));
         farm.ticks(2 * PASS);
 
         assertThat(farm.engine().status()).isEqualTo(FarmStatus.IDLE);
-        assertThat(farm.engine().plotsBlocked()).isZero();
+        assertThat(farm.engine().emptyPlots()).isZero();
+        assertThat(hud(farm)).first().isEqualTo(
+                new MachineHudModel.LineEntry(TendFarmComponent.HUD_STATUS, FarmStatus.IDLE.translationKey(), List.of()));
     }
 
     @Test
@@ -228,7 +230,7 @@ class TendPlotTest extends MinecraftTestEnvironment {
         loaded.world.blocks.putAll(farm.world.blocks);
         loaded.load(farm.save());
         loaded.power(10_000);
-        assertThat(loaded.engine().plotsBlocked()).isEqualTo(1);
+        assertThat(loaded.engine().emptyPlots()).isEqualTo(1);
         loaded.items().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 1));
         loaded.ticks(PASS);
 
