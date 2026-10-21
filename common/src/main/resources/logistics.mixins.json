@@ -5,7 +5,7 @@
     "defaultRequire": 1
   },
   "minVersion": "0.8",
-  "mixins": [],
+  "mixins": ["TreeGrowerMixin"],
   "package": "com.logistics.mixin",
   "required": true
 }
