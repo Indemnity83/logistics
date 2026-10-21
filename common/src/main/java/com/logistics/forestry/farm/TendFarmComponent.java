@@ -18,10 +18,6 @@ import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -684,18 +680,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         }
         plots.save(tag, "Plots", registries);
         if (harvest != null) {
-            RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
-            CompoundTag saved = new CompoundTag();
-            saved.putLong("Plot", harvest.plot().asLong());
-            if (!harvest.germling().isEmpty()) {
-                ItemStack.CODEC.encodeStart(ops, harvest.germling()).result().ifPresent(g -> saved.put("Germling", g));
-            }
-            ListTag drops = new ListTag();
-            for (ItemStack drop : collected) {
-                ItemStack.CODEC.encodeStart(ops, drop).result().ifPresent(drops::add);
-            }
-            saved.put("Drops", drops);
-            tag.put("Harvest", saved);
+            tag.put("Harvest", new SavedHarvest(harvest, collected).save(registries));
         }
     }
 
@@ -711,26 +696,11 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         targets.clear();
         collected.clear();
         if (NbtCompat.hasCompound(tag, "Harvest")) {
-            loadHarvest(NbtCompat.getCompoundOrEmpty(tag, "Harvest"), registries);
-        }
-    }
-
-    /** Takes up a harvest saved under way, planned again from its plot on the next action. */
-    private void loadHarvest(CompoundTag saved, HolderLookup.Provider registries) {
-        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
-        ItemStack germling = NbtCompat.hasCompound(saved, "Germling")
-                ? ItemStack.CODEC.parse(ops, NbtCompat.getCompoundOrEmpty(saved, "Germling")).result().orElse(ItemStack.EMPTY)
-                : ItemStack.EMPTY;
-        BlockPos plot = BlockPos.of(NbtCompat.getLong(saved, "Plot", 0L));
-        harvest = new TendLogic.Harvest(plot, List.of(), germling);
-        resumeHarvest = true;
-        ListTag drops = NbtCompat.getListOrEmpty(saved, "Drops");
-        for (int i = 0; i < drops.size(); i++) {
-            NbtCompat.ifHasCompoundAt(drops, i, drop -> ItemStack.CODEC
-                    .parse(ops, drop)
-                    .result()
-                    .filter(stack -> !stack.isEmpty())
-                    .ifPresent(collected::add));
+            // Taken up under way, planned again from its plot on the next action.
+            SavedHarvest saved = SavedHarvest.load(NbtCompat.getCompoundOrEmpty(tag, "Harvest"), registries);
+            harvest = saved.harvest();
+            collected.addAll(saved.drops());
+            resumeHarvest = true;
         }
     }
 
