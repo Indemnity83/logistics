@@ -430,6 +430,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Links rather than a Discord channel: store changelog readers may not be on the server.
+          REPO_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+
           if [[ "$STAGE" == "alpha" ]]; then
             INTRO="$(cat <<EOF
           ## 🧪 Alpha — early access, expect changes
@@ -465,7 +468,8 @@ jobs:
           - Release Please PR: #${RP_PR} @ \`${RP_SHA}\`
           - Merged source commit: \`${MERGED_SHA}\` (local, unpushed)
 
-          Please report findings in **#field-engineers**.
+          Found a bug? [Open an issue](${REPO_URL}/issues/new?template=bug_report.yml).
+          Feedback and ideas are welcome in [Discussions](${REPO_URL}/discussions).
           EOF
           )"
 
