@@ -1,0 +1,14 @@
+<templatestyles src="Topic Card/styles.css" /><div class="topic-card"><span class="topic-card-icon">[[File:{{{icon}}}|56px|link={{{link}}}]]</span>'''[[{{{link}}}|{{{title|{{{link}}}}}}]]'''<br>{{{text}}}{{#if:{{{links|}}}|<br><small>{{{links}}}</small>}}</div><noinclude>
+A card for the Main Page "Browse by topic" grid. Wrap a run of cards in <code><nowiki><div class="topic-cards"></nowiki></code>; they sit two to a row on desktop and stack on narrow screens, with the icon floated left of the title and text.
+
+<pre>
+{{Topic Card
+|icon  = Grid Copper Transport Pipe.png
+|link  = Pipes
+|title = Pipes (optional; defaults to link)
+|text  = One-line description.
+|links = [[Transport Pipes]] · [[Logistics Pipes]] (optional)
+}}
+</pre>
+[[Category:Templates]]
+</noinclude>

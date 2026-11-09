@@ -8,13 +8,47 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 
 ==Browse by topic==
 
-<div style="display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;">
-<div style="flex:1 1 260px; padding:10px; border:1px solid rgba(127,127,127,0.35); box-sizing:border-box;">[[File:Grid Copper Transport Pipe.png|left|56px|link=Pipes]] '''[[Pipes]]'''<br>Move items through connected networks — from basic transport to filtered routing and a full logistics system.<br><small>[[Transport Pipes]] · [[Logistics Pipes]] · [[Pipe Networks]]</small><div style="clear:both;"></div></div>
-<div style="flex:1 1 260px; padding:10px; border:1px solid rgba(127,127,127,0.35); box-sizing:border-box;">[[File:Grid Glass Tank.png|left|56px|link=Fluid Pipes]] '''[[Fluid Pipes|Fluids]]'''<br>Pump, pipe, and store liquids with a standalone fluid system separate from the item network.<br><small>[[Fluids]] · [[Glass Tank]] · [[Fluid Pump|Pump]] · [[Transposer]] · [[Fluid Pipes|Fluid pipes]]</small><div style="clear:both;"></div></div>
-<div style="flex:1 1 260px; padding:10px; border:1px solid rgba(127,127,127,0.35); box-sizing:border-box;">[[File:Grid Stirling Engine.png|left|56px|link=Energy]] '''[[Energy|Power]]'''<br>Generate RF with engines and feed it into the network through a Power Junction.<br><small>[[Batteries]] · [[Power Junction]] · [[Engines]] · [[Cables]]</small><div style="clear:both;"></div></div>
-<div style="flex:1 1 260px; padding:10px; border:1px solid rgba(127,127,127,0.35); box-sizing:border-box;">[[File:Grid Macerator.png|left|56px|link=Machines]] '''[[Machines|Automation]]'''<br>Machines that grind, smelt, cut, melt, refine, fabricate, and mine for you.<br><small>[[Macerator]] · [[Alloy Smelter]] · [[Crucible]] · [[Refinery]] · [[Kiln]] · [[Sawmill]] · [[Sequential Fabricator]] · [[Transposer]] · [[Laser Quarry]]</small><div style="clear:both;"></div></div>
-<div style="flex:1 1 260px; padding:10px; border:1px solid rgba(127,127,127,0.35); box-sizing:border-box;">[[File:Grid Chassis Logistics Pipe MkI.png|left|56px|link=Chassis Logistics Pipe]] '''[[Chassis Logistics Pipe|Chassis Pipes]]'''<br>Slot modules into chassis pipes to build custom logistics nodes.<br><small>[[Chassis Logistics Pipe|Chassis Pipes]] · [[Modules]]</small><div style="clear:both;"></div></div>
-<div style="flex:1 1 260px; padding:10px; border:1px solid rgba(127,127,127,0.35); box-sizing:border-box;">[[File:Grid Iron Gear.png|left|56px|link=Materials]] '''[[Materials]]'''<br>Gears, valves, dusts, and the crafting components behind everything.<br><small>[[Dusts]] · [[Gears]] · [[Valves]] · [[Chipsets]]</small><div style="clear:both;"></div></div>
+<div class="topic-cards">
+{{Topic Card
+|icon  = Grid Copper Transport Pipe.png
+|link  = Pipes
+|text  = Move items through connected networks — from basic transport to filtered routing and a full logistics system.
+|links = [[Transport Pipes]] · [[Logistics Pipes]] · [[Pipe Networks]]
+}}
+{{Topic Card
+|icon  = Grid Glass Tank.png
+|link  = Fluid Pipes
+|title = Fluids
+|text  = Pump, pipe, and store liquids with a standalone fluid system separate from the item network.
+|links = [[Fluids]] · [[Glass Tank]] · [[Fluid Pump|Pump]] · [[Transposer]] · [[Fluid Pipes|Fluid pipes]]
+}}
+{{Topic Card
+|icon  = Grid Stirling Engine.png
+|link  = Energy
+|title = Power
+|text  = Generate RF with engines and feed it into the network through a Power Junction.
+|links = [[Batteries]] · [[Power Junction]] · [[Engines]] · [[Cables]]
+}}
+{{Topic Card
+|icon  = Grid Macerator.png
+|link  = Machines
+|title = Automation
+|text  = Machines that grind, smelt, cut, melt, refine, fabricate, and mine for you.
+|links = [[Macerator]] · [[Alloy Smelter]] · [[Crucible]] · [[Refinery]] · [[Kiln]] · [[Sawmill]] · [[Sequential Fabricator]] · [[Transposer]] · [[Laser Quarry]]
+}}
+{{Topic Card
+|icon  = Grid Chassis Logistics Pipe MkI.png
+|link  = Chassis Logistics Pipe
+|title = Chassis Pipes
+|text  = Slot modules into chassis pipes to build custom logistics nodes.
+|links = [[Chassis Logistics Pipe|Chassis Pipes]] · [[Modules]]
+}}
+{{Topic Card
+|icon  = Grid Iron Gear.png
+|link  = Materials
+|text  = Gears, valves, dusts, and the crafting components behind everything.
+|links = [[Dusts]] · [[Gears]] · [[Valves]] · [[Chipsets]]
+}}
 </div>
 
 ==Tools & reference==

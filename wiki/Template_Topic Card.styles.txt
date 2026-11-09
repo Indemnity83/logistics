@@ -1,0 +1,25 @@
+.topic-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 8px 0;
+}
+
+.topic-card {
+	flex: 1 1 260px;
+	box-sizing: border-box;
+	padding: 10px;
+	border: 1px solid rgba(127, 127, 127, 0.35);
+	overflow: hidden;
+}
+
+.topic-card-icon {
+	float: left;
+	margin: 0 10px 4px 0;
+	line-height: 0;
+}
+
+.topic-card-icon img {
+	border: 0;
+	margin: 0;
+}
