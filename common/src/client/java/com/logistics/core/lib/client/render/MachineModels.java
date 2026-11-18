@@ -6,6 +6,7 @@ import com.logistics.core.lib.client.render.BoxGeometry.Face;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
@@ -201,7 +202,7 @@ public final class MachineModels {
                     new Face(Direction.WEST, 0f, 8f, 16f, 16f, 0),
                     new Face(Direction.UP, 16f, 16f, 0f, 8f, 90),
                     new Face(Direction.DOWN, 16f, 16f, 0f, 8f, 90)))))),
-        Map.entry("fluid_pump_tube", new Model("fluid/fluid_pump_pipe", List.of(
+        Map.entry("fluid_pump_tube", new Model("automation/fluid_pump_pipe", List.of(
             new Element(4f, 0f, 4f, 12f, 16f, 12f, List.of(
                     new Face(Direction.NORTH, 0f, 0f, 8f, 16f, 0),
                     new Face(Direction.EAST, 0f, 0f, 8f, 16f, 0),
@@ -235,6 +236,11 @@ public final class MachineModels {
 
     public static Model get(String key) {
         return MODELS.get(key);
+    }
+
+    /** Every model key. */
+    static Set<String> keys() {
+        return MODELS.keySet();
     }
 
     /** Atlas identifier per model key, resolved once so the per-frame path allocates nothing. */
