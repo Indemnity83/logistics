@@ -6,8 +6,9 @@ import com.logistics.core.lib.resource.ResourceId;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 
 /**
  * JEI plugin that adds info pages for the farms and Humus.
@@ -17,7 +18,7 @@ import net.minecraft.world.level.ItemLike;
 public class ForestryJeiPlugin implements IModPlugin {
 
     private static final ResourceId PLUGIN_ID = LogisticsMod.modId("jei_forestry_plugin");
-    private static final String INFO = "jei.logistics.info.forestry.";
+    private static final String INFO = "jei.logistics.info.";
 
     @Override
     public net.minecraft.resources.Identifier getPluginUid() { // raw-id-ok: JEI IModPlugin signature
@@ -26,18 +27,19 @@ public class ForestryJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm");
-        info(registration, LogisticsForestry.BLOCK.COCOA_PLANTATION, "cocoa_plantation");
-        info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum");
-        info(registration, LogisticsForestry.BLOCK.NETHER_WART_FARM, "nether_wart_farm");
-        info(registration, LogisticsForestry.BLOCK.ORCHARD, "orchard");
-        info(registration, LogisticsForestry.BLOCK.PLANTATION, "plantation");
-        info(registration, LogisticsForestry.BLOCK.GOURD_FARM, "gourd_farm");
-        info(registration, LogisticsForestry.BLOCK.HUMUS, "humus");
+        for (Block farm : LogisticsForestry.BLOCK.farms()) {
+            info(registration, farm);
+        }
+        info(registration, LogisticsForestry.BLOCK.HUMUS);
     }
 
-    /** Adds an info page for {@code item} from the lang key {@code jei.logistics.info.forestry.<key>}. */
-    private static void info(IRecipeRegistration registration, ItemLike item, String key) {
-        registration.addIngredientInfo(item, Component.translatable(INFO + key));
+    /** Adds an info page for {@code block} from its lang key, {@link #infoKey}. */
+    private static void info(IRecipeRegistration registration, Block block) {
+        registration.addIngredientInfo(block, Component.translatable(infoKey(block)));
+    }
+
+    /** {@code jei.logistics.info.forestry.crop_farm} for {@code logistics:forestry/crop_farm}. */
+    private static String infoKey(Block block) {
+        return INFO + BuiltInRegistries.BLOCK.getKey(block).getPath().replace('/', '.');
     }
 }
