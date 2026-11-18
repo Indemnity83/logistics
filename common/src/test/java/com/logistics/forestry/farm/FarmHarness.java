@@ -9,6 +9,8 @@ import com.logistics.core.machine.component.ItemStoreComponent;
 import com.logistics.core.machine.component.SlotRole;
 import com.logistics.core.machine.tier.MachineTier;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
@@ -47,10 +49,15 @@ final class FarmHarness {
             FarmCost.PLANT, 100L);
 
     /** No upkeep, so tests can count action costs exactly; upkeep tests set their own. */
-    static final Map<FarmUpkeep, Double> NO_UPKEEP =
-            Map.of(FarmUpkeep.CROP_FARM, 0.0, FarmUpkeep.ARBORETUM, 0.0, FarmUpkeep.NETHER_WART_FARM, 0.0,
-                    FarmUpkeep.ORCHARD, 0.0, FarmUpkeep.PLANTATION, 0.0, FarmUpkeep.GOURD_FARM, 0.0,
-                    FarmUpkeep.COCOA_PLANTATION, 0.0);
+    static final Map<FarmUpkeep, Double> NO_UPKEEP = noUpkeep();
+
+    private static Map<FarmUpkeep, Double> noUpkeep() {
+        Map<FarmUpkeep, Double> rates = new EnumMap<>(FarmUpkeep.class);
+        for (FarmUpkeep upkeep : FarmUpkeep.values()) {
+            rates.put(upkeep, 0.0);
+        }
+        return Collections.unmodifiableMap(rates);
+    }
 
     /** One position and one action per tick while busy, so tests can count steps in ticks. */
     static final FarmSettings SETTINGS =

@@ -2,6 +2,8 @@ package com.logistics.core.lib.client.screen.tab;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.logistics.DomainRegistrations;
+import com.logistics.LogisticsForestry;
 import com.logistics.automation.alloysmelter.AlloySmelterScreen;
 import com.logistics.automation.alloysmelter.AlloySmelterScreenHandler;
 import com.logistics.automation.crucible.CrucibleScreen;
@@ -67,7 +69,7 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
     private static final long FRAME_MS = 15L;
 
     static Stream<ScreenCase> screens() {
-        return Stream.of(
+        return Stream.concat(Stream.of(
                 machine("macerator", MaceratorScreen.class, 176, 166,
                         inventory -> new MaceratorScreenHandler(1, inventory), MaceratorScreenHandler::controls),
                 machine("kiln", KilnScreen.class, 176, 166,
@@ -85,18 +87,6 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
                         SequentialFabricatorScreenHandler::controls),
                 machine("transposer", TransposerScreen.class, 176, 166,
                         inventory -> new TransposerScreenHandler(1, inventory), TransposerScreenHandler::controls),
-                machine("crop_farm", FarmScreen.class, 176, 166,
-                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
-                machine("arboretum", FarmScreen.class, 176, 166,
-                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
-                machine("nether_wart_farm", FarmScreen.class, 176, 166,
-                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
-                machine("orchard", FarmScreen.class, 176, 166,
-                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
-                machine("plantation", FarmScreen.class, 176, 166,
-                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
-                machine("gourd_farm", FarmScreen.class, 176, 166,
-                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
                 engine("stirling_engine", StirlingEngineScreen.class, 176, 166,
                         inventory -> new StirlingEngineScreenHandler(1, inventory), StirlingEngineScreenHandler::controls),
                 engine("fuel_engine", FuelEngineScreen.class, 176, 166,
@@ -106,7 +96,18 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
                 engine("steam_engine", SteamEngineScreen.class, 176, 166,
                         inventory -> new SteamEngineScreenHandler(1, inventory), SteamEngineScreenHandler::controls),
                 engine("reaction_engine", ReactionEngineScreen.class, 176, 166,
-                        inventory -> new ReactionEngineScreenHandler(1, inventory), ReactionEngineScreenHandler::controls));
+                        inventory -> new ReactionEngineScreenHandler(1, inventory), ReactionEngineScreenHandler::controls)),
+                farms());
+    }
+
+    /** One case per registered farm, keyed by its block as {@code FarmScreen} keys its tabs. */
+    private static Stream<ScreenCase> farms() {
+        DomainRegistrations.ensureRegistered();
+        return LogisticsForestry.BLOCK.farms().stream().map(farm -> {
+            String name = farm.getDescriptionId();
+            return machine(name.substring(name.lastIndexOf('.') + 1), FarmScreen.class, 176, 166,
+                    inventory -> new FarmMenu(1, inventory), FarmMenu::controls);
+        });
     }
 
     @BeforeEach
