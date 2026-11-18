@@ -27,6 +27,7 @@ public class ForestryJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm");
+        info(registration, LogisticsForestry.BLOCK.COCOA_PLANTATION, "cocoa_plantation");
         info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum");
         info(registration, LogisticsForestry.BLOCK.NETHER_WART_FARM, "nether_wart_farm");
         info(registration, LogisticsForestry.BLOCK.ORCHARD, "orchard");
