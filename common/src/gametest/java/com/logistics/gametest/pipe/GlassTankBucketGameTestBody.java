@@ -3,6 +3,7 @@ package com.logistics.gametest.pipe;
 import com.logistics.LogisticsPipe;
 import com.logistics.core.lib.fluids.FluidUnits;
 import com.logistics.core.lib.fluids.SimpleFluidKey;
+import com.logistics.gametest.GameTestPlayers;
 import com.logistics.pipe.block.entity.GlassTankBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -39,11 +40,8 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        // Deprecated, but the only mock factory available on every supported MC version that returns a
-        // real ServerPlayer. makeMockPlayer returns a plain Player, which sends Fabric's FluidStorageUtil
-        // down its non-creative branch; makeMockServerPlayer exists only on 26.2.
-        ServerPlayer player = context.makeMockServerPlayerInLevel();
-        player.setGameMode(GameType.SURVIVAL);
+        // A real ServerPlayer: a plain Player sends Fabric's FluidStorageUtil down its non-creative branch.
+        ServerPlayer player = GameTestPlayers.mockServerPlayer(context, GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);
@@ -72,8 +70,7 @@ public class GlassTankBucketGameTestBody {
         BlockPos tankPos = new BlockPos(0, 1, 0);
         GlassTankBlockEntity tank = fullTank(context, tankPos);
 
-        ServerPlayer player = context.makeMockServerPlayerInLevel();
-        player.setGameMode(GameType.CREATIVE);
+        ServerPlayer player = GameTestPlayers.mockServerPlayer(context, GameType.CREATIVE);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
 
         context.useBlock(tankPos, player);
