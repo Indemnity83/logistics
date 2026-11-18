@@ -90,8 +90,12 @@ _Avoid_: Cropland, Managed Farm
 The farm for trees: it fells grown trees standing on Humus in its reach and replants their saplings.
 _Avoid_: Tree farm, lumberjack
 
+**Orchard**:
+The farm for fruit trees: it picks apples off living trees whose trunks stand in its reach, and never breaks, plants or repairs a block.
+_Avoid_: Apple farm, fruit farm
+
 **Reach**:
-The box around a farm block in which the farm tends plants: 3 blocks out on every side, corners included, and 1 block above and below the farm.
+The box around a farm block in which the farm tends plants: 3 blocks out on every side, corners included, and 1 block above and below the farm. The Orchard's reach runs 7 blocks above it, to see its trees; a tree still counts only when its trunk base is within 1 block above or below.
 _Avoid_: Work area, range, radius, Courtyard, Ring, Lane
 
 **Germling**:
@@ -100,6 +104,9 @@ Whatever a farm plants: seeds, saplings, and so on.
 **Plot**:
 A spot in a farm's reach that the farm tends: one it has harvested, or one it found holding a plant it tends that was still growing. It keeps replanting the spot with the same plant, re-tilling its ground when it has to, and pays upkeep for it every tick. A plot left without a germling waits as an **Empty Plot** until a matching germling is available. A plot's ground is the block its plant grows on: the block under it, or for cocoa the jungle log the pod hangs on. The farm forgets a plot once something else occupies it or its ground is no longer ground that farm tends (for the Crop Farm, anything other than farmland, dirt or grass); breaking the farm forgets all its plots.
 _Avoid_: Spot, tile, cell
+
+**Picking Plot**:
+A plot a farm picks produce from without breaking or replanting anything: for the Orchard, one tree, kept at the base of its trunk. It needs no germling and is never empty. It pays upkeep like any plot, and is forgotten once the plant is gone or bears nothing.
 
 **Humus**:
 A crafted soil on which any sapling grows into the same small tree, a straight trunk under a round canopy, made of that sapling's own wood and leaves. It is the only soil an Arboretum tends.

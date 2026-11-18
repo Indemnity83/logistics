@@ -38,7 +38,7 @@ Costs from [0201](0201-farm-framework.md): place dirt 50 RF, till 25 RF, plant 2
 ## Scope & non-goals
 
 - **In:** dirt laying, tilling, irrigation, planting, harvest + replant, the light / blocked states.
-- **Out:** gourds ([0212](0212-gourd-farm.md)), sugar cane and bamboo ([0207](0207-plantation.md)), cactus ([0213](0213-desert-farm.md)), berries ([0209](0209-berry-farm.md)), cocoa ([0210](0210-cocoa-plantation.md)), nether wart ([0208](0208-nether-wart-farm.md)).
+- **Out:** gourds ([0212](0212-gourd-farm.md)), sugar cane, bamboo and cactus ([0207](0207-plantation.md)), berries ([0209](0209-berry-farm.md)), cocoa ([0210](0210-cocoa-plantation.md)), nether wart ([0208](0208-nether-wart-farm.md)).
 
 ## Open questions
 

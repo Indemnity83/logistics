@@ -104,10 +104,68 @@ public interface TendLogic {
         return germling.getItem() instanceof BlockItem blockItem && occupant.is(blockItem.getBlock());
     }
 
+    /** How far the Reach extends above the farm. Defaults to the shared {@link TendFarmComponent#REACH_HEIGHT}. */
+    default int reachAbove() {
+        return TendFarmComponent.REACH_HEIGHT;
+    }
+
+    // ==================== Picking ====================
+
+    /**
+     * Whether this farm picks produce off standing plants instead of breaking them (the Orchard). A
+     * picking farm keeps a Picking Plot for each plant ({@link #pickPlot}) and, while it is running,
+     * gives each one a simulated random tick at the world's random tick speed, each of which picks
+     * one {@link Bearing#produce} with {@link Bearing#chance}. Nothing is ever broken or planted on
+     * a Picking Plot. Defaults to false.
+     */
+    default boolean picks() {
+        return false;
+    }
+
+    /**
+     * The Picking Plot what stands at {@code pos} belongs to, e.g. the base of the trunk a log is
+     * part of; {@code null} when there is none. The farm keeps it only while it lies in the
+     * Reach's lowest {@code 2 * REACH_HEIGHT + 1} levels. Only called while {@code pos} is loaded,
+     * and only when {@link #picks}.
+     */
+    @Nullable
+    default BlockPos pickPlot(FarmWorld world, BlockPos pos) {
+        return null;
+    }
+
+    /**
+     * What the Picking Plot at {@code plot} bears now; {@code null} once it no longer stands there
+     * or bears nothing, and the farm forgets it. Only called while {@code plot} is loaded.
+     */
+    @Nullable
+    default Bearing bearing(FarmWorld world, BlockPos plot) {
+        return null;
+    }
+
+    /**
+     * What a Picking Plot bears: one {@code produce} each time a simulated random tick rolls under
+     * {@code chance}, charged as {@code cost}. {@code sources} are where the produce is picked from
+     * (the leaves that bear it), never empty.
+     */
+    record Bearing(ItemStack produce, double chance, FarmCost cost, List<BlockPos> sources) {
+        public Bearing {
+            produce = produce.copy();
+            sources = sources.stream().map(BlockPos::immutable).toList();
+            if (produce.isEmpty() || sources.isEmpty()) {
+                throw new IllegalArgumentException("a bearing needs produce and somewhere to pick it");
+            }
+        }
+    }
+
     /**
      * One harvest: break {@code blocks} in order, then replant {@code plot} with one {@code germling}.
      * Leftover drops spill at {@code plot}. A multi-block list (a tree) is broken across ticks and
      * must be ordered so that breaking it in order never leaves a block unsupported.
+     *
+     * <p>{@code blocks} need not include {@code plot}: a harvest that takes only what grew from a
+     * plant that stays (a stalk above its base, a stem's fruit) {@linkplain #keepsPlot keeps its plot}.
+     * Its plant keeps the Plot, and there is nothing to replant unless the plant is gone by the time the
+     * harvest finishes.
      */
     record Harvest(BlockPos plot, List<BlockPos> blocks, ItemStack germling) {
         public Harvest {
@@ -120,6 +178,11 @@ public interface TendLogic {
         /** Harvests the single block at {@code plot}. */
         public static Harvest single(BlockPos plot, ItemStack germling) {
             return new Harvest(plot, List.of(plot), germling);
+        }
+
+        /** Whether this harvest leaves its plot's own plant standing: {@code blocks} does not include {@code plot}. */
+        public boolean keepsPlot() {
+            return !blocks.contains(plot);
         }
 
         /** Whether {@code stack} is the germling that replants this harvest's plot. */

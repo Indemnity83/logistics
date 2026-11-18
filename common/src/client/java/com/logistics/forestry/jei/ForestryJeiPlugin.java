@@ -29,6 +29,10 @@ public class ForestryJeiPlugin implements IModPlugin {
         info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm");
         info(registration, LogisticsForestry.BLOCK.COCOA_PLANTATION, "cocoa_plantation");
         info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum");
+        info(registration, LogisticsForestry.BLOCK.NETHER_WART_FARM, "nether_wart_farm");
+        info(registration, LogisticsForestry.BLOCK.ORCHARD, "orchard");
+        info(registration, LogisticsForestry.BLOCK.PLANTATION, "plantation");
+        info(registration, LogisticsForestry.BLOCK.GOURD_FARM, "gourd_farm");
         info(registration, LogisticsForestry.BLOCK.HUMUS, "humus");
     }
 

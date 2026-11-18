@@ -20,6 +20,11 @@ import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.cocoa.CocoaPlantationBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
+import com.logistics.forestry.farm.gourd.GourdFarmBlock;
+import com.logistics.forestry.farm.netherwart.NetherWartFarmBlock;
+import com.logistics.forestry.farm.orchard.OrchardBlock;
+import com.logistics.forestry.farm.orchard.OrchardFruits;
+import com.logistics.forestry.farm.plantation.PlantationBlock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -75,6 +80,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         RECIPE.register();
         CREATIVE.register();
         ALIAS.register();
+        OrchardFruits.registerReloadListener();
     }
 
     /** The shared farm machine ({@code farm.json}), under {@code config/logistics/forestry/}. */
@@ -203,9 +209,33 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static final TagKey<Block> CROP_FARM_GROUND =
                 TagKey.create(Registries.BLOCK, resource("crop_farm_ground").toIdentifier());
 
+        /** Plants the Nether Wart Farm harvests once fully grown and replants. */
+        public static final TagKey<Block> NETHER_WART_FARM_TENDS =
+                TagKey.create(Registries.BLOCK, resource("nether_wart_farm_tends").toIdentifier());
+
+        /** Ground the Nether Wart Farm tends nether wart on; it is never repaired. */
+        public static final TagKey<Block> NETHER_WART_FARM_GROUND =
+                TagKey.create(Registries.BLOCK, resource("nether_wart_farm_ground").toIdentifier());
+
         /** Ground an Arboretum tends trees on; it is never repaired. */
         public static final TagKey<Block> ARBORETUM_GROUND =
                 TagKey.create(Registries.BLOCK, resource("arboretum_ground").toIdentifier());
+
+        /** Stalk plants the Plantation harvests above their base: sugar cane, bamboo, cactus. */
+        public static final TagKey<Block> PLANTATION_STALKS =
+                TagKey.create(Registries.BLOCK, resource("plantation_stalks").toIdentifier());
+
+        /** Blocks that grow on top of a stalk and are harvested with it, such as the cactus flower. */
+        public static final TagKey<Block> PLANTATION_TOPPINGS =
+                TagKey.create(Registries.BLOCK, resource("plantation_toppings").toIdentifier());
+
+        /** Ground the Plantation tends stalks on; it is never repaired. */
+        public static final TagKey<Block> PLANTATION_GROUND =
+                TagKey.create(Registries.BLOCK, resource("plantation_ground").toIdentifier());
+
+        /** Ground the Gourd Farm tends stems on; any but farmland is tilled before replanting a stem. */
+        public static final TagKey<Block> GOURD_FARM_GROUND =
+                TagKey.create(Registries.BLOCK, resource("gourd_farm_ground").toIdentifier());
 
         /** Logs a Cocoa Plantation tends cocoa on; it never places, breaks or replaces them. */
         public static final TagKey<Block> COCOA_PLANTATION_GROUND =
@@ -221,6 +251,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static Block HUMUS;
         public static Block ARBORETUM;
         public static Block CROP_FARM;
+        public static Block NETHER_WART_FARM;
+        public static Block ORCHARD;
+        public static Block PLANTATION;
+        public static Block GOURD_FARM;
         public static Block COCOA_PLANTATION;
 
         static void register() {
@@ -234,6 +268,22 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 props -> new CropFarmBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(CropFarmBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+            NETHER_WART_FARM = registerFarm("nether_wart_farm",
+                props -> new NetherWartFarmBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+            ORCHARD = registerFarm("orchard",
+                props -> new OrchardBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+            PLANTATION = registerFarm("plantation",
+                props -> new PlantationBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+            GOURD_FARM = registerFarm("gourd_farm",
+                props -> new GourdFarmBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
             COCOA_PLANTATION = registerFarm("cocoa_plantation",
                 props -> new CocoaPlantationBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
@@ -303,6 +353,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             TAB.add(BLOCK.HUMUS);
             TAB.add(BLOCK.ARBORETUM);
             TAB.add(BLOCK.CROP_FARM);
+            TAB.add(BLOCK.NETHER_WART_FARM);
+            TAB.add(BLOCK.ORCHARD);
+            TAB.add(BLOCK.PLANTATION);
+            TAB.add(BLOCK.GOURD_FARM);
             TAB.add(BLOCK.COCOA_PLANTATION);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }

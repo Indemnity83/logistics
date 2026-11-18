@@ -48,7 +48,9 @@ final class FarmHarness {
 
     /** No upkeep, so tests can count action costs exactly; upkeep tests set their own. */
     static final Map<FarmUpkeep, Double> NO_UPKEEP =
-            Map.of(FarmUpkeep.CROP_FARM, 0.0, FarmUpkeep.ARBORETUM, 0.0, FarmUpkeep.COCOA_PLANTATION, 0.0);
+            Map.of(FarmUpkeep.CROP_FARM, 0.0, FarmUpkeep.ARBORETUM, 0.0, FarmUpkeep.NETHER_WART_FARM, 0.0,
+                    FarmUpkeep.ORCHARD, 0.0, FarmUpkeep.PLANTATION, 0.0, FarmUpkeep.GOURD_FARM, 0.0,
+                    FarmUpkeep.COCOA_PLANTATION, 0.0);
 
     /** One position and one action per tick while busy, so tests can count steps in ticks. */
     static final FarmSettings SETTINGS =
@@ -173,7 +175,7 @@ final class FarmHarness {
      */
     static final class Host implements MachineContext {
         private final HolderLookup.Provider registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
-        private final RandomSource random = RandomSource.create(42L);
+        RandomSource random = RandomSource.create(42L);
         BlockState state = farmBlock().defaultBlockState();
         int changes;
         int stateWrites;

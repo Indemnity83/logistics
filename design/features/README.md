@@ -64,13 +64,14 @@ The *Plan phase* column is the farm plan's build order: 1 = the tiered framework
 | 0204 | [Cropland (Crop Farm)](0204-crop-farm.md) | Field crops ✅; water per till × climate | 1 | 0201 |
 | 0205 | [Peat Bog](0205-peat-bog.md) | Bog Earth → Peat | 3 | 0201, 0202 (maturity) |
 | 0206 | [Mushroom Farm](0206-mushroom-farm.md) | Giant mushrooms + huge fungi, grown with bone meal / Fertilizer | 3 | 0201, 0203 (`TreeFeller`) |
-| 0207 | [Plantation](0207-plantation.md) | Sugar cane + bamboo beside water channels | 2 | 0201 |
+| 0207 | [Plantation](0207-plantation.md) | Sugar cane, bamboo + cactus, harvested above the base 🚧 | 2 | 0201 |
 | 0208 | [Nether Wart Farm](0208-nether-wart-farm.md) | Nether wart | 2 | 0201 |
 | 0209 | [Berry Farm](0209-berry-farm.md) | Sweet berries, picked | 2 | 0201 |
 | 0210 | [Cocoa Plantation](0210-cocoa-plantation.md) | Cocoa on jungle-log supports | 3 | 0201 |
 | 0211 | [Cave Vine Farm](0211-cave-vine-farm.md) | Glow berries under a built ceiling | 3 | 0201 |
 | 0212 | [Gourd Farm](0212-gourd-farm.md) | Pumpkins + melons, fruit only | 2 | 0201, 0204 |
-| 0213 | [Desert Farm](0213-desert-farm.md) | Cactus on sand | 2 | 0201 |
+| 0213 | [Desert Farm](0213-desert-farm.md) | Merged into the Plantation ([0207](0207-plantation.md)) | — | — |
+| 0214 | [Orchard](0214-orchard.md) | Apples picked off living trees | 2 | 0201, 0203 (`TreeFeller`) |
 
 ## Brief template
 
