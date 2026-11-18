@@ -24,12 +24,14 @@
     "logistics:automation/transposer",
     "logistics:automation/laser_quarry",
     "logistics:forestry/crop_farm",
+    "logistics:forestry/nether_wart_farm",
     "logistics:pipe/power_junction",
     "logistics:power/basic_battery",
     "logistics:power/conductive_battery",
     "logistics:power/resonant_battery",
     "logistics:power/deep_battery",
     "logistics:forestry/arboretum",
+    "logistics:forestry/orchard",
     "logistics:forestry/plantation"
   ]
 }

@@ -64,6 +64,8 @@
 			"com.logistics.gametest.forestry.CropFarmGameTest",
 			"com.logistics.gametest.forestry.PlantationGameTest",
 			"com.logistics.gametest.forestry.HumusGameTest",
+			"com.logistics.gametest.forestry.NetherWartFarmGameTest",
+			"com.logistics.gametest.forestry.OrchardGameTest",
 			"com.logistics.gametest.network.NetworkIntegrationGameTest",
 			"com.logistics.gametest.network.CraftingProcessSatelliteGameTest",
 			"com.logistics.gametest.pipe.TankComparatorGameTest"

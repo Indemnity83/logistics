@@ -92,4 +92,14 @@ final class CountingWorld implements FarmWorldAccess {
     public void dropStacks(BlockPos pos, List<ItemStack> stacks) {
         world().dropStacks(pos, stacks);
     }
+
+    @Override
+    public int randomTickSpeed() {
+        return world().randomTickSpeed();
+    }
+
+    @Override
+    public void rustle(BlockPos pos) {
+        world().rustle(pos);
+    }
 }

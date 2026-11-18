@@ -39,6 +39,7 @@
     "logistics:automation/sequential_fabricator",
     "logistics:automation/transposer",
     "logistics:forestry/crop_farm",
+    "logistics:forestry/nether_wart_farm",
     "logistics:pipe/stone_transport_pipe",
     "logistics:pipe/item_passthrough_pipe",
     "logistics:pipe/copper_transport_pipe",
@@ -73,6 +74,7 @@
     "logistics:pipe/bypass_fluid_pipe",
     "logistics:pipe/glass_tank",
     "logistics:forestry/arboretum",
+    "logistics:forestry/orchard",
     "logistics:forestry/plantation"
   ]
 }

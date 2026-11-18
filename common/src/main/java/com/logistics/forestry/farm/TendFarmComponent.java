@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -62,6 +63,13 @@ import org.jetbrains.annotations.Nullable;
  * holds the scan, reading nothing, until it can. A host that does not permit work
  * ({@link MachineContext#workEnabled}, the farm's redstone control) pauses everything. Nothing
  * touches an unloaded position.
+ *
+ * <p>A picking farm ({@link TendLogic#picks}) also keeps Picking Plots: the scan takes one on
+ * wherever {@link TendLogic#pickPlot} names one in the Reach's lowest levels, and forgets one once
+ * it no longer stands. Each tick the farm runs, after its actions, every Picking Plot gets a
+ * simulated random tick with the world's {@code randomTickSpeed} in 4096; each one picks one
+ * {@link TendLogic.Bearing#produce} with the bearing's chance, charged its cost, into the inventory
+ * or, when that is full, dropped at the Plot. A Picking Plot pays upkeep like any other.
  */
 public final class TendFarmComponent implements MachineComponent, MachineComponent.HudContributor {
 
@@ -79,12 +87,17 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     public static final String HUD_STATUS = "jade.logistics.machine.status";
     public static final String HUD_REACH = "jade.logistics.farm.reach";
     public static final String HUD_REACH_SIZE = "jade.logistics.farm.reach_size";
+    public static final String HUD_TREES = "jade.logistics.farm.trees";
+    public static final String HUD_TREES_COUNT = "jade.logistics.farm.trees_count";
 
     /** How far the Reach extends from the farm on every horizontal side. */
     public static final int REACH = 3;
 
-    /** How far the Reach extends above and below the farm. */
+    /** How far the Reach extends below the farm, and above it unless its logic reaches higher ({@link TendLogic#reachAbove}). */
     public static final int REACH_HEIGHT = 1;
+
+    /** A block gets a random tick each tick with a chance of {@code randomTickSpeed} in this many. */
+    static final int RANDOM_TICK_BLOCKS = 4096;
 
     /** Side of the Reach's square. */
     public static final int REACH_SIZE = 2 * REACH + 1;
@@ -92,8 +105,8 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     /** Ticks the buffer must stay empty before the lamp goes off. */
     static final int LAMP_OFF_TICKS = 20;
 
-    /** Every position of the Reach relative to the farm, in scan order. */
-    static final List<BlockPos> REACH_OFFSETS = reachOffsets();
+    /** Every position of the shared Reach relative to the farm, in scan order. */
+    static final List<BlockPos> REACH_OFFSETS = reachOffsets(REACH_HEIGHT);
 
     private record Target(BlockPos pos, Block block) {}
 
@@ -118,6 +131,9 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     private final ArrayDeque<Target> targets = new ArrayDeque<>();
     private final List<ItemStack> collected = new ArrayList<>();
     private final FarmPlots plots = new FarmPlots();
+    private final PickPlots pickPlots = new PickPlots();
+    // Every position of this farm's Reach relative to it, in scan order.
+    private final List<BlockPos> reach;
 
     // Where the farm's Plots and harvest were recorded; null until its first tick.
     @Nullable private BlockPos origin;
@@ -135,6 +151,8 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     @Nullable private UUID owner;
     private int checksOverride;
     private int actionsOverride;
+    // Test seam: the chance a tick picks each Picking Plot, in place of random ticks; < 0 when unset.
+    private double pickOverride = -1;
     private FarmStatus status = FarmStatus.IDLE;
     // What the last NO_POWER was short of, so the status clears as soon as it is there.
     private long powerNeeded;
@@ -161,11 +179,13 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         this.settings = settings;
         this.tier = tier;
         this.worlds = worlds;
+        this.reach = logic.reachAbove() == REACH_HEIGHT ? REACH_OFFSETS : reachOffsets(logic.reachAbove());
     }
 
-    private static List<BlockPos> reachOffsets() {
+    /** The Reach's offsets, from {@code above} the farm down to {@link #REACH_HEIGHT} below it. */
+    static List<BlockPos> reachOffsets(int above) {
         List<BlockPos> offsets = new ArrayList<>();
-        for (int dy = REACH_HEIGHT; dy >= -REACH_HEIGHT; dy--) {
+        for (int dy = above; dy >= -REACH_HEIGHT; dy--) {
             for (int dz = -REACH; dz <= REACH; dz++) {
                 for (int dx = -REACH; dx <= REACH; dx++) {
                     if (dx != 0 || dy != 0 || dz != 0) {
@@ -202,9 +222,14 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         return REACH_SIZE;
     }
 
-    /** The Plots the farm remembers. */
+    /** The Plots the farm remembers, Picking Plots included. */
     public int plotsTotal() {
-        return plots.size();
+        return plots.size() + pickPlots.size();
+    }
+
+    /** The Picking Plots the farm remembers: for the Orchard, the trees it picks from. */
+    public int pickPlotsTotal() {
+        return pickPlots.size();
     }
 
     /** The Empty Plots: those waiting for a germling. */
@@ -224,6 +249,14 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         }
         checksOverride = Math.max(1, checksPerSecond);
         actionsOverride = Math.max(1, actionsPerSecond);
+    }
+
+    /**
+     * Test seam: picks each Picking Plot with {@code chancePerTick} every tick, in place of random
+     * ticks and the bearing's chance; less than 0 restores them.
+     */
+    public void setPickOverride(double chancePerTick) {
+        pickOverride = chancePerTick < 0 ? -1 : Math.min(1, chancePerTick);
     }
 
     // ==================== Tick ====================
@@ -258,6 +291,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             upkeepUnpaid = !payUpkeep(s);
             if (!upkeepUnpaid) {
                 work(ctx.pos(), s);
+                ripen(ctx.random(), s);
             }
         }
         updateStatus(ctx, paused, s);
@@ -278,6 +312,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         }
         if (origin != null) {
             plots.clear();
+            pickPlots.clear();
             harvest = null;
             resumeHarvest = false;
             targets.clear();
@@ -292,17 +327,17 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             int cursor = scanner != null ? scanner.cursor() : savedCursor;
             scannerBase = s.idleBackoffBaseTicks();
             scannerMax = s.idleBackoffMaxTicks();
-            scanner = PlotScanner.restore(REACH_OFFSETS.size(), cursor, scannerBase, scannerMax);
+            scanner = PlotScanner.restore(reach.size(), cursor, scannerBase, scannerMax);
             stepsInPass = 0;
         }
     }
 
     /**
-     * Pays this tick's upkeep for every Plot, Empty Plots included, in whole RF, the fraction left
+     * Pays this tick's upkeep for every Plot, Empty and Picking Plots included, in whole RF, the fraction left
      * over carried to the next tick. False, paying and carrying nothing, when the buffer is short.
      */
     private boolean payUpkeep(FarmSettings s) {
-        long owed = upkeepOwed + plots.size() * Math.round(s.upkeep(logic.upkeep()) * 1000);
+        long owed = upkeepOwed + plotsTotal() * Math.round(s.upkeep(logic.upkeep()) * 1000);
         long due = owed / 1000;
         if (energy.amount() < due) {
             powerNeeded = due;
@@ -347,7 +382,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             if (cooldown > 0) {
                 return FarmStatus.IDLE;
             }
-            BlockPos pos = origin.offset(REACH_OFFSETS.get(scanner.cursor()));
+            BlockPos pos = origin.offset(reach.get(scanner.cursor()));
             tracker.step();
             dirty = true;
             counted.forget();
@@ -393,6 +428,9 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         if (growing != null && readGround(pos) != null) {
             plots.remember(pos, growing, false);
             dirty = true;
+        }
+        if (logic.picks()) {
+            notePickPlot(origin, pos);
         }
         return FarmStatus.IDLE;
     }
@@ -688,6 +726,83 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         return FarmStatus.NO_POWER;
     }
 
+    // ==================== Picking ====================
+
+    /**
+     * Takes on the Picking Plot {@link TendLogic#pickPlot} names for {@code pos} while it lies in the
+     * Reach's lowest levels, and forgets {@code pos} as one once it names another or none.
+     */
+    private void notePickPlot(BlockPos origin, BlockPos pos) {
+        BlockPos plot = logic.pickPlot(counted, pos);
+        if (plot != null && !inPlotLevels(origin, plot)) {
+            plot = null;
+        }
+        if (!pos.equals(plot) && pickPlots.remove(pos)) {
+            dirty = true;
+        }
+        if (plot != null && pickPlots.add(plot)) {
+            dirty = true;
+        }
+    }
+
+    /** Whether {@code plot} lies in the shared Reach: {@value #REACH_HEIGHT} above or below the farm at most. */
+    private static boolean inPlotLevels(BlockPos origin, BlockPos plot) {
+        int dx = plot.getX() - origin.getX();
+        int dy = plot.getY() - origin.getY();
+        int dz = plot.getZ() - origin.getZ();
+        return Math.abs(dx) <= REACH && Math.abs(dz) <= REACH && Math.abs(dy) <= REACH_HEIGHT && !plot.equals(origin);
+    }
+
+    /**
+     * Gives every Picking Plot that rolls one this tick a simulated random tick, which picks what it
+     * bears when the bearing's chance comes up. A Plot found bearing nothing is forgotten.
+     */
+    private void ripen(RandomSource random, FarmSettings s) {
+        if (pickPlots.size() == 0) {
+            return;
+        }
+        int speed = counted.randomTickSpeed();
+        for (BlockPos plot : pickPlots.snapshot()) {
+            boolean ticked = pickOverride >= 0 || random.nextInt(RANDOM_TICK_BLOCKS) < speed;
+            if (!ticked || !counted.isLoaded(plot)) {
+                continue;
+            }
+            TendLogic.Bearing bearing = logic.bearing(counted, plot);
+            if (bearing == null) {
+                pickPlots.remove(plot);
+                dirty = true;
+                continue;
+            }
+            double chance = pickOverride >= 0 ? pickOverride : bearing.chance();
+            if (random.nextDouble() < chance) {
+                tracker.record(pick(plot, bearing, random, s));
+            }
+        }
+    }
+
+    /**
+     * Picks one of {@code bearing}'s produce off the Plot at {@code plot}: charged its cost, into the
+     * inventory, and dropped at the Plot when that is full.
+     */
+    private FarmStatus pick(BlockPos plot, TendLogic.Bearing bearing, RandomSource random, FarmSettings s) {
+        long cost = s.cost(bearing.cost());
+        if (energy.amount() < cost) {
+            return noPower(cost);
+        }
+        if (!counted.canModify(plot)) {
+            return FarmStatus.BLOCKED;
+        }
+        energy.consume(cost);
+        dirty = true;
+        ItemStack rest = inventory.insert(bearing.produce().copy());
+        counted.rustle(bearing.sources().get(random.nextInt(bearing.sources().size())));
+        if (!rest.isEmpty()) {
+            counted.dropStacks(plot, List.of(rest));
+            return FarmStatus.INVENTORY_FULL;
+        }
+        return FarmStatus.WORKING;
+    }
+
     // ==================== Status ====================
 
     /**
@@ -700,7 +815,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         } else if (upkeepUnpaid || energy.amount() < cheapestAction(s)) {
             status = FarmStatus.NO_POWER;
         } else {
-            status = tracker.status(REACH_OFFSETS.size(), this::stillApplies);
+            status = tracker.status(reach.size(), this::stillApplies);
         }
         showLamp(ctx);
     }
@@ -753,6 +868,9 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             hud.line(HUD_STATUS, status.translationKey());
         }
         hud.line(HUD_REACH, HUD_REACH_SIZE, Integer.toString(REACH_SIZE));
+        if (logic.picks()) {
+            hud.line(HUD_TREES, HUD_TREES_COUNT, Integer.toString(pickPlots.size()));
+        }
     }
 
     // ==================== Persistence ====================
@@ -767,6 +885,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             tag.putString("Owner", owner.toString());
         }
         plots.save(tag, "Plots", registries);
+        pickPlots.save(tag, "PickPlots");
         if (harvest != null) {
             tag.put("Harvest", new SavedHarvest(harvest, collected).save(registries));
         }
@@ -780,6 +899,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         heldPower = 0;
         owner = parseUuid(NbtCompat.getString(tag, "Owner", ""));
         plots.load(tag, "Plots", registries);
+        pickPlots.load(tag, "PickPlots");
         harvest = null;
         resumeHarvest = false;
         targets.clear();
