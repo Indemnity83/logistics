@@ -240,6 +240,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Logs a Cocoa Plantation tends cocoa on; it never places, breaks or replaces them. */
         public static final TagKey<Block> COCOA_PLANTATION_GROUND =
                 TagKey.create(Registries.BLOCK, resource("cocoa_plantation_ground").toIdentifier());
+
+        /** Every farm block, as {@link BLOCK#farms()} lists them; the tool tags reference it. */
+        public static final TagKey<Block> FARMS =
+                TagKey.create(Registries.BLOCK, resource("farms").toIdentifier());
     }
 
     public static final class BLOCK {
@@ -288,6 +292,11 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                 props -> new CocoaPlantationBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+        }
+
+        /** Every farm block, in registration order. */
+        public static List<Block> farms() {
+            return Collections.unmodifiableList(FARMS);
         }
 
         /**
@@ -351,13 +360,9 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         static void register() {
             TAB.add(ITEM.FERTILIZER);
             TAB.add(BLOCK.HUMUS);
-            TAB.add(BLOCK.ARBORETUM);
-            TAB.add(BLOCK.CROP_FARM);
-            TAB.add(BLOCK.NETHER_WART_FARM);
-            TAB.add(BLOCK.ORCHARD);
-            TAB.add(BLOCK.PLANTATION);
-            TAB.add(BLOCK.GOURD_FARM);
-            TAB.add(BLOCK.COCOA_PLANTATION);
+            for (Block farm : BLOCK.farms()) {
+                TAB.add(farm);
+            }
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }

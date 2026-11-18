@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "logistics:forestry/arboretum",
+    "logistics:forestry/crop_farm",
+    "logistics:forestry/nether_wart_farm",
+    "logistics:forestry/orchard",
+    "logistics:forestry/plantation",
+    "logistics:forestry/gourd_farm",
+    "logistics:forestry/cocoa_plantation"
+  ]
+}

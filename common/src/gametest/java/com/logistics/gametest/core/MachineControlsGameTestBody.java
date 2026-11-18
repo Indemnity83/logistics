@@ -20,6 +20,7 @@ import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -61,7 +62,7 @@ public class MachineControlsGameTestBody {
 
     private static final BlockPos POS = new BlockPos(1, 1, 1);
 
-    private static final List<Supplier<Block>> MENU_BLOCKS = List.of(
+    private static final List<Supplier<Block>> MACHINE_MENU_BLOCKS = List.of(
             () -> LogisticsAutomation.BLOCK.MACERATOR,
             () -> LogisticsAutomation.BLOCK.KILN,
             () -> LogisticsAutomation.BLOCK.SAWMILL,
@@ -74,11 +75,16 @@ public class MachineControlsGameTestBody {
             () -> LogisticsPower.BLOCK.FUEL_ENGINE,
             () -> LogisticsPower.BLOCK.MAGMATIC_ENGINE,
             () -> LogisticsPower.BLOCK.STEAM_ENGINE,
-            () -> LogisticsPower.BLOCK.REACTION_ENGINE,
-            () -> LogisticsForestry.BLOCK.CROP_FARM,
-            () -> LogisticsForestry.BLOCK.ARBORETUM,
-            () -> LogisticsForestry.BLOCK.ORCHARD,
-            () -> LogisticsForestry.BLOCK.GOURD_FARM);
+            () -> LogisticsPower.BLOCK.REACTION_ENGINE);
+
+    /** Every block with a server menu: the machines above, then each registered farm, read when iterated. */
+    private static final Iterable<Supplier<Block>> MENU_BLOCKS = () -> {
+        List<Supplier<Block>> blocks = new ArrayList<>(MACHINE_MENU_BLOCKS);
+        for (Block farm : LogisticsForestry.BLOCK.farms()) {
+            blocks.add(() -> farm);
+        }
+        return blocks.iterator();
+    };
 
     // ==================== Helpers ====================
 
@@ -186,7 +192,7 @@ public class MachineControlsGameTestBody {
 
     // ==================== Every server menu ====================
 
-    /** Each of the 15 server menus, opened through its block entity's real menu provider, carries live controls. */
+    /** Each server menu, opened through its block entity's real menu provider, carries live controls. */
     public static void testEveryServerMenuCarriesControls(GameTestHelper context) {
         Player player = mockPlayer(context, GameType.SURVIVAL);
         for (Supplier<Block> block : MENU_BLOCKS) {
