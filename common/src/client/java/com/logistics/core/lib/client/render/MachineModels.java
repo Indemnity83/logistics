@@ -115,7 +115,7 @@ public final class MachineModels {
                     new Face(Direction.WEST, 8f, 14f, 12f, 15f, 0),
                     new Face(Direction.UP, 8f, 14f, 4f, 10f, 0),
                     new Face(Direction.DOWN, 12f, 10f, 8f, 14f, 0)))))),
-        Map.entry("redstone_engine_core", new Model("power/redstone_engine", List.of(
+        Map.entry("redstone_engine_core", new Model("core/redstone_engine", List.of(
             new Element(4f, 4f, 4f, 12f, 16f, 12f, List.of(
                     new Face(Direction.NORTH, 10f, 7f, 12f, 10f, 0),
                     new Face(Direction.EAST, 8f, 7f, 10f, 10f, 0),
