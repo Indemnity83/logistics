@@ -10,10 +10,8 @@
   | list1  = [[File:Grid Macerator.png|20px|link=Macerator]]&nbsp;[[Macerator]] · [[File:Grid Alloy Smelter.png|20px|link=Alloy Smelter]]&nbsp;[[Alloy Smelter]] · [[File:Grid Crucible.png|20px|link=Crucible]]&nbsp;[[Crucible]] · [[File:Grid Refinery.png|20px|link=Refinery]]&nbsp;[[Refinery]] · [[File:Grid Kiln.png|20px|link=Kiln]]&nbsp;[[Kiln]] · [[File:Grid Sawmill.png|20px|link=Sawmill]]&nbsp;[[Sawmill]] · [[File:Grid Sequential Fabricator.png|20px|link=Sequential Fabricator]]&nbsp;[[Sequential Fabricator]]
   | group2 = [[Engines]]
   | list2  = [[File:Grid Redstone Engine.png|20px|link=Redstone Engine]]&nbsp;[[Redstone Engine]] · [[File:Grid Stirling Engine.png|20px|link=Stirling Engine]]&nbsp;[[Stirling Engine]] · [[File:Grid Steam Engine.png|20px|link=Steam Engine]]&nbsp;[[Steam Engine]] · [[File:Grid Magmatic Engine.png|20px|link=Magmatic Engine]]&nbsp;[[Magmatic Engine]] · [[File:Grid Fuel Engine.png|20px|link=Fuel Engine]]&nbsp;[[Fuel Engine]] · [[File:Grid Reaction Engine.png|20px|link=Reaction Engine]]&nbsp;[[Reaction Engine]] · [[File:Grid Creative Engine.png|20px|link=Creative Engine]]&nbsp;[[Creative Engine]]
-  | group3 = Farming
-  | list3  = [[File:Grid Crop Farm.png|20px|link=Crop Farm]]&nbsp;[[Crop Farm]] · [[File:Grid Arboretum.png|20px|link=Arboretum]]&nbsp;[[Arboretum]]
-  | group4 = Other
-  | list4  = [[File:Grid Laser Quarry.png|20px|link=Laser Quarry]]&nbsp;[[Laser Quarry]] · [[File:Grid Fluid Pump.png|20px|link=Pump]]&nbsp;[[Fluid Pump|Pump]] · [[File:Grid Transposer.png|20px|link=Transposer]]&nbsp;[[Transposer]]
+  | group3 = Other
+  | list3  = [[File:Grid Laser Quarry.png|20px|link=Laser Quarry]]&nbsp;[[Laser Quarry]] · [[File:Grid Fluid Pump.png|20px|link=Pump]]&nbsp;[[Fluid Pump|Pump]] · [[File:Grid Transposer.png|20px|link=Transposer]]&nbsp;[[Transposer]]
   }}
 
 | list2 = {{Navbox
@@ -35,7 +33,7 @@
   | state = collapsed
   | title = [[Materials|Resources]]
   | group1 = Raw
-  | list1  = [[File:Grid Apatite.png|20px|link=Apatite]]&nbsp;[[Apatite]] · [[File:Grid Tin Ingot.png|20px|link=Tin]]&nbsp;[[Tin]] · [[File:Grid Bronze Ingot.png|20px|link=Bronze]]&nbsp;[[Bronze]] · [[File:Grid Oil Sand.png|20px|link=Oil Sand]]&nbsp;[[Oil Sand]] · [[File:Grid Oil Red Sand.png|20px|link=Oil Red Sand]]&nbsp;[[Oil Red Sand]] · [[File:Grid Oil Shale.png|20px|link=Oil Shale]]&nbsp;[[Oil Shale]] · [[File:Grid Bitumen.png|20px|link=Bitumen]]&nbsp;[[Bitumen]] · [[File:Grid Tar.png|20px|link=Tar]]&nbsp;[[Tar]]
+  | list1  = [[File:Grid Apatite.png|20px|link=Apatite]]&nbsp;[[Apatite]] · [[File:Grid Tin Ingot.png|20px|link=Tin]]&nbsp;[[Tin]] · [[File:Grid Bronze Ingot.png|20px|link=Bronze]]&nbsp;[[Bronze]] · [[File:Grid Oil Sand.png|20px|link=Oil Sand]]&nbsp;[[Oil Sand]] · [[File:Grid Oil Red Sand.png|20px|link=Oil Red Sand]]&nbsp;[[Oil Red Sand]] · [[File:Grid Oil Shale.png|20px|link=Oil Shale]]&nbsp;[[Oil Shale]] · [[File:Grid Bitumen.png|20px|link=Bitumen]]&nbsp;[[Bitumen]] · [[File:Grid Tar.png|20px|link=Tar]]&nbsp;[[Tar]] · [[File:Grid Peat.png|20px|link=Peat]]&nbsp;[[Peat]] · [[File:Grid Bog Earth.png|20px|link=Bog Earth]]&nbsp;[[Bog Earth]]
   | group2 = [[Dusts]]
   | list2  = [[File:Grid Coal Dust.png|20px|link=Coal Dust]]&nbsp;[[Coal Dust|Coal]] · [[File:Grid Copper Dust.png|20px|link=Copper Dust]]&nbsp;[[Copper Dust|Copper]] · [[File:Grid Iron Dust.png|20px|link=Iron Dust]]&nbsp;[[Iron Dust|Iron]] · [[File:Grid Gold Dust.png|20px|link=Gold Dust]]&nbsp;[[Gold Dust|Gold]] · [[File:Grid Tin Dust.png|20px|link=Tin Dust]]&nbsp;[[Tin Dust|Tin]] · [[File:Grid Bronze Dust.png|20px|link=Bronze Dust]]&nbsp;[[Bronze Dust|Bronze]] · [[File:Grid Diamond Dust.png|20px|link=Diamond Dust]]&nbsp;[[Diamond Dust|Diamond]] · [[File:Grid Emerald Dust.png|20px|link=Emerald Dust]]&nbsp;[[Emerald Dust|Emerald]] · [[File:Grid Lapis Dust.png|20px|link=Lapis Dust]]&nbsp;[[Lapis Dust|Lapis]] · [[File:Grid Netherite Dust.png|20px|link=Netherite Dust]]&nbsp;[[Netherite Dust|Netherite]] · [[File:Grid Obsidian Dust.png|20px|link=Obsidian Dust]]&nbsp;[[Obsidian Dust|Obsidian]] · [[File:Grid Amethyst Dust.png|20px|link=Amethyst Dust]]&nbsp;[[Amethyst Dust|Amethyst]] · [[File:Grid Echo Dust.png|20px|link=Echo Dust]]&nbsp;[[Echo Dust|Echo]] · [[File:Grid Ender Dust.png|20px|link=Ender Dust]]&nbsp;[[Ender Dust|Ender]] · [[File:Grid Prismarine Dust.png|20px|link=Prismarine Dust]]&nbsp;[[Prismarine Dust|Prismarine]] · [[File:Grid Quartz Dust.png|20px|link=Quartz Dust]]&nbsp;[[Quartz Dust|Quartz]] · [[File:Grid Sulfur Dust.png|20px|link=Sulfur Dust]]&nbsp;[[Sulfur Dust|Sulfur]] · [[File:Grid Apatite Dust.png|20px|link=Apatite Dust]]&nbsp;[[Apatite Dust|Apatite]]
   | group3 = [[Gears]]
@@ -46,22 +44,29 @@
   | list5  = [[File:Grid Redstone Chipset.png|20px|link=Redstone Chipset]]&nbsp;[[Redstone Chipset|Redstone]] · [[File:Grid Copper Chipset.png|20px|link=Copper Chipset]]&nbsp;[[Copper Chipset|Copper]] · [[File:Grid Iron Chipset.png|20px|link=Iron Chipset]]&nbsp;[[Iron Chipset|Iron]] · [[File:Grid Gold Chipset.png|20px|link=Gold Chipset]]&nbsp;[[Gold Chipset|Gold]] · [[File:Grid Echo Chipset.png|20px|link=Echo Chipset]]&nbsp;[[Echo Chipset|Echo]] · [[File:Grid Diamond Chipset.png|20px|link=Diamond Chipset]]&nbsp;[[Diamond Chipset|Diamond]] · [[File:Grid Netherite Chipset.png|20px|link=Netherite Chipset]]&nbsp;[[Netherite Chipset|Netherite]]
   | group6 = [[Fluids|Liquids]]
   | list6  = [[File:Grid Crude Oil.png|20px|link=Crude Oil]]&nbsp;[[Crude Oil]] · [[File:Grid Liquid Biomass.png|20px|link=Liquid Biomass]]&nbsp;[[Liquid Biomass]] · [[File:Grid Liquid Ender.png|20px|link=Liquid Ender]]&nbsp;[[Liquid Ender]] · [[File:Grid Liquid Glowstone.png|20px|link=Liquid Glowstone]]&nbsp;[[Liquid Glowstone]] · [[File:Grid Liquid Redstone.png|20px|link=Liquid Redstone]]&nbsp;[[Liquid Redstone]] · [[File:Grid Bio Fuel.png|20px|link=Bio Fuel]]&nbsp;[[Bio Fuel]] · [[File:Grid Fuel Oil.png|20px|link=Fuel Oil]]&nbsp;[[Fuel Oil]]
-  | group7 = Farming
-  | list7  = [[File:Grid Peat.png|20px|link=Peat]]&nbsp;[[Peat]] · [[File:Grid Bog Earth.png|20px|link=Bog Earth]]&nbsp;[[Bog Earth]] · [[File:Grid Humus.png|20px|link=Humus]]&nbsp;[[Humus]] · [[File:Grid Fertilizer.png|20px|link=Fertilizer]]&nbsp;[[Fertilizer]]
-  | group8 = Components
-  | list8  = [[File:Grid Machine Frame.png|20px|link=Machine Frame]]&nbsp;[[Machine Frame]] · [[File:Grid Redstone Reception Coil.png|20px|link=Redstone Reception Coil]]&nbsp;[[Redstone Reception Coil]] · [[File:Grid Quartz Crystal.png|20px|link=Quartz Crystal]]&nbsp;[[Quartz Crystal]] · [[File:Grid Copper Nugget.png|20px|link=Copper Nugget]]&nbsp;[[Copper Nugget]] · [[File:Grid Rubber.png|20px|link=Rubber]]&nbsp;[[Rubber]] · [[File:Grid Natural Polymer.png|20px|link=Natural Polymer]]&nbsp;[[Natural Polymer]] · [[File:Grid Synthetic Polymer.png|20px|link=Synthetic Polymer]]&nbsp;[[Synthetic Polymer]]
-  | group9 = Byproducts
-  | list9  = [[File:Grid Slag.png|20px|link=Slag]]&nbsp;[[Slag]] · [[File:Grid Rich Slag.png|20px|link=Rich Slag]]&nbsp;[[Rich Slag]] · [[File:Grid Pulped Biomass.png|20px|link=Pulped Biomass]]&nbsp;[[Pulped Biomass]] · [[File:Grid Sawdust.png|20px|link=Sawdust]]&nbsp;[[Sawdust]] · [[File:Grid Flour.png|20px|link=Flour]]&nbsp;[[Flour]] · [[File:Grid Saltpeter.png|20px|link=Saltpeter]]&nbsp;[[Saltpeter]] · [[File:Grid Quicksilver.png|20px|link=Quicksilver]]&nbsp;[[Quicksilver]]
+  | group7 = Components
+  | list7  = [[File:Grid Machine Frame.png|20px|link=Machine Frame]]&nbsp;[[Machine Frame]] · [[File:Grid Redstone Reception Coil.png|20px|link=Redstone Reception Coil]]&nbsp;[[Redstone Reception Coil]] · [[File:Grid Quartz Crystal.png|20px|link=Quartz Crystal]]&nbsp;[[Quartz Crystal]] · [[File:Grid Copper Nugget.png|20px|link=Copper Nugget]]&nbsp;[[Copper Nugget]] · [[File:Grid Rubber.png|20px|link=Rubber]]&nbsp;[[Rubber]] · [[File:Grid Natural Polymer.png|20px|link=Natural Polymer]]&nbsp;[[Natural Polymer]] · [[File:Grid Synthetic Polymer.png|20px|link=Synthetic Polymer]]&nbsp;[[Synthetic Polymer]]
+  | group8 = Byproducts
+  | list8  = [[File:Grid Slag.png|20px|link=Slag]]&nbsp;[[Slag]] · [[File:Grid Rich Slag.png|20px|link=Rich Slag]]&nbsp;[[Rich Slag]] · [[File:Grid Pulped Biomass.png|20px|link=Pulped Biomass]]&nbsp;[[Pulped Biomass]] · [[File:Grid Sawdust.png|20px|link=Sawdust]]&nbsp;[[Sawdust]] · [[File:Grid Flour.png|20px|link=Flour]]&nbsp;[[Flour]] · [[File:Grid Saltpeter.png|20px|link=Saltpeter]]&nbsp;[[Saltpeter]] · [[File:Grid Quicksilver.png|20px|link=Quicksilver]]&nbsp;[[Quicksilver]]
   }}
 
 | list4 = {{Navbox
+  | state = collapsed
+  | title = [[Farming]]
+  | group1 = Farms
+  | list1  = [[File:Grid Crop Farm.png|20px|link=Crop Farm]]&nbsp;[[Crop Farm]] · [[File:Grid Arboretum.png|20px|link=Arboretum]]&nbsp;[[Arboretum]]
+  | group2 = Materials
+  | list2  = [[File:Grid Humus.png|20px|link=Humus]]&nbsp;[[Humus]] · [[File:Grid Fertilizer.png|20px|link=Fertilizer]]&nbsp;[[Fertilizer]]
+  }}
+
+| list5 = {{Navbox
   | state = collapsed
   | title = [[Tools|Utilities]]
   | group1 = Tools
   | list1  = [[File:Grid Wrench.png|20px|link=Wrench]]&nbsp;[[Wrench]] · [[File:Grid Marker.png|20px|link=Marker]]&nbsp;[[Marker]] · [[File:Grid Blue Marking Fluid.png|20px|link=Marking Fluid]]&nbsp;[[Marking Fluid]]
   }}
 
-| list5 = {{Navbox
+| list6 = {{Navbox
   | state = collapsed
   | title = [[:Category:Removed|Removed]]
   | group1 = [[Cores]]
@@ -80,7 +85,7 @@ content page, just above the <code><nowiki>{{Category}}</nowiki></code> lines:
 
  {{Navbox Logistics}}
 
-The master box is expanded by default; each section (Machines · Pipes · Resources · Utilities) is a
+The master box is expanded by default; each section (Machines · Pipes · Resources · Farming · Utilities) is a
 nested navbox collapsed by default, so readers see the sections and click one open. Every item entry
 carries its {{nowrap|20px grid icon}}. Guide and concept pages are intentionally excluded — this is an
 item/block index, not a table of contents. Styling comes from the <code>.navbox</code> rules in

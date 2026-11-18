@@ -13,7 +13,7 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 |icon  = Grid Copper Transport Pipe.png
 |link  = Pipes
 |text  = Move items through connected networks — from basic transport to filtered routing and a full logistics system.
-|links = [[Transport Pipes]] · [[Logistics Pipes]] · [[Pipe Networks]]
+|links = [[Transport Pipes]] · [[Logistics Pipes]] · [[Chassis Logistics Pipe|Chassis Pipes]] · [[Modules]] · [[Pipe Networks]]
 }}
 {{Topic Card
 |icon  = Grid Glass Tank.png
@@ -33,15 +33,14 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 |icon  = Grid Macerator.png
 |link  = Machines
 |title = Automation
-|text  = Machines that grind, smelt, cut, melt, refine, fabricate, mine, and farm for you.
-|links = [[Macerator]] · [[Alloy Smelter]] · [[Crucible]] · [[Refinery]] · [[Kiln]] · [[Sawmill]] · [[Sequential Fabricator]] · [[Transposer]] · [[Laser Quarry]] · [[Crop Farm]] · [[Arboretum]]
+|text  = Machines that grind, smelt, cut, melt, refine, fabricate, and mine for you.
+|links = [[Macerator]] · [[Alloy Smelter]] · [[Crucible]] · [[Refinery]] · [[Kiln]] · [[Sawmill]] · [[Sequential Fabricator]] · [[Transposer]] · [[Laser Quarry]]
 }}
 {{Topic Card
-|icon  = Grid Chassis Logistics Pipe MkI.png
-|link  = Chassis Logistics Pipe
-|title = Chassis Pipes
-|text  = Slot modules into chassis pipes to build custom logistics nodes.
-|links = [[Chassis Logistics Pipe|Chassis Pipes]] · [[Modules]]
+|icon  = Grid Crop Farm.png
+|link  = Farming
+|text  = Farms that harvest and replant the crops and trees you grow around them.
+|links = [[Crop Farm]] · [[Arboretum]] · [[Humus]] · [[Fertilizer]]
 }}
 {{Topic Card
 |icon  = Grid Iron Gear.png

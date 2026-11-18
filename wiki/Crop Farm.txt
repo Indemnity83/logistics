@@ -119,6 +119,7 @@ The RF costs and the farm's buffer live in <code>config/logistics/forestry.farm.
 
 == See also ==
 
+* [[Farming]] - How farms work
 * [[Arboretum]] - The tree-tending farm
 * [[Side Tabs]] - Energy and redstone settings
 * [[Machines]] - All machines
@@ -126,3 +127,4 @@ The RF costs and the farm's buffer live in <code>config/logistics/forestry.farm.
 {{Navbox Logistics}}
 
 [[Category:Machines]]
+[[Category:Farming]]

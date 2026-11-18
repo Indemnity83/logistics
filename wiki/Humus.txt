@@ -62,6 +62,7 @@ The [[Arboretum]] only fells trees standing on Humus. Lay Humus where you want i
 
 == See also ==
 
+* [[Farming]] - How farms work
 * [[Arboretum]] - Fells the trees grown on Humus
 * [[Pulped Biomass]] - Crafting ingredient
 * [[Sawdust]] - Crafting ingredient
@@ -70,3 +71,4 @@ The [[Arboretum]] only fells trees standing on Humus. Lay Humus where you want i
 {{Navbox Logistics}}
 
 [[Category:Materials]]
+[[Category:Farming]]

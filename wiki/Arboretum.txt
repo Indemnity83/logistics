@@ -119,6 +119,7 @@ The RF costs and the farm's buffer live in <code>config/logistics/forestry.farm.
 
 == See also ==
 
+* [[Farming]] - How farms work
 * [[Humus]] - The ground the Arboretum tends
 * [[Crop Farm]] - The field-tending farm
 * [[Sawmill]] - Turns the logs into planks
@@ -128,3 +129,4 @@ The RF costs and the farm's buffer live in <code>config/logistics/forestry.farm.
 {{Navbox Logistics}}
 
 [[Category:Machines]]
+[[Category:Farming]]

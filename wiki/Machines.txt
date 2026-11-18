@@ -13,6 +13,7 @@
 * '''[[Sequential Fabricator]]''' - Assembles [[Chipsets|chipsets]] from redstone and a tier material
 
 ==Farming==
+See '''[[Farming]]''' for how the farms work.
 * '''[[Crop Farm]]''' - Harvests and replants the wheat, carrots, potatoes and beetroot you plant around it
 * '''[[Arboretum]]''' - Fells and replants the trees you grow on [[Humus]] around it
 

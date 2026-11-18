@@ -1,0 +1,46 @@
+'''Farming''' in Logistics is done by farms that tend the fields and groves you plant. You lay out and decorate the field yourself; a farm supplies the labour, harvesting what is ripe and replanting it, and spends [[RF Energy|RF]] to do it.
+
+== Farms ==
+
+* [[File:Grid Crop Farm.png|24px|link=Crop Farm]] '''[[Crop Farm]]''' — harvests and replants the wheat, carrots, potatoes and beetroot you plant around it
+* [[File:Grid Arboretum.png|24px|link=Arboretum]] '''[[Arboretum]]''' — fells and replants the trees you grow on [[Humus]] around it
+
+== Materials ==
+
+* [[File:Grid Humus.png|24px|link=Humus]] '''[[Humus]]''' — soil that grows every sapling into the same small tree; the ground the Arboretum tends
+* [[File:Grid Fertilizer.png|24px|link=Fertilizer]] '''[[Fertilizer]]''' — made from [[Apatite (gem)|apatite]]
+
+== How farms work ==
+
+=== Reach ===
+
+A farm works the blocks in its '''Reach''': 3 blocks out on every side, corners included (a 7×7 area), from one block below the farm to one block above it. Place the farm in the middle of the field it should tend.
+
+=== Plots ===
+
+A farm never plants anywhere on its own. Every crop it harvests or tree it fells becomes a '''Plot''', and the farm replants that Plot with the same plant — from the harvest first, then from its inventory. A Plot it cannot replant waits as an '''Empty Plot''' until a matching seed or sapling turns up in the inventory, so keep a few spares in the farm.
+
+A Plot is forgotten once something else grows or is placed there, or its ground changes. Breaking the farm forgets all of its Plots.
+
+=== Output ===
+
+Each farm has a 15-slot inventory that pipes and hoppers can insert into from any side and pull from any slot. A full inventory never stops a farm: it keeps working and drops what does not fit. Keeping up with the harvest — and leaving it the seeds or saplings it needs — is a job for your [[Pipes|pipes]].
+
+=== Power ===
+
+A farm holds 20,000 RF and accepts up to 32 RF/t. It pays a small upkeep every tick for each Plot it keeps, plus a cost for each block it changes; looking for work is free. Each farm's page lists its rates.
+
+=== Status and control ===
+
+A lamp on the farm shows its state: green while it works or has nothing ready, amber when it needs attention (seeds, a full inventory, or paused by redstone), and red when it cannot work (no power, or not allowed to change a block). Farms ignore redstone by default; the [[Side Tabs#Redstone Control|Redstone Control]] tab can make a signal pause or run them.
+
+== See also ==
+
+* [[Machines]] — the processing machines
+* [[Side Tabs]] — energy and redstone panels in the farm GUI
+* [[Sawmill]] — turns the Arboretum's logs into planks
+* [[Energy]] — powering a farm
+
+{{Navbox Logistics}}
+
+[[Category:Farming]]

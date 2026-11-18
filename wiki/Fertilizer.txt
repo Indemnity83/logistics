@@ -38,6 +38,7 @@ Fertilizer has no use yet. It shares the <code>#logistics:fertilizers</code> tag
 
 == See also ==
 
+* [[Farming]] - How farms work
 * [[Apatite (gem)|Apatite]] - Main ingredient
 * [[Saltpeter]] - Ingredient of the dust recipe
 * [[Humus]] - The mod's farming soil
@@ -45,3 +46,4 @@ Fertilizer has no use yet. It shares the <code>#logistics:fertilizers</code> tag
 {{Navbox Logistics}}
 
 [[Category:Materials]]
+[[Category:Farming]]

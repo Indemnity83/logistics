@@ -28,6 +28,8 @@
 
 == Farming ==
 
+See [[Farming]].
+
 * [[File:Grid Humus.png|24px|link=Humus]] '''[[Humus]]''' — soil that grows small, uniform trees for the [[Arboretum]]
 * [[File:Grid Fertilizer.png|24px|link=Fertilizer]] '''[[Fertilizer]]''' — made from [[Apatite (gem)|apatite]]
 
