@@ -17,48 +17,28 @@ public final class CropFarmGameTestRegistration {
     private CropFarmGameTestRegistration() {}
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testTillsAndPlantsWheat(GameTestHelper context) {
-        CropFarmGameTestBody.testTillsAndPlantsWheat(context);
+    public static void testHarvestsAndReplantsAndHopperPullsHarvest(GameTestHelper context) {
+        CropFarmGameTestBody.testHarvestsAndReplantsAndHopperPullsHarvest(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testTillsAndPlantsWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testTillsAndPlantsWithoutWater(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 2400)
-    public static void testHarvestKeepsFarmland(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestKeepsFarmland(context);
+    public static void testFullFarmSpillsAtThePlot(GameTestHelper context) {
+        CropFarmGameTestBody.testFullFarmSpillsAtThePlot(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testIrrigatesRingFarmlandFromTank(GameTestHelper context) {
-        CropFarmGameTestBody.testIrrigatesRingFarmlandFromTank(context);
+    public static void testBreakingTheFarmForgetsItsPlots(GameTestHelper context) {
+        CropFarmGameTestBody.testBreakingTheFarmForgetsItsPlots(context);
     }
 
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 220)
-    public static void testFarmlandDriesWithoutWater(GameTestHelper context) {
-        CropFarmGameTestBody.testFarmlandDriesWithoutWater(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testSurveyingFarmDoesNotIrrigate(GameTestHelper context) {
-        CropFarmGameTestBody.testSurveyingFarmDoesNotIrrigate(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testNeverIrrigatesOutsideRing(GameTestHelper context) {
-        CropFarmGameTestBody.testNeverIrrigatesOutsideRing(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 3000)
-    public static void testHarvestsAndReplantsFromReturnedSeeds(GameTestHelper context) {
-        CropFarmGameTestBody.testHarvestsAndReplantsFromReturnedSeeds(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 300)
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 400)
     public static void testDoesNothingWithoutPower(GameTestHelper context) {
         CropFarmGameTestBody.testDoesNothingWithoutPower(context);
+    }
+
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 400)
+    public static void testRedstoneSignalPausesFarm(GameTestHelper context) {
+        CropFarmGameTestBody.testRedstoneSignalPausesFarm(context);
     }
 
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
@@ -66,37 +46,7 @@ public final class CropFarmGameTestRegistration {
         CropFarmGameTestBody.testLeverOnEngineDoesNotPauseFarm(context);
     }
 
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testClearsTorchFromPlot(GameTestHelper context) {
-        CropFarmGameTestBody.testClearsTorchFromPlot(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testClearsBlockAbovePlot(GameTestHelper context) {
-        CropFarmGameTestBody.testClearsBlockAbovePlot(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testNeverBreaksChestInRing(GameTestHelper context) {
-        CropFarmGameTestBody.testNeverBreaksChestInRing(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testLeavesInnerSquareAlone(GameTestHelper context) {
-        CropFarmGameTestBody.testLeavesInnerSquareAlone(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testTillsGrassInPlace(GameTestHelper context) {
-        CropFarmGameTestBody.testTillsGrassInPlace(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 2400)
-    public static void testLaysSoilLevelWithFarmOnGrass(GameTestHelper context) {
-        CropFarmGameTestBody.testLaysSoilLevelWithFarmOnGrass(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm")
+    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 100)
     public static void testTierSurvivesBreakAndReplace(GameTestHelper context) {
         CropFarmGameTestBody.testTierSurvivesBreakAndReplace(context);
     }
@@ -104,15 +54,5 @@ public final class CropFarmGameTestRegistration {
     @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 600)
     public static void testRaisingTierGrowsEnergyBuffer(GameTestHelper context) {
         CropFarmGameTestBody.testRaisingTierGrowsEnergyBuffer(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 1200)
-    public static void testSurveyChangesNothingUntilStart(GameTestHelper context) {
-        CropFarmGameTestBody.testSurveyChangesNothingUntilStart(context);
-    }
-
-    @GameTest(template = "empty", batch = "cropfarm", timeoutTicks = 600)
-    public static void testUpgradeWorksNewLanesImmediately(GameTestHelper context) {
-        CropFarmGameTestBody.testUpgradeWorksNewLanesImmediately(context);
     }
 }

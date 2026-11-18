@@ -22,22 +22,47 @@ public final class HumusGameTestRegistration {
     }
 
     @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
-    public static void testHumusBoostGrowsTreeAndTurnsToSand(GameTestHelper context) {
-        HumusGameTestBody.testHumusBoostGrowsTreeAndTurnsToSand(context);
+    public static void testOakGrowsSmallTree(GameTestHelper context) {
+        HumusGameTestBody.testOakGrowsSmallTree(context);
     }
 
     @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
-    public static void testHumusUnderLogTurnsToSand(GameTestHelper context) {
-        HumusGameTestBody.testHumusUnderLogTurnsToSand(context);
+    public static void testDarkOakGrowsFromOneSapling(GameTestHelper context) {
+        HumusGameTestBody.testDarkOakGrowsFromOneSapling(context);
     }
 
     @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
-    public static void testHumusWithoutSaplingNeverChanges(GameTestHelper context) {
-        HumusGameTestBody.testHumusWithoutSaplingNeverChanges(context);
+    public static void testSpruceGrowsSmallTree(GameTestHelper context) {
+        HumusGameTestBody.testSpruceGrowsSmallTree(context);
     }
 
     @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
-    public static void testNoGrowthInDarkness(GameTestHelper context) {
-        HumusGameTestBody.testNoGrowthInDarkness(context);
+    public static void testAzaleaGrowsSmallTree(GameTestHelper context) {
+        HumusGameTestBody.testAzaleaGrowsSmallTree(context);
+    }
+
+    @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
+    public static void testMangroveGrowsSmallTreeWithGrownPropagules(GameTestHelper context) {
+        HumusGameTestBody.testMangroveGrowsSmallTreeWithGrownPropagules(context);
+    }
+
+    @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
+    public static void testDarkOakGroupGrowsFourTrees(GameTestHelper context) {
+        HumusGameTestBody.testDarkOakGroupGrowsFourTrees(context);
+    }
+
+    @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
+    public static void testSpruceGroupGrowsFourTrees(GameTestHelper context) {
+        HumusGameTestBody.testSpruceGroupGrowsFourTrees(context);
+    }
+
+    @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
+    public static void testSaplingsOffHumusGrowAsVanilla(GameTestHelper context) {
+        HumusGameTestBody.testSaplingsOffHumusGrowAsVanilla(context);
+    }
+
+    @GameTest(template = "empty", batch = "humus", timeoutTicks = 60)
+    public static void testHumusIsPermanentAndGivesNoBoost(GameTestHelper context) {
+        HumusGameTestBody.testHumusIsPermanentAndGivesNoBoost(context);
     }
 }

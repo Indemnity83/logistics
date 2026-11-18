@@ -58,9 +58,9 @@ The *Plan phase* column is the farm plan's build order: 1 = the tiered framework
 
 | # | Brief | Area | Plan phase | Depends on |
 |---|---|---|---|---|
-| 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, 7×7 courtyard + tiered ring, scheduler, survey + Start, farm screen ✅ | 1 | the machine framework; 0111; Provider-pipe extractable-slot fix |
-| 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer ✅ (item only, for a future augmentation), Humus ✅ (turns to sand under trees), bog-earth maturity | — (maturity: 3) | 0201 |
-| 0203 | [Arboretum](0203-arboretum.md) | Tree farm + `TreeFeller` ✅; spaced lane-stable pattern | 1 | 0201, 0202 (Humus) |
+| 0201 | [Farm Framework](0201-farm-framework.md) | 🔑 keystone — shared farm base, scheduler, farm screen ✅; superseded by tend-only farms ([ADR 0001](../../docs/adr/0001-tend-only-farms.md)) | 1 | the machine framework; 0111; Provider-pipe extractable-slot fix |
+| 0202 | [Fertilizer & Soils](0202-fertilizer-and-soils.md) | Fertilizer ✅ (item only, for a future augmentation), Humus ✅ (fixes the tree shape), bog-earth maturity | — (maturity: 3) | 0201 |
+| 0203 | [Arboretum](0203-arboretum.md) | Tree farm + `TreeFeller` ✅; tends trees on Humus | 1 | 0201, 0202 (Humus) |
 | 0204 | [Cropland (Crop Farm)](0204-crop-farm.md) | Field crops ✅; water per till × climate | 1 | 0201 |
 | 0205 | [Peat Bog](0205-peat-bog.md) | Bog Earth → Peat | 3 | 0201, 0202 (maturity) |
 | 0206 | [Mushroom Farm](0206-mushroom-farm.md) | Giant mushrooms + huge fungi, grown with bone meal / Fertilizer | 3 | 0201, 0203 (`TreeFeller`) |

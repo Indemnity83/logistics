@@ -32,11 +32,6 @@ public final class LevelTreeView implements TreeView {
         return classify(level.getBlockState(pos));
     }
 
-    @Override
-    public boolean isLeaves(BlockPos pos) {
-        return level.isLoaded(pos) && isNaturalLeaves(level.getBlockState(pos));
-    }
-
     /** Whether {@code state} is natural leaves: leaves no player placed. */
     public static boolean isNaturalLeaves(BlockState state) {
         return state.getBlock() instanceof LeavesBlock && !state.getValue(LeavesBlock.PERSISTENT);

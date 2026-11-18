@@ -17,22 +17,47 @@ public class HumusGameTest {
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
-    public void testHumusBoostGrowsTreeAndTurnsToSand(GameTestHelper context) {
-        HumusGameTestBody.testHumusBoostGrowsTreeAndTurnsToSand(context);
+    public void testOakGrowsSmallTree(GameTestHelper context) {
+        HumusGameTestBody.testOakGrowsSmallTree(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
-    public void testHumusUnderLogTurnsToSand(GameTestHelper context) {
-        HumusGameTestBody.testHumusUnderLogTurnsToSand(context);
+    public void testDarkOakGrowsFromOneSapling(GameTestHelper context) {
+        HumusGameTestBody.testDarkOakGrowsFromOneSapling(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
-    public void testHumusWithoutSaplingNeverChanges(GameTestHelper context) {
-        HumusGameTestBody.testHumusWithoutSaplingNeverChanges(context);
+    public void testSpruceGrowsSmallTree(GameTestHelper context) {
+        HumusGameTestBody.testSpruceGrowsSmallTree(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
-    public void testNoGrowthInDarkness(GameTestHelper context) {
-        HumusGameTestBody.testNoGrowthInDarkness(context);
+    public void testAzaleaGrowsSmallTree(GameTestHelper context) {
+        HumusGameTestBody.testAzaleaGrowsSmallTree(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testMangroveGrowsSmallTreeWithGrownPropagules(GameTestHelper context) {
+        HumusGameTestBody.testMangroveGrowsSmallTreeWithGrownPropagules(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testDarkOakGroupGrowsFourTrees(GameTestHelper context) {
+        HumusGameTestBody.testDarkOakGroupGrowsFourTrees(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testSpruceGroupGrowsFourTrees(GameTestHelper context) {
+        HumusGameTestBody.testSpruceGroupGrowsFourTrees(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testSaplingsOffHumusGrowAsVanilla(GameTestHelper context) {
+        HumusGameTestBody.testSaplingsOffHumusGrowAsVanilla(context);
+    }
+
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
+    public void testHumusIsPermanentAndGivesNoBoost(GameTestHelper context) {
+        HumusGameTestBody.testHumusIsPermanentAndGivesNoBoost(context);
     }
 }

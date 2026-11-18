@@ -30,6 +30,7 @@ class MachineControlsTest {
         long capacity;
         long rate;
         long maxRate;
+        int rateTenths;
         final List<RedstoneMode> modeChanges = new ArrayList<>();
 
         @Override
@@ -79,6 +80,11 @@ class MachineControlsTest {
         @Override
         public long energyRate() {
             return rate;
+        }
+
+        @Override
+        public int energyRateTenths() {
+            return rateTenths;
         }
 
         @Override
@@ -176,6 +182,20 @@ class MachineControlsTest {
         assertThat(client.capacity()).isEqualTo(Integer.MAX_VALUE);
         assertThat(client.rate()).isZero();
         assertThat(client.maxRate()).isEqualTo(Integer.MAX_VALUE);
+    }
+
+    @Test
+    @DisplayName("the rate's tenths digit syncs, and is 0 for a host that reports none")
+    void rateTenthsSync() {
+        FakeStatus status = new FakeStatus();
+        status.rate = 4;
+        assertThat(synced(MachineControls.server(status)).rateTenths()).isZero();
+
+        status.rateTenths = 7;
+        MachineControls client = synced(MachineControls.server(status));
+
+        assertThat(client.rate()).isEqualTo(4);
+        assertThat(client.rateTenths()).isEqualTo(7);
     }
 
     @Test

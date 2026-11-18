@@ -7,85 +7,27 @@ import net.minecraft.gametest.framework.GameTestHelper;
  * Fabric entrypoint wiring for the Arboretum GameTests. Test logic lives in
  * {@link ArboretumGameTestBody} (shared with NeoForge — see {@code common/src/gametest}); these
  * methods only carry the {@code @GameTest} annotation Fabric's reflection-based test discovery
- * requires. The {@link ArboretumFieldGameTestBody} tests run at the real Basic tier in the larger
- * {@value #FIELD} structure.
+ * requires.
  */
 public class ArboretumGameTest {
 
-    private static final String FIELD = "logistics_gametest:arboretum_field";
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testPlantsSaplingsOnLattice(GameTestHelper context) {
-        ArboretumGameTestBody.testPlantsSaplingsOnLattice(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 3000)
-    public void testFellsGrownTreeAndReplants(GameTestHelper context) {
-        ArboretumGameTestBody.testFellsGrownTreeAndReplants(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 300)
-    public void testNoPowerPlantsNothing(GameTestHelper context) {
-        ArboretumGameTestBody.testNoPowerPlantsNothing(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 300)
-    public void testRedstoneIgnoredByDefault(GameTestHelper context) {
-        ArboretumGameTestBody.testRedstoneIgnoredByDefault(context);
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2400)
+    public void testFellsHumusTreeWholeAndReplants(GameTestHelper context) {
+        ArboretumGameTestBody.testFellsHumusTreeWholeAndReplants(context);
     }
 
     @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 600)
-    public void testSignalPausesFarmInLowMode(GameTestHelper context) {
-        ArboretumGameTestBody.testSignalPausesFarmInLowMode(context);
+    public void testLeavesTreeOnGrassStanding(GameTestHelper context) {
+        ArboretumGameTestBody.testLeavesTreeOnGrassStanding(context);
     }
 
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testClearsBlocksFromRing(GameTestHelper context) {
-        ArboretumGameTestBody.testClearsBlocksFromRing(context);
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 400)
+    public void testDoesNothingWithoutPower(GameTestHelper context) {
+        ArboretumGameTestBody.testDoesNothingWithoutPower(context);
     }
 
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
-    public void testHumusReplacesDirtAcrossTheRing(GameTestHelper context) {
-        ArboretumGameTestBody.testHumusReplacesDirtAcrossTheRing(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
-    public void testLaysHumusLevelWithFarmOnGrass(GameTestHelper context) {
-        ArboretumGameTestBody.testLaysHumusLevelWithFarmOnGrass(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
-    public void testFelledTreeLeavesSandThatIsRelaidWithHumus(GameTestHelper context) {
-        ArboretumGameTestBody.testFelledTreeLeavesSandThatIsRelaidWithHumus(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 2000)
-    public void testFelled2x2TreeLeavesSandUnderAllFourCells(GameTestHelper context) {
-        ArboretumGameTestBody.testFelled2x2TreeLeavesSandUnderAllFourCells(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 1200)
-    public void testWithoutHumusSandIsLeftUnplanted(GameTestHelper context) {
-        ArboretumGameTestBody.testWithoutHumusSandIsLeftUnplanted(context);
-    }
-
-    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 40)
-    public void testEveryGermlingGrowsOnArboretumSoils(GameTestHelper context) {
-        ArboretumGameTestBody.testEveryGermlingGrowsOnArboretumSoils(context);
-    }
-
-    @GameTest(template = FIELD, timeoutTicks = 6000)
-    public void testBasicRingStaysProductive(GameTestHelper context) {
-        ArboretumFieldGameTestBody.testBasicRingStaysProductive(context);
-    }
-
-    @GameTest(template = FIELD, timeoutTicks = 1200)
-    public void testFellsNeighbouringCanopies(GameTestHelper context) {
-        ArboretumFieldGameTestBody.testFellsNeighbouringCanopies(context);
-    }
-
-    @GameTest(template = FIELD, timeoutTicks = 2400)
-    public void testForeignTreeWoodIsNeverFelled(GameTestHelper context) {
-        ArboretumFieldGameTestBody.testForeignTreeWoodIsNeverFelled(context);
+    @GameTest(template = "fabric-gametest-api-v1:empty", timeoutTicks = 400)
+    public void testRedstoneSignalPausesFarm(GameTestHelper context) {
+        ArboretumGameTestBody.testRedstoneSignalPausesFarm(context);
     }
 }

@@ -1,14 +1,7 @@
 package com.logistics.forestry.farm;
 
-/** Pure display math for {@link FarmScreen}: bar fills and the status lamp colour. */
+/** Pure display math for {@link FarmScreen}: bar fills and the status lamp sprite. */
 public final class FarmGauges {
-
-    /** Status lamp colours; ordinal order matches the lamp sprites in the GUI texture. */
-    public enum Lamp {
-        GREEN,
-        AMBER,
-        RED
-    }
 
     private FarmGauges() {}
 
@@ -23,11 +16,13 @@ public final class FarmGauges {
         return (int) (amount * length / capacity);
     }
 
-    public static Lamp lamp(FarmStatus status) {
-        return switch (status) {
-            case WORKING -> Lamp.GREEN;
-            case IDLE, PAUSED, SURVEYING -> Lamp.AMBER;
-            default -> Lamp.RED;
+    /** The status lamp sprite for {@code status}, counted along the GUI texture's row: green, amber, red. */
+    public static int lampSprite(FarmStatus status) {
+        return switch (FarmLamp.forStatus(status)) {
+            case GREEN -> 0;
+            case AMBER -> 1;
+            case RED -> 2;
+            case OFF -> throw new IllegalArgumentException("The GUI has no unpowered lamp sprite");
         };
     }
 }
