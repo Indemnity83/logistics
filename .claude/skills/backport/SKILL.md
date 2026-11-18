@@ -402,6 +402,29 @@ though every bad file failed independently (RecipeManager logs-and-skips per fil
 still succeeds); redirect to a file and `grep` the whole thing, and sanity-check the final
 `Loaded N recipes` count against a pre-fix baseline rather than trusting an empty grep on a truncated tail.
 
+**Screen text drawing (found porting the side tabs, #1467):** `GuiGraphicsExtractor.textWithWordWrap(...)`
+returns the y below the last line on **26.3** but `void` on **26.2/26.1**; there, call it and return
+`font.wordWrapHeight(text, maxWidth)`. **1.21.11** (classic `GuiGraphics`) uses `drawString` for `text`,
+and `drawWordWrap` returns void; the height is `font.split(text, w).size() * font.lineHeight`. **1.21.1**'s
+`drawWordWrap` has no shadow flag, so shadowed wrapped text needs a manual `font.split` + `drawString` loop.
+
+**Widget tint and tooltips (`mc/1.21.1`):** `blitSprite` takes no color. Tint by wrapping the blit in
+`graphics.setColor(r,g,b,a)` + `RenderSystem.enableBlend()`, then reset with `setColor(1,1,1,1)`, as vanilla
+widgets do. There is no `setTooltipForNextFrame`; use `screen.setTooltipForNextRenderPass(List<FormattedCharSequence>)`,
+which is deferred to the end of the frame, so it draws above slots and the carried item.
+
+**Widget input:** `mouseClicked(MouseButtonEvent, boolean)` on **26.x and 1.21.11**, `mouseClicked(double, double,
+int)` on **1.21.1**. `ContainerEventHandler.mouseClicked` returns true when *any* child is under the cursor on 26.x
+and 1.21.11, but on **1.21.1** only when a child *consumes* the click, so a widget outside the slots must return
+true for every button inside its bounds there, or the click falls through to slot handling. Compare buttons
+against `InputConstants.MOUSE_BUTTON_LEFT`, never a literal: **26.3** uses SDL numbers (LEFT=1, RIGHT=3), older
+versions 0/1. `AbstractContainerScreen.hasClickedOutside` takes 4 args on 26.x/1.21.11 and 5 on 1.21.1. Machine
+screens on 1.21.1 have no recipe book, so recipe-book screen code (the private constructor capturing the book,
+`hideSideWhen`) drops out there.
+
+**JEI plugin id (`mc/1.21.1`):** `IModPlugin.getPluginUid()` returns `ResourceLocation`. The GUI extra-area hooks
+(`addGenericGuiContainerHandler`, `getGuiExtraAreas`) are unchanged on every branch.
+
 **Item models (`mc/1.21.1`):** ignores `assets/<ns>/items/**` (the 1.21.4+ item-model-definition
 system). Put the item model at `assets/<ns>/models/item/.../<name>.json`
 (`{"parent":"<ns>:block/..."}`) and drop the `items/**` file. See memory
@@ -416,6 +439,10 @@ works as a drop-in replacement for `throw context.assertionException(msg)` insid
 `succeedWhen(() -> {...})` polling callback — `assertTrue(false, msg)` throws the same way, so
 polling retries exactly like the original). Mirror an existing 1.21.1 gametest (`PipeFlowGameTest`,
 `CableGameTest`).
+
+**Fabric client gametests:** `singleplayer.getConnection()` is 26.3-only; 26.2/26.1 use `getClientLevel()` and
+1.21.11 `getClientWorld()`. `client.resizeGui()` is `resizeDisplay()` on 1.21.11. **`mc/1.21.1` has no Fabric
+client-gametest module**: drop the client gametest there and note a manual in-game check in the commit.
 
 **Mock players in gametests (`makeMockServerPlayer` is 26.2-ONLY):** confirmed absent via `javap` on
 mc/26.1, mc/1.21.11 AND mc/1.21.1 — `GameTestHelper.makeMockServerPlayer(GameType)` was added in 26.2.
