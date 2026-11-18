@@ -37,6 +37,8 @@ public class ArboretumGameTestBody {
     private static final BlockPos ENGINE_SWITCH = ENGINE.north();
     private static final BlockPos OUTPUT_HOPPER = FARM.below();
     private static final BlockPos CHEST = OUTPUT_HOPPER.north();
+    /** A redstone block here locks the output hopper; it touches neither the farm nor the chest. */
+    private static final BlockPos HOPPER_LOCK = OUTPUT_HOPPER.east();
 
     /** Where the tree's trunk stands: three blocks out, on the ground level with the farm's base. */
     private static final BlockPos TRUNK = FARM.south(3);
@@ -51,27 +53,36 @@ public class ArboretumGameTestBody {
      * An oak bone-mealed on Humus in the Reach grows the small Humus tree; the farm fells it whole,
      * logs above its Reach included, replants an oak sapling on the Humus, and the hopper pulls the
      * logs out into the chest.
+     *
+     * <p>The hopper stays locked until the replant: it would otherwise pull the spare sapling out of
+     * the farm within ticks, leaving the replant to the leaves' chance of dropping one.
      */
     public static void testFellsHumusTreeWholeAndReplants(GameTestHelper context) {
         FarmBlockEntity farm = rig(context, LogisticsForestry.BLOCK.HUMUS.defaultBlockState(), true);
         if (farm == null) {
             return;
         }
+        context.setBlock(HOPPER_LOCK, Blocks.REDSTONE_BLOCK);
 
-        context.succeedWhen(() -> {
-            assertNoTreeLeft(context);
-            BlockState replant = context.getBlockState(TRUNK);
-            if (!replant.is(Blocks.OAK_SAPLING)) {
-                throw context.assertionException(TRUNK, "The Humus should be replanted with an oak sapling, holds "
-                        + replant + "; farm reports " + farm.status());
-            }
-            if (!context.getBlockState(TRUNK.below()).is(LogisticsForestry.BLOCK.HUMUS)) {
-                throw context.assertionException(TRUNK.below(), "The Humus should stay Humus");
-            }
-            if (!chestHolds(context, Items.OAK_LOG)) {
-                throw context.assertionException(CHEST, "The hopper should pull the felled logs into the chest");
-            }
-        });
+        context.startSequence()
+                .thenWaitUntil(() -> {
+                    assertNoTreeLeft(context);
+                    BlockState replant = context.getBlockState(TRUNK);
+                    if (!replant.is(Blocks.OAK_SAPLING)) {
+                        throw context.assertionException(TRUNK, "The Humus should be replanted with an oak sapling, holds "
+                                + replant + "; farm reports " + farm.status());
+                    }
+                    if (!context.getBlockState(TRUNK.below()).is(LogisticsForestry.BLOCK.HUMUS)) {
+                        throw context.assertionException(TRUNK.below(), "The Humus should stay Humus");
+                    }
+                })
+                .thenExecute(() -> context.setBlock(HOPPER_LOCK, Blocks.AIR))
+                .thenWaitUntil(() -> {
+                    if (!chestHolds(context, Items.OAK_LOG)) {
+                        throw context.assertionException(CHEST, "The hopper should pull the felled logs into the chest");
+                    }
+                })
+                .thenSucceed();
     }
 
     /** A tree grown on grass inside the Reach is never felled. */
