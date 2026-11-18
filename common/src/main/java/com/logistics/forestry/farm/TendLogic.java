@@ -87,6 +87,11 @@ public interface TendLogic {
      * One harvest: break {@code blocks} in order, then replant {@code plot} with one {@code germling}.
      * Leftover drops spill at {@code plot}. A multi-block list (a tree) is broken across ticks and
      * must be ordered so that breaking it in order never leaves a block unsupported.
+     *
+     * <p>{@code blocks} need not include {@code plot}: a harvest that takes only what grew from a
+     * plant that stays (a stalk above its base) {@linkplain #keepsPlot keeps its plot}. Its plant
+     * keeps the Plot, and there is nothing to replant unless the plant is gone by the time the
+     * harvest finishes.
      */
     record Harvest(BlockPos plot, List<BlockPos> blocks, ItemStack germling) {
         public Harvest {
@@ -99,6 +104,11 @@ public interface TendLogic {
         /** Harvests the single block at {@code plot}. */
         public static Harvest single(BlockPos plot, ItemStack germling) {
             return new Harvest(plot, List.of(plot), germling);
+        }
+
+        /** Whether this harvest leaves its plot's own plant standing: {@code blocks} does not include {@code plot}. */
+        public boolean keepsPlot() {
+            return !blocks.contains(plot);
         }
 
         /** Whether {@code stack} is the germling that replants this harvest's plot. */

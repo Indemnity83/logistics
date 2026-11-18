@@ -28,6 +28,7 @@ public class ForestryJeiPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         info(registration, LogisticsForestry.BLOCK.CROP_FARM, "crop_farm");
         info(registration, LogisticsForestry.BLOCK.ARBORETUM, "arboretum");
+        info(registration, LogisticsForestry.BLOCK.PLANTATION, "plantation");
         info(registration, LogisticsForestry.BLOCK.HUMUS, "humus");
     }
 
