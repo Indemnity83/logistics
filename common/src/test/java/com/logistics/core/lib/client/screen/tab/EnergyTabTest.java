@@ -23,6 +23,7 @@ class EnergyTabTest {
         long stored;
         long capacity;
         long rate;
+        int rateTenths;
         long maxRate;
 
         FakeEnergy(long stored, long capacity, long rate, long maxRate) {
@@ -50,6 +51,11 @@ class EnergyTabTest {
         @Override
         public long rate() {
             return rate;
+        }
+
+        @Override
+        public int rateTenths() {
+            return rateTenths;
         }
 
         @Override
@@ -157,6 +163,20 @@ class EnergyTabTest {
         EnergyTab tab = new EnergyTab(new FakeEnergy(0, 0, 12_500, 0), EnergyTab.Mode.USAGE);
 
         assertThat(tab.statusLines()).extracting(EnglishLang::resolve).containsExactly("12,500 RF/t");
+    }
+
+    @Test
+    @DisplayName("a rate with a tenths digit shows one decimal, and a whole rate none")
+    void fractionalRate() {
+        FakeEnergy energy = new FakeEnergy(0, 0, 0, 0);
+        energy.rateTenths = 4;
+        EnergyTab tab = new EnergyTab(energy, EnergyTab.Mode.USAGE);
+
+        assertThat(tab.statusLines()).extracting(EnglishLang::resolve).containsExactly("0.4 RF/t");
+
+        energy.rate = 1_234;
+        energy.rateTenths = 5;
+        assertThat(tab.statusLines()).extracting(EnglishLang::resolve).containsExactly("1,234.5 RF/t");
     }
 
     @Test

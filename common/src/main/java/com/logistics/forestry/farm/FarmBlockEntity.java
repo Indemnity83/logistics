@@ -81,10 +81,15 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine {
         }
     }
 
-    /** RF/t spent on farm work, averaged over the last {@link FarmEnergyRate#WINDOW} ticks. */
+    /** Whole RF/t spent on farm work, averaged over the last {@link FarmEnergyRate#WINDOW} ticks. */
     @Override
     public long energyRate() {
-        return usage.perTick();
+        return usage.tenthsPerTick() / 10;
+    }
+
+    @Override
+    public int energyRateTenths() {
+        return (int) (usage.tenthsPerTick() % 10);
     }
 
     @Override

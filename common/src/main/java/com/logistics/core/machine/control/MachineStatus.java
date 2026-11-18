@@ -39,6 +39,14 @@ public interface MachineStatus {
      */
     long energyRate();
 
+    /**
+     * The tenths digit of {@link #energyRate}, 0-9, for a host whose rate is an average that can fall
+     * between whole RF; {@link #energyRate} is then the whole RF below it.
+     */
+    default int energyRateTenths() {
+        return 0;
+    }
+
     /** The ceiling for {@link #energyRate}: a machine's maximum input, or an engine's maximum generation. */
     long energyMaxRate();
 }
