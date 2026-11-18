@@ -72,7 +72,6 @@ jobs:
             common
             fabric
             neoforge
-            docs
             build
             ci
             release

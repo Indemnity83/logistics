@@ -786,7 +786,7 @@ Scopes identify the mod's product surface or implementation area.
 
 **Framework / internal scopes:** `core`, `automation`, `api`, `common`.
 **Platform scopes:** `fabric`, `neoforge`, `compat`.
-**Project scopes:** `docs`, `build`, `ci`, `release`.
+**Project scopes:** `build`, `ci`, `release`.
 
 Pipe-related scope rules:
 - `transport` — basic item transport pipes
@@ -803,6 +803,9 @@ Other rules:
 - Use `fabric` and `neoforge` for loader-specific implementation work.
 - Repo automation: `build` (Gradle, mappings, dependencies, publishing), `ci` (GitHub Actions /
   validation), `release` (release-please, versions, changelog configuration).
+- A `docs` change takes the scope of what it documents: a design brief or plan its product scope
+  (`docs(farming)`), agent guidance and dev tooling `build`, branch and release process `release`.
+  There is no `docs` scope.
 - Do not use `logistics` (too broad — it's the mod name; use `routing` for smart-pipe behavior) or
   `fluid-pipes` (folded into `fluids`).
 
