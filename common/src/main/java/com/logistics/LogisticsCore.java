@@ -489,8 +489,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
         public static Item SULFUR_DUST;
         public static Item QUICKSILVER;
         public static Item SALTPETER;
-        public static Item SILICON_MIX;
-        public static Item SILICON_WAFER;
         public static Item FLOUR;
         public static Item SAWDUST;
         public static Item PEAT;
@@ -597,8 +595,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             SULFUR_DUST = INSTANCE.registerItem("sulfur_dust", Item::new);
             QUICKSILVER = INSTANCE.registerItem("quicksilver", Item::new);
             SALTPETER = INSTANCE.registerItem("saltpeter", Item::new);
-            SILICON_MIX = INSTANCE.registerItem("silicon_mix", Item::new);
-            SILICON_WAFER = INSTANCE.registerItem("silicon_wafer", Item::new);
             FLOUR = INSTANCE.registerItem("flour", Item::new);
             SAWDUST = INSTANCE.registerItem("sawdust", Item::new);
             PEAT = INSTANCE.registerItem("peat", Item::new);
@@ -703,7 +699,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
             // Components
             TAB.add(ITEM.MACHINE_CORE);
             TAB.add(ITEM.REDSTONE_RECEPTION_COIL);
-            TAB.add(ITEM.SILICON_WAFER);
             TAB.add(BLOCK.MARKER);
             TAB.add(BLOCK.QUARTZ_CRYSTAL);
 
@@ -766,7 +761,6 @@ public final class LogisticsCore extends LogisticsMod implements DomainBootstrap
 
             // Byproducts and intermediates
             TAB.add(ITEM.PEAT);
-            TAB.add(ITEM.SILICON_MIX);
             TAB.add(ITEM.SLAG);
             TAB.add(ITEM.RICH_SLAG);
             TAB.add(ITEM.SALTPETER);
