@@ -42,7 +42,7 @@ Powered, network-aware pipes that supply, request, and craft on demand.
 * '''[[Crafting Logistics Pipe]]''' - Craft items on demand
 * '''[[Process Logistics Pipe]]''' - Automate processing machines
 * '''[[Satellite Logistics Pipe]]''' - Named remote destinations
-* '''[[Chassis Logistics Pipe]]''' (MK1–MK5) - Modular, module-driven behavior
+* '''[[Chassis Logistics Pipe]]''' (MkI–MkV) - Modular, module-driven behavior
 
 [[Pipes|Browse all pipes →]]
 
@@ -67,7 +67,7 @@ Modules are installed into [[Chassis Logistics Pipe|Chassis Logistics Pipes]] to
 * '''[[Provider Module]]''' - Advertise inventory contents to the network
 * '''[[Passive Supplier Module]]''' / '''[[Active Supplier Module]]''' - Maintain inventory stock levels (skim in-transit vs actively request)
 * '''[[Crafter Module]]''' - Craft items on demand within the chassis
-* '''[[QuickSort Module]]''' - Sort items into designated storage
+* '''[[QuickSort Module]]''' - Empty an inventory into filtered sinks
 * '''[[Terminus Module]]''' - Mark a network dead-end
 * '''[[ItemSink Module]]''' / '''[[Polymorphic ItemSink Module|Polymorphic Sink]]''' / '''[[Enchantment Sink Module|Enchantment Sink]]''' / '''[[Mod-Based ItemSink Module|Mod Item Sink]]''' - Accept items by type, content, or mod namespace
 

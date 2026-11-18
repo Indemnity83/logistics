@@ -37,7 +37,8 @@ Stocking modes control how aggressively it orders:
 * '''Bulk 50%''' — request in bulk once stock drops to half the target.
 * '''Partial''' — request whatever is currently available (default).
 * '''Full''' — only request when the entire missing amount is available (all-or-nothing).
-* '''Bulk 100%''' — request whenever any amount is missing.
+* '''Bulk 100%''' — request in bulk only once the item has run out completely.
+* '''Infinite''' — ignore the target and keep filling all free space, one stack at a time.
 
 Use it for machine input buffers (furnaces, kilns) that must never run dry, and choose '''Full''' mode when a partial delivery would waste a craft. Pairing it with a [[Provider Module]] on a nearby chassis forms a closed-loop supply system.
 

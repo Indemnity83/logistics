@@ -9,7 +9,7 @@
 |added     = v0.7.3
 }}
 
-The '''Golden Fluid Pipe''' is the fastest passive [[Fluid Pipes|fluid pipe]] — 80 mB/t. It is the fluid counterpart of the [[Golden Transport Pipe]].
+The '''Golden Fluid Pipe''' is the fastest passive [[Fluid Pipes|fluid pipe]] — 40 mB/t. It is the fluid counterpart of the [[Golden Transport Pipe]].
 
 == Obtaining ==
 
@@ -32,7 +32,7 @@ Seal the [[Golden Transport Pipe]] with a {{Mcw|Slime Ball|slime ball}} or [[Tar
 
 == Usage ==
 
-Golden fluid pipes passively carry fluid at '''80 mB/t''', eight times a copper pipe. Use them on high-demand runs; the slowest pipe on a line still caps the whole line's throughput.
+Golden fluid pipes passively carry fluid at '''40 mB/t''', twice a copper pipe. Use them on high-demand runs; the slowest pipe on a line still caps the whole line's throughput.
 
 == Data values ==
 
@@ -50,7 +50,7 @@ Golden fluid pipes passively carry fluid at '''80 mB/t''', eight times a copper 
 
 * [[Fluid Pipes]] - All fluid pipes
 * [[Golden Transport Pipe]] - The item-transport counterpart
-* [[Copper Fluid Pipe]] - The standard 10 mB/t pipe
+* [[Copper Fluid Pipe]] - The standard 20 mB/t pipe
 * [[Glass Tank]] - Fluid storage
 
 {{Navbox Logistics}}

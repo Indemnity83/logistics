@@ -31,7 +31,9 @@ The Supplier Logistics Pipe checks its inventory every second against up to 9 su
 |-
 | '''Partial''' || Request whatever is available, up to the needed amount (default)
 |-
-| '''Stocked''' || Only order once stock drops to 50% or below, then request the full shortfall
+| '''Bulk 50%''' || Only order once stock drops to 50% or below, then request the full shortfall
+|-
+| '''Bulk 100%''' || Only order once the item has run out completely, then request the full target
 |-
 | '''Infinite''' || Ignore the target; continuously fill all space, one stack at a time
 |-

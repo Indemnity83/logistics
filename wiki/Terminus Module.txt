@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''Terminus Module''' is a [[Chassis Logistics Pipe]] module that marks the chassis as a '''network terminus''' — a defined end-point in the [[Pipe Networks|logistics network]]. Items routed to this terminus are held or redirected according to the module's configuration.
+The '''Terminus Module''' is a [[Chassis Logistics Pipe]] module that accepts filtered items from the [[Pipe Networks|logistics network]] into an adjacent inventory, at a lower [[Modules#Sink priority|sink priority]] than an [[ItemSink Module]].
 
 == Obtaining ==
 
@@ -22,14 +22,13 @@ The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset
 
 == Usage ==
 
-When installed in a [[Chassis Logistics Pipe]], the Terminus Module prevents items from passing further through the network at this pipe. Items that arrive here are deposited into an adjacent inventory. It effectively creates a dead-end in the network, ensuring items don't loop or get lost.
+The Terminus Module is a filter-only sink. Configure up to 9 item types with a [[Wrench]]; network items of those types are routed to this chassis and deposited into an adjacent inventory.
 
-* Marks the chassis as a network dead-end.
-* Items arriving at this point are deposited into an adjacent inventory.
-* Prevents routing loops in complex networks.
-* Can be combined with filter modules to create a selective terminus.
+* Accepts only items that match its filter.
+* Cannot be set as a default route, so it never catches unfiltered items.
+* Sits at priority 4 on the [[Modules#Sink priority|sink priority]] ladder: an [[ItemSink Module]], [[Polymorphic ItemSink Module]], [[Mod-Based ItemSink Module]] or [[Basic Logistics Pipe]] that accepts the same item takes it first. It outranks only the [[Enchantment Sink Module]] and default routes.
 
-Place it at the physical end of a pipe run to stop items from bouncing back into the network, and combine it with an [[ItemSink Module]] to deposit specific item types at the terminus.
+Use it for overflow storage: items go to it only when no higher-priority sink accepts them or has room.
 
 == Data values ==
 
@@ -46,8 +45,7 @@ Place it at the physical end of a pipe run to stop items from bouncing back into
 * [[Modules]] - All available modules
 * [[Chassis Logistics Pipe]] - Required container
 * [[Blank Module]] - Crafting base
-* [[ItemSink Module]] - Accept specific items at the terminus
-* [[Satellite Logistics Pipe]] - Named remote destinations
+* [[ItemSink Module]] - The higher-priority filtered sink
 * [[Pipe Networks]] - Network topology concepts
 * [[Gears]] - Crafting component
 * [[Chipsets]] - Alternative to the gear

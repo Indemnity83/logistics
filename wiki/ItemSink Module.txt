@@ -36,7 +36,7 @@ Use a [[Wrench]] to open the chassis GUI, then configure the module:
 
 '''Target item slot:''' Place the item type this module should accept. Only items matching this type will be routed here.
 
-Install several Item Sink Modules in one chassis to make a multi-item sorting station in a single pipe, or pair one with a [[QuickSort Module]] so quicksort handles known items and the Item Sink catches the rest.
+Install several Item Sink Modules in one chassis to make a multi-item sorting station in a single pipe, and a [[QuickSort Module]] elsewhere on the network can empty a mixed chest into it.
 
 == Data values ==
 

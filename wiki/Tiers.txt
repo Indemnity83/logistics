@@ -22,7 +22,7 @@ A cable's tier sets how much RF it moves per tick; a battery's tier sets how muc
 
 A '''mark''' is a numbered variant of a chassis or module (MkI, MkII, MkIII…) that raises its limits:
 
-* [[Chassis Logistics Pipe]] — MkI to MkV, one more module slot per mark
+* [[Chassis Logistics Pipe]] — MkI to MkV, holding 1, 2, 3, 4 and 8 module slots
 * [[Extractor Module]] and [[Crafter Module]] — up to MkIII
 * [[Provider Module]] — up to MkII
 

@@ -7,15 +7,15 @@ All modules are crafted from a [[Blank Module]] base component.
 {| class="wikitable"
 ! Chassis !! Slots
 |-
-| [[Chassis Logistics Pipe|MK1]] || 1
+| [[Chassis Logistics Pipe|MkI]] || 1
 |-
-| [[Chassis Logistics Pipe|MK2]] || 2
+| [[Chassis Logistics Pipe|MkII]] || 2
 |-
-| [[Chassis Logistics Pipe|MK3]] || 3
+| [[Chassis Logistics Pipe|MkIII]] || 3
 |-
-| [[Chassis Logistics Pipe|MK4]] || 4
+| [[Chassis Logistics Pipe|MkIV]] || 4
 |-
-| [[Chassis Logistics Pipe|MK5]] || 5
+| [[Chassis Logistics Pipe|MkV]] || 8
 |}
 
 ==Base Component==
@@ -48,8 +48,8 @@ Automate item crafting within the chassis.
 
 Control where items go within the network.
 
-* [[File:Grid QuickSort Module.png|24px|link=QuickSort Module]] '''[[QuickSort Module]]''' - Sort items by type into designated storage locations
-* [[File:Grid Terminus Module.png|24px|link=Terminus Module]] '''[[Terminus Module]]''' - Mark a pipe as a network terminus; items reaching this pipe are held or redirected
+* [[File:Grid QuickSort Module.png|24px|link=QuickSort Module]] '''[[QuickSort Module]]''' - Empty an adjacent inventory into filtered sinks
+* [[File:Grid Terminus Module.png|24px|link=Terminus Module]] '''[[Terminus Module]]''' - A filter-only, low-priority sink for overflow
 
 ==Sink Modules==
 

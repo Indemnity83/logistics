@@ -9,7 +9,7 @@
 |added     = v0.7.3
 }}
 
-The '''Copper Fluid Pipe''' is the standard passive [[Fluid Pipes|fluid pipe]] — 10 mB/t. It is the fluid counterpart of the [[Copper Transport Pipe]].
+The '''Copper Fluid Pipe''' is the standard passive [[Fluid Pipes|fluid pipe]] — 20 mB/t. It is the fluid counterpart of the [[Copper Transport Pipe]].
 
 == Obtaining ==
 
@@ -32,7 +32,7 @@ Seal the [[Copper Transport Pipe]] with a {{Mcw|Slime Ball|slime ball}} or [[Tar
 
 == Usage ==
 
-Copper fluid pipes passively carry fluid at '''10 mB/t''' and form most of a fluid line's length. They oxidize cosmetically like vanilla copper, with no effect on transport.
+Copper fluid pipes passively carry fluid at '''20 mB/t''', twice a stone pipe, and form most of a fluid line's length. They oxidize cosmetically like vanilla copper, with no effect on transport.
 
 == Data values ==
 
@@ -50,7 +50,7 @@ Copper fluid pipes passively carry fluid at '''10 mB/t''' and form most of a flu
 
 * [[Fluid Pipes]] - All fluid pipes
 * [[Copper Transport Pipe]] - The item-transport counterpart
-* [[Golden Fluid Pipe]] - The faster upgrade (80 mB/t)
+* [[Golden Fluid Pipe]] - The faster upgrade (40 mB/t)
 * [[Glass Tank]] - Fluid storage
 
 {{Navbox Logistics}}

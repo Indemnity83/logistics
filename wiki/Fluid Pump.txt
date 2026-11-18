@@ -46,7 +46,7 @@ The Pump lowers an intake tube from its underside to reach the fluid below. The 
 
 The Pump runs on [[RF Energy|RF]] and keeps its own internal buffer. Supply it with RF from your power system — an [[Engines|engine]], a [[Batteries|battery]], or [[Cables]] — to keep it draining; with no power it stops.
 
-Place a [[Glass Tank]] or [[Copper Fluid Pipe]] against the output to carry away what it draws, and buffer the output in stacked [[Glass Tank|tanks]] so the pump keeps draining even when the network is briefly full. Use a [[Golden Fluid Pipe]] (80 mB/t) if you need to move fluid faster than one pump produces; to pull fluid out of a machine's tank instead of the world, use a [[Fluid Extractor Pipe]] instead.
+Place a [[Glass Tank]] or [[Copper Fluid Pipe]] against the output to carry away what it draws, and buffer the output in stacked [[Glass Tank|tanks]] so the pump keeps draining even when the network is briefly full. Even a [[Golden Fluid Pipe]] carries only 40 mB/t, less than one pump's sustained output. To pull fluid out of a machine's tank instead of the world, use a [[Fluid Extractor Pipe]].
 
 == Data values ==
 
