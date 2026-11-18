@@ -157,12 +157,8 @@ public class MagmaticEngineScreen extends AbstractContainerScreen<MagmaticEngine
         };
     }
 
-    private static String thermalKey(HeatStage stage) {
-        return switch (stage) {
-            case WARM -> "tooltip.logistics.magmatic_engine.thermal.hot";
-            case COOL -> "tooltip.logistics.magmatic_engine.thermal.warm";
-            default -> "tooltip.logistics.magmatic_engine.thermal.cold";
-        };
+    static String thermalKey(HeatStage stage) {
+        return stage.translationKey();
     }
 
     private static ChatFormatting thermalColor(HeatStage stage) {

@@ -22,6 +22,11 @@ public enum HeatStage implements StringRepresentable {
         return name().toLowerCase(Locale.ROOT);
     }
 
+    /** Lang key of the stage's player-facing name, shared by the HUD and the engine screens. */
+    public String translationKey() {
+        return "gui.logistics.engine.heat_stage." + getSerializedName();
+    }
+
     public static HeatStage fromOrdinal(int ordinal) {
         return (ordinal >= 0 && ordinal < VALUES.length) ? VALUES[ordinal] : COLD;
     }
