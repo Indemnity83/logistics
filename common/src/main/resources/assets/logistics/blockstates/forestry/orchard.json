@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "lamp=off": {
+      "model": "logistics:block/forestry/orchard"
+    },
+    "lamp=red": {
+      "model": "logistics:block/forestry/orchard_red"
+    },
+    "lamp=amber": {
+      "model": "logistics:block/forestry/orchard_amber"
+    },
+    "lamp=green": {
+      "model": "logistics:block/forestry/orchard_green"
+    }
+  }
+}

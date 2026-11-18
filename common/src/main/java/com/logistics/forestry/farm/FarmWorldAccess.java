@@ -45,4 +45,10 @@ public interface FarmWorldAccess extends FarmWorld {
 
     /** Drops {@code stacks} as loose items at {@code pos}; nothing happens where it is not loaded. */
     void dropStacks(BlockPos pos, List<ItemStack> stacks);
+
+    /** The world's {@code randomTickSpeed} game rule, read live: random ticks per 4096 blocks per tick. */
+    int randomTickSpeed();
+
+    /** Shows a few particles of the block at {@code pos} rustling, e.g. leaves a fruit was picked from. */
+    void rustle(BlockPos pos);
 }

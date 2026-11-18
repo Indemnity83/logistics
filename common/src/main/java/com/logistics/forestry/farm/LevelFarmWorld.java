@@ -1,9 +1,12 @@
 package com.logistics.forestry.farm;
 
+import com.logistics.core.lib.compat.GameRuleCompat;
 import com.logistics.core.lib.compat.ProtectionCompat;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -75,5 +78,23 @@ public final class LevelFarmWorld implements FarmWorldAccess {
                 Block.popResource(level, pos, stack.copy());
             }
         }
+    }
+
+    @Override
+    public int randomTickSpeed() {
+        return GameRuleCompat.randomTickSpeed(level);
+    }
+
+    @Override
+    public void rustle(BlockPos pos) {
+        if (!isLoaded(pos)) {
+            return;
+        }
+        BlockState state = level.getBlockState(pos);
+        if (state.isAir()) {
+            return;
+        }
+        level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state),
+                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 4, 0.3, 0.3, 0.3, 0.0);
     }
 }
