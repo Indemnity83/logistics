@@ -1,5 +1,6 @@
 package com.logistics.forestry.farm;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -46,6 +47,15 @@ public interface TendLogic {
     @Nullable
     default ItemStack growing(FarmWorld world, BlockPos pos) {
         return null;
+    }
+
+    /**
+     * Neighbours of {@code pos} whose plant belongs to what stands at {@code pos} (the pods hanging
+     * on a log), so that one just outside the Reach is tended from {@code pos} as if it were inside.
+     * Only called while {@code pos} is loaded and in the Reach. Defaults to none.
+     */
+    default Collection<BlockPos> attached(FarmWorld world, BlockPos pos) {
+        return List.of();
     }
 
     /** What this farm type pays each tick for each Plot it maintains. */

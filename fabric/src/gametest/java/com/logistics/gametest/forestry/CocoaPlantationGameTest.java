@@ -21,6 +21,11 @@ public class CocoaPlantationGameTest {
         CocoaPlantationGameTestBody.testHopperFedBeansReplantEmptyPlots(context);
     }
 
+    @GameTest(maxTicks = 1200)
+    public void testPicksAndRefillsPodOutsideReachOnLogInside(GameTestHelper context) {
+        CocoaPlantationGameTestBody.testPicksAndRefillsPodOutsideReachOnLogInside(context);
+    }
+
     @GameTest(maxTicks = 400)
     public void testDoesNothingWithoutPower(GameTestHelper context) {
         CocoaPlantationGameTestBody.testDoesNothingWithoutPower(context);

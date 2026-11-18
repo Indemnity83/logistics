@@ -121,6 +121,33 @@ public class CocoaPlantationGameTestBody {
                 .thenSucceed();
     }
 
+    /**
+     * A pod on the outer face of a log on the Reach's edge, one block outside the Reach, is picked and
+     * replanted; once the player breaks the replant, the farm refills it from the beans it kept.
+     */
+    public static void testPicksAndRefillsPodOutsideReachOnLogInside(GameTestHelper context) {
+        BlockPos log = FARM.east(3);
+        Pod outer = new Pod(log.east(), Direction.WEST);
+        context.setBlock(log, Blocks.JUNGLE_LOG);
+        context.setBlock(outer.pos(), outer.state(CocoaBlock.MAX_AGE));
+        FarmBlockEntity farm = build(context, List.of(), List.of(), 0, true);
+        if (farm == null) {
+            return;
+        }
+        farm.setRateOverride(CHECKS_PER_SECOND, 20);
+
+        context.startSequence()
+                .thenWaitUntil(() -> {
+                    assertGrowingPod(context, outer, "The ripe pod outside the Reach should be picked and replanted");
+                    if (!context.getBlockState(log).is(Blocks.JUNGLE_LOG)) {
+                        throw context.assertionException(log, "The farm should never touch the log");
+                    }
+                })
+                .thenExecute(() -> context.setBlock(outer.pos(), Blocks.AIR))
+                .thenWaitUntil(() -> assertGrowingPod(context, outer, "The Empty Plot outside the Reach should be refilled"))
+                .thenSucceed();
+    }
+
     /** Without power the farm picks nothing, and reports No power. */
     public static void testDoesNothingWithoutPower(GameTestHelper context) {
         FarmBlockEntity farm = build(context, CocoaBlock.MAX_AGE, false);
@@ -150,8 +177,14 @@ public class CocoaPlantationGameTestBody {
      */
     @Nullable
     private static FarmBlockEntity build(GameTestHelper context, int age, boolean powered) {
-        LOGS.forEach(log -> context.setBlock(log, Blocks.JUNGLE_LOG));
-        PODS.forEach(pod -> context.setBlock(pod.pos(), pod.state(age)));
+        return build(context, LOGS, PODS, age, powered);
+    }
+
+    @Nullable
+    private static FarmBlockEntity build(
+            GameTestHelper context, List<BlockPos> logs, List<Pod> pods, int age, boolean powered) {
+        logs.forEach(log -> context.setBlock(log, Blocks.JUNGLE_LOG));
+        pods.forEach(pod -> context.setBlock(pod.pos(), pod.state(age)));
         context.setBlock(FARM, LogisticsForestry.BLOCK.COCOA_PLANTATION.defaultBlockState());
         FarmBlockEntity farm = context.getBlockEntity(FARM, FarmBlockEntity.class);
         if (farm == null) {

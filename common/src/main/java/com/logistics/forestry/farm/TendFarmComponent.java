@@ -11,11 +11,13 @@ import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.logic.LevelTreeView;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -49,6 +51,10 @@ import org.jetbrains.annotations.Nullable;
  * ground repaired first ({@link TendLogic#plotGround}), as soon as its germling is in the inventory.
  * A Plot is forgotten once its ground can no longer hold it or anything other than its own plant
  * stands on it; cover that planting replaces (snow, grass) leaves it an Empty Plot.
+ *
+ * <p>A position just outside the Reach is looked after from the Reach position beside it when the
+ * logic names it {@linkplain TendLogic#attached attached} there (a pod on a log in the Reach), and
+ * once it is a Plot, from then on: it is harvested, kept and forgotten like any other Plot.
  *
  * <p>Each tick, before any action, the farm pays its upkeep: {@link TendLogic#upkeep}'s RF/t for
  * every Plot, Empty Plots included, fractions carried until they make a whole RF. While it cannot
@@ -382,6 +388,61 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         if (!counted.isLoaded(pos)) {
             return FarmStatus.IDLE;
         }
+        FarmStatus outcome = visitPlot(origin, pos, s);
+        for (BlockPos beside : beyondReach(origin, pos)) {
+            if (outcome == FarmStatus.WORKING || outcome == FarmStatus.NO_POWER) {
+                return outcome;
+            }
+            if (!counted.isLoaded(beside)) {
+                continue;
+            }
+            FarmStatus found = visitPlot(origin, beside, s);
+            if (outcome == FarmStatus.IDLE) {
+                outcome = found;
+            } else if (found == FarmStatus.WORKING || found == FarmStatus.NO_POWER) {
+                return found;
+            }
+        }
+        return outcome;
+    }
+
+    /**
+     * The neighbours of {@code pos} outside the Reach that the scan looks after from it: those
+     * {@link TendLogic#attached} names, and the Plots remembered there.
+     */
+    private List<BlockPos> beyondReach(BlockPos origin, BlockPos pos) {
+        List<BlockPos> beside = List.of();
+        Collection<BlockPos> attached = null;
+        for (Direction side : Direction.values()) {
+            BlockPos next = pos.relative(side);
+            if (inReach(origin, next)) {
+                continue;
+            }
+            if (plots.germling(next) == null) {
+                if (attached == null) {
+                    attached = logic.attached(counted, pos);
+                }
+                if (!attached.contains(next)) {
+                    continue;
+                }
+            }
+            if (beside.isEmpty()) {
+                beside = new ArrayList<>(2);
+            }
+            beside.add(next);
+        }
+        return beside;
+    }
+
+    /** Whether {@code pos} lies in the Reach of the farm at {@code origin}, the farm itself included. */
+    private static boolean inReach(BlockPos origin, BlockPos pos) {
+        return Math.abs(pos.getX() - origin.getX()) <= REACH
+                && Math.abs(pos.getZ() - origin.getZ()) <= REACH
+                && Math.abs(pos.getY() - origin.getY()) <= REACH_HEIGHT;
+    }
+
+    /** Harvests what is ripe at {@code pos}, else looks after its Plot or takes it on as one. */
+    private FarmStatus visitPlot(BlockPos origin, BlockPos pos, FarmSettings s) {
         TendLogic.Harvest found = logic.ripe(counted, pos);
         if (found != null) {
             return startHarvest(origin, found, s);

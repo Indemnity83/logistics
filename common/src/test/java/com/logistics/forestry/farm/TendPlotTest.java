@@ -315,6 +315,20 @@ class TendPlotTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void leavesARipeCropJustOutsideTheReachAlone() {
+        FarmHarness farm = seedlessFarm();
+        BlockPos inside = new BlockPos(TendFarmComponent.REACH, 0, 0);
+        field(farm, inside, Blocks.WHEAT.defaultBlockState());
+        field(farm, inside.east(), ripe(Blocks.WHEAT));
+        field(farm, new BlockPos(0, TendFarmComponent.REACH_HEIGHT + 1, 0), ripe(Blocks.WHEAT));
+
+        farm.ticks(2 * PASS);
+
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.engine().plotsTotal()).isEqualTo(1);
+    }
+
+    @Test
     void neverFillsAWheatPlotWithAnotherCropsGermling() {
         FarmHarness farm = emptyWheatPlot();
 

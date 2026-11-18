@@ -5,7 +5,10 @@ import com.logistics.forestry.farm.FarmCost;
 import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.TendLogic;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -74,6 +77,26 @@ public final class CocoaTendLogic implements TendLogic {
             }
         }
         return null;
+    }
+
+    /** The pods hanging on a tended log at {@code pos}, so a pod just outside the Reach on a log inside it is tended. */
+    @Override
+    public Collection<BlockPos> attached(FarmWorld world, BlockPos pos) {
+        if (!ground.test(world.state(pos))) {
+            return List.of();
+        }
+        List<BlockPos> pods = new ArrayList<>(4);
+        for (Direction side : Direction.Plane.HORIZONTAL) {
+            BlockPos beside = pos.relative(side);
+            if (!world.isLoaded(beside)) {
+                continue;
+            }
+            BlockState state = world.state(beside);
+            if (isPod(state) && state.getValue(CocoaBlock.FACING) == side.getOpposite()) {
+                pods.add(beside);
+            }
+        }
+        return pods;
     }
 
     /** A pod facing the Plot's {@link #support}; {@code null} when it has none or the germling is not cocoa. */

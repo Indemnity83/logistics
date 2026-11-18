@@ -26,6 +26,9 @@ public final class CocoaPlantationGameTestRegistration {
             "forestry/cocoa_plantation_hopper_fed_beans_replant_empty_plots", 1200,
             CocoaPlantationGameTestBody::testHopperFedBeansReplantEmptyPlots),
         new GameTestCase(
+            "forestry/cocoa_plantation_picks_and_refills_pod_outside_reach_on_log_inside", 1200,
+            CocoaPlantationGameTestBody::testPicksAndRefillsPodOutsideReachOnLogInside),
+        new GameTestCase(
             "forestry/cocoa_plantation_does_nothing_without_power", 400,
             CocoaPlantationGameTestBody::testDoesNothingWithoutPower));
 

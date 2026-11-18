@@ -168,6 +168,92 @@ class CocoaTendTest extends MinecraftTestEnvironment {
         assertThat(farm.engine().plotsTotal()).isZero();
     }
 
+    /** A jungle log on the Reach's east edge. */
+    private static final BlockPos EDGE_LOG = new BlockPos(TendFarmComponent.REACH, 0, 1);
+
+    /** The east face of {@link #EDGE_LOG}, one block outside the Reach. */
+    private static final BlockPos OUTER_POD = EDGE_LOG.east();
+
+    @Test
+    void picksAndReplantsAPodOutsideTheReachOnALogInsideIt() {
+        FarmHarness farm = farm(3);
+        farm.world.set(EDGE_LOG, JUNGLE_LOG);
+        farm.world.set(OUTER_POD, pod(Direction.WEST, CocoaBlock.MAX_AGE));
+
+        farm.ticks(PASS);
+
+        assertThat(farm.world.broken).containsExactly(OUTER_POD);
+        assertThat(farm.world.blocks.get(OUTER_POD)).isEqualTo(pod(Direction.WEST, 0));
+        assertThat(farm.engine().plotsTotal()).isEqualTo(1);
+    }
+
+    @Test
+    void refillsAnEmptyPlotOutsideTheReachOnceBeansArrive() {
+        FarmHarness farm = farm(0);
+        farm.world.set(EDGE_LOG, JUNGLE_LOG);
+        farm.world.set(OUTER_POD, pod(Direction.WEST, CocoaBlock.MAX_AGE));
+        farm.ticks(PASS);
+        assertThat(farm.world.blocks.get(OUTER_POD)).as("left empty").isNull();
+        assertThat(farm.engine().emptyPlots()).isEqualTo(1);
+
+        farm.items().setItem(0, new ItemStack(Items.COCOA_BEANS, 1));
+        farm.ticks(PASS);
+
+        assertThat(farm.world.blocks.get(OUTER_POD)).isEqualTo(pod(Direction.WEST, 0));
+        assertThat(farm.engine().emptyPlots()).isZero();
+    }
+
+    @Test
+    void takesOnAnUnripePodOutsideTheReachAsAPlot() {
+        FarmHarness farm = farm(3);
+        farm.world.set(EDGE_LOG, JUNGLE_LOG);
+        farm.world.set(OUTER_POD, pod(Direction.WEST, 0));
+
+        farm.ticks(PASS);
+
+        assertThat(farm.engine().plotsTotal()).isEqualTo(1);
+        assertThat(farm.world.broken).isEmpty();
+    }
+
+    @Test
+    void forgetsAPlotOutsideTheReachOnceItsLogIsGone() {
+        FarmHarness farm = farm(0);
+        farm.world.set(EDGE_LOG, JUNGLE_LOG);
+        farm.world.set(OUTER_POD, pod(Direction.WEST, CocoaBlock.MAX_AGE));
+        farm.ticks(PASS);
+        assertThat(farm.engine().plotsTotal()).isEqualTo(1);
+
+        farm.world.blocks.remove(EDGE_LOG);
+        farm.ticks(PASS);
+
+        assertThat(farm.engine().plotsTotal()).isZero();
+    }
+
+    @Test
+    void leavesAPodOutsideTheReachWhoseLogIsOutsideItToo() {
+        FarmHarness farm = farm(3);
+        // The pod sits beside a log in the Reach but hangs on one outside it.
+        farm.world.set(EDGE_LOG, JUNGLE_LOG);
+        farm.world.set(OUTER_POD.east(), JUNGLE_LOG);
+        farm.world.set(OUTER_POD, pod(Direction.EAST, CocoaBlock.MAX_AGE));
+
+        farm.ticks(2 * PASS);
+
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.engine().plotsTotal()).isZero();
+    }
+
+    @Test
+    void picksAPodInsideTheReachOnALogOutsideIt() {
+        FarmHarness farm = farm(3);
+        farm.world.set(OUTER_POD, JUNGLE_LOG);
+        farm.world.set(EDGE_LOG, pod(Direction.EAST, CocoaBlock.MAX_AGE));
+
+        farm.ticks(PASS);
+
+        assertThat(farm.world.blocks.get(EDGE_LOG)).isEqualTo(pod(Direction.EAST, 0));
+    }
+
     @Test
     void paysItsOwnUpkeepRateForEachPlot() {
         FarmHarness farm = FarmHarness.tending(
