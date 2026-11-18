@@ -752,7 +752,9 @@ The lines reach every branch by two routes, and `tools/ship_pr.py` keeps them id
   lines into the squash commit, and a plain `git cherry-pick` carries them across. `-x` adds a
   trailer after which Release Please keeps only the first extra line.
 
-A PR with no block ships with its title alone. Edit the block before shipping: an edit after the
+A PR with no block ships with its title alone. Write the two markers only as the block's own lines:
+Release Please starts the block at the first marker anywhere in the body, prose included. Edit the
+block before shipping: an edit after the
 merge reaches only that branch's changelog, never the ports.
 
 Then confirm it landed before porting — a wrong squash message means a wrong changelog, and it is

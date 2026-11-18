@@ -41,9 +41,18 @@ def run(*args, capture=True):
 
 
 def override_lines(body):
-    """The block's non-empty lines, or None when the body has no block."""
-    if BEGIN not in body:
+    """The block's non-empty lines, or None when the body has no block.
+
+    Release Please starts the block at the first BEGIN anywhere in the body, so a BEGIN in prose,
+    or a second block, would hijack the changelog: both are refused.
+    """
+    lines = body.replace("\r", "").split("\n")
+    if body.count(BEGIN) == 0:
         return None
+    if body.count(BEGIN) > 1 or [line.strip() for line in lines].count(BEGIN) != 1:
+        sys.exit(f"ship_pr: {BEGIN} must appear exactly once, alone on its line, opening the block")
+    if [line.strip() for line in lines].count(END) != 1:
+        sys.exit(f"ship_pr: the block must close with {END} alone on its line")
     block = body.split(BEGIN, 1)[1].split(END, 1)[0]
     return [line.strip() for line in block.replace("\r", "").split("\n") if line.strip()]
 
