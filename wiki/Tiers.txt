@@ -1,0 +1,38 @@
+'''Tiers''' are the named steps that power components are built in. A higher tier holds or moves more; otherwise every tier of a component behaves the same. Logistics pipes and modules are improved in '''marks''' instead, which are not tiers.
+
+== Energy tiers ==
+
+[[Cables]] and [[Batteries]] share four energy tiers, lowest first:
+
+{| class="wikitable"
+! Tier !! Cable !! Battery
+|-
+| Basic || [[Basic Cable]] || [[Basic Battery]]
+|-
+| Conductive || [[Conductive Cable]] || [[Conductive Battery]]
+|-
+| Resonant || [[Resonant Cable]] || [[Resonant Battery]]
+|-
+| Deep || [[Deep Cable]] || [[Deep Battery]]
+|}
+
+A cable's tier sets how much RF it moves per tick; a battery's tier sets how much it stores and how fast it charges and discharges. The slowest cable on a run sets that run's throughput.
+
+== Marks ==
+
+A '''mark''' is a numbered variant of a chassis or module (MkI, MkII, MkIII…) that raises its limits:
+
+* [[Chassis Logistics Pipe]] — MkI to MkV, one more module slot per mark
+* [[Extractor Module]] and [[Crafter Module]] — up to MkIII
+* [[Provider Module]] — up to MkII
+
+== See also ==
+
+* [[RF Energy]] — the power system cables and batteries belong to
+* [[Modules]] — all chassis modules
+* [[Gears]], [[Valves]], [[Chipsets]] — crafting components, which come in materials rather than tiers
+
+{{Navbox Logistics}}
+
+[[Category:Power]]
+[[Category:Modules]]

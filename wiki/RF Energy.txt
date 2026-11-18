@@ -1,59 +1,55 @@
 '''RF (Redstone Flux)''' is the energy system used by Logistics. [[Engines]] generate RF, [[Cables|cables]] distribute it, and machines and the logistics network consume it to operate.
 
-There are '''two separate power paths''' in the mod — they do not share a power source.
+Engines, [[Cables|cables]], [[Batteries|batteries]] and machines connected together form a '''cable grid'''. The logistics network and the extraction pipes take their power in two different ways.
 
 == Powering the logistics network ==
 
 The logistics network draws power through a [[Power Junction]], not directly off an engine or battery:
 
-# An [[Engines|engine]] ([[Redstone Engine]], [[Stirling Engine]], or [[Creative Engine]]) generates RF
-# [[Cables|Power cables]] carry that RF — optionally by way of a [[Batteries|battery]] — to a [[Power Junction]]
+# An [[Engines|engine]] generates RF
+# [[Cables]] carry that RF — optionally by way of a [[Batteries|battery]] — to a [[Power Junction]]
 # The Power Junction is placed against the network, and the [[Logistics Pipes]] and chassis modules draw RF from it each time they route, supply, or craft
 
 When the network runs out of power, routing, supplying, and crafting all stop, and items already in transit are '''dropped'''. Logistics pipes render '''green when powered''' and '''red when not''', so you can read network status at a glance. Keep the Power Junction fed and power is restored at once.
 
 == Pacing extraction ==
 
-Extraction pipes do '''not''' use the Battery. Instead, each is paced by an '''adjacent engine''':
+Extraction pipes do '''not''' draw from the Power Junction or a cable grid. Instead, each is paced by an '''adjacent engine''':
 
 * The [[Item Extractor Pipe]] and [[Fluid Extractor Pipe]] pull faster the more RF the adjacent engine supplies
 * This is the original, mechanical power model — the engine touches the pipe directly
-* No Battery or logistics network is involved
+* No cable, battery, or logistics network is involved
 
 == Cables ==
 
-Cables carry RF from an engine to a [[Batteries|battery]], [[Power Junction]], or machine. They connect to each other and to adjacent power blocks, and differ only in throughput — use a higher-throughput cable to feed a high-demand network:
+Cables carry RF from an engine to a [[Batteries|battery]], [[Power Junction]], or machine. They connect to each other and to adjacent power blocks, and come in four [[Tiers|energy tiers]] that differ only in throughput — the slowest cable on a run sets its throughput:
 
 * '''[[Cables|Basic Cable]]''' — 30 RF/t
 * '''[[Cables|Conductive Cable]]''' — 60 RF/t
 * '''[[Cables|Resonant Cable]]''' — 120 RF/t
 * '''[[Cables|Deep Cable]]''' — 240 RF/t
 
+== Batteries ==
+
+[[Batteries]] store RF on a cable grid. They come in the same four energy tiers as cables, differing in capacity and transfer rate. On a shared grid, machines are served before batteries are topped up, and a battery gives power only once the engines on that grid can't keep up.
+
 == Engines ==
 
-Every engine needs a {{Mcw|Redstone|redstone}} signal to run. They differ in output and fuel:
+Seven [[Engines|engines]] generate RF, each pushing it out of one face. Most run only with a {{Mcw|Redstone|redstone}} signal by default; their [[Side Tabs#Redstone Control|Redstone Control]] tab can change that.
 
-'''[[Redstone Engine]]'''
-* Small, steady output
-* Powered by a redstone signal only
-* Cannot overheat — good for low-power needs
-
-'''[[Stirling Engine]]'''
-* Substantial output
-* Powered by fuel ({{Mcw|Coal|coal}}, {{Mcw|Charcoal|charcoal}}, {{Mcw|Lava|lava}}, etc.)
-* Can overheat if run too long — good for high-power machines like quarries
-
-'''[[Creative Engine]]'''
-* Infinite output for testing and creative mode
-* Never runs out of fuel, never overheats
-* Not craftable
+* '''[[Redstone Engine]]''' — small, steady output; cannot overheat
+* '''[[Stirling Engine]]''' — burns solid fuel; overheats if nothing takes its output
+* '''[[Steam Engine]]''' — boils water with solid fuel; never overheats
+* '''[[Magmatic Engine]]''' — burns lava, generating more as it heats up; never overheats
+* '''[[Fuel Engine]]''' — burns liquid fuel, using water as coolant
+* '''[[Reaction Engine]]''' — reacts a fluid with a catalyst for a large, bufferless burst
+* '''[[Creative Engine]]''' — unlimited output for creative mode; not craftable
 
 == See also ==
 * [[Power Junction]] - Feeds power into the logistics network
 * [[Batteries]] - Stores RF
 * [[Engines]] - Overview of the RF generators
 * [[Cables]] - Distribute RF
-* [[Redstone Engine]], [[Stirling Engine]], [[Creative Engine]] - Generate RF
 * [[Item Extractor Pipe]] - Extraction paced by an engine
 * [[Laser Quarry]] - Major power consumer
 

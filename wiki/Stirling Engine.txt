@@ -10,7 +10,7 @@
 |added            = v0.1.0
 }}
 
-The '''Stirling Engine''' is a high-power generator that burns fuel to produce substantial [[RF Energy|RF]]. It can overheat if run continuously without cooling, requiring careful management.
+The '''Stirling Engine''' is a high-power generator that burns fuel to produce substantial [[RF Energy|RF]]. It overheats if nothing takes its output.
 
 == Obtaining ==
 
@@ -42,7 +42,7 @@ Right-click the engine to open the fuel GUI and add burnable items — it accept
 
 === Temperature and overheating ===
 
-The engine heats up during operation, and the block changes color through visible heat stages so you can read its temperature at a glance. If it gets too hot it shuts down safely — it does not break or explode — and must cool before restarting. Right-click an overheated engine with a [[Wrench]] to reset it. To prevent overheating, run in intervals, toggle the redstone signal periodically, or rotate between multiple engines.
+The engine's temperature follows how full its energy buffer is, and the block changes color through visible heat stages so you can read it at a glance. While its output is taken, it holds a steady working temperature. If nothing takes its output, the buffer fills and the engine heats until it overheats: it shuts down safely — it does not break or explode — and bleeds off its stored energy. It stays shut down until it is right-clicked with a [[Wrench]]. To prevent overheating, connect its output face to something that draws power, such as a [[Cables|cable]] to a machine or [[Batteries|battery]].
 
 === Redstone control ===
 

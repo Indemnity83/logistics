@@ -29,7 +29,7 @@ The Creative Engine is mined with a pickaxe of any tier; without one it drops no
 * Outputs a steady, configurable amount of RF every tick — effectively infinite power
 * Never runs out of fuel and never overheats
 * Runs only while it receives a redstone signal, and does not pass that signal on to neighboring blocks
-* Output is delivered through [[Cables|power cables]] just like the [[Redstone Engine]] and [[Stirling Engine]]
+* Output is delivered through [[Cables|cables]] just like the [[Redstone Engine]] and [[Stirling Engine]]
 * Useful for charging a [[Batteries|battery]] instantly while testing a logistics network
 
 == Data values ==

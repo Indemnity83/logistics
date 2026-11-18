@@ -3,7 +3,7 @@
 == Engines ==
 
 * [[File:Grid Redstone Engine.png|24px|link=Redstone Engine]] '''[[Redstone Engine]]''' — a basic generator that converts a redstone signal into a small, steady RF output; cannot overheat
-* [[File:Grid Stirling Engine.png|24px|link=Stirling Engine]] '''[[Stirling Engine]]''' — burns solid fuel for RF; can overheat without cooling
+* [[File:Grid Stirling Engine.png|24px|link=Stirling Engine]] '''[[Stirling Engine]]''' — burns solid fuel for RF; overheats if nothing takes its output
 * [[File:Grid Steam Engine.png|24px|link=Steam Engine]] '''[[Steam Engine]]''' — a boiler that burns solid fuel to turn water into steam for RF
 * [[File:Grid Magmatic Engine.png|24px|link=Magmatic Engine]] '''[[Magmatic Engine]]''' — burns liquid lava, running more efficiently the longer it stays hot
 * [[File:Grid Fuel Engine.png|24px|link=Fuel Engine]] '''[[Fuel Engine]]''' — burns liquid fuels ([[Crude Oil]], [[Bio Fuel]], [[Fuel Oil]]) with water coolant

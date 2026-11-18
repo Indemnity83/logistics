@@ -20,12 +20,11 @@
 
 == Usage ==
 
-The [[Tin Valve]] goes into the [[Crop Farm]] and the [[Copper Valve]] into the [[Arboretum]]. The other valves are not used in any recipe yet — they are reserved for future content.
+The [[Tin Valve]] goes into the [[Crop Farm]] and the [[Copper Valve]] into the [[Arboretum]]. No other recipe uses a valve.
 
 == See also ==
 
 * [[Quartz Crystal]] — the shared frame ingredient
-* [[Logistics Pipes]] — planned to use valves
 * [[Gears]], [[Chipsets]] — other crafting components
 
 {{Navbox Logistics}}
