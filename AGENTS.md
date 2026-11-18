@@ -581,7 +581,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 ### Domain Details
 
 **For detailed architecture and design philosophy, see:**
-- [Documentation](https://indemnity83.github.io/logistics/) - Vision, three-tier model, pipe specifications, and more
+- [Player wiki](https://logistics.fandom.com/) - Vision, three-tier model, pipe specifications, and more
 - Source code in `src/main/java/com/logistics/{domain}/` for implementation details
 
 **Current domain patterns:**
@@ -605,7 +605,7 @@ Domains are initialized using a two-phase pattern (server/common + client):
 - Module ordering: CraftingModule runs first, NetworkRouterModule runs last
 - Network layer: `NetworkRegistry`, `PipeNetwork` (implements `ILogisticsNetwork`), `NetworkController`, `NetworkGraph`
 - `TravelingItem` represents items in transit with progress-based movement
-- See [documentation](https://indemnity83.github.io/logistics/) for comprehensive pipe architecture
+- See the [player wiki](https://logistics.fandom.com/) for comprehensive pipe architecture
 
 **Power Domain** (`com.logistics.power`):
 - Engine hierarchy: `AbstractEngineBlockEntity` base class
@@ -872,8 +872,8 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 
 ## Documentation
 
-**Architecture & Design:**
-- [Documentation](https://indemnity83.github.io/logistics/) - Detailed information on pipes, power, automation, and technical design
+**Player wiki:**
+- Published at <https://logistics.fandom.com/>. Its source lives on the `docs` branch: one MediaWiki page per `wiki/<Page Title>.txt`, pushed by `tools/upload_to_fandom.py`. Read `claude.md` on that branch before editing pages (`git show origin/docs:claude.md`).
 
 **Development:**
 - `CLAUDE.md` and `AGENTS.md` - Primary development guidance for coding agents. The two are the same document apart from their opening two lines; change one and mirror the change to the other.
