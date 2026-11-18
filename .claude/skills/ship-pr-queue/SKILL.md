@@ -84,12 +84,16 @@ copy) — review those yourself before shipping.
 ### 1. Check the changelog lines
 
 A PR with several player-facing changes lists every changelog line, its title first, in a
-`BEGIN_COMMIT_OVERRIDE` block in its body (CLAUDE.md "Multi-change squash commits"). If the PR
+`BEGIN_COMMIT_OVERRIDE` block in its body (`docs/agents/changelog.md`). If the PR
 body names extra changes outside a block (often under a "Suggested squash commit" heading), move
 them into one before shipping. Only carry lines that are genuinely separate changelog entries,
 and do not invent entries the PR does not support.
 
-### 2. Ship
+### 2. Take the ship lock, then ship
+
+Shipping and porting are serialised across parallel sessions. Acquire the ship lock first, with
+the script in `docs/agents/parallel-sessions.md`, and hold it through step 3. If another session
+holds it, wait or work a different PR; never touch its lock.
 
 ```bash
 python3 tools/ship_pr.py <n> --dry-run   # review the squash message
@@ -138,7 +142,8 @@ git -C "$p" push origin HEAD:<branch>
 - A change that must go **up into the default branch** cannot be direct-pushed; open a PR
   for that hop.
 
-Then confirm the branches actually converged:
+Then confirm the branches actually converged, and release the ship lock as its own step (also
+when a step failed, as long as you hold it):
 
 ```bash
 for b in <all mc branches>; do
