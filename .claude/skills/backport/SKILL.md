@@ -454,17 +454,14 @@ over a channel the test connection never negotiated. **NeoForge rejects it** ("P
 sent to the client!"); **Fabric tolerates it**. So that path compiles and passes the Fabric gametests
 while failing the NeoForge ones — you will not catch it without running
 `./gradlew :neoforge:runGameTestServer`.
-**Working fix** (identical code on 26.1 and 1.21.11): construct a **no-login** `ServerPlayer` inline —
-`new ServerPlayer(MinecraftServer, ServerLevel, GameProfile, ClientInformation.createDefault())` with
-`gameMode()` **overridden** to return the desired `GameType`, then apply
-`GameType.updatePlayerAbilities(Abilities)` by hand (this mirrors what 26.2's helper does internally).
-`setGameMode` is unusable without a connection. All four constituent APIs exist unchanged on 26.1 and
-1.21.11. Never use `makeMockPlayer(GameType)` — it is NOT a real `ServerPlayer`, so loader-side
-`instanceof ServerPlayer` branches (e.g. Fabric's `FluidStorageUtil` creative-inventory-grant path)
-silently take the wrong branch. **Abstraction candidate:** this single file
-(`GlassTankBucketGameTestBody`) has now forced the same divergence on two branches with an identical
-fix — a shared `GameTestPlayers.mockServerPlayer(context, gameType)` helper in the gametest source set
-would make it identical across 26.2/26.1/1.21.11. See memory
+**Use the shared helper:** `GameTestPlayers.mockServerPlayer(context, gameType)` in
+`common/src/gametest/.../gametest/GameTestPlayers.java` builds a **no-login** `ServerPlayer` on every
+branch; subclass `GameTestPlayers.MockServerPlayer` when a test also needs to capture what the player
+is sent. Callers are identical across branches; only the helper's overrides differ (`gameMode()` on
+26.x/1.21.11, `isCreative()`/`isSpectator()` on 1.21.1), and the cherry-pick conflict, if any, lands
+there. `setGameMode` is unusable without a connection. Never use `makeMockPlayer(GameType)` — it is
+NOT a real `ServerPlayer`, so loader-side `instanceof ServerPlayer` branches (e.g. Fabric's
+`FluidStorageUtil` creative-inventory-grant path) silently take the wrong branch. See memory
 `project_mock_server_player_gametest_delta`.
 
 **Data-driven GameTest registry stack (`TEST_FUNCTION` / `TestEnvironmentDefinition`):** the
@@ -511,8 +508,8 @@ to the other branches so the shared bodies stay identical.
 
 **`ServerPlayer.gameMode()` doesn't exist on 1.21.1** — it's a `ServerPlayerGameMode` *field*, and both
 `setGameMode` and `changeGameModeForPlayer` route through `onUpdateAbilities()` → the absent connection.
-So the no-login mock player (see the mock-player entry above) must override **`isCreative()` /
-`isSpectator()`** instead of `gameMode()`. `ClientInformation.createDefault()` and the 4-arg
+So the no-login mock player (`GameTestPlayers.MockServerPlayer`, see the mock-player entry above)
+overrides **`isCreative()` / `isSpectator()`** there instead of `gameMode()`. `ClientInformation.createDefault()` and the 4-arg
 `ServerPlayer` constructor do exist on 1.21.1.
 
 **Jade compat:** the Jade dep uses Loom's **remapped** configurations on 1.21.x, so every
