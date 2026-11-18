@@ -8,6 +8,7 @@ import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.lib.storage.IItemStorage;
 import com.logistics.automation.macerator.MaceratorBlock;
 import com.logistics.automation.macerator.MaceratorBlockEntity;
+import com.logistics.gametest.GameTestPlayers;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 
@@ -217,7 +219,7 @@ public class MaceratorGameTestBody {
             return;
         }
 
-        ServerPlayer player = context.makeMockServerPlayerInLevel();
+        ServerPlayer player = GameTestPlayers.mockServerPlayer(context, GameType.SURVIVAL);
         BlockPos absolute = context.absolutePos(pos);
         player.setPos(absolute.getX() + 0.5, absolute.getY() + 1, absolute.getZ() + 0.5);
 
