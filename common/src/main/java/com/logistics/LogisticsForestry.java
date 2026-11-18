@@ -18,6 +18,7 @@ import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmTierProfile;
 import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
+import com.logistics.forestry.farm.cocoa.CocoaPlantationBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
 import com.logistics.forestry.farm.gourd.GourdFarmBlock;
 import com.logistics.forestry.farm.netherwart.NetherWartFarmBlock;
@@ -235,6 +236,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Ground the Gourd Farm tends stems on; any but farmland is tilled before replanting a stem. */
         public static final TagKey<Block> GOURD_FARM_GROUND =
                 TagKey.create(Registries.BLOCK, resource("gourd_farm_ground").toIdentifier());
+
+        /** Logs a Cocoa Plantation tends cocoa on; it never places, breaks or replaces them. */
+        public static final TagKey<Block> COCOA_PLANTATION_GROUND =
+                TagKey.create(Registries.BLOCK, resource("cocoa_plantation_ground").toIdentifier());
     }
 
     public static final class BLOCK {
@@ -250,6 +255,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static Block ORCHARD;
         public static Block PLANTATION;
         public static Block GOURD_FARM;
+        public static Block COCOA_PLANTATION;
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
@@ -276,6 +282,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                     .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
             GOURD_FARM = registerFarm("gourd_farm",
                 props -> new GourdFarmBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+            COCOA_PLANTATION = registerFarm("cocoa_plantation",
+                props -> new CocoaPlantationBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
         }
@@ -347,6 +357,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             TAB.add(BLOCK.ORCHARD);
             TAB.add(BLOCK.PLANTATION);
             TAB.add(BLOCK.GOURD_FARM);
+            TAB.add(BLOCK.COCOA_PLANTATION);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }

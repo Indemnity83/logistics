@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["VLV", "BMB", "GCG"],
+  "key": {
+    "V": "logistics:core/bronze_valve",
+    "L": "#minecraft:jungle_logs",
+    "B": "minecraft:cocoa_beans",
+    "M": "logistics:core/machine_core",
+    "G": "#c:gears/copper",
+    "C": "logistics:core/redstone_reception_coil"
+  },
+  "result": { "id": "logistics:forestry/cocoa_plantation", "count": 1 }
+}
