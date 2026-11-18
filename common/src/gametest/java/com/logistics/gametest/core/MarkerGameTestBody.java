@@ -3,21 +3,18 @@ package com.logistics.gametest.core;
 import com.logistics.LogisticsCore;
 import com.logistics.core.marker.MarkerBlock;
 import com.logistics.core.marker.MarkerBlockEntity;
-import com.mojang.authlib.GameProfile;
+import com.logistics.gametest.GameTestPlayers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -458,32 +455,20 @@ public class MarkerGameTestBody {
     }
 
     /**
-     * A survival server player that records the chat feedback it is sent instead of sending it.
-     * Never logged in or added to the level, so it needs no network connection and leaves nothing
-     * behind in the shared test level.
+     * A mock survival player that records the chat feedback it is sent instead of sending it. Survival,
+     * because the test server's default game mode is creative, whose players break blocks without drops.
      */
-    private static final class FeedbackRecordingPlayer extends ServerPlayer {
+    private static final class FeedbackRecordingPlayer extends GameTestPlayers.MockServerPlayer {
         private final List<Component> feedback = new ArrayList<>();
 
         FeedbackRecordingPlayer(GameTestHelper context) {
-            super(
-                    context.getLevel().getServer(),
-                    context.getLevel(),
-                    new GameProfile(UUID.randomUUID(), "marker-test-player"),
-                    ClientInformation.createDefault());
-            // The test server's default game mode is creative, whose players break blocks without drops.
-            GameType.SURVIVAL.updatePlayerAbilities(getAbilities());
+            super(context, GameType.SURVIVAL, "marker-test-player");
         }
 
         static FeedbackRecordingPlayer holdingWrench(GameTestHelper context) {
             FeedbackRecordingPlayer player = new FeedbackRecordingPlayer(context);
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(LogisticsCore.ITEM.WRENCH));
             return player;
-        }
-
-        @Override
-        public GameType gameMode() {
-            return GameType.SURVIVAL;
         }
 
         @Override

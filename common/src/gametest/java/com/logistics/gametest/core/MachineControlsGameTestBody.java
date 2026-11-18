@@ -16,6 +16,7 @@ import com.logistics.core.machine.control.MachineStatus;
 import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMenu;
+import com.logistics.gametest.GameTestPlayers;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
 import com.mojang.authlib.GameProfile;
@@ -31,7 +32,6 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
-import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
@@ -119,26 +119,6 @@ public class MachineControlsGameTestBody {
     }
 
     /**
-     * A server player in {@code mode} that is never logged in, so no login events or payloads fire.
-     * Stands in for {@code makeMockServerPlayer(GameType)}, which this version does not have.
-     */
-    private static ServerPlayer mockServerPlayer(GameTestHelper context, GameType mode) {
-        ServerPlayer player =
-                new ServerPlayer(
-                        context.getLevel().getServer(),
-                        context.getLevel(),
-                        new GameProfile(UUID.randomUUID(), "test-mock-player"),
-                        ClientInformation.createDefault()) {
-                    @Override
-                    public GameType gameMode() {
-                        return mode;
-                    }
-                };
-        mode.updatePlayerAbilities(player.getAbilities());
-        return player;
-    }
-
-    /**
      * A player logged in over an embedded connection, like {@code makeMockServerPlayerInLevel} but with a
      * real, changeable game mode (that helper pins the mode to creative, so it can never be a spectator).
      * Callers must {@link #disconnect} it in a {@code finally}.
@@ -195,7 +175,7 @@ public class MachineControlsGameTestBody {
 
     /** Each server menu, opened through its block entity's real menu provider, carries live controls. */
     public static void testEveryServerMenuCarriesControls(GameTestHelper context) {
-        Player player = mockServerPlayer(context, GameType.SURVIVAL);
+        Player player = GameTestPlayers.mockServerPlayer(context, GameType.SURVIVAL);
         for (Supplier<Block> block : MENU_BLOCKS) {
             context.setBlock(POS, Blocks.AIR);
             context.setBlock(POS, block.get());
@@ -226,8 +206,8 @@ public class MachineControlsGameTestBody {
             BlockEntity entity,
             Function<Inventory, AbstractContainerMenu> clientMenu) {
         MachineStatus status = (MachineStatus) entity;
-        Player survivor = mockServerPlayer(context, GameType.SURVIVAL);
-        Player spectator = mockServerPlayer(context, GameType.SPECTATOR);
+        Player survivor = GameTestPlayers.mockServerPlayer(context, GameType.SURVIVAL);
+        Player spectator = GameTestPlayers.mockServerPlayer(context, GameType.SPECTATOR);
         standBeside(survivor, context);
 
         AbstractContainerMenu menu = openServerMenu(entity, survivor);
