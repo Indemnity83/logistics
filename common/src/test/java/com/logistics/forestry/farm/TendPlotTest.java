@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.logistics.DomainRegistrations;
 import com.logistics.core.machine.MachineHudModel;
+import com.logistics.forestry.farm.arboretum.ArboretumTendLogic;
 import com.logistics.forestry.farm.crop.CropTendLogic;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.List;
@@ -301,6 +302,30 @@ class TendPlotTest extends MinecraftTestEnvironment {
             case "air" -> Blocks.AIR;
             default -> throw new IllegalArgumentException(name);
         };
+    }
+
+    @Test
+    void aPlotsGroundIsTheBlockUnderItNotTheBlockBesideIt() {
+        FakeFarmWorld world = new FakeFarmWorld();
+        world.set(PLOT.north(), Blocks.FARMLAND.defaultBlockState());
+        world.set(PLOT.east(), Blocks.JUNGLE_LOG.defaultBlockState());
+
+        assertThat(new CropTendLogic().support(world, PLOT)).isEqualTo(PLOT.below());
+        assertThat(new ArboretumTendLogic().support(world, PLOT)).isEqualTo(PLOT.below());
+    }
+
+    @Test
+    void leavesARipeCropJustOutsideTheReachAlone() {
+        FarmHarness farm = seedlessFarm();
+        BlockPos inside = new BlockPos(TendFarmComponent.REACH, 0, 0);
+        field(farm, inside, Blocks.WHEAT.defaultBlockState());
+        field(farm, inside.east(), ripe(Blocks.WHEAT));
+        field(farm, new BlockPos(0, TendFarmComponent.REACH_HEIGHT + 1, 0), ripe(Blocks.WHEAT));
+
+        farm.ticks(2 * PASS);
+
+        assertThat(farm.world.broken).isEmpty();
+        assertThat(farm.engine().plotsTotal()).isEqualTo(1);
     }
 
     @Test
