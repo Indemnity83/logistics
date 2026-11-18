@@ -50,7 +50,7 @@ import java.util.function.LongSupplier;
  * <p>Configuration: Up to 9 supply slots, each with an item and target amount.
  * <p>GUI: Accessible with wrench, similar to RequesterModule.
  *
- * <p>Energy: charges {@value #RF_PER_DISPATCH_CYCLE} RF per active supply cycle, drawn from the network battery.
+ * <p>Energy: charges {@value #RF_PER_DISPATCH_CYCLE} RF per active supply cycle, drawn through the Power Junction.
  */
 public class SupplierModule implements Module, TickingModule, RoutingModule {
     /**
@@ -62,7 +62,7 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
         INFINITE,   // ordinal 1 - continuously fill up to one stack of available space
         PARTIAL,    // ordinal 2 - request whatever is available (default)
         FULL,       // ordinal 3 - only request if full amount is available (all-or-nothing)
-        BULK100     // ordinal 4 - request whenever any amount is missing (appended to preserve existing ordinals)
+        BULK100     // ordinal 4 - request in bulk only once the item has run out (appended to preserve existing ordinals)
     }
 
     public static final String SUPPLIES = "supplies"; // NBT key for supply configurations
@@ -72,7 +72,7 @@ public class SupplierModule implements Module, TickingModule, RoutingModule {
     private static final int CHECK_INTERVAL = 20;
     public static final int MAX_SUPPLY_SLOTS = 9;
 
-    // Energy cost per active supply cycle (drawn from the network battery).
+    // Energy cost per active supply cycle (drawn through the Power Junction).
     private static final long RF_PER_DISPATCH_CYCLE = 20;
 
     @Override

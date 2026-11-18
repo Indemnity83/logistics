@@ -71,7 +71,7 @@ import java.util.UUID;
  * parallel rather than serially.
  */
 public class CraftingModule implements Module, TickingModule, RoutingModule, DispatchableModule, TransferHandlerModule {
-    // Energy cost per item dispatched (drawn from the network battery).
+    // Energy cost per item dispatched (drawn through the Power Junction).
     private static final long RF_PER_ITEM = 20;
 
     /** Max items to craft per 6-tick cycle (one tier step above = larger batches). */
