@@ -5,6 +5,7 @@
 		"top": "logistics:block/automation/fluid_pump_top",
 		"bottom": "logistics:block/automation/fluid_pump_bottom",
 		"side": "logistics:block/automation/fluid_pump_side",
+		"front": "logistics:block/automation/fluid_pump_side",
 		"particle": "logistics:block/automation/fluid_pump_side"
 	},
 	"elements": [
