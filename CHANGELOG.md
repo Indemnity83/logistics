@@ -5,15 +5,11 @@
 
 ### Added
 
-* **automation:** add redstone control modes to machines and engines ([a6a7e83](https://github.com/Indemnity83/logistics/commit/a6a7e8355330d5767f3f644c449e56e3a5b82180))
-* **farming:** add fertilizer ([#1402](https://github.com/Indemnity83/logistics/issues/1402)) ([bbb8c0b](https://github.com/Indemnity83/logistics/commit/bbb8c0b16975282555455c75effdcd2b7b79b534))
-* **farming:** add humus soil ([#1404](https://github.com/Indemnity83/logistics/issues/1404)) ([8d7fe66](https://github.com/Indemnity83/logistics/commit/8d7fe66df5a40f6bb019aeba9d57f05414c2d051))
-* **farming:** add surveyed ring farms with irrigation ([#1469](https://github.com/Indemnity83/logistics/issues/1469)) ([37cfca3](https://github.com/Indemnity83/logistics/commit/37cfca3301fe515f2d6e65c7f51b6eca885e9730))
-* **farming:** add the arboretum ([#1409](https://github.com/Indemnity83/logistics/issues/1409)) ([c7408dc](https://github.com/Indemnity83/logistics/commit/c7408dc54b2a882b02197b280ff72ca20e628810))
-* **farming:** add the crop farm ([#1408](https://github.com/Indemnity83/logistics/issues/1408)) ([bb0145b](https://github.com/Indemnity83/logistics/commit/bb0145b00c0eb11dfb64f83bae13b4f2f296b749))
-* **farming:** add the farm screen ([#1407](https://github.com/Indemnity83/logistics/issues/1407)) ([58819bc](https://github.com/Indemnity83/logistics/commit/58819bcd44cc9539bbfbf0b0953da5fda4ab4cef))
-* **farming:** explain the farms, fertilizer and humus in JEI ([#1410](https://github.com/Indemnity83/logistics/issues/1410)) ([76a8d21](https://github.com/Indemnity83/logistics/commit/76a8d214e2b03983b85cf04e5cd2b32d366a982d))
-* **farming:** survey the farm area and start on demand ([37cfca3](https://github.com/Indemnity83/logistics/commit/37cfca3301fe515f2d6e65c7f51b6eca885e9730))
+* **automation:** add redstone control modes to machines and engines ([#1467](https://github.com/Indemnity83/logistics/issues/1467)) ([a6a7e83](https://github.com/Indemnity83/logistics/commit/a6a7e8355330d5767f3f644c449e56e3a5b82180))
+* **energy:** show live energy use in machine and engine GUIs ([#1467](https://github.com/Indemnity83/logistics/issues/1467)) ([a6a7e83](https://github.com/Indemnity83/logistics/commit/a6a7e8355330d5767f3f644c449e56e3a5b82180))
+* **farming:** add Humus, which grows saplings into small trees ([#1404](https://github.com/Indemnity83/logistics/issues/1404)) ([8d7fe66](https://github.com/Indemnity83/logistics/commit/8d7fe66df5a40f6bb019aeba9d57f05414c2d051))
+* **farming:** add the Arboretum to fell trees on Humus ([#1409](https://github.com/Indemnity83/logistics/issues/1409)) ([c7408dc](https://github.com/Indemnity83/logistics/commit/c7408dc54b2a882b02197b280ff72ca20e628810))
+* **farming:** add the Crop Farm to tend fields around it ([#1408](https://github.com/Indemnity83/logistics/issues/1408)) ([bb0145b](https://github.com/Indemnity83/logistics/commit/bb0145b00c0eb11dfb64f83bae13b4f2f296b749))
 * **ui:** add side tabs to machine and engine GUIs ([#1467](https://github.com/Indemnity83/logistics/issues/1467)) ([a6a7e83](https://github.com/Indemnity83/logistics/commit/a6a7e8355330d5767f3f644c449e56e3a5b82180))
 
 
@@ -21,7 +17,7 @@
 
 * **energy:** stop continuous engines skipping a tick each cycle ([#1390](https://github.com/Indemnity83/logistics/issues/1390)) ([2499753](https://github.com/Indemnity83/logistics/commit/24997534bb4c7a74aedfb3725880e522cdf12a44))
 * **energy:** stop engines passing a lever's signal to neighbors ([#1413](https://github.com/Indemnity83/logistics/issues/1413)) ([4b5f8e2](https://github.com/Indemnity83/logistics/commit/4b5f8e2f7569123272248d79388641a1c69afbe0))
-* **quarry:** deactivate a marker set when any marker is removed ([18a9dc0](https://github.com/Indemnity83/logistics/commit/18a9dc0aad9936bf203672870099d2761c4c7d4e))
+* **quarry:** deactivate a marker set when any marker is removed ([#1388](https://github.com/Indemnity83/logistics/issues/1388)) ([18a9dc0](https://github.com/Indemnity83/logistics/commit/18a9dc0aad9936bf203672870099d2761c4c7d4e))
 * **quarry:** pop markers off when their floor is removed ([#1388](https://github.com/Indemnity83/logistics/issues/1388)) ([18a9dc0](https://github.com/Indemnity83/logistics/commit/18a9dc0aad9936bf203672870099d2761c4c7d4e))
 * **quarry:** release chunks when a Laser Quarry loses power ([#1391](https://github.com/Indemnity83/logistics/issues/1391)) ([21fca33](https://github.com/Indemnity83/logistics/commit/21fca339397db965276d8a588413e2fe2b46fb08))
 * **routing:** keep deliveries in a mid-line requester's chest ([#1389](https://github.com/Indemnity83/logistics/issues/1389)) ([5e19574](https://github.com/Indemnity83/logistics/commit/5e19574998fc35c88f60db581e65eb7919f85699))
