@@ -41,6 +41,7 @@ class FarmScreenTextTest extends MinecraftTestEnvironment {
                 .isEqualTo("nether_wart_farm");
         assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.ORCHARD.getName())).isEqualTo("orchard");
         assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.PLANTATION.getName())).isEqualTo("plantation");
+        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.GOURD_FARM.getName())).isEqualTo("gourd_farm");
         assertThat(FarmScreenText.tabKey(Component.literal("Crop Farm"))).isEqualTo(FarmScreenText.FALLBACK_TAB_KEY);
         assertThat(FarmScreenText.tabKey(Component.translatable("container.chest")))
                 .isEqualTo(FarmScreenText.FALLBACK_TAB_KEY);
