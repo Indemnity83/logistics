@@ -5,7 +5,7 @@
 |added     = v0.2.0
 }}
 
-The '''ItemSink Module''' is a [[Chassis Logistics Pipe]] module that accepts a '''specific configured item type''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It is the module-form equivalent of a [[Basic Logistics Pipe]] with a strict item filter.
+The '''ItemSink Module''' is a [[Chassis Logistics Pipe]] module that accepts '''configured item types''' from the [[Pipe Networks|logistics network]] and deposits it into an adjacent inventory. It is the module-form equivalent of a [[Basic Logistics Pipe]] with a strict item filter.
 
 == Obtaining ==
 
@@ -22,21 +22,22 @@ The matching [[Chipsets|chipset]] can replace the gear — use an [[Iron Chipset
 
 == Usage ==
 
-When installed in a [[Chassis Logistics Pipe]], this module registers itself as a delivery destination for a configured item type. Network items of the matching type are routed to this chassis and deposited into an adjacent inventory.
+When installed in a [[Chassis Logistics Pipe]], this module registers itself as a delivery destination for the item types in its filter. Network items of a matching type are routed to this chassis and deposited into an adjacent inventory.
 
-* Accepts one configured item type from the network.
+* Accepts up to 9 configured item types from the network.
 * Deposits received items into an adjacent inventory.
-* Multiple Item Sink Modules can be installed in a single chassis (using multiple module slots) to accept multiple item types.
-* Does not accept unconfigured or non-matching items.
+* Does not accept non-matching items, unless it is set as a default route.
 * Outranks every other sink but a [[Passive Supplier Module]] in the [[Modules#Sink priority|sink priority]] ladder, so a named item goes here rather than to a broader sink such as a [[Polymorphic ItemSink Module]].
 
 === Configuration ===
 
 Use a [[Wrench]] to open the chassis GUI, then configure the module:
 
-'''Target item slot:''' Place the item type this module should accept. Only items matching this type will be routed here.
+'''Filter slots:''' Place up to 9 item types this module should accept.
 
-Install several Item Sink Modules in one chassis to make a multi-item sorting station in a single pipe, and a [[QuickSort Module]] elsewhere on the network can empty a mixed chest into it.
+'''Default Route:''' When on, the module also accepts any item with no other destination, at the lowest [[Modules#Sink priority|sink priority]].
+
+Install several Item Sink Modules in one chassis to sort more than 9 item types into one inventory, and a [[QuickSort Module]] elsewhere on the network can empty a mixed chest into it.
 
 == Data values ==
 
