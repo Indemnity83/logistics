@@ -83,10 +83,10 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
     @DisplayName("each tier's profile defaults: rates and buffers doubling per tier")
     void tierDefaults() {
         assertThat(FarmSettings.fromConfig().tiers()).containsExactly(
-                entry(MachineTier.BASIC, new FarmTierProfile(16, 4, 20_000, 16)),
-                entry(MachineTier.INDUSTRIAL, new FarmTierProfile(32, 8, 40_000, 32)),
-                entry(MachineTier.PRECISION, new FarmTierProfile(64, 16, 80_000, 64)),
-                entry(MachineTier.INFERNAL, new FarmTierProfile(128, 32, 160_000, 128)));
+                entry(MachineTier.BASIC, new FarmTierProfile(16, 4, 20_000, 32)),
+                entry(MachineTier.INDUSTRIAL, new FarmTierProfile(32, 8, 40_000, 64)),
+                entry(MachineTier.PRECISION, new FarmTierProfile(64, 16, 80_000, 128)),
+                entry(MachineTier.INFERNAL, new FarmTierProfile(128, 32, 160_000, 256)));
         for (MachineTier tier : MachineTier.values()) {
             assertThat(FarmTierProfile.fromConfig(tier)).as("%s", tier).isEqualTo(FarmTierProfile.defaults(tier));
         }

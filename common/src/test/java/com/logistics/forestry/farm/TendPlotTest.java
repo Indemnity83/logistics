@@ -90,6 +90,49 @@ class TendPlotTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void aFarmLoadedAtAnotherPositionDropsThePlotsItWasSavedWith() {
+        CompoundTag saved = emptyWheatPlot().save();
+
+        FarmHarness same = seedlessFarm();
+        same.load(saved);
+        same.tick();
+        assertThat(same.engine().plotsTotal()).as("reloaded in place").isEqualTo(1);
+
+        FarmHarness copy = seedlessFarm();
+        copy.host.pos = new BlockPos(100, 0, 0);
+        copy.load(saved);
+        copy.tick();
+        assertThat(copy.engine().plotsTotal()).as("copied elsewhere").isZero();
+        assertThat(copy.engine().emptyPlots()).isZero();
+    }
+
+    @Test
+    void aHarvestTheWorldRefusesLeavesThePlotPlanted() {
+        FarmHarness farm = seedlessFarm();
+        field(farm, PLOT, ripe(Blocks.WHEAT));
+        farm.world.refuseBreak = pos -> pos.equals(PLOT);
+
+        farm.ticks(2 * PASS);
+
+        assertThat(farm.world.blocks.get(PLOT)).isEqualTo(ripe(Blocks.WHEAT));
+        assertThat(farm.engine().emptyPlots()).isZero();
+    }
+
+    @Test
+    void snowOnAnEmptyPlotIsReplacedByTheReplantNotForgotten() {
+        FarmHarness farm = emptyWheatPlot();
+        farm.world.set(PLOT, Blocks.SNOW.defaultBlockState());
+
+        farm.ticks(PASS);
+        assertThat(farm.engine().emptyPlots()).isEqualTo(1);
+
+        farm.items().setItem(0, new ItemStack(Items.WHEAT_SEEDS, 1));
+        farm.ticks(PASS);
+
+        assertThat(farm.world.blocks.get(PLOT)).isEqualTo(Blocks.WHEAT.defaultBlockState());
+    }
+
+    @Test
     void replantsFromTheInventoryWhenTheDropsHoldNoGermling() {
         FarmHarness farm = seedlessFarm();
         farm.items().setItem(3, new ItemStack(Items.WHEAT_SEEDS, 5));

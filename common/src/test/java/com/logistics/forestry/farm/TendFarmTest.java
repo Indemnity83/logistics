@@ -317,7 +317,8 @@ class TendFarmTest extends MinecraftTestEnvironment {
     @Test
     void aFarmShortOfItsCheapestActionSaysNoPowerUntilCharged() {
         FarmHarness farm = farm();
-        long cheapest = farm.cost(FarmCost.HARVEST_LEAVES);
+        long cheapest = farm.cost(FarmCost.HARVEST_CROP);
+        assertThat(farm.cost(FarmCost.HARVEST_LEAVES)).as("an Arboretum-only action is cheaper").isLessThan(cheapest);
         farm.power(cheapest - 1);
 
         farm.ticks(PASS);

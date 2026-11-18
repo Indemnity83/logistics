@@ -48,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
  * ({@link TendLogic#growing}). A Plot left unplanted is an Empty Plot: the scan replants it, its
  * ground repaired first ({@link TendLogic#plotGround}), as soon as its germling is in the inventory.
  * A Plot is forgotten once its ground can no longer hold it or anything other than its own plant
- * stands on it.
+ * stands on it; cover that planting replaces (snow, grass) leaves it an Empty Plot.
  *
  * <p>Each tick, before any action, the farm pays its upkeep: {@link TendLogic#upkeep}'s RF/t for
  * every Plot, Empty Plots included, fractions carried until they make a whole RF. While it cannot
@@ -87,6 +87,9 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     /** Side of the Reach's square. */
     public static final int REACH_SIZE = 2 * REACH + 1;
 
+    /** Ticks the buffer must stay empty before the lamp goes off. */
+    static final int LAMP_OFF_TICKS = 20;
+
     /** Every position of the Reach relative to the farm, in scan order. */
     static final List<BlockPos> REACH_OFFSETS = reachOffsets();
 
@@ -114,6 +117,8 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     private final List<ItemStack> collected = new ArrayList<>();
     private final FarmPlots plots = new FarmPlots();
 
+    // Where the farm's Plots and harvest were recorded; null until its first tick.
+    @Nullable private BlockPos origin;
     @Nullable private TendLogic.Harvest harvest;
     // Set when a harvest loaded from a save is still to be planned again.
     private boolean resumeHarvest;
@@ -134,6 +139,8 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
     // Upkeep owed below one RF, in thousandths of an RF; not saved.
     private long upkeepOwed;
     private boolean upkeepUnpaid;
+    // Consecutive ticks the buffer has been empty, up to LAMP_OFF_TICKS; not saved.
+    private int emptyTicks = LAMP_OFF_TICKS;
     private boolean dirty;
 
     public TendFarmComponent(
@@ -234,6 +241,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         FarmSettings s = settings.get();
         counted.attach(opened);
         ensureScanner(s);
+        settleAt(ctx.pos());
 
         boolean paused = !ctx.workEnabled();
         if (!paused) {
@@ -256,6 +264,25 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             dirty = false;
             ctx.markChanged();
         }
+    }
+
+    /**
+     * Records the farm's position; when its saved state came from a farm elsewhere (a copied block
+     * entity, a cloned or templated farm), drops that farm's Plots and harvest under way.
+     */
+    private void settleAt(BlockPos pos) {
+        if (pos.equals(origin)) {
+            return;
+        }
+        if (origin != null) {
+            plots.clear();
+            harvest = null;
+            resumeHarvest = false;
+            targets.clear();
+            collected.clear();
+        }
+        origin = pos.immutable();
+        dirty = true;
     }
 
     private void ensureScanner(FarmSettings s) {
@@ -379,11 +406,12 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             occupant = counted.state(pos);
         }
         Ground ground = readGround(pos);
-        if (ground == null || !occupant.isAir() && !logic.isPlanted(occupant, germling)) {
+        boolean planted = !occupant.isAir() && logic.isPlanted(occupant, germling);
+        if (ground == null || !planted && !isOpen(occupant)) {
             plots.forget(pos);
             return FarmStatus.IDLE;
         }
-        if (!occupant.isAir()) {
+        if (planted) {
             plots.markEmpty(pos, false);
             return FarmStatus.IDLE;
         }
@@ -401,6 +429,15 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         inventory.take(germling, 1);
         plots.markEmpty(pos, false);
         return FarmStatus.WORKING;
+    }
+
+    /** Whether planting can take {@code occupant}'s place: air, or cover planting replaces (snow, grass). */
+    private static boolean isOpen(BlockState occupant) {
+        return occupant.isAir() || occupant.canBeReplaced() && occupant.getFluidState().isEmpty();
+    }
+
+    private boolean isOpen(BlockPos plot) {
+        return counted.isLoaded(plot) && isOpen(counted.state(plot));
     }
 
     /** The ground under {@code plot}; {@code null} when it cannot hold a Plot or is not loaded. */
@@ -497,7 +534,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             if (energy.amount() < cost) {
                 return noPower(cost);
             }
-            List<ItemStack> drops = leaves ? counted.breakLeaves(pos) : counted.breakBlock(pos);
+            List<ItemStack> drops = counted.breakBlock(pos);
             targets.poll();
             dirty = true;
             if (drops == null) {
@@ -578,7 +615,8 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         if (ground == null || done.germling().isEmpty()) {
             plots.forget(done.plot());
         } else {
-            plots.remember(done.plot(), done.germling(), !planted);
+            // A refused break leaves the plant standing: the Plot is not empty.
+            plots.remember(done.plot(), done.germling(), !planted && isOpen(done.plot()));
         }
         List<ItemStack> spill = new ArrayList<>();
         for (ItemStack drop : drops) {
@@ -665,9 +703,9 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         showLamp(ctx);
     }
 
-    private static long cheapestAction(FarmSettings s) {
+    private long cheapestAction(FarmSettings s) {
         long cheapest = Long.MAX_VALUE;
-        for (FarmCost cost : FarmCost.values()) {
+        for (FarmCost cost : logic.actions()) {
             cheapest = Math.min(cheapest, s.cost(cost));
         }
         return cheapest;
@@ -691,10 +729,14 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         return false;
     }
 
-    /** The block's {@code lamp} state: off with an empty buffer, else the status colour. */
+    /**
+     * The block's {@code lamp} state: off once the buffer has stayed empty for {@link #LAMP_OFF_TICKS},
+     * else the status colour, so a trickle-fed farm whose buffer touches 0 between payments stays lit.
+     */
     private void showLamp(MachineContext ctx) {
+        emptyTicks = energy.amount() > 0 ? 0 : Math.min(emptyTicks + 1, LAMP_OFF_TICKS);
         BlockState state = ctx.blockState();
-        FarmLamp lamp = energy.amount() > 0 ? FarmLamp.forStatus(status) : FarmLamp.OFF;
+        FarmLamp lamp = emptyTicks < LAMP_OFF_TICKS ? FarmLamp.forStatus(status) : FarmLamp.OFF;
         if (state.hasProperty(FarmMachineBlock.LAMP) && state.getValue(FarmMachineBlock.LAMP) != lamp) {
             // setBlock relights on any flags; no neighbour reacts to the lamp.
             ctx.setBlockState(state.setValue(FarmMachineBlock.LAMP, lamp), Block.UPDATE_CLIENTS);
@@ -715,6 +757,9 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     @Override
     public void save(CompoundTag tag, HolderLookup.Provider registries) {
+        if (origin != null) {
+            tag.putLong("Origin", origin.asLong());
+        }
         tag.putInt("Cursor", scanner != null ? scanner.cursor() : savedCursor);
         if (owner != null) {
             tag.putString("Owner", owner.toString());
@@ -727,6 +772,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     @Override
     public void load(CompoundTag tag, HolderLookup.Provider registries) {
+        origin = tag.contains("Origin") ? BlockPos.of(NbtCompat.getLong(tag, "Origin", 0L)) : null;
         savedCursor = NbtCompat.getInt(tag, "Cursor", 0);
         scanner = null;
         heldPower = 0;

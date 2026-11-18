@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -174,10 +173,11 @@ final class FarmHarness {
     static final class Host implements MachineContext {
         private final HolderLookup.Provider registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
         private final RandomSource random = RandomSource.create(42L);
-        BlockState state = farmBlock().defaultBlockState().setValue(FarmMachineBlock.FACING, Direction.SOUTH);
+        BlockState state = farmBlock().defaultBlockState();
         int changes;
         int stateWrites;
         boolean workEnabled = true;
+        BlockPos pos = BlockPos.ZERO;
 
         FarmLamp lamp() {
             return state.getValue(FarmMachineBlock.LAMP);
@@ -196,7 +196,7 @@ final class FarmHarness {
 
         @Override
         public BlockPos pos() {
-            return BlockPos.ZERO;
+            return pos;
         }
 
         @Override

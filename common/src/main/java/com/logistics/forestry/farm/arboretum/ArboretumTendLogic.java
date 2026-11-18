@@ -12,7 +12,9 @@ import com.logistics.forestry.logic.FellPlanner;
 import com.logistics.forestry.logic.LevelTreeView;
 import com.logistics.forestry.logic.TreeFeller;
 import com.logistics.forestry.logic.TreeView;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -102,6 +104,14 @@ public final class ArboretumTendLogic implements TendLogic {
     @Override
     public FarmUpkeep upkeep() {
         return FarmUpkeep.ARBORETUM;
+    }
+
+    private static final Set<FarmCost> ACTIONS =
+            EnumSet.of(FarmCost.HARVEST_LOG, FarmCost.HARVEST_LEAVES, FarmCost.PLANT);
+
+    @Override
+    public Set<FarmCost> actions() {
+        return ACTIONS;
     }
 
     @Override

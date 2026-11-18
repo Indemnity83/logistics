@@ -6,6 +6,7 @@ import com.logistics.DomainRegistrations;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.farm.crop.CropTendLogic;
 import com.logistics.test.MinecraftTestEnvironment;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Blocks;
@@ -41,6 +42,11 @@ class FarmScheduleTest extends MinecraftTestEnvironment {
         @Override
         public FarmUpkeep upkeep() {
             return crops.upkeep();
+        }
+
+        @Override
+        public Set<FarmCost> actions() {
+            return crops.actions();
         }
 
         @Override
@@ -124,22 +130,41 @@ class FarmScheduleTest extends MinecraftTestEnvironment {
         assertThat(farm.host.stateWrites).isEqualTo(3);
 
         farm.power(0);
+        farm.ticks(TendFarmComponent.LAMP_OFF_TICKS - 1);
+        assertThat(farm.host.lamp()).as("empty for less than a second").isEqualTo(FarmLamp.AMBER);
         farm.tick();
         assertThat(farm.host.lamp()).as("empty buffer, whatever the status").isEqualTo(FarmLamp.OFF);
         assertThat(farm.host.stateWrites).isEqualTo(4);
     }
 
     @Test
+    void aTrickleFedFarmWhoseBufferTouchesZeroKeepsItsLampLit() {
+        FarmHarness farm = FarmHarness.tending(new CountingLogic());
+        farm.power(1);
+        farm.tick();
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.RED);
+        int writes = farm.host.stateWrites;
+
+        for (int tick = 0; tick < 100; tick++) {
+            farm.power(tick % 3 == 0 ? 0 : 1);
+            farm.tick();
+        }
+
+        assertThat(farm.host.lamp()).isEqualTo(FarmLamp.RED);
+        assertThat(farm.host.stateWrites).as("no flicker").isEqualTo(writes);
+    }
+
+    @Test
     void raisingTheTierGrowsTheBufferKeepingItsCharge() {
         FarmHarness farm = shippedTiers();
         assertThat(farm.machine.energy().capacity()).isEqualTo(20_000);
-        assertThat(farm.machine.energy().maxInsert()).isEqualTo(16);
+        assertThat(farm.machine.energy().maxInsert()).isEqualTo(32);
         farm.power(15_000);
 
         assertThat(farm.machine.tier().setTier(MachineTier.INDUSTRIAL)).isTrue();
 
         assertThat(farm.machine.energy().capacity()).isEqualTo(40_000);
-        assertThat(farm.machine.energy().maxInsert()).isEqualTo(32);
+        assertThat(farm.machine.energy().maxInsert()).isEqualTo(64);
         assertThat(farm.energy()).isEqualTo(15_000);
         assertThat(farm.engine().reachSize()).as("the Reach does not grow with the tier").isEqualTo(7);
     }

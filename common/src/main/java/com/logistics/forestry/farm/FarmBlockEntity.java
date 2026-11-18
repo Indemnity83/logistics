@@ -7,6 +7,7 @@ import com.logistics.core.machine.control.MachineControls;
 import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.tier.TierComponent;
 import com.logistics.core.machine.tier.TieredMachine;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -37,6 +38,11 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine {
         @Override
         public FarmUpkeep upkeep() {
             return FarmUpkeep.CROP_FARM;
+        }
+
+        @Override
+        public Set<FarmCost> actions() {
+            return Set.of(FarmCost.HARVEST_CROP);
         }
 
         @Override

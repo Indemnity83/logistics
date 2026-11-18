@@ -37,15 +37,6 @@ public interface FarmWorldAccess extends FarmWorld {
     }
 
     /**
-     * {@link #breakBlock} for the natural leaves of a tree being felled; {@code null}, breaking
-     * nothing, unless {@link #canBreakLeaves}.
-     */
-    @Nullable
-    default List<ItemStack> breakLeaves(BlockPos pos) {
-        return canBreakLeaves(pos) ? breakBlock(pos) : null;
-    }
-
-    /**
      * Places {@code state} at {@code pos}.
      *
      * @return whether the world now holds the change; false when unloaded or refused

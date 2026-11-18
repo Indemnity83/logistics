@@ -6,7 +6,6 @@ import com.logistics.core.lib.compat.PlantCompat;
 import com.logistics.core.lib.power.AbstractEngineBlock;
 import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.forestry.farm.FarmBlockEntity;
-import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmStatus;
 import com.logistics.power.engine.block.entity.CreativeEngineBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -141,8 +140,7 @@ public class ArboretumGameTestBody {
         }
         context.setBlock(CHEST, Blocks.CHEST);
         context.setBlock(OUTPUT_HOPPER, Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.NORTH));
-        context.setBlock(FARM, LogisticsForestry.BLOCK.ARBORETUM.defaultBlockState()
-                .setValue(FarmMachineBlock.FACING, Direction.SOUTH));
+        context.setBlock(FARM, LogisticsForestry.BLOCK.ARBORETUM.defaultBlockState());
         FarmBlockEntity farm = context.getBlockEntity(FARM, FarmBlockEntity.class);
         if (farm == null) {
             context.fail("Expected the farm block entity");

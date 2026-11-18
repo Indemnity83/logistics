@@ -7,7 +7,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -65,19 +64,21 @@ public final class NeoForgeHumusTrees {
 
     /**
      * Vanilla refuses bone meal on a lone sapling that only grows as a 2x2 group. On Humus it grows
-     * alone, so the bone meal is applied here as vanilla would apply it.
+     * alone, so the bone meal is applied here as vanilla would apply it. Vanilla's other check, room
+     * below the build limit for the tree's minimum height, still applies, as it does on Fabric.
      */
     private static void onBonemeal(BonemealEvent event) {
         BlockPos pos = event.getPos();
         BlockState state = event.getState();
         if (event.isValidBonemealTarget()
                 || !(event.getLevel() instanceof ServerLevel level)
-                || !(state.getBlock() instanceof BonemealableBlock block)
-                || !HumusTrees.growsHumusTree(level, pos)) {
+                || !(state.getBlock() instanceof SaplingBlock sapling)
+                || !HumusTrees.growsHumusTree(level, pos)
+                || !level.isInsideBuildHeight(pos.above(sapling.treeGrower.getMinimumHeight(level).orElse(0)))) {
             return;
         }
-        if (block.isBonemealSuccess(level, level.getRandom(), pos, state, event.getSource())) {
-            block.performBonemeal(level, level.getRandom(), pos, state, event.getSource());
+        if (sapling.isBonemealSuccess(level, level.getRandom(), pos, state, event.getSource())) {
+            sapling.performBonemeal(level, level.getRandom(), pos, state, event.getSource());
         }
         event.getStack().shrink(1);
         event.setSuccessful(true);

@@ -64,6 +64,11 @@ final class FarmPlots {
         }
     }
 
+    void clear() {
+        plots.clear();
+        emptyCount = 0;
+    }
+
     int size() {
         return plots.size();
     }

@@ -2,6 +2,7 @@ package com.logistics.forestry.farm;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -49,6 +50,9 @@ public interface TendLogic {
 
     /** What this farm type pays each tick for each Plot it maintains. */
     FarmUpkeep upkeep();
+
+    /** Every action this farm type can take, which sets the least RF it can do any work with. */
+    Set<FarmCost> actions();
 
     /** What breaking {@code state} as part of a harvest costs. */
     FarmCost harvestCost(BlockState state);

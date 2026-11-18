@@ -6,6 +6,8 @@ import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.FarmWorld;
 import com.logistics.forestry.farm.TendLogic;
 import com.logistics.forestry.logic.GrowthAge;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -71,6 +73,13 @@ public final class CropTendLogic implements TendLogic {
     @Override
     public FarmUpkeep upkeep() {
         return FarmUpkeep.CROP_FARM;
+    }
+
+    private static final Set<FarmCost> ACTIONS = EnumSet.of(FarmCost.HARVEST_CROP, FarmCost.TILL, FarmCost.PLANT);
+
+    @Override
+    public Set<FarmCost> actions() {
+        return ACTIONS;
     }
 
     @Override

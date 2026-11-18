@@ -8,7 +8,6 @@ import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMachine;
-import com.logistics.forestry.farm.FarmMachineBlock;
 import com.logistics.forestry.farm.FarmSettings;
 import com.logistics.forestry.farm.FarmStatus;
 import com.logistics.forestry.farm.FarmTierProfile;
@@ -82,8 +81,7 @@ public class CropFarmGameTestBody {
             context.setBlock(plot, crop);
         }
         LAMPS.forEach(lamp -> context.setBlock(lamp, Blocks.GLOWSTONE));
-        context.setBlock(FARM, LogisticsForestry.BLOCK.CROP_FARM.defaultBlockState()
-                .setValue(FarmMachineBlock.FACING, Direction.EAST));
+        context.setBlock(FARM, LogisticsForestry.BLOCK.CROP_FARM.defaultBlockState());
         FarmBlockEntity farm = context.getBlockEntity(FARM, FarmBlockEntity.class);
         if (farm == null) {
             context.fail("Expected the farm block entity");
@@ -379,8 +377,7 @@ public class CropFarmGameTestBody {
      */
     public static void testTierSurvivesBreakAndReplace(GameTestHelper context) {
         context.setBlock(FARM.below(), Blocks.STONE);
-        context.setBlock(FARM, LogisticsForestry.BLOCK.CROP_FARM.defaultBlockState()
-                .setValue(FarmMachineBlock.FACING, Direction.EAST));
+        context.setBlock(FARM, LogisticsForestry.BLOCK.CROP_FARM.defaultBlockState());
         FarmBlockEntity placed = context.getBlockEntity(FARM, FarmBlockEntity.class);
         if (placed == null) {
             context.fail("Expected the farm block entity");
