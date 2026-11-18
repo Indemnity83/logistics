@@ -2,6 +2,7 @@ package com.logistics.power.engine;
 
 import com.logistics.core.lib.compat.NbtCompat;
 import com.logistics.core.lib.fluids.FluidDisplay;
+import com.logistics.core.lib.power.HeatStage;
 import com.logistics.core.lib.resource.ResourceId;
 import com.logistics.power.engine.steam.SteamEngineStatus;
 import com.logistics.power.engine.steam.SteamFireboxState;
@@ -36,7 +37,7 @@ public final class EngineHudLines {
         boolean hasHeat = NbtCompat.getBoolean(data, EngineHudData.KEY_HAS_HEAT, true);
 
         if (hasHeat && showDetails) {
-            lines.add(row("jade.logistics.engine.stage", stage, stageColor(stage)));
+            lines.add(labelled("jade.logistics.engine.stage").append(stageName(stage).withStyle(stageColor(stage))));
         }
 
         if (hasHeat) {
@@ -228,6 +229,16 @@ public final class EngineHudLines {
         // JadeLanguages.toCleanTranslation(), which rebuilds such a component from its key alone and
         // drops appended siblings (the ": " + value). An empty root sidesteps that and keeps the value.
         return Component.empty().append(Component.translatable(labelKey)).append(Component.literal(": "));
+    }
+
+    /** The stage's translated name; the raw value when it is not a known stage. */
+    private static net.minecraft.network.chat.MutableComponent stageName(String stage) {
+        for (HeatStage value : HeatStage.values()) {
+            if (value.name().equals(stage)) {
+                return Component.translatable(value.translationKey());
+            }
+        }
+        return Component.literal(stage);
     }
 
     private static ChatFormatting stageColor(String stage) {
