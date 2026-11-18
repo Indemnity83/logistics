@@ -16,6 +16,7 @@ import com.logistics.core.machine.control.MachineStatus;
 import com.logistics.core.machine.control.RedstoneMode;
 import com.logistics.forestry.farm.FarmBlockEntity;
 import com.logistics.forestry.farm.FarmMenu;
+import com.logistics.gametest.GameTestPlayers;
 import com.logistics.power.engine.block.entity.MagmaticEngineBlockEntity;
 import com.logistics.power.engine.ui.MagmaticEngineScreenHandler;
 import com.mojang.authlib.GameProfile;
@@ -174,7 +175,7 @@ public class MachineControlsGameTestBody {
 
     /** Each server menu, opened through its block entity's real menu provider, carries live controls. */
     public static void testEveryServerMenuCarriesControls(GameTestHelper context) {
-        Player player = context.makeMockServerPlayer(GameType.SURVIVAL);
+        Player player = GameTestPlayers.mockServerPlayer(context, GameType.SURVIVAL);
         for (Supplier<Block> block : MENU_BLOCKS) {
             context.setBlock(POS, Blocks.AIR);
             context.setBlock(POS, block.get());
@@ -205,8 +206,8 @@ public class MachineControlsGameTestBody {
             BlockEntity entity,
             Function<Inventory, AbstractContainerMenu> clientMenu) {
         MachineStatus status = (MachineStatus) entity;
-        Player survivor = context.makeMockServerPlayer(GameType.SURVIVAL);
-        Player spectator = context.makeMockServerPlayer(GameType.SPECTATOR);
+        Player survivor = GameTestPlayers.mockServerPlayer(context, GameType.SURVIVAL);
+        Player spectator = GameTestPlayers.mockServerPlayer(context, GameType.SPECTATOR);
         standBeside(survivor, context);
 
         AbstractContainerMenu menu = openServerMenu(entity, survivor);
