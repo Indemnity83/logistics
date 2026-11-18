@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["VTV", "SMS", "GCG"],
+  "key": {
+    "V": { "item": "logistics:core/iron_valve" },
+    "T": { "item": "minecraft:shears" },
+    "S": { "item": "minecraft:apple" },
+    "M": { "item": "logistics:core/machine_core" },
+    "G": { "tag": "c:gears/copper" },
+    "C": { "item": "logistics:core/redstone_reception_coil" }
+  },
+  "result": { "id": "logistics:forestry/orchard", "count": 1 }
+}

@@ -20,6 +20,8 @@ import com.logistics.forestry.farm.FarmUpkeep;
 import com.logistics.forestry.farm.arboretum.ArboretumBlock;
 import com.logistics.forestry.farm.crop.CropFarmBlock;
 import com.logistics.forestry.farm.netherwart.NetherWartFarmBlock;
+import com.logistics.forestry.farm.orchard.OrchardBlock;
+import com.logistics.forestry.farm.orchard.OrchardFruits;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -75,6 +77,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         RECIPE.register();
         CREATIVE.register();
         ALIAS.register();
+        OrchardFruits.registerReloadListener();
     }
 
     /** The shared farm machine ({@code farm.json}), under {@code config/logistics/forestry/}. */
@@ -226,6 +229,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static Block ARBORETUM;
         public static Block CROP_FARM;
         public static Block NETHER_WART_FARM;
+        public static Block ORCHARD;
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
@@ -240,6 +244,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                     .lightLevel(state -> state.getValue(CropFarmBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
             NETHER_WART_FARM = registerFarm("nether_wart_farm",
                 props -> new NetherWartFarmBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+            ORCHARD = registerFarm("orchard",
+                props -> new OrchardBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
         }
@@ -308,6 +316,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             TAB.add(BLOCK.ARBORETUM);
             TAB.add(BLOCK.CROP_FARM);
             TAB.add(BLOCK.NETHER_WART_FARM);
+            TAB.add(BLOCK.ORCHARD);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }
