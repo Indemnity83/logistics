@@ -44,7 +44,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         assertThat(FarmCost.values()).extracting(FarmCost::configName).containsExactly(
                 "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves", "rf_till", "rf_plant");
         Map<FarmUpkeep, Double> upkeep =
-                Map.of(FarmUpkeep.CROP_FARM, 0.25, FarmUpkeep.ARBORETUM, 1.5, FarmUpkeep.COCOA_PLANTATION, 0.125);
+                Map.of(FarmUpkeep.CROP_FARM, 0.25, FarmUpkeep.ARBORETUM, 1.5, FarmUpkeep.COCOA_PLANTATION, 0.2);
         for (FarmUpkeep rate : FarmUpkeep.values()) {
             ConfigKey<Double> key = LogisticsForestry.CONFIG.farmUpkeep(rate);
             assertThat(key.definition().path().fullPath()).as("%s", rate).isEqualTo(rate.configName());
