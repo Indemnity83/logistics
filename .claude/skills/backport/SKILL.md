@@ -156,7 +156,10 @@ sibling worktrees. Two ways to trash a sibling's run — both observed:
 
 For each commit SHA:
 
-1. **Cherry-pick:** `git -C <wt> cherry-pick -x <sha>` (the `-x` adds a "cherry picked from" trailer).
+1. **Cherry-pick:** `git -C <wt> cherry-pick <sha>`, **without `-x`**. Its "cherry picked from"
+   trailer after a multi-change squash body makes release-please keep only the first extra
+   `type(scope): …` line and drop the rest from that branch's changelog. Nothing is lost by leaving
+   it off: the subject's `(#N)` already names the source PR.
 2. **Already-present detection (critical):** after resolving any conflicts to HEAD, check
    `git -C <wt> diff HEAD --stat`. If the **net diff is empty**, the commit's content is already
    on the branch (bundled in an earlier squash) → `git -C <wt> cherry-pick --skip` and move on.
