@@ -67,8 +67,19 @@ public interface TendLogic {
     }
 
     /**
-     * The ground a Plot's germling grows on, made ready from {@code ground}, the block under the Plot:
-     * {@code ground} itself when it is ready, the block the farm repairs it into (charged as a
+     * Where the plant on {@code plot} is held up: the block {@link #plotGround} judges, and a till
+     * repairs, for it. {@code null} when nothing there could hold it. Defaults to the block under the
+     * Plot; a plant that hangs beside its support (cocoa on a log) names that block instead, and
+     * {@link #plantState} faces the plant towards it.
+     */
+    @Nullable
+    default BlockPos support(FarmWorld world, BlockPos plot) {
+        return plot.below();
+    }
+
+    /**
+     * The ground a Plot's germling grows on, made ready from {@code ground}, the Plot's
+     * {@link #support}: {@code ground} itself when it is ready, the block the farm repairs it into (charged as a
      * {@link FarmCost#TILL}) when it can be repaired, or {@code null} when it cannot hold the Plot,
      * which the farm then forgets.
      */

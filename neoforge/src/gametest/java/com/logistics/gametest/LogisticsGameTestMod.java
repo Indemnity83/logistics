@@ -17,6 +17,7 @@ import com.logistics.gametest.core.OreGenerationGameTestRegistration;
 import com.logistics.gametest.core.PlantCompatGameTestRegistration;
 import com.logistics.gametest.core.SolidFuelGameTestRegistration;
 import com.logistics.gametest.forestry.ArboretumGameTestRegistration;
+import com.logistics.gametest.forestry.CocoaPlantationGameTestRegistration;
 import com.logistics.gametest.forestry.CropFarmGameTestRegistration;
 import com.logistics.gametest.forestry.HumusGameTestRegistration;
 import com.logistics.gametest.forestry.TreeFellerGameTestRegistration;
@@ -90,6 +91,7 @@ public final class LogisticsGameTestMod {
         SolidFuelGameTestRegistration.bootstrap();
 
         ArboretumGameTestRegistration.bootstrap();
+        CocoaPlantationGameTestRegistration.bootstrap();
         CropFarmGameTestRegistration.bootstrap();
         HumusGameTestRegistration.bootstrap();
         TreeFellerGameTestRegistration.bootstrap();

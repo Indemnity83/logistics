@@ -95,8 +95,11 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     private record Target(BlockPos pos, Block block) {}
 
-    /** The ground under a Plot as read, and as {@link TendLogic#plotGround} makes it ready for planting. */
-    private record Ground(BlockState current, BlockState ready) {
+    /**
+     * A Plot's ground ({@link TendLogic#support}) at {@code pos}, as read, and as
+     * {@link TendLogic#plotGround} makes it ready for planting.
+     */
+    private record Ground(BlockPos pos, BlockState current, BlockState ready) {
         boolean needsRepair() {
             return current != ready;
         }
@@ -440,16 +443,16 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         return counted.isLoaded(plot) && isOpen(counted.state(plot));
     }
 
-    /** The ground under {@code plot}; {@code null} when it cannot hold a Plot or is not loaded. */
+    /** The ground {@code plot} grows on; {@code null} when it cannot hold a Plot or is not loaded. */
     @Nullable
     private Ground readGround(BlockPos plot) {
-        BlockPos foot = plot.below();
-        if (!counted.isLoaded(foot)) {
+        BlockPos foot = logic.support(counted, plot);
+        if (foot == null || !counted.isLoaded(foot)) {
             return null;
         }
         BlockState current = counted.state(foot);
         BlockState ready = logic.plotGround(current);
-        return ready != null ? new Ground(current, ready) : null;
+        return ready != null ? new Ground(foot.immutable(), current, ready) : null;
     }
 
     /** RF a plant on {@code ground} takes: the plant, and the till if the ground needs repair. */
@@ -652,8 +655,11 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
      * cannot; a repair that succeeds is charged even if the plant then fails.
      */
     private boolean replant(BlockPos plot, ItemStack germling, @Nullable Ground ground, FarmSettings s) {
-        BlockPos foot = plot.below();
-        if (!counted.isLoaded(plot) || !counted.isLoaded(foot)) {
+        if (!counted.isLoaded(plot)) {
+            return false;
+        }
+        BlockPos foot = ground != null ? ground.pos() : logic.support(counted, plot);
+        if (foot != null && !counted.isLoaded(foot)) {
             return false;
         }
         BlockState plant = logic.plantState(germling, plot, counted);
