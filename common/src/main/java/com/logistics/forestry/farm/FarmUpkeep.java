@@ -11,6 +11,7 @@ import java.util.Map;
 public enum FarmUpkeep {
     CROP_FARM("rf_upkeep_crop_farm", 0.25, "RF per tick for each Plot the Crop Farm maintains"),
     ARBORETUM("rf_upkeep_arboretum", 1.5, "RF per tick for each Plot the Arboretum maintains"),
+    NETHER_WART_FARM("rf_upkeep_nether_wart_farm", 0.25, "RF per tick for each Plot the Nether Wart Farm maintains"),
     ORCHARD("rf_upkeep_orchard", 1.5, "RF per tick for each tree the Orchard picks from");
 
     private final String configName;
