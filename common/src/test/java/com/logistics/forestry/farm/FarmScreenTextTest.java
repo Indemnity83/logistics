@@ -8,8 +8,10 @@ import com.logistics.core.machine.tier.MachineTier;
 import com.logistics.test.MinecraftTestEnvironment;
 import java.util.List;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.level.block.Block;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,13 +37,12 @@ class FarmScreenTextTest extends MinecraftTestEnvironment {
     void tabKey() {
         DomainRegistrations.ensureRegistered();
 
-        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.CROP_FARM.getName())).isEqualTo("crop_farm");
-        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.ARBORETUM.getName())).isEqualTo("arboretum");
-        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.NETHER_WART_FARM.getName()))
-                .isEqualTo("nether_wart_farm");
-        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.ORCHARD.getName())).isEqualTo("orchard");
-        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.PLANTATION.getName())).isEqualTo("plantation");
-        assertThat(FarmScreenText.tabKey(LogisticsForestry.BLOCK.GOURD_FARM.getName())).isEqualTo("gourd_farm");
+        assertThat(LogisticsForestry.BLOCK.farms()).isNotEmpty();
+        for (Block farm : LogisticsForestry.BLOCK.farms()) {
+            String path = BuiltInRegistries.BLOCK.getKey(farm).getPath();
+            assertThat(FarmScreenText.tabKey(farm.getName())).as(path)
+                    .isEqualTo(path.substring(path.lastIndexOf('/') + 1));
+        }
         assertThat(FarmScreenText.tabKey(Component.literal("Crop Farm"))).isEqualTo(FarmScreenText.FALLBACK_TAB_KEY);
         assertThat(FarmScreenText.tabKey(Component.translatable("container.chest")))
                 .isEqualTo(FarmScreenText.FALLBACK_TAB_KEY);
