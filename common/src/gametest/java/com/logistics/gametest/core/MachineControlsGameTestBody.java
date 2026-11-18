@@ -76,7 +76,8 @@ public class MachineControlsGameTestBody {
             () -> LogisticsPower.BLOCK.REACTION_ENGINE,
             () -> LogisticsForestry.BLOCK.CROP_FARM,
             () -> LogisticsForestry.BLOCK.ARBORETUM,
-            () -> LogisticsForestry.BLOCK.ORCHARD);
+            () -> LogisticsForestry.BLOCK.ORCHARD,
+            () -> LogisticsForestry.BLOCK.GOURD_FARM);
 
     // ==================== Helpers ====================
 
