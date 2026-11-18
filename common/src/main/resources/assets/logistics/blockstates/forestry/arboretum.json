@@ -1,34 +1,16 @@
 {
   "variants": {
-    "facing=north,lit=false": {
+    "lamp=off": {
       "model": "logistics:block/forestry/arboretum"
     },
-    "facing=north,lit=true": {
-      "model": "logistics:block/forestry/arboretum_active"
+    "lamp=red": {
+      "model": "logistics:block/forestry/arboretum_red"
     },
-    "facing=south,lit=false": {
-      "model": "logistics:block/forestry/arboretum",
-      "y": 180
+    "lamp=amber": {
+      "model": "logistics:block/forestry/arboretum_amber"
     },
-    "facing=south,lit=true": {
-      "model": "logistics:block/forestry/arboretum_active",
-      "y": 180
-    },
-    "facing=east,lit=false": {
-      "model": "logistics:block/forestry/arboretum",
-      "y": 90
-    },
-    "facing=east,lit=true": {
-      "model": "logistics:block/forestry/arboretum_active",
-      "y": 90
-    },
-    "facing=west,lit=false": {
-      "model": "logistics:block/forestry/arboretum",
-      "y": 270
-    },
-    "facing=west,lit=true": {
-      "model": "logistics:block/forestry/arboretum_active",
-      "y": 270
+    "lamp=green": {
+      "model": "logistics:block/forestry/arboretum_green"
     }
   }
 }

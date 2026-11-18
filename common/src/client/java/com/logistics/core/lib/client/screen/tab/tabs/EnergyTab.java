@@ -84,7 +84,7 @@ public final class EnergyTab extends SideTab {
 
     @Override
     public List<Component> statusLines() {
-        return List.of(rate(energy.rate()).withStyle(ChatFormatting.GRAY));
+        return List.of(rate(energy.rate(), energy.rateTenths()).withStyle(ChatFormatting.GRAY));
     }
 
     @Override
@@ -110,8 +110,8 @@ public final class EnergyTab extends SideTab {
     /** The label/value groups shown, in order. */
     List<Group> groups() {
         List<Group> groups = new ArrayList<>(3);
-        groups.add(new Group(Component.translatable(mode.rateLabel), rate(energy.rate())));
-        groups.add(new Group(Component.translatable(mode.maxRateLabel), rate(energy.maxRate())));
+        groups.add(new Group(Component.translatable(mode.rateLabel), rate(energy.rate(), energy.rateTenths())));
+        groups.add(new Group(Component.translatable(mode.maxRateLabel), rate(energy.maxRate(), 0)));
         if (mode == Mode.USAGE || energy.hasBuffer()) {
             groups.add(new Group(
                     Component.translatable(STORED_KEY),
@@ -121,7 +121,7 @@ public final class EnergyTab extends SideTab {
         return groups;
     }
 
-    private static MutableComponent rate(long rate) {
-        return Component.translatable(RATE_KEY, StatLines.number(rate));
+    private static MutableComponent rate(long rate, int tenths) {
+        return Component.translatable(RATE_KEY, StatLines.number(rate, tenths));
     }
 }

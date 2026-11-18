@@ -1,6 +1,7 @@
 package com.logistics.core.machine.component;
 
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 
@@ -15,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
  *   <li>{@link #bottomOut} — inputs from the top and all horizontal sides, outputs from the bottom.</li>
  *   <li>{@link #topIn} — inputs from the top only, nothing extractable.</li>
  *   <li>{@link #anyFace} — inputs and outputs on every face.</li>
+ *   <li>{@link #open} — every slot insertable and extractable on every face.</li>
  * </ul>
  *
  * <p>A {@link SlotFilter} further restricts which items each slot accepts. It gates face insertion
@@ -98,6 +100,12 @@ public final class SidedLayout {
         System.arraycopy(inputSlots, 0, all, 0, inputSlots.length);
         System.arraycopy(outputSlots, 0, all, inputSlots.length, outputSlots.length);
         return new SidedLayout(all, all, all, inputSlots, outputSlots, stack -> true);
+    }
+
+    /** Every one of {@code slotCount} slots insertable and extractable from every face. */
+    public static SidedLayout open(int slotCount) {
+        int[] all = IntStream.range(0, slotCount).toArray();
+        return new SidedLayout(all, all, all, all, all, stack -> true);
     }
 
     /** This layout with {@code slotFilter} replacing its per-slot filter. */

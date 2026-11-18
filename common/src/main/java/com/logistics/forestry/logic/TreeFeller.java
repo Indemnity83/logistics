@@ -30,11 +30,10 @@ public final class TreeFeller {
 
     /**
      * Search bounds and size cap. Wood must lie in the {@code wood} columns and canopy in the
-     * {@code canopy} columns. Of the {@code keepOut} columns, only natural leaves that belong to the
-     * tree ({@link TreeView#isLeaves}) are ever taken or walked through: no wood, no other canopy. Vertically, bounds are measured from
-     * the seed log: {@code below} and {@code above}.
+     * {@code canopy} columns. Vertically, bounds are measured from the seed log: {@code below} and
+     * {@code above}.
      */
-    public record Limits(Columns wood, Columns canopy, Columns keepOut, int below, int above, int cap) {
+    public record Limits(Columns wood, Columns canopy, int below, int above, int cap) {
         public static final int BELOW = 3;
         public static final int ABOVE = 32;
         public static final int CAP = 1024;
@@ -43,17 +42,17 @@ public final class TreeFeller {
         public static final int CANOPY_MARGIN = 3;
 
         public Limits {
-            if (wood == null || canopy == null || keepOut == null || below < 0 || above < 0 || cap < 1) {
+            if (wood == null || canopy == null || below < 0 || above < 0 || cap < 1) {
                 throw new IllegalArgumentException("invalid tree felling limits: " + this);
             }
         }
 
         /**
          * A tree worked from a region: wood inside {@code bounds}, canopy inside them widened by
-         * {@link #CANOPY_MARGIN}, never anything in {@code keepOut}.
+         * {@link #CANOPY_MARGIN}.
          */
-        public static Limits within(Columns bounds, Columns keepOut) {
-            return new Limits(bounds, bounds.grow(CANOPY_MARGIN), keepOut, BELOW, ABOVE, CAP);
+        public static Limits within(Columns bounds) {
+            return new Limits(bounds, bounds.grow(CANOPY_MARGIN), BELOW, ABOVE, CAP);
         }
 
         /** A free-standing tree: wood and canopy within {@code radius} columns of {@code plot}. */
@@ -62,15 +61,15 @@ public final class TreeFeller {
                 throw new IllegalArgumentException("radius must be >= 0: " + radius);
             }
             Columns square = Columns.square(plot, 2 * radius + 1);
-            return new Limits(square, square, Columns.EMPTY, BELOW, ABOVE, CAP);
+            return new Limits(square, square, BELOW, ABOVE, CAP);
         }
 
         public Limits withCap(int cap) {
-            return new Limits(wood, canopy, keepOut, below, above, cap);
+            return new Limits(wood, canopy, below, above, cap);
         }
 
         public Limits withHeight(int below, int above) {
-            return new Limits(wood, canopy, keepOut, below, above, cap);
+            return new Limits(wood, canopy, below, above, cap);
         }
     }
 

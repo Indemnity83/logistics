@@ -2,7 +2,6 @@ package com.logistics.forestry.farm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.logistics.forestry.farm.FarmGauges.Lamp;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,19 +28,31 @@ class FarmGaugesTest {
         assertThat(FarmGauges.fillPixels(4_000_000_000L, 4_000_000_001L, 52)).isEqualTo(51);
     }
 
-    @Test
-    @DisplayName("lamp is green while working and amber while idle, paused or surveying")
-    void lampForBenignStatuses() {
-        assertThat(FarmGauges.lamp(FarmStatus.WORKING)).isEqualTo(Lamp.GREEN);
-        assertThat(FarmGauges.lamp(FarmStatus.IDLE)).isEqualTo(Lamp.AMBER);
-        assertThat(FarmGauges.lamp(FarmStatus.PAUSED)).isEqualTo(Lamp.AMBER);
-        assertThat(FarmGauges.lamp(FarmStatus.SURVEYING)).isEqualTo(Lamp.AMBER);
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"WORKING", "IDLE"})
+    @DisplayName("the screen lamp shows the green sprite while the farm works or has nothing ripe")
+    void lampIsGreenWhenAllIsWell(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isZero();
     }
 
     @ParameterizedTest
-    @EnumSource(value = FarmStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"WORKING", "IDLE", "PAUSED", "SURVEYING"})
-    @DisplayName("lamp is red for every problem status")
-    void lampForProblems(FarmStatus status) {
-        assertThat(FarmGauges.lamp(status)).isEqualTo(Lamp.RED);
+    @EnumSource(value = FarmStatus.class, names = {"WAITING_FOR_SEEDS", "INVENTORY_FULL", "PAUSED"})
+    @DisplayName("the screen lamp shows the amber sprite while the farm needs attention")
+    void lampIsAmberForWarnings(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isEqualTo(1);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FarmStatus.class, names = {"NO_POWER", "BLOCKED"})
+    @DisplayName("the screen lamp shows the red sprite when the farm cannot work")
+    void lampIsRedForFaults(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isEqualTo(2);
+    }
+
+    @ParameterizedTest
+    @EnumSource(FarmStatus.class)
+    @DisplayName("every status has a screen lamp sprite")
+    void everyStatusHasASprite(FarmStatus status) {
+        assertThat(FarmGauges.lampSprite(status)).isBetween(0, 2);
     }
 }

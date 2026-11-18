@@ -1,15 +1,15 @@
 package com.logistics.forestry.farm.crop;
 
-import com.logistics.forestry.farm.FarmLogic;
 import com.logistics.forestry.farm.FarmMachineBlock;
+import com.logistics.forestry.farm.TendLogic;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.BaseEntityBlock;
 
-/** The Crop Farm block: tills, waters, plants and harvests field crops on its plot. */
+/** The Crop Farm block: harvests and replants ripe field crops in its Reach; see {@link CropTendLogic}. */
 public class CropFarmBlock extends FarmMachineBlock {
     public static final MapCodec<CropFarmBlock> CODEC = simpleCodec(CropFarmBlock::new);
 
-    private static final FarmLogic LOGIC = new CropFarmLogic();
+    private static final TendLogic LOGIC = new CropTendLogic();
 
     public CropFarmBlock(Properties settings) {
         super(settings);
@@ -21,7 +21,7 @@ public class CropFarmBlock extends FarmMachineBlock {
     }
 
     @Override
-    public FarmLogic logic() {
+    public TendLogic logic() {
         return LOGIC;
     }
 }
