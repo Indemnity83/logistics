@@ -105,6 +105,29 @@ final class ResourceFiles {
         return jsonFilesUnder(assetRoot().resolve(dir));
     }
 
+    /**
+     * Every {@code .json} file under {@code assets/logistics/<dir>} that loader {@code module} ships
+     * itself; empty when it ships none.
+     */
+    static List<Path> loaderJsonFiles(String module, String dir) {
+        Path root = loaderAssetRoot(module).resolve(dir);
+        return Files.isDirectory(root) ? jsonFilesUnder(root) : List.of();
+    }
+
+    /**
+     * {@link #resolve} for a reference in a resource loader {@code module} ships: the loader sees its
+     * own resources and common's, so the reference resolves to common's file when that exists and
+     * otherwise to where the loader would ship it.
+     */
+    static Path resolveFor(String module, String reference, String kind, String extension) {
+        Path common = resolve(reference, kind, extension);
+        if (common == null || Files.isRegularFile(common)) {
+            return common;
+        }
+        Path relative = assetRoot().resolve(kind).normalize().relativize(common);
+        return loaderAssetRoot(module).resolve(kind).resolve(relative.toString());
+    }
+
     /** Every {@code .json} file under {@code data/<dir>}, in stable order. */
     static List<Path> dataJsonFiles(String dir) {
         return jsonFilesUnder(dataRoot().resolve(dir));
@@ -171,7 +194,11 @@ final class ResourceFiles {
     /** Path relative to the assets or data root, for readable failure messages. */
     static String describe(Path file) {
         Path base = assetRoot().getParent();
-        return file.startsWith(base) ? base.relativize(file).toString() : dataRoot().relativize(file).toString();
+        if (file.startsWith(base)) {
+            return base.relativize(file).toString();
+        }
+        Path repository = repositoryRoot();
+        return file.startsWith(repository) ? repository.relativize(file).toString() : dataRoot().relativize(file).toString();
     }
 
     /**

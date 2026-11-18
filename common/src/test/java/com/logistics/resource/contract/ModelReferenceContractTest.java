@@ -105,6 +105,32 @@ class ModelReferenceContractTest {
         assertThat(failures).as("unresolved model textures").isEmpty();
     }
 
+    @Test
+    @DisplayName("every texture a loader-only model names is shipped")
+    void everyLoaderModelTextureResolves() {
+        List<String> failures = new ArrayList<>();
+
+        for (String module : ResourceFiles.LOADER_MODULES) {
+            for (Path file : ResourceFiles.loaderJsonFiles(module, "models")) {
+                for (String reference : texturesOf(ResourceFiles.parse(file))) {
+                    if (reference.startsWith("#")) {
+                        continue;
+                    }
+                    try {
+                        Path target = ResourceFiles.resolveFor(module, reference, "textures", ".png");
+                        if (target != null && !Files.isRegularFile(target)) {
+                            failures.add(ResourceFiles.describe(file) + " -> missing texture '" + reference + "'");
+                        }
+                    } catch (ResourceFiles.BadReferenceException e) {
+                        failures.add(ResourceFiles.describe(file) + " -> " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        assertThat(failures).as("unresolved loader model textures").isEmpty();
+    }
+
     /**
      * Every texture variable a rendered model's geometry uses is defined somewhere in its chain.
      *
