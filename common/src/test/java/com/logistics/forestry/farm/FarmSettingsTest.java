@@ -43,7 +43,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         }
         assertThat(FarmCost.values()).extracting(FarmCost::configName).containsExactly(
                 "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves", "rf_till", "rf_plant");
-        Map<FarmUpkeep, Double> upkeep = Map.of(FarmUpkeep.CROP_FARM, 0.1, FarmUpkeep.ARBORETUM, 0.6);
+        Map<FarmUpkeep, Double> upkeep = Map.of(FarmUpkeep.CROP_FARM, 0.25, FarmUpkeep.ARBORETUM, 1.5);
         for (FarmUpkeep rate : FarmUpkeep.values()) {
             ConfigKey<Double> key = LogisticsForestry.CONFIG.farmUpkeep(rate);
             assertThat(key.definition().path().fullPath()).as("%s", rate).isEqualTo(rate.configName());
@@ -125,7 +125,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         assertThat(settings.cost(FarmCost.PLANT)).isZero();
         assertThat(settings.cost(FarmCost.HARVEST_CROP)).as("missing costs take their defaults").isEqualTo(100);
         assertThat(settings.upkeep(FarmUpkeep.CROP_FARM)).isZero();
-        assertThat(settings.upkeep(FarmUpkeep.ARBORETUM)).as("missing upkeep takes its default").isEqualTo(0.6);
+        assertThat(settings.upkeep(FarmUpkeep.ARBORETUM)).as("missing upkeep takes its default").isEqualTo(1.5);
         assertThat(settings.readsPerCheck()).isEqualTo(1);
         assertThat(settings.idleBackoffBaseTicks()).isEqualTo(1);
         assertThat(settings.idleBackoffMaxTicks()).isEqualTo(1);
@@ -139,7 +139,7 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         Config config = ConfigRegistry.config(key.configId());
 
         assertThat(config.trySet(key, -0.5)).isFalse();
-        assertThat(LogisticsConfigHost.get(key)).isEqualTo(0.6);
+        assertThat(LogisticsConfigHost.get(key)).isEqualTo(1.5);
     }
 
     @Test
