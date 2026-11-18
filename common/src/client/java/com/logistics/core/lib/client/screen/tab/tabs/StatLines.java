@@ -34,6 +34,11 @@ final class StatLines {
         return String.format(Locale.ROOT, "%,d", n);
     }
 
+    /** {@code whole.tenths} as {@link #number} does, the {@code .tenths} left off when it is 0. */
+    static String number(long whole, int tenths) {
+        return tenths == 0 ? number(whole) : number(whole) + "." + tenths;
+    }
+
     static int height(TabText text, int width, List<Group> groups) {
         int lines = 0;
         for (Group group : groups) {

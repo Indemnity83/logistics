@@ -1,6 +1,5 @@
 package com.logistics.fabric;
 
-import com.logistics.core.lib.farmland.FarmlandHydration;
 import com.logistics.power.cable.CableNetworkManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 
@@ -13,6 +12,5 @@ public final class FabricServerLevelEvents {
 
     public static void register() {
         ServerLevelEvents.UNLOAD.register((server, world) -> CableNetworkManager.clearLevel(world));
-        ServerLevelEvents.UNLOAD.register((server, world) -> FarmlandHydration.clearLevel(world));
     }
 }

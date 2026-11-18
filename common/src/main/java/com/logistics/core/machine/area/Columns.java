@@ -8,9 +8,6 @@ import net.minecraft.core.BlockPos;
  */
 public record Columns(int minX, int minZ, int maxX, int maxZ) {
 
-    /** Holds no column. */
-    public static final Columns EMPTY = new Columns(0, 0, -1, -1);
-
     /** The square of odd side {@code side} centred on {@code centre}'s column. */
     public static Columns square(BlockPos centre, int side) {
         if (side < 1 || side % 2 == 0) {

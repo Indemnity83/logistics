@@ -15,7 +15,8 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Layout: slot {@link #STATUS} is a packed word (bits 0-1 the {@link RedstoneMode#syncId()}, then the
  * {@link #SIGNAL_BIT signal}, {@link #ENABLED_BIT enabled}, {@link #SUPPORTED_BIT supported} and
- * {@link #BUFFER_BIT has-buffer} flags); slots 1-8 are four {@link MachineData#wideSlot} pairs. The
+ * {@link #BUFFER_BIT has-buffer} flags); slots 1-8 are four {@link MachineData#wideSlot} pairs; slot
+ * {@link #RATE_TENTHS} is the rate's tenths digit. The
  * server instance reads its {@link MachineStatus} live on every {@code get}; the client instance is a
  * plain {@link SimpleContainerData} filled by sync, all zero (unsupported) until the first sync.
  *
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public final class MachineControls implements EnergyView, RedstoneView {
 
     /** Slots in {@link #data()}. */
-    public static final int COUNT = 9;
+    public static final int COUNT = 10;
     /** First reserved menu-button id. */
     public static final int BUTTON_BASE = 100;
     /** Reserved menu-button ids, starting at {@link #BUTTON_BASE}. */
@@ -36,6 +37,7 @@ public final class MachineControls implements EnergyView, RedstoneView {
     static final int CAPACITY = STORED + MachineData.WIDE_SLOTS;
     static final int RATE = CAPACITY + MachineData.WIDE_SLOTS;
     static final int MAX_RATE = RATE + MachineData.WIDE_SLOTS;
+    static final int RATE_TENTHS = MAX_RATE + MachineData.WIDE_SLOTS;
 
     static final int MODE_MASK = 0b11;
     static final int SIGNAL_BIT = 1 << 2;
@@ -150,6 +152,11 @@ public final class MachineControls implements EnergyView, RedstoneView {
     }
 
     @Override
+    public int rateTenths() {
+        return Math.floorMod(data.get(RATE_TENTHS), 10);
+    }
+
+    @Override
     public long maxRate() {
         return MachineData.wide(data, MAX_RATE);
     }
@@ -198,6 +205,7 @@ public final class MachineControls implements EnergyView, RedstoneView {
                 case CAPACITY, CAPACITY + 1 -> MachineData.wideSlot(status.energyCapacity(), index - CAPACITY);
                 case RATE, RATE + 1 -> MachineData.wideSlot(status.energyRate(), index - RATE);
                 case MAX_RATE, MAX_RATE + 1 -> MachineData.wideSlot(status.energyMaxRate(), index - MAX_RATE);
+                case RATE_TENTHS -> Math.floorMod(status.energyRateTenths(), 10);
                 default -> 0;
             };
         }

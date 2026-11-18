@@ -7,23 +7,19 @@ import java.util.Map;
 
 /**
  * The world-changing actions a farm charges RF for, one config key each in
- * {@code forestry/farm.json}. RF is spent only when the action succeeds; inspecting a plot is free.
+ * {@code forestry/farm.json}. RF is spent only when the action succeeds; inspecting a position is free.
  */
 public enum FarmCost implements OperationKey {
-    /** Breaking or draining one block that stands in a plot's column. */
-    CLEAR("clear", "rf_clear_per_block", 25, "RF per block or fluid cleared from above a plot"),
     /** Harvesting one crop block. */
-    HARVEST_CROP("harvest_crop", "rf_harvest_crop", 50, "RF per crop block harvested"),
+    HARVEST_CROP("harvest_crop", "rf_harvest_crop", 100, "RF per crop block harvested"),
     /** Felling one log of a tree. */
-    HARVEST_LOG("harvest_log", "rf_harvest_log", 25, "RF per log felled"),
+    HARVEST_LOG("harvest_log", "rf_harvest_log", 50, "RF per log felled"),
     /** Breaking one leaf or other canopy block of a felled tree. */
-    HARVEST_LEAVES("harvest_leaves", "rf_harvest_leaves", 5, "RF per leaf or other canopy block of a felled tree"),
+    HARVEST_LEAVES("harvest_leaves", "rf_harvest_leaves", 10, "RF per leaf or other canopy block of a felled tree"),
     /** Tilling one block, e.g. dirt into farmland. */
-    TILL("till", "rf_till", 25, "RF per block tilled"),
-    /** Laying one soil block. */
-    SOIL("soil", "rf_soil", 50, "RF per soil block laid"),
-    /** Planting one cell: a 2×2 tree group costs four. */
-    PLANT("plant", "rf_plant", 25, "RF per germling planted");
+    TILL("till", "rf_till", 50, "RF per block tilled"),
+    /** Planting one germling. */
+    PLANT("plant", "rf_plant", 50, "RF per germling planted");
 
     private final String namespace;
     private final String configName;
