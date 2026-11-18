@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["VKV", "SMB", "GCG"],
+  "key": {
+    "V": { "item": "logistics:core/copper_valve" },
+    "K": { "item": "minecraft:cactus" },
+    "S": { "item": "minecraft:sugar_cane" },
+    "B": { "item": "minecraft:bamboo" },
+    "M": { "item": "logistics:core/machine_core" },
+    "G": { "tag": "c:gears/copper" },
+    "C": { "item": "logistics:core/redstone_reception_coil" }
+  },
+  "result": { "id": "logistics:forestry/plantation", "count": 1 }
+}
