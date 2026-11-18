@@ -249,11 +249,24 @@ class ToolHarvestContractTest extends MinecraftTestEnvironment {
                 String value = entry.isJsonObject()
                     ? entry.getAsJsonObject().get("id").getAsString()
                     : entry.getAsString();
-                if (value.startsWith(ResourceFiles.NAMESPACE + ":")) {
+                if (value.startsWith("#" + ResourceFiles.NAMESPACE + ":")) {
+                    ids.addAll(ourValuesIn(List.of(ourBlockTag(value.substring(1)))));
+                } else if (value.startsWith(ResourceFiles.NAMESPACE + ":")) {
                     ids.add(value);
                 }
             });
         }
         return ids;
+    }
+
+    /** The file of one of our own block tags, such as {@code logistics:forestry/farms}. */
+    private static Path ourBlockTag(String id) {
+        String path = id.substring(id.indexOf(':') + 1);
+        Path file = ResourceFiles.dataRoot()
+            .resolve(ResourceFiles.NAMESPACE + "/tags/block").resolve(path + ".json");
+        if (!Files.isRegularFile(file)) {
+            throw new IllegalStateException("#" + id + " is referenced but not shipped at " + file);
+        }
+        return file;
     }
 }

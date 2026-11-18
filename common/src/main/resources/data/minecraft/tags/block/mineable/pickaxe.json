@@ -38,10 +38,7 @@
     "logistics:automation/refinery",
     "logistics:automation/sequential_fabricator",
     "logistics:automation/transposer",
-    "logistics:forestry/crop_farm",
-    "logistics:forestry/nether_wart_farm",
-    "logistics:forestry/gourd_farm",
-    "logistics:forestry/cocoa_plantation",
+    "#logistics:forestry/farms",
     "logistics:pipe/stone_transport_pipe",
     "logistics:pipe/item_passthrough_pipe",
     "logistics:pipe/copper_transport_pipe",
@@ -74,9 +71,6 @@
     "logistics:pipe/fluid_extractor_pipe",
     "logistics:pipe/void_fluid_pipe",
     "logistics:pipe/bypass_fluid_pipe",
-    "logistics:pipe/glass_tank",
-    "logistics:forestry/arboretum",
-    "logistics:forestry/orchard",
-    "logistics:forestry/plantation"
+    "logistics:pipe/glass_tank"
   ]
 }

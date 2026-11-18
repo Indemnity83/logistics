@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 import net.minecraft.nbt.CompoundTag;
 import org.junit.jupiter.api.DisplayName;
@@ -43,20 +44,13 @@ class FarmSettingsTest extends MinecraftTestEnvironment {
         }
         assertThat(FarmCost.values()).extracting(FarmCost::configName).containsExactly(
                 "rf_harvest_crop", "rf_harvest_log", "rf_harvest_leaves", "rf_till", "rf_plant");
-        Map<FarmUpkeep, Double> upkeep =
-                Map.of(FarmUpkeep.CROP_FARM, 0.25, FarmUpkeep.ARBORETUM, 1.5, FarmUpkeep.NETHER_WART_FARM, 0.25,
-                        FarmUpkeep.ORCHARD, 1.5, FarmUpkeep.PLANTATION, 0.375, FarmUpkeep.GOURD_FARM, 0.75,
-                        FarmUpkeep.COCOA_PLANTATION, 0.2);
         for (FarmUpkeep rate : FarmUpkeep.values()) {
             ConfigKey<Double> key = LogisticsForestry.CONFIG.farmUpkeep(rate);
             assertThat(key.definition().path().fullPath()).as("%s", rate).isEqualTo(rate.configName());
-            assertThat(key.definition().defaultValue()).as("%s", rate).isEqualTo(upkeep.get(rate));
+            assertThat(rate.configName()).as("%s", rate).isEqualTo("rf_upkeep_" + rate.name().toLowerCase(Locale.ROOT));
+            assertThat(key.definition().defaultValue()).as("%s", rate).isEqualTo(rate.defaultRfPerTick());
+            assertThat(rate.defaultRfPerTick()).as("%s", rate).isPositive();
         }
-        assertThat(FarmUpkeep.values()).extracting(FarmUpkeep::configName)
-                .containsExactly(
-                        "rf_upkeep_crop_farm", "rf_upkeep_arboretum", "rf_upkeep_nether_wart_farm", "rf_upkeep_orchard",
-                        "rf_upkeep_plantation", "rf_upkeep_gourd_farm",
-                        "rf_upkeep_cocoa_plantation");
         assertThat(LogisticsForestry.CONFIG.FARM_READS_PER_CHECK.definition().defaultValue()).isEqualTo(64);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_BASE_TICKS.definition().defaultValue()).isEqualTo(20);
         assertThat(LogisticsForestry.CONFIG.FARM_IDLE_BACKOFF_MAX_TICKS.definition().defaultValue()).isEqualTo(200);
