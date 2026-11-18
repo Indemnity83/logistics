@@ -44,7 +44,8 @@ import org.jetbrains.annotations.Nullable;
  * plot is not loaded. The farm never stops for a full inventory.
  *
  * <p>Every harvested position whose ground can hold it becomes a Plot ({@link FarmPlots}),
- * remembered with its germling. A Plot left unplanted is an Empty Plot: the scan replants it, its
+ * remembered with its germling, as does one the scan finds holding an unripe plant the farm tends
+ * ({@link TendLogic#growing}). A Plot left unplanted is an Empty Plot: the scan replants it, its
  * ground repaired first ({@link TendLogic#plotGround}), as soon as its germling is in the inventory.
  * A Plot is forgotten once its ground can no longer hold it or anything other than its own plant
  * stands on it.
@@ -356,7 +357,15 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
             return startHarvest(origin, found, s);
         }
         ItemStack germling = plots.germling(pos);
-        return germling != null ? tendPlot(pos, germling, s) : FarmStatus.IDLE;
+        if (germling != null) {
+            return tendPlot(pos, germling, s);
+        }
+        ItemStack growing = logic.growing(counted, pos);
+        if (growing != null && readGround(pos) != null) {
+            plots.remember(pos, growing, false);
+            dirty = true;
+        }
+        return FarmStatus.IDLE;
     }
 
     /**

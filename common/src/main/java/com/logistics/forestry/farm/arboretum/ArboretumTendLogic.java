@@ -87,6 +87,18 @@ public final class ArboretumTendLogic implements TendLogic {
         return rest != null && rest.isFound() ? new Harvest(plot, rest.blocks(), harvest.germling()) : null;
     }
 
+    /** A germling planted on Arboretum ground: a sapling that has not grown into a tree yet. */
+    @Override
+    @Nullable
+    public ItemStack growing(FarmWorld world, BlockPos pos) {
+        ItemStack germling = new ItemStack(world.state(pos).getBlock().asItem());
+        if (germling.isEmpty() || !germlings.test(germling)) {
+            return null;
+        }
+        BlockPos foot = pos.below();
+        return world.isLoaded(foot) && ground.test(world.state(foot)) ? germling : null;
+    }
+
     @Override
     public FarmUpkeep upkeep() {
         return FarmUpkeep.ARBORETUM;

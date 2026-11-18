@@ -37,6 +37,16 @@ public interface TendLogic {
         return again != null ? new Harvest(harvest.plot(), again.blocks(), harvest.germling()) : null;
     }
 
+    /**
+     * The germling of an unripe plant this farm tends at {@code pos}, so the farm takes the position
+     * on as a Plot before its first harvest; {@code null} when there is none. Only called while
+     * {@code pos} is loaded and holds nothing {@link #ripe}. Defaults to none.
+     */
+    @Nullable
+    default ItemStack growing(FarmWorld world, BlockPos pos) {
+        return null;
+    }
+
     /** What this farm type pays each tick for each Plot it maintains. */
     FarmUpkeep upkeep();
 

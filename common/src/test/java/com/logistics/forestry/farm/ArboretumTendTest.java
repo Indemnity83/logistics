@@ -402,4 +402,21 @@ class ArboretumTendTest extends MinecraftTestEnvironment {
             assertThat(farm.world.broken).as("log %s", y).contains(BASE.above(y));
         }
     }
+
+    @Test
+    @DisplayName("a sapling planted on Humus becomes a Plot before its first felling; one on dirt does not")
+    void saplingsOnHumusAreTakenOnAsPlots() {
+        FarmHarness farm = farm();
+        BlockPos onDirt = BASE.offset(-3, 0, 0);
+        farm.world.set(BASE.below(), humus());
+        farm.world.set(BASE, SAPLING);
+        farm.world.set(onDirt.below(), Blocks.DIRT.defaultBlockState());
+        farm.world.set(onDirt, SAPLING);
+
+        farm.ticks(FELL);
+
+        assertThat(farm.engine().plotsTotal()).isEqualTo(1);
+        assertThat(farm.engine().emptyPlots()).isZero();
+        assertThat(farm.world.mutations).isEmpty();
+    }
 }

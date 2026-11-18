@@ -98,7 +98,7 @@ _Avoid_: Work area, range, radius, Courtyard, Ring, Lane
 Whatever a farm plants: seeds, saplings, and so on.
 
 **Plot**:
-A spot in a farm's reach that the farm has harvested and keeps replanting with the same plant, re-tilling its ground when it has to. A plot left without a germling waits as an **Empty Plot** until a matching germling is available. The farm forgets a plot once something else occupies it or its ground is anything other than farmland, dirt or grass; breaking the farm forgets all its plots.
+A spot in a farm's reach that the farm tends: one it has harvested, or one it found holding a plant it tends that was still growing. It keeps replanting the spot with the same plant, re-tilling its ground when it has to, and pays upkeep for it every tick. A plot left without a germling waits as an **Empty Plot** until a matching germling is available. The farm forgets a plot once something else occupies it or its ground is anything other than farmland, dirt or grass; breaking the farm forgets all its plots.
 _Avoid_: Spot, tile, cell
 
 **Humus**:

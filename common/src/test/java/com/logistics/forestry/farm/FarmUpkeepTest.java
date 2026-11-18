@@ -107,6 +107,45 @@ class FarmUpkeepTest extends MinecraftTestEnvironment {
     }
 
     @Test
+    void growingCropsBecomePlotsAndPayUpkeepBeforeTheirFirstHarvest() {
+        FarmHarness farm = cropFarm(0.1);
+        field(farm, 10);
+        CropBlock wheat = (CropBlock) Blocks.WHEAT;
+        for (int z = -3; z <= 3; z++) {
+            for (int x = -3; x <= 3; x++) {
+                BlockPos pos = new BlockPos(x, 0, z);
+                if (farm.world.state(pos).is(Blocks.WHEAT)) {
+                    farm.world.set(pos, wheat.getStateForAge(2));
+                }
+            }
+        }
+        int mutations = farm.world.mutations.size();
+
+        farm.ticks(PASS);
+
+        assertThat(farm.engine().plotsTotal()).isEqualTo(10);
+        assertThat(farm.engine().emptyPlots()).isZero();
+        assertThat(farm.world.mutations).as("nothing harvested or replanted").hasSize(mutations);
+        long before = farm.energy();
+        farm.ticks(10);
+        assertThat(before - farm.energy()).isEqualTo(10);
+    }
+
+    @Test
+    void growingCropsOffTheFarmGroundAreNotTakenOn() {
+        FarmHarness farm = cropFarm(0.1);
+        CropBlock wheat = (CropBlock) Blocks.WHEAT;
+        BlockPos plot = new BlockPos(1, 0, 1);
+        farm.world.set(plot.below(), Blocks.STONE.defaultBlockState());
+        farm.world.set(plot, wheat.getStateForAge(2));
+
+        farm.ticks(PASS);
+
+        assertThat(farm.engine().plotsTotal()).isZero();
+        assertThat(farm.energy()).isEqualTo(10_000);
+    }
+
+    @Test
     void aFarmWithNoPlotsPaysNothing() {
         FarmHarness farm = cropFarm(5.0);
 

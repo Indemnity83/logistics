@@ -57,6 +57,17 @@ public final class CropTendLogic implements TendLogic {
         return Harvest.single(pos, new ItemStack(state.getBlock().asItem()));
     }
 
+    /** An unripe tended crop on Crop Farm ground, replanted from the crop block's own item. */
+    @Override
+    @Nullable
+    public ItemStack growing(FarmWorld world, BlockPos pos) {
+        BlockState state = world.state(pos);
+        if (!tended.test(state) || isRipe(state) || !standsOnGround(world, pos)) {
+            return null;
+        }
+        return new ItemStack(state.getBlock().asItem());
+    }
+
     @Override
     public FarmUpkeep upkeep() {
         return FarmUpkeep.CROP_FARM;
