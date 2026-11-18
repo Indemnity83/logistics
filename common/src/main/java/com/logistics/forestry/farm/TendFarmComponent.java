@@ -46,7 +46,9 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>Every harvested position whose ground can hold it becomes a Plot ({@link FarmPlots}),
  * remembered with its germling, as does one the scan finds holding an unripe plant the farm tends
- * ({@link TendLogic#growing}). A Plot left unplanted is an Empty Plot: the scan replants it, its
+ * ({@link TendLogic#growing}). A harvest that {@linkplain TendLogic.Harvest#keepsPlot keeps its plot}
+ * (a stalk's base, which it never breaks) has nothing to replant: the plant left standing keeps the
+ * Plot. A Plot left unplanted is an Empty Plot: the scan replants it, its
  * ground repaired first ({@link TendLogic#plotGround}), as soon as its germling is in the inventory.
  * A Plot is forgotten once its ground can no longer hold it or anything other than its own plant
  * stands on it; cover that planting replaces (snow, grass) leaves it an Empty Plot.
@@ -503,7 +505,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
 
     /**
      * Takes {@code found} as the farm's harvest and breaks its first block as this action. It only
-     * starts while the buffer holds that break and the replant.
+     * starts while the buffer holds that break and the replant, if it has one to make.
      */
     private FarmStatus startHarvest(BlockPos origin, TendLogic.Harvest found, FarmSettings s) {
         List<Target> planned = targets(found);
@@ -512,7 +514,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         }
         BlockState first = counted.seen(planned.get(0).pos());
         long needed = s.cost(logic.harvestCost(first))
-                + (found.germling().isEmpty() ? 0 : s.cost(FarmCost.PLANT));
+                + (found.germling().isEmpty() || found.keepsPlot() ? 0 : s.cost(FarmCost.PLANT));
         if (energy.amount() < needed) {
             return noPower(needed);
         }
@@ -653,7 +655,7 @@ public final class TendFarmComponent implements MachineComponent, MachineCompone
         if (ground == null || done.germling().isEmpty()) {
             plots.forget(done.plot());
         } else {
-            // A refused break leaves the plant standing: the Plot is not empty.
+            // A plant left standing (a refused break, a stalk's base) fails the replant: the Plot is not empty.
             plots.remember(done.plot(), done.germling(), !planted && isOpen(done.plot()));
         }
         List<ItemStack> spill = new ArrayList<>();
