@@ -26,6 +26,7 @@
     "logistics:forestry/crop_farm",
     "logistics:forestry/nether_wart_farm",
     "logistics:forestry/gourd_farm",
+    "logistics:forestry/cocoa_plantation",
     "logistics:pipe/power_junction",
     "logistics:power/basic_battery",
     "logistics:power/conductive_battery",

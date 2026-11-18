@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "lamp=off": {
+      "model": "logistics:block/forestry/cocoa_plantation"
+    },
+    "lamp=red": {
+      "model": "logistics:block/forestry/cocoa_plantation_red"
+    },
+    "lamp=amber": {
+      "model": "logistics:block/forestry/cocoa_plantation_amber"
+    },
+    "lamp=green": {
+      "model": "logistics:block/forestry/cocoa_plantation_green"
+    }
+  }
+}
