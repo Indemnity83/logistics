@@ -29,6 +29,7 @@
     "logistics:power/conductive_battery",
     "logistics:power/resonant_battery",
     "logistics:power/deep_battery",
-    "logistics:forestry/arboretum"
+    "logistics:forestry/arboretum",
+    "logistics:forestry/orchard"
   ]
 }

@@ -142,4 +142,14 @@ public class FarmBlockEntity extends MachineEntity implements TieredMachine {
     public void setRateOverride(int checksPerSecond, int actionsPerSecond) {
         parts.farm().setRateOverride(checksPerSecond, actionsPerSecond);
     }
+
+    /** Test seam: a picking farm picks each tree with {@code chancePerTick} every tick; less than 0 restores random ticks. */
+    public void setPickOverride(double chancePerTick) {
+        parts.farm().setPickOverride(chancePerTick);
+    }
+
+    /** The trees, or other Picking Plots, a picking farm picks from. */
+    public int pickPlots() {
+        return parts.farm().pickPlotsTotal();
+    }
 }

@@ -89,6 +89,8 @@ class SideTabScreenContractTest extends MinecraftTestEnvironment {
                         inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
                 machine("arboretum", FarmScreen.class, 176, 166,
                         inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
+                machine("orchard", FarmScreen.class, 176, 166,
+                        inventory -> new FarmMenu(1, inventory), FarmMenu::controls),
                 engine("stirling_engine", StirlingEngineScreen.class, 176, 166,
                         inventory -> new StirlingEngineScreenHandler(1, inventory), StirlingEngineScreenHandler::controls),
                 engine("fuel_engine", FuelEngineScreen.class, 176, 166,
