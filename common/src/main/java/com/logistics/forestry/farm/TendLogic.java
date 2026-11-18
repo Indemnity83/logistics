@@ -142,8 +142,8 @@ public interface TendLogic {
      * must be ordered so that breaking it in order never leaves a block unsupported.
      *
      * <p>{@code blocks} need not include {@code plot}: a harvest that takes only what grew from a
-     * plant that stays (a stalk above its base) {@linkplain #keepsPlot keeps its plot}. Its plant
-     * keeps the Plot, and there is nothing to replant unless the plant is gone by the time the
+     * plant that stays (a stalk above its base, a stem's fruit) {@linkplain #keepsPlot keeps its plot}.
+     * Its plant keeps the Plot, and there is nothing to replant unless the plant is gone by the time the
      * harvest finishes.
      */
     record Harvest(BlockPos plot, List<BlockPos> blocks, ItemStack germling) {
