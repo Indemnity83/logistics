@@ -192,29 +192,18 @@ to run from scripts/agents. Prefer these over plain `git` for the standard featu
 | `git checkout -b <branch>` (off current branch, stacked) | `git town append <branch>` |
 | `git pull` / manually merging main into a feature branch | `git town sync` |
 | Opening a PR by hand | `git town propose` |
-| Squash-merging a PR | `git town ship -m ""` (or `-m "<full message>"` — see below) |
+| Squash-merging a PR | `python3 tools/ship_pr.py <N>` (runs `git town ship` for you — see below) |
 | Deleting a merged/obsolete feature branch | `git town delete` |
 | `git checkout <branch>` when you don't remember the name | `git town switch` |
 
-**`git town ship` drops a PR's body — pass changelog lines with `-m`.** Squash merges here keep
-only the PR title (`squash_merge_commit_message: BLANK`), so commits stay short and link to the PR
-for detail. The cost: `type(scope): description` lines written into a PR body never reach the
-commit, and Release Please only ever reads the commit.
-
-**`-m` is the *whole* commit message, not the body.** Passing only the extra changelog lines
-replaces the subject with the first of them, and the PR title — usually the headline entry — is
-lost from the changelog entirely, along with the `(#N)` suffix Release Please reads to link the PR.
-
-- `-m ""` keeps the PR title, and GitHub appends the `(#N)` PR reference for you. Use it for a
-  single-change PR.
-- `-m "<title> (#N)\n\n<extra lines>"` for a multi-change PR: **restate the PR title as the
-  subject**, then a blank line, then one `type(scope): description` per additional change.
-
-**Write `(#N)` yourself whenever you pass `-m`.** GitHub only appends the PR reference to a message
-it generated. Supplying one suppresses that, and Release Please reads `(#N)` to link the entry — so
-every changelog line from that commit loses its link, silently.
-
-See [Multi-change squash commits](#multi-change-squash-commits).
+**Ship with `python3 tools/ship_pr.py <N>`.** Squash merges here keep only the PR title
+(`squash_merge_commit_message: BLANK`), so changelog lines in a PR body never reach the commit on
+their own. The script writes them in: it reads the PR's override block, makes the squash subject
+`<title> (#N)` and the body the block's other lines, each with `(#N)`, then ships through
+`git town ship` (or `gh pr merge` when the branch is checked out in another worktree). `--dry-run`
+prints the message without merging. A hand-typed `git town ship -m` replaces the *whole* message,
+which is how a headline entry or its `(#N)` link gets lost. See
+[Multi-change squash commits](#multi-change-squash-commits).
 
 **Local git metadata overrides the file.** `git config git-town.main-branch …` in a clone silently
 wins over `.git-town.toml`, and list settings like `perennials` *merge* rather than replace, so a
@@ -744,30 +733,29 @@ These types are allowed but hidden from the changelog (developer-facing):
 
 ### Multi-change squash commits
 
-When one PR makes several distinct player-facing changes, record each as its own changelog entry by
-putting one Conventional Commit line per change in the squash commit BODY (the subject is the first
-entry). Release Please parses each `type(scope): description` line into a separate changelog entry:
+When one PR makes several distinct player-facing changes, list every changelog line in an override
+block in the PR body, the PR title first. Each line becomes its own changelog entry:
 
 ```text
+BEGIN_COMMIT_OVERRIDE
 feat(automation): add the sawmill
-
 change(automation): rename Wood Pulp to Sawdust
 balance(automation): move wood processing from the macerator to the sawmill
-remove(automation): drop the macerator's wood-pulp recipes
+END_COMMIT_OVERRIDE
 ```
 
-Those extra lines are supplied at merge time, since the PR body is discarded:
+The lines reach every branch by two routes, and `tools/ship_pr.py` keeps them identical:
 
-```bash
-# Single change — the PR title becomes the whole message, with (#N) appended for you.
-git town ship -m ""
+- On the branch the PR merged into, Release Please reads the block from the PR body.
+- A ported commit is not linked to its source PR (GitHub associates it with that branch's open
+  release-please PR), so the other branches read the commit message. The script writes the block's
+  lines into the squash commit, and a plain `git cherry-pick` carries them across. `-x` adds a
+  trailer after which Release Please keeps only the first extra line.
 
-# Several changes — repeat the PR title as the subject, and write (#N) yourself.
-git town ship -m "feat(automation): add the sawmill (#1234)
-
-change(automation): rename Wood Pulp to Sawdust
-balance(automation): move wood processing from the macerator to the sawmill"
-```
+A PR with no block ships with its title alone. Write the two markers only as the block's own lines:
+Release Please starts the block at the first marker anywhere in the body, prose included. Edit the
+block before shipping: an edit after the
+merge reaches only that branch's changelog, never the ports.
 
 Then confirm it landed before porting — a wrong squash message means a wrong changelog, and it is
 far easier to fix before the port fans it out:
@@ -855,7 +843,7 @@ When creating or modifying PRs:
 - Think about the generated changelog before choosing the PR title.
 - Prefer player-facing wording and a changelog-visible type — most commonly `feat`, `balance`, `change`, `fix`, and `remove` (the type table above lists the full set, including `perf`, `deprecate`, and `security`).
 - Use internal types like `refactor`, `test`, `build`, `ci`, and `chore` for non-player-facing work.
-- For PRs with several player-facing changes, list each as its own Conventional Commit line in the squash body (see "Multi-change squash commits").
+- For PRs with several player-facing changes, list each as its own Conventional Commit line in the PR body's override block (see "Multi-change squash commits").
 - Do not add `refactor`, `test`, `build`, `ci`, or `chore` to the Release Please changelog sections.
 - Do not attempt to group changelog entries by scope using nested headings unless the release strategy is intentionally changed later.
 
