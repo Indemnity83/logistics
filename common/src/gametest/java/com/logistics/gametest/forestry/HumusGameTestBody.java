@@ -1,12 +1,18 @@
 package com.logistics.gametest.forestry;
 
 import com.logistics.LogisticsForestry;
-import com.logistics.forestry.humus.HumusGrowth;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.MangrovePropaguleBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -15,21 +21,30 @@ import net.minecraft.world.level.block.state.BlockState;
  * {@code HumusGameTest} delegates to these methods and NeoForge's {@code HumusGameTestRegistration}
  * references them as {@code Consumer<GameTestHelper>}.
  *
- * <p>Light comes from a glowstone block set into the ground beside the humus rather than the sky,
- * so the result does not depend on the time of day the test happens to run at. Light propagates
- * asynchronously after a block change, so each test waits until the level it needs is actually
- * readable before random-ticking.
+ * <p>Saplings are grown with bone meal through {@link BoneMealItem#growCrop}, the path a player's
+ * or dispenser's bone meal takes, so each loader's own growth hooks are exercised.
  */
 public class HumusGameTestBody {
 
     /** Ticks for a neighbour update to reach the sapling. */
     private static final int SETTLE_TICKS = 5;
 
-    /** Enough Humus random ticks that a 25% boost reaches the two steps a sapling needs. */
-    private static final int MAX_RANDOM_TICKS = 1000;
+    /** Bone meal applications that grow a sapling many times over. */
+    private static final int MAX_BONE_MEAL = 64;
 
     /** Random ticks given to a Humus that should not change. */
     private static final int IDLE_RANDOM_TICKS = 500;
+
+    /** Humus trees grown in search of one carrying propagules; a 4-log mangrove has nowhere to hang one. */
+    private static final int MANGROVE_ATTEMPTS = 10;
+
+    /** How far around a trunk, and how high above it, a Humus tree's blocks are looked for. */
+    private static final int TREE_RADIUS = 3;
+
+    private static final int TREE_HEIGHT = 9;
+
+    /** Where a single test tree's Humus goes: the middle of the 8x8 test area. */
+    private static final BlockPos HUMUS_POS = new BlockPos(4, 1, 4);
 
     /**
      * Humus is in {@code #minecraft:dirt}, which saplings accept as soil, so an oak sapling can
@@ -65,127 +80,227 @@ public class HumusGameTestBody {
         });
     }
 
+    /** An oak sapling on Humus grows the small tree, and the Humus under it stays Humus. */
+    public static void testOakGrowsSmallTree(GameTestHelper context) {
+        growOnHumus(context, Blocks.OAK_SAPLING);
+        assertSmallTree(context, HUMUS_POS.above(), Blocks.OAK_LOG, state -> state.is(Blocks.OAK_LEAVES));
+        context.succeed();
+    }
+
+    /** A single dark oak sapling, which vanilla only grows as a 2x2 group, grows the small tree on Humus. */
+    public static void testDarkOakGrowsFromOneSapling(GameTestHelper context) {
+        growOnHumus(context, Blocks.DARK_OAK_SAPLING);
+        assertSmallTree(context, HUMUS_POS.above(), Blocks.DARK_OAK_LOG, state -> state.is(Blocks.DARK_OAK_LEAVES));
+        context.succeed();
+    }
+
     /**
-     * Random-ticking Humus in the light grows the oak sapling on it into a tree, and the tree its
-     * boost grew turns the Humus under it to sand.
+     * A spruce sapling on Humus, which has both a single-tree and a 2x2 definition, grows the small
+     * tree from its single-tree one.
      */
-    public static void testHumusBoostGrowsTreeAndTurnsToSand(GameTestHelper context) {
-        BlockPos humus = new BlockPos(4, 1, 4);
+    public static void testSpruceGrowsSmallTree(GameTestHelper context) {
+        growOnHumus(context, Blocks.SPRUCE_SAPLING);
+        assertSmallTree(context, HUMUS_POS.above(), Blocks.SPRUCE_LOG, state -> state.is(Blocks.SPRUCE_LEAVES));
+        context.succeed();
+    }
+
+    /** An azalea on Humus grows the small tree, with no rooted dirt and no bending trunk. */
+    public static void testAzaleaGrowsSmallTree(GameTestHelper context) {
+        growOnHumus(context, Blocks.AZALEA);
+        assertSmallTree(
+                context,
+                HUMUS_POS.above(),
+                Blocks.OAK_LOG,
+                state -> state.is(Blocks.AZALEA_LEAVES) || state.is(Blocks.FLOWERING_AZALEA_LEAVES));
+        context.succeed();
+    }
+
+    /**
+     * A mangrove propagule on Humus grows the small tree with no roots, and the propagules hanging
+     * from its leaves are fully grown. Hanging is random and a 4-log tree has no leaf with room
+     * below it, so trees are regrown until one carries propagules.
+     */
+    public static void testMangroveGrowsSmallTreeWithGrownPropagules(GameTestHelper context) {
+        BlockPos sapling = HUMUS_POS.above();
+        for (int attempt = 0; attempt < MANGROVE_ATTEMPTS; attempt++) {
+            clearTreeSpace(context, sapling);
+            growOnHumus(context, Blocks.MANGROVE_PROPAGULE);
+            assertSmallTree(context, sapling, Blocks.MANGROVE_LOG, state -> state.is(Blocks.MANGROVE_LEAVES));
+
+            List<BlockPos> propagules = treeSpace(sapling)
+                    .filter(pos -> context.getBlockState(pos).is(Blocks.MANGROVE_PROPAGULE))
+                    .map(BlockPos::immutable)
+                    .toList();
+            for (BlockPos propagule : propagules) {
+                context.assertBlockProperty(propagule, MangrovePropaguleBlock.HANGING, true);
+                context.assertBlockProperty(propagule, MangrovePropaguleBlock.AGE, 4);
+            }
+            if (!propagules.isEmpty()) {
+                context.succeed();
+                return;
+            }
+        }
+        context.fail("No Humus mangrove carried a propagule in " + MANGROVE_ATTEMPTS + " trees");
+    }
+
+    /**
+     * A 2x2 group of dark oak saplings on Humus grows four small trees, one per sapling: growing one
+     * leaves the other three saplings, where vanilla would grow all four into one mega tree.
+     */
+    public static void testDarkOakGroupGrowsFourTrees(GameTestHelper context) {
+        assertGroupGrowsFourTrees(context, Blocks.DARK_OAK_SAPLING, Blocks.DARK_OAK_LOG);
+    }
+
+    /** A 2x2 group of spruce saplings on Humus grows four small trees, never a mega spruce. */
+    public static void testSpruceGroupGrowsFourTrees(GameTestHelper context) {
+        assertGroupGrowsFourTrees(context, Blocks.SPRUCE_SAPLING, Blocks.SPRUCE_LOG);
+    }
+
+    private static void assertGroupGrowsFourTrees(GameTestHelper context, Block germling, Block log) {
+        List<BlockPos> saplings = List.of(
+                new BlockPos(3, 2, 3), new BlockPos(4, 2, 3), new BlockPos(3, 2, 4), new BlockPos(4, 2, 4));
+        for (BlockPos sapling : saplings) {
+            context.setBlock(sapling.below(), LogisticsForestry.BLOCK.HUMUS);
+            context.setBlock(sapling, germling);
+        }
+
+        boneMeal(context, saplings.getFirst());
+        context.assertBlockPresent(log, saplings.getFirst());
+        for (BlockPos other : saplings.subList(1, saplings.size())) {
+            context.assertBlockPresent(germling, other);
+        }
+
+        for (BlockPos other : saplings.subList(1, saplings.size())) {
+            boneMeal(context, other);
+        }
+        for (BlockPos sapling : saplings) {
+            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, sapling.below());
+            for (int y = 0; y < 4; y++) {
+                context.assertBlockPresent(log, sapling.above(y));
+            }
+        }
+        treeSpace(saplings.getFirst()).forEach(pos -> {
+            boolean inGroup = saplings.stream().anyMatch(s -> s.getX() == pos.getX() && s.getZ() == pos.getZ());
+            boolean tooTall = pos.getY() >= saplings.getFirst().getY() + 6;
+            if (context.getBlockState(pos).is(BlockTags.LOGS) && (!inGroup || tooTall)) {
+                throw context.assertionException(pos, "A log outside the four small trunks");
+            }
+        });
+        context.succeed();
+    }
+
+    /**
+     * Off Humus, saplings grow as in vanilla: an azalea on dirt grows its own tree over rooted
+     * dirt, and a single dark oak sapling on dirt takes no bone meal.
+     */
+    public static void testSaplingsOffHumusGrowAsVanilla(GameTestHelper context) {
+        BlockPos azalea = new BlockPos(2, 2, 2);
+        context.setBlock(azalea.below(), Blocks.DIRT);
+        context.setBlock(azalea, Blocks.AZALEA);
+        BlockPos darkOak = new BlockPos(6, 2, 6);
+        context.setBlock(darkOak.below(), Blocks.DIRT);
+        context.setBlock(darkOak, Blocks.DARK_OAK_SAPLING);
+
+        boneMeal(context, azalea);
+        context.assertBlockPresent(Blocks.ROOTED_DIRT, azalea.below());
+        context.assertBlockPresent(Blocks.OAK_LOG, azalea);
+
+        if (BoneMealItem.growCrop(new ItemStack(Items.BONE_MEAL), context.getLevel(), context.absolutePos(darkOak))) {
+            throw context.assertionException(darkOak, "A lone dark oak sapling off Humus should take no bone meal");
+        }
+        context.assertBlockPresent(Blocks.DARK_OAK_SAPLING, darkOak);
+        context.succeed();
+    }
+
+    /**
+     * Humus is permanent and gives no growth boost: under a log it never turns to sand, and random
+     * ticks never advance a lit sapling on it.
+     */
+    public static void testHumusIsPermanentAndGivesNoBoost(GameTestHelper context) {
+        BlockPos underLog = new BlockPos(1, 1, 1);
+        context.setBlock(underLog, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(underLog.above(), Blocks.OAK_LOG);
+        BlockPos humus = new BlockPos(5, 1, 5);
         BlockPos sapling = humus.above();
         context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
         context.setBlock(humus.east(), Blocks.GLOWSTONE);
         context.setBlock(sapling, Blocks.OAK_SAPLING);
 
-        whenLight(context, sapling.above(), true, () -> {
-            for (int i = 0; i < MAX_RANDOM_TICKS && isSapling(context, sapling); i++) {
-                context.randomTick(humus);
-            }
-
-            context.assertBlockPresent(Blocks.OAK_LOG, sapling);
-            context.assertBlockPresent(Blocks.SAND, humus);
-            context.succeed();
-        });
-    }
-
-    /**
-     * Humus under a log, or under mangrove roots, turns to sand on its next random tick, however the
-     * wood got there: a tree grown by vanilla ticks or bone meal is caught this way.
-     */
-    public static void testHumusUnderLogTurnsToSand(GameTestHelper context) {
-        BlockPos underLog = new BlockPos(1, 1, 1);
-        BlockPos underRoots = new BlockPos(5, 1, 5);
-        context.setBlock(underLog, LogisticsForestry.BLOCK.HUMUS);
-        context.setBlock(underLog.above(), Blocks.OAK_LOG);
-        context.setBlock(underRoots, LogisticsForestry.BLOCK.HUMUS);
-        context.setBlock(underRoots.above(), Blocks.MANGROVE_ROOTS);
-
-        context.randomTick(underLog);
-        context.randomTick(underRoots);
-
-        context.assertBlockPresent(Blocks.SAND, underLog);
-        context.assertBlockPresent(Blocks.OAK_LOG, underLog.above());
-        context.assertBlockPresent(Blocks.SAND, underRoots);
-        context.succeed();
-    }
-
-    /** Humus with nothing growing on it, or a plant that is not a sapling, never changes. */
-    public static void testHumusWithoutSaplingNeverChanges(GameTestHelper context) {
-        BlockPos bare = new BlockPos(1, 1, 1);
-        BlockPos flowered = new BlockPos(5, 1, 1);
-        context.setBlock(bare, LogisticsForestry.BLOCK.HUMUS);
-        context.setBlock(bare.east(), Blocks.GLOWSTONE);
-        context.setBlock(flowered, LogisticsForestry.BLOCK.HUMUS);
-        context.setBlock(flowered.east(), Blocks.GLOWSTONE);
-        context.setBlock(flowered.above(), Blocks.DANDELION);
-
-        // Lit, so neither staying unchanged is down to a lack of light.
+        // Lit, so the sapling staying put is not down to a lack of light.
         context.startSequence()
                 .thenWaitUntil(() -> {
-                    assertBrightness(context, bare.above(), true);
-                    assertBrightness(context, flowered.above(), true);
+                    int brightness = context.getLevel().getMaxLocalRawBrightness(context.absolutePos(sapling.above()));
+                    context.assertTrue(
+                            brightness >= SaplingBlock.BRIGHTNESS_FOR_SAPLING_GROWTH,
+                            "Expected the sapling to be lit, light was " + brightness);
                 })
                 .thenExecute(() -> {
                     for (int i = 0; i < IDLE_RANDOM_TICKS; i++) {
-                        context.randomTick(bare);
-                        context.randomTick(flowered);
+                        context.randomTick(underLog);
+                        context.randomTick(humus);
                     }
 
-                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, bare);
-                    context.assertBlockPresent(Blocks.AIR, bare.above());
-                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, flowered);
-                    context.assertBlockPresent(Blocks.DANDELION, flowered.above());
+                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, underLog);
+                    context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, humus);
+                    context.assertBlockProperty(sapling, SaplingBlock.STAGE, 0);
                     context.succeed();
                 });
     }
 
-    /**
-     * A sapling sealed in the dark gets no boost: it is still at its first growth stage after
-     * Humus random ticks that would have advanced it in the light.
-     */
-    public static void testNoGrowthInDarkness(GameTestHelper context) {
-        BlockPos humus = new BlockPos(3, 1, 3);
-        BlockPos sapling = humus.above();
-        context.setBlock(humus, LogisticsForestry.BLOCK.HUMUS);
-        context.setBlock(sapling, Blocks.OAK_SAPLING);
-        // Seal the sapling and the space above it on every face.
-        for (Direction side : Direction.Plane.HORIZONTAL) {
-            context.setBlock(sapling.relative(side), Blocks.STONE);
-            context.setBlock(sapling.above().relative(side), Blocks.STONE);
+    /** Lays Humus at {@link #HUMUS_POS}, plants {@code germling} on it and bone-meals it until it grows. */
+    private static void growOnHumus(GameTestHelper context, Block germling) {
+        BlockPos sapling = HUMUS_POS.above();
+        context.setBlock(HUMUS_POS, LogisticsForestry.BLOCK.HUMUS);
+        context.setBlock(sapling, germling);
+        boneMeal(context, sapling);
+        if (context.getBlockState(sapling).is(germling)) {
+            throw context.assertionException(sapling, "The germling should have grown on Humus");
         }
-        context.setBlock(sapling.above(2), Blocks.STONE);
+    }
 
-        whenLight(context, sapling.above(), false, () -> {
-            for (int i = 0; i < IDLE_RANDOM_TICKS; i++) {
-                context.randomTick(humus);
+    /** Bone-meals the germling at {@code pos} until it is no longer a germling, or gives up. */
+    private static void boneMeal(GameTestHelper context, BlockPos pos) {
+        BlockPos absolute = context.absolutePos(pos);
+        for (int i = 0; i < MAX_BONE_MEAL && context.getBlockState(pos).is(BlockTags.SAPLINGS); i++) {
+            BoneMealItem.growCrop(new ItemStack(Items.BONE_MEAL), context.getLevel(), absolute);
+        }
+    }
+
+    /**
+     * Asserts the small Humus tree stands at {@code base}: a straight trunk of 4–6 {@code log}s with
+     * no other logs around it, topped by {@code leaves}, over Humus that is still Humus.
+     */
+    private static void assertSmallTree(GameTestHelper context, BlockPos base, Block log, Predicate<BlockState> leaves) {
+        context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, base.below());
+        int height = 0;
+        while (context.getBlockState(base.above(height)).is(log)) {
+            height++;
+        }
+        if (height < 4 || height > 6) {
+            throw context.assertionException(base, "Trunk should be 4-6 logs, was " + height);
+        }
+        if (!leaves.test(context.getBlockState(base.above(height)))) {
+            throw context.assertionException(base.above(height), "The trunk should be topped by its leaves");
+        }
+        treeSpace(base).forEach(pos -> {
+            boolean onTrunk = pos.getX() == base.getX() && pos.getZ() == base.getZ();
+            BlockState state = context.getBlockState(pos);
+            if (!onTrunk && state.is(BlockTags.LOGS)) {
+                throw context.assertionException(pos, "A log outside the straight trunk");
             }
-
-            context.assertBlockPresent(LogisticsForestry.BLOCK.HUMUS, humus);
-            context.assertBlockProperty(sapling, SaplingBlock.STAGE, 0);
-            context.succeed();
+            if (state.is(Blocks.MANGROVE_ROOTS) || state.is(Blocks.ROOTED_DIRT) || state.is(Blocks.MOSS_CARPET)) {
+                throw context.assertionException(pos, "A Humus tree should have no roots");
+            }
         });
     }
 
-    private static boolean isSapling(GameTestHelper context, BlockPos pos) {
-        BlockState state = context.getBlockState(pos);
-        return state.getBlock() instanceof SaplingBlock;
+    /** Every position a Humus tree on {@code base} can reach. */
+    private static Stream<BlockPos> treeSpace(BlockPos base) {
+        return BlockPos.betweenClosedStream(
+                base.offset(-TREE_RADIUS, -1, -TREE_RADIUS), base.offset(TREE_RADIUS, TREE_HEIGHT, TREE_RADIUS));
     }
 
-    /**
-     * Runs {@code action} once the light at {@code pos} is (or is not) enough for a sapling to grow,
-     * retrying each tick until the test times out.
-     */
-    private static void whenLight(GameTestHelper context, BlockPos pos, boolean bright, Runnable action) {
-        context.startSequence()
-                .thenWaitUntil(() -> assertBrightness(context, pos, bright))
-                .thenExecute(action);
-    }
-
-    /** Throws unless the light at {@code pos} is (or is not) enough for a sapling to grow. */
-    private static void assertBrightness(GameTestHelper context, BlockPos pos, boolean bright) {
-        int brightness = context.getLevel().getMaxLocalRawBrightness(context.absolutePos(pos));
-        context.assertTrue(
-                HumusGrowth.hasLightToGrow(brightness) == bright,
-                "Expected the light at " + pos + " to be " + (bright ? "at least " : "below ")
-                        + HumusGrowth.MIN_BRIGHTNESS + ", was " + brightness);
+    private static void clearTreeSpace(GameTestHelper context, BlockPos base) {
+        treeSpace(base).map(BlockPos::immutable).forEach(pos -> context.setBlock(pos, Blocks.AIR));
     }
 }

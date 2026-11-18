@@ -15,6 +15,9 @@ public interface EnergyView {
     /** RF used (machines) or generated (engines) during the last completed tick. */
     long rate();
 
+    /** The tenths digit of {@link #rate}, 0-9; 0 for a host whose rate is always whole. */
+    int rateTenths();
+
     /** Maximum input (machines) or maximum generation (engines) per tick. */
     long maxRate();
 }

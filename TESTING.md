@@ -743,10 +743,9 @@ server's first batch, then passing on a re-run. NeoForge once used vanilla's 1x1
 `minecraft:empty`, which left almost every test's area in that state (#1245).
 `HarnessGameTestBody#testStructureCoversTheSharedFootprint` pins the footprint on both loaders.
 
-A test that cannot fit names a larger all-air structure on both loaders: `ArboretumFieldGameTestBody`
-runs a real Basic Arboretum in the 15x18x15 `logistics_gametest:arboretum_field`, an `.nbt` kept in
-each loader's `gametest` resources, named by Fabric's `@GameTest(structure = ...)` and by the
-NeoForge registration's `registerInstances(..., structure)`.
+A test that cannot fit can name a larger all-air structure on both loaders (none does at present):
+an `.nbt` kept in each loader's `gametest` resources, named by Fabric's `@GameTest(structure = ...)`
+and by the NeoForge registration's `registerInstances(..., structure)`.
 
 ### The one real exception: loader-native capability tests
 

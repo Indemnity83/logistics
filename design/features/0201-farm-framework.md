@@ -1,5 +1,7 @@
 # Farm Framework
 
+> **Superseded** by [ADR 0001](../../docs/adr/0001-tend-only-farms.md): farms now tend the field the player builds within a 7×7 Reach. The courtyard, ring, survey and Start, clearing, soil laying and irrigation this brief describes were removed; it is kept for history.
+
 > **Status:** ✅ **Shipped** (#1406; farm screen #1407) — shared farm block, work loop, role-routed I/O, water tank and farm screen; ring farms (#1414–#1418) · 🚧 **Planned:** tiered ring farms — 7×7 courtyard, tiers (Upgrade Kits in a follow-up), budgeted scheduler, survey + Start · **Phase:** 2 — Forestry · **Module:** `logistics-forestry` (`forestry` domain) + shared framework in `core`
 > **Source:** [`../mods/forestry.md`](../mods/forestry.md) (Farm (single-block)) · **Depends on:** the machine framework (`core/machine/*`); [0111 Machine Frame Tiers](0111-machine-frame-tiers.md); a Provider-pipe fix (below) · **Maps to (roadmap):** Phase 2 — Farms
 

@@ -243,7 +243,7 @@ public class MachineControlsGameTestBody {
         handlerAppliesModeAndRejectsBadClicks(context, macerator, inv -> new MaceratorScreenHandler(1, inv));
     }
 
-    /** The farm menu hands redstone ids to its controls before its own Start and Show area buttons. */
+    /** The farm menu hands redstone ids to its controls. */
     public static void testCropFarmMenuHandlerValidation(GameTestHelper context) {
         FarmBlockEntity farm = place(context, LogisticsForestry.BLOCK.CROP_FARM, FarmBlockEntity.class);
         handlerAppliesModeAndRejectsBadClicks(context, farm, inv -> new FarmMenu(1, inv));
