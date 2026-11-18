@@ -71,6 +71,7 @@ The *Plan phase* column is the farm plan's build order: 1 = the tiered framework
 | 0211 | [Cave Vine Farm](0211-cave-vine-farm.md) | Glow berries under a built ceiling | 3 | 0201 |
 | 0212 | [Gourd Farm](0212-gourd-farm.md) | Pumpkins + melons, fruit only | 2 | 0201, 0204 |
 | 0213 | [Desert Farm](0213-desert-farm.md) | Cactus on sand | 2 | 0201 |
+| 0214 | [Orchard](0214-orchard.md) | Apples picked off living trees | 2 | 0201, 0203 (`TreeFeller`) |
 
 ## Brief template
 

@@ -73,6 +73,7 @@
     "logistics:pipe/void_fluid_pipe",
     "logistics:pipe/bypass_fluid_pipe",
     "logistics:pipe/glass_tank",
-    "logistics:forestry/arboretum"
+    "logistics:forestry/arboretum",
+    "logistics:forestry/orchard"
   ]
 }
