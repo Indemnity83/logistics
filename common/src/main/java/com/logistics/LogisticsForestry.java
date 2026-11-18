@@ -22,6 +22,7 @@ import com.logistics.forestry.farm.crop.CropFarmBlock;
 import com.logistics.forestry.farm.netherwart.NetherWartFarmBlock;
 import com.logistics.forestry.farm.orchard.OrchardBlock;
 import com.logistics.forestry.farm.orchard.OrchardFruits;
+import com.logistics.forestry.farm.plantation.PlantationBlock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -217,6 +218,18 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         /** Ground an Arboretum tends trees on; it is never repaired. */
         public static final TagKey<Block> ARBORETUM_GROUND =
                 TagKey.create(Registries.BLOCK, resource("arboretum_ground").toIdentifier());
+
+        /** Stalk plants the Plantation harvests above their base: sugar cane, bamboo, cactus. */
+        public static final TagKey<Block> PLANTATION_STALKS =
+                TagKey.create(Registries.BLOCK, resource("plantation_stalks").toIdentifier());
+
+        /** Blocks that grow on top of a stalk and are harvested with it, such as the cactus flower. */
+        public static final TagKey<Block> PLANTATION_TOPPINGS =
+                TagKey.create(Registries.BLOCK, resource("plantation_toppings").toIdentifier());
+
+        /** Ground the Plantation tends stalks on; it is never repaired. */
+        public static final TagKey<Block> PLANTATION_GROUND =
+                TagKey.create(Registries.BLOCK, resource("plantation_ground").toIdentifier());
     }
 
     public static final class BLOCK {
@@ -230,6 +243,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
         public static Block CROP_FARM;
         public static Block NETHER_WART_FARM;
         public static Block ORCHARD;
+        public static Block PLANTATION;
 
         static void register() {
             HUMUS = INSTANCE.registerBlockWithItem("humus",
@@ -248,6 +262,10 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
                     .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
             ORCHARD = registerFarm("orchard",
                 props -> new OrchardBlock(props.mapColor(MapColor.METAL)
+                    .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
+            PLANTATION = registerFarm("plantation",
+                props -> new PlantationBlock(props.mapColor(MapColor.METAL)
                     .strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(FarmMachineBlock.LAMP) != FarmLamp.OFF ? 13 : 0).noOcclusion()));
         }
@@ -317,6 +335,7 @@ public final class LogisticsForestry extends LogisticsMod implements DomainBoots
             TAB.add(BLOCK.CROP_FARM);
             TAB.add(BLOCK.NETHER_WART_FARM);
             TAB.add(BLOCK.ORCHARD);
+            TAB.add(BLOCK.PLANTATION);
             CreativeTabRegistrar.INSTANCE.registerTab(TAB);
         }
     }

@@ -23,13 +23,13 @@ One block per farm type. Replacing one farm block with another is how a player s
 | [0204](0204-crop-farm.md) | Cropland (Crop Farm) | field crops | per irrigation check |
 | [0205](0205-peat-bog.md) | Peat Bog | Bog Earth → Peat | none from the tank (wetness: see brief) |
 | [0206](0206-mushroom-farm.md) | Mushroom Farm | giant mushrooms, huge fungi | none |
-| [0207](0207-plantation.md) | Plantation | sugar cane, bamboo | 1000 mB per channel source |
+| [0207](0207-plantation.md) | Plantation | sugar cane, bamboo, cactus | none (the player waters the field) |
 | [0208](0208-nether-wart-farm.md) | Nether Wart Farm | nether wart | none |
 | [0209](0209-berry-farm.md) | Berry Farm | sweet berries | none |
 | [0210](0210-cocoa-plantation.md) | Cocoa Plantation | cocoa | none |
 | [0211](0211-cave-vine-farm.md) | Cave Vine Farm | glow berries | none |
 | [0212](0212-gourd-farm.md) | Gourd Farm | pumpkins, melons | per irrigation check |
-| [0213](0213-desert-farm.md) | Desert Farm | cactus | none |
+| [0213](0213-desert-farm.md) | ~~Desert Farm~~ | merged into the Plantation | — |
 
 ## Requirements
 
