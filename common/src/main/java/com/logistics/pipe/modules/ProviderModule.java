@@ -106,7 +106,7 @@ public class ProviderModule implements Module, TickingModule, DispatchableModule
     private static final int SCAN_INTERVAL = 6;        // Scan every 6 ticks (~3x/second)
     public static final int MAX_FILTER_SLOTS = 9;
     private static final int SUPPLY_PRIORITY = 1;      // Real stock; lower = preferred
-    // Energy cost per item dispatched (drawn from the network battery).
+    // Energy cost per item dispatched (drawn through the Power Junction).
     private static final long RF_PER_ITEM = 2;
 
     private final int itemLimit;
