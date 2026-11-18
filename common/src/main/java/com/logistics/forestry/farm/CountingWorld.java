@@ -4,11 +4,9 @@ import com.logistics.forestry.logic.TreeView;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -64,48 +62,14 @@ final class CountingWorld implements FarmWorldAccess {
     }
 
     @Override
-    public int light(BlockPos pos) {
-        reads++;
-        return world().light(pos);
-    }
-
-    @Override
     public boolean canSurvive(BlockState state, BlockPos pos) {
         reads++;
         return world().canSurvive(state, pos);
     }
 
     @Override
-    public FarmClimate climate(BlockPos pos) {
-        reads++;
-        return world().climate(pos);
-    }
-
-    @Override
-    public boolean rainingAt(BlockPos pos) {
-        reads++;
-        return world().rainingAt(pos);
-    }
-
-    @Override
     public TreeView.Kind treeKind(BlockState state) {
         return world().treeKind(state);
-    }
-
-    @Override
-    public boolean neverClear(BlockState state) {
-        return world().neverClear(state);
-    }
-
-    @Override
-    public boolean naturalClearable(BlockState state) {
-        return world().naturalClearable(state);
-    }
-
-    @Override
-    public float destroySpeed(BlockPos pos) {
-        reads++;
-        return world().destroySpeed(pos);
     }
 
     @Override
@@ -125,7 +89,7 @@ final class CountingWorld implements FarmWorldAccess {
     }
 
     @Override
-    public List<ItemStack> collectItems(AABB box, Predicate<BlockPos> where) {
-        return world().collectItems(box, where);
+    public void dropStacks(BlockPos pos, List<ItemStack> stacks) {
+        world().dropStacks(pos, stacks);
     }
 }
