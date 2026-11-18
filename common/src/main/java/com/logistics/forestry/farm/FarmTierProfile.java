@@ -22,10 +22,10 @@ public record FarmTierProfile(int checksPerSecond, int actionsPerSecond, long en
     /** The shipped profile of {@code tier}, which the config defaults to. */
     public static FarmTierProfile defaults(MachineTier tier) {
         return switch (tier) {
-            case BASIC -> new FarmTierProfile(16, 4, 20_000, 64);
-            case INDUSTRIAL -> new FarmTierProfile(32, 8, 40_000, 128);
-            case PRECISION -> new FarmTierProfile(64, 16, 80_000, 256);
-            case INFERNAL -> new FarmTierProfile(128, 32, 160_000, 512);
+            case BASIC -> new FarmTierProfile(16, 4, 20_000, 16);
+            case INDUSTRIAL -> new FarmTierProfile(32, 8, 40_000, 32);
+            case PRECISION -> new FarmTierProfile(64, 16, 80_000, 64);
+            case INFERNAL -> new FarmTierProfile(128, 32, 160_000, 128);
         };
     }
 

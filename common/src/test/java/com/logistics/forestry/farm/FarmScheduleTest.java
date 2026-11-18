@@ -133,13 +133,13 @@ class FarmScheduleTest extends MinecraftTestEnvironment {
     void raisingTheTierGrowsTheBufferKeepingItsCharge() {
         FarmHarness farm = shippedTiers();
         assertThat(farm.machine.energy().capacity()).isEqualTo(20_000);
-        assertThat(farm.machine.energy().maxInsert()).isEqualTo(64);
+        assertThat(farm.machine.energy().maxInsert()).isEqualTo(16);
         farm.power(15_000);
 
         assertThat(farm.machine.tier().setTier(MachineTier.INDUSTRIAL)).isTrue();
 
         assertThat(farm.machine.energy().capacity()).isEqualTo(40_000);
-        assertThat(farm.machine.energy().maxInsert()).isEqualTo(128);
+        assertThat(farm.machine.energy().maxInsert()).isEqualTo(32);
         assertThat(farm.energy()).isEqualTo(15_000);
         assertThat(farm.engine().reachSize()).as("the Reach does not grow with the tier").isEqualTo(7);
     }
