@@ -209,9 +209,10 @@ tasks.register('checkFeatureTestParity') {
         def javaFiles = { String dir -> fileTree(dir) { include '**/*.java' }.files.sort() }
 
         // The catalog is the shared bodies themselves: every public static method taking a
-        // GameTestHelper is a test both loaders are expected to run.
+        // GameTestHelper in a *GameTestBody class is a test both loaders are expected to run.
+        // Other classes in the source set are shared helpers, not tests.
         def catalog = [] as Set
-        javaFiles('common/src/gametest').each { file ->
+        javaFiles('common/src/gametest').findAll { it.name.endsWith('GameTestBody.java') }.each { file ->
             (file.text =~ /public static [A-Za-z0-9_<>,.\[\] ]+?\s+(\w+)\s*\(\s*GameTestHelper/).each { m ->
                 catalog << "${file.name - '.java'}#${m[1]}".toString()
             }
