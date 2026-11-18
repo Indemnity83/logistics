@@ -780,7 +780,8 @@ assertion where it belongs and document why, the way the cases above do.
 
 `./gradlew checkFeatureTestParity` (wired into `:common:lint`, so it runs in the `lint (common)` CI
 job) builds the catalog of shared tests — every `public static` method taking a `GameTestHelper` in
-`common/src/gametest` — and fails if either loader doesn't wire one up. It also fails on a reference
+a `common/src/gametest` `*GameTestBody` class — and fails if either loader doesn't wire one up. Other
+classes there, such as `GameTestPlayers`, are shared helpers and stay out of the catalog. It also fails on a reference
 to a body method that doesn't exist, and on an unshared Fabric test with no justification marker.
 
 It separately checks that each test class is actually **discovered at runtime**, which is not the
