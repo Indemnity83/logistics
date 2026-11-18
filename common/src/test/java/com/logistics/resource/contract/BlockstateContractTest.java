@@ -45,6 +45,30 @@ class BlockstateContractTest {
     }
 
     @Test
+    @DisplayName("every model a loader-only blockstate names is shipped")
+    void everyLoaderBlockstateModelResolves() {
+        List<String> failures = new ArrayList<>();
+
+        for (String module : ResourceFiles.LOADER_MODULES) {
+            for (Path file : ResourceFiles.loaderJsonFiles(module, "blockstates")) {
+                JsonObject blockstate = ResourceFiles.parse(file);
+                for (String reference : ResourceFiles.collectStrings(blockstate, MODEL_KEYS)) {
+                    try {
+                        Path target = ResourceFiles.resolveFor(module, reference, "models", ".json");
+                        if (target != null && !Files.isRegularFile(target)) {
+                            failures.add(ResourceFiles.describe(file) + " -> missing model '" + reference + "'");
+                        }
+                    } catch (ResourceFiles.BadReferenceException e) {
+                        failures.add(ResourceFiles.describe(file) + " -> " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        assertThat(failures).as("unresolved loader blockstate models").isEmpty();
+    }
+
+    @Test
     @DisplayName("every blockstate names at least one model")
     void everyBlockstateNamesAModel() {
         List<String> failures = new ArrayList<>();

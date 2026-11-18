@@ -345,11 +345,13 @@ tasks.register('checkResourceParity') {
             // NeoForge draws cables through the logistics:cable_model loader, so its blockstate
             // points at a *_cable_dynamic model that only its own model loader can read. Fabric
             // builds the same geometry from the shared model at runtime instead.
-            'assets/logistics/models/block/power/copper_cable_dynamic.json':
+            'assets/logistics/models/block/power/basic_cable_dynamic.json'     :
                     'NeoForge cable model loader; Fabric builds the same geometry from code',
-            'assets/logistics/models/block/power/ender_cable_dynamic.json' :
+            'assets/logistics/models/block/power/conductive_cable_dynamic.json':
                     'NeoForge cable model loader; Fabric builds the same geometry from code',
-            'assets/logistics/models/block/power/gold_cable_dynamic.json'  :
+            'assets/logistics/models/block/power/resonant_cable_dynamic.json'  :
+                    'NeoForge cable model loader; Fabric builds the same geometry from code',
+            'assets/logistics/models/block/power/deep_cable_dynamic.json'      :
                     'NeoForge cable model loader; Fabric builds the same geometry from code',
         ],
         'fabric'  : [:],
