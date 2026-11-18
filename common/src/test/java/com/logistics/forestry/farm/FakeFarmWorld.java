@@ -52,6 +52,10 @@ final class FakeFarmWorld implements FarmWorldAccess {
     BiPredicate<BlockPos, BlockState> refuseSet = (pos, state) -> false;
     /** A break at a position this refuses reports failure and changes nothing. */
     Predicate<BlockPos> refuseBreak = pos -> false;
+    /** The {@code randomTickSpeed} game rule; vanilla's default. */
+    int randomTickSpeed = 3;
+    /** Every position {@link #rustle} was shown at, in order. */
+    final List<BlockPos> rustled = new ArrayList<>();
 
     /** A stack dropped in the world. */
     record LooseItem(BlockPos pos, ItemStack stack) {}
@@ -140,5 +144,15 @@ final class FakeFarmWorld implements FarmWorldAccess {
                 spilled.add(new LooseItem(pos.immutable(), stack.copy()));
             }
         }
+    }
+
+    @Override
+    public int randomTickSpeed() {
+        return randomTickSpeed;
+    }
+
+    @Override
+    public void rustle(BlockPos pos) {
+        rustled.add(pos.immutable());
     }
 }
