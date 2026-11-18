@@ -17,6 +17,7 @@
 * [[RF Energy]] — the power system engines feed
 * [[Power Junction]] — feeds engine power into the logistics network
 * [[Batteries]] — stores RF
+* [[Side Tabs]] — redstone control and energy readouts in engine GUIs
 * [[Energy]] — power overview
 
 {{Navbox Logistics}}

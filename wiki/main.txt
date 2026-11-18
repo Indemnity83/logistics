@@ -33,8 +33,8 @@ Welcome to the '''{{SITENAME}}''' — the player-maintained guide to '''Logistic
 |icon  = Grid Macerator.png
 |link  = Machines
 |title = Automation
-|text  = Machines that grind, smelt, cut, melt, refine, fabricate, and mine for you.
-|links = [[Macerator]] · [[Alloy Smelter]] · [[Crucible]] · [[Refinery]] · [[Kiln]] · [[Sawmill]] · [[Sequential Fabricator]] · [[Transposer]] · [[Laser Quarry]]
+|text  = Machines that grind, smelt, cut, melt, refine, fabricate, mine, and farm for you.
+|links = [[Macerator]] · [[Alloy Smelter]] · [[Crucible]] · [[Refinery]] · [[Kiln]] · [[Sawmill]] · [[Sequential Fabricator]] · [[Transposer]] · [[Laser Quarry]] · [[Crop Farm]] · [[Arboretum]]
 }}
 {{Topic Card
 |icon  = Grid Chassis Logistics Pipe MkI.png
@@ -69,7 +69,7 @@ You can help by improving pages, adding recipes, documenting behavior, uploading
 
 '''Logistics''' is inspired by the classic pipe-and-machine style of Minecraft automation mods, rebuilt as a modern standalone mod. It adds transport pipes, fluids, tanks, power systems, machines, and tools for moving resources around a world.
 
-Supports '''Minecraft 1.21.1, 1.21.11, 26.1, and 26.2''' on '''Fabric & NeoForge'''. Developed by '''Indemnity83'''.
+Supports '''Minecraft 1.21.1, 1.21.11, 26.1, 26.2, and 26.3''' on '''Fabric & NeoForge'''. Developed by '''Indemnity83'''.
 
 ==Get the mod==
 

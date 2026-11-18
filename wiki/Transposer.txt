@@ -42,6 +42,10 @@ The conversion is atomic: if the output slot can't hold the result or there isn'
 
 The Transposer runs on [[RF Energy|RF]]. It holds 20,000 RF and accepts up to 128 RF/tick. A bucket fill/empty costs 800 RF, drawn at 20 RF/tick (about 2 seconds); other recipes cost more depending on what they produce. Connect a [[Stirling Engine]] or any RF source to a side or top face.
 
+=== Redstone control ===
+
+The Transposer ignores redstone by default and runs whenever it has power and work. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make it run only with a redstone signal, or only without one. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is drawing.
+
 === Recipes ===
 
 Every recipe appears in the Just Enough Items (JEI) viewer. The RF cost is noted under each one.
@@ -142,7 +146,8 @@ Smelt the infused dust in a furnace, blast furnace, or [[Kiln]] for the ingot.
 {{History|head=1|v0.8.6|[[File:Grid Transposer.png|32px]] Added '''Transposer'''.}}
 {{History|v0.8.7|Added an RF cost (previously free); recipes moved to a data-driven system with several new conversions, including [[Seed Oil]] and the oil-bearing blocks; crafting recipe swapped side buckets for glass.}}
 {{History|v0.8.8|The input slot now refuses items no loaded recipe can convert, so a wrongly-routed item can no longer jam the machine.}}
-{{History|foot=1|v0.8.11|Added the three infusing recipes that make [[Caterium Dust]], [[Lumenite Dust]] and [[Echonite Dust]].}}
+{{History|v0.8.11|Added the three infusing recipes that make [[Caterium Dust]], [[Lumenite Dust]] and [[Echonite Dust]].}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is using, and a Redstone Control tab.}}
 
 == See also ==
 * [[Fluid Pipes]] - Overview of the fluid system

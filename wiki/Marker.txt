@@ -31,9 +31,9 @@ Markers work together to mark out a rectangular mining boundary for the [[Laser 
 # '''Activate''' the markers with the [[Wrench]] to project the resulting rectangular boundary.
 # '''Place a [[Laser Quarry]]''' adjacent to the marked boundary; it mines the custom region instead of the default 16×16 footprint.
 
-A successful activation reports the defined area size (e.g. ''area defined: 9x9''). Activation fails if there are not three markers in a right triangle, or if the resulting area is below the minimum size. Wrenching an active marker again deactivates the connected set.
+A successful activation reports the defined area size (e.g. ''area defined: 9x9''). Activation fails if there are not three markers in a right triangle, or if the resulting area is below the minimum size. Wrenching an active marker again deactivates the connected set. Removing any marker in an active set, whether a player breaks it, an explosion destroys it or it pops off, also turns the rest of the set off, so a quarry never works from a set that is no longer complete.
 
-Markers have no collision — you can walk through them — and break instantly with any tool, dropping themselves. Use them to keep the quarry off your base, important terrain, or a neighbouring quarry; without markers the [[Laser Quarry]] just mines its default 16×16 area.
+Markers have no collision — you can walk through them — and break instantly with any tool, dropping themselves. A Marker needs a block beneath it: if that block is removed, the Marker pops off and drops as an item, like a torch. Use them to keep the quarry off your base, important terrain, or a neighbouring quarry; without markers the [[Laser Quarry]] just mines its default 16×16 area.
 
 == Data values ==
 
@@ -44,7 +44,8 @@ Markers have no collision — you can walk through them — and break instantly 
 == History ==
 
 {{History|head=1|v0.1.0|[[File:Grid Marker.png|32px]] Added '''Marker''' with the [[Laser Quarry]].}}
-{{History|foot=1|v0.8.0|Craft now yields 1 Marker (was 2).}}
+{{History|v0.8.0|Craft now yields 1 Marker (was 2).}}
+{{History|foot=1|v0.8.13|A marker now pops off and drops when the block beneath it is removed. Removing any marker in an active set, by any means, now deactivates the rest of the set; before, only a player breaking it did, and the remaining markers could still pass the old area to a quarry.}}
 
 == See also ==
 

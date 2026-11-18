@@ -80,7 +80,7 @@ Use [[Item Filter Pipe|Item Filter Pipes]] to sort valuable ores and an [[Item V
 
 === Chunk loading ===
 
-By default the quarry only runs while its chunk stays loaded — typically while a player is nearby — and pauses when the area unloads. Turning on the chunk-loading setting makes a running quarry hold itself and its work area loaded, so it keeps mining unattended even when no players are around. The chunk tickets are released once the quarry finishes or is removed.
+By default the quarry only runs while its chunk stays loaded — typically while a player is nearby — and pauses when the area unloads. Turning on the chunk-loading setting makes a running quarry hold itself and its work area loaded, so it keeps mining unattended even when no players are around. The quarry holds its chunks only while it has power, and for 30 seconds after it last had power, so a brief gap in supply does not drop them. An unpowered or abandoned quarry lets its chunks unload. The chunk tickets are also released once the quarry finishes or is removed.
 
 The setting lives in <code>config/logistics/machines.quarry.json</code> and can be changed in-game with the operator-only <code>/logistics config machines.quarry &lt;key&gt; &lt;value&gt;</code> command:
 
@@ -102,7 +102,8 @@ With [https://modrinth.com/mod/jade Jade] installed, looking at a Laser Quarry s
 {{History|v0.7.4|Added an optional '''Keep chunks loaded''' setting so the quarry can mine unattended.}}
 {{History|v0.8.0|[[File:Grid Laser Quarry.png|32px]] The texture of the Laser Quarry has been changed. Recipe standardized around the [[Machine Frame]] and [[Redstone Reception Coil]].}}
 {{History|v0.8.8|Waterlogged blocks are now mined instead of skipped. The quarry no longer picks up loose items that were already on the ground. A quarry now removes its own frame when it is broken, and a leftover frame block can be broken by hand. A new quarry no longer inherits the arm position of one that stood in the same spot before it.}}
-{{History|foot=1|v0.8.9|The quarry now repairs gaps punched in its standing frame and clears blocks that intrude into the frame band, pausing mining while it does either. Mining it now needs a stone pickaxe or better. The arm animates at the real tick rate, and break progress resumes after a world reload instead of restarting.}}
+{{History|v0.8.9|The quarry now repairs gaps punched in its standing frame and clears blocks that intrude into the frame band, pausing mining while it does either. Mining it now needs a stone pickaxe or better. The arm animates at the real tick rate, and break progress resumes after a world reload instead of restarting.}}
+{{History|foot=1|v0.8.13|With chunk loading enabled, the quarry now holds its chunks only while it has power (plus a 30-second grace period), instead of keeping them loaded indefinitely while unpowered or abandoned.}}
 
 == See also ==
 * [[Marker]] - Define a custom mining area

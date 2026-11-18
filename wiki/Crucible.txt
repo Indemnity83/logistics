@@ -41,6 +41,10 @@ Place a block or item in the single input slot; the Crucible melts it over time 
 
 The Crucible runs on [[RF Energy|RF]]. It holds 40,000 RF and accepts up to 128 RF/t, spending 40 RF/t while melting. Each recipe carries a total RF cost — melting a stack of glowstone is far more expensive than melting ice — so connect a [[Stirling Engine]] or a strong RF source.
 
+=== Redstone control ===
+
+The Crucible ignores redstone by default and runs whenever it has power and work. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make it run only with a redstone signal, or only without one. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is drawing.
+
 === Recipes ===
 
 Recipes appear in the Just Enough Items (JEI) viewer. Amounts are the millibuckets deposited per input item.
@@ -79,7 +83,8 @@ Recipes appear in the Just Enough Items (JEI) viewer. Amounts are the millibucke
 {{History|head=1|v0.8.2|[[File:Grid Crucible.png|32px]] Added '''Crucible'''.}}
 {{History|v0.8.7|The progress gauge is now drawn as a falling droplet.}}
 {{History|v0.8.8|The input slot now refuses items no loaded recipe can melt, so a wrongly-routed item can no longer jam the machine.}}
-{{History|foot=1|v0.8.9|The fill gauge now scales to the tank size the server is configured for, instead of assuming the default.}}
+{{History|v0.8.9|The fill gauge now scales to the tank size the server is configured for, instead of assuming the default.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is using, and a Redstone Control tab.}}
 
 == See also ==
 

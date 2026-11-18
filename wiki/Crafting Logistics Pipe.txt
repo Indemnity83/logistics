@@ -40,7 +40,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 
 {{History|head=1|v0.2.0|[[File:Grid Crafting Logistics Pipe.png|32px]] Added '''Crafting Logistics Pipe'''.}}
 {{History|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
-{{History|foot=1|v0.8.8|A crafting batch now orders only what was actually requested, and a replanned request keeps the part it could already source.}}
+{{History|v0.8.8|A crafting batch now orders only what was actually requested, and a replanned request keeps the part it could already source.}}
+{{History|foot=1|v0.8.13|A recipe that uses a crafted ingredient in several grid slots no longer asks for far more raw material than it needs; a Crafting Table chained to a planks crafter now succeeds with a single log in stock.}}
 
 == See also ==
 

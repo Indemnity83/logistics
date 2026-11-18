@@ -1,0 +1,47 @@
+{{Item
+|image     = Grid Fertilizer.png
+|type      = Item (Material)
+|stackable = Yes (64)
+|added     = v0.8.13
+}}
+
+'''Fertilizer''' is a farming material made from [[Apatite (gem)|apatite]].
+
+== Obtaining ==
+
+=== Crafting ===
+
+{{Crafting|head=1|showdescription=1
+|name=Fertilizer |description=From the gem
+|A1=Apatite |B1=Sand |C1=Sand
+|Output=Fertilizer,4}}
+{{Crafting|foot=1
+|name=Fertilizer |description=From dusts, for double the yield
+|A1=Apatite Dust |B1=Saltpeter |C1=Pulped Biomass
+|Output=Fertilizer,8}}
+
+Both recipes are shapeless. Any mod's apatite and saltpeter work, and any kind of sand.
+
+== Usage ==
+
+Fertilizer has no use yet. It shares the <code>#logistics:fertilizers</code> tag with {{Mcw|Bone Meal|bone meal}}.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:forestry/fertilizer|item.logistics.forestry.fertilizer}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.13|[[File:Grid Fertilizer.png|32px]] Added '''Fertilizer'''.}}
+
+== See also ==
+
+* [[Apatite (gem)|Apatite]] - Main ingredient
+* [[Saltpeter]] - Ingredient of the dust recipe
+* [[Humus]] - The mod's farming soil
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]

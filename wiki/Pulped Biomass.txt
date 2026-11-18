@@ -36,6 +36,17 @@ Pulped Biomass and [[Slag]] combine into dirt — a way to turn ore-processing w
 |A2=Pulped Biomass |B2=Slag
 |Output=Dirt}}
 
+Pulped Biomass is also an ingredient of [[Humus]] and [[Fertilizer]]:
+
+{{Crafting|head=1|showdescription=1
+|name=[[Humus]] |description=Shapeless; any wood dust
+|A1=Dirt |B1=Pulped Biomass |C1=Sawdust
+|Output=Humus,2}}
+{{Crafting|foot=1
+|name=[[Fertilizer]] |description=Shapeless
+|A1=Apatite Dust |B1=Saltpeter |C1=Pulped Biomass
+|Output=Fertilizer,8}}
+
 == Data values ==
 
 === ID ===

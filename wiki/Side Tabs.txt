@@ -1,0 +1,57 @@
+'''Side tabs''' are the fold-out panels on the edges of a machine or engine GUI. Click a tab to open it and click it again to close it. Each side shows one open tab at a time, and the GUI remembers which tabs you left open for the rest of the session. If the window is too narrow for a panel to fit, the tab says ''Not enough room'' instead of opening.
+
+They appear on every machine and engine with a GUI: the [[Macerator]], [[Alloy Smelter]], [[Crucible]], [[Refinery]], [[Kiln]], [[Sawmill]], [[Sequential Fabricator]], [[Transposer]], [[Crop Farm]] and [[Arboretum]], and the [[Stirling Engine|Stirling]], [[Steam Engine|Steam]], [[Magmatic Engine|Magmatic]], [[Fuel Engine|Fuel]] and [[Reaction Engine|Reaction]] engines.
+
+== Information ==
+
+The Information tab, on the left, says in a few lines what the block does and what it needs.
+
+== Energy ==
+
+The Energy tab, on the left, shows the block's power at a glance:
+
+{| class="wikitable"
+! Line !! Machines !! Engines
+|-
+| Rate || '''Usage''' — the RF/t it is drawing right now || '''Generation''' — the RF/t it is producing right now
+|-
+| Limit || '''Max Input''' — the most RF/t it accepts || '''Max Output''' — the most RF/t it can send
+|-
+| Buffer || colspan="2" | '''Stored''' — RF in its buffer, out of its capacity
+|}
+
+== Redstone Control ==
+
+The Redstone Control tab, on the right, sets how the block responds to a redstone signal. There are three modes:
+
+{| class="wikitable"
+! Mode !! Behavior
+|-
+| '''Ignored''' || Always runs, regardless of redstone.
+|-
+| '''Low''' || Runs only without a redstone signal.
+|-
+| '''High''' || Runs only with a redstone signal.
+|}
+
+Machines and farms default to '''Ignored''', so they run as soon as they have power. Engines default to '''High''', so a lever on an engine switches it on as it always has. The mode is saved with the block.
+
+The tab also shows the '''Signal''' the block is receiving, the signal its mode requires, and whether that leaves it '''Enabled''' or '''Disabled'''.
+
+A [[Reaction Engine]] that is turned off mid-reaction still runs that reaction to the end.
+
+The [[Redstone Engine]] and [[Creative Engine]] have no GUI, so they have no side tabs. Both run only while powered by redstone.
+
+=== Engines do not pass signals on ===
+
+The Stirling, Steam, Magmatic, Fuel, Reaction and Creative engines react to a redstone signal on themselves but do not pass it to the blocks around them. A lever on one of these engines switches that engine only, so a machine or farm next to it is not paused or started by the same lever.
+
+== See also ==
+
+* [[Machines]] - Every machine
+* [[Engines]] - Every engine
+* [[RF Energy]] - The power system
+
+{{Navbox Logistics}}
+
+[[Category:Concepts]]

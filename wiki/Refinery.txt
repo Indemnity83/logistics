@@ -41,6 +41,10 @@ Pipe a fluid into the input tank; the Refinery processes it over time and deposi
 
 The Refinery runs on [[RF Energy|RF]]. It holds 20,000 RF and accepts up to 128 RF/t, spending 20 RF/t while working. Each recipe costs a total of 5,000 RF; connect a [[Stirling Engine]] or any RF source. Its input tank holds 4,000 mB and its output tank 10,000 mB.
 
+=== Redstone control ===
+
+The Refinery ignores redstone by default and runs whenever it has power and work. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make it run only with a redstone signal, or only without one. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is drawing.
+
 === Recipes ===
 
 Amounts are the millibuckets consumed and produced per cycle:
@@ -56,7 +60,8 @@ Amounts are the millibuckets consumed and produced per cycle:
 
 == History ==
 
-{{History|head=1|foot=1|v0.8.3|[[File:Grid Refinery.png|32px]] Added '''Refinery'''.}}
+{{History|head=1|v0.8.3|[[File:Grid Refinery.png|32px]] Added '''Refinery'''.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is using, and a Redstone Control tab.}}
 
 == See also ==
 

@@ -22,7 +22,12 @@
 
 === Crafting ingredient ===
 
-Apatite dust currently has no crafting or smelting use.
+Apatite Dust, [[Saltpeter]] and [[Pulped Biomass]] make eight [[Fertilizer]]:
+
+{{Crafting|head=1|foot=1|showdescription=1
+|name=[[Fertilizer]] |description=Shapeless
+|A1=Apatite Dust |B1=Saltpeter |C1=Pulped Biomass
+|Output=Fertilizer,8}}
 
 == Data values ==
 
@@ -33,7 +38,8 @@ Apatite dust currently has no crafting or smelting use.
 == History ==
 
 {{History|head=1|v0.2.0|[[File:Grid Apatite Dust.png|32px]] Added '''Apatite Dust'''.}}
-{{History|foot=1|v0.7.4|Grinding apatite ore now grants experience.}}
+{{History|v0.7.4|Grinding apatite ore now grants experience.}}
+{{History|foot=1|v0.8.13|Now used to make [[Fertilizer]].}}
 
 == See also ==
 

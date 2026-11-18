@@ -5,7 +5,7 @@
 |added     = v0.8.0
 }}
 
-'''Saltpeter''' is a material recovered from sandstone in a [[Macerator]] and dropped by the Breeze. It is an ingredient for [[#Usage|crafting gunpowder]].
+'''Saltpeter''' is a material recovered from sandstone in a [[Macerator]] and dropped by the Breeze. It is an ingredient for [[#Usage|crafting gunpowder and fertilizer]].
 
 == Obtaining ==
 
@@ -30,6 +30,13 @@ Two Saltpeter combine with [[Coal Dust]] and [[Sulfur Dust]] to make two {{Mcw|G
 |A2=Saltpeter |B2=Saltpeter
 |Output=Gunpowder,2
 }}
+
+Saltpeter, [[Apatite Dust]] and [[Pulped Biomass]] make eight [[Fertilizer]]:
+
+{{Crafting|head=1|foot=1|showdescription=1
+|name=[[Fertilizer]] |description=Shapeless
+|A1=Apatite Dust |B1=Saltpeter |C1=Pulped Biomass
+|Output=Fertilizer,8}}
 
 == Mod compatibility ==
 

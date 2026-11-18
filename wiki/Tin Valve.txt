@@ -20,7 +20,16 @@
 
 == Usage ==
 
-Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
+=== Crafting ingredient ===
+
+Two Tin Valves flank the top of the [[Crop Farm]] recipe:
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Tin Valve |B1=Iron Hoe |C1=Tin Valve
+|A2=Wheat Seeds |B2=Machine Frame |C2=Wheat Seeds
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Crop Farm
+}}
 
 == Data values ==
 
@@ -31,7 +40,8 @@ Valves are not used in any recipe yet — they are reserved for future [[Logisti
 == History ==
 
 {{History|head=1|v0.8.3|[[File:Grid Tin Valve.png|32px]] Added '''Tin Valve'''.}}
-{{History|foot=1|v0.8.12|The craft now accepts any mod's tin ingot.}}
+{{History|v0.8.12|The craft now accepts any mod's tin ingot.}}
+{{History|foot=1|v0.8.13|First used in a recipe: the [[Crop Farm]].}}
 
 == Mod compatibility ==
 

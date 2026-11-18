@@ -28,6 +28,7 @@ The Creative Engine is mined with a pickaxe of any tier; without one it drops no
 
 * Outputs a steady, configurable amount of RF every tick — effectively infinite power
 * Never runs out of fuel and never overheats
+* Runs only while it receives a redstone signal, and does not pass that signal on to neighboring blocks
 * Output is delivered through [[Cables|power cables]] just like the [[Redstone Engine]] and [[Stirling Engine]]
 * Useful for charging a [[Batteries|battery]] instantly while testing a logistics network
 
@@ -39,7 +40,8 @@ The Creative Engine is mined with a pickaxe of any tier; without one it drops no
 
 == History ==
 
-{{History|head=1|foot=1|v0.6.0|[[File:Grid Creative Engine.png|32px]] Added '''Creative Engine'''.}}
+{{History|head=1|v0.6.0|[[File:Grid Creative Engine.png|32px]] Added '''Creative Engine'''.}}
+{{History|foot=1|v0.8.13|The engine now delivers its full rated output; it used to send nothing on one tick of every piston cycle. A lever on the engine no longer passes its signal to neighboring blocks.}}
 
 == See also ==
 * [[RF Energy]] - How the power system works

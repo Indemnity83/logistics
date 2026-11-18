@@ -1,0 +1,130 @@
+{{Block
+|image           = Grid Arboretum.png
+|type            = Block (Machine)
+|function        = Tree farming
+|stackable       = Yes (64)
+|tool            = Pickaxe
+|hardness        = 3.5
+|blastresistance = 3.5
+|light           = 13 (while powered)
+|added           = v0.8.13
+}}
+
+The '''Arboretum''' is an RF-powered farm that tends the trees you plant on [[Humus]] around it. It fells each grown tree, replants a sapling of the same kind, and collects the wood, leaves' drops and saplings into its inventory.
+
+== Obtaining ==
+
+=== Breaking ===
+
+The Arboretum is mined with a stone pickaxe or better; without one it drops nothing.
+
+{{Breaking
+|tier=stone
+|name1=Arboretum |icon1=Grid Arboretum.png |hardness1=3.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Copper Valve |B1=Iron Axe |C1=Copper Valve
+|A2=Oak Sapling |B2=Machine Frame |C2=Oak Sapling
+|A3=Copper Gear |B3=Redstone Reception Coil |C3=Copper Gear
+|Output=Arboretum
+}}
+
+Any sapling works in the side slots, and any mod's copper gear in the bottom corners.
+
+== Usage ==
+
+The Arboretum does not plant a forest for you. Plant saplings on [[Humus]] within its '''Reach''' and it takes over from there.
+
+=== Reach ===
+
+The Reach runs 3 blocks out from the Arboretum on every side, corners included (a 7×7 area), from one block below the Arboretum to one block above it. Only the tree's base needs to be in the Reach: the whole tree is felled, including logs and leaves above it.
+
+=== Tending ===
+
+When a tree on Humus is fully grown, the Arboretum fells it — logs, leaves and all — and replants a sapling of the same kind in its place, taken from the tree's own drops first and then from its inventory. Every tree it fells becomes a '''Plot''' that it keeps replanting.
+
+If a Plot cannot be replanted, it waits as an '''Empty Plot''' until a matching sapling turns up in the inventory. Keep a few spare saplings in the Arboretum to refill them. A Plot is forgotten once something else grows or is placed there, or the ground stops being Humus; breaking the Arboretum forgets all of its Plots.
+
+The Arboretum leaves alone:
+* trees on any ground other than [[Humus]]
+* log builds and trees with leaves you placed yourself
+
+It never breaks beehives, creaking hearts, or blocks that hold contents such as chests, and it never lays or repairs Humus.
+
+=== Output ===
+
+The harvest goes into a 15-slot inventory. Pipes and hoppers can insert into it from any side and pull from any slot, so an [[Item Extractor Pipe]] can carry the wood away. When the inventory is full the Arboretum keeps working and drops what does not fit at the base of the trunk. Pulling everything out, saplings included, leaves Empty Plots with nothing to refill them.
+
+=== Power ===
+
+The Arboretum runs on [[RF Energy|RF]]. It holds 20,000 RF and accepts up to 32 RF/t. It pays a small upkeep every tick for each Plot it keeps (Empty Plots included), plus a cost for each block it changes:
+
+{| class="wikitable"
+! Action !! RF
+|-
+| Upkeep, per Plot || 1.5 RF/t
+|-
+| Felling a log || 50
+|-
+| Breaking a leaf or other canopy block || 10
+|-
+| Planting a sapling || 50
+|}
+
+Looking for work is free. Its [[Side Tabs#Energy|Energy]] tab shows how much RF it is using.
+
+=== Status ===
+
+The lamp on the block and in the GUI shows what the Arboretum is doing:
+
+{| class="wikitable"
+! Lamp !! Status
+|-
+| Green || '''Working''', or '''Idle''' when nothing in the Reach is ready to fell
+|-
+| Amber || '''Waiting for seeds''' (Empty Plots need saplings), '''Inventory full''' (dropping items), or '''Paused''' by redstone
+|-
+| Red || '''No power''', or '''Blocked''' when it is not allowed to change a block (for example, claim protection)
+|}
+
+The lamp is dark when the energy buffer is empty. With [https://modrinth.com/mod/jade Jade] installed, the HUD shows the farm's status, Reach and Plots.
+
+=== Redstone control ===
+
+The Arboretum ignores redstone by default. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make a signal pause it or run it. Engines do not pass their redstone signal on, so a lever on an engine sitting on the Arboretum switches only the engine.
+
+=== Configuration ===
+
+The RF costs and the farm's buffer live in <code>config/logistics/forestry.farm.json</code> and can be changed in-game with the operator-only <code>/logistics config forestry.farm &lt;key&gt; &lt;value&gt;</code> command:
+
+{{Config|head=1|rf_upkeep_arboretum|RF per tick for each Plot the Arboretum maintains|1.5|Decimal}}
+{{Config|rf_harvest_log|RF per log felled|50|Integer}}
+{{Config|rf_harvest_leaves|RF per leaf or other canopy block of a felled tree|10|Integer}}
+{{Config|rf_plant|RF per sapling planted|50|Integer}}
+{{Config|tier.basic.energy_capacity|Internal RF buffer|20000|Integer}}
+{{Config|foot=1|tier.basic.max_energy_input|Maximum RF accepted per tick|32|Integer}}
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:forestry/arboretum|block.logistics.forestry.arboretum}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.13|[[File:Grid Arboretum.png|32px]] Added '''Arboretum'''.}}
+
+== See also ==
+
+* [[Humus]] - The ground the Arboretum tends
+* [[Crop Farm]] - The field-tending farm
+* [[Sawmill]] - Turns the logs into planks
+* [[Side Tabs]] - Energy and redstone settings
+* [[Machines]] - All machines
+
+{{Navbox Logistics}}
+
+[[Category:Machines]]

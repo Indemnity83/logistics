@@ -26,6 +26,11 @@
 * [[File:Grid Bitumen.png|24px|link=Bitumen]] '''[[Bitumen]]''' and '''[[Tar]]''' — ground oil products; both burn as fuel
 * [[File:Grid Peat.png|24px|link=Peat]] '''[[Peat]]''' — a renewable fuel dried from [[Bog Earth]]
 
+== Farming ==
+
+* [[File:Grid Humus.png|24px|link=Humus]] '''[[Humus]]''' — soil that grows small, uniform trees for the [[Arboretum]]
+* [[File:Grid Fertilizer.png|24px|link=Fertilizer]] '''[[Fertilizer]]''' — made from [[Apatite (gem)|apatite]]
+
 == Processing byproducts ==
 
 * [[File:Grid Slag.png|24px|link=Slag]] '''[[Slag]]''' and '''[[Rich Slag]]''' — [[Alloy Smelter]] byproducts

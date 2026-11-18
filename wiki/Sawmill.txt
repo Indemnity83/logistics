@@ -41,6 +41,10 @@ Place a log or other wooden item in the input slot; the Sawmill cuts it into pla
 
 The Sawmill runs on [[RF Energy|RF]]. It holds 10,000 RF and accepts up to 128 RF/t. Each recipe carries an RF cost (2,000–3,000 RF); connect a [[Stirling Engine]] or any RF source.
 
+=== Redstone control ===
+
+The Sawmill ignores redstone by default and runs whenever it has power and work. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make it run only with a redstone signal, or only without one. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is drawing.
+
 === Recipes ===
 
 ==== Wood → planks ====
@@ -70,7 +74,8 @@ Loose plant matter pulps into [[Pulped Biomass]] — one per recipe, with denser
 
 {{History|head=1|v0.8.0|[[File:Grid Sawmill.png|32px]] Added '''Sawmill'''.}}
 {{History|v0.8.2|Added pulping plant matter into [[Pulped Biomass]].}}
-{{History|foot=1|v0.8.6|Fixed seeds being silently rejected by the plant-pulping recipes. Fixed pipes and hoppers being unable to deliver batched ingredients (like kelp or seeds) one item at a time.}}
+{{History|v0.8.6|Fixed seeds being silently rejected by the plant-pulping recipes. Fixed pipes and hoppers being unable to deliver batched ingredients (like kelp or seeds) one item at a time.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is using, and a Redstone Control tab.}}
 
 == See also ==
 

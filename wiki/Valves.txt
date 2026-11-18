@@ -20,7 +20,7 @@
 
 == Usage ==
 
-Valves are not used in any recipe yet — they are reserved for future [[Logistics Pipes|logistics pipe]] content.
+The [[Tin Valve]] goes into the [[Crop Farm]] and the [[Copper Valve]] into the [[Arboretum]]. The other valves are not used in any recipe yet — they are reserved for future content.
 
 == See also ==
 

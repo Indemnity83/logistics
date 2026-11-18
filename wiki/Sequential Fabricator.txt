@@ -41,6 +41,10 @@ Toggle any number of [[Chipsets|chipsets]] to queue in the machine's GUI, then f
 
 The Sequential Fabricator runs on [[RF Energy|RF]]. It holds 100,000 RF and accepts up to 128 RF/t, spending 80 RF/t while working. Each chipset carries its own RF cost — from 10,000 RF for a [[Redstone Chipset]] up to 120,000 RF for a [[Netherite Chipset]] — so connect a strong RF source.
 
+=== Redstone control ===
+
+The Sequential Fabricator ignores redstone by default and runs whenever it has power and work. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make it run only with a redstone signal, or only without one. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is drawing.
+
 === Recipes ===
 
 Chipsets are built from redstone and one tier material; the RF cost climbs with the tier:
@@ -63,7 +67,8 @@ Chipsets are built from redstone and one tier material; the RF cost climbs with 
 
 {{History|head=1|v0.8.3|[[File:Grid Sequential Fabricator.png|32px]] Added '''Sequential Fabricator'''.}}
 {{History|v0.8.8|A queued chipset now stays listed while its materials are missing, so a stalled order can be cancelled. A craft that fails no longer consumes its ingredients.}}
-{{History|foot=1|v0.8.9|A recipe with a malformed byproduct chance is now reported as a recipe error instead of failing silently.}}
+{{History|v0.8.9|A recipe with a malformed byproduct chance is now reported as a recipe error instead of failing silently.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is using, and a Redstone Control tab.}}
 
 == See also ==
 

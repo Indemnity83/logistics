@@ -41,6 +41,10 @@ Input is accepted from the top and sides; output is drawn from the bottom. Hoppe
 
 The Macerator runs on [[RF Energy|RF]]. It holds 10,000 RF, accepts up to 128 RF/tick, and consumes 10 RF/tick while active. Connect a [[Stirling Engine]] or any RF source to power it.
 
+=== Redstone control ===
+
+The Macerator ignores redstone by default and runs whenever it has power and work. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make it run only with a redstone signal, or only without one. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is drawing.
+
 === Setup ===
 
 # '''Place the Macerator''' in your processing area
@@ -188,7 +192,8 @@ Grinding an ore block yields 2 dust, each smeltable into 1 ingot — effectively
 {{History|v0.8.2|Added grinding for the oil blocks into [[Bitumen]] and [[Tar]].}}
 {{History|v0.8.7|Loose raw iron, raw copper, raw gold, and [[Raw Tin|raw tin]] can now be ground into dust.}}
 {{History|v0.8.8|The input slot now refuses items no loaded recipe can grind, so a wrongly-routed item can no longer jam the machine.}}
-{{History|foot=1|v0.8.12|Recipes now read conventional tags, so ore, ingots and dusts from other mods can be ground here.}}
+{{History|v0.8.12|Recipes now read conventional tags, so ore, ingots and dusts from other mods can be ground here.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is using, and a Redstone Control tab.}}
 
 == Mod compatibility ==
 

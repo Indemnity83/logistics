@@ -12,10 +12,15 @@
 * '''[[Sawmill]]''' - Cuts logs and wooden items into planks, and pulps plants into [[Pulped Biomass]]
 * '''[[Sequential Fabricator]]''' - Assembles [[Chipsets|chipsets]] from redstone and a tier material
 
+==Farming==
+* '''[[Crop Farm]]''' - Harvests and replants the wheat, carrots, potatoes and beetroot you plant around it
+* '''[[Arboretum]]''' - Fells and replants the trees you grow on [[Humus]] around it
+
 ==Power==
 * '''[[Power Junction]]''' - Feeds RF from cables or a [[Batteries|battery]] into a [[Logistics Pipes|logistics network]]
 
 ==See Also==
+* [[Side Tabs]] - Information, energy and redstone control panels in machine GUIs
 * [[Machine Frame]], [[Redstone Reception Coil]] - Shared components for all machines
 * [[Energy]] - RF engines for machines
 * [[Pipes]] - Collecting machine output

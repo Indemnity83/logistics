@@ -34,15 +34,19 @@ The Stirling Engine is mined with a stone pickaxe or better; without one it drop
 
 == Usage ==
 
-The Stirling Engine burns fuel (coal, charcoal, wood, lava buckets, etc.) to generate RF. It requires both fuel and a redstone signal to operate, and produces far more power than the [[Redstone Engine]] — enough for the [[Laser Quarry]] and other high-throughput machines. Energy outputs from one configurable face.
+The Stirling Engine burns fuel (coal, charcoal, wood, lava buckets, etc.) to generate RF. It needs fuel and, by default, a redstone signal to run (see [[#Redstone control|Redstone control]]), and produces far more power than the [[Redstone Engine]] — enough for the [[Laser Quarry]] and other high-throughput machines. Energy outputs from one configurable face.
 
 === Fuel ===
 
-Right-click the engine to open the fuel GUI and add burnable items — it accepts more fuel types than a vanilla furnace, including coal, charcoal, wood planks, and lava buckets (which provide a long burn time). The mod's own fuels burn here too: [[Peat]], [[Bitumen]], and [[Tar]]. Fuel burns while the engine is powered by redstone, so keep it stocked for continuous operation.
+Right-click the engine to open the fuel GUI and add burnable items — it accepts more fuel types than a vanilla furnace, including coal, charcoal, wood planks, and lava buckets (which provide a long burn time). The mod's own fuels burn here too: [[Peat]], [[Bitumen]], and [[Tar]]. Fuel burns while the engine is running, so keep it stocked for continuous operation.
 
 === Temperature and overheating ===
 
 The engine heats up during operation, and the block changes color through visible heat stages so you can read its temperature at a glance. If it gets too hot it shuts down safely — it does not break or explode — and must cool before restarting. Right-click an overheated engine with a [[Wrench]] to reset it. To prevent overheating, run in intervals, toggle the redstone signal periodically, or rotate between multiple engines.
+
+=== Redstone control ===
+
+By default the Stirling Engine runs only with a redstone signal, such as a lever on the engine. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can set it to ignore redstone, or to run only without a signal. The signal is not passed on to neighboring blocks, so a lever on the engine does not also switch the machine it powers. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is generating.
 
 === Configuration ===
 
@@ -59,7 +63,8 @@ Use a [[Wrench]] to rotate the output face (cycle through directions) and to res
 {{History|head=1|v0.1.0|[[File:Grid Stirling Engine.png|32px]] Added '''Stirling Engine'''.}}
 {{History|v0.8.5|Now requires a stone pickaxe to drop; hardness lowered from 5.0 to 1.5.}}
 {{History|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
-{{History|foot=1|v0.8.9|The charge gauge now scales to the engine's buffer size, instead of assuming the default.}}
+{{History|v0.8.9|The charge gauge now scales to the engine's buffer size, instead of assuming the default.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is generating, and a Redstone Control tab, so the engine can be set to ignore redstone or run without a signal. A lever on the engine no longer passes its signal to neighboring blocks. The engine now delivers its full rated output; it used to send nothing on one tick of every piston cycle.}}
 
 == See also ==
 * [[RF Energy]] - Understanding the power system

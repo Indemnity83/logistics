@@ -24,6 +24,11 @@
 
 === Crafting ingredient ===
 
+{{Crafting|head=1|foot=1|showdescription=1
+|name=[[Fertilizer]] |description=Shapeless; any sand
+|A1=Apatite |B1=Sand |C1=Sand
+|Output=Fertilizer,4}}
+
 {{Crafting
 |head=1
 |foot=1

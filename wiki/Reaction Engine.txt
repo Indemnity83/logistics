@@ -52,6 +52,10 @@ Each reaction consumes 1,000 mB of the reactant plus one reagent:
 
 Every reaction is listed in the Just Enough Items (JEI) recipe browser, with the RF it returns and how long it runs.
 
+=== Redstone control ===
+
+By default the Reaction Engine starts a reaction only with a redstone signal, such as a lever on the engine. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can set it to ignore redstone, or to run only without a signal. The signal is not passed on to neighboring blocks, so a lever on the engine does not also switch the machine it powers. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is generating. A reaction that has started always runs to the end, even if the signal is removed.
+
 === Configuration ===
 
 Use a [[Wrench]] to rotate the output face.
@@ -66,7 +70,8 @@ Use a [[Wrench]] to rotate the output face.
 
 {{History|head=1|v0.8.4|[[File:Grid Reaction Engine.png|32px]] Added '''Reaction Engine'''.}}
 {{History|v0.8.5|Now requires a diamond pickaxe to drop; hardness raised from 5.0 to 50.0.}}
-{{History|foot=1|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
+{{History|v0.8.8|A newly placed engine now points at an adjacent machine whose energy buffer is already full instead of facing away from it, and no longer resumes the piston animation of an engine that stood in the same spot before it.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is generating, and a Redstone Control tab, so the engine can be set to ignore redstone or run without a signal. A lever on the engine no longer passes its signal to neighboring blocks.}}
 
 == See also ==
 

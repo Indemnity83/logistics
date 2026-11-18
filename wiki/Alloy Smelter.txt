@@ -41,6 +41,10 @@ Place two inputs in the top slots — typically an ore or metal plus a flux such
 
 The Alloy Smelter runs on [[RF Energy|RF]]. It holds 10,000 RF and accepts up to 128 RF/t, spending 20 RF/t while working. Each recipe carries its own RF cost; connect a [[Stirling Engine]] or any RF source.
 
+=== Redstone control ===
+
+The Alloy Smelter ignores redstone by default and runs whenever it has power and work. Its [[Side Tabs#Redstone Control|Redstone Control]] tab can make it run only with a redstone signal, or only without one. Its [[Side Tabs#Energy|Energy]] tab shows the RF/t it is drawing.
+
 === Ore processing ===
 
 Smelting an ore with '''sand''' as flux yields two ingots and a chance of [[Rich Slag]]:
@@ -115,7 +119,8 @@ The full recycling list — every anvil tier, minecart, pressure plate, and iron
 
 {{History|head=1|v0.8.2|[[File:Grid Alloy Smelter.png|32px]] Added '''Alloy Smelter'''.}}
 {{History|v0.8.7|The [[Quicksilver]] amalgamation recipes now accept raw ore as well as the ore block.}}
-{{History|foot=1|v0.8.8|Filling the machine from a recipe in the recipe browser no longer duplicates the ingredients it moves.}}
+{{History|v0.8.8|Filling the machine from a recipe in the recipe browser no longer duplicates the ingredients it moves.}}
+{{History|foot=1|v0.8.13|Added the [[Side Tabs|side tabs]]: an Information tab, an Energy tab showing the RF/t it is using, and a Redstone Control tab.}}
 
 == See also ==
 

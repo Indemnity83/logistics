@@ -39,7 +39,8 @@ Like every [[Logistics Pipes|logistics pipe]], it draws [[RF Energy|RF]] through
 
 {{History|head=1|v0.2.0|[[File:Grid Requester Logistics Pipe.png|32px]] Added '''Requester Logistics Pipe'''.}}
 {{History|v0.8.3|Recipe reworked — now crafted from a [[Gears|gear]] (or the matching [[Chipsets|chipset]]) instead of a valve.}}
-{{History|foot=1|v0.8.8|A delivery that times out in transit is now re-requested instead of being written off, and an order left behind by a finished job is cancelled rather than left pending.}}
+{{History|v0.8.8|A delivery that times out in transit is now re-requested instead of being written off, and an order left behind by a finished job is cancelled rather than left pending.}}
+{{History|foot=1|v0.8.13|Items it ordered are now always delivered into its own inventory, even when it sits in the middle of a pipe line; before, a delivery could carry on down the onward pipe and the order was reported lost.}}
 
 == See also ==
 

@@ -1,0 +1,72 @@
+{{Block
+|image           = Grid Humus.png
+|type            = Block
+|tool            = Shovel
+|hardness        = 0.5
+|blastresistance = 0.5
+|drops           = Humus
+|renewable       = Yes
+|stackable       = Yes (64)
+|added           = v0.8.13
+}}
+
+'''Humus''' is a rich soil that grows every sapling into the same small, tidy tree. It is the ground the [[Arboretum]] tends.
+
+== Obtaining ==
+
+=== Breaking ===
+
+Humus breaks fastest with a shovel and always drops itself.
+
+{{Breaking
+|tool=shovel
+|tier=none
+|name1=Humus |icon1=Grid Humus.png |hardness1=0.5
+}}
+
+=== Crafting ===
+
+{{Crafting|head=1|foot=1|showname=0
+|A1=Dirt |B1=Pulped Biomass |C1=Sawdust
+|Output=Humus,2
+}}
+
+Any mod's wood dust works in place of [[Sawdust]].
+
+== Usage ==
+
+=== Tree growth ===
+
+Any sapling planted on Humus, with or without a farm nearby, grows the same small tree: a straight trunk 4 to 6 logs tall under a round canopy, in the sapling's own wood and leaves. That keeps every tree to a known size, so a grove can be packed close together without trees growing into each other.
+
+* Dark oak and pale oak grow from a single sapling.
+* A 2×2 group of saplings grows four small trees, never one large one.
+* Mangroves and azaleas grow without roots, and mangroves bear fully grown propagules.
+* No beehives, vines or other decorations.
+
+Saplings grow at the normal rate, and Humus is never used up. Humus counts as dirt, so anything that can be planted on dirt can be planted on it.
+
+=== Arboretum ===
+
+The [[Arboretum]] only fells trees standing on Humus. Lay Humus where you want its trees; trees on any other ground are safe from it.
+
+== Data values ==
+
+=== ID ===
+
+{{ID|head=1|foot=1|logistics:forestry/humus|block.logistics.forestry.humus}}
+
+== History ==
+
+{{History|head=1|foot=1|v0.8.13|[[File:Grid Humus.png|32px]] Added '''Humus'''.}}
+
+== See also ==
+
+* [[Arboretum]] - Fells the trees grown on Humus
+* [[Pulped Biomass]] - Crafting ingredient
+* [[Sawdust]] - Crafting ingredient
+* [[Bog Earth]] - The mod's other soil
+
+{{Navbox Logistics}}
+
+[[Category:Materials]]
