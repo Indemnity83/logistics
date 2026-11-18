@@ -81,39 +81,27 @@ copy) — review those yourself before shipping.
 
 ## Branch A — Ship a mergeable PR
 
-### 1. Assemble the squash body
+### 1. Check the changelog lines
 
-The subject is the PR title; **`-m` supplies only the body.** Passing a full message
-duplicates the subject into the body and produces duplicate changelog entries.
-
-The body holds *additional* Conventional Commit lines when one PR makes several
-player-facing changes — read the PR body and its discussion for lines the author called
-out (often under a "Suggested squash commit" heading). Each `type(scope): description`
-line becomes its own changelog entry. See CLAUDE.md "Multi-change squash commits".
-
-- Single change → `git town ship -m ""`
-- Multiple → one Conventional Commit line per additional change, newline-separated
-
-Only carry lines that are genuinely additional changelog entries. Do not restate the
-title, and do not invent entries the PR does not support.
+A PR with several player-facing changes lists every changelog line, its title first, in a
+`BEGIN_COMMIT_OVERRIDE` block in its body (CLAUDE.md "Multi-change squash commits"). If the PR
+body names extra changes outside a block (often under a "Suggested squash commit" heading), move
+them into one before shipping. Only carry lines that are genuinely separate changelog entries,
+and do not invent entries the PR does not support.
 
 ### 2. Ship
 
 ```bash
-git checkout <feature-branch>
-git town ship -m "<additional lines, or empty>"
+python3 tools/ship_pr.py <n> --dry-run   # review the squash message
+python3 tools/ship_pr.py <n>
 git checkout <base> && git pull --ff-only origin <base>
 ```
 
-Then **verify the commit actually landed as intended** before porting:
-
-```bash
-git log -1 --format='%s%n---%n%b'
-```
-
-Subject must be the PR title; body must contain exactly the additional lines and no
-duplicate of the subject. If it is wrong, stop and tell the user — a bad squash message
-produces a wrong changelog, and it is far easier to fix before the port fans it out.
+The script makes the subject `<title> (#N)` and the body the block's other lines, each with
+`(#N)`, and ships through `git town ship` (or `gh pr merge` when the branch is checked out in
+another worktree). It prints the landed commit. **Verify it before porting:** the subject is the
+PR title with `(#N)`, and the body holds exactly the block's other lines. If it is wrong, stop and
+tell the user: a bad squash message produces a wrong changelog on every branch the port reaches.
 
 If `git town ship` complains about a leftover run or a missing interactive terminal, a
 stale runstate is blocking it: delete `runstate.json` under
