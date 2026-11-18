@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Pre-release review
 
-Every `mc/*` branch has its own release PR (`chore(release): release X.Y.Z for mcV`), labelled `autorelease: pending`. The newest block of its `CHANGELOG.md` becomes the GitHub release body, and `build-release.yml` publishes that body as the Modrinth and CurseForge changelog. The reader is a player, not a developer. What a line says, its type and its scope follow "Release notes and PR title strategy" in `CLAUDE.md`; which types show, and under which heading, is `changelog-sections` in `release-please-config.json`.
+Every `mc/*` branch has its own release PR (`chore(release): release X.Y.Z for mcV`), labelled `autorelease: pending`. The newest block of its `CHANGELOG.md` becomes the GitHub release body, and `build-release.yml` publishes that body as the Modrinth and CurseForge changelog. The reader is a player, not a developer. What a line says, its type and its scope follow "PR titles" in `CLAUDE.md` and `docs/agents/changelog.md`; which types show, and under which heading, is `changelog-sections` in `release-please-config.json`.
 
 release-please rebuilds a release PR from its branch's commits every time it runs, so an edit to a release PR lasts only until the next run. Where a line is fixed depends on the branch:
 
