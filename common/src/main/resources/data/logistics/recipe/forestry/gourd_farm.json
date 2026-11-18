@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["VHV", "PMN", "GCG"],
+  "key": {
+    "V": "logistics:core/tin_valve",
+    "H": "minecraft:iron_hoe",
+    "P": "minecraft:pumpkin_seeds",
+    "N": "minecraft:melon_seeds",
+    "M": "logistics:core/machine_core",
+    "G": "#c:gears/copper",
+    "C": "logistics:core/redstone_reception_coil"
+  },
+  "result": { "id": "logistics:forestry/gourd_farm", "count": 1 }
+}
