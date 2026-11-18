@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * <p>Configuration: Up to 9 request slots, each with an item and amount.
  * <p>GUI: TODO (Phase 9) - For now, use NBT commands or placeholder interaction.
  *
- * <p>Energy: costs {@value #RF_PER_REQUEST} RF per order placed (drawn from the network battery).
+ * <p>Energy: costs {@value #RF_PER_REQUEST} RF per order placed (drawn through the Power Junction).
  */
 public class RequesterModule implements Module, TickingModule, RoutingModule {
     private static final String REQUESTS = "requests";
