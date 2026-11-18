@@ -165,6 +165,10 @@ jobs:
         uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          # Pushes to every mc/* branch save their own cache, not only the default branch's:
+          # each branch builds a different Loom and Minecraft, so another branch's cache leaves it
+          # downloading everything again. PRs read their base branch's cache.
+          cache-read-only: ${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/heads/mc/') }}
 
       - name: Check ${{ matrix.module }} formatting
         if: needs.changes.outputs.code_changed == 'true'
@@ -206,6 +210,7 @@ jobs:
         uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          cache-read-only: ${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/heads/mc/') }}
 
       - name: Run ${{ matrix.module }} tests with coverage
         if: needs.changes.outputs.code_changed == 'true'
@@ -279,6 +284,7 @@ jobs:
         uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          cache-read-only: ${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/heads/mc/') }}
 
       - name: Run ${{ matrix.loader }} game tests
         if: needs.changes.outputs.code_changed == 'true'
