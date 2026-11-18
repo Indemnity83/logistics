@@ -62,6 +62,7 @@
 			"com.logistics.gametest.automation.RedstoneControlGameTest",
 			"com.logistics.gametest.forestry.ArboretumGameTest",
 			"com.logistics.gametest.forestry.CropFarmGameTest",
+			"com.logistics.gametest.forestry.GourdFarmGameTest",
 			"com.logistics.gametest.forestry.HumusGameTest",
 			"com.logistics.gametest.network.NetworkIntegrationGameTest",
 			"com.logistics.gametest.network.CraftingProcessSatelliteGameTest",

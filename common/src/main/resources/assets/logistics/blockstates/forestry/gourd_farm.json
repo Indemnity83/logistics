@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "lamp=off": {
+      "model": "logistics:block/forestry/gourd_farm"
+    },
+    "lamp=red": {
+      "model": "logistics:block/forestry/gourd_farm_red"
+    },
+    "lamp=amber": {
+      "model": "logistics:block/forestry/gourd_farm_amber"
+    },
+    "lamp=green": {
+      "model": "logistics:block/forestry/gourd_farm_green"
+    }
+  }
+}
