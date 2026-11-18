@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
@@ -201,7 +202,7 @@ public final class MachineModels {
                     new Face(Direction.WEST, 0f, 8f, 16f, 16f, 0),
                     new Face(Direction.UP, 16f, 16f, 0f, 8f, 90),
                     new Face(Direction.DOWN, 16f, 16f, 0f, 8f, 90)))))),
-        Map.entry("fluid_pump_tube", new Model("fluid/fluid_pump_pipe", List.of(
+        Map.entry("fluid_pump_tube", new Model("automation/fluid_pump_pipe", List.of(
             new Element(4f, 0f, 4f, 12f, 16f, 12f, List.of(
                     new Face(Direction.NORTH, 0f, 0f, 8f, 16f, 0),
                     new Face(Direction.EAST, 0f, 0f, 8f, 16f, 0),
@@ -235,6 +236,11 @@ public final class MachineModels {
 
     public static Model get(String key) {
         return MODELS.get(key);
+    }
+
+    /** Every model key. */
+    static Set<String> keys() {
+        return MODELS.keySet();
     }
 
     private static final Map<String, BlockStateModel> MODEL_CACHE = new HashMap<>();
