@@ -21,6 +21,7 @@ import com.logistics.gametest.forestry.CropFarmGameTestRegistration;
 import com.logistics.gametest.forestry.HumusGameTestRegistration;
 import com.logistics.gametest.forestry.NetherWartFarmGameTestRegistration;
 import com.logistics.gametest.forestry.OrchardGameTestRegistration;
+import com.logistics.gametest.forestry.PlantationGameTestRegistration;
 import com.logistics.gametest.forestry.TreeFellerGameTestRegistration;
 import com.logistics.gametest.network.CraftingProcessSatelliteGameTestRegistration;
 import com.logistics.gametest.network.NetworkIntegrationGameTestRegistration;
@@ -93,6 +94,7 @@ public final class LogisticsGameTestMod {
 
         ArboretumGameTestRegistration.bootstrap();
         CropFarmGameTestRegistration.bootstrap();
+        PlantationGameTestRegistration.bootstrap();
         HumusGameTestRegistration.bootstrap();
         NetherWartFarmGameTestRegistration.bootstrap();
         OrchardGameTestRegistration.bootstrap();
