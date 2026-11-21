@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.8.14](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.13...mc26.2-v0.8.14) (2026-11-18)
+
+
+### Added
+
+* **farming:** add the Cocoa Plantation for jungle-log cocoa ([#1628](https://github.com/Indemnity83/logistics/issues/1628)) ([1b9a8ae](https://github.com/Indemnity83/logistics/commit/1b9a8aee2ba810e14f0c7b4239d6ff5b0a78f80a))
+* **farming:** add the Gourd Farm for pumpkins and melons ([#1627](https://github.com/Indemnity83/logistics/issues/1627)) ([78350cb](https://github.com/Indemnity83/logistics/commit/78350cb148b40e5031e9a9edee353915ae1ae56b))
+* **farming:** add the Nether Wart Farm for soul sand fields ([#1626](https://github.com/Indemnity83/logistics/issues/1626)) ([2ec7e52](https://github.com/Indemnity83/logistics/commit/2ec7e520d47bc42ef25050cf9816760f4414c05c))
+* **farming:** add the Orchard for apples from living trees ([#1630](https://github.com/Indemnity83/logistics/issues/1630)) ([ab581c4](https://github.com/Indemnity83/logistics/commit/ab581c45e3e481506353ecc7845f76850cff65cd))
+* **farming:** add the Plantation for cane, bamboo and cactus ([#1629](https://github.com/Indemnity83/logistics/issues/1629)) ([9549347](https://github.com/Indemnity83/logistics/commit/9549347d9c8341e18187b0c98836175ac9c0b886))
+
+
+### Removed
+
+* **core:** drop the unused Silicon Mix and Silicon Wafer ([#1651](https://github.com/Indemnity83/logistics/issues/1651)) ([b880e5a](https://github.com/Indemnity83/logistics/commit/b880e5aaf9343ee9f610c5c5d3f964ae58f43e63))
+
+
+### Fixed
+
+* **energy:** show engine heat stages by the same name everywhere ([#1652](https://github.com/Indemnity83/logistics/issues/1652)) ([fd73ccf](https://github.com/Indemnity83/logistics/commit/fd73ccf7597bd64e2295567aef7a643e97d45621))
+* **pump:** show the Fluid Pump duct's texture ([#1646](https://github.com/Indemnity83/logistics/issues/1646)) ([8774c6e](https://github.com/Indemnity83/logistics/commit/8774c6ef31fa446dfeb46d12e5dca32c52a883ea))
+* **pump:** stop the Fluid Pump model's missing-texture warning ([#1660](https://github.com/Indemnity83/logistics/issues/1660)) ([05a74bd](https://github.com/Indemnity83/logistics/commit/05a74bdcff948ade54b09bfdedb9371ad66aaaee))
+
 ## [0.8.13](https://github.com/Indemnity83/logistics/compare/mc26.2-v0.8.12...mc26.2-v0.8.13) (2026-11-18)
 
 
