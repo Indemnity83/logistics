@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.8.14](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.13...mc1.21.11-v0.8.14) (2026-11-18)
+
+
+### Added
+
+* **farming:** add the Cocoa Plantation for jungle-log cocoa ([#1628](https://github.com/Indemnity83/logistics/issues/1628)) ([4a8758c](https://github.com/Indemnity83/logistics/commit/4a8758c918572f8ea9a0cb056b6b2319c0d56b7c))
+* **farming:** add the Gourd Farm for pumpkins and melons ([#1627](https://github.com/Indemnity83/logistics/issues/1627)) ([e5fbabd](https://github.com/Indemnity83/logistics/commit/e5fbabdcc3a483857a2c24ebf66ef8fc59666507))
+* **farming:** add the Nether Wart Farm for soul sand fields ([#1626](https://github.com/Indemnity83/logistics/issues/1626)) ([a9b18ea](https://github.com/Indemnity83/logistics/commit/a9b18ea13a0dea2353faf155e23eb4158781c815))
+* **farming:** add the Orchard for apples from living trees ([#1630](https://github.com/Indemnity83/logistics/issues/1630)) ([97d0163](https://github.com/Indemnity83/logistics/commit/97d0163b4c3a4a070f8a459864c36d948e614594))
+* **farming:** add the Plantation for cane, bamboo and cactus ([#1629](https://github.com/Indemnity83/logistics/issues/1629)) ([3a52278](https://github.com/Indemnity83/logistics/commit/3a5227813d6cd5b2c3aa4b260d7b8e2a660aa292))
+
+
+### Removed
+
+* **core:** drop the unused Silicon Mix and Silicon Wafer ([#1651](https://github.com/Indemnity83/logistics/issues/1651)) ([7fa0944](https://github.com/Indemnity83/logistics/commit/7fa0944490072510c10a6fb185f02b5c47038f99))
+
+
+### Fixed
+
+* **energy:** show engine heat stages by the same name everywhere ([#1652](https://github.com/Indemnity83/logistics/issues/1652)) ([cac610d](https://github.com/Indemnity83/logistics/commit/cac610dcd2898b6f81035c91f73a2927bc61602c))
+* **energy:** show the Redstone Engine core's texture ([#1647](https://github.com/Indemnity83/logistics/issues/1647)) ([bfbbe41](https://github.com/Indemnity83/logistics/commit/bfbbe417d1a3fa9dbba895e42162eed5034d1c4d))
+* **pump:** show the Fluid Pump duct's texture ([#1646](https://github.com/Indemnity83/logistics/issues/1646)) ([fbd9933](https://github.com/Indemnity83/logistics/commit/fbd99335865b90dacbf5e84cf9702fc185ee1989))
+* **pump:** stop the Fluid Pump model's missing-texture warning ([#1660](https://github.com/Indemnity83/logistics/issues/1660)) ([be4f44f](https://github.com/Indemnity83/logistics/commit/be4f44ff91574d6d34741bdfa94b7b05fe702eaa))
+
 ## [0.8.13](https://github.com/Indemnity83/logistics/compare/mc1.21.11-v0.8.12...mc1.21.11-v0.8.13) (2026-11-18)
 
 
